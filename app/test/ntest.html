@@ -1,0 +1,163 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<script id="j$vm" src="../../jsvm/jsre.js" 
+        -Dj$vm_ajax_timeout=600000
+        -Dj$vm_ajax_nocache=
+        classpath="">
+</script>
+
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<style>
+body{
+    margin:0px;
+    padding:0px;
+    border: 0px none black;
+    overflow: hidden;
+}
+
+.jsvm_shadow {
+  background-color: #000000;
+
+  filter: "alpha(Opacity = 30)";
+  -moz-opacity: 0.3;
+  -webkit-opacity: 0.3;
+
+  -webkit-box-shadow: 2px 2px 2px #000000;
+  -moz-box-shadow: 2px 2px 2px #000000;
+  filter: progid:DXImageTransform.Microsoft.Shadow(Color=#000000,Direction=45,Strength=3);
+  filter: progid:DXImageTransform.Microsoft.DropShadow(OffX=2, OffY=2, Color=#000000, Positive=true);
+
+}
+
+.outerDiv_0 {
+    position:absolute;
+    border: 5px solid blue;
+    padding: 3px;
+    margin: 3px;
+    overflow: hidden;
+    background-color:#FFFFFF;
+}
+
+.outerDiv_cover {
+    filter: alpha(Opacity = 30);
+    -moz-opacity: 0.3;
+    opacity: 0.3;
+    background-color: #C0C0C0;
+}
+
+.loading {
+    background-repeat:no-repeat;
+    background-position:center;
+    background-image: url(../../images/default/loading.gif);
+}
+
+.innerDiv1_0 {
+   position:absolute;
+   background-color:#880000;
+}
+
+.innerDiv1_cover {
+    filter: alpha(Opacity = 30);
+    -moz-opacity: 0.3;
+    opacity: 0.3;
+    background-color: #C0C0C0;
+}
+
+.innerDiv2_0 {
+    background-color:#008800;
+}
+
+.innerDiv2_cover {
+    filter: alpha(Opacity = 30);
+    -moz-opacity: 0.3;
+    opacity: 0.3;
+    background-color: #C0C0C0;
+}
+
+.innerDiv3_0 {
+    background-color:#000088;
+}
+
+.innerDiv3_cover {
+    filter: alpha(Opacity = 30);
+    -moz-opacity: 0.3;
+    opacity: 0.3;
+    background-color: #C0C0C0;
+}
+
+</style>
+<script type="text/javascript">
+
+
+J$VM.exec(null, function(scope){
+    var System = J$VM.System;
+
+    var outerDef = {
+        classType: "js.awt.Container",
+        id: "outerDiv",
+        className: "outerDiv",
+        width: 300, height: 300,
+        x: 100, y: 50,
+        resizer : 0xFF, resizable:true,
+        mover :{mode:2, delay:150, tolerant:50}, movable:true,
+        zorder : true,
+        shadow : true,
+        layout: {
+            classType: "js.awt.LayoutManager",
+            setting:{},
+            status:{}
+        },
+
+        components:["innerDiv1", "innerDiv2", "innerDiv3"],
+
+        innerDiv1:{
+            classType: "js.awt.Component",
+            id: "innerDiv1",
+            className :"innerDiv1",
+            width: 80, height: 80,
+            x: 10, y: 10,
+            resizer : 0x0FF, resizable:true,
+            mover :{mode:2, delay:150, tolerant:10}, movable:true
+        },
+
+        innerDiv2:{
+            classType: "js.awt.Component",
+            id: "innerDiv2",
+            className :"innerDiv2",
+            css:"position:absolute;border:1px solid green;",
+            width: 80, height: 80,
+            x: 100, y: 100,
+            resizer : 0x0FF, resizable:true,
+            mover :{mode:2, delay:150, tolerant:10}, movable:true
+        },
+
+        innerDiv3:{
+            classType: "js.awt.Component",
+            id: "innerDiv3",
+            className :"innerDiv3",
+            css:"position:absolute;border:1px solid blue;",
+            width: 80, height: 80,
+            x: 100, y: 190,
+            resizer : 0x0FF, resizable:true,
+            mover :{mode:2, delay:150, tolerant:10}, movable:true,
+            alwaysOnTop:true
+        }
+
+    };
+
+
+
+});
+
+
+
+
+</script>
+
+</head>
+<body>
+</div>
+</body>
+</html>

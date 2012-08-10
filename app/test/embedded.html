@@ -1,0 +1,13 @@
+<script type="text/javascript">
+  System.err.println(this);
+  System.err.println(this.gadget);
+  System.err.println(this == this.gadget);
+  System.err.println(this == this.gadget.scope);
+
+  this._doOnClick = function(){
+      System.err.println(js.lang.Math.uuid());
+  };
+</script>
+<div id="content">
+  <input type="button" value="test" onclick="this._doOnClick(e)"></input>
+</div>

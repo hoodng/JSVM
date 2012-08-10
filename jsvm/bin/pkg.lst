@@ -1,0 +1,134 @@
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * Author: Hu Dong
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: http://jzvm.googlecode.com
+ */
+
+/*var tasks = */{
+    list: ["jsre", "jsreui"],
+
+    jsre: {
+        compress: false,
+
+        despath: "../",
+        name: "jsre.js",
+
+        srcpath: "../src/",
+        files: [
+            "js/jsvm.js",
+            "js/lang/Class.js",
+            "js/lang/Math.js",
+            "js/lang/Object.js",
+            "js/lang/String.js",
+            "js/lang/StringBuffer.js",
+            "js/util/LinkedList.js",
+            "js/util/HashMap.js",
+            "js/util/Properties.js",
+            "js/util/Observable.js",
+            "js/util/Observer.js",
+            "js/util/Event.js",
+            "js/util/EventListener.js",
+            "js/util/EventTarget.js",
+            "js/util/Messenger.js",
+            "js/util/Document.js",
+            "js/util/MemoryStorage.js",
+            "js/util/Storage.js",
+            "js/util/Cookie.js",
+            "js/util/CookieStorage.js",
+            "js/net/URI.js",
+            "js/net/HttpURLConnection.js",
+            "js/awt/Event.js",
+            "js/lang/Runtime.js",
+            "js/lang/System.js",
+            "js/lang/Thread.js",
+            "js/boot.js",
+            "js/text/SimpleDateFormat.js"
+        ]
+    },
+
+    jsreui: {
+        compress: false,
+
+        despath: "../lib/",
+        name: "jsre-ui.js",
+
+        srcpath: "../src/",
+        files: [
+            "js/awt/ComponentFactory.js",
+            "js/awt/State.js",
+            "js/awt/Editable.js",
+            "js/awt/Cover.js",
+            "js/awt/Shadow.js",
+            "js/awt/Movable.js",
+            "js/awt/Resizable.js",
+            "js/awt/PopupLayer.js",
+            "js/awt/ZOrderManager.js",
+            "js/awt/LayoutManager.js",
+            "js/awt/AbstractLayout.js",
+            "js/awt/BorderLayout.js",
+            "js/awt/BoxLayout.js",
+            "js/awt/CardLayout.js",
+            "js/awt/FlowLayout.js",
+            "js/awt/GridLayout.js",
+            "js/awt/GridBagLayout.js",
+            "js/awt/BaseComponent.js",
+            "js/awt/Component.js",
+            "js/awt/Container.js",
+            "js/awt/HBox.js",
+            "js/awt/VBox.js",
+            "js/awt/ScrollPane.js",
+            "js/awt/TabPane.js",
+            "js/awt/Item.js",
+            "js/awt/Label.js",
+            "js/awt/Icon.js",
+            "js/awt/Button.js",
+            "js/awt/CheckBox.js",
+            "js/awt/RadioButton.js",
+            "js/awt/MenuItem.js",
+            "js/awt/Menu.js",
+            "js/awt/TreeItem.js",
+            "js/awt/Tree.js",
+            "js/awt/Frame.js",
+            "js/awt/IFrame.js",
+            "js/awt/VFrame.js",
+            "js/awt/LayerManager.js",
+            "js/awt/Desktop.js",
+            "js/awt/Window.js",
+            "js/awt/Dialog.js",
+            "js/awt/MessageBox.js"
+        ]        
+    }
+    
+}/*;*/
+

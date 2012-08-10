@@ -1,0 +1,133 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+
+<style>
+
+.panel,
+.panel_0 {
+    position: absolute;
+    left: 100px;
+    top: 100px;
+    width: 500px;
+    height:300px;
+    border: 2px solid red;
+    padding: 5px;
+    background-color: #FFFFFF;
+    overflow: auto;
+}
+
+.card1, .card2, .card3,
+.card1_0, .card2_0, .card3_0 {
+   width: 120px;
+   height:60px;
+}
+
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+
+    this.prefer({theme: "default"});
+
+    var Panel = new js.awt.Container({
+        className: "panel",
+        id: "panel",
+        layout:{
+            classType: "js.awt.FlowLayout",
+            axis :0,
+            hgap: 3,
+            align_x:0.0
+        },
+        mover:{}, movable:true,
+        resizer:0xFF, resizable: true
+
+    },this);
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card1",
+        id:"card1",
+        css:"background-color:green;"
+    },this));
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card2",
+        id:"card2",
+        css:"background-color:blue;"
+    },this));
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card3",
+        id:"card3",
+        css:"background-color:yellow;"
+    },this));
+
+    this.addComponent(Panel);
+    
+    this.addComponent(new js.awt.Button({
+        id: "btFirst",
+        labelText:"Ax 0.0",
+        x: 10, y: 10
+    }, this));
+
+    this.addComponent(new js.awt.Button({
+        id: "btNext",
+        labelText:"Ay 0.0",
+        x: 100, y: 10
+    }, this));
+
+    this.addComponent(new js.awt.Button({
+        id: "btLast",
+        labelText:"M 0",
+        x: 190, y: 10
+    }, this));
+
+    var _first = function(){
+        var align = this.panel.layout.def.align_x;
+        align += 0.5;
+        if(align > 1){
+            align = 0.0;
+        }
+        this.panel.layout.def.align_x = align;
+        this.btFirst.setText("Ax "+this.panel.layout.def.align_x);
+        this.panel.layoutComponents();
+    };
+
+    var _next = function(){
+        var align = this.panel.layout.def.align_y;
+        align += 0.5;
+        if(align > 1){
+            align = 0.0;
+        }
+        this.panel.layout.def.align_y = align;
+        this.btNext.setText("Ay "+this.panel.layout.def.align_y);
+        this.panel.layoutComponents();
+    };
+
+    var _last = function(){
+        var axis = this.panel.layout.def.axis;
+        if(axis == 0){
+            this.panel.layout.def.axis = 1;
+        }else{
+            this.panel.layout.def.axis = 0;
+        }
+        this.btLast.setText("M "+this.panel.layout.def.axis);
+        this.panel.layoutComponents();
+    };
+
+    this.btFirst.attachEvent("click", 0, this, _first);
+    this.btNext.attachEvent("click", 0, this, _next);
+    this.btLast.attachEvent("click", 0, this, _last);
+
+});
+</script>
+</html>

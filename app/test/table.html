@@ -1,0 +1,80 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<script src="../../jsvm/src/js/awt/Table.js" ></script>
+<style>
+
+.block {
+    border-width: 5px;
+    border-style: solid;
+}
+
+.jsvm_table, .jsvm_table_0 {
+    width: 350px;
+    height:350px;
+
+    border-style: solid;
+    border-color: red;
+    border-width: 2px 1px 1px 2px;
+
+    border-spacing: 0px;
+}
+
+.jsvm_table_row, .jsvm_table_row_0{
+}
+
+.jsvm_table_cell, .jsvm_table_cell_0{
+    border-style: solid;
+    border-color: red;
+    border-width: 0px 1px 1px 0px;
+}
+
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+
+    this.prefer({theme: "default"});
+
+    var panel =  new js.awt.Table({
+        stateless: true,
+        css: "position:absolute;",
+         
+
+            rowNum: 3,
+            colNum: 3,
+            rows:[
+                {index:0, rigid:false, visible:true},
+                {index:1, rigid:false, visible:false},
+                {index:2, rigid:false, visible:true}
+            ],
+            cols:[
+                {index:0, rigid:false, visible:true},
+                {index:1, rigid:false, visible:false},
+                {index:2, rigid:false, visible:true}
+            ],
+            cells:[
+                {rowIndex:0, colIndex:0, rowSpan:2},
+                {rowIndex:0, colIndex:1, colSpan:2},
+                {rowIndex:1, colIndex:2, rowSpan:2},
+                {rowIndex:2, colIndex:0, colSpan:2},
+            ],
+        movable: true,
+        resizable: true
+
+    },this);
+
+    this.addComponent(panel);
+
+});
+</script>
+</html>

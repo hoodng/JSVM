@@ -1,0 +1,147 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<script src="../../jsvm/src/js/awt/Grid.js" ></script>
+<style>
+
+.panel {
+    width: 350px;
+    height:350px;
+    border: 1px solid red;
+    padding: 5px;
+}
+
+.block {
+    border-width: 5px;
+    border-style: solid;
+}
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+
+    this.prefer({theme: "default"});
+
+    var panel =  new js.awt.Container({
+        className: "panel",
+        stateless: true,
+        css: "position:absolute;",
+         
+        layout:{
+            classType: "js.awt.GridLayout",
+            rowNum: 3,
+            colNum: 3,
+            rows:[
+            ],
+            cols:[
+                {index:0, rigid:false, weight:0.45},
+                {index:1, rigid:true, measure:100},
+                {index:2, rigid:false, weight:0.55}
+            ],
+            cells:[
+                {rowIndex:0, colIndex:0, rowSpan:2, colSpan:1},
+                {rowIndex:0, colIndex:1, colSpan:2},
+                {rowIndex:1, colIndex:2, rowSpan:2},
+                {rowIndex:2, colIndex:0, colSpan:2}
+            ]
+        },
+        movable: true,
+        resizable: true
+        
+    },this);
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:blue;",
+        constraints:{rowIndex: 0, colIndex: 0}   
+    },this));
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:green;",
+        constraints:{rowIndex: 0, colIndex: 1}   
+    },this));
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:gray;",
+        constraints:{rowIndex: 0, colIndex: 2}   
+    },this));
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:gray;",
+        constraints:{rowIndex: 1, colIndex: 0}   
+    },this));
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:blue;",
+        constraints:{rowIndex: 1, colIndex: 1}   
+    },this));
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:green;",
+        constraints:{rowIndex: 1, colIndex: 2}   
+    },this));
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:blue;",
+        constraints:{rowIndex: 2, colIndex: 0}   
+    },this));
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:green;",
+        constraints:{rowIndex: 2, colIndex: 1}   
+    },this));
+
+    panel.addComponent(new js.awt.Component({
+        className: "block",
+        stateless: true,
+        rigid_w: false,
+        rigid_h: false,
+        css: "border-color:gray;",
+        constraints:{rowIndex: 2, colIndex: 2}   
+    },this));
+
+    this.addComponent(panel);
+
+});
+</script>
+</html>

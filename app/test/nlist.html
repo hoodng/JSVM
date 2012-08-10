@@ -1,0 +1,111 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<style>
+		.container {
+			width: 600px;
+			position: relative;
+		}
+		
+		.label {
+			width: 100%;
+			height: 20px;
+			
+			display: block;
+			position: relative;
+		}
+		
+		.separator {
+			width: 100%;
+			height: 20px;
+			
+			position: relative;
+			border-top: 2px dashed #EEEEEE;
+		}
+	</style>
+	
+    <script id="j$vm" src="../../jsvm/jsre.js" 
+            -Dj$vm_ajax_timeout=600000
+            -Dj$vm_ajax_nocache=true 
+            classpath=""
+            >
+    </script>
+	<script id="j$vm" src="../../jsvm/lib/jsre-ui.js" ></script>
+
+    <script type="text/javascript">
+      J$VM.exec(null, function(scope){
+      	  var container = document.getElementById("msgContainer");
+      
+          var _createLabel = function(text) {
+              var label = J$VM.DOM.createElement("span");
+      	      label.className = "label";
+      	      label.innerHTML = text || "";
+      	      
+      	      container.appendChild(label);
+          };
+          
+          var _showSeparator = function(){
+          	  var separator = J$VM.DOM.createElement("div");
+      	      separator.className = "separator";
+      	      
+      	      container.appendChild(separator);
+          };
+          
+          var _show = function(text){
+              _createLabel.$bind(this)(text);
+          };
+          
+      	  var _showList = function(list){
+      	  	  var len = list.length;
+      	  	  _show.$bind(this)("Length: " + len );
+      	  	  _show.$bind(this)(window.JSON ? JSON.stringify(list) : "No native JSON.");
+      	  	  
+			  for(var i = 0; i < 4; i++){
+			      _show.$bind(this)("The " + i + "th" + " item: " + list.get(i));
+			  }
+      	  };
+
+          _show.$bind(this)("<h3>Test LinkedList without \"X-UA-Compatible IE=edge\":</h3>" );
+          _showSeparator.$bind(this)();
+
+      	  // Initialize
+      	  var items = ["item1", "item2", "item3", "item4"];
+      	  _show.$bind(this)("Initialize LinkedList with [" + items.join(", ") + "]:");
+          
+          //var list = new js.util.LinkedList();
+          var list = js.util.LinkedList.newInstance([]);
+          list.push(items[0]).push(items[1]).push(items[2]).push(items[3]);
+          _showList.$bind(this)(list);
+          _showSeparator.$bind(this)();
+          
+          // Remove the 0th item
+          _show.$bind(this)("Removed the 0th item:" );
+          list.remove0(0);
+          _showList.$bind(this)(list);
+         _showSeparator.$bind(this)();
+          
+          // Remove the 2nd item
+          _show.$bind(this)("Removed the 2nd item:" );
+          list.remove0(2);
+          _showList.$bind(this)(list);
+         _showSeparator.$bind(this)();
+                   
+          // Add item5
+          _show.$bind(this)("Added the item5:" );
+          list.addLast("item5");
+          _showList.$bind(this)(list);
+          _showSeparator.$bind(this)();
+          
+          
+          // Clear LinkedList
+          _show.$bind(this)("Clear LinkedList:" );
+          list.clear();
+          _showList.$bind(this)(list);
+      });
+    </script>
+
+  </head>
+  <body>
+  <div id="msgContainer" class="container"></div>
+  </body>
+</html>

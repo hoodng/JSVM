@@ -1,0 +1,86 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+
+<style>
+
+.bt, 
+.bt_0, .bt_1{
+   width: 60px;
+   height: 30px;
+   background-color: #FFFFFF;
+   border: 1px solid blue;
+}
+
+
+.bt_label {
+  height: 16px;
+  line-height: 16px;
+}
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+
+
+    this.prefer({theme: "default"});
+
+    var button = new js.awt.Button({
+        iconImage: "bold.gif",
+        labelText: "Base Component Labrary",
+        x: 10, y: 10,
+        effect: true
+    }, this);
+
+    // Method 1:
+    //button.appendTo(this.view);
+    
+    // Mehtod 2:
+    //this.view.appendChild(button.view);
+    //button.doLayout();
+
+    // Method 3:
+    this.addComponent(button);
+
+    var checkbox = new js.awt.CheckBox({
+        labelText: "CheckBox",
+        x:10, y:40
+    }, this);
+
+    this.addComponent(checkbox);
+
+
+    var radio0 = new js.awt.RadioButton({
+        labelText: "Radio0",
+        x:10, y:60,
+        group: "group1"
+    }, this);
+
+    var radio1 = new js.awt.RadioButton({
+        labelText: "Radio1",
+        x:220, y:60,
+        group: "group1"
+    }, this);
+
+    var radio2 = new js.awt.RadioButton({
+        labelText: "Radio2",
+        x:10, y:100,
+        group: "group2"
+    }, this);
+
+    this.addComponent(radio0);
+    this.addComponent(radio1);
+    this.addComponent(radio2);
+
+});
+</script>
+</html>
