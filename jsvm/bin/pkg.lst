@@ -39,7 +39,7 @@
     list: ["jsre", "jsreui"],
 
     jsre: {
-        compress: false,
+        compress: true,
 
         despath: "../",
         name: "jsre.js",
@@ -78,7 +78,7 @@
     },
 
     jsreui: {
-        compress: false,
+        compress: true,
 
         despath: "../lib/",
         name: "jsre-ui.js",
