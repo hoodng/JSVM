@@ -12,14 +12,14 @@ Here is this project page http://jsvm.github.com/JSVM/app/test/index.html
 
 and some test case pages:
 
-                          http://jsvm.github.com/JSVM/app/test/slider.html
+a) http://jsvm.github.com/JSVM/app/test/slider.html
 
-                          http://jsvm.github.com/JSVM/app/test/tree.html
+b) http://jsvm.github.com/JSVM/app/test/tree.html
 
-                          http://jsvm.github.com/JSVM/app/test/box.html
+c) http://jsvm.github.com/JSVM/app/test/box.html
 
-                          http://jsvm.github.com/JSVM/app/test/spinner.html
+d) http://jsvm.github.com/JSVM/app/test/spinner.html
 
-                          http://jsvm.github.com/JSVM/app/test/scroll.html
+e) http://jsvm.github.com/JSVM/app/test/scroll.html
 
-                          http://jsvm.github.com/JSVM/app/test/tabpane.html
+f) http://jsvm.github.com/JSVM/app/test/tabpane.html
