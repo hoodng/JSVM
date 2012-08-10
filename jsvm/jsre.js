@@ -40,7 +40,7 @@
  */
 J$VM = new function (){
     this.__product__ = "J$VM";
-    this.__version__ = "0.9.s36df1506c0c2f7bb";
+    this.__version__ = "0.9.s6854bbdcbeaece45";
 
     this.env = {
         j$vm_log: false,
@@ -3391,7 +3391,7 @@ js.util.Document = function (){
 				// IE will remove comments from the beginning unless 
 				// place the contents with something.
 				el.innerHTML = "<br />" + html;
-				el.removeChild(e.firstChild);
+				el.removeChild(el.firstChild);
 			} catch (e) {
 				// IE sometimes produce an unknown runtime error on innerHTML 
 				// if it's an block element within a block element.
