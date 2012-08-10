@@ -1,0 +1,1 @@
+$package("js.util");js.util.Observer = function () {var CLASS = js.util.Observer, thi$ = CLASS.prototype;if (CLASS.__defined__) {return;}CLASS.__defined__ = true;thi$.update = function (observable, data) {};};

@@ -1,0 +1,127 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+
+<style>
+
+.panel,
+.panel_0 {
+    position: absolute;
+    left: 100px;
+    top: 100px;
+    width: 500px;
+    height:300px;
+    border: 2px solid red;
+    padding: 5px;
+    background-color: #FFFFFF;
+    overflow: hidden;
+}
+
+.card1, .card2, .card3, .card4, .card5,
+.card1_0, .card2_0, .card3_0, .card4_0, .card5_0 {
+   width: 40px;
+   height:40px;
+}
+
+.card1,
+.card1_0 {
+    border: 2px solid blue; 
+}
+
+.card2,
+.card2_0 {
+    border: 2px solid blue; 
+}
+
+.card3,
+.card3_0 {
+    border: 2px solid green; 
+}
+
+.card4,
+.card4_0 {
+    border: 2px solid green; 
+}
+
+.card5,
+.card5_0 {
+    border: 2px solid red; 
+}
+
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+
+    this.prefer({theme: "default"});
+
+    var Panel = new js.awt.Container({
+        className: "panel",
+        id: "panel",
+        layout:{
+            classType: "js.awt.BorderLayout",
+            mode: 0,
+            hgap: 3,
+            vgap: 3
+        },
+        mover:{}, movable:true,
+        resizer:0xFF, resizable: true
+
+    },this);
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card1",
+        id:"card1"
+    },this), "north");
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card2",
+        id:"card2"
+    },this), "south");
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card3",
+        id:"card3"
+    },this),"west");
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card4",
+        id:"card4"
+    },this), "east");
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card5",
+        id:"card5"
+    },this), "center");
+
+    this.addComponent(Panel);
+    
+    this.addComponent(new js.awt.Button({
+        id: "btFirst",
+        items:["label"],
+        labelText:"M 0",
+        x: 10, y: 10
+    }, this));
+
+    var _first = function(){
+        var mode = this.panel.layout.def.mode;
+        mode = mode == 0 ? 1 :0;
+        this.panel.layout.def.mode = mode;
+        this.btFirst.setText("M "+this.panel.layout.def.mode);
+        this.panel.layoutComponents();
+    };
+
+    this.btFirst.attachEvent("click", 0, this, _first);
+
+});
+</script>
+</html>

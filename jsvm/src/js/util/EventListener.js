@@ -1,0 +1,95 @@
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * Author: Hu Dong
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: http://jzvm.googlecode.com
+ */
+
+$package("js.util");
+
+js.util.EventListener = function (listener, handler){
+
+    var CLASS = js.util.EventListener, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init(listener, handler);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    thi$.handleEvent = function(){
+        if(typeof this.handler === "function"){
+            this.handler.apply(this.listener, arguments);
+        }
+    };
+
+    thi$.equals = function(o){
+        return o ?
+            (o.listener === this.listener &&
+             o.handler === this.handler) : false;
+    };
+    
+    thi$._init = function(l, h){
+        if(typeof l == "object" && typeof h == "function"){
+
+            this.listener = l;
+            this.handler  = h;
+            
+            if(typeof l.uuid != "function"){
+                var o = this.listener;
+
+                o.hashCode = function(){
+                    if(!this._hash){
+                        this._hash = js.lang.Math.random(new Date().getTime());
+                    }
+                    return this._hash;
+                };
+
+                o.uuid = function(id){
+                    if(arguments.length > 0){
+                        this._uuid = id;         
+                    }else if(!this._uuid){
+                        this._uuid = js.lang.Math.uuid(this.hashCode());
+                    }
+
+                    return this._uuid;
+                };
+            }
+
+            this.uuid(l.uuid());
+        }
+    };
+    
+    this._init(listener, handler);
+    
+}.$extend(js.lang.Object);
+

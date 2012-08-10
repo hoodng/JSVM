@@ -1,0 +1,1 @@
+$package("js.awt");js.awt.Editable = function () {var CLASS = js.awt.Editable, thi$ = CLASS.prototype;if (CLASS.__defined__) {return;}thi$.getProperties = function (category) {return {};};thi$.apply = function (category, properties) {};};

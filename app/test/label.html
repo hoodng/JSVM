@@ -1,0 +1,76 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<style>
+
+.pane {
+    position: absolute;
+    left:0px;
+    top: 0px;
+    width: 100%;
+    height:100%;
+    padding: 5px;
+    border: 2px solid red;
+    overflow: auto;
+}
+
+.simple {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    width: 307px;
+    height: 211px;
+    border: 2px solid blue;
+    padding: 3px;
+    /*margin: 7px;*/
+}
+
+.simple_movecover {
+   background-color: gray;
+}
+
+.jsvm_label, .jsvm_label_0{
+    position: absolute;
+    font-size: 24;
+}
+
+</style>
+</head>
+<body>
+
+
+</body>
+
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+
+    this.prefer({theme: "default"});
+
+    var pane = new js.awt.Container({
+        className: "pane",
+        stateless: true
+    });
+
+
+    pane.doLayout = function(force){
+        if(this.isDOMElement()){
+            var bounds = this.container.getBounds();
+            this.setSize(bounds.innerWidth, bounds.innerHeight, 0x04);  
+            this.layoutComponents();
+        }
+    }.$override(pane.doLayout);
+
+    pane.addComponent(new js.awt.Label({
+        editable: true
+    }, this));
+    this.addComponent(pane);
+
+});
+</script>
+</html>

@@ -1,0 +1,145 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<style>
+
+.pane {
+    position: absolute;
+    left:0px;
+    top: 0px;
+    overflow: auto;
+    width: 640px;
+    height:480px;
+    border: 2px solid green;
+}
+
+.pane1 {
+    position: relative;
+    left:0px;
+    top: 0px;
+    padding: 5px;
+    border: 2px solid red;
+    overflow-x: visible;
+    overflow-y: hidden;
+    width: 100%;
+    height:80px;
+}
+
+.pane2 {
+    position: relative;
+    left:0px;
+    top: 0px;
+    padding: 5px;
+    border: 2px solid blue;
+    overflow: visible;
+    width: 100%;
+    height:400px;
+}
+
+
+.simple {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    width: 50px;
+    height: 50px;
+    border: 2px solid blue;
+    padding: 3px;
+    /*margin: 7px;*/
+}
+
+.simple_movecover {
+   border: 2px; solid gray;
+   background-color: gray;
+}
+
+</style>
+</head>
+<body>
+
+
+</body>
+
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+
+    this.prefer({theme: "default"});
+
+    var pane = new js.awt.Container({
+        className: "pane",
+        stateless: true
+    });
+
+    var pane1 = new js.awt.Container({
+        className: "pane1",
+        id: "pane1",
+        stateless: true,
+        autofit: true,
+        rigid_w: false,
+        rigid_h: true
+    });
+
+    pane.addComponent(pane1);
+
+    var pane2 = new js.awt.Container({
+        className: "pane2",
+        id: "pane2",
+        stateless: true,
+        autofit: true,
+        rigid_w: false,
+        rigid_h: false
+    });
+
+    pane.addComponent(pane2);
+
+    pane.doLayout = function(force){
+        if(this.isDOMElement()){
+            this.view.style.overflow= "hidden";
+            var bounds = this.container.getBounds();
+            this.setSize(bounds.innerWidth, bounds.innerHeight, 0x04);
+            
+            var D = this.getBounds();
+            var prefer1 = pane1.getPreferredSize(true);
+            var prefer2 = pane2.getPreferredSize(true);
+            var w = Math.max(D.innerWidth, prefer1.width, prefer2.width);
+            var h = Math.max(D.innerHeight - prefer1.height, prefer2.height);
+            pane1.setSize(w, prefer1.height, 0x03);
+            pane2.setSize(w, h, 0x03);
+
+            this.view.style.overflow= "auto";
+        }
+    }.$override(pane.doLayout);
+    
+
+    var simple1 = new js.awt.Component({
+                  className:"simple", 
+                  stateless:true, 
+                  movable:true,
+                  resizable: true
+                  }, this);
+
+    pane1.addComponent(simple1);
+
+    var simple2 = new js.awt.Container({
+                  className:"simple", 
+                  stateless:true, 
+                  movable:true,
+                  resizable: true
+                  }, this);
+
+    pane2.addComponent(simple2);
+
+    var win1 = new js.awt.Window({css:"position:absolute;"}, this.Runtime());
+    pane2.addComponent(win1);
+
+    this.addComponent(pane);
+
+});
+</script>
+</html>
