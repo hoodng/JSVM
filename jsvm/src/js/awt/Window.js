@@ -454,7 +454,7 @@ js.awt.Window = function (def, Runtime, view){
         if(def == undefined) return;
         
         var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
-        newDef.css = (def.css || "") + "position:absolute;overflow:hidden;";
+        newDef.css = def.css || "";
         var titleDef = newDef.title;
         titleDef.className = titleDef.className || newDef.className + "_title";
         (function(name){
@@ -473,7 +473,11 @@ js.awt.Window = function (def, Runtime, view){
 
         System.objectCopy(newDef, def, true, true);
         arguments.callee.__super__.apply(this, arguments);
-        
+        System.err.println(this.def.css);
+        view = this.view;
+        view.style.position = "absolute";
+        view.style.overflow = "hidden";
+
         var uuid = this.uuid();
         // For MoverSpot testing
         var restricted = this._local.restricted = js.util.LinkedList.$decorate([]);
