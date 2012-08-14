@@ -70,8 +70,12 @@ js.awt.Item = function(def, Runtime, view){
             width;
             
             if(ele0.tagName == "SPAN"){
+                ele0.style.width = "0px";
                 width = ele0.offsetLeft + ele0.scrollWidth;
             }else{
+                if(ele1.tagName == "SPAN"){
+                    ele1.style.width = "0px";
+                }
                 width = ele1.offsetLeft + ele1.scrollWidth;
                 width += G.ctrl.MBP.marginLeft + G.ctrl.width;
             }
