@@ -21,19 +21,19 @@ com.jinfonet.report.slider.SliderDataProvider = function(){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System, MQ = J$VM.MQ;
 
-    CLASS.INTERP_ARRAYINDEX = 0;// Each index
-    CLASS.INTREP_NUMBER = -1;   // array[0]+index*delta
-    CLASS.INTERP_YEAR = 1;      // Each year
-    CLASS.INTERP_HALFYEAR = 20; // Each half year
-    CLASS.INTERP_MONTH = 2;     // Each month
-    CLASS.INTERP_HALFMONTH= 21; // Half month
-    CLASS.INTERP_QUATER = 22;   // Each quater
-    CLASS.INTERP_BIWEEK = 23;   // Half week
-    CLASS.INTERP_WEEK = 24;     // Each week
-    CLASS.INTREP_DATE = 5;      // Each day (day of month)
-    CLASS.INTERP_HOUR = 10;     // Each hour
-    CLASS.INTERP_MINUTE = 12;   // Each minute
-    CLASS.INTERP_SECOND = 13;   // Each second
+    CLASS.INTERP_ARRAYINDEX = -1;// Each index
+    CLASS.INTERP_NUMBER = 0;     // array[0]+index*delta
+    CLASS.INTERP_YEAR = 1;       // Each year
+    CLASS.INTERP_HALFYEAR = 20;  // Each half year
+    CLASS.INTERP_MONTH = 2;      // Each month
+    CLASS.INTERP_HALFMONTH= 21;  // Half month
+    CLASS.INTERP_QUATER = 22;    // Each quater
+    CLASS.INTERP_BIWEEK = 23;    // Half week
+    CLASS.INTERP_WEEK = 24;      // Each week
+    CLASS.INTERP_DATE = 5;       // Each day (day of month)
+    CLASS.INTERP_HOUR = 10;      // Each hour
+    CLASS.INTERP_MINUTE = 12;    // Each minute
+    CLASS.INTERP_SECOND = 13;    // Each second
 
     CLASS.DELTA_INTEGER = 1;
     CLASS.DELTA_DECIMAL = 0.01;
@@ -86,7 +86,7 @@ com.jinfonet.report.slider.SliderDataProvider = function(){
  *     delta: 
  * }
  */
-com.jinfonet.report.slider.ArrayData = function(array, meta, Runtime){
+com.jinfonet.report.slider.ArrayData = function(a, m, Runtime){
 
     var CLASS = com.jinfonet.report.slider.ArrayData, 
     thi$ = CLASS.prototype;
@@ -132,13 +132,15 @@ com.jinfonet.report.slider.ArrayData = function(array, meta, Runtime){
     thi$.getValueByIndex = function(index){
         var array = this.array, count = this.count, 
         meta = this.meta, ret;
-        
+
+        if(index < 0 || index >= count) return undefined;
+
         switch(meta.interp){
         case SUPER.INTERP_ARRAYINDEX:
-            ret = index == 0 ? "All" : array[index-1];
+            ret = index == 0 ? "All" : array[index];
             break;
         case SUPER.INTERP_NUMBER:
-            ret = index == 0 ? "All" : array[index-1] + meta.delta*(index-1);
+            ret = array[0] + meta.delta*index;
             break;
         case SUPER.INTERP_YEAR:
         case SUPER.INTERP_HALFYEAR:
@@ -166,16 +168,23 @@ com.jinfonet.report.slider.ArrayData = function(array, meta, Runtime){
      */
     thi$.getDispValueByIndex = function(index){
         var array = this.array, count = this.count, 
-        meta = this.meta, formatter = this.formatter, ret;
+        meta = this.meta, formatter = this.formatter, ret, fv;
+
+        if(index < 0 || index >= count) return undefined;
         
         switch(meta.interp){
         case SUPER.INTERP_ARRAYINDEX:
-            ret = index == 0 ? "All" : 
-                formatter.format(array[index-1]);            
+            ret = array[index];
+            fv = ret.$fv;
+            if(fv == undefined){
+                fv = index == 0 ? ret : 
+                    formatter.format(ret);
+                ret.$fv = fv;
+            }
+            ret = fv;
             break;
         case SUPER.INTERP_NUMBER:
-            ret = index == 0 ? "All" : 
-                formatter.format(array[index-1] + meta.delta*(index-1));
+            ret = formatter.format(array[0] + meta.delta*index);
             break;
         case SUPER.INTERP_YEAR:
         case SUPER.INTERP_HALFYEAR:
@@ -198,13 +207,10 @@ com.jinfonet.report.slider.ArrayData = function(array, meta, Runtime){
     
     var _initialize = function(array, meta){
         var count;
-
-        this.array = array; 
-        this.meta = meta;
         
         switch(meta.interp){
         case SUPER.INTERP_ARRAYINDEX:
-            count = array.length + 1; // The first item keep for "ALL" value
+            count = array.length; // The first item keep for "ALL" value
             break;
         case SUPER.INTERP_NUMBER:
             count = (array[array.length-1] - array[0] + meta.delta)/meta.delta;
@@ -226,6 +232,8 @@ com.jinfonet.report.slider.ArrayData = function(array, meta, Runtime){
             throw "Unsupported interpolating function";
         }
 
+        this.array = array; 
+        this.meta = meta;
         this.formatter = _getFormater.call(this, meta);
         this.count = count;
     };
@@ -272,14 +280,14 @@ com.jinfonet.report.slider.ArrayData = function(array, meta, Runtime){
 
         meta = meta || {};
         meta.sql = Class.isNumber(meta.sql) ? meta.sql : SQL.VARCHAR;
-        meta.format = "";
+        meta.format = meta.format || "";
         meta.interp = Class.isNumber(meta.interp) ? 
             meta.interp : SUPER.INTERP_ARRAYINDEX;
         meta.delta = Class.isNumber(meta.delta) ? meta.delta : 
             (tools.sql2string(meta.sql) === tools.SQL_INTEGER ? 
              SUPER.DELTA_INTEGER : SUPER.DELTA_DECIMAL );
 
-        _initialize.call(this, array, meta);
+        _initialize.apply(this, [array, meta]);
 
     };
 

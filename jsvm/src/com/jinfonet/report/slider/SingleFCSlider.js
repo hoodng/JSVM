@@ -31,7 +31,7 @@ com.jinfonet.report.slider.SingleFCSlider = function(def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+    System = J$VM.System, MQ = J$VM.MQ, SQLTypes = Class.forName("js.sql.Types");
     
     /**
      * @see com.jinfonet.report.slider.Slider
@@ -43,16 +43,19 @@ com.jinfonet.report.slider.SingleFCSlider = function(def, Runtime){
 
         if(dataProvider){
             var meta = dataProvider.getMetaData(), sql = meta.sql;
-            if(Types.DATE == sql || 
-               Types.TIME == sql || 
-               Types.TIMESTAMP == sql){
+            if(SQLTypes.DATE == sql || 
+               SQLTypes.TIME == sql || 
+               SQLTypes.TIMESTAMP == sql){
 
                 showIcon = true;
             }
+            this.getPlaySlider().setDataCount(dataProvider.Count());
         }
         
         layout.grid.cols[0].visible = showIcon;
         this.icoRL.display(showIcon);
+
+        this.doLayout(true);
 
     }.$override(this.setDataProvider);
 
@@ -187,11 +190,11 @@ com.jinfonet.report.slider.SingleFCSlider = function(def, Runtime){
         def.classType = "com.jinfonet.report.slider.SingleFCSlider";
         def.className = def.className || "singleFC";
         def.stateless = true;
-        def.height = 60;
+        def.height = 50;
         def.rigid_w = false;
         def.miniSize = {
             width: 250,
-            height:60
+            height:50
         };
         def.layout = {
             classType: "js.awt.GridLayout",
