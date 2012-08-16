@@ -73,6 +73,10 @@ js.awt.Spinner = function(def, Runtime){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System, MQ = J$VM.MQ;
     
+    thi$.getMsgType = function(){
+        return "js.awt.event.SpinnerEvent";
+    };
+    
     thi$.setRange = function(lower, upper){
         var M = this.def;
 
@@ -97,6 +101,12 @@ js.awt.Spinner = function(def, Runtime){
 
         return {lower: M.lower, upper: M.upper};
     };
+    
+    thi$.setPos = function(index){
+        index = Class.isNumber(index) ? index : 0;
+        arguments.callee.__super__.call(this, index);
+
+    }.$override(this.setPos);
 
     thi$.getValue = function(){
         return this.def.lower + this.getPos();        
@@ -228,17 +238,27 @@ js.awt.Spinner = function(def, Runtime){
         }
         
         if(type){
-            this.notifyPeer(
-                "js.awt.event.SpinnerEvent", 
-                new Event(
-                    type, 
-                    {pos: p, 
-                     count: count}, 
-                    this), 
-                true);
-
             if(repeat !== false){
+                this.notifyPeer(
+                    this.getMsgType(),
+                    new Event(
+                        type, 
+                        {pos: p, 
+                         count: count}, 
+                        this),
+                    true);
+
                 this.timer = _incCounter.$delay(this, accel.repeat, ctrl);
+
+            }else{
+                this.notifyPeer(
+                    this.getMsgType(),
+                    new Event(
+                        "changed", 
+                        {pos: p, 
+                         count: count}, 
+                        this), 
+                    true);
             }
         }        
     };

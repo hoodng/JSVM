@@ -29,34 +29,58 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * Author: hudong@dong.hu@china,jinfonet.com
+ * Author: hoo@hoo-desktop
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
  * Source code availability: http://jzvm.googlecode.com
  */
 
-$package("js.awt");
+$package("js.text");
 
 /**
  * 
  */
-js.awt.TimePicker = function(){
+js.text.MinuteFormat = function(pattern, symbols){
 
-    var CLASS = js.awt.TimePicker, thi$ = CLASS.prototype;
+    var CLASS = js.text.MinuteFormat, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
     }
     CLASS.__defined__ = true;
+
+    /**
+     * Set format pattern
+     * 
+     * @param pattern pattern string
+     */    
+    thi$.setPattern = function(pattern){
+        this.pattern = pattern || "mm";
+    };
     
-    var Class = js.lang.Class, System = J$VM.System;
-    
-    thi$._init = function(def, Runtime){
-        if(def == undefined) return;
-        
-        
+    /**
+     * Return a formatted string of a specified value
+     * 
+     * Notes: Subclass should override this method
+     * 
+     * @param value
+     */
+    thi$.format = function(value){
+        var ret;
+        switch(this.pattern){
+        case "m":
+        case "s":
+            ret = value+"";
+            break;
+        case "mm":
+        case "ss":
+            ret = this._pad(value, 2);
+            break;
+        }
+        return ret;
     };
     
     this._init.apply(this, arguments);
-};
+
+}.$extend(js.text.Format);
 

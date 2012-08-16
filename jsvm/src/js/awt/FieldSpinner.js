@@ -73,17 +73,48 @@ js.awt.FieldSpinner = function(def, Runtime){
     thi$.getMsgType = function(){
         return "js.awt.event.FieldEvent";
     };
-
-    thi$.setText = function(text){
-        this.label.setText(text);
+    
+    thi$.setFormater = function(formater){
+        this.formater = formater;
+    };
+    
+    thi$.getFormater = function(){
+        return this.formater;
     };
 
-    thi$._onSpinnerEvent = function(e){
-        var data = e.getData();
-        this.setText(data.pos+"");
+    thi$.setPos = function(index){
+        this.spinner.setPos(index);
+        _setText.call(this, this.getPos());
+    };
 
-        e.setEventTarget(this);
-        this.notifyPeer(this.getMsgType(), e);
+    thi$.getPos = function(){
+        return this.spinner.getPos();
+    };
+    
+    thi$.initialize = function(lower, upper, index){
+        this.spinner.setRange(lower, upper);
+        this.setPos(index);
+    };
+    
+    var _setText = function(pos){
+        var formater = this.getFormater(), 
+        label = this.label;
+
+        if(formater){
+            label.setText(formater.format(pos)); 
+        }else{
+            label.setText(pos+"");            
+        }
+    };
+
+    var _onSpinnerEvent = function(e){
+        var data = e.getData();
+        _setText.call(this, data.pos);
+
+        if(e.getType() == "changed"){
+            e.setEventTarget(this);
+            this.notifyPeer(this.getMsgType(), e);
+        }
     };
 
     var _createElements = function(def){
@@ -101,19 +132,15 @@ js.awt.FieldSpinner = function(def, Runtime){
             {
                 id: "spinner",
                 rigid_h: false,
-                lower: def.lower,
-                upper: def.upper,
-                index: def.index,
                 cyclic: def.cyclic,
                 accel: def.accel,
                 direction : 1
             }, R);
         this.addComponent(spinner);
-
-        this.setText(spinner.getValue()+"");
+        this.initialize(def.lower, def.upper, def.index);
 
         spinner.setPeerComponent(this);
-        MQ.register(spinner.getMsgType(), this, this._onSpinnerEvent);
+        MQ.register(spinner.getMsgType(), this, _onSpinnerEvent);
         
     };
     

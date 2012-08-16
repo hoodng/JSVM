@@ -48,7 +48,7 @@ $package("js.awt");
  * @param Runtime
  * @param date, Date object
  */
-js.awt.Calendar = function(def, Runtime, date){
+js.awt.Calendar = function(def, Runtime){
 
     var CLASS = js.awt.Calendar, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -222,7 +222,7 @@ js.awt.Calendar = function(def, Runtime, date){
         
     }.$override(this.destroy);
 
-    thi$._init = function(def, Runtime, date){
+    thi$._init = function(def, Runtime){
         if(def == undefined) return;
         
         def.classType = "js.awt.Calendar";
@@ -235,13 +235,13 @@ js.awt.Calendar = function(def, Runtime, date){
             colNum: 7
         };
 
-        arguments.callee.__super__.apply(this, [def, Runtime]);
+        arguments.callee.__super__.apply(this, arguments);
 
         _createElements.call(this, this.def);
         
-        if(Class.isDate(date)){
-            this.setDate(date, true);
-        }
+        var date = this.def.date;
+        date = Class.isDate(date) ? date: new Date();
+        this.setDate(date, true);
 
     }.$override(this._init);
 

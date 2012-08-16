@@ -4475,11 +4475,11 @@ js.awt.BaseComponent = function(def, Runtime, view){
         bounds.offsetX = el.offsetLeft;
         bounds.offsetY = el.offsetTop;
         /*
-        if(J$VM.firefox && position !== "relative"){
-            pounds = DOM.getBounds(el.parentNode);
-            bounds.offsetX += pounds.MBP.borderLeftWidth;
-            bounds.offsetY += pounds.MBP.borderTopWidth;
-        }*/
+         if(J$VM.firefox && position !== "relative"){
+         pounds = DOM.getBounds(el.parentNode);
+         bounds.offsetX += pounds.MBP.borderLeftWidth;
+         bounds.offsetY += pounds.MBP.borderTopWidth;
+         }*/
 
         bounds.x = bounds.offsetX - bounds.MBP.marginLeft;
         bounds.y = bounds.offsetY - bounds.MBP.marginTop;
@@ -4676,11 +4676,11 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
         DOM.applyStyles(el, styles);
         if(sizeChanged){
-        	this.invalidateBounds();
+            this.invalidateBounds();
         }
         
         if(!isNaN(w) || !isNaN(h)){
-        	this.setSize(w, h);
+            this.setSize(w, h);
         }
         
         return sizeChanged ? this.repaint() : false;
@@ -4948,6 +4948,56 @@ js.awt.BaseComponent = function(def, Runtime, view){
         case "remove":
             this.removeCover();
             break;
+        }
+    };
+
+    thi$.appendStyleClass = function(className){
+        if(Class.isString(className)){
+            var names = this._local.styles;
+            if(!names){
+                names = [this.className];
+            }
+            names = names.concat(className.split(" "));
+            this._local.styles = names;
+
+            this.view.className = names.join(" ");
+        }
+    };
+
+    thi$.removeStyleClass = function(className){
+        var names = this._local.styles, e;
+
+        if(Class.isArray(names)){
+            for(var i=0, len=names.length; i<len; i++){
+                e = names[i];
+                if(e == className){
+                    names.splice(i, 1);
+                    break;
+                }
+            }
+            
+            this.view.className = names.join(" ");
+        }
+    };
+
+    thi$.hasStyleClass = function(className){
+        var names = this._local.styles, e, ret = false;
+        if(Class.isArray(names)){
+            for(var i=0, len=names.length; i<len; i++){
+                e = names[i];
+                if(e == className){
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
+    };
+
+    thi$.clearStyleClass = function(apply){
+        var names = this._local.styles = [this.className];
+        if(apply === true){
+            this.view.className = names.join(" ");            
         }
     };
 
