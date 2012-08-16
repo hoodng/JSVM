@@ -1157,6 +1157,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         case MINUTE:
             break;
         case SECOND:
+            
             break;
         default:
             break;
