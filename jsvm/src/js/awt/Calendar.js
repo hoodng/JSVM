@@ -37,7 +37,18 @@
 
 $package("js.awt");
 
-js.awt.Calendar = function(def, Runtime){
+/**
+ * Calendar control
+ * 
+ * @param def:{
+ *     className: xxx
+ *     id: 
+ *     dateSymbols: @see js.lang.Runtime
+ * }
+ * @param Runtime
+ * @param date, Date object
+ */
+js.awt.Calendar = function(def, Runtime, date){
 
     var CLASS = js.awt.Calendar, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -47,12 +58,190 @@ js.awt.Calendar = function(def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+    System = J$VM.System, MQ = J$VM.MQ, 
+    Calendar = Class.forName("js.util.Calendar");
 
-    thi$._init = function(def, Runtime){
-        if(def == undefined) return;
+    thi$.getMsgType = function(){
+        return "js.awt.event.CalendarChanged";
+    };
 
+    thi$.getDayStyleClass = function(date){
+        var names=[], day;
+
+        if(date.getMonth() != this.month){
+            names.push("outmonth");
+        }else{
+            if(Calendar.compareDate(date, new Date()) == 0){
+                names.push("today");
+            }
+        }
+
+        if(Calendar.compareDate(date, this.getDate()) == 0){
+            names.push("selectday");
+        }
+
+        day = date.getDay();
+        if(day == 0){
+            names.push("sunday");
+        }else if(day == 6){
+            names.push("saturday");
+        }
+
+        return names.join(" ");
+        
+    };
+
+    thi$.setDate = function(date, notify){
+        _update.call(this, date);
+
+        if(notify === true){
+            this.notifyPeer(
+                this.getMsgType(), 
+                new Event("changed", this.getDate(), this));
+        }
+    };
+
+    thi$.getDate = function(){
+        return this.date;
+    };
+
+
+    var _update = function(date){
+        var dates = _getDaysOfCurrentMonth.call(this, date), 
+        temp;
+
+        this.date = date;
+        for(var i=0; i<42; i++){
+            temp = dates[i];
+            temp.uuid = "cell"+(7+i);
+            this[temp.uuid].setDate(
+                temp, this.getDayStyleClass(temp));
+        }
+    };
+
+    var _getDaysOfCurrentMonth = function(date){
+        var month = date.getMonth(), dates;
+        if(month == this.month){
+            dates = this.dates;
+        }else{
+            this.month = month;
+
+            var calendar = new Calendar(date), n=41;
+            calendar.setDate(calendar.getFirstDayOfCurrentMonth());
+            calendar.setDate(calendar.getFirstDayOfCurrentWeek());
+
+            dates = [];
+
+            dates.push(new Date(calendar.getTimeInMillis()));
+            while(n-- > 0){
+                calendar.add(Calendar.DATE, 1);
+                dates.push(new Date(calendar.getTimeInMillis()));
+            }
+
+            this.dates = dates;
+        }
+
+        return dates;
+    };
+
+    var _onmouseover = function(e){
+        var from = e.fromElement, to = e.toElement, 
+        fid = from ? from.uuid : undefined, 
+        tid = to ? to.uuid : undefined,
+        fitem, titem, cache = this.cache;
+
+        if(fid !== tid){
+            fitem = cache[fid];
+            titem = cache[tid];
+            if(fitem && fitem.hasStyleClass("hovercell")){
+                fitem.removeStyleClass("hovercell");
+            }
+            if(titem && !titem.hasStyleClass("hovercell")){
+                titem.appendStyleClass("hovercell");
+            }
+        }
+    };
+
+    var _onclick = function(e){
+        var ele = e.srcElement, eid = ele ? ele.uuid : undefined,
+        cache = this.cache, item;
+
+        if(eid){
+            item = cache[eid];
+            this.setDate(item.getDate(), true);
+        }
+    };
+
+    var _createElements = function(def){
+        var R = this.Runtime(),
+        dateSymbols = def.dateSymbols || R.dateSymbols(),
+        cellClassType = def.cellClassType = 
+            def.cellClassType || "js.awt.CalendarBaseCell",
+        cellClass = Class.forName(cellClassType),
+        cache = this.cache = {}, cell, cellid;
+        
+        for(var i=0; i<49; i++){
+            cellid = "cell"+i;
+            cell = new cellClass(
+                {
+                    id: cellid,
+                    uuid: cellid,
+                    dateSymbols: dateSymbols,
+
+                    rigid_w : false,
+                    rigid_h : false,
+                    constraints:{
+                        rowIndex: Math.floor(i/7),
+                        colIndex: i%7
+                    }
+
+                }, R);
+
+            if(i < 7) {
+                cell.setWeek(i);
+            }else{
+                cache[cellid] = cell;                
+            }
+
+            this.addComponent(cell);
+        }
+
+        this.attachEvent("mouseover", 0, this, _onmouseover);
+        this.attachEvent("mouseout",  0, this, _onmouseover);
+        this.attachEvent("click",     0, this, _onclick);
+    };
+
+    thi$.destroy = function(){
         arguments.callee.__super__.apply(this, arguments);
+
+        delete this.cache;
+
+        this.detachEvent("mouseover", 0, this, _onmouseover);
+        this.detachEvent("mouseout",  0, this, _onmouseover);
+        this.detachEvent("click",     0, this, _onclick);
+        
+    }.$override(this.destroy);
+
+    thi$._init = function(def, Runtime, date){
+        if(def == undefined) return;
+        
+        def.classType = "js.awt.Calendar";
+        def.className = def.className || "jsvm_calendar";
+        def.stateless = true;
+
+        def.layout = {
+            classType : "js.awt.GridLayout",
+            rowNum: 7,
+            colNum: 7
+        };
+
+        arguments.callee.__super__.apply(this, [def, Runtime]);
+
+        _createElements.call(this, this.def);
+        
+        if(Class.isDate(date)){
+            this.setDate(date, true);
+        }
 
     }.$override(this._init);
 
@@ -88,4 +277,64 @@ js.awt.CalendarCell = function(){
     };
     
 };
+
+js.awt.CalendarBaseCell = function(def, Runtime){
+
+    var CLASS = js.awt.CalendarBaseCell, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+
+    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+    System = J$VM.System, MQ = J$VM.MQ;
+
+    /**
+     * @see js.awt.CalendarCell
+     */
+    thi$.setDate = function(date, className){
+        arguments.callee.__super__.apply(this, arguments);
+
+        if(Class.isString(className)){
+            this.clearStyleClass();
+            this.appendStyleClass(className);            
+        }
+
+        this.setText(date.getDate()+"");
+
+    }.$override(this.setDate);
+
+    /**
+     * @see js.awt.CalendarCell
+     */
+    thi$.setWeek = function(week){
+        arguments.callee.__super__.apply(this, arguments);
+        
+        this.appendStyleClass("weekcell");
+        
+        if(Class.isNumber(week)){
+            week = this.def.dateSymbols.sWeekdays[week];
+        }
+
+        this.setText(week);
+        
+
+    }.$override(this.setWeek);
+    
+
+    thi$._init = function(def, Runtime){
+        if(def == undefined) return;
+
+        def.className = def.className || "jsvm_calendar_cell";
+        def.text = def.text || " ";
+        def.stateless = true;
+
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this._init);
+
+    this._init.apply(this, arguments);
+    
+}.$extend(js.awt.Label).$implements(js.awt.CalendarCell);
 
