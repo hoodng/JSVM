@@ -10,6 +10,12 @@ input, textarea {
     -ms-user-select: text;
     -webkit-user-select: text;
     -khmtl-user-select: text;
+    resize:none;
+    outline:none;
+    
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    
 }
 
 .jsvm_body {
@@ -98,7 +104,8 @@ input, textarea {
 .jsvm_button_0, .jsvm_button_1, 
 .jsvm_button_2, .jsvm_button_3,
 .jsvm_button_4, .jsvm_button_6,
-.jsvm_button_7, .jsvm_button_8 {
+.jsvm_button_7, .jsvm_button_8,
+.jsvm_button_16 {
 	width: 80px;
 	height: 22px;
 	text-align: center;
@@ -108,7 +115,12 @@ input, textarea {
 	-khtml-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
-} 
+}
+
+/* Disable */
+.jsvm_button_1 {
+    color: gray;	
+}
 
 .jsvm_button_0, .jsvm_button_2 {
 	background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
@@ -129,6 +141,10 @@ input, textarea {
     background: #FFFFFF;
 }
 
+.jsvm_button_16 {
+	display: none;
+}
+
 .jsvm_button_marker {
     width: 16px;
     height:16px;
@@ -143,12 +159,14 @@ input, textarea {
 
 .jsvm_button_label {
     height:16px;
+    line-height:16px;
     cursor: default;
 }
 
-.jsvm_button_effect_normal,
-.jsvm_button_effect_hover ,
-.jsvm_button_effect_trigger {
+/** For Button's effect */
+.jsvm_btnEffect_normal,
+.jsvm_btnEffect_hover,
+.jsvm_btnEffect_trigger {
     background-color: transparent;
     border-width: 1px;
 
@@ -158,23 +176,21 @@ input, textarea {
 	border-radius: 3px;
 }
 
-.jsvm_button_effect_normal {
+.jsvm_btnEffect_normal {
 	border-style: solid;
 	border-color: transparent;
 }
 
  
-.jsvm_button_effect_hover {
+.jsvm_btnEffect_hover {
 	border-style: solid;
 	border-color: #FAC150;
 }
 
-.jsvm_button_effect_trigger{
+.jsvm_btnEffect_trigger{
 	border-style: groove;
 	border-color: #FAC150;
 }
-
-
 
 /** Icon Button*/
 .jsvm_iconbtn,
@@ -184,31 +200,60 @@ input, textarea {
 	width:  22px;
 	height: 22px;
     cursor: pointer;
-} 
+}
+
+.jsvm_iconbtn_1 {
+	
+}
+
+.jsvm_iconbtn_disable {
+    filter: alpha(Opacity = 20);
+    -moz-opacity: 0.2;
+    opacity: 0.2;
+    background-color: #eeeeee;
+}
 
 /** CheckBox */
 .jsvm_checkbox,
 .jsvm_checkbox_0, .jsvm_checkbox_1 {
     width: 200px;
     height: 22px;
-    /*padding: 0px 4px 0px 4px;*/
+    padding: 0px 2px 0px 2px;
 }
 
+/* Disable */
+.jsvm_checkbox_1 {
+	color: gray;
+}	
+
 .jsvm_checkbox_marker, 
-.jsvm_checkbox_marker_0, .jsvm_checkbox_marker_4 {
-    width: 16px;
-    height: 16px;
+.jsvm_checkbox_marker_0, .jsvm_checkbox_marker_4,
+.jsvm_checkbox_marker_1, .jsvm_checkbox_marker_5 {
+    width: 14px;
+    height: 14px;
     margin-right: 2px;
 }
 
 .jsvm_checkbox_marker_0 {
-    background-image: url("images/0-chkbox.gif");
+    background-image: url("images/icon-checkbox-normal.png");
     background-repeat: no-repeat;
     background-position:center;
 }
 
 .jsvm_checkbox_marker_4 {
-    background-image: url("images/4-chkbox.gif");
+    background-image: url("images/icon-checkbox-select.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_checkbox_marker_1 {
+    background-image: url("images/icon-checkbox-normal-dis.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_checkbox_marker_5 {
+    background-image: url("images/icon-checkbox-select-dis.png");
     background-repeat: no-repeat;
     background-position:center;
 }
@@ -222,6 +267,7 @@ input, textarea {
 .jsvm_checkbox_label {
     height:16px;
     line-height:16px;
+    cursor:default;
 }
 
 /** Radio Button */
@@ -229,24 +275,42 @@ input, textarea {
 .jsvm_radio_0, .jsvm_radio_1 {
     width: 200px;
     height: 22px;
-    /*padding: 0px 4px 0px 4px;*/
+    padding: 0px 4px 0px 4px;
+}
+
+/* Disable */
+.jsvm_radio_1 {
+	color: gray;
 }
 
 .jsvm_radio_marker, 
-.jsvm_radio_marker_0, .jsvm_radio_marker_4 {
-    width: 16px;
-    height: 16px;
+.jsvm_radio_marker_0, .jsvm_radio_marker_4,
+.jsvm_radio_marker_1, .jsvm_radio_marker_5 {
+    width: 14px;
+    height: 14px;
     margin-right: 2px;
 }
 
 .jsvm_radio_marker_0 {
-    background-image: url("images/0-chkbox.gif");
+    background-image: url("images/icon-radio-normal.png");
     background-repeat: no-repeat;
     background-position:center;
 }
 
 .jsvm_radio_marker_4 {
-    background-image: url("images/4-chkbox.gif");
+    background-image: url("images/icon-radio-select.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_radio_marker_1 {
+    background-image: url("images/icon-radio-normal-dis.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_radio_marker_5 {
+    background-image: url("images/icon-radio-select-dis.png");
     background-repeat: no-repeat;
     background-position:center;
 }
@@ -260,13 +324,14 @@ input, textarea {
 .jsvm_radio_label {
     height:16px;
     line-height:16px;
+    cursor:default;
 }
 
 
 
 /** Window */
 .jsvm_win,
-.jsvm_win_0, .jsvm_win_1, .jsvm_win_2 {
+.jsvm_win_0, .jsvm_win_2 {
     border: 2px solid #EEEEEE;
     background-color: #F1F1FA;
     -moz-border-radius:5px;
@@ -320,10 +385,10 @@ input, textarea {
 
 /** Dialog */
 .jsvm_dlg, .jsvm_msg, .jsvm_msg_info, .jsvm_msg_warn, .jsvm_msg_error, 
-.jsvm_dlg_0, .jsvm_dlg_1, .jsvm_msg_0, .jsvm_msg_1, 
-.jsvm_msg_info_0, .jsvm_msg_info_1, 
-.jsvm_msg_warn_0, .jsvm_msg_warn_1, 
-.jsvm_msg_error_0,.jsvm_msg_error_1 {
+.jsvm_dlg_0, .jsvm_dlg_2, .jsvm_msg_0, .jsvm_msg_2, 
+.jsvm_msg_info_0, .jsvm_msg_info_2, 
+.jsvm_msg_warn_0, .jsvm_msg_warn_2, 
+.jsvm_msg_error_0,.jsvm_msg_error_2 {
     border: 2px solid #EEEEEE;
     background-color: #F1F1FA;
     -moz-border-radius:9px;
@@ -334,7 +399,7 @@ input, textarea {
 .jsvm_dlg_title_0, .jsvm_msg_title_0 {
     height: 22px;
     background-color:#EEEEEE;
-    /*border-bottom:2px solid #e6e6e6;*/
+    /*border-bottom:1px solid #DDDDDD;*/
     padding: 0px 2px 0px 6px;
 }
 
@@ -480,31 +545,155 @@ input, textarea {
     background-position:center;
 }
 
-/* For List */
-.jsvm_list_0, .jsvm_list_1 {
-	
-}
-
-/* For ComboBox */
-.jsvm_comboBox,
-.jsvm_comboBox_0, .jsvm_comboBox_1 {
-    width: 100px;
+/* For TextField */
+.jsvm_textfield,
+.jsvm_textfield_0, .jsvm_textfield_1 {
+    width: 80px;
     height: 20px;
-}
-
-.jsvm_comboBox_1 {
-    color: #ACA899; /* #CCCCCC */
-}
-
-.jsvm_comboBox_contentView,
-.jsvm_comboBox_contentView_0, .jsvm_comboBox_contentView_1 {
+    
+    background-color: #FFFFFF;
     border: 1px solid #CCCCCC;
     overflow: hidden;
 }
 
-.jsvm_comboBox_contentView_0 {
+.jsvm_textfield_1 {
+    
+}
+
+.jsvm_textfield_disable {
+	filter: alpha(Opacity = 50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+	background-color: #F5F4EA;
+}
+
+/* For List */
+.jsvm_list,
+.jsvm_list_0, .jsvm_list_1 {
+    width: 100px;
+    height: 160px;
+
+	background-color: #FFFFFF;
+	border: 1px solid #CCCCCC;
+    
+    overflow: auto;
+}
+
+.jsvm_list_disable {
+	filter: alpha(Opacity = 50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+	background: #F5F4EA;
+}
+
+/* For ListItem */
+.jsvm_listItem,
+.jsvm_listItem_0, .jsvm_listItem_1, 
+.jsvm_listItem_2, .jsvm_listItem_4,
+.jsvm_listItem_6, .jsvm_listItem_16,
+.jsvm_listItem_20 {
+    position: relative;
+    
+    width: 100%;
+    height: 18px;
+    
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.jsvm_listItem_0, .jsvm_listItem_1,
+.jsvm_listItem_2, .jsvm_listItem_4,
+.jsvm_listItem_6 {
+    display: block;
+}
+
+.jsvm_listItem_1 {
+    color: #ACA899;
+}
+
+.jsvm_listItem_16, .jsvm_listItem_20{
+    display: none;
+}
+
+.jsvm_listItem_2, .jsvm_listItem_6 {
+    /*background-color: #FAC150;*/
+    color: red;
+}
+
+.jsvm_listItem_4, .jsvm_listItem_6 {
+    background-color: #FDD073;
+}
+
+.jsvm_listItem_marker, 
+.jsvm_listItem_marker_0, .jsvm_listItem_marker_4,
+.jsvm_listItem_marker_1, .jsvm_listItem_marker_5 {
+    width: 14px;
+    height: 14px;
+    margin-right: 2px;
+}
+
+.jsvm_listItem_marker_0 {
+    background-image: url("images/icon-checkbox-normal.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_listItem_marker_4 {
+    background-image: url("images/icon-checkbox-select.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_listItem_marker_1 {
+    background-image: url("images/icon-checkbox-normal-dis.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_listItem_marker_5 {
+    background-image: url("images/icon-checkbox-select-dis.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_listItem_label,
+.jsvm_listItem_label_0{
+    height: 16px;
+    line-height: 16px;
+    cursor: default;
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+
+.jsvm_listItem_icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+}
+
+.jsvm_listItem_highlight{
+    background: #FEFE66;
+}
+
+/* For ComboBox */
+.jsvm_comboBox,
+.jsvm_comboBox_0, .jsvm_comboBox_1,
+.jsvm_comboBox_2 {
+    width: 100px;
+    height: 20px;
+    
+    border: 1px solid #CCCCCC;
     overflow: hidden;
     
+    /*
+    -moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+    */
+}
+
+.jsvm_comboBox_0, .jsvm_comboBox_2 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
     background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
     background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
@@ -513,10 +702,8 @@ input, textarea {
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
 }
 
-.jsvm_comboBox_contentView_1 {
-    border: 1px solid #CCCCCC;
-    overflow: hidden;
-    
+.jsvm_comboBox_1 {  
+    color: #ACA899; /* #CCCCCC */
     background: #F5F4EA;
 }
 
@@ -524,6 +711,27 @@ input, textarea {
 .jsvm_comboBox_dItemContainer_0, .jsvm_comboBox_dItemContainer_1 {
     padding: 2px;
     overflow: hidden;
+}
+
+.jsvm_comboBox.dItem,
+.jsvm_comboBox.dItem_0 {
+    /* TODO */
+}
+
+.jsvm_comboBox_dItem_icon {
+   width: 16px;
+   height: 16px;   
+}
+
+.jsvm_comboBox_dItem_icon_img {
+   width: 16px;
+   height: 16px;   
+}
+
+.jsvm_comboBox_dItem_label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .jsvm_comboBox_dropdown,
@@ -538,8 +746,8 @@ input, textarea {
     height: 16px;
 }
 
-.jsvm_comboBox_subview,
-.jsvm_comboBox_subview_0 {
+.jsvm_dropdownList,
+.jsvm_dropdownList_0 {
     background-color: white;
     border: 1px solid #DDD;
     padding: 2px;
@@ -551,56 +759,90 @@ input, textarea {
     height: 160px;
 }
 
-.jsvm_comboBox_subview_searchBox,
-.jsvm_comboBox_subview_searchBox_0{
+.jsvm_dropdownList_searchBox,
+.jsvm_dropdownList_searchBox_0{
+    /*
     border-bottom-style: solid;
     border-bottom-width: 1px;
     border-bottom-color: #DDD;
-    
-    /*
+    */
+  
     border: 1px solid #C0C0C0;
     
     -moz-border-radius: 3px;
     -khtml-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
-    */
     
     overflow: hidden;
 }
 
-.jsvm_comboBox_subview_list,
-.jsvm_comboBox_subview_list_0{
+.jsvm_dropdownList_list,
+.jsvm_dropdownList_list_0{
     overflow: auto;
 }
 
-.jsvm_comboBox_subview_list_item,
-.jsvm_comboBox_subview_list_item_0, .jsvm_comboBox_subview_list_item_2, 
-.jsvm_comboBox_subview_list_item_4, .jsvm_comboBox_subview_list_item_6 ,
-.jsvm_comboBox_subview_list_item_16, .jsvm_comboBox_subview_list_item_20 {
+.jsvm_dropdownList_item,
+.jsvm_dropdownList_item_0, .jsvm_dropdownList_item_2, 
+.jsvm_dropdownList_item_4, .jsvm_dropdownList_item_6 ,
+.jsvm_dropdownList_item_16, .jsvm_dropdownList_item_20 {
     height: 18px;
     overflow: hidden;
 }
 
-.jsvm_comboBox_subview_list_item_0, .jsvm_comboBox_subview_list_item_2, 
-.jsvm_comboBox_subview_list_item_4, .jsvm_comboBox_subview_list_item_6 {
+.jsvm_dropdownList_item_0, .jsvm_dropdownList_item_2, 
+.jsvm_dropdownList_item_4, .jsvm_dropdownList_item_6 {
     display: block;
 }
 
-.jsvm_comboBox_subview_list_item_16, .jsvm_comboBox_subview_list_item_20{
+.jsvm_dropdownList_item_16, .jsvm_dropdownList_item_20{
     display: none;
 }
 
-.jsvm_comboBox_subview_list_item_2, .jsvm_comboBox_subview_list_item_6 {
+.jsvm_dropdownList_item_2, .jsvm_dropdownList_item_6 {
     background-color: #FFDF7C; /* #FAC150 */
 }
 
-.jsvm_comboBox_subview_list_item_highlight{
+.jsvm_dropdownList_item_marker, 
+.jsvm_dropdownList_item_marker_0, .jsvm_dropdownList_item_marker_4 {
+    width: 14px;
+    height: 14px;
+    margin-right: 2px;
+}
+
+.jsvm_dropdownList_item_marker_0 {
+    background-image: url("images/icon-checkbox-normal.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_dropdownList_item_marker_4 {
+    background-image: url("images/icon-checkbox-select.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.jsvm_dropdownList_item_label,
+.jsvm_dropdownList_item_label_0{
+    height: 16px;
+    line-height: 16px;
+    cursor: default;
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+
+.jsvm_dropdownList_item_icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+}
+
+.jsvm_dropdownList_item_highlight{
     background: #FEFE66;
 }
 
-.jsvm_comboBox_subview_controlBar,
-.jsvm_comboBox_subview_controlBar_0{
+.jsvm_dropdownList_controlBar,
+.jsvm_dropdownList_controlBar_0{
     border-top-style: solid;
     border-top-width: 1px;
     border-top-color: #DDD;
@@ -610,23 +852,20 @@ input, textarea {
     overflow: hidden;
 }
 
-.jsvm_comboBox_subview_controlBar_label,
-.jsvm_comboBox_subview_controlBar_label_0,
-.jsvm_comboBox_subview_controlBar_label_2 {
+.jsvm_dropdownList_controlBar_label,
+.jsvm_dropdownList_controlBar_label_0,
+.jsvm_dropdownList_controlBar_label_2 {
     /* TODO */
 }
 
-.jsvm_comboBox_subview_controlBar_label_2  {
+.jsvm_dropdownList_controlBar_label_2  {
     color: #8092E0;
     text-decoration: underline;
 }
 
 /** Tree and tree items **/
-.jsvm_tree {
-   width: 100px;
-   height: 300px;
-   background-color: #FFFFFF;
-   border: 2px solid blue;
+.jsvm_tree {  
+   background-color: #FFFFFF;   
    padding: 2px;
    overflow: auto;
 }
@@ -795,7 +1034,7 @@ input, textarea {
 .jsvm_tabpane_tabs_0 {
     height: 25px;
     padding: 3px 3px 0px 6px;
-    border-bottom: 2px solid gray;
+    border-bottom: 1px solid gray;
 }
 
 .jsvm_tabpane_tab,
@@ -803,7 +1042,7 @@ input, textarea {
     width: 80px;
     height: 22px;
     border-style: solid;
-    border-width: 1px 1px 2px 1px;    
+    border-width: 1px 1px 1px 1px;    
     padding: 0px 4px 0px 16px;
 }
 
@@ -813,7 +1052,7 @@ input, textarea {
 }
 
 .jsvm_tabpane_tab_4{
-    border-color: gray gray #FFF gray;
+    border-color: gray gray #EEE gray;
 }
 
 .jsvm_tabpane_tab_label {
@@ -823,10 +1062,29 @@ input, textarea {
 
 .jsvm_tabpane_panes,
 .jsvm_tabpane_panes_0 {
-    border-width: 2px;
+    border-width: 1px;
     border-color: gray;
     border-style: none solid solid solid;
     padding: 12px;
+}
+
+.jsvm_fieldset {
+	margin: 0px;
+	padding: 22px 12px 11px 12px;
+	border: 1px solid #ccc;
+}
+
+.jsvm_fieldset legend {
+	
+}
+
+/* FOR FileInput */
+.jsvm_fileinput_file{
+	filter: alpha(opacity = 0);
+	-moz-opacity: 0;
+	-khtml-opacity: 0;
+	opacity: 0;
+	cursor: default;
 }
 
 /** Default single Slider **/
@@ -900,6 +1158,7 @@ input, textarea {
     background-color: #ffb307;
 }
 
+
 /** Default vertial spinner **/
 .jsvm_vspinner {
     width: 15px;
@@ -910,8 +1169,9 @@ input, textarea {
 .jsvm_vspinner_ctrl0_0,
 .jsvm_vspinner_ctrl0_1, 
 .jsvm_vspinner_ctrl0_2 {
-    height:8px;
+    height:10px;
     border: 1px solid #999999;
+    border-width: 0px 0px 0px 0px;
     background-repeat: no-repeat;
     background-position:center;
 }
@@ -929,8 +1189,9 @@ input, textarea {
 .jsvm_vspinner_ctrl1_0,
 .jsvm_vspinner_ctrl1_1,
 .jsvm_vspinner_ctrl1_2 {
-    height:8px;
+    height:10px;
     border: 1px solid #999999;
+    border-width: 0px 0px 0px 0px;
     background-repeat: no-repeat;
     background-position:center;
 }
@@ -942,4 +1203,44 @@ input, textarea {
 .jsvm_vspinner_ctrl1_1,
 .jsvm_vspinner_ctrl1_2 {
     background-image: url("images/2-sp_dn.png");
+}
+
+/** Calendar **/
+.jsvm_calendar {
+    border: 1px solid #c0c0c0;
+    width: 230px;
+    height:140px;
+    background: #f5f5f5;
+}
+
+.jsvm_calendar_cell {
+    text-align: center;
+    cursor: default;
+}
+
+.weekcell {
+
+}
+
+.outmonth{
+   color: #c0c0c0;
+}
+
+.today {
+    background: #c0c0c0;
+}
+
+.selectday {
+    background: #ffc993;
+}
+
+.hovercell {
+    background: #d8d8d8;
+}
+
+.jsvm_fieldspinner, .jsvm_fieldspinner_0 {
+    width: 100px;
+    height:20px;
+    border: 1px solid #999999;
+    padding: 0px 0px 0px 2px;
 }

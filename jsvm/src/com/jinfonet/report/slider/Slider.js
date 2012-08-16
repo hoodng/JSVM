@@ -36,7 +36,16 @@ com.jinfonet.report.slider.Slider = function(def, Runtime){
     };
 
     thi$.setDataProvider = function(dataProvider){
+        if(this.dataProvider){
+            this.dataProvider.destroy();
+            delete this.dataProvider;
+        }
+
         this.dataProvider = dataProvider;
+    };
+
+    thi$.getDataProvider = function(){
+        return this.dataProvider;
     };
     
     thi$.getPlaySlider = function(){
@@ -72,7 +81,8 @@ com.jinfonet.report.slider.Slider = function(def, Runtime){
     };
     
     thi$.setOffset = function(offset0, offset1){
-        this.getPlaySlider().setOffset(offset0, offset1);
+        var slider = this.getPlaySlider();
+        slider.setOffset.apply(slider, arguments);
     };
     
     thi$.getTrackLength = function(){
@@ -118,7 +128,11 @@ com.jinfonet.report.slider.Slider = function(def, Runtime){
     };
 
     thi$._onChanged = function(fire){
-        _notifyPeer.call(this, "changed");
+        if((fire & 0x01) != 0){
+            _notifyPeer.call(this, "changed");    
+        }else{
+            _notifyPeer.call(this, "changing");    
+        }
     };
     
     thi$._onPlay = function(){

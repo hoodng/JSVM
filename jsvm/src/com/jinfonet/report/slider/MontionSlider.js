@@ -31,7 +31,8 @@ com.jinfonet.report.slider.MontionSlider = function(def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+    System = J$VM.System, MQ = J$VM.MQ,
+    Types = Class.forName("js.sql.Types");
 
     /**
      * @see com.jinfonet.report.slider.Slider

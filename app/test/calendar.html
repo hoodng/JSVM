@@ -6,7 +6,34 @@
 <script id="j$vm" src="../../jsvm/jsre.js" ></script>
 <script src="../../jsvm/lib/jsre-ui.js" ></script>
 <script src="../../jsvm/src/js/util/Calendar.js" ></script>
+<script src="../../jsvm/src/js/awt/Calendar.js" ></script>
 <style>
+.jsvm_calendar {
+    border: 1px solid blue;
+    width: 250px;
+    height:250px;
+}
+
+.jsvm_calendar_cell {
+/*    border: 1px solid red;*/
+    text-align: center;
+    font-size : 16px;
+}
+
+.weekcell {
+    font-size : 13px;
+    font-weight: bold;
+    background: #c0c0c0;
+}
+
+.outrangecell{
+   color: #c0c0c0;
+}
+
+.todaycell {
+   border: 1px solid #c0c0c0;
+}
+
 
 </style>
 </head>
@@ -19,37 +46,46 @@
 <script type="text/javascript">
 
 J$VM.exec("Demo",function(System){
-    var Class = js.lang.Class;
+    var Class = js.lang.Class, 
+    Calendar = Class.forName("js.util.Calendar");
 
     this.prefer({theme: "default"});
 
-    var calendar = new (Class.forName("js.util.Calendar"))(2011, 0, 31);
-
-    System.err.println(calendar.getDate().$format("yyyy-MM-dd HH:mm:ss.SSS"));
-    System.err.println("dayOfWeek:"+calendar.get(js.util.Calendar.DAY_OF_WEEK));
-    System.err.println("weekOfYear:"+calendar.get(js.util.Calendar.WEEK_OF_YEAR));
-    System.err.println("weekOfMonth:"+calendar.get(js.util.Calendar.WEEK_OF_MONTH));
-
-    calendar.add(js.util.Calendar.DATE, 394);
-    System.err.println(calendar.getDate().$format("yyyy-MM-dd HH:mm:ss.SSS"));
-    System.err.println("dayOfWeek:"+calendar.get(js.util.Calendar.DAY_OF_WEEK));
-    System.err.println("weekOfYear:"+calendar.get(js.util.Calendar.WEEK_OF_YEAR));
-    System.err.println("weekOfMonth:"+calendar.get(js.util.Calendar.WEEK_OF_MONTH));
-
-    System.err.println("----");
-
-    var d0 = calendar.getFirstDayOfCurrentYear();
-    System.err.println("firstDayOfCY: "+d0.$format("yyyy-MM-dd HH:mm:ss.SSS"));    
-
-    var d1 = calendar.getFirstDayOfCurrentMonth();
-    System.err.println("firstDayOfCM: "+d1.$format("yyyy-MM-dd HH:mm:ss.SSS"));    
-
-    var d2 = calendar.getFirstDayOfCurrentQuater();
-    System.err.println("firstDayOfCQ: "+d2.$format("yyyy-MM-dd HH:mm:ss.SSS"));    
-
-    var d3 = calendar.getFirstDayOfCurrentWeek();
-    System.err.println("firstDayOfCW: "+d3.$format("yyyy-MM-dd HH:mm:ss.SSS"));    
+    var calendar = new Calendar();
     
+    var firstDayOfMonth = calendar.getFirstDayOfCurrentMonth();
+    System.err.println(firstDayOfMonth.$format("yyyy-MM-dd"));
+    
+    calendar.setDate(firstDayOfMonth);
+    var firstDayOfWeek = calendar.getFirstDayOfCurrentWeek();
+    System.err.println(firstDayOfWeek.$format("yyyy-MM-dd"));
+
+    calendar.setDate(firstDayOfWeek);
+    
+    var dates = [new Date(calendar.getTimeInMillis())];
+    for(var i=0; i<41; i++){
+        calendar.add(Calendar.DATE, 1);
+	    dates.push(new Date(calendar.getTimeInMillis()));
+    }
+
+    var buf = new js.lang.StringBuffer();
+    for(var i=0; i<6; i++){
+		buf.clear();
+        for(var j=0; j<7; j++){
+			buf.append(dates[i*7+j].$format("dd")+" ");
+        }
+	    System.err.println(buf.toString());
+    }
+
+    var ucalendar = new js.awt.Calendar(
+						  {
+                             movable:true,
+                             resizable: true
+						  }, this);
+
+    this.addComponent(ucalendar);
+
+    ucalendar.setDate(new Date());
 
 });
 </script>
