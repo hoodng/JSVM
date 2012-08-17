@@ -1174,7 +1174,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     };
     
     thi$._init = function(){
-        if(arguments.lenght == 0){
+        if(arguments.length == 0){
             this.date = new Date();
         }else if(Class.isDate(arguments[0])){
             this.date = arguments[0];
