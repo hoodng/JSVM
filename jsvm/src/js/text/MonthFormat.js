@@ -40,19 +40,16 @@ $package("js.text");
 /**
  * 
  */
-js.text.Format = function(pattern, symbols){
+js.text.MonthFormat = function(pattern, symbols){
 
-    var CLASS = js.text.Format, thi$ = CLASS.prototype;
+    var CLASS = js.text.MonthFormat, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
     }
     CLASS.__defined__ = true;
     
-    thi$._pad = function(val, len){
-        val = "000"+String(val);
-        return val.slice(val.length - (len || 2));
-    };
+    var Class = js.lang.Class;
 
     /**
      * Set format pattern
@@ -60,18 +57,18 @@ js.text.Format = function(pattern, symbols){
      * @param pattern pattern string
      */    
     thi$.setPattern = function(pattern){
-        this.pattern = pattern;
+        this.pattern = pattern || "MM";
     };
     
     /**
-     * Set symbols for formatting or parsing a value
-     * 
-     * @param symbols, symbols table
-     */
+     * @see js.text.Format
+     */     
     thi$.setSymbols = function(symbols){
-        this.symbols = symbols;
-    };
-    
+        this.symbols = 
+            new(Class.forName("js.text.DateFormatSymbols"))(symbols);
+
+    }.$override(this.setSymbols);
+
     /**
      * Return a formatted string of a specified value
      * 
@@ -80,26 +77,25 @@ js.text.Format = function(pattern, symbols){
      * @param value
      */
     thi$.format = function(value){
-        return value ? value.toString() : value;
-    };
-    
-    /**
-     * Return an object from value string
-     * 
-     * Notes: Subclass should override this method
-     * 
-     * @param strValue
-     */
-    thi$.parse = function(strValue){
-        return strValue;
-    };
-    
-    thi$._init = function(pattern, symbols){
-        this.setPattern(pattern);
-        this.setSymbols(symbols);
+        var ret;
+        switch(this.pattern){
+        case "M":
+            ret = (value + 1)+"";
+            break;
+        case "MM":
+            ret = this._pad((value+1), 2);
+            break;
+        case "MMM":
+            ret = this.symbols.getShortMonths()[value];
+            break;
+        default:
+            ret = this.symbols.getMonths()[value];            
+            break;
+        }
+        return ret;
     };
     
     this._init.apply(this, arguments);
 
-}.$extend(js.lang.Object);
+}.$extend(js.text.Format);
 

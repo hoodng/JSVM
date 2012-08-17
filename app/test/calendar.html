@@ -7,33 +7,9 @@
 <script src="../../jsvm/lib/jsre-ui.js" ></script>
 <script src="../../jsvm/src/js/util/Calendar.js" ></script>
 <script src="../../jsvm/src/js/awt/Calendar.js" ></script>
+<script src="../../jsvm/src/js/awt/FieldSpinner.js" ></script>
+<script src="../../jsvm/src/js/awt/DatePicker.js" ></script>
 <style>
-.jsvm_calendar {
-    border: 1px solid blue;
-    width: 250px;
-    height:250px;
-}
-
-.jsvm_calendar_cell {
-/*    border: 1px solid red;*/
-    text-align: center;
-    font-size : 16px;
-}
-
-.weekcell {
-    font-size : 13px;
-    font-weight: bold;
-    background: #c0c0c0;
-}
-
-.outrangecell{
-   color: #c0c0c0;
-}
-
-.todaycell {
-   border: 1px solid #c0c0c0;
-}
-
 
 </style>
 </head>
@@ -51,41 +27,16 @@ J$VM.exec("Demo",function(System){
 
     this.prefer({theme: "default"});
 
-    var calendar = new Calendar();
-    
-    var firstDayOfMonth = calendar.getFirstDayOfCurrentMonth();
-    System.err.println(firstDayOfMonth.$format("yyyy-MM-dd"));
-    
-    calendar.setDate(firstDayOfMonth);
-    var firstDayOfWeek = calendar.getFirstDayOfCurrentWeek();
-    System.err.println(firstDayOfWeek.$format("yyyy-MM-dd"));
-
-    calendar.setDate(firstDayOfWeek);
-    
-    var dates = [new Date(calendar.getTimeInMillis())];
-    for(var i=0; i<41; i++){
-        calendar.add(Calendar.DATE, 1);
-	    dates.push(new Date(calendar.getTimeInMillis()));
-    }
-
-    var buf = new js.lang.StringBuffer();
-    for(var i=0; i<6; i++){
-		buf.clear();
-        for(var j=0; j<7; j++){
-			buf.append(dates[i*7+j].$format("dd")+" ");
-        }
-	    System.err.println(buf.toString());
-    }
-
-    var ucalendar = new js.awt.Calendar(
+    var calendar = new js.awt.DatePicker(
 						  {
-                             movable:true,
+                             date: new Date(),
+                             type: 3,
+                             /*movable:true,*/
                              resizable: true
 						  }, this);
 
-    this.addComponent(ucalendar);
+    this.addComponent(calendar);
 
-    ucalendar.setDate(new Date());
 
 });
 </script>

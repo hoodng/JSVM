@@ -40,19 +40,14 @@ $package("js.text");
 /**
  * 
  */
-js.text.Format = function(pattern, symbols){
+js.text.YearFormat = function(pattern, symbols){
 
-    var CLASS = js.text.Format, thi$ = CLASS.prototype;
+    var CLASS = js.text.YearFormat, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
     }
     CLASS.__defined__ = true;
-    
-    thi$._pad = function(val, len){
-        val = "000"+String(val);
-        return val.slice(val.length - (len || 2));
-    };
 
     /**
      * Set format pattern
@@ -60,16 +55,7 @@ js.text.Format = function(pattern, symbols){
      * @param pattern pattern string
      */    
     thi$.setPattern = function(pattern){
-        this.pattern = pattern;
-    };
-    
-    /**
-     * Set symbols for formatting or parsing a value
-     * 
-     * @param symbols, symbols table
-     */
-    thi$.setSymbols = function(symbols){
-        this.symbols = symbols;
+        this.pattern = pattern || "yyyy";
     };
     
     /**
@@ -80,26 +66,10 @@ js.text.Format = function(pattern, symbols){
      * @param value
      */
     thi$.format = function(value){
-        return value ? value.toString() : value;
-    };
-    
-    /**
-     * Return an object from value string
-     * 
-     * Notes: Subclass should override this method
-     * 
-     * @param strValue
-     */
-    thi$.parse = function(strValue){
-        return strValue;
-    };
-    
-    thi$._init = function(pattern, symbols){
-        this.setPattern(pattern);
-        this.setSymbols(symbols);
+        return this._pad(value, this.pattern.length);
     };
     
     this._init.apply(this, arguments);
 
-}.$extend(js.lang.Object);
+}.$extend(js.text.Format);
 

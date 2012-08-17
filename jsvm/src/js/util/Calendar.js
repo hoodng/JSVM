@@ -1157,6 +1157,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         case MINUTE:
             break;
         case SECOND:
+            
             break;
         default:
             break;
@@ -1171,6 +1172,36 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             
             size: size
         };
+    };
+
+    CLASS.compareDate = function(date0, date1){
+        var v0 = new Date(date0.getFullYear(), 
+                          date0.getMonth(), 
+                          date0.getDate());
+        var v1 = new Date(date1.getFullYear(), 
+                          date1.getMonth(), 
+                          date1.getDate());
+        
+        return v0 - v1;
+    };
+
+    CLASS.compareTime = function(date0, date1){
+        var v0 = new Date(1970, 1, 1, 
+                      date0.getHours(), 
+                      date0.getMinutes(), 
+                      date0.getSeconds(), 
+                      date0.getMilliseconds());
+        var v1 = new Date(1970, 1, 1, 
+                      date1.getHours(), 
+                      date1.getMinutes(), 
+                      date1.getSeconds(), 
+                      date1.getMilliseconds());
+
+        return v0 - v1;
+    };
+
+    CLASS.compareDateTime = function(v0, v1){
+        return v0 - v1;
     };
     
     thi$._init = function(){
