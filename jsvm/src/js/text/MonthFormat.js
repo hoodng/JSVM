@@ -64,8 +64,8 @@ js.text.MonthFormat = function(pattern, symbols){
      * @see js.text.Format
      */     
     thi$.setSymbols = function(symbols){
-        this.symbols = symbols || 
-            new(Class.forName("js.text.DateFormatSymbols"))();
+        this.symbols = 
+            new(Class.forName("js.text.DateFormatSymbols"))(symbols);
 
     }.$override(this.setSymbols);
 

@@ -92,6 +92,9 @@ js.awt.Calendar = function(def, Runtime){
     };
 
     thi$.setDate = function(date, notify){
+        date = Class.isDate(date) ? 
+            new Date(date.getTime()) : new Date();
+        
         _update.call(this, date);
 
         if(notify === true){
@@ -120,10 +123,13 @@ js.awt.Calendar = function(def, Runtime){
     };
 
     var _getDaysOfCurrentMonth = function(date){
-        var month = date.getMonth(), dates;
-        if(month == this.month){
+        var year = date.getFullYear(), 
+        month = date.getMonth(), dates;
+
+        if(year == this.year && month == this.month){
             dates = this.dates;
         }else{
+            this.year  = year;
             this.month = month;
 
             var calendar = new Calendar(date), n=41;
@@ -239,9 +245,7 @@ js.awt.Calendar = function(def, Runtime){
 
         _createElements.call(this, this.def);
         
-        var date = this.def.date;
-        date = Class.isDate(date) ? date: new Date();
-        this.setDate(date, true);
+        this.setDate(this.def.date, true);
 
     }.$override(this._init);
 
