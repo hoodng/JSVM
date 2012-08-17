@@ -286,7 +286,7 @@ js.util.Document = function (){
 			return el.hasAttribute(attr);
 		}
 
-		return el.getAttribute(attr) == null;
+		return el.getAttribute(attr) != null;
 	};
 	
 	/**
