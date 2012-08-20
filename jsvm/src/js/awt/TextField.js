@@ -65,34 +65,98 @@ js.awt.TextField = function(def, Runtime){
         }
     };
 
-    thi$.setText = function(text){
+    thi$.setValue = function(text){
         this.def.text = text || "";
         this.view.value = text;
     };
 
-    thi$.getText = function(){
+    thi$.getValue = function(){
         return this.def.text;
     };
-
-    thi$.getSelection = function(){
-        var data = {text:"", start:0, end:0}, 
-        textarea = this.view, doc = self.document, p0, p1;
+    
+    thi$.select = function(start, end){
+        var textarea = this.view, 
+        range, len = textarea.value.length;
         
-        textarea.focus();
-
         if(textarea.setSelectionRange){
-            // W3C
-            p0 = data.start = textarea.selectionStart;
-            p1 = data.end = textarea.selectionEnd;
-            data.text = (p0 != p1) ? 
-                textarea.value.substring(p0, p1) : "";
-        }else if(doc.selection){
-            // IE
+            start = !Class.isNumber(start) ? 0 : start;
+            end   = !Class.isNumber(end) ? len : end;
+
+            textarea.setSelectionRange(start, end);
+        }else{
+            range = textarea.createTextRange();
+            range.select();
             
+            start = !Class.isNumber(start) ? 0 : start;
+            end   = !Class.isNumber(end) ? 0 : end - len;
+
+            range.moveStart("character", start);
+            range.moveEnd("character", end);
+            range.select();
         }
-        
+
+        textarea.focus();
+    };
+    
+    thi$.getSelection = function(){
+        return this._local.selection || _getSelection.call(this);
+    };
+    
+    thi$.insert = function(text, selection){
+        selection = selection || this.getSelection();
+
+        var textarea = this.view, value = textarea.value,
+        v0 = value.substring(0, selection.start),
+        v1 = value.substring(selection.end), p1 = v1.length;
+
+        value = textarea.value = [v0, v1].join((text || ""));
+        p1 = value.length - p1;
+
+        delete this._local.selection;
+        this.select(p1, p1);
     };
 
+    var _getSelection = function(){
+        var range = {}, textarea = this.view,
+        p0 = 0, p1 = 0, text = "", i = 0;
+        
+        textarea.focus();
+        
+        if(textarea.setSelectionRange){
+            p0 = textarea.selectionStart;
+            p1 = textarea.selectionEnd;
+            text = (p0 != p1) ? textarea.value.substring(p0, p1) : "";
+        }else if(document.selection){
+            p0 = document.selection.createRange();
+            p1 = p0.duplicate();
+            p1.moveToElementText(textarea);
+            text = p0.text;
+            while(p1.compareEndPoints("StartToStart", p0) < 0){
+                p0.moveStart("character", -1);
+                i++;
+            }
+            p0 = i;
+            p1 = p0 + text.length;
+        }
+
+        range.text = text;
+        range.start= p0;
+        range.end  = p1;
+
+        return range;
+    };
+    
+    var _onmouseevent = function(e){
+        switch(e.getType()){
+        case "mousedown":
+            delete this._local.selection;
+            break;
+        case "mouseup":
+        case "mouseout":
+            this._local.selection = _getSelection.call(this);
+            break;
+        }
+    };
     
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
@@ -102,9 +166,13 @@ js.awt.TextField = function(def, Runtime){
         arguments.callee.__super__.apply(this, arguments);
         
         var M = this.def;
-        this.setText(M.text);
+        this.setValue(M.text);
         this.setEditable(M.editable);
-        
+
+        this.attachEvent("mouseout",  0, this, _onmouseevent);
+        this.attachEvent("mousedown", 0, this, _onmouseevent);
+        this.attachEvent("mouseup",   0, this, _onmouseevent);
+
     }.$override(this._init);
     
     this._init.apply(this, arguments);
