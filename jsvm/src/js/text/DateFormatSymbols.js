@@ -139,3 +139,4 @@ js.text.DateFormatSymbols = function(symbols){
 
 }.$extend(js.lang.Object);
 
+js.text.DefaultDateSymbols = new js.text.DateFormatSymbols();
