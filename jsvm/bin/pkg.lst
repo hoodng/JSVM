@@ -72,10 +72,7 @@
             "js/lang/Runtime.js",
             "js/lang/System.js",
             "js/lang/Thread.js",
-            "js/boot.js",
-            "js/text/Format.js",
-            "js/text/NumberFormat.js",
-            "js/text/SimpleDateFormat.js"
+            "js/boot.js"
         ]
     },
 

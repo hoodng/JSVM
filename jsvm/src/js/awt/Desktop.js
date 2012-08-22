@@ -74,6 +74,8 @@ js.awt.Desktop = function (element){
     }.$override(this.message);
 
     var _registerMessageClass = function(){
+        if(Factory.hasClass("message")) return;
+
         Factory.registerClass(
             {
                 classType : "js.awt.Dialog",
@@ -143,6 +145,8 @@ js.awt.Desktop = function (element){
     };
 
     var _registerConfirmClass = function(){
+        if(Factory.hasClass("confirm")) return;
+
         Factory.registerClass(
             {
                 classType : "js.awt.Dialog",

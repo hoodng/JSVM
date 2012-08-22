@@ -237,7 +237,7 @@ js.lang.System = function (env, vm){
                             (value === "true" ? true :
                              (value === "false" ? false : value)) : tmp;
 
-                        this.setProperty(name.substring(2), value);
+                        this.setProperty(name.substring(2).toLowerCase(), value);
                     }
                     break;
                 }
@@ -382,6 +382,27 @@ js.lang.System = function (env, vm){
         scopes.push({id: instName, fn: fn, container: containerElement});
     };
     
+    var _boot = function(env){
+        var Class = js.lang.Class, mainClass,
+        mainClasName = this.getProperty("mainclass"),
+        mainFuncName = this.getProperty("mainfunction");
+
+        if(mainClasName){
+            mainClass = Class.forName(mainClasName);
+            if(!mainClass) return;
+            J$VM.exec(mainClasName, 
+                      function(){
+                          this.initialize(env);
+                          (new mainClass()).main(this);
+                      });
+        }else if(typeof window[mainFuncName] == "function"){
+            J$VM.exec(mainFuncName, 
+                      function(){
+                          this.initialize(env);
+                          window[mainFuncName].call(this, this);
+                      });
+        }
+    };
     
     var _init = function(env, vm){
         var E = js.util.Event;
@@ -409,6 +430,10 @@ js.lang.System = function (env, vm){
 
                 return _exec.call(this,instName, fn, containerElement);
 
+            }.$bind(this);
+            
+            vm.boot = function(){
+                return _boot.apply(this, arguments);
             }.$bind(this);
 
             E.attachEvent(vm.hwnd, E.W3C_EVT_LOAD,   0, this, _onload);

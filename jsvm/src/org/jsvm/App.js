@@ -35,56 +35,22 @@
  * Source code availability: http://jzvm.googlecode.com
  */
 
-$package("js.awt");
+$package("org.jsvm");
 
-js.awt.ComponentFactory = function(){
-
-    var CLASS = js.awt.ComponentFactory, thi$ = CLASS.prototype;
+org.jsvm.App = function(){
+    
+    var CLASS = org.jsvm.App, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
-        this._init();
         return;
     }
     CLASS.__defined__ = true;
-
-    var Class = js.lang.Class, System = J$VM.System;
-
-    thi$.registerClass = function(wClass){
-        var className = wClass.className;
-        if(this._classes[className] == undefined){
-            this._classes[className] = wClass;
-        }else{
-            throw new Error("The class definition "+className+" is existed.");
-        }
-        return className;
-    };
     
-    thi$.getClass = function(className, nocache){
-        var _wClass = this._classes[className], wClass;
-        if(_wClass == undefined) 
-            throw "Can not found the wClass with name "+className;
+    var Class = js.lang.Class, Event = js.util.Event,
+    System = J$VM.System, MQ = J$VM.MQ;
+    
+    thi$.main = function(Runtime){
         
-        return nocache === true ? 
-            _wClass : System.objectCopy(_wClass, {}, true);
     };
     
-    thi$.hasClass = function(className){
-        return Class.isObject(this._classes[className]);
-    };
-
-    thi$.createComponent = function(className, opitons, Runtime){
-        var comp, wClass = this.getClass(className);
-
-        wClass = System.objectCopy(opitons, wClass, true);
-        comp = new (Class.forName(wClass.classType))(wClass, Runtime);
-
-        return comp;
-    };
-
-    thi$._init = function(){
-        this._classes = {};
-    };
-
-    this._init();
 };
 
-J$VM.Factory = new js.awt.ComponentFactory();
