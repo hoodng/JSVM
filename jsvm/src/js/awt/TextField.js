@@ -53,25 +53,25 @@ js.awt.TextField = function(def, Runtime){
     System = J$VM.System, MQ = J$VM.MQ, DOM = J$VM.DOM;
 
     thi$.isEditable = function(){
-        return this.view.readOnly != undefined;        
+        return this.view.readOnly == undefined;        
     };
 
     thi$.setEditable = function(b){
         b = b || false;
         if(b){
-            this.view.readOnly = true;
-        }else{
             DOM.removeAttribute(this.view, "readOnly");
+        }else{
+            this.view.readOnly = true;
         }
     };
 
     thi$.setValue = function(text){
-        this.def.text = text || "";
+        text = text || "";
         this.view.value = text;
     };
 
     thi$.getValue = function(){
-        return this.def.text;
+        return this.view.value;
     };
     
     thi$.select = function(start, end){
@@ -161,9 +161,18 @@ js.awt.TextField = function(def, Runtime){
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
         
-        def.viewType = "textarea";
-        
+        if(def.multiline === false){
+            def.viewType = "INPUT";
+        }else{
+            def.viewType = "TEXTAREA";
+        }
+
         arguments.callee.__super__.apply(this, arguments);
+
+        if(def.multiline === false){
+            this.view.type = "text";
+        }
+        
         
         var M = this.def;
         this.setValue(M.text);

@@ -58,12 +58,21 @@ js.lang.Runtime = function(){
     };
 
     thi$.dateSymbols = function(symbols){
-        if(Class.is(symbols, "object")){
-            this._local.symbols = symbols;
+        if(Class.isObject(symbols)){
+            this._local.dateSymbols = symbols;
         }
 
-        return this._local.symbols || 
+        return this._local.dateSymbols || 
             Class.forName("js.text.DateFormatSymbols").Default;        
+    };
+    
+    thi$.numberSymbols = function(symbols){
+        if(Class.isObject(symbols)){
+            this._local.numberSymbols = symbols;
+        }
+        /*
+        return this._local.numberSymbols || 
+            Class.forName("js.text.NumberFormatSymbols").Default;*/  
     };
 
     /**

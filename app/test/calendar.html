@@ -5,10 +5,15 @@
 <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
 <script id="j$vm" src="../../jsvm/jsre.js" ></script>
 <script src="../../jsvm/lib/jsre-ui.js" ></script>
+<!--
 <script src="../../jsvm/src/js/util/Calendar.js" ></script>
 <script src="../../jsvm/src/js/awt/Calendar.js" ></script>
 <script src="../../jsvm/src/js/awt/FieldSpinner.js" ></script>
 <script src="../../jsvm/src/js/awt/DatePicker.js" ></script>
+-->
+<script src="../../jsvm/src/com/jinfonet/common/DateExpression.js" ></script>
+<script src="../../jsvm/src/com/jinfonet/common/Calendar.js" ></script>
+
 <style>
 
 
@@ -28,11 +33,11 @@ J$VM.exec("Demo",function(System){
 
     this.prefer({theme: "default"});
 
-    var calendar = new js.awt.DatePicker(
+    var calendar = new com.jinfonet.common.Calendar(
 						  {
+                             x: 10, y: 10,
                              date: new Date(),
                              type: 3,
-                             /*movable:true,*/
                              resizable: true
 						  }, this);
 
