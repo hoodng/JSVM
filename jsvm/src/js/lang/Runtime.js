@@ -130,6 +130,7 @@ js.lang.Runtime = function(){
     thi$.theme = function(theme){
         if(Class.isString(theme)){
             this.setProperty("theme", theme);
+            _updateJ$VMCSS.call(this);
         }
         return this.getProperty("theme", "default");
     };
@@ -197,19 +198,38 @@ js.lang.Runtime = function(){
             break;
         }
     };
+
+    var _updateJ$VMCSS = function(){
+        var style = document.getElementById("j$vm_css"),
+        stylePath = J$VM.env.j$vm_home + "/../style/"+this.theme()+"/", 
+        cssText = Class.getResource(stylePath + "jsvm.css");
+        
+        if(!style){
+            style = document.createElement("style");
+            style.id   = "j$vm_css";
+            style.title= "j$vm_css";
+            style.type = "text/css";
+        }else{
+            style.parentNode.removeChild(style);
+        }
+
+        cssText = cssText.replace(/images\//gi, stylePath+"images/");
+        if(style.styleSheet){
+            // IE
+            style.styleSheet.cssText = cssText;
+        }else{
+            // Others
+            style.innerHTML = cssText;
+        }
+
+        var jsvm = document.getElementById("j$vm");
+        jsvm.parentNode.insertBefore(style, jsvm);
+    };
     
     var _loadJ$VMCSS = function(){
-        var head, jsvm, style = document.getElementById("j$vm_css");
+        var style = document.getElementById("j$vm_css");
         if(!style){
-            jsvm = document.getElementById("j$vm");
-            head = jsvm.parentNode;
-            style = document.createElement("link");
-            style.id   = "j$vm_css";
-            style.rel  = "stylesheet";
-            style.type = "text/css";
-            style.href = J$VM.env.j$vm_home + "/../style/"+this.theme()+"/jsvm.css";
-            J$VM.System.err.println(style.text);
-            head.insertBefore(style, jsvm);
+            _updateJ$VMCSS.call(this);
         }
     };
     
