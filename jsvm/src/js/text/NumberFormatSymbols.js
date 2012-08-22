@@ -150,3 +150,4 @@ js.text.NumberFormatSymbols = function(symbols){
 
 }.$extend(js.lang.Object);
 
+js.text.DefaultNumberSymbols = new js.text.NumberFormatSymbols();

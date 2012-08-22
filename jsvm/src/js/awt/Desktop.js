@@ -247,6 +247,11 @@ js.awt.Desktop = function (element){
             this.doLayout(true);
         }
     };
+    
+    var _forbidContextMenu = function(e){
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
 
     /**
      * @see js.awt.BaseComponent
@@ -275,9 +280,10 @@ js.awt.Desktop = function (element){
         };
         
         arguments.callee.__super__.apply(this, [def, this, element]);
+        
+        var body = document.body;
 
         if(!element){
-            var body = document.body;
             this.insertBefore(body.firstChild, body);
         }
 
@@ -295,14 +301,20 @@ js.awt.Desktop = function (element){
 
         }.$override(DM.destroy);
         
-        this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
+        Event.attachEvent(this.view, Event.W3C_EVT_RESIZE, 
+                          4, this, _onresize);
         
         // Bring the component to the front and notify popup LayerManager
-        Event.attachEvent(document.body, "mousedown", 0, this, _notifyLM);
+        Event.attachEvent(body, "mousedown", 
+                          0, this, _notifyLM);
 
         // Notify popup LayerManager
-        Event.attachEvent(document.body,
-                          J$VM.firefox ? "DOMMouseScroll" : "mousewheel",0, this, _notifyLM);
+        Event.attachEvent(body,
+                          J$VM.firefox ? "DOMMouseScroll" : "mousewheel", 
+                          0, this, _notifyLM);
+        
+        Event.attachEvent(body, "contextmenu",
+                          0, this, _forbidContextMenu);
 
         MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
         
