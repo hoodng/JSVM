@@ -587,7 +587,6 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     
     // Only bind to treeView to avoid autoscroll when drag an item
     var _onmousedown = function(e){
-        var ele = e.srcElement;
         return e.cancelDefault();
     };
     
