@@ -1,4 +1,4 @@
-//<%@ include file="jsre.js" %>
+<%@ include file="jsre.js" %>
 (function(){
      var env = {
          // TODO:          
