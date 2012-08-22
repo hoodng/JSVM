@@ -304,15 +304,6 @@ js.awt.Table = function(def, Runtime) {
           			headerHolder.addComponent(this.scrollItem);
           			headerHolder.doLayout(true);
           			headerHolder.def.layout.cols.pop();
-          		} else {
-          			var bodyHolder = this['bodyHolder'];
-          			var tableBody = bodyHolder['tableBody'];
-          			if(tableBody) {
-          				bodyHolder.removeComponent(tableBody);
-          				tableBody.destroy();
-          				this.bodyDef.bounds.width -= 17;
-          				bodyHolder.addComponent(new js.awt.TableBody(this.bodyDef, this.Runtime()));
-          			}
           		}
           	}
           }
