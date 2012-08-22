@@ -52,6 +52,10 @@ js.awt.TextField = function(def, Runtime){
     var Class = js.lang.Class, Event = js.util.Event,
     System = J$VM.System, MQ = J$VM.MQ, DOM = J$VM.DOM;
 
+    thi$.getMsgType = function(){
+        return "js.awt.event.TextFieldEvent";        
+    };
+
     thi$.isEditable = function(){
         return this.view.readOnly == undefined;        
     };
@@ -65,9 +69,18 @@ js.awt.TextField = function(def, Runtime){
         }
     };
 
-    thi$.setValue = function(text){
+    thi$.setValue = function(text, notify){
+        var view = this.view;
+
         text = text || "";
-        this.view.value = text;
+        if(text != view.value){
+            view.value = text;
+            if(notify === true){
+                this.notifyPeer(
+                    this.getMsgType(), 
+                    new Event("changed", text, this));
+            }
+        }
     };
 
     thi$.getValue = function(){
@@ -105,11 +118,12 @@ js.awt.TextField = function(def, Runtime){
     thi$.insert = function(text, selection){
         selection = selection || this.getSelection();
 
-        var textarea = this.view, value = textarea.value,
+        var value = this.getValue(),
         v0 = value.substring(0, selection.start),
         v1 = value.substring(selection.end), p1 = v1.length;
 
-        value = textarea.value = [v0, v1].join((text || ""));
+        value = [v0, v1].join((text || ""));
+        this.setValue(value, true);
         p1 = value.length - p1;
 
         delete this._local.selection;
@@ -157,6 +171,18 @@ js.awt.TextField = function(def, Runtime){
             break;
         }
     };
+
+    var _onkeyevent = function(e){
+        var eType = e.getType(), keyCode = e.keyCode;
+        if(eType == "paste" || eType == "cut" ||
+           (eType == "keyup" && keyCode == 13)){
+
+            this.notifyPeer.$delay(this, 1,
+                this.getMsgType(), 
+                new Event("changed", this.getValue(), this));
+
+        }
+    };
     
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
@@ -174,13 +200,16 @@ js.awt.TextField = function(def, Runtime){
         }
         
         
-        var M = this.def;
+        var M = this.def, view = this.view;
         this.setValue(M.text);
         this.setEditable(M.editable);
-
-        this.attachEvent("mouseout",  0, this, _onmouseevent);
-        this.attachEvent("mousedown", 0, this, _onmouseevent);
-        this.attachEvent("mouseup",   0, this, _onmouseevent);
+        
+        Event.attachEvent(view, "mouseout",  0, this, _onmouseevent);
+        Event.attachEvent(view, "mousedown", 0, this, _onmouseevent);
+        Event.attachEvent(view, "mouseup",   0, this, _onmouseevent);
+        Event.attachEvent(view, "keyup",     0, this, _onkeyevent);
+        Event.attachEvent(view, "paste",     0, this, _onkeyevent);
+        Event.attachEvent(view, "cut",       0, this, _onkeyevent);
 
     }.$override(this._init);
     

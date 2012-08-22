@@ -65,7 +65,11 @@ js.awt.PopupLayer = function () {
 		return this._local.floatingSettled;
 	};
 	
-	thi$.rootLayer = function(){
+	thi$.rootLayer = function(root){
+		if(root){
+			this._local.root = root;
+		}
+		
 		return this._local.root;  
 	};
 	
@@ -99,11 +103,11 @@ js.awt.PopupLayer = function () {
 	 * For some floating layer, before it is removed, something need be done at 
 	 * first. If so it need to implement this function.
 	 */ 
-	thi$.beforeRemoveLayer = function(){
+	thi$.beforeRemoveLayer = function(e){
 		var peer = this.getPeerComponent();
 		if((this == this.rootLayer()) && peer){
 			MQ.post("js.awt.event.LayerEvent", 
-					new Event("beforeRemoveLayer", "", this), 
+					new Event("beforeRemoveLayer", e || "", this), 
 					[peer.uuid()]);	   
 		}
 	};
