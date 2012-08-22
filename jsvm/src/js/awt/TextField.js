@@ -172,16 +172,10 @@ js.awt.TextField = function(def, Runtime){
         }
     };
 
-    var _onkeyevent = function(e){
-        var eType = e.getType(), keyCode = e.keyCode;
-        if(eType == "paste" || eType == "cut" ||
-           (eType == "keyup" && keyCode == 13)){
-
-            this.notifyPeer.$delay(this, 1,
-                this.getMsgType(), 
-                new Event("changed", this.getValue(), this));
-
-        }
+    var _onblur = function(e){
+        this.notifyPeer(
+            this.getMsgType(), 
+            new Event("changed", this.getValue(), this));
     };
     
     thi$._init = function(def, Runtime){
@@ -207,9 +201,7 @@ js.awt.TextField = function(def, Runtime){
         Event.attachEvent(view, "mouseout",  0, this, _onmouseevent);
         Event.attachEvent(view, "mousedown", 0, this, _onmouseevent);
         Event.attachEvent(view, "mouseup",   0, this, _onmouseevent);
-        Event.attachEvent(view, "keyup",     0, this, _onkeyevent);
-        Event.attachEvent(view, "paste",     0, this, _onkeyevent);
-        Event.attachEvent(view, "cut",       0, this, _onkeyevent);
+        Event.attachEvent(view, "blur",      0, this, _onblur);
 
     }.$override(this._init);
     
