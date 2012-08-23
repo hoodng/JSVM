@@ -119,6 +119,10 @@ js.awt.DatePicker = function(def, Runtime){
         }
     };
 
+    thi$.getDate = function(){
+        return this.calendar.getDate();
+    };
+
     var _onFieldChanged = function(e){
         var eType = e.getType(),
         data = e.getData(), val = data.pos, base,
@@ -160,7 +164,9 @@ js.awt.DatePicker = function(def, Runtime){
     };
 
     var _onAMPMChanged = function(e){
-        var fHour = this.fHour, val;
+        var calendar = this.calendar, 
+        fHour = this.fHour, val;
+
         if(e.getType() == "mouseup"){
             val = fHour.getPos();
             if(val >= 12 && this.rdoAM.isMarked()){
@@ -168,7 +174,8 @@ js.awt.DatePicker = function(def, Runtime){
             }else if(val < 12 && this.rdoPM.isMarked()){
                 fHour.setPos(val + 12);
             }
-            this.calendar.set(Calendar.HOUR_OF_DAY, fHour.getPos());
+            
+            calendar.set(Calendar.HOUR_OF_DAY, fHour.getPos());
 
             this.notifyPeer(
                 this.getMsgType(), 

@@ -170,10 +170,8 @@ js.awt.Calendar = function(def, Runtime){
 
     var _onclick = function(e){
         var ele = e.srcElement, eid = ele ? ele.uuid : undefined,
-        cache = this.cache, item;
-
-        if(eid){
-            item = cache[eid];
+        cache = this.cache, item = cache[eid];
+        if(item){
             this.setDate(item.getDate(), true);
         }
     };

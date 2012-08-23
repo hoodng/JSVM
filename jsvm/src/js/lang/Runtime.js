@@ -42,108 +42,6 @@ js.lang.Runtime = function(){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event;
-
-    thi$.PID = function(pid){
-        if(pid != undefined){
-            this._local.pid = pid;
-        }
-        return this._local.pid;
-    };
-
-    thi$.userInfo = function(userinfo){
-        if(Class.is(userinfo, "object")){
-            this._local.userinfo = userinfo;
-        }
-        return this._local.userinfo;
-    };
-
-    thi$.dateSymbols = function(symbols){
-        if(Class.is(symbols, "object")){
-            this._local.symbols = symbols;
-        }
-
-        return this._local.symbols || 
-            Class.forName("js.text.DateFormatSymbols").Default;        
-    };
-
-    /**
-     * Set i18n dictionary 
-     * 
-     * @param dict, i18n dictionary
-     */
-    thi$.setDict = function(dict){
-        this._local.dict = dict || {};
-    };
-    
-    /**
-     * Returen i18n dictionary.
-     */
-    thi$.getDict = function(){
-        if(!this._local.dict){
-            this._local.dict = {};
-        }
-
-        return this._local.dict;
-    };
-
-    /**
-     * Return i18n text with the specified key
-     * 
-     * @param key, the text id
-     * @return i18n text of the key
-     */
-    thi$.nlsText = function(key, defaultText){
-        var dict = this._local.dict;
-        return  dict ? 
-            (dict[key] || (defaultText || key)) : 
-            (defaultText || key);
-    };
-    
-    thi$.prefer = function(prefer){
-        if(Class.isObject(prefer)){
-            this._local.prefer = prefer;
-        }
-        return this._local.prefer;
-    };
-
-    thi$.themes = function(themes){
-        if(Class.isArray(themes)){
-            this._local.themes = themes;
-        }
-        return this._local.themes;
-    };
-
-    thi$.theme = function(theme){
-        if(Class.isString(theme)){
-            this._local.theme = theme;
-            // TODO: Notify server ?
-        }
-
-        return this._local.theme || "default";
-    };
-    
-    thi$.imagePath = function(imagePath){
-        if(Class.isString(imagePath)){
-            this._local.imagePath = imagePath;
-        }
-
-        return this._local.imagePath || 
-            "../../style/"+this.theme()+"/images/";
-    };
-
-    thi$.postEntry = function(entry){
-        if(Class.isString(entry)){
-            this.servlet = this._local.postEntry = entry;
-        }
-        return this._local.postEntry;
-    };
-
-    thi$.getsEntry = function(entry){
-        if(Class.isString(entry)){
-            this.getpath = this._local.getsEntry = entry;
-        }
-        return this._local.getsEntry;
-    };
     
     thi$.getProperty = function(key, defValue){
         return this._local[key] || defValue;
@@ -153,11 +51,129 @@ js.lang.Runtime = function(){
         this._local[key] = value;
     };
 
+    thi$.PID = function(pid){
+        if(pid != undefined){
+            this.setProperty("pid", pid);
+        }
+        return this.getProperty("pid", "");
+    };
+
+    thi$.userInfo = function(userinfo){
+        if(Class.isObject(userinfo)){
+            this.setProperty("userinfo", userinfo);
+        }
+        return this.getProperty("userinfo");
+    };
+
+    thi$.getLocal = function(){
+        var userinfo = this.userInfo();
+
+        return userinfo ? userinfo.lang+"_"+userinfo.country :
+            navigator.language.replace(/-/,"_");
+    };
+
+    thi$.dateSymbols = function(symbols){
+        if(Class.isObject(symbols)){
+            this.setProperty("dateSymbols", symbols);
+        }
+
+        return this.getProperty(
+            "dateSymbols", 
+            Class.forName("js.text.resources."+this.getLocal()).dateSymbols);
+    };
+    
+    thi$.numberSymbols = function(symbols){
+        if(Class.isObject(symbols)){
+            this.setProperty("numrSymbols", symbols);
+        }
+
+        return this.getProperty(
+            "numrSymbols",
+            Class.forName("js.text.resources."+this.getLocal()).numrSymbols);
+    };
+
+    /**
+     * Set i18n dictionary 
+     * 
+     * @param dict, i18n dictionary
+     */
+    thi$.setDict = function(dict){
+        this.setProperty("dict", (dict || {}));
+    };
+    
+    /**
+     * Returen i18n dictionary.
+     */
+    thi$.getDict = function(){
+        return this.getProperty("dict", {});
+    };
+
+    /**
+     * Return i18n text with the specified key
+     * 
+     * @param key, the text id
+     * @return i18n text of the key
+     */
+    thi$.nlsText = function(key, defaultText){
+        var dict = this.getDict();
+
+        return dict[key] || defaultText || key;
+    };
+    
+    thi$.prefer = function(prefer){
+        if(Class.isObject(prefer)){
+            this.setProperty("prefer", prefer);
+        }
+        return this.getProperty("prefer", {});
+    };
+
+    thi$.themes = function(themes){
+        if(Class.isArray(themes)){
+            this.setProperty("themes", themes);
+        }
+        return this.getProperty("themes", ["default"]);
+    };
+
+    thi$.theme = function(theme){
+        if(Class.isString(theme)){
+            this.setProperty("theme", theme);
+            _updateJ$VMCSS.call(this);
+        }
+        return this.getProperty("theme", "default");
+    };
+    
+    thi$.imagePath = function(imagePath){
+        if(Class.isString(imagePath)){
+            this.setProperty("imagePath", imagePath);
+        }
+        
+        return this.getProperty(
+            "imagePath", 
+            J$VM.env.j$vm_home+"/../style/"+this.theme()+"/images/");
+    };
+
+    thi$.postEntry = function(entry){
+        if(Class.isString(entry)){
+            this.setProperty("postEntry", entry);
+            this.servlet = entry;
+        }
+        return this.getProperty("postEntry", ".vt");
+    };
+
+    thi$.getsEntry = function(entry){
+        if(Class.isString(entry)){
+            this.setProperty("getsEntry", entry);
+            this.getpath = entry;
+        }
+        return this.getProperty("getsEntry", "/vt");
+    };
+    
+
     thi$.mode = function(mode){
         if(Class.isNumber(mode)){
-            this._local.mode = mode;
+            this.setProperty("mode", mode);
         }
-        return this._local.mode || 0;
+        return this.getProperty("mode", 0);
     };
 
     thi$.isEditMode = function(){
@@ -190,17 +206,65 @@ js.lang.Runtime = function(){
         }
     };
 
+    var _updateJ$VMCSS = function(){
+        var style = document.getElementById("j$vm_css"),
+        stylePath = J$VM.env.j$vm_home + "/../style/"+this.theme()+"/", 
+        cssText = Class.getResource(stylePath + "jsvm.css");
+        
+        if(!style){
+            style = document.createElement("style");
+            style.id   = "j$vm_css";
+            style.title= "j$vm_css";
+            style.type = "text/css";
+        }else{
+            style.parentNode.removeChild(style);
+        }
+
+        cssText = cssText.replace(/images\//gi, stylePath+"images/");
+        if(style.styleSheet){
+            // IE
+            style.styleSheet.cssText = cssText;
+        }else{
+            // Others
+            style.innerHTML = cssText;
+        }
+
+        var jsvm = document.getElementById("j$vm");
+        jsvm.parentNode.insertBefore(style, jsvm);
+    };
+    
+    var _loadJ$VMCSS = function(){
+        var style = document.getElementById("j$vm_css");
+        if(!style){
+            _updateJ$VMCSS.call(this);
+        }
+    };
+    
+    thi$.initialize = function(env){
+        J$VM.System.objectCopy(env || {}, this._local);
+
+        _loadJ$VMCSS.call(this);
+    };
+
 };
 
 js.lang.NoUIRuntime = function(){
     
     var CLASS = js.lang.NoUIRuntime, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
+        this._init.apply(this, arguments);
         return;
     }
     CLASS.__defined__ = true;
+    
+    thi$._init = function(){
+        arguments.callee.__super__.apply(this, arguments);
+        
+        this._local = {};
 
+    }.$override(this._init);
 
+    this._init.apply(this, arguments);
     
 }.$extend(js.util.EventTarget).$implements(js.lang.Runtime);
 

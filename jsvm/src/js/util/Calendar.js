@@ -745,12 +745,12 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             }
             break;
         case MINUTE:
-            if(value >=0 && value < 59){
+            if(value >=0 && value < 60){
                 date.setMinutes(value);                
             }
             break;
         case SECOND:
-            if(value >=0 && value < 59){
+            if(value >=0 && value < 60){
                 date.setSeconds(value);                
             }
             break;

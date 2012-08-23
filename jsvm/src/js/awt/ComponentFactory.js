@@ -66,6 +66,10 @@ js.awt.ComponentFactory = function(){
         return nocache === true ? 
             _wClass : System.objectCopy(_wClass, {}, true);
     };
+    
+    thi$.hasClass = function(className){
+        return Class.isObject(this._classes[className]);
+    };
 
     thi$.createComponent = function(className, opitons, Runtime){
         var comp, wClass = this.getClass(className);

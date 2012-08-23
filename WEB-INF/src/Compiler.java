@@ -45,7 +45,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,7 +76,7 @@ public class Compiler {
         boolean verbose = false;
 
         String src = ".";
-		String des = ".";
+        String des = ".";
 
         int optLevel = 0;
         String pkgLst = "pkg.lst";
@@ -84,10 +86,10 @@ public class Compiler {
             if ("-s".equals(op)) {
                 i++;
                 src = args[i];
-            } else if("-d".equals(op)){
-				i++;
-				des = args[i];
-			}else if ("-O".equals(op)) {
+            } else if ("-d".equals(op)) {
+                i++;
+                des = args[i];
+            } else if ("-O".equals(op)) {
                 compile = true;
                 i++;
                 optLevel = Integer.parseInt(args[i], 10);
@@ -97,7 +99,7 @@ public class Compiler {
                 pack = true;
                 i++;
                 pkgLst = args[i];
-            } else if("-verbose".equals(op)){
+            } else if ("-verbose".equals(op)) {
                 verbose = true;
             }
         }
@@ -105,15 +107,16 @@ public class Compiler {
         logger = new Logger(verbose);
 
         File srcRoot = null, desRoot = null;
-		try{
-			srcRoot = new File(new File(src).getCanonicalPath());
-			desRoot = new File(new File(des).getCanonicalPath());
-		}catch(Exception e){
-			e.printStackTrace();
-			System.exit(-1);
-		}
+        try {
+            srcRoot = new File(new File(src).getCanonicalPath());
+            desRoot = new File(new File(des).getCanonicalPath());
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
 
-		if(!desRoot.exists()) desRoot.mkdirs();
+        if (!desRoot.exists())
+            desRoot.mkdirs();
 
         if (clean) {
             System.out.println("Clean...");
@@ -130,9 +133,9 @@ public class Compiler {
         }
 
         if (pack) {
-            try{
+            try {
                 pack(srcRoot, desRoot, pkgLst);
-            }catch(Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -140,9 +143,9 @@ public class Compiler {
 
     private static void compileFiles(File src, File des, int optLevel) {
         List<File> list = FileUtil.list(src, jsFilter, true, null);
-		String srcPath = src.getAbsolutePath();
-		String desPath = des.getAbsolutePath();
-		int srcPathLen = srcPath.length();
+        String srcPath = src.getAbsolutePath();
+        String desPath = des.getAbsolutePath();
+        int srcPathLen = srcPath.length();
 
         Context cx = Context.enter();
         try {
@@ -150,8 +153,8 @@ public class Compiler {
             Scriptable scope = cx.initStandardObjects();
             for (File f : list) {
                 String srcFile = f.getAbsolutePath();
-				String desFile = desPath + srcFile.substring(srcPathLen);
-				desFile = desFile.replaceAll("\\.js", ".jz");
+                String desFile = desPath + srcFile.substring(srcPathLen);
+                desFile = desFile.replaceAll("\\.js", ".jz");
 
                 File zf = new File(desFile);
                 if (!zf.exists() || zf.lastModified() < f.lastModified()) {
@@ -174,12 +177,13 @@ public class Compiler {
 
     private static Script compile0(File file, Context cx, Scriptable scope) {
         Script script = null;
-        FileReader reader = null;
+        Reader reader = null;
         try {
-            reader = new FileReader(file);
+            reader = new InputStreamReader(new FileInputStream(file), "UTF-8");
             String srcName = FileUtil.getFileName(file.getAbsolutePath());
             script = cx.compileReader(reader, srcName, 0, null);
         } catch (Exception e) {
+            System.err.println(file.getAbsolutePath());
             e.printStackTrace();
         } finally {
             try {
@@ -194,8 +198,9 @@ public class Compiler {
         FileWriter writer = null;
 
         try {
-			File folder = file.getParentFile();
-			if(!folder.exists()) folder.mkdirs();
+            File folder = file.getParentFile();
+            if (!folder.exists())
+                folder.mkdirs();
 
             writer = new FileWriter(file);
 
@@ -218,7 +223,8 @@ public class Compiler {
         }
     }
 
-    private static void pack(File src, File des, String packFile) throws Exception {
+    private static void pack(File src, File des, String packFile)
+            throws Exception {
         String dir = FileUtil.getFilePath(packFile);
         LineNumberReader reader = new LineNumberReader(new FileReader(packFile));
 
@@ -236,19 +242,19 @@ public class Compiler {
         for (int i = 0, jlen = jtasks.length(); i < jlen; i++) {
             String taskName = jtasks.getString(i);
             JSONObject jtask = jPack.optJSONObject(taskName);
-            jtask.put("srcpath", 
-					  new File(dir + jtask.optString("srcpath")).getCanonicalPath());
-            jtask.put("despath", 
-					  new File(dir + jtask.optString("despath")).getCanonicalPath());
-			jtask.put("srcroot", src.getAbsolutePath());
-			jtask.put("jszroot", des.getAbsolutePath());
+            jtask.put("srcpath", new File(dir + jtask.optString("srcpath"))
+                    .getCanonicalPath());
+            jtask.put("despath", new File(dir + jtask.optString("despath"))
+                    .getCanonicalPath());
+            jtask.put("srcroot", src.getAbsolutePath());
+            jtask.put("jszroot", des.getAbsolutePath());
             Task task = new Task(taskName, jtask);
             task.run();
         }
     }
 
     private static InputStream addBuildVersion(InputStream in)
-        throws IOException {
+            throws IOException {
         StringBuilder sb = new StringBuilder();
 
         byte[] buf = new byte[2048];
@@ -270,41 +276,41 @@ public class Compiler {
 
         String str = sb.toString();
 
-        str = str.replaceFirst("\\$\\{build\\}", 
-                               IDGenerator.getUniqueID().toString());
+        str = str.replaceFirst("\\$\\{build\\}", IDGenerator.getUniqueID()
+                .toString());
 
         return new ByteArrayInputStream(str.getBytes("UTF-8"));
     }
 
     static FileFilter jsFilter = new FileFilter() {
 
-            public boolean accept(File pathname) {
-                String ext = "js";
-                return pathname.isDirectory()
+        public boolean accept(File pathname) {
+            String ext = "js";
+            return pathname.isDirectory()
                     || ext.equalsIgnoreCase(FileUtil.getFileSuffix(pathname
-                                                                   .getAbsolutePath()));
-            }
-        };
+                            .getAbsolutePath()));
+        }
+    };
 
     static FileFilter jzFilter = new FileFilter() {
 
-            public boolean accept(File pathname) {
-                String ext = "jz";
-                return pathname.isDirectory()
+        public boolean accept(File pathname) {
+            String ext = "jz";
+            return pathname.isDirectory()
                     || ext.equalsIgnoreCase(FileUtil.getFileSuffix(pathname
-                                                                   .getAbsolutePath()));
-            }
-        };
+                            .getAbsolutePath()));
+        }
+    };
 
     static class Logger {
         boolean verbose;
 
-        public Logger(boolean verbose){
+        public Logger(boolean verbose) {
             this.verbose = verbose;
         };
 
-        public void println(String s){
-            if(verbose){
+        public void println(String s) {
+            if (verbose) {
                 System.out.println(s);
             }
         };
@@ -316,10 +322,10 @@ public class Compiler {
         private String desPath;
         private String desFile;
         private String srcPath;
-		private String srcRoot;
-		private String jszRoot;
+        private String srcRoot;
+        private String jszRoot;
         private List<String> srcFiles;
-		private int srcRootLen;
+        private int srcRootLen;
 
         public Task(String name, JSONObject task) {
             this.name = name;
@@ -327,9 +333,9 @@ public class Compiler {
             this.desPath = task.optString("despath");
             this.desFile = task.optString("name");
             this.srcPath = task.optString("srcpath");
-			this.srcRoot = task.optString("srcroot");
-			this.jszRoot = task.optString("jszroot");
-			this.srcRootLen = srcRoot.length();
+            this.srcRoot = task.optString("srcroot");
+            this.jszRoot = task.optString("jszroot");
+            this.srcRootLen = srcRoot.length();
 
             JSONArray ja = task.optJSONArray("files");
             if (ja != null) {
@@ -345,7 +351,7 @@ public class Compiler {
 
             FileOutputStream out;
             try {
-                out = new FileOutputStream(new File(this.desPath,this.desFile));
+                out = new FileOutputStream(new File(this.desPath, this.desFile));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 return;
@@ -354,15 +360,15 @@ public class Compiler {
             for (String file : this.srcFiles) {
                 InputStream input = null;
                 String rfile = new File(this.srcPath, file).getAbsolutePath();
-                logger.println(" << "+rfile);
+                logger.println(" << " + rfile);
                 try {
-                    if(this.compress){
-						rfile = this.jszRoot + rfile.substring(srcRootLen);
-                        rfile = rfile.replaceAll("\\.js",".jz");
+                    if (this.compress) {
+                        rfile = this.jszRoot + rfile.substring(srcRootLen);
+                        rfile = rfile.replaceAll("\\.js", ".jz");
                     }
 
                     input = new FileInputStream(rfile);
-                    if("js/jsvm.js".equals(file)){
+                    if ("js/jsvm.js".equals(file)) {
                         input = addBuildVersion(input);
                     }
 
