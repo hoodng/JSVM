@@ -62,12 +62,14 @@ js.lang.Runtime = function(){
         if(Class.isObject(userinfo)){
             this.setProperty("userinfo", userinfo);
         }
-        return this.getProperty("userinfo", {user:"", lang:"en",country:"US"});
+        return this.getProperty("userinfo");
     };
 
     thi$.getLocal = function(){
         var userinfo = this.userInfo();
-        return userinfo ? userinfo.lang+"_"+userinfo.country : "en_US";
+
+        return userinfo ? userinfo.lang+"_"+userinfo.country :
+            navigator.language.replace(/-/,"_");
     };
 
     thi$.dateSymbols = function(symbols){
