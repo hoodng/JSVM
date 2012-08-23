@@ -76,7 +76,7 @@ js.text.resources.iw_IL = function(){
         
         intlCurrency: "ILS",
 
-        currencySymbol: "ש"ח"
+        currencySymbol: "ש\"ח"
 
     };
 
