@@ -142,7 +142,7 @@ js.lang.Runtime = function(){
         
         return this.getProperty(
             "imagePath", 
-            "../../style/"+this.theme()+"/images/");
+            J$VM.env.j$vm_home+"/../style/"+this.theme()+"/images/");
     };
 
     thi$.postEntry = function(entry){
@@ -234,22 +234,8 @@ js.lang.Runtime = function(){
     };
     
     thi$.initialize = function(env){
-        env = env || {
-            pid: "",
-            userinfo: {},
-            dateSymbols: Class.forName("js.text.DateFormatSymbols").Default,
-            numrSymbols: Class.forName("js.text.NumberFormatSymbols").Default,
-            dict:{},
-            prefer:{},
-            themes: ["default"],
-            theme: "default",
-            postEntry: ".vt",
-            getsEntry: "/vt",
-            mode: 0
-        };
+        J$VM.System.objectCopy(env || {}, this._local);
 
-        J$VM.System.objectCopy(env, this._local);
-        
         _loadJ$VMCSS.call(this);
     };
 

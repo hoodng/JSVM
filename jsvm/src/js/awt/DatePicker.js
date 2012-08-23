@@ -194,7 +194,7 @@ js.awt.DatePicker = function(def, Runtime){
 
         date = Class.isDate(date) ? new Date(date.getTime()) : new Date();
         symbols = symbols ? symbols : R.dateSymbols();
-
+        System.err.println(JSON.stringify(symbols));
         if((type & 0x01) != 0){
             fMonth = new Spinner(
                 {
