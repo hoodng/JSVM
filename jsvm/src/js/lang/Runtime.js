@@ -62,7 +62,7 @@ js.lang.Runtime = function(){
         if(Class.isObject(userinfo)){
             this.setProperty("userinfo", userinfo);
         }
-        return this.getProperty("userinfo", {});
+        return this.getProperty("userinfo", {user:"", lang:"en",country:"US"});
     };
 
     thi$.getLocal = function(){

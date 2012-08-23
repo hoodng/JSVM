@@ -37,6 +37,7 @@
 
 $package("js.text");
 
+$import("js.text.Format");
 /**
  * 
  */
