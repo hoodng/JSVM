@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ar_KW = function(){
+js.text.resources.ar_KW = new function(){
 
     this.locale = "ar_KW";
     

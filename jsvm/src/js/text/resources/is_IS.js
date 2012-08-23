@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.is_IS = function(){
+js.text.resources.is_IS = new function(){
 
     this.locale = "is_IS";
     

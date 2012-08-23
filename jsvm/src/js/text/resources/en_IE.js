@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.en_IE = function(){
+js.text.resources.en_IE = new function(){
 
     this.locale = "en_IE";
     

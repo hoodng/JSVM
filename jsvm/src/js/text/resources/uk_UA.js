@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.uk_UA = function(){
+js.text.resources.uk_UA = new function(){
 
     this.locale = "uk_UA";
     

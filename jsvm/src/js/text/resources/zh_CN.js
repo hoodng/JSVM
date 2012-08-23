@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.zh_CN = function(){
+js.text.resources.zh_CN = new function(){
 
     this.locale = "zh_CN";
     

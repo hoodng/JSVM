@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.pl_PL = function(){
+js.text.resources.pl_PL = new function(){
 
     this.locale = "pl_PL";
     

@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ms_MY = function(){
+js.text.resources.ms_MY = new function(){
 
     this.locale = "ms_MY";
     

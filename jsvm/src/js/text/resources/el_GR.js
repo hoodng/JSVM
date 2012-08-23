@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.el_GR = function(){
+js.text.resources.el_GR = new function(){
 
     this.locale = "el_GR";
     

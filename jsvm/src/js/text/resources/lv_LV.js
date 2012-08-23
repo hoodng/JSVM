@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.lv_LV = function(){
+js.text.resources.lv_LV = new function(){
 
     this.locale = "lv_LV";
     

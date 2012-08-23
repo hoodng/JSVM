@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.fi_FI = function(){
+js.text.resources.fi_FI = new function(){
 
     this.locale = "fi_FI";
     

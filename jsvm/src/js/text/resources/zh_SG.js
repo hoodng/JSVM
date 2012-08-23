@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.zh_SG = function(){
+js.text.resources.zh_SG = new function(){
 
     this.locale = "zh_SG";
     

@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.mt_MT = function(){
+js.text.resources.mt_MT = new function(){
 
     this.locale = "mt_MT";
     

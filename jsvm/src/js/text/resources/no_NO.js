@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.no_NO = function(){
+js.text.resources.no_NO = new function(){
 
     this.locale = "no_NO";
     

@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.mk_MK = function(){
+js.text.resources.mk_MK = new function(){
 
     this.locale = "mk_MK";
     

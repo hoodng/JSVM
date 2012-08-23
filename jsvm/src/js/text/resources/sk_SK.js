@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.sk_SK = function(){
+js.text.resources.sk_SK = new function(){
 
     this.locale = "sk_SK";
     

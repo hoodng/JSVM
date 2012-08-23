@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.sv_SE = function(){
+js.text.resources.sv_SE = new function(){
 
     this.locale = "sv_SE";
     

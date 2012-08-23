@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.iw_IL = function(){
+js.text.resources.iw_IL = new function(){
 
     this.locale = "iw_IL";
     

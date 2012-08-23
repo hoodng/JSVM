@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ar_OM = function(){
+js.text.resources.ar_OM = new function(){
 
     this.locale = "ar_OM";
     

@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ar_MA = function(){
+js.text.resources.ar_MA = new function(){
 
     this.locale = "ar_MA";
     

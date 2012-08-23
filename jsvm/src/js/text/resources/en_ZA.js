@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.en_ZA = function(){
+js.text.resources.en_ZA = new function(){
 
     this.locale = "en_ZA";
     

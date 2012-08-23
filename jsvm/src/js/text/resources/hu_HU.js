@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.hu_HU = function(){
+js.text.resources.hu_HU = new function(){
 
     this.locale = "hu_HU";
     

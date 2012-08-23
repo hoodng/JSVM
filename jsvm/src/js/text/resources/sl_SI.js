@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.sl_SI = function(){
+js.text.resources.sl_SI = new function(){
 
     this.locale = "sl_SI";
     

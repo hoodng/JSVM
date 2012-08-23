@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.tr_TR = function(){
+js.text.resources.tr_TR = new function(){
 
     this.locale = "tr_TR";
     

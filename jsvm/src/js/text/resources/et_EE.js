@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.et_EE = function(){
+js.text.resources.et_EE = new function(){
 
     this.locale = "et_EE";
     

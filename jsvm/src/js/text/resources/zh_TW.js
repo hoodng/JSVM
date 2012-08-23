@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.zh_TW = function(){
+js.text.resources.zh_TW = new function(){
 
     this.locale = "zh_TW";
     

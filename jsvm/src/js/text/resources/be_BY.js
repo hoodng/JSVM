@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.be_BY = function(){
+js.text.resources.be_BY = new function(){
 
     this.locale = "be_BY";
     

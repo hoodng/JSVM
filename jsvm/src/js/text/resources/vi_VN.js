@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.vi_VN = function(){
+js.text.resources.vi_VN = new function(){
 
     this.locale = "vi_VN";
     

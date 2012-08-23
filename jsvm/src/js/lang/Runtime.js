@@ -65,14 +65,19 @@ js.lang.Runtime = function(){
         return this.getProperty("userinfo", {});
     };
 
+    thi$.getLocal = function(){
+        var userinfo = this.userInfo();
+        return userinfo ? userinfo.lang+"_"+userinfo.country : "en_US";
+    };
+
     thi$.dateSymbols = function(symbols){
         if(Class.isObject(symbols)){
             this.setProperty("dateSymbols", symbols);
         }
 
         return this.getProperty(
-            "dateSymbols",
-            Class.forName("js.text.DateFormatSymbols").Default);
+            "dateSymbols", 
+            Class.forName("js.text.resources."+this.getLocal()).dateSymbols);
     };
     
     thi$.numberSymbols = function(symbols){
@@ -82,7 +87,7 @@ js.lang.Runtime = function(){
 
         return this.getProperty(
             "numrSymbols",
-            Class.forName("js.text.DateFormatSymbols").Default);
+            Class.forName("js.text.resources."+this.getLocal()).numrSymbols);
     };
 
     /**

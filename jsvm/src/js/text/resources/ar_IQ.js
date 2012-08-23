@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ar_IQ = function(){
+js.text.resources.ar_IQ = new function(){
 
     this.locale = "ar_IQ";
     

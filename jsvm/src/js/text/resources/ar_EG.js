@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ar_EG = function(){
+js.text.resources.ar_EG = new function(){
 
     this.locale = "ar_EG";
     

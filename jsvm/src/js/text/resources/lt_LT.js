@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.lt_LT = function(){
+js.text.resources.lt_LT = new function(){
 
     this.locale = "lt_LT";
     

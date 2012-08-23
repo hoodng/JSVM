@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.da_DK = function(){
+js.text.resources.da_DK = new function(){
 
     this.locale = "da_DK";
     

@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.in_ID = function(){
+js.text.resources.in_ID = new function(){
 
     this.locale = "in_ID";
     

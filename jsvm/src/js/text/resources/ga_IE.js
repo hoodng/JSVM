@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ga_IE = function(){
+js.text.resources.ga_IE = new function(){
 
     this.locale = "ga_IE";
     

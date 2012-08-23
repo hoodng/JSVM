@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ja_JP = function(){
+js.text.resources.ja_JP = new function(){
 
     this.locale = "ja_JP";
     

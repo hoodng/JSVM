@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ru_RU = function(){
+js.text.resources.ru_RU = new function(){
 
     this.locale = "ru_RU";
     

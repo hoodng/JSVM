@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.nl_NL = function(){
+js.text.resources.nl_NL = new function(){
 
     this.locale = "nl_NL";
     

@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.de_LU = function(){
+js.text.resources.de_LU = new function(){
 
     this.locale = "de_LU";
     

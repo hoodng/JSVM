@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.cs_CZ = function(){
+js.text.resources.cs_CZ = new function(){
 
     this.locale = "cs_CZ";
     

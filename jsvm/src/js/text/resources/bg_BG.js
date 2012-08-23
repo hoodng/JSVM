@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.bg_BG = function(){
+js.text.resources.bg_BG = new function(){
 
     this.locale = "bg_BG";
     

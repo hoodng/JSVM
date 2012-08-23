@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ar_LB = function(){
+js.text.resources.ar_LB = new function(){
 
     this.locale = "ar_LB";
     

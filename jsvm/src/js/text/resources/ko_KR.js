@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.ko_KR = function(){
+js.text.resources.ko_KR = new function(){
 
     this.locale = "ko_KR";
     

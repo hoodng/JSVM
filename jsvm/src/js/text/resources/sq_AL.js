@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.sq_AL = function(){
+js.text.resources.sq_AL = new function(){
 
     this.locale = "sq_AL";
     

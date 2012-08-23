@@ -37,7 +37,7 @@
 
 $package("js.text.resources");
 
-js.text.resources.hr_HR = function(){
+js.text.resources.hr_HR = new function(){
 
     this.locale = "hr_HR";
     
