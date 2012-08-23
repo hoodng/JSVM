@@ -244,8 +244,13 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         };
 
         // Update marker style
+        var marked = this.marked;
         for(i=0, len=nodes.length; i<len; i++){
-            nodes[i].updateBranchStyle();
+            item = nodes[i];
+            item.updateBranchStyle();
+            if(item.isMarked()){
+                marked.push(item);
+            }
         }
     };
 
