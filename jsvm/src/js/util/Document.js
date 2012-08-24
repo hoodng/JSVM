@@ -706,8 +706,7 @@ js.util.Document = function (){
         if(bounds.BBM === undefined){
             // BBM: BorderBoxModel
             bounds.BBM = (J$VM.supports.borderBox ||
-                          Class.typeOf(el) === "htmlinputelement" ||
-                          Class.typeOf(el) === "htmltextareaelement");
+                          Class.typeOf(el) === "htmlinputelement");
 
             var currentStyles = this.currentStyles(el, isEle);
             this.getMargin(el, currentStyles, isEle);

@@ -286,10 +286,37 @@ js.lang.System = function (env, vm){
         div = view = undefined;
     };
     
+    var _detectDoctype = function(){
+        var re=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi, 
+        doctype = vm.doctype = {declared: false};
+
+        if(typeof document.namespaces != "undefined"){
+            value = document.all[0].nodeType == 8
+                ? document.all[0].nodeValue : null;
+            if(value && (value.toLowerCase().indexOf("doctype") != -1)){
+                doctype.declared = true;
+            }
+        }else{
+            if(document.doctype != null){
+                doctype.declared = true;
+                value = document.doctype.publicId;
+            }
+        }
+        
+        try{
+            if(doctype.declared && re.test(value) && RegExp.$1){
+                doctype["xhtml"] = (RegExp.$1).toUpperCase();
+                doctype["version"] = RegExp.$2;
+                doctype["importance"] = RegExp.$3;
+            }
+        }catch(e){}
+    };
+    
     var _onload = function(e){
         J$VM.System.out.println("J$VM load...");
 
         _checkBrowser.call(this);
+        _detectDoctype.call(this);
 
         var Event = js.util.Event, dom = vm.hwnd.document;
         Event.attachEvent(dom, "keydown", 0, this, _onkeyevent);

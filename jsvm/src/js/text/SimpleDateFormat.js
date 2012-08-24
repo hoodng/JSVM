@@ -190,9 +190,10 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
      */
     thi$.format = function(date, isUTC){
         date = date ? date : new Date();
-        if(!Class.isDate(date))
-            throw SyntaxError("Invalid date");
-
+        if(!Class.isDate(date)){
+            return date;
+        }
+            
         var _symbols = this.symbols;
         return this.pattern.replace(
             TOKEN, 
