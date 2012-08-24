@@ -305,8 +305,7 @@ js.awt.Desktop = function (element){
 
         }.$override(DM.destroy);
         
-        Event.attachEvent(this.view, Event.W3C_EVT_RESIZE, 
-                          4, this, _onresize);
+        this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
         
         // Bring the component to the front and notify popup LayerManager
         Event.attachEvent(body, "mousedown", 

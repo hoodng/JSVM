@@ -67,9 +67,18 @@ js.lang.Runtime = function(){
 
     thi$.getLocal = function(){
         var userinfo = this.userInfo();
+        if(!userinfo){
+            userinfo = this._local.userinfo = {};
+        }
 
-        return userinfo ? userinfo.lang+"_"+userinfo.country :
-            navigator.language.replace(/-/,"_");
+        if(!Class.isString(userinfo.lang)){
+            var locale = (navigator.userLanguage || 
+                          navigator.language).split("-");
+            userinfo.lang = locale[0];
+            userinfo.country = locale[1].toUpperCase(); 
+        }
+
+        return userinfo.lang+"_"+userinfo.country;
     };
 
     thi$.dateSymbols = function(symbols){
@@ -125,6 +134,21 @@ js.lang.Runtime = function(){
             this.setProperty("prefer", prefer);
         }
         return this.getProperty("prefer", {});
+    };
+
+    thi$.datePattern = function(){
+        var common = this.prefer().common;
+        return common ? common.dateFormat : "yyyy-MM-dd";
+    };
+
+    thi$.timePattern = function(){
+        var common = this.prefer().common;
+        return common ? common.timeFormat : "HH:mm:ss";
+    };
+
+    thi$.timestampPattern = function(){
+        var common = this.prefer().common;
+        return common ? common.timestampFormat : "yyyy-MM-dd HH:mm:ss";
     };
 
     thi$.themes = function(themes){
