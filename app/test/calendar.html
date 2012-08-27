@@ -1,10 +1,9 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
 
 <script id="j$vm" 
-        src="http://192.168.128.19:8888/webos/jsvm/jsvm.jsp"
+        src="../../jsvm/jsvm.jsp"
         classpath="lib/../jsre-ui.js"
         -DmainClass="org.jsvm.App"></script>
 
@@ -37,14 +36,14 @@ J$VM.exec("org.jsvm.App",function(System){
     var Class = js.lang.Class, 
     Calendar = Class.forName("js.util.Calendar");
 
-    
-
     var calendar = new com.jinfonet.common.Calendar(
 						  {
-                             x: 10, y: 10,
-                             date: new Date(),
-                             type: 3,
-                             resizable: true
+                              x: 20, y: 20,
+                              dateType: "Time",
+                              pattern: "yyyy-MM-dd HH:mm:ss",
+                              hasExp: true,
+                              hasUTD: false
+
 						  }, this);
 
     this.addComponent(calendar);
