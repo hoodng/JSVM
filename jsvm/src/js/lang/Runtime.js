@@ -66,7 +66,7 @@ js.lang.Runtime = function(){
     };
 
     thi$.getLocal = function(){
-        var userinfo = this.userInfo();
+        var userinfo = this.userInfo(), buf = [];
         if(!userinfo){
             userinfo = this._local.userinfo = {};
         }
@@ -77,8 +77,14 @@ js.lang.Runtime = function(){
             userinfo.lang = locale[0];
             userinfo.country = locale[1].toUpperCase(); 
         }
+        
+        buf.push(userinfo.lang);
+        if(userinfo.country){
+            buf.push("_");
+            buf.push(userinfo.country.toUpperCase());
+        }
 
-        return userinfo.lang+"_"+userinfo.country;
+        return buf.join("");
     };
 
     thi$.dateSymbols = function(symbols){
