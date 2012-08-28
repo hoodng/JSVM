@@ -419,16 +419,19 @@ js.lang.System = function (env, vm){
             if(!mainClass) return;
             J$VM.exec(mainClasName, 
                       function(){
-                          this.initialize(env);
+                          this.initialize();
                           (new mainClass()).main(this);
                       });
         }else if(typeof window[mainFuncName] == "function"){
             J$VM.exec(mainFuncName, 
                       function(){
-                          this.initialize(env);
+                          this.initialize();
                           window[mainFuncName].call(this, this);
                       });
         }
+
+        this.objectCopy((env || {}), props);
+
     };
     
     var _init = function(env, vm){

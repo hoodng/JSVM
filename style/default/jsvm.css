@@ -568,6 +568,10 @@ body {
     
 }
 
+.jsvm_textfield_input {
+    background-color: #FFFFFF;
+}
+
 .jsvm_textfield_disable {
 	filter: alpha(Opacity = 50);
     -moz-opacity: 0.5;
@@ -1074,7 +1078,6 @@ body {
     border-color: gray;
     border-style: none solid solid solid;
     padding: 12px;
-    background-color: white;
 }
 
 .jsvm_fieldset {

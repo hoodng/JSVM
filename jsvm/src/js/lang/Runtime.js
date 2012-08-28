@@ -271,7 +271,9 @@ js.lang.Runtime = function(){
     };
     
     thi$.initialize = function(env){
-        J$VM.System.objectCopy(env || {}, this._local);
+        var System = J$VM.System;
+        System.objectCopy(System.getProperties(), this._local, true);
+        System.objectCopy(env || {}, this._local);
 
         _loadJ$VMCSS.call(this);
     };
