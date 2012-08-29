@@ -184,7 +184,11 @@ js.awt.Dialog = function (def, Runtime){
 
         DM.addComponent(this);
         this.getDialogObject().initialize();
-        this.doLayout(true);
+        if(this.btnpane){
+            // Maybe dialogObject modified btnpane, 
+            // so need doLayout 
+            this.btnpane.doLayout(true);
+        }
         this.setPosition(x, y);
     };
 
