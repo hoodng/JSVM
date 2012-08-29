@@ -1046,7 +1046,7 @@ body {
 .jsvm_tabpane_tabs_0 {
     height: 25px;
     padding: 3px 3px 0px 6px;
-    border-bottom: 1px solid gray;
+    border-bottom: 1px solid #CCC;
 }
 
 .jsvm_tabpane_tab,
@@ -1059,12 +1059,12 @@ body {
 }
 
 .jsvm_tabpane_tab_0{
-    border-color: gray;
+    border-color: #CCC;
     background-color: #DDD;
 }
 
 .jsvm_tabpane_tab_4{
-    border-color: gray gray #EEE gray;
+    border-color: #CCC #CCC #EEE #CCC;
 }
 
 .jsvm_tabpane_tab_label {
@@ -1075,7 +1075,7 @@ body {
 .jsvm_tabpane_panes,
 .jsvm_tabpane_panes_0 {
     border-width: 1px;
-    border-color: gray;
+    border-color: #CCC;
     border-style: none solid solid solid;
     padding: 12px;
 }
