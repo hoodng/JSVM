@@ -36,73 +36,6 @@
 $package("js.awt");
 
 /**
- * The TableModel interface specifies the methods the Table will use to
- * interrogate a tabular data model.
- * 
- */
-js.awt.TableModel = function() {
-
-	var CLASS = js.awt.TableModel, thi$ = CLASS.prototype;
-	if (CLASS.__defined__) {
-		return;
-	}
-	CLASS.__defined__ = true;
-
-	var Class = js.lang.Class;
-
-	/**
-	 * Adds a listener to the list that's notified each time a change to the
-	 * data model occurs.
-	 */
-	thi$.addModelListener = function(listener) {
-	};
-
-	/**
-	 * Removes a listener from the list that's notified each time a change to
-	 * the data model occurs.
-	 */
-	thi$.removeModelListener = function(listener) {
-	};
-
-	/**
-	 * Returns the number of columns in the model
-	 */
-	thi$.getColumnCount = function() {
-	};
-
-	/**
-	 * Returns the name of the column at colIndex.
-	 */
-	thi$.getColumnName = function(colIndex) {
-	};
-
-	/**
-	 * Returns the number of rows in the model
-	 */
-	thi$.getRowCount = function() {
-	};
-
-	/**
-	 * Returns the value for the cell at colIndex and rowIndex
-	 */
-	thi$.getVauleAt = function(rowIndex, colIndex) {
-	};
-
-	/**
-	 * Returns true if the cell at rowIndex and colIndex is editable.
-	 */
-	thi$.isCellEditable = function(rowIndex, colIndex) {
-	};
-
-	/**
-	 * Sets the value in the cell at colIndex and rowIndex to value
-	 */
-	thi$.setValueAt = function(value, rowIndex, colIndex) {
-	};
-
-};
-
-/**
  * 
  * The Table is used to display regular two-dimensional tables of cells
  * 
@@ -120,16 +53,12 @@ js.awt.TableBody = function(def, Runtime) {
 
 	var Class = js.lang.Class, System = J$VM.System;
 	
-	/**
-	 * Build table from a js.awt.Grid
-	 * 
-	 * @see js.awt.Grid
-	 */
-	thi$.buildTableBody = function(grid, def) {
-		//System.out.println(document.documentMode);
+	var _buildTableBody = function(grid, def) {
 		var R = this.Runtime(), m = grid.rowNum();
-        var i, j, m, n, row, rowUuid, trow, cell, tcell, rowData, cellData, className;
-        var cache = def.cache, data = def.data, rUuid = 'rowuuid';
+		var tbody = new (CLASS.TBody)({}, R);
+		tbody.appendTo(this.view);
+        var i, j, n, row, rowUuid, trow, cell, tcell, rowData, cellData, className, tempDiv;
+        var cache = def.cache, data = def.data, rUuid = 'rowuuid', title = 'title';
     	for (i = 0; i < m; i++) {
 			row = grid.row(i);
 			trow = undefined;
@@ -140,7 +69,7 @@ js.awt.TableBody = function(def, Runtime) {
 			}
 			if (trow) {
 				rowUuid = trow.view.uuid;
-				var n = grid.colNum(), tempDiv;
+				n = grid.colNum();
 				for (j = 0; j < n; j++) {
 					cell = grid.cell(i, j);
 					cellData = rowData[j];
@@ -159,17 +88,20 @@ js.awt.TableBody = function(def, Runtime) {
 							tcell.setText(cellData.value);
 						}					
 						tcell.setAttribute(rUuid, rowUuid);
+						tcell.setAttribute(title, cellData.value);
 						tcell.appendTo(trow.view);
 					}
 				}
 				cache[rowUuid] = trow;
-				trow.appendTo(this.view);
+				trow.appendTo(tbody.view);
 			}
 		}
 	};
 	    
 	thi$.destroy = function() {
 		delete this.grid;
+		delete this.def.cache;
+		delete this.def.data;
 		arguments.callee.__super__.apply(this, arguments);
 	}.$override(this.destroy);
    
@@ -179,27 +111,41 @@ js.awt.TableBody = function(def, Runtime) {
 		def.className = def.className || "jsvm_table";
 		def.viewType = "TABLE";
 		arguments.callee.__super__.apply(this, arguments);
-		this.grid = new (Class.forName("js.awt.Grid"))(this.def);
+		this.grid = new (Class.forName("js.awt.Grid"))(def);
 		var bounds = def.bounds;
 		this.grid.layout(bounds.left, bounds.top, bounds.width, bounds.height);
-		this.buildTableBody(this.grid, this.def);
+		_buildTableBody.call(this, this.grid, def);
 	}.$override(this._init);
 
 	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);
 
-js.awt.TableBody.Row = function(def, Runtime) {
+js.awt.TableBody.TBody = function(def, Runtime) {
+	var CLASS = js.awt.TableBody.TBody, thi$ = CLASS.prototype;
+	if (CLASS.__defined__) {
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	thi$._init = function(def, Runtime) {
+		if (def == undefined)
+			return;
+		def.viewType = "TBODY";
+		arguments.callee.__super__.apply(this, arguments);
+	}.$override(this._init);
+	this._init.apply(this, arguments);
+}.$extend(js.awt.Component);
 
+js.awt.TableBody.Row = function(def, Runtime) {
 	var CLASS = js.awt.TableBody.Row, thi$ = CLASS.prototype;
 	if (CLASS.__defined__) {
 		this._init.apply(this, arguments);
 		return;
 	}
 	CLASS.__defined__ = true;
-
-	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
-
+	
 	thi$._init = function(def, Runtime) {
 		if (def == undefined)
 			return;
@@ -210,32 +156,25 @@ js.awt.TableBody.Row = function(def, Runtime) {
 		var ele = this.view;
 		ele.uuid = def.uuid();
 	}.$override(this._init);
-
 	this._init.apply(this, arguments);
-
 }.$extend(js.awt.Component);
 
 js.awt.TableBody.Cell = function(def, Runtime) {
-
 	var CLASS = js.awt.TableBody.Cell, thi$ = CLASS.prototype;
 	if (CLASS.__defined__) {
 		this._init.apply(this, arguments);
 		return;
 	}
 	CLASS.__defined__ = true;
-
-	var Class = js.lang.Class, System = J$VM.System;
-
+	
 	thi$.setText = function(text, encode) {
 		this.def.text = text || "";
 		this.view.innerHTML = this.def.text;
-
 	};
 
 	thi$._init = function(def, Runtime) {
 		if (def == undefined)
 			return;
-
 		def.classType = def.classType || "js.awt.TableBody.Cell";
 		def.className = def.className || "jsvm_table_cell";
 		def.viewType = "TD";
@@ -245,9 +184,7 @@ js.awt.TableBody.Cell = function(def, Runtime) {
 		ele.setAttribute("colspan", "" + def.colSpan);
 		ele.uuid = def.uuid();
 	}.$override(this._init);
-
 	this._init.apply(this, arguments);
-
 }.$extend(js.awt.Component);
 
 /**
@@ -266,156 +203,48 @@ js.awt.Table = function(def, Runtime) {
 	}
 	CLASS.__defined__ = true;
 	var Class = js.lang.Class, System = J$VM.System;
-	
-    thi$.layoutComponents = function(force){
-    	arguments.callee.__super__.apply(this, arguments);
-    	if(this.data){
-    		var rowLen = this.data.length;
-          	var isScroll = (rowLen * 23) > (this.getBounds().innerHeight - 26);
-          	var headerHolder = this.getComponent('headerHolder');
-          	if(!isScroll) {
-          		if(this.scrollItem){        			
-          			headerHolder.removeComponent(this.scrollItem);
-          			headerHolder.def.layout.colNum--;
-          			headerHolder.layout.grid._init(headerHolder.def.layout);
-          			headerHolder.doLayout(true);
-          			var bodyHolder = this['bodyHolder'];
-          			var tableBody = bodyHolder['tableBody'];
-          			if(tableBody) {
-          				bodyHolder.removeComponent(tableBody);
-          				tableBody.destroy();
-          				bodyHolder.addComponent(new js.awt.TableBody(this.bodyDef, this.Runtime()));
-          			}
-          		} else {
-          			var bodyHolder = this['bodyHolder'];
-          			var tableBody = bodyHolder['tableBody'];
-          			if(tableBody) {
-          				bodyHolder.removeComponent(tableBody);
-          				tableBody.destroy();
-          				bodyHolder.addComponent(new js.awt.TableBody(this.bodyDef, this.Runtime()));
-          			}
-          		}
-          	} else if(this.scrollItem) {
-          		if(headerHolder.def.layout.colNum == this.def.headerNames.length){
-          			headerHolder.def.layout.cols[headerHolder.def.layout.colNum] = 
-          				{index: this.def.headerNames.length, rigid: true, measure: 16};
-          			headerHolder.def.layout.colNum++;
-          			headerHolder.layout.grid._init(headerHolder.def.layout);
-          			headerHolder.addComponent(this.scrollItem);
-          			headerHolder.doLayout(true);
-          			headerHolder.def.layout.cols.pop();
-          		}
-          	}
-          }
-    }.$override(this.layoutComponents);
-   
+
 	thi$.destroy = function() {
 		delete this.headerCache;
-		delete this.cache;
+		delete this.colsDef;
+		delete this.bodyDef;
+		if(this.lastHeaderItem)
+			delete this.lastHeaderItem;
+		if(this.curRow)
+			delete this.curRow;
 		arguments.callee.__super__.apply(this, arguments);
 	}.$override(this.destroy);
 
 	thi$.setTableBody = function(data){
 		this.data = data;
 		var R = this.Runtime();
-	    this.removeAll(true);
-	    this.headerCache = {};	
-	    var rowLen = 0;
+		var bodyHolder = this['bodyHolder'];
+	    bodyHolder.removeAll(true);
 	    if(data)
 	    	rowLen = data.length;
-		var isScroll = (rowLen * 23) > (this.getBounds().innerHeight - 26);
-		var headerNames = this.def.headerNames;
-		var columnLen = headerNames.length;
-		var colsDef; 
-		if(isScroll){
-			colsDef = new Array(columnLen + 1);
-			colsDef[columnLen] = {index: columnLen, rigid: true, measure: 16};
-		} else {
-			colsDef = new Array(columnLen);
-		}
-		var columnWeights = this.def.columnWeights;
-		for(i = 0; i < columnLen; i++){
-			colsDef[i] = {index: i, rigid: false, weight: columnWeights[i]};
-		}
-		var headerHolder = new js.awt.Container({
-			stateless: true,
-			id: 'headerHolder',
-			layout: {classType: "js.awt.GridLayout",
-				rowNum: 1,
-		        colNum: colsDef.length,
-		        rows: [{index: 0, measure: 26, rigid: true}],
-		        cols: colsDef
-			},
-			rigid_w: false,
-			rigid_h: false,
-	        constraints:{rowIndex: 0, colIndex: 0}
-		}, R);
-	
-		for (i = 0; i < columnLen; i++) {
-			var headerItem = new js.awt.Item({
-				className: "jsvm_table_header",
-				index: i,
-				rigid_w: false,
-				rigid_h: false,
-				controlled: true,
-				labelText: headerNames[i],
-				constraints: {rowIndex: 0, colIndex: i}
-			}, R);
-			this.headerCache[headerItem.uuid()] = headerItem;
-			headerHolder.addComponent(headerItem);			
-		}
-	
-		if(isScroll){
-			this.scrollItem = new js.awt.Component({
-				className: "jsvm_table_header",
-				rigid_w: true,
-				rigid_h: true,
-				width: 26,
-				height: 26,
-				constraints: {rowIndex: 0, colIndex: columnLen}
-			}, R);
-			headerHolder.addComponent(this.scrollItem);		
-		} else if(this.scrollItem){
-			delete this.scrollItem;
-		}
-	
-		headerHolder.attachEvent('click', 0, this, _onSort);
-		this.addComponent(headerHolder);
-		var bodyHolder = new js.awt.Container({
-					layout: {classType : "js.awt.BoxLayout"},
-					id: 'bodyHolder',
-					rigid_w: false,
-					rigid_h: false,
-					className: "jsvm_table_bodyHolder",
-					constraints:{rowIndex: 1, colIndex: 0}
-				}, R);
-		this.addComponent(bodyHolder);
-		this.doLayout();
+		var colsDef = this.colsDef;
 	    if(rowLen > 0){
-		var bounds = bodyHolder.getBounds(), MBP = bounds.MBP;
-		var rowsDef = new Array(rowLen);
-		for(i = 0; i < rowLen; i++){
-			rowsDef[i] = {index: i, measure: 23, rigid: true};
-		}
-		var width = bounds.innerWidth;
-		if(isScroll) {
-			colsDef.pop();
-			width -= 17;
-		}
-		this.bodyDef = {
+	    	var bounds = bodyHolder.getBounds(), MBP = bounds.MBP;
+	    	var rowsDef = new Array(rowLen);
+	    	for(i = 0; i < rowLen; i++){
+	    		rowsDef[i] = {index: i, measure: 23, rigid: true};
+	    	}
+	    	this.bodyDef = {
 				classType: "js.awt.TableBody",
-				bounds: {left: MBP.paddingLeft, top: MBP.paddingTop, width: width, height: bounds.innerHeight},
+				bounds: {left: MBP.paddingLeft, top: MBP.paddingTop, width: bounds.innerWidth, height: bounds.innerHeight},
 	    	    id: 'tableBody',
 	            rigid_w: false,
 	            rigid_h: true, 
 	            rowNum: rowLen,
-	            colNum: columnLen,
+	            colNum: colsDef.length,
 	            rows: rowsDef,
 	            cols: colsDef, 
 	            data: data,
 	            cache: this.cache
-		};
-		bodyHolder.addComponent(new js.awt.TableBody(this.bodyDef, R));
+	    	};
+	    	var tableBody = new js.awt.TableBody(this.bodyDef, R);
+	    	bodyHolder.addComponent(tableBody);
+	    	tableBody.setSize(bounds.innerWidth, rowLen * 23, 2);
 	    }
 	};
 	
@@ -529,13 +358,67 @@ js.awt.Table = function(def, Runtime) {
  	            rows: [{index:0, measure:26, rigid:true},
  	                   {index:1, rigid:false, weight: 1.0}
  	            ]};
+		def.items = ['headerHolder', 'bodyHolder'];
+		var headerNames = def.headerNames;
+		var columnLen = headerNames.length;
+		var colsDef = this.colsDef = new Array(columnLen);
+		var headerItems = new Array(columnLen); 
+		var columnWeights = def.columnWeights;
+		this.headerCache = {};	
+		def.headerHolder = {
+			classType: 'js.awt.Container',
+			className: 'jsvm_table_headerHolder',
+			stateless: true,
+			id: 'headerHolder',
+			layout: {classType: "js.awt.GridLayout",
+				rowNum: 1,
+			    colNum: columnLen,
+			    rows: [{index: 0, measure: 26, rigid: true}],
+			    cols: colsDef
+			},
+			rigid_w: false,
+			rigid_h: false,
+			items: headerItems,
+		    constraints:{rowIndex: 0, colIndex: 0}
+		};
+		for(i = 0; i < columnLen; i++){
+			this.colsDef[i] = {index: i, rigid: false, weight: columnWeights[i]};
+			headerItems[i] = 'header' + i;
+			def.headerHolder[headerItems[i]] = {
+					classType: 'js.awt.Item',
+					className: 'jsvm_table_header',
+					id: 'header' + i,
+					index: i,
+					rigid_w: false,
+					rigid_h: false,
+					controlled: true,
+					labelText: headerNames[i].trim(),
+					constraints: {rowIndex: 0, colIndex: i}
+			}
+		}
+	
+		def.bodyHolder = {
+				classType: 'js.awt.Container',
+				layout: {classType : "js.awt.BoxLayout"},
+				id: 'bodyHolder',
+				rigid_w: false,
+				rigid_h: false,
+				className: "jsvm_table_bodyHolder",
+				constraints:{rowIndex: 1, colIndex: 0}
+		};
+
 		arguments.callee.__super__.apply(this, arguments);
+		var headerHolder = this['headerHolder'];
+		headerHolder.attachEvent('click', 0, this, _onSort);
+		for(i = 0; i < columnLen; i++){
+			var headerItem = headerHolder[headerHolder.def.items[i]];
+			this.headerCache[headerItem.uuid()] = headerItem;
+		}
+		
 		this._sortIndex = -1;
 		this._sortAsc = false;
 		this._lastIndex = -1;
 		this.lastHeaderItem = null; 
-		this.bodyHolder = null;
-		this.bodyDef = null;
 		this.cache = {};
 		this.curRow = null;
 		this.attachEvent("click", 0, this, _onClick);

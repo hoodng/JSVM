@@ -257,6 +257,16 @@ js.awt.Desktop = function (element){
         return e.cancelDefault();
     };
 
+    var _getMinZIndex = function(ele){
+        var children = ele.children, tmp, zIndex = 0;
+        for(var i=0, len=children.length; i<len; i++){
+            tmp = parseInt(DOM.currentStyles(children[i], true).zIndex);
+            tmp = Class.isNumber(tmp) ? tmp : 0;
+            zIndex = Math.min(zIndex, tmp);
+        }
+        return zIndex;
+    };
+
     /**
      * @see js.awt.BaseComponent
      */
@@ -288,7 +298,9 @@ js.awt.Desktop = function (element){
         var body = document.body;
 
         if(!element){
+            var zIndex = _getMinZIndex.call(this, body);
             this.insertBefore(body.firstChild, body);
+            this.setZ(zIndex-1);
         }
 
         this.LM = new js.awt.LayerManager(this);

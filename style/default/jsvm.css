@@ -42,7 +42,7 @@ body {
 
 .jsvm_desktop {
     overflow: hidden;
-    z-index : 0;
+    z-index : -1;
 }
 
 .jsvm_desktop_mask {

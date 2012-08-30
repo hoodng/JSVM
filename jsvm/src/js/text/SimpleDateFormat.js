@@ -154,6 +154,11 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
                     pIndex.push($0);
                     return Regx[$0];
                 }
+
+                if($0.length >= 2){
+                    $0 = $0.replace(/"|'/g, "");
+                }
+
                 return $0;
             });
 
@@ -193,7 +198,7 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
         if(!Class.isDate(date)){
             return date;
         }
-            
+        
         var _symbols = this.symbols;
         return this.pattern.replace(
             TOKEN, 
