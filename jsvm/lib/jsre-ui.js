@@ -66,6 +66,10 @@ js.awt.ComponentFactory = function(){
         return nocache === true ? 
             _wClass : System.objectCopy(_wClass, {}, true);
     };
+    
+    thi$.hasClass = function(className){
+        return Class.isObject(this._classes[className]);
+    };
 
     thi$.createComponent = function(className, opitons, Runtime){
         var comp, wClass = this.getClass(className);
@@ -1638,7 +1642,11 @@ js.awt.PopupLayer = function () {
 		return this._local.floatingSettled;
 	};
 	
-	thi$.rootLayer = function(){
+	thi$.rootLayer = function(root){
+		if(root){
+			this._local.root = root;
+		}
+		
 		return this._local.root;  
 	};
 	
@@ -1672,11 +1680,11 @@ js.awt.PopupLayer = function () {
 	 * For some floating layer, before it is removed, something need be done at 
 	 * first. If so it need to implement this function.
 	 */ 
-	thi$.beforeRemoveLayer = function(){
+	thi$.beforeRemoveLayer = function(e){
 		var peer = this.getPeerComponent();
 		if((this == this.rootLayer()) && peer){
 			MQ.post("js.awt.event.LayerEvent", 
-					new Event("beforeRemoveLayer", "", this), 
+					new Event("beforeRemoveLayer", e || "", this), 
 					[peer.uuid()]);	   
 		}
 	};
@@ -5074,7 +5082,9 @@ js.awt.BaseComponent = function(def, Runtime, view){
         if(!G){
             G = {};
             ele = this.view.cloneNode(false);
-            ele.style.cssText += "white-space:nowrap;visibility:hidden;";
+            ele.style.whiteSpace = "nowrap";
+            ele.style.visibility = "hidden";
+
             DOM.appendTo(ele, document.body);
             G.bounds = DOM.getBounds(ele);
             DOM.remove(ele, true);
@@ -8203,7 +8213,7 @@ js.awt.Button = function(def, Runtime){
                     .append("top:").append(top).append("px;");
 
                 if(ele.iid === "label"){
-                    buf.append("width:").append(cwidth).append("px;")
+                    buf.append("width:").append(cwidth+2).append("px;")
                         .append("white-space:nowrap;overflow:hidden;")
                         .append("text-overflow:ellipsis;");
                 }
@@ -8610,7 +8620,7 @@ $import("js.awt.Button");
  * 
  * }
  */
-js.awt.RadioButton = function(def, model) {
+js.awt.RadioButton = function(def, Runtime) {
 
     var CLASS = js.awt.RadioButton, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -9876,8 +9886,13 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         };
 
         // Update marker style
+        var marked = this.marked;
         for(i=0, len=nodes.length; i<len; i++){
-            nodes[i].updateBranchStyle();
+            item = nodes[i];
+            item.updateBranchStyle();
+            if(item.isMarked()){
+                marked.push(item);
+            }
         }
     };
 
@@ -11473,6 +11488,8 @@ js.awt.Desktop = function (element){
     }.$override(this.message);
 
     var _registerMessageClass = function(){
+        if(Factory.hasClass("message")) return;
+
         Factory.registerClass(
             {
                 classType : "js.awt.Dialog",
@@ -11542,6 +11559,8 @@ js.awt.Desktop = function (element){
     };
 
     var _registerConfirmClass = function(){
+        if(Factory.hasClass("confirm")) return;
+
         Factory.registerClass(
             {
                 classType : "js.awt.Dialog",
@@ -11646,6 +11665,22 @@ js.awt.Desktop = function (element){
             this.doLayout(true);
         }
     };
+    
+    var _forbidContextMenu = function(e){
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
+
+    var _getMinZIndex = function(ele){
+        var children = ele.children, zIndex = 0, tmp, e;
+        for(var i=0, len=children.length; i<len; i++){
+            e = children[i];
+            tmp = parseInt(DOM.currentStyles(e, true).zIndex);
+            tmp = Class.isNumber(tmp) ? tmp : 0;
+            zIndex = Math.min(zIndex, tmp);
+        }
+        return zIndex;
+    };
 
     /**
      * @see js.awt.BaseComponent
@@ -11674,10 +11709,13 @@ js.awt.Desktop = function (element){
         };
         
         arguments.callee.__super__.apply(this, [def, this, element]);
+        
+        var body = document.body;
 
         if(!element){
-            var body = document.body;
+            var zIndex = _getMinZIndex.call(this, body);
             this.insertBefore(body.firstChild, body);
+            this.setZ(zIndex-1);
         }
 
         this.LM = new js.awt.LayerManager(this);
@@ -11697,11 +11735,16 @@ js.awt.Desktop = function (element){
         this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
         
         // Bring the component to the front and notify popup LayerManager
-        Event.attachEvent(document.body, "mousedown", 0, this, _notifyLM);
+        Event.attachEvent(body, "mousedown", 
+                          0, this, _notifyLM);
 
         // Notify popup LayerManager
-        Event.attachEvent(document.body,
-                          J$VM.firefox ? "DOMMouseScroll" : "mousewheel",0, this, _notifyLM);
+        Event.attachEvent(body,
+                          J$VM.firefox ? "DOMMouseScroll" : "mousewheel", 
+                          0, this, _notifyLM);
+        
+        Event.attachEvent(body, "contextmenu",
+                          0, this, _forbidContextMenu);
 
         MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
         
@@ -12493,7 +12536,11 @@ js.awt.Dialog = function (def, Runtime){
 
         DM.addComponent(this);
         this.getDialogObject().initialize();
-        this.doLayout(true);
+        if(this.btnpane){
+            // Maybe dialogObject modified btnpane, 
+            // so need doLayout 
+            this.btnpane.doLayout(true);
+        }
         this.setPosition(x, y);
     };
 
