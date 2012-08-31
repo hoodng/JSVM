@@ -258,9 +258,10 @@ js.awt.Desktop = function (element){
     };
 
     var _getMinZIndex = function(ele){
-        var children = ele.children, tmp, zIndex = 0;
+        var children = ele.children, zIndex = 0, tmp, e;
         for(var i=0, len=children.length; i<len; i++){
-            tmp = parseInt(DOM.currentStyles(children[i], true).zIndex);
+            e = children[i];
+            tmp = parseInt(DOM.currentStyles(e, true).zIndex);
             tmp = Class.isNumber(tmp) ? tmp : 0;
             zIndex = Math.min(zIndex, tmp);
         }

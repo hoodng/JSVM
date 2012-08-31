@@ -370,8 +370,13 @@ js.lang.System = function (env, vm){
         dom.body.innerHTML = "";
     };
     
+    var bodyW, bodyH;
     var _onresize = function(e){
-        if(this.checkThreshold(e.getTimeStamp().getTime())){
+        var DOM = J$VM.DOM,
+        bounds = DOM.getBounds(document.body);
+        if(bounds.width != bodyW || bounds.height != bodyH){
+            bodyW = bounds.width;
+            bodyH = bounds.height;
             var scopes = vm.runtime, scopeName, scope;
             for(scopeName in scopes){
                 scope = scopes[scopeName];
