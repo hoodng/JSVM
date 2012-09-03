@@ -242,9 +242,11 @@ js.awt.Desktop = function (element){
     };
     
     var _onresize = function(e){
+        System.err.println("Recv resize event...");
         var d = this.getBounds();
         this.LM.clearStack(e);
         if(this._local.userW != d.width || this._local.userH != d.height){
+            System.err.println("resize:("+d.width+","+d.height+")");
             this.def.width = this._local.userW = d.width;
             this.def.height= this._local.userH = d.height;
 

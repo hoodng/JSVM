@@ -287,7 +287,10 @@ js.awt.PopupLayer = function () {
 	
 	thi$.hide = function (type) {
 		this.setAutoHide(false);
-		this.Runtime().LM.onHide(new js.util.Event(type || "hide"));
+		
+		var arg = arguments ? arguments[1] : undefined,
+		evt = new js.util.Event(type || "hide", arg, this);
+		this.Runtime().LM.onHide(evt);
 	};
 
 	thi$.hideOthers = function () {
@@ -308,7 +311,7 @@ js.awt.PopupLayer = function () {
 
 		if ((this._local.LMFlag & CLASS.F_TIMEOUT) != 0) {
 			this.lmtimer = 
-                LM.onHide.$delay(this, this._local.LMTimeout, new Event("timeout"));
+				LM.onHide.$delay(this, this._local.LMTimeout, new Event("timeout"));
 			
 			System.out.println("Create timer: " + this.lmtimer);
 		}
@@ -327,11 +330,11 @@ js.awt.PopupLayer = function () {
 			return;
 
 		var LM = this.Runtime().LM;
-        if(LM.onHide.$clearTimer(this.lmtimer)){
-            System.out.println("Delete timer: " + this.lmtimer);
-            delete this.lmtimer;    
-        }
-        
+		if(LM.onHide.$clearTimer(this.lmtimer)){
+			System.out.println("Delete timer: " + this.lmtimer);
+			delete this.lmtimer;	
+		}
+		
 	};
 };
 

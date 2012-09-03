@@ -288,7 +288,7 @@ js.lang.System = function (env, vm){
     
     var _detectDoctype = function(){
         var re=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi, 
-        doctype = vm.doctype = {declared: false};
+        doctype = vm.doctype = {declared: false}, value;
 
         if(typeof document.namespaces != "undefined"){
             value = document.all[0].nodeType == 8
@@ -374,6 +374,7 @@ js.lang.System = function (env, vm){
     var _onresize = function(e){
         var DOM = J$VM.DOM,
         bounds = DOM.getBounds(document.body);
+
         if(bounds.width != bodyW || bounds.height != bodyH){
             bodyW = bounds.width;
             bodyH = bounds.height;
@@ -458,6 +459,8 @@ js.lang.System = function (env, vm){
                 session: js.util.Storage.getStorage("session"),
                 cookie : new js.util.CookieStorage()
             };
+        
+            vm.Factory = new js.awt.ComponentFactory(this);
 
             vm.exec = function(instName, fn, containerElement){
                 if(typeof fn != "function") 

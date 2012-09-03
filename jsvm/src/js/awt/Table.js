@@ -50,9 +50,7 @@ js.awt.TableBody = function(def, Runtime) {
 		return;
 	}
 	CLASS.__defined__ = true;
-
 	var Class = js.lang.Class, System = J$VM.System;
-	
 	var _buildTableBody = function(grid, def) {
 		var R = this.Runtime(), m = grid.rowNum();
 		var tbody = new (CLASS.TBody)({}, R);
@@ -99,9 +97,12 @@ js.awt.TableBody = function(def, Runtime) {
 	};
 	    
 	thi$.destroy = function() {
+		this.grid.cells = [];
+		this.grid.cols = [];
+		this.grid.rows = [];
 		delete this.grid;
-		delete this.def.cache;
-		delete this.def.data;
+		this.def.cache = {};
+		this.def.data = {};
 		arguments.callee.__super__.apply(this, arguments);
 	}.$override(this.destroy);
    
@@ -110,6 +111,7 @@ js.awt.TableBody = function(def, Runtime) {
 		def.classType = def.classType || "js.awt.TableBody";
 		def.className = def.className || "jsvm_table";
 		def.viewType = "TABLE";
+		this.def = def;
 		arguments.callee.__super__.apply(this, arguments);
 		this.grid = new (Class.forName("js.awt.Grid"))(def);
 		var bounds = def.bounds;
@@ -173,8 +175,7 @@ js.awt.TableBody.Cell = function(def, Runtime) {
 	};
 
 	thi$._init = function(def, Runtime) {
-		if (def == undefined)
-			return;
+		if (def == undefined) return;
 		def.classType = def.classType || "js.awt.TableBody.Cell";
 		def.className = def.className || "jsvm_table_cell";
 		def.viewType = "TD";
@@ -207,7 +208,9 @@ js.awt.Table = function(def, Runtime) {
 	thi$.destroy = function() {
 		delete this.headerCache;
 		delete this.colsDef;
+		delete this.bodyDef.data,
 		delete this.bodyDef;
+		delete this.cache;
 		if(this.lastHeaderItem)
 			delete this.lastHeaderItem;
 		if(this.curRow)
@@ -270,13 +273,14 @@ js.awt.Table = function(def, Runtime) {
 	
 	var _onSort = function(e){
 		var headerItem = this.headerCache[e.srcElement.uuid];
+		var bodyHolder = this['bodyHolder'];
 		if(this.lastHeaderItem && (headerItem !== this.lastHeaderItem)){
 			this.lastHeaderItem.ctrl.className = 'jsvm_table_header_ctrl';
 			this._sortIndex = -1;
 			this._sortAsc = false;
 			this._lastIndex = -1;
 		}
-		if(this.bodyHolder.tableBody){
+		if(this.data){
 			this._sortIndex = headerItem.def.index;
 			if (this._lastIndex == -1 || this._lastIndex != 0) {
 				this._sortAsc = false; 
@@ -304,10 +308,9 @@ js.awt.Table = function(def, Runtime) {
 		    		return x < y ? 1 : -1;
 		    	}
 		    }.$bind(this);
-		    var def = this.bodyHolder.tableBody.def;
-		    def.data.sort(_compare);
+		    this.data.sort(_compare);
 		    this._sortIndex = -1;
-		    _sort.call(this, def.data, this.Runtime());
+		    _sort.call(this, this.data, this.Runtime());
 	    }
 	};
 	
@@ -414,7 +417,6 @@ js.awt.Table = function(def, Runtime) {
 			var headerItem = headerHolder[headerHolder.def.items[i]];
 			this.headerCache[headerItem.uuid()] = headerItem;
 		}
-		
 		this._sortIndex = -1;
 		this._sortAsc = false;
 		this._lastIndex = -1;
