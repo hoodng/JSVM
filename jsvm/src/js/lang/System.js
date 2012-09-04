@@ -457,8 +457,11 @@ js.lang.System = function (env, vm){
             vm.storage = {
                 local  : js.util.Storage.getStorage("local"),
                 session: js.util.Storage.getStorage("session"),
+                memory : js.util.Storage.getStorage("memory"),
                 cookie : new js.util.CookieStorage()
             };
+
+            vm.storage.cache = new js.util.Cache();
         
             vm.Factory = new js.awt.ComponentFactory(this);
 

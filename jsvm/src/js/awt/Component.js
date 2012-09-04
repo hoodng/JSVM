@@ -458,10 +458,8 @@ js.awt.Component = function (def, Runtime, view){
      * @param handler
      */
     thi$.openDialog = function(className, rect, dialogObj, handler){
-        var dialogs = this.getDialogs(),
-        dialog = J$VM.Factory.createComponent(
+        var dialog = J$VM.Factory.createComponent(
             className, rect, this.Runtime());
-        dialogs.push(dialog);
 
         dialog.setPeerComponent(this);
         dialog.setDialogObject(dialogObj, handler);
@@ -470,13 +468,6 @@ js.awt.Component = function (def, Runtime, view){
         return dialog;
     };
     
-    thi$.getDialogs = function(){
-        this._local.dialogs = this._local.dialogs || 
-            js.util.LinkedList.$decorate([]);
-
-        return this._local.dialogs;
-    };
-
     /**
      * Open confirm dialog
      * 
@@ -648,14 +639,6 @@ js.awt.Component = function (def, Runtime, view){
         if(this.controller){
             this.controller.destroy();
             delete this.controller;
-        }
-
-        var dialogs = this.getDialogs(), dialog;
-        while(dialogs.length >0){
-            dialog = dialogs.shift();
-            if(dialog._local){
-                dialog.destroy();
-            }
         }
 
         var container = this.container;

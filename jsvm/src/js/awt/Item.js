@@ -101,13 +101,18 @@ js.awt.Item = function(def, Runtime, view){
         this.icon.src = buf.toString();
     };
 
-    thi$.setText = function(text){
+    thi$.setText = function(text, edit){
         if(this.label){
             this.def.labelText = text;
             this.label.innerHTML = js.lang.String.encodeHtml(text);    
         }else if(this.input){
             this.def.inputText = text;
             this.input.value = text;
+        }
+
+        if(edit){
+            this.notifyContainer(
+                "js.awt.event.ItemTextEvent", new Event(edit, {}, this));
         }
     };
     
@@ -218,12 +223,9 @@ js.awt.Item = function(def, Runtime, view){
     
     var _onedit = function(e){
         var data = e.getData(); 
-        this.setText(data.text);
+        this.setText(data.text, "edit");
         e.getEventTarget().destroy();
         MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
-
-        this.notifyContainer(
-            "js.awt.event.ItemTextEvent", new Event("changed", {}, this));
     };
     
     thi$.canCloneView = function(itemDef){

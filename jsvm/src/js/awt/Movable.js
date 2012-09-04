@@ -201,6 +201,7 @@ js.awt.Movable = function (){
         // Notify popup LayerManager 
         e.setEventTarget(this);
         MQ.post("js.awt.event.LayerEvent", e, [this.Runtime().uuid()]);
+        this.fireEvent(e);
 
         var targ = e.srcElement;
         if(targ.nodeType == 3){
@@ -232,6 +233,9 @@ js.awt.Movable = function (){
     };
 
     var _onmouseup1 = function(e){
+        e.setEventTarget(this);
+        this.fireEvent(e);
+
         if(!_doSelect.$clearTimer()){
             //Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
             Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);

@@ -253,7 +253,11 @@ js.lang.Runtime = function(){
         cssText = cssText.replace(/images\//gi, stylePath+"images/");
         if(style.styleSheet){
             // IE
-            style.styleSheet.cssText = cssText;
+            try{
+                style.styleSheet.cssText = cssText;                
+            } catch (x) {
+
+            }
         }else{
             // Others
             style.innerHTML = cssText;

@@ -238,9 +238,10 @@ js.awt.Dialog = function (def, Runtime){
 
     thi$.close = function(){
         var peer = this.getPeerComponent();
+        /*
         if(peer){
             peer.getDialogs().remove(this);
-        }
+        }*/
         
         var handler = this._local.handler;
         if(typeof handler == "function"){
