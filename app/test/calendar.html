@@ -1,11 +1,11 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
 
 <script id="j$vm" 
-        src="http://192.168.0.69:8080/webos/jsvm/jsvm.jsp"
-        classpath="lib/jsre-ui.js"
+        src="../../jsvm/jsvm.jsp"
+        classpath="lib/../jsre-ui.js"
         -DmainClass="org.jsvm.App"></script>
 
 <!--
@@ -14,9 +14,10 @@
 <script src="../../jsvm/src/js/awt/FieldSpinner.js" ></script>
 <script src="../../jsvm/src/js/awt/DatePicker.js" ></script>
 -->
+<script src="../../jsvm/src/com/jinfonet/common/DateExpression.js" ></script>
+<script src="../../jsvm/src/com/jinfonet/common/Calendar.js" ></script>
 <script src="../../jsvm/src/js/util/StyleSheet.js" ></script>
 <style>
-
 
 </style>
 </head>
@@ -35,17 +36,18 @@ J$VM.exec("org.jsvm.App",function(System){
     var Class = js.lang.Class, 
     Calendar = Class.forName("js.util.Calendar");
 
-    
-
-    var calendar = new (Class.forName("js.awt.DatePicker"))(
+    var calendar = new com.jinfonet.common.Calendar(
 						  {
-                             x: 10, y: 10,
-                             date: new Date(),
-                             type: 3,
-                             resizable: true
+                              x: 20, y: 20,
+                              dateType: "Time",
+                              pattern: "yyyy-MM-dd HH:mm:ss",
+                              hasExp: true,
+                              hasUTD: false
+
 						  }, this);
 
     this.addComponent(calendar);
+
 
 });
 </script>

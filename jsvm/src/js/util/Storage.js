@@ -71,16 +71,22 @@ js.util.Storage = function(storage){
     
     thi$.keys = function(){
         var keys = [];
-
-        for(var i = 0, len= this.length(); i < len; i++){
-            keys[i] = this._storage.key(i);                
+        
+        if(!this._storage.isMemory){
+            for(var i = 0, len= this.length(); i < len; i++){
+                keys[i] = this._storage.key(i);                
+            }
+        }else{
+            keys = this._storage.keys();
         }
 
         return keys;
     };
 
     thi$.length = function(){
-        return _check() ? this._storage.length : 0;
+        var sto = this._storage;
+        return _check() ? 
+            (sto.isMemory ? sto.size() : sto.length) : 0;
     };
     
     thi$.key = function(index){
@@ -89,14 +95,20 @@ js.util.Storage = function(storage){
 
     thi$.setItem = function(key, value){
         if(!_check.call(this,key)) return;
-
+        
+        var sto = this._storage;
+        
         switch(Class.typeOf(value)){
         case "string":
-            this._storage.setItem(key, value);
+            sto.setItem(key, value);
             break;
         case "object":
         case "array":
-            this._storage.setItem(key, JSON.stringify(value));
+            if(sto.isMemory){
+                sto.setItem(key, value);
+            }else{
+                sto.setItem(key, JSON.stringify(value));                
+            }
             break;
         default:
             break;
@@ -105,7 +117,7 @@ js.util.Storage = function(storage){
     
     thi$.getItem = function(key){
         if(!_check.call(this, key)) return null;
-
+        
         var value =  this._storage.getItem(key);
         if(value){
             if(Class.typeOf(value) == "string" && 
@@ -160,15 +172,53 @@ js.util.Storage.getStorage = function(type) {
         } catch (e) {}
 
         break;
+    case "memory":
     default:
+        _storage = new js.util.MemoryStorage();
         break;
     }
     
-    if(_storage){
-        _storageObj = new js.util.Storage(_storage);
-    } else {
-        _storageObj = new js.util.MemoryStorage();
-    }
+    _storageObj = new js.util.Storage(_storage || new js.util.MemoryStorage());
 
     return _storageObj;
 };
+
+js.util.Cache = function(){
+
+    var CLASS = js.util.Cache, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+
+    var local, session, memory;
+
+    thi$.setItem = function(key, value){
+        try{
+            local.setItem(key, value);
+        } catch (e1) {
+            try{
+                session.setItem(key, value);
+            } catch (e2) {
+                memory.setItem(key, value);
+            }
+        }
+    };
+    
+    thi$.getItem = function(key){
+        var value = memory.getItem(key);
+        value = value ? value : local.getItem(key);
+        value = value ? value : session.getItem(key);
+        return value;
+    };
+
+    thi$._init = function(){
+        local  = J$VM.storage.local;
+        session= J$VM.storage.session;
+        memory = J$VM.storage.memory;
+    };
+    
+    this._init.apply(this, arguments);
+
+}.$extend(js.lang.Object);

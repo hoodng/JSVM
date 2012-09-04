@@ -288,7 +288,7 @@ js.lang.System = function (env, vm){
     
     var _detectDoctype = function(){
         var re=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi, 
-        doctype = vm.doctype = {declared: false};
+        doctype = vm.doctype = {declared: false}, value;
 
         if(typeof document.namespaces != "undefined"){
             value = document.all[0].nodeType == 8
@@ -370,8 +370,14 @@ js.lang.System = function (env, vm){
         dom.body.innerHTML = "";
     };
     
+    var bodyW, bodyH;
     var _onresize = function(e){
-        if(this.checkThreshold(e.getTimeStamp().getTime())){
+        var DOM = J$VM.DOM,
+        bounds = DOM.getBounds(document.body);
+
+        if(bounds.width != bodyW || bounds.height != bodyH){
+            bodyW = bounds.width;
+            bodyH = bounds.height;
             var scopes = vm.runtime, scopeName, scope;
             for(scopeName in scopes){
                 scope = scopes[scopeName];
@@ -419,16 +425,19 @@ js.lang.System = function (env, vm){
             if(!mainClass) return;
             J$VM.exec(mainClasName, 
                       function(){
-                          this.initialize(env);
+                          this.initialize();
                           (new mainClass()).main(this);
                       });
         }else if(typeof window[mainFuncName] == "function"){
             J$VM.exec(mainFuncName, 
                       function(){
-                          this.initialize(env);
+                          this.initialize();
                           window[mainFuncName].call(this, this);
                       });
         }
+
+        this.objectCopy((env || {}), props);
+
     };
     
     var _init = function(env, vm){
@@ -448,8 +457,13 @@ js.lang.System = function (env, vm){
             vm.storage = {
                 local  : js.util.Storage.getStorage("local"),
                 session: js.util.Storage.getStorage("session"),
+                memory : js.util.Storage.getStorage("memory"),
                 cookie : new js.util.CookieStorage()
             };
+
+            vm.storage.cache = new js.util.Cache();
+        
+            vm.Factory = new js.awt.ComponentFactory(this);
 
             vm.exec = function(instName, fn, containerElement){
                 if(typeof fn != "function") 

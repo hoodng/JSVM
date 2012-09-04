@@ -191,7 +191,6 @@ js.awt.Calendar = function(def, Runtime){
                     id: cellid,
                     uuid: cellid,
                     dateSymbols: dateSymbols,
-
                     rigid_w : false,
                     rigid_h : false,
                     constraints:{
@@ -320,7 +319,6 @@ js.awt.CalendarBaseCell = function(def, Runtime){
         }
 
         this.setText(week);
-        
 
     }.$override(this.setWeek);
     

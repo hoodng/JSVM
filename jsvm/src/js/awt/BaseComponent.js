@@ -840,7 +840,9 @@ js.awt.BaseComponent = function(def, Runtime, view){
         if(!G){
             G = {};
             ele = this.view.cloneNode(false);
-            ele.style.cssText += "white-space:nowrap;visibility:hidden;";
+            ele.style.whiteSpace = "nowrap";
+            ele.style.visibility = "hidden";
+
             DOM.appendTo(ele, document.body);
             G.bounds = DOM.getBounds(ele);
             DOM.remove(ele, true);

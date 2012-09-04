@@ -247,14 +247,24 @@ js.awt.Desktop = function (element){
         if(this._local.userW != d.width || this._local.userH != d.height){
             this.def.width = this._local.userW = d.width;
             this.def.height= this._local.userH = d.height;
-
-            this.doLayout(true);
+            this.doLayout.$delay(this, 1, true);
         }
     };
     
     var _forbidContextMenu = function(e){
         e.cancelBubble();
         return e.cancelDefault();
+    };
+
+    var _getMinZIndex = function(ele){
+        var children = ele.children, zIndex = 0, tmp, e;
+        for(var i=0, len=children.length; i<len; i++){
+            e = children[i];
+            tmp = parseInt(DOM.currentStyles(e, true).zIndex);
+            tmp = Class.isNumber(tmp) ? tmp : 0;
+            zIndex = Math.min(zIndex, tmp);
+        }
+        return zIndex;
     };
 
     /**
@@ -288,7 +298,9 @@ js.awt.Desktop = function (element){
         var body = document.body;
 
         if(!element){
+            var zIndex = _getMinZIndex.call(this, body);
             this.insertBefore(body.firstChild, body);
+            this.setZ(zIndex-1);
         }
 
         this.LM = new js.awt.LayerManager(this);

@@ -92,7 +92,13 @@ js.awt.Event = function(e){
     };
 
     thi$._init = function(e){
-        var _e = this._event = e || window.event;
+        var _e = this._event = e || window.event,
+        events = J$VM.events = J$VM.events || [];
+        events.unshift(_e);
+        if(events.length > 2){
+            events.pop();
+        }
+        
         arguments.callee.__super__.call(this, _e.type, _e);
 
         var ie = (_e.stopPropagation == undefined),

@@ -66,7 +66,7 @@ js.lang.Runtime = function(){
     };
 
     thi$.getLocal = function(){
-        var userinfo = this.userInfo();
+        var userinfo = this.userInfo(), buf = [];
         if(!userinfo){
             userinfo = this._local.userinfo = {};
         }
@@ -77,8 +77,14 @@ js.lang.Runtime = function(){
             userinfo.lang = locale[0];
             userinfo.country = locale[1].toUpperCase(); 
         }
+        
+        buf.push(userinfo.lang);
+        if(userinfo.country){
+            buf.push("_");
+            buf.push(userinfo.country.toUpperCase());
+        }
 
-        return userinfo.lang+"_"+userinfo.country;
+        return buf.join("");
     };
 
     thi$.dateSymbols = function(symbols){
@@ -247,7 +253,11 @@ js.lang.Runtime = function(){
         cssText = cssText.replace(/images\//gi, stylePath+"images/");
         if(style.styleSheet){
             // IE
-            style.styleSheet.cssText = cssText;
+            try{
+                style.styleSheet.cssText = cssText;                
+            } catch (x) {
+
+            }
         }else{
             // Others
             style.innerHTML = cssText;
@@ -265,7 +275,9 @@ js.lang.Runtime = function(){
     };
     
     thi$.initialize = function(env){
-        J$VM.System.objectCopy(env || {}, this._local);
+        var System = J$VM.System;
+        System.objectCopy(System.getProperties(), this._local, true);
+        System.objectCopy(env || {}, this._local);
 
         _loadJ$VMCSS.call(this);
     };

@@ -318,8 +318,11 @@ js.awt.ScrollPane = function (def, Runtime){
         var item = e.getEventTarget(), d;
         item.def.prefSize = undefined;
         this.doLayout(true);
-        this.notifyPeer(
-            "js.awt.event.ItemEvent", new Event("textchanged", "", item));
+        if(e.getType() == "edit"){
+            this.notifyPeer(
+                "js.awt.event.ItemEvent", 
+                new Event("textchanged", "", item));
+        }
     };
 
     var _onmouseover = function(e){

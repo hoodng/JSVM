@@ -37,7 +37,7 @@
 
 $package("js.awt");
 
-js.awt.ComponentFactory = function(){
+js.awt.ComponentFactory = function(System){
 
     var CLASS = js.awt.ComponentFactory, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -46,7 +46,7 @@ js.awt.ComponentFactory = function(){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, System = J$VM.System;
+    var Class = js.lang.Class;
 
     thi$.registerClass = function(wClass){
         var className = wClass.className;
@@ -87,4 +87,3 @@ js.awt.ComponentFactory = function(){
     this._init();
 };
 
-J$VM.Factory = new js.awt.ComponentFactory();

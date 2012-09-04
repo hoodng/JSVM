@@ -68,6 +68,7 @@
             "js/util/CookieStorage.js",
             "js/net/URI.js",
             "js/net/HttpURLConnection.js",
+            "js/awt/ComponentFactory.js",
             "js/awt/Event.js",
             "js/lang/Runtime.js",
             "js/lang/System.js",
@@ -84,7 +85,6 @@
 
         srcpath: "../src/",
         files: [
-            "js/awt/ComponentFactory.js",
             "js/awt/State.js",
             "js/awt/Editable.js",
             "js/awt/Cover.js",

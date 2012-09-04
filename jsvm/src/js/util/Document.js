@@ -526,13 +526,13 @@ js.util.Document = function (){
                     width: r.right-r.left, 
                     height:r.bottom-r.top };
         }else{
-            var backCompat = document.compatMode === "BackCompat";
+            var doctype = J$VM.doctype.declared;
             return {
                 left: 0, 
                 top:  0,
-                width: backCompat ? document.body.clientWidth : 
+                width: !doctype ? document.body.clientWidth : 
                     document.documentElement.clientWidth,
-                height: backCompat ? document.body.clientHeight : 
+                height: !doctype ? document.body.clientHeight : 
                     document.documentElement.clientHeight};
         }
     };
