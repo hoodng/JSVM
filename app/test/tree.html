@@ -1,8 +1,7 @@
-
+<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
 <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
 <script id="j$vm" src="../../jsvm/jsre.js" ></script>
 <script src="../../jsvm/lib/jsre-ui.js" ></script>
@@ -30,6 +29,8 @@ J$VM.exec(
     function(System){
 
         this.prefer({theme: "default"});
+        this.initialize();
+
         var start = new Date();
 
         var treeDef = {
@@ -78,9 +79,9 @@ J$VM.exec(
 
         J$VM.MQ.register("js.awt.event.TreeItemEvent", this, _onTreeItemEvent);
 
-        this.root1.expandAll(true);
+        //this.root1.expandAll(true);
 
-
+/*
         var ret = this.root1.getNodes(
             function(itemDef){
                 return (itemDef.type == "bv"); 
@@ -89,10 +90,10 @@ J$VM.exec(
             ret[i].setEnabled(false);
             ret[i].showDisableCover.$delay(ret[i], 1, true);            
             System.err.println(JSON.stringify(ret[i].def.iname)+" "+ret[i].isEnabled());
-        }
+        }*/
         
 
-        //this.root1.expandAll.$delay(this.root1, 5000, false);
+        this.root1.expandAll.$delay(this.root1, 5000, true);
     });
 
 </script>

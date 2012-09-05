@@ -86,6 +86,8 @@
 
 J$VM.exec("org.jsvm.App", function(System){
 
+    this.setZ(0);
+
     var DemoWindow = new js.awt.Window({
         id: "DemoWindow",
         css:"background-color:white;border:2px solid #CCCCCC;",

@@ -1,7 +1,8 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+
 <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
 <script id="j$vm" src="../../jsvm/jsre.js" ></script>
 <script src="../../jsvm/lib/jsre-ui.js" ></script>
@@ -69,7 +70,10 @@
 
 J$VM.exec("Demo",function(System){
 
-    this.prefer({theme: "default"});
+    this.initialize(
+    {
+        theme: "default"
+    });
 
     var pane = new js.awt.Container({
         className: "pane",
