@@ -473,7 +473,6 @@ js.awt.Window = function (def, Runtime, view){
 
         System.objectCopy(newDef, def, true, true);
         arguments.callee.__super__.apply(this, arguments);
-        System.err.println(this.def.css);
         view = this.view;
         view.style.position = "absolute";
         view.style.overflow = "hidden";
