@@ -70,21 +70,31 @@ js.awt.Item = function(def, Runtime, view){
             width;
             
             if(ele0.tagName == "SPAN"){
+                /*
                 ele0.style.width = "0px";
                 width = ele0.offsetLeft + ele0.scrollWidth;
+                */
+                width = ele0.offsetLeft + DOM.getTextSize(ele0).width;
             }else{
                 if(ele1.tagName == "SPAN"){
+                    /*
                     ele1.style.width = "0px";
+                    width = ele1.offsetLeft + ele1.scrollWidth;
+                    */
+                    width = ele1.offsetLeft + DOM.getTextSize(ele1).width;
+                }else{
+                    width = ele1.offsetLeft + ele1.scrollWidth;                    
                 }
-                width = ele1.offsetLeft + ele1.scrollWidth;
+
                 width += G.ctrl.MBP.marginLeft + G.ctrl.width;
             }
             width += G.bounds.MBP.BPW;
 
-            this.setPreferredSize(width, 
-                                  G.bounds.height - (G.bounds.BBM ? 0 : G.bounds.MBP.BPH));
-
+            this.setPreferredSize(
+                width, 
+                G.bounds.height - (G.bounds.BBM ? 0 : G.bounds.MBP.BPH));
         }
+
         return this.def.prefSize;
     };
     
