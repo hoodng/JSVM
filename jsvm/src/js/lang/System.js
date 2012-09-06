@@ -290,16 +290,14 @@ js.lang.System = function (env, vm){
         var re=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi, 
         doctype = vm.doctype = {declared: false}, value;
 
-        if(typeof document.namespaces != "undefined"){
+        if(document.doctype != null){
+            doctype.declared = true;
+            value = document.doctype.publicId || "";
+        }else if(typeof document.namespaces != "undefined"){
             value = document.all[0].nodeType == 8
-                ? document.all[0].nodeValue : null;
+                ? document.all[0].nodeValue : "";
             if(value && (value.toLowerCase().indexOf("doctype") != -1)){
                 doctype.declared = true;
-            }
-        }else{
-            if(document.doctype != null){
-                doctype.declared = true;
-                value = document.doctype.publicId;
             }
         }
         
@@ -364,20 +362,15 @@ js.lang.System = function (env, vm){
         this.gc();
 
         document.body.innerHTML = "";
-
-        /*
-        document.write("<html><head>"
-                       + "<script>"
-                       + "location.replace(\""+location.href+"\");"
-                       + "</script>"
-                       + "</head><body></body></html>");*/
+        if(J$VM.ie == undefined){
+            document.write("<html><head></head></html>");
+        }
     };
     
     var bodyW, bodyH;
     var _onresize = function(e){
         var DOM = J$VM.DOM,
         bounds = DOM.getBounds(document.body);
-
         if(bounds.width != bodyW || bounds.height != bodyH){
             bodyW = bounds.width;
             bodyH = bounds.height;
