@@ -240,17 +240,17 @@ js.awt.BaseComponent = function(def, Runtime, view){
         
         bounds.offsetX = el.offsetLeft;
         bounds.offsetY = el.offsetTop;
-        /*
-         if(J$VM.firefox && position !== "relative"){
-         pounds = DOM.getBounds(el.parentNode);
-         bounds.offsetX += pounds.MBP.borderLeftWidth;
-         bounds.offsetY += pounds.MBP.borderTopWidth;
-         }*/
+
+        if(J$VM.supports.borderEdg && position !== "relative"){
+            pounds = DOM.getBounds(el.parentNode);
+            bounds.offsetX -= pounds.MBP.borderLeftWidth;
+            bounds.offsetY -= pounds.MBP.borderTopWidth;
+        }
 
         bounds.x = bounds.offsetX - bounds.MBP.marginLeft;
         bounds.y = bounds.offsetY - bounds.MBP.marginTop;
         if(position == "relative"){
-            pounds = DOM.getBounds(el.parentNode);
+            pounds = pounds || DOM.getBounds(el.parentNode);
             bounds.x -= pounds.MBP.paddingLeft;
             bounds.y -= pounds.MBP.paddingTop;
         }

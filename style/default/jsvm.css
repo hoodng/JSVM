@@ -223,7 +223,8 @@ body {
 
 /** CheckBox */
 .jsvm_checkbox,
-.jsvm_checkbox_0, .jsvm_checkbox_1 {
+.jsvm_checkbox_0, .jsvm_checkbox_1,
+.jsvm_checkbox_2 {
     width: 200px;
     height: 22px;
     padding: 0px 2px 0px 2px;
@@ -1042,10 +1043,9 @@ body {
     
 }
 
-.jsvm_tabpane_tabs,
-.jsvm_tabpane_tabs_0 {
+.jsvm_tabpane_tabs {
     height: 25px;
-    padding: 3px 3px 0px 6px;
+    padding: 3px 3px 0px 0px;
     border-bottom: 1px solid #CCC;
 }
 
@@ -1054,17 +1054,22 @@ body {
     width: 80px;
     height: 22px;
     border-style: solid;
-    border-width: 1px 1px 1px 1px;    
+    border-width: 1px;
     padding: 0px 4px 0px 16px;
+    -moz-border-radius:3px 3px 0px 0px;
+	border-radius:3px 3px 0px 0px;
+    -webkit-border-radius:3px 3px 0px 0px; 
 }
 
 .jsvm_tabpane_tab_0{
-    border-color: #CCC;
+    border-color: #CCC;    
     background-color: #DDD;
 }
 
 .jsvm_tabpane_tab_4{
-    border-color: #CCC #CCC #EEE #CCC;
+	border-top-width: 2px;
+	height:19px !important;
+    border-color: #FAC150 #CCC #EEE #CCC;
 }
 
 .jsvm_tabpane_tab_label {
@@ -1078,16 +1083,22 @@ body {
     border-color: #CCC;
     border-style: none solid solid solid;
     padding: 12px;
+    -moz-border-radius:0px 0px 3px 3px;
+	border-radius:0px 0px 3px 3px;
+    -webkit-border-radius:0px 0px 3px 3px;
 }
 
 .jsvm_fieldset {
 	margin: 0px;
 	padding: 22px 12px 11px 12px;
 	border: 1px solid #ccc;
+	-moz-border-radius:6px;
+	border-radius:6px;
+    -webkit-border-radius:6px;    
 }
 
 .jsvm_fieldset legend {
-	
+
 }
 
 /* FOR FileInput */

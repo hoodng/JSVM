@@ -264,7 +264,7 @@ js.lang.System = function (env, vm){
         // Check browser supports
         vm.supports = {reliableMarginRight :true, supportCssFloat : true};
         var buf = [], doc = document, div = doc.createElement('div');
-        buf.push('<div style="height:30px;width:50px;left:0px;">');
+        buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
         buf.push('<div style="height:20px;width:20px;"></div></div>');
         buf.push('<div style="float:left;"></div>');
         div.innerHTML = buf.join("");
@@ -273,7 +273,7 @@ js.lang.System = function (env, vm){
             + "visibility:hidden;";
         doc.body.appendChild(div);
         
-        var view = doc.defaultView, ccdiv = div.firstChild.firstChild;
+        var view = doc.defaultView, cdiv = div.firstChild, ccdiv = cdiv.firstChild;
         if(view && view.getComputedStyle 
            && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
             vm.supports.reliableMarginRight = false;
@@ -281,6 +281,7 @@ js.lang.System = function (env, vm){
 
         vm.supports.supportCssFloat = !!div.lastChild.style.cssFloat;
         vm.supports.borderBox = !(div.offsetWidth > 100);
+        vm.supports.borderEdg = !(cdiv.offsetLeft == 0);
 
         doc.body.removeChild(div);
         div = view = undefined;
