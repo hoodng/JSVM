@@ -1,105 +1,12 @@
+<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
 <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<script id="j$vm" src="../../jsvm/jsvm.jsp" -DmainClass="org.jsvm.App" ></script>
+<script src="../../jsvm/jsre-ui.js" ></script>
 
 <style>
-
-.taskbar {
-    height: 24px;
-    border: 1px sloid #C6C6C6;
-    background-color: #E0E0E0
-}
-
-.iconbtn, .iconbtn_0, .iconbtn_1, 
-.iconbtn_16 {
-    position: relative;
-    left: 0px;
-    top:  2px;
-    width:  22px;
-    height: 22px;
-    float: left;
-    display: block;
-}
-
-.iconbtn_16{
-    display: none;
-}
-
-.wndlist {
-    position: relative;
-    left: 0px;
-    top:  2px;
-    height: 22px;
-    float: left;
-    overflow: hidden;
-    border-width: 0px 1px 0px 1px;
-    border-style: solid;
-    border-color: #c6c6c6;
-}
-
-.iconbtn_icon {
-    width: 9px;
-    height:9px;
-}
-
-
-.item,
-.item_0, .item_1, .item_4, .item_5 {
-    position: absolute;
-    width: 100%;
-    height: 22px;
-    padding: 2px;
-    border: 1px solid #C6C6C6;
-}
-
-.item_1 {
-    background: #FAFAFA;
-}
-
-.item_4, .item_5 {
-    background: #FAFAFA;
-}
-
-.item_marker {
-    width: 8px;
-    height: 16px;
-}
-
-.item_icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
-}
-
-.item_label {
-    height: 16px;
-    line-height: 16px;
-    text-overflow:ellipsis;
-    overflow:hidden;
-    cursor: default;
-}
-
-.item_ctrl, .item_ctrl_0, .item_ctrl_2 {
-    width: 16px;
-    height: 16px;
-    margin-left: 2px;
-}
-
-.item_ctrl_0 {
-    background-image: url("../../style/default/images/0-tab_delete.png");
-    background-repeat: no-repeat;
-    background-position:center;
-}
-
-.item_ctrl_2 {
-    background-image: url("../../style/default/images/2-tab_delete.png");
-    background-repeat: no-repeat;
-    background-position:center;
-}
 
 
 </style>
@@ -109,39 +16,37 @@
 
 <script type="text/javascript">
 
-J$VM.exec("Demo",function(System){
+J$VM.exec("org.jsvm.App",function(System){
 
     this.prefer({theme: "default"});
-    var MQ = J$VM.MQ;
+    var MQ = J$VM.MQ, Class = js.lang.Class;
 
-
-    var taskbar = new js.awt.Container({
+    var taskbar = new (Class.forName("com.jinfonet.common.TaskBar"))({
         className: "taskbar",
-        stateless: true,
 
-        items:["btnPrev", "wndlist", "btnNext", "btnAdd"],
+        items:["btnPrev", "tasklist", "btnNext", "btnAdd"],
 
         btnPrev:{
             classType: "js.awt.Button",
-            className: "iconbtn",
+            className: "taskbar_button",
             iconImage: "scrollLeft_arrow.png"
         },
 
         btnNext:{
             classType: "js.awt.Button",
-            className: "iconbtn",
+            className: "taskbar_button",
             iconImage: "scrollRight_arrow.png"
         },
 
         btnAdd:{
             classType: "js.awt.Button",
-            className: "iconbtn",
+            className: "taskbar_button",
             iconImage: "tab_add.png"
         },
 
-        wndlist:{
+        tasklist:{
             classType: "js.awt.ScrollPane",
-            className: "wndlist",
+            className: "tasklist",
             stateless: true,
             movable: true,
             layout:{
@@ -152,46 +57,22 @@ J$VM.exec("Demo",function(System){
         
     }, this);
 
-    taskbar.doLayout = function(){
-        this.setWidth(this.container.getWidth() - 50);
-        this.wndlist.setMaximumSize(this.getWidth()-66, this.getHeight());
-        this.wndlist.doLayout(true);
-        //arguments.callee.__super__.apply(this, arguments);
-    }.$override(taskbar.doLayout);
-
-    taskbar.onlayout = function(){
-       var w1 = this.wndlist.view.scrollWidth, w2 = this.getWidth();
-       if(w1 > w2){
-           this.btnPrev.setVisible(true);
-           this.btnNext.setVisible(true);
-       }else{
-           this.btnPrev.setVisible(false);
-           this.btnNext.setVisible(false);
-       } 
-    };
-    
     this.addComponent(taskbar);
-    taskbar.setPosition(10, 10);
 
-    (function(id){
-        var item = taskbar[id];
-        item.setPeerComponent(this);
-    }).$forEach(this, taskbar.items());
+//    taskbar.setPosition(10, 10);
+    taskbar.btnAdd.setPeerComponent(this);
+    taskbar.tasklist.setPeerComponent(this);
+
+    taskbar.doLayout();
 
    var i = 0;
    var _onclick = function(e){
        var item = e.getEventTarget();
        if(e.getType() == "mouseup"){
            switch(item.id){
-               case "btnPrev":
-               taskbar.wndlist.scrollPrevious();
-               break;
-               case "btnNext":
-               taskbar.wndlist.scrollNext();
-               break;
                case "btnAdd":
-               taskbar.wndlist.addComponent(new js.awt.Item({
-                 className : "item",
+               taskbar.tasklist.addComponent(new js.awt.Item({
+                 className : "tasklist_item",
                  id : "Item"+ i,
                  labelText: "Item"+i,
                  markable: true,
@@ -209,7 +90,7 @@ J$VM.exec("Demo",function(System){
        var item = e.getEventTarget();
        switch(e.getType()){
        case "ctrlclick":
-           taskbar.wndlist.removeComponent(item);
+           taskbar.tasklist.removeComponent(item);
            break;
        }
    };
@@ -217,7 +98,6 @@ J$VM.exec("Demo",function(System){
 
    MQ.register("js.awt.event.ButtonEvent", this, _onclick);
    MQ.register("js.awt.event.ItemEvent",   this, _onitemevent);
-   MQ.register("js.awt.event.LayoutEvent", taskbar, taskbar.onlayout);
 
    J$VM.DOM.forbidSelect(this.view);
 });
