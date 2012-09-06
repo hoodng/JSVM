@@ -328,7 +328,7 @@ js.lang.System = function (env, vm){
             scope = vm.runtime[proc.id];
             if(scope === undefined){
                 scope = vm.runtime[proc.id] = function(){
-                    var clazz = js.lang.Class.forName("js.awt.Desktop");
+                    var clazz = js.awt.Desktop;
                     return clazz ? new (clazz)(proc.container) : 
                         new js.lang.NoUIRuntime();
                 }();
@@ -344,7 +344,7 @@ js.lang.System = function (env, vm){
     };
     
     var _onbeforeunload = function(){
-        
+
     };
 
     var _onunload = function(e){
@@ -363,11 +363,14 @@ js.lang.System = function (env, vm){
 
         this.gc();
 
-        J$VM = undefined;
-        js = undefined;
-        com = undefined;
+        document.body.innerHTML = "";
 
-        dom.body.innerHTML = "";
+        /*
+        document.write("<html><head>"
+                       + "<script>"
+                       + "location.replace(\""+location.href+"\");"
+                       + "</script>"
+                       + "</head><body></body></html>");*/
     };
     
     var bodyW, bodyH;
@@ -462,7 +465,7 @@ js.lang.System = function (env, vm){
             };
 
             vm.storage.cache = new js.util.Cache();
-        
+
             vm.Factory = new js.awt.ComponentFactory(this);
 
             vm.exec = function(instName, fn, containerElement){

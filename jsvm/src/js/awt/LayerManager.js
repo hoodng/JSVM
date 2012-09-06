@@ -323,7 +323,7 @@ js.awt.LayerManager = function(Runtime){
 	};
 	
 	var _show = function (layer, rect) {
-		J$VM.System.out.println((new Date()).toString() + " : show " + layer.uuid());
+		System.err.println((new Date()).toString() + " : show " + layer.uuid());
 		layer.applyStyles({position: "absolute", visibility: "hidden"});
 		
 		if(this.indexOf(layer) < 0){
@@ -438,7 +438,7 @@ js.awt.LayerManager = function(Runtime){
 			pop = this.stack[this.stack.length - 1];
 			if (pop.canHide(e)) {
 				pop = this.stack.pop();
-				System.out.println((new Date()).toString() + " : hide " + pop.uuid() 
+				System.err.println((new Date()).toString() + " : hide " + pop.uuid() 
 								   + " on \"" + e.getType() 
 								   + "\" - Flag: " + (pop.getPMFlag()).toString(2));
 				if (pop != root) {
@@ -462,7 +462,10 @@ js.awt.LayerManager = function(Runtime){
 	 * there is no any event or method to cause hiding it. Now if we will push another one 
 	 * layer to it, we should invoke this method in our own initiative.
 	 */
-	thi$.clearStack = function(e){ 
+	thi$.clearStack = function(e){
+		System.err.println((new Date()).toString() + " : clearStack " 
+						   + " on \"" + (e ? e.getType() : "unknown") + "\" event.");
+		
 		var pop;
 		while (this.stack.length > 0) {
 			pop = this.stack.pop();
