@@ -105,9 +105,14 @@ js.awt.TabPane = function (def, Runtime){
         	activateId : tabId
         };
         
+        this.activateId = tabId;
         this.notifyPeer(
             "js.awt.event.TabActivatedEvent", 
             new Event("TabActivatedEvent", msg));
+    };
+    
+    thi$.getActivateTabId = function(){
+        return this.activateId;
     };
     
     /**

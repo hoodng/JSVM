@@ -1409,3 +1409,73 @@ body {
     text-overflow:ellipsis;
     overflow:hidden;
 }
+
+/********** Begin of Table *********/
+.jsvm_table, .jsvm_table_0{
+	top: 0 !important;
+	border-collapse:collapse;
+}
+
+.jsvm_table_headerHolder,
+.jsvm_table_headerHolder_0{
+	Background-color: #ffffff;
+	border-top: 1px solid #CCCCCC;
+	border-left: 1px solid #CCCCCC;
+    cursor: pointer;
+    background: url(images/title_background.png) repeat;
+}
+
+.jsvm_table_header, .jsvm_table_header_0{
+	border-right: 1px solid #CCCCCC;
+}
+
+.jsvm_table_header_ctrl{
+	display: none;
+	top: 6px !important;
+	text-indent: 2px;
+}
+
+.jsvm_table_header_label{
+	top: 6px !important;
+	text-indent: 3px;
+}
+
+.jsvm_table_header_ctrl_1{
+	width: 16px;
+	height:16px;
+	top: 6px !important;
+	background-repeat: no-repeat;
+    background-image: url("images/2-sortasc.gif");
+}
+
+.jsvm_table_header_ctrl_2{
+	width: 16px;
+	height:16px;
+	top: 6px !important;
+	background-repeat: no-repeat;
+    background-image: url("images/2-sortdesc.gif");
+}
+
+.jsvm_table_row_hover {
+	cursor: pointer;
+	background: #ffdf7c;
+}
+
+.jsvm_table_cell_0{
+	white-space: nowrap;
+	overflow:hidden;
+	text-overflow: ellipsis;
+	height: 20px;
+	line-height: 20px;
+	padding:0;
+}
+
+.jsvm_table_bodyHolder,
+.jsvm_table_bodyHolder_0{
+	Background-color: #ffffff;
+	border: 1px solid #CCCCCC;
+    overflow-y: auto; 
+    overflow-x: hidden;
+    padding: 2px;
+}
+/********** End of Table ***********/

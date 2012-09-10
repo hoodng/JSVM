@@ -210,8 +210,10 @@ js.awt.Table = function(def, Runtime) {
 	thi$.destroy = function() {
 		delete this.headerCache;
 		delete this.colsDef;
-		delete this.bodyDef.data,
-		delete this.bodyDef;
+		if(this.bodyDef){
+			delete this.bodyDef.data,
+			delete this.bodyDef;
+		}
 		delete this.cache;
 		delete this.data;
 		if(this.lastHeaderItem)
@@ -225,10 +227,10 @@ js.awt.Table = function(def, Runtime) {
 		this.data = data;
 		var R = this.Runtime(), rowLen;
 		var bodyHolder = this['bodyHolder'];
+		this.bodyDef = null;
 	    bodyHolder.removeAll(true);
 	    if(data)
 	    	rowLen = data.length;
-		var colsDef = this.colsDef;
 	    if(rowLen > 0){
 	    	var bounds = bodyHolder.getBounds(), MBP = bounds.MBP;
 	    	var rowsDef = new Array(rowLen);
@@ -242,9 +244,9 @@ js.awt.Table = function(def, Runtime) {
 	            rigid_w: false,
 	            rigid_h: true, 
 	            rowNum: rowLen,
-	            colNum: colsDef.length,
+	            colNum: this.colsDef.length,
 	            rows: rowsDef,
-	            cols: colsDef, 
+	            cols: this.colsDef, 
 	            data: data,
 	            cache: this.cache
 	    	};
@@ -255,16 +257,15 @@ js.awt.Table = function(def, Runtime) {
 	};
 	
 	var _sort = function(data, runtime){
+		if(!this.bodyDef){
+			return;
+		}
 		var bodyHolder = this['bodyHolder'];
 		bodyHolder.removeAll(true);
 		this.cache = {};
 		this.bodyDef.data = data;
 		this.bodyDef.cache = this.cache;
 		bodyHolder.addComponent(new js.awt.TableBody(this.bodyDef, runtime));
-	};
-	
-	thi$.clearTableBody = function(def, R) {
-		this['bodyHolder'].removeAll(true);
 	};
 	
 	thi$.clearSort = function() {
