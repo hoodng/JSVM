@@ -318,6 +318,8 @@ js.lang.System = function (env, vm){
         _detectDoctype.call(this);
 
         var Event = js.util.Event, dom = vm.hwnd.document;
+        Event.attachEvent(vm.hwnd, Event.W3C_EVT_RESIZE, 0, this, _onresize);
+        Event.attachEvent(vm.hwnd, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
         Event.attachEvent(dom, "keydown", 0, this, _onkeyevent);
         Event.attachEvent(dom, "keyup",   0, this, _onkeyevent);
 
@@ -475,10 +477,7 @@ js.lang.System = function (env, vm){
             }.$bind(this);
 
             E.attachEvent(vm.hwnd, E.W3C_EVT_LOAD,   0, this, _onload);
-            //E.attachEvent(vm.hwnd, "beforeunload", 0, this, _onbeforeunload);
             E.attachEvent(vm.hwnd, E.W3C_EVT_UNLOAD, 0, this, _onunload);
-            E.attachEvent(vm.hwnd, E.W3C_EVT_RESIZE, 0, this, _onresize);
-            E.attachEvent(vm.hwnd, E.W3C_EVT_MESSAGE,0, this, _onmessage);
 
         }else{
             // Because Web Worker can not use consle to output, so we can use our MQ

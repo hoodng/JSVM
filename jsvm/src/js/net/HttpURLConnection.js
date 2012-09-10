@@ -194,8 +194,11 @@ js.net.HttpURLConnection = function (isAsync){
      */
     thi$.close = function(){
         _stopTimeout.call(this);
+        try{
+            this._xhr.onreadystatechange = null;            
+        } catch (x) {
 
-        this._xhr.onreadystatechange = null;
+        }
         this._xhr = null;
         this._headers = null;
     };
