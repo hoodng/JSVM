@@ -122,15 +122,15 @@ J$VM = new function (){
      * t.instanceOf(IB) // true
      */
     Function.prototype.$implements = function(superCs){
-        var proto = this.prototype, superC;
-        proto.__imps__ = proto.__imps__ || [];
+        var proto = this.prototype, superC,
+        imps = proto.__imps__ = /*proto.__imps__ ||*/ [];
         
         for(var i=0, len=arguments.length; i<len; i++){
             superC = arguments[i];
-            if(typeof superC != "function") continue;
-            
-            proto.__imps__.push(superC);
-            superC.$decorate(proto);
+            if(typeof superC == "function"){
+                imps.push(superC);
+                superC.$decorate(proto);
+            }
         }
 
         return this;
@@ -141,7 +141,9 @@ J$VM = new function (){
         if(this.__defined__ == undefined) new (this)();
 
         for(p in proto){
-            if(proto.hasOwnProperty(p) && "constructor" != p && 
+            if(proto.hasOwnProperty(p) && 
+               "constructor" != p && 
+               "__imps__" != p &&
                !o.hasOwnProperty(p)){
                 o[p] = proto[p];    
             }

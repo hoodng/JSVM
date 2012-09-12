@@ -532,42 +532,50 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                     e.setEventTarget(item);
                     this.notifyPeer("js.awt.event.TreeItemEvent", e);
                     return;
-                }else if(e.ctrlKey === true && item.canDrag()){
-                    item.setTriggered(!item.isTriggered());
-                    if(item.isTriggered()){
-                        selected.push(item);
-                    }else{
-                        selected.remove(item);
-                    }
-                    return;
-                }else if(e.shiftKey === true && item.canDrag()){
-                    var first = selected.length > 0 ? selected[0] : undefined;
-
-                    if(first == undefined){
-                        first = item;
-                        item.setTriggered(true);
-                        selected.push(item);
-                    }
-
-                    if(first && item && first.parentItem() == item.parentItem()){
-                        var nodes = first.parentItem().getNodes(first, item), node;
-                        for(var i=1, len=nodes.length; i<len; i++){
-                            node = nodes[i];
-                            node.setTriggered(true);
-                            selected.push(node);
+                }else if (item.canDrag()){
+                	if(e.ctrlKey === true){
+                        item.setTriggered(!item.isTriggered());
+                        if(item.isTriggered()){
+                            selected.push(item);
+                        }else{
+                            selected.remove(item);
                         }
-                        return;
+                    }else if(e.shiftKey === true){
+                        var first = selected.length > 0 ? selected[0] : undefined;
+
+                        if(first == undefined){
+                            first = item;
+                            item.setTriggered(true);
+                            selected.push(item);
+                        }
+
+                        if(first && item && first.parentItem() == item.parentItem()){
+                            var nodes = first.parentItem().getNodes(first, item), node;
+                            for(var i=1, len=nodes.length; i<len; i++){
+                                node = nodes[i];
+                                node.setTriggered(true);
+                                selected.push(node);
+                            }
+                        }
+                    }else if(item.isTriggered()){
+                    	this.clearAllSelected();                        
                     }else{
-                        this.clearAllSelected();
+                    	this.clearAllSelected();
                         item.setTriggered(true);
                         selected.push(item);
-                        return;
-                    }
+                    }                	
                 }
-            }
-
-            this.clearAllSelected();
-            e.setEventTarget(item);
+                e.setType("selectchanged");
+                e.setEventTarget(this.getAllSelected());
+                this.notifyPeer("js.awt.event.TreeItemEvent", e);
+                return;
+            }            
+        }
+        
+        if(this.selected.length){
+        	this.clearAllSelected();
+        	e.setType("selectchanged");
+            e.setEventTarget(this.getAllSelected());
             this.notifyPeer("js.awt.event.TreeItemEvent", e);
         }
     };

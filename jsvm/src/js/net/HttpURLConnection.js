@@ -261,7 +261,7 @@ js.net.HttpURLConnection = function (isAsync){
 
         this.setAsync(isAsync);
         this.setNoCache(J$VM.System.getProperty("j$vm_ajax_nocache", true));
-        this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 600000));
+        this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 6000000));
         this.declareEvent(Event.SYS_EVT_TIMEOUT);
     };
 
