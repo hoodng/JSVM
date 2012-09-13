@@ -356,6 +356,26 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     };
     
     /**
+     * Returns all node index
+     */    
+    thi$.getNodeIndex = function(item){
+        var nodes = this.nodes;
+        for(var i=0; i<nodes.length; i++){
+            if(nodes[i] == item){
+                return i;
+            }
+        }
+        return -1;
+    };
+    
+    /**
+     * Returns all items
+     */
+    thi$.getAllNodes = function(){
+        return this.nodes;
+    };
+    
+    /**
      * Returns all selected items
      */
     thi$.getAllSelected = function(){
@@ -533,7 +553,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                     this.notifyPeer("js.awt.event.TreeItemEvent", e);
                     return;
                 }else if (item.canDrag()){
-                	if(e.ctrlKey === true){
+                    if(e.ctrlKey === true){
                         item.setTriggered(!item.isTriggered());
                         if(item.isTriggered()){
                             selected.push(item);
@@ -558,24 +578,25 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                             }
                         }
                     }else if(item.isTriggered()){
-                    	this.clearAllSelected();                        
+                        this.clearAllSelected();                        
                     }else{
-                    	this.clearAllSelected();
+                        this.clearAllSelected();
                         item.setTriggered(true);
                         selected.push(item);
-                    }                	
+                    }                   
                 }
                 e.setType("selectchanged");
-                e.setEventTarget(this.getAllSelected());
+                e.setData(this.getAllSelected());
+                e.setEventTarget(item);
                 this.notifyPeer("js.awt.event.TreeItemEvent", e);
                 return;
             }            
         }
         
         if(this.selected.length){
-        	this.clearAllSelected();
-        	e.setType("selectchanged");
-            e.setEventTarget(this.getAllSelected());
+            this.clearAllSelected();
+            e.setType("selectchanged");
+            e.setData(this.getAllSelected());
             this.notifyPeer("js.awt.event.TreeItemEvent", e);
         }
     };

@@ -173,8 +173,7 @@ js.lang.Thread = function(Runnable){
             iframe.style.cssText = "visibility:hidden;border:0;width:0;height:0;";
             document.body.appendChild(iframe);
             var text = new js.lang.StringBuffer();
-            text = text.append("<html><head>")
-                .append("<meta http-equiv='X-UA-Compatible' content='IE=edge'>")
+            text = text.append("<!DOCTYPE html>\n<html><head>")
                 .append("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>")
                 .append("</head></html>").toString();
 
