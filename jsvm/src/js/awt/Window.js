@@ -253,14 +253,14 @@ js.awt.Window = function (def, Runtime, view){
         if(this.isMinimized()){
             // Restore
             this.setMinimized(false);
-            _setSizeTo.call(this, "normal");         
+            _setSizeTo.call(this, "normal");                
         }else{
             if(this.isMaximized()){
                 this.setMovable(this._local.movable);
                 this.setResizable(this._local.resizable);
             }
             this.setMinimized(true);
-            _setSizeTo.call(this, "minimized");
+            _setSizeTo.call(this, "minimized");            
         }
     };
     
@@ -270,6 +270,7 @@ js.awt.Window = function (def, Runtime, view){
             this.setMaximized(false);
             _setSizeTo.call(this, "normal");
             button.setTriggered(false);
+            button.setToolTipText(this.Runtime().nlsText("btnMax_tip"));    
         }else{
             if(this.isMinimized()){
                 this.setMovable(this._local.movable);
@@ -278,6 +279,7 @@ js.awt.Window = function (def, Runtime, view){
             this.setMaximized(true);
             _setSizeTo.call(this, "maximized");
             button.setTriggered(true);
+            button.setToolTipText(this.Runtime().nlsText("btnMin_tip"));
         }
     };
     

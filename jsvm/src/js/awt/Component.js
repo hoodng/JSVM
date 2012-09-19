@@ -652,6 +652,21 @@ js.awt.Component = function (def, Runtime, view){
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
+	
+    thi$.getLastResizer = function(){
+        var resizer = this._local.resizer, 
+        len = resizer ? resizer.length : 0,
+        el;
+		
+        for(var i = 0; i < len; i++){
+            el = resizer[i];
+            if(el){
+                return el;
+            }
+        }
+		
+        return undefined;
+    };
 
     thi$._init = function(def, Runtime, view){
         if(def == undefined) return;

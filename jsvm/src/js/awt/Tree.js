@@ -277,6 +277,41 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     };
     
     /**
+     * Move tree item
+     */
+    thi$.moveNode = function(index1, index2){
+        var nodes = this.nodes, marked = this.marked, selected = this.selected;
+        
+        var node1 = nodes[index1], node2 = nodes[index2];        
+        
+        nodes[index1] = node2;
+        nodes[index2] = node1
+        
+        var idx1=marked.indexOf(node1), idx2=marked.indexOf(node2);
+        if(idx1>=0 && idx2>=0){
+        	marked[idx1] = node2;
+        	marked[idx2] = node1;
+        }
+        
+        idx1=selected.indexOf(node1), idx2=selected.indexOf(node2);
+        if(idx1>=0 && idx2>=0){
+        	selected[idx1] = node2;
+        	selected[idx2] = node1;
+        }
+        
+        var view1 = node1.view, view2 = node2.view;
+        var container1 = node1.view.parentNode;
+        var container2 = node2.view.parentNode;        
+        container1.removeChild(view1);
+        
+        if(index1<index2){
+        	DOM.insertAfter(view1, view2, container2);        	
+        } else {
+        	DOM.insertBefore(view1, view2, container2);
+        }
+    };
+    
+    /**
      * Expand tree with the specified item
      */
     thi$.expand = function(item){

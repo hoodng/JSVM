@@ -487,40 +487,50 @@ body {
 
 /** Menu */
 .jsvm_menu,
-.jsvm_menu_0 {
+.jsvm_menu_0,
+.jsvm_noIconMenu,
+.jsvm_noIconMenu_0 {
     border:1px solid #e6e6e6;
     background-color:#FFFFFF;
     width:180px;
 }
 
 .jsvm_menu_item,
-.jsvm_menu_item_0, .jsvm_menu_item_1, .jsvm_menu_item_8 {
+.jsvm_menu_item_0, .jsvm_menu_item_1, .jsvm_menu_item_8,
+.jsvm_noIconMenu_item,
+.jsvm_noIconMenu_item_0, .jsvm_noIconMenu_item_1, .jsvm_noIconMenu_item_8 {
     height: 20px;
     cursor:default;
 }
 
-.jsvm_menu_item_1 {
+.jsvm_menu_item_1,
+.jsvm_noIconMenu_item_1 {
     background-color:#ffdf7c;
 }
 
-.jsvm_menu_item_8, .jsvm_menu_item_9 {
+.jsvm_menu_item_8, .jsvm_menu_item_9,
+.jsvm_noIconMenu_item_8, .jsvm_noIconMenu_item_9, {
     color: gray;
 }
 
-.jsvm_menu_separator {
+.jsvm_menu_separator,
+.jsvm_noIconMenu_separator {
     height: 1px;
     background-color:#CCCCCC;
 }
 
 .jsvm_menu_item_marker,
-.jsvm_menu_item_marker_0, .jsvm_menu_item_marker_4 {
+.jsvm_menu_item_marker_0, .jsvm_menu_item_marker_4,
+.jsvm_noIconMenu_item_marker,
+.jsvm_noIconMenu_item_marker_0, .jsvm_noIconMenu_item_marker_4 {
     width: 18px;
     height:20px;
     margin-right: 2px;
     background-color: #CCCCCC;
 }
 
-.jsvm_menu_item_marker_4 {
+.jsvm_menu_item_marker_4,
+.jsvm_noIconMenu_item_marker_4 {
     background-color: #CCCCCC;
     background-image: url("images/mark.png");
     background-repeat: no-repeat;
@@ -534,8 +544,17 @@ body {
     margin-right: 2px;
 }
 
+.jsvm_noIconMenu_item_icon,
+.jsvm_noIconMenu_item_icon_0 {
+    width: 0px;
+    height: 0px;
+    margin-right: 0px;
+}
+
 .jsvm_menu_item_label,
-.jsvm_menu_item_label_0 {
+.jsvm_menu_item_label_0,
+.jsvm_noIconMenu_item_label,
+.jsvm_noIconMenu_item_label_0 {
     height:16px;
     overflow: hidden;
 	text-overflow: ellipsis;
@@ -543,7 +562,9 @@ body {
 }
 
 .jsvm_menu_item_ctrl,
-.jsvm_menu_item_ctrl_0 {
+.jsvm_menu_item_ctrl_0,
+.jsvm_noIconMenu_item_ctrl,
+.jsvm_noIconMenu_item_ctrl_0 {
     width: 16px;
     height:16px;
     margin-left: 2px;
@@ -1061,13 +1082,14 @@ body {
 
 .jsvm_tabpane_tab_0{
     border-color: #CCC;    
-    background-color: #DDD;
+    background-color: #f3f3f3;
 }
 
 .jsvm_tabpane_tab_4{
 	border-top-width: 2px;
 	height:19px !important;
-    border-color: #FAC150 #CCC #EEE #CCC;
+    border-color: #FAC150 #CCC #fafafa #CCC;
+    background-color: #fafafa;
 }
 
 .jsvm_tabpane_tab_label {
@@ -1080,10 +1102,15 @@ body {
     border-width: 1px;
     border-color: #CCC;
     border-style: none solid solid solid;
+    background-color: #fafafa;
     padding: 12px;
     -moz-border-radius:0px 0px 3px 3px;
 	border-radius:0px 0px 3px 3px;
     -webkit-border-radius:0px 0px 3px 3px;
+}
+
+.jsvm_tabpane_panes > * {
+	background-color: #fafafa;	
 }
 
 .jsvm_fieldset {

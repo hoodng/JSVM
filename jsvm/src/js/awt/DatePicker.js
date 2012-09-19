@@ -37,6 +37,14 @@
 
 $package("js.awt");
 
+$import("js.util.Calendar");
+$import("js.awt.FieldSpinner");
+$import("js.awt.Calendar");
+$import("js.text.YearFormat");
+$import("js.text.MonthFormat");
+$import("js.text.HourFormat");
+$import("js.text.MinuteFormat");
+
 /**
  * @param def:{
  *     id: 

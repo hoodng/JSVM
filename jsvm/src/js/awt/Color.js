@@ -152,8 +152,8 @@ js.awt.Color = function(r, g, b, a) {
         var v = 0xFF000000;
         if (s.indexOf("#") == 0) {
             v = parseInt(s.substring(1), 16);
-        }else if(s.toLowerCase() == "transparent"){
-            v = 0x00FF << 24;
+        }else if(s.toLowerCase() == "transparent" || s.indexOf("rgba") == 0){
+            v = 0x00FF << 24;        
         }else if(s.indexOf("rgb") == 0){
             s = s.substring(s.indexOf("(")+1, s.indexOf(")"));
             var arr = s.split(","),
