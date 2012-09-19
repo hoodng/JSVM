@@ -250,9 +250,14 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		// e.setEventTarget(item);
 		// this.notifyPeer("js.awt.event.MenuItemEvent", e);
 
-		var tar = {def: System.objectCopy(item.def, {})};
+		var tar = {id: item.id, def: System.objectCopy(item.def, {})};
 		e.setEventTarget(tar);
-		MQ.post("hideMenuRoot","", [this.rootLayer().uuid()]);
+
+		// Here, we will invoke the hide() to hide the menu rather than trigger
+		// it by the message post. Because the message execution is asynchronously.
+		// In some case, it may be block, too.		
+		//MQ.post("hideMenuRoot","", [this.rootLayer().uuid()]);
+		this.rootLayer().hide();
 		this.notifyPeer("js.awt.event.MenuItemEvent", e);
 	};
 	
