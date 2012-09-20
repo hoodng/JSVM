@@ -75,7 +75,13 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.setNoCache = function(isNoCache){
-        this._nocache = isNoCache || false;  
+        this._nocache = isNoCache || false; 
+        
+        if(this._nocache){
+            this.setRequestHeader("If-Modified-Since", "0");
+        }else{
+            this.setRequestHeader("If-Modified-Since", new Date().toString());
+        }
     };
 
     thi$.setRequestHeader = function(key, value){
@@ -221,10 +227,6 @@ js.net.HttpURLConnection = function (isAsync){
         var buf = new js.lang.StringBuffer();
         for(var p in params){
             buf.append(p).append("=").append(params[p]).append("&");
-        }
-
-        if(this.isNoCache()){
-            buf.append("_=").append(js.lang.Math.random());
         }
 
         return buf.toString();

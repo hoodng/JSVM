@@ -427,15 +427,22 @@ js.awt.Component = function (def, Runtime, view){
     };
     
     /**
+     * When the position and size of the component has changed, we need
+     * to adjust its container's size to handle the scroll bars.
+     */
+    thi$.autoResizeContainer = function(){
+        var container = this.getContainer();
+        if(container && (container instanceof js.awt.Container)){
+            container.autoResize();
+        }
+    };
+    
+    /**
      * Handler of the component which is moving in an 
      * auto fit container 
      */
     var _onMovingEvent = function(e){
-        var container = this.getContainer();
-        if(container && (container instanceof js.awt.Container) &&
-           container.isAutoFit()){
-            container.autoResize();
-        }
+        this.autoResizeContainer();
     };
 
     /**
@@ -592,6 +599,9 @@ js.awt.Component = function (def, Runtime, view){
         if((fire & 0x02) != 0){
             this.doLayout(true);
         }
+        
+        // Adjust the container's size to handle the scrollbars
+        this.autoResizeContainer();
     };
 
     /**

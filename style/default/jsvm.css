@@ -764,6 +764,7 @@ body {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
 .jsvm_comboBox_dropdown,

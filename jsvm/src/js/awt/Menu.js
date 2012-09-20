@@ -246,18 +246,22 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		 * item may be destoried, too.
 		 * So we copy the def of menu item and build an object as the event 
 		 * target in order to avoid much change. Then we can hide menu first. 
+		 * 
+		 * P.S.
+		 * The menu of dashboard and gadget has menu item to do something like
+		 * mark. So we also need use the menu item as the event target. However,
+		 * In this case, there are some memory leak risk existed.
 		 */
 		// e.setEventTarget(item);
 		// this.notifyPeer("js.awt.event.MenuItemEvent", e);
-
-		var tar = {id: item.id, def: System.objectCopy(item.def, {})};
-		e.setEventTarget(tar);
+		e.setEventTarget(item);
 
 		// Here, we will invoke the hide() to hide the menu rather than trigger
 		// it by the message post. Because the message execution is asynchronously.
 		// In some case, it may be block, too.		
 		//MQ.post("hideMenuRoot","", [this.rootLayer().uuid()]);
 		this.rootLayer().hide();
+		
 		this.notifyPeer("js.awt.event.MenuItemEvent", e);
 	};
 	

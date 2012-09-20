@@ -347,6 +347,8 @@ js.awt.Container = function (def, Runtime, view){
      * 
      */
     thi$.autoResize = function(){
+        if(!this.isAutoFit()) return;
+    
         var bounds = this.getBounds(), 
         prefer = this.getPreferredSize(true/*nocache*/),
         w = bounds.userW, h = bounds.userH;
