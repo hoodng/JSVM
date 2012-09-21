@@ -494,7 +494,7 @@ js.awt.Component = function (def, Runtime, view){
         def.className = def.className || "msgbox";
         def.stateless = true;
         def.model = def.model || {};
-        def.model.msgType = "confirm";
+        def.model.msgType = def.model.msgType || "confirm";
         return this.openDialog(
             className,
             rect, 

@@ -353,7 +353,7 @@ js.awt.Table = function(def, Runtime) {
 			row.view.className = row.def.className + '_hover';
 			this.curRow = row;
 			e.setEventTarget(row.obj);
-			e.setType("dbClick");
+			e.setType("dblClick");
 			this.notifyPeer("js.awt.event.TableItemEvent", e);
 		}
 	};

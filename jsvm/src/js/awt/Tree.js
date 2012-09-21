@@ -251,7 +251,18 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             if(item.isMarked()){
                 marked.push(item);
             }
-        }
+        }        
+        this._doSort();
+    };
+    
+    thi$._doSort = function(){
+    	var tree = this;
+    	var _func = function(item1, item2){
+    		return tree.getNodeIndex(item1) - tree.getNodeIndex(item2);
+    	}
+    	
+    	this.marked.sort(_func);
+    	this.selected.sort(_func);
     };
 
     /**
@@ -264,6 +275,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             delete cache[item.uuid()];
             item.destroy();
         }
+        this._doSort();
     };
     
     /**
@@ -274,6 +286,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         if(nodes){
             this.removeNodes(0, nodes.length);    
         }
+        this._doSort();
     };
     
     /**
@@ -309,6 +322,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         } else {
         	DOM.insertBefore(view1, view2, container2);
         }
+        this._doSort();
     };
     
     /**
@@ -426,6 +440,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             item = selected.shift();
             item.setTriggered(false);
         }
+        this._doSort();
     };
     
     /**
@@ -444,6 +459,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             item = marked.shift();
             item.mark(false);
         }
+        this._doSort();
     };
 
     /**
@@ -460,6 +476,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         }else{
             this.marked.remove(item);
         }
+        this._doSort();
     };
 
     /**
@@ -496,6 +513,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                 state.setTriggered(true);
                 item.setState(state.getState());
                 this.selected.push(item);
+                this._doSort();
             }
 
             moveObj = this.moveObj = 
@@ -620,6 +638,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                         selected.push(item);
                     }                   
                 }
+                this._doSort();
                 e.setType("selectchanged");
                 e.setData(this.getAllSelected());
                 e.setEventTarget(item);

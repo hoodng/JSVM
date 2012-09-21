@@ -53,7 +53,7 @@ js.awt.FileInput = function(def, Runtime){
 	var _checkExt = function(filename){
 		var str = filename.substr(filename.lastIndexOf('.') + 1);
 		for(var t in this.types){
-			if(str == this.types[t]){
+			if(str.toLowerCase() == this.types[t]){
 				return true;
 			}
 		}
