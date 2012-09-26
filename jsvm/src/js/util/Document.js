@@ -74,7 +74,12 @@ js.util.Document = function (){
         valign: "vAlign",
         vspace: "vSpace"
     },
-    BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/;;
+    BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/,
+    DOCTYPEFEATURS = ["xhtml", "version", "importance"],
+    DOCTYPECT = {
+        "HTML-4.01": {bodysize: false},
+        "HTML-4.01-TRANSITIONAL": {bodysize: true}
+    };
 
     /**
      * Create a DOM element
@@ -512,30 +517,53 @@ js.util.Document = function (){
         return isEle ? el.getBoundingClientRect() : 
             { left: 0, top: 0, bottom: 0, right: 0 };
     };
+    
+	var _computeByBody = function(){
+		var doctype = J$VM.doctype, fValues = [], 
+		b = true, v, table;
+		if(doctype.declared){
+			for(var i = 0, len = DOCTYPEFEATURS.length; i < len; i++){
+				v = doctype[DOCTYPEFEATURS[i]];
+				if(v){
+					fValues.push(v.toUpperCase());
+				}
+			}
+			
+			if(fValues.length == 0){
+				b = false;
+			}else{
+				v = fValues.join("-");
+				table = DOCTYPECT[v];
+				b = table ? (table["bodysize"] || false) : false;
+			}
+		}
+		
+		return b;
+	};
 
-    /**
-     * Return the outer (outer border) size of the element
-     * 
-     * @return {width, height}
-     */
-    thi$.outerSize = function(el, isEle){
-        if(el.tagName !== "BODY"){
-            var r = this.getBoundRect(el, isEle);
-            return {left: r.left, 
-                    top: r.top, 
-                    width: r.right-r.left, 
-                    height:r.bottom-r.top };
-        }else{
-            var doctype = J$VM.doctype.declared;
-            return {
-                left: 0, 
-                top:  0,
-                width: !doctype ? document.body.clientWidth : 
-                    document.documentElement.clientWidth,
-                height: !doctype ? document.body.clientHeight : 
-                    document.documentElement.clientHeight};
-        }
-    };
+	/**
+	 * Return the outer (outer border) size of the element
+	 * 
+	 * @return {width, height}
+	 */
+	thi$.outerSize = function(el, isEle){
+		if(el.tagName !== "BODY"){
+			var r = this.getBoundRect(el, isEle);
+			return {left: r.left, 
+					top: r.top, 
+					width: r.right-r.left, 
+					height:r.bottom-r.top };
+		}else{
+			var b = _computeByBody.call(this);
+			return {
+				left: 0, 
+				top:  0,
+				width: b ? document.body.clientWidth : 
+					document.documentElement.clientWidth,
+				height: b ? document.body.clientHeight : 
+					document.documentElement.clientHeight};
+		}
+	};
 
     /**
      * Return outer (outer border) width of the element

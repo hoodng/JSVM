@@ -232,23 +232,24 @@ js.awt.Desktop = function (element){
     };
 
     var _notifyLM = function(e){
-        var el = e.srcElement, target = e.getEventTarget(), 
+        var el = e.srcElement, target = e.getEventTarget(),
         uuid = el ? el.uuid : undefined;
-
-        _activateComponent.$delay(this, 1, target, uuid);
-
         this.LM.cleanLayers(e, this);
+        _activateComponent(target, uuid);
         return true;
     };
     
     var _onresize = function(e){
-        var d = this.getBounds();
-        this.LM.clearStack(e);
-        if(this._local.userW != d.width || this._local.userH != d.height){
-            this.def.width = this._local.userW = d.width;
-            this.def.height= this._local.userH = d.height;
-            this.doLayout.$delay(this, 1, true);
-        }
+		//var d = this.getBounds();
+		var body = document.body,
+		d = DOM.innerSize(body);
+		this.LM.clearStack(e);
+		if(this._local.userW != d.width || this._local.userH != d.height){
+			this.setSize(d.width, d.height, 4);
+			// this.def.width = this._local.userW = d.width;
+			// this.def.height= this._local.userH = d.height;
+			this.doLayout.$delay(this, 1, true);
+		}
     };
     
     var _forbidContextMenu = function(e){
@@ -285,7 +286,7 @@ js.awt.Desktop = function (element){
         var def = {
             classType: "js.awt.Desktop",
             className: "jsvm_desktop",
-            css: "position:absolute;width:100%;height:100%;",
+            css: "position:absolute;",
             zorder:true,
             stateless: true,
             layout:{
@@ -298,9 +299,13 @@ js.awt.Desktop = function (element){
         var body = document.body;
 
         if(!element){
-            var zIndex = _getMinZIndex.call(this, body);
-            this.insertBefore(body.firstChild, body);
-            this.setZ(zIndex-1);
+			var zIndex = _getMinZIndex.call(this, body),
+			s = DOM.innerSize(body);
+
+			this.insertBefore(body.firstChild, body);
+			this.setZ(zIndex-1);
+
+			this.setSize(s.width, s.height);
         }
 
         this.LM = new js.awt.LayerManager(this);

@@ -76,12 +76,12 @@ js.net.HttpURLConnection = function (isAsync){
 
     thi$.setNoCache = function(isNoCache){
         this._nocache = isNoCache || false; 
-        
+        /*        
         if(this._nocache){
             this.setRequestHeader("If-Modified-Since", "0");
         }else{
             this.setRequestHeader("If-Modified-Since", new Date().toString());
-        }
+        }*/
     };
 
     thi$.setRequestHeader = function(key, value){
