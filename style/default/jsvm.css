@@ -581,6 +581,10 @@ body {
     
     background-color: #FFFFFF;
     border: 1px solid #CCCCCC;
+    -moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
     overflow: hidden;
 }
 
@@ -590,6 +594,11 @@ body {
 
 .jsvm_textfield_input {
     background-color: #FFFFFF;
+    
+    -moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 .jsvm_textfield_disable {
@@ -717,12 +726,12 @@ body {
     border: 1px solid #CCCCCC;
     overflow: hidden;
     
-    /*
+    
     -moz-border-radius: 3px;
 	-khtml-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
-    */
+    
 }
 
 .jsvm_comboBox_0, .jsvm_comboBox_2 {
