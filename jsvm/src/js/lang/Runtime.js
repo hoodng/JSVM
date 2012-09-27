@@ -239,7 +239,7 @@ js.lang.Runtime = function(){
     var _updateJ$VMCSS = function(){
         var style = document.getElementById("j$vm_css"),
         stylePath = J$VM.env.j$vm_home + "/../style/"+this.theme()+"/", 
-        cssText = Class.getResource(stylePath + "jsvm.css");
+        cssText = Class.getResource(stylePath + "jsvm.css", true);
         
         if(!style){
             style = document.createElement("style");
