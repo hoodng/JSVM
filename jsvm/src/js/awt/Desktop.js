@@ -240,14 +240,20 @@ js.awt.Desktop = function (element){
     };
     
     var _onresize = function(e){
-		//var d = this.getBounds();
-		var body = document.body,
-		d = DOM.innerSize(body);
+		var isSpecified = this._local.isViewSpecified,
+		d = isSpecified ? this.getBounds() 
+			: DOM.innerSize(document.body);
+		
 		this.LM.clearStack(e);
+		
 		if(this._local.userW != d.width || this._local.userH != d.height){
-			this.setSize(d.width, d.height, 4);
-			// this.def.width = this._local.userW = d.width;
-			// this.def.height= this._local.userH = d.height;
+			if(isSpecified){
+				this.def.width = this._local.userW = d.width;
+				this.def.height= this._local.userH = d.height;				  
+			}else{
+				this.setSize(d.width, d.height, 4);
+			}
+
 			this.doLayout.$delay(this, 1, true);
 		}
     };
@@ -296,16 +302,18 @@ js.awt.Desktop = function (element){
         
         arguments.callee.__super__.apply(this, [def, this, element]);
         
+        // Indicate whether a specified DOM element will be as the
+        // view of current desktop.
+        this._local.isViewSpecified = !!element;
+
         var body = document.body;
-
-        if(!element){
-			var zIndex = _getMinZIndex.call(this, body),
-			s = DOM.innerSize(body);
-
-			this.insertBefore(body.firstChild, body);
-			this.setZ(zIndex-1);
-
-			this.setSize(s.width, s.height);
+        if(!this._local.isViewSpecified){
+        	var zIndex = _getMinZIndex.call(this, body),
+        	s = DOM.innerSize(body);
+        	this.insertBefore(body.firstChild, body);
+        	this.setZ(zIndex-1);
+            
+        	this.setSize(s.width, s.height);
         }
 
         this.LM = new js.awt.LayerManager(this);
