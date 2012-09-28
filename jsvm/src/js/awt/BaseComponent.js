@@ -842,6 +842,14 @@ js.awt.BaseComponent = function(def, Runtime, view){
             ele = this.view.cloneNode(false);
             ele.style.whiteSpace = "nowrap";
             ele.style.visibility = "hidden";
+            
+            // When we append an DOM element to body, if we didn't set any "position"
+            // or set the position as "absolute" but "top" and "left" that element also
+            // be place at the bottom of body other than the (0, 0) position. Then it
+            // may extend the body's size and trigger window's "resize" event.
+            ele.style.position = "absolute";
+            ele.style.top = "-10000px";
+            ele.style.left = "-10000px";
 
             DOM.appendTo(ele, document.body);
             G.bounds = DOM.getBounds(ele);

@@ -240,22 +240,22 @@ js.awt.Desktop = function (element){
     };
     
     var _onresize = function(e){
-		var isSpecified = this._local.isViewSpecified,
-		d = isSpecified ? this.getBounds() 
-			: DOM.innerSize(document.body);
-		
-		this.LM.clearStack(e);
-		
-		if(this._local.userW != d.width || this._local.userH != d.height){
-			if(isSpecified){
-				this.def.width = this._local.userW = d.width;
-				this.def.height= this._local.userH = d.height;				  
-			}else{
-				this.setSize(d.width, d.height, 4);
-			}
+        var isSpecified = this._local.isViewSpecified,
+        d = isSpecified ? this.getBounds() 
+        	: DOM.innerSize(document.body);
+        
+        if(this._local.userW != d.width || this._local.userH != d.height){
+            this.LM.clearStack(e);
+        	
+            if(isSpecified){
+                this.def.width = this._local.userW = d.width;
+                this.def.height= this._local.userH = d.height;                  
+        	}else{
+                this.setSize(d.width, d.height, 4);
+        	}
 
-			this.doLayout.$delay(this, 1, true);
-		}
+        	this.doLayout.$delay(this, 1, true);
+        }
     };
     
     var _forbidContextMenu = function(e){

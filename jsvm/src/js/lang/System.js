@@ -299,27 +299,72 @@ js.lang.System = function (env, vm){
     };
     
     var _detectDoctype = function(){
-        var re=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi, 
-        doctype = vm.doctype = {declared: false}, value;
+        var reg = /(\"[^\"]+\")/gi,
+        publicIDReg=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi,
+        DOCTYPEFEATURS = ["xhtml", "version", "importance"/*, "systemId"*/],
+        doctype = vm.doctype = {declared: false}, 
+        dtype, publicId, systemId;
 
         if(document.doctype != null){
             doctype.declared = true;
-            value = document.doctype.publicId || "";
+            
+            dtype = document.doctype;
+            doctype.name = dtype.name;
+            
+            publicId = dtype.publicId || "";
+            systemId = dtype.systemId || "";
         }else if(typeof document.namespaces != "undefined"){
-            value = document.all[0].nodeType == 8
-                ? document.all[0].nodeValue : "";
+            dt = document.all[0];
+            
+            var value = (dt.nodeType == 8 ? dt.nodeValue : "");
             if(value && (value.toLowerCase().indexOf("doctype") != -1)){
                 doctype.declared = true;
+                doctype.name = dt.scopeName;
+                
+                dtype = [];
+                value.replace(reg, 
+                              function($0){
+                                  if($0){
+                                      $0 = $0.replace(/"|'/g, "");
+                                      dtype.push($0);
+                                  }
+                              });
+                
+                publicId = dtype[0] || "";
+                systemId = dtype[1] || "";
             }
         }
         
-        try{
-            if(doctype.declared && re.test(value) && RegExp.$1){
-                doctype["xhtml"] = (RegExp.$1).toUpperCase();
-                doctype["version"] = RegExp.$2;
-                doctype["importance"] = RegExp.$3;
-            }
-        }catch(e){}
+        if(doctype.declared){
+            doctype.publicId = publicId = publicId.toLowerCase();
+            doctype.systemId = systemId.toLowerCase();
+            
+            try{
+                if(publicId.length > 0 && publicIDReg.test(publicId) && RegExp.$1){
+                    doctype["xhtml"] = (RegExp.$1);
+                    doctype["version"] = RegExp.$2;
+                    doctype["importance"] = RegExp.$3;
+                }
+            }catch(e){}
+            
+            doctype.getEigenStr = function(){
+                var fValues = [], v;
+                if(this.declared){
+                    for(var i = 0, len = DOCTYPEFEATURS.length; i < len; i++){
+                        v = this[DOCTYPEFEATURS[i]];
+                        if(v){
+                            fValues.push(v);
+                        }
+                    }
+                    
+                    v = fValues.length > 0 ? fValues.join("-") : "";
+                }
+                
+                return v;
+            };
+        }
+        
+        J$VM.System.log.println("Doctype:" + JSON.stringify(doctype));
     };
     
     var _onload = function(e){

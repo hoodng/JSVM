@@ -75,10 +75,9 @@ js.util.Document = function (){
         vspace: "vSpace"
     },
     BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/,
-    DOCTYPEFEATURS = ["xhtml", "version", "importance"],
     DOCTYPECT = {
-        "HTML-4.01": {bodysize: false},
-        "HTML-4.01-TRANSITIONAL": {bodysize: true}
+        "html-4.01": {bodysize: false},
+        "html-4.01-transitional": {bodysize: true}
     };
 
     /**
@@ -140,6 +139,15 @@ js.util.Document = function (){
         }
 
         return _s;      
+    };
+    
+    thi$.offsetParent = function(ele){
+        var body = document.body, p = ele.offsetParent;
+        if(!p || !this.contains(body, p, true)){
+            p = body;
+        }
+        
+        return p;
     };
 
     /**
@@ -519,26 +527,19 @@ js.util.Document = function (){
     };
     
 	var _computeByBody = function(){
-		var doctype = J$VM.doctype, fValues = [], 
-		b = true, v, table;
-		if(doctype.declared){
-			for(var i = 0, len = DOCTYPEFEATURS.length; i < len; i++){
-				v = doctype[DOCTYPEFEATURS[i]];
-				if(v){
-					fValues.push(v.toUpperCase());
-				}
-			}
-			
-			if(fValues.length == 0){
-				b = false;
-			}else{
-				v = fValues.join("-");
-				table = DOCTYPECT[v];
-				b = table ? (table["bodysize"] || false) : false;
-			}
-		}
-		
-		return b;
+        var doctype = J$VM.doctype, fValues = [], 
+        b = true, v, table;
+        if(doctype.declared){
+        	v = doctype.getEigenStr();
+        	if(v){
+                table = DOCTYPECT[v];
+                b = table ? (table["bodysize"] || false) : false;
+        	}else{
+                b = false;
+        	}
+        }
+        
+        return b;
 	};
 
 	/**

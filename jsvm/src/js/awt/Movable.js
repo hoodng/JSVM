@@ -170,8 +170,8 @@ js.awt.Movable = function (){
         br = Math.max(mover.br*mW, bound),
         bb = Math.max(mover.bb*mH, bound),
         bl = Math.max(mover.bl*mW, bound),
-        pview = moveObj.view.offsetParent,
-        cview = isAutoFit ? pview.offsetParent : pview,
+        pview = DOM.offsetParent(moveObj.view),
+        cview = isAutoFit ? DOM.offsetParent(pview) : pview,
         pbounds = DOM.getBounds(pview);
 
         moveObj.minX = grid*Math.ceil((0 - marginLf - mW + bl)/grid);
