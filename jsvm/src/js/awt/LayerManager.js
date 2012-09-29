@@ -323,7 +323,8 @@ js.awt.LayerManager = function(Runtime){
 	};
 	
 	var _show = function (layer, rect) {
-		System.log.println((new Date()).toString() + " : show " + layer.uuid());
+		System.log.println((new Date()).toString() + " : show " 
+                           + layer.uuid() + "-" + layer.className);
 		
 		// When we append an DOM element to body, if we didn't set any "position"
 		// or set the position as "absolute" but "top" and "left" that element also
@@ -450,7 +451,7 @@ js.awt.LayerManager = function(Runtime){
 			if (pop.canHide(e)) {
 				pop = this.stack.pop();
 				System.log.println((new Date()).toString() + " : hide " + pop.uuid() 
-								   + " on \"" + e.getType() 
+								   + "-" + pop.className + " on \"" + e.getType() 
 								   + "\" - Flag: " + (pop.getPMFlag()).toString(2));
 				if (pop != root) {
 					root.focusItem = root.focusBox;

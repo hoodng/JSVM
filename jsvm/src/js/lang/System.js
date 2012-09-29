@@ -314,7 +314,7 @@ js.lang.System = function (env, vm){
             publicId = dtype.publicId || "";
             systemId = dtype.systemId || "";
         }else if(typeof document.namespaces != "undefined"){
-            dt = document.all[0];
+            var dt = document.all[0];
             
             var value = (dt.nodeType == 8 ? dt.nodeValue : "");
             if(value && (value.toLowerCase().indexOf("doctype") != -1)){
@@ -368,7 +368,7 @@ js.lang.System = function (env, vm){
     };
     
     var _onload = function(e){
-        J$VM.System.out.println("J$VM load...");
+        J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
 
         _checkBrowser.call(this);
         _detectDoctype.call(this);

@@ -271,11 +271,12 @@ js.awt.Slider = function(def, Runtime){
             var U = this._local;
             off0 = slipper.getOffset0();
             off1 = slipper.getOffset1();
-
-            if(off0 != U.off0 || off1 != U.off1 || (fire & 0x01) != 0){
+            
+            //new
+            //if(off0 != U.off0 || off1 != U.off1 || (fire & 0x01) != 0){
                 this.onSliderChanged(fire);
                 U.off0 = off0; U.off1 = off1;
-            }
+            //}
         }
         
         // Resume paused play

@@ -209,6 +209,15 @@ js.awt.Button = function(def, Runtime){
         }
     }.$override(this.onStateChanged);
     
+    thi$.setEnabled = function(b){
+        if(!b){
+           _showEffectLayer.call(this, "normal") 
+        }
+        
+        arguments.callee.__super__.apply(this, arguments);
+    
+    }.$override(this.setEnabled);
+    
     var _showEffectLayer = function(style){
         if(this._effectLayer && this.isEnabled()){
             var className = this.__buf__.clear()
