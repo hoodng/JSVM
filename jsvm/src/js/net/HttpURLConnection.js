@@ -115,7 +115,8 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.responseJSON = function(){
-        return JSON.parse(this._xhr.responseText);
+        return JSON.parse(
+            this._xhr.responseText.matchBrackets("{","}"));
     };
 
     thi$.status = function(){

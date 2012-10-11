@@ -98,30 +98,68 @@ js.lang.String = new function(){
     /**
      * Escape regular expression's meta-characters as literal characters.
      */
-    this.escapeRegExp = String.prototype.escapeRegExp = function(s){
-        s = (s != undefined) ? s : this.toString();
-        return (typeof s != "string") ? s :
-            s.replace(REGX_REGEXP_METACHARS, 
-                      function($0){
-                          return "\\" + $0;
-                      });
-    };
+    this.escapeRegExp = String.prototype.escapeRegExp = 
+        function(s){
+            s = (s != undefined) ? s : this.toString();
+            return (typeof s != "string") ? s :
+                s.replace(REGX_REGEXP_METACHARS, 
+                          function($0){
+                              return "\\" + $0;
+                          });
+        };
 
-    this.unescapeRegExp = String.prototype.unescapeRegExp = function(s){
-        s = (s != undefined) ? s : this.toString();
-        return (typeof s != "string") ? s :
-            s.replace(REGX_REGEXP_ESCAPEDMETACHARS,
-                      function($0, ch){
-                          return ch;
-                      });
-        
-    };
+    this.unescapeRegExp = String.prototype.unescapeRegExp = 
+        function(s){
+            s = (s != undefined) ? s : this.toString();
+            return (typeof s != "string") ? s :
+                s.replace(REGX_REGEXP_ESCAPEDMETACHARS,
+                          function($0, ch){
+                              return ch;
+                          });
+            
+        };
     
     this.trim = String.prototype.trim = function(s){
         s = (s != undefined) ? s : this.toString();
         return (typeof s != "string") ? s :
             s.replace(REGX_TRIM, "");
     };
+
+    this.matchBrackets = String.prototype.matchBrackets = 
+        function(lC, rC, s) {
+            lC = lC || "{"; rC = rC || "}";
+            s = (s != undefined) ? s : this.toString();
+
+            var stack = [], c0, c, p0 = 0, p1 = 0, end;
+
+            for(var i=0, len=s.length; i<len; i++){
+                c = s.charAt(i);
+
+                switch(c) {
+                case lC:
+                    c0 = i > 0 ? s.charAt(i-1) : null;
+                    if(c0 != "\\"){
+                        p1 = i;
+                        stack.push(p1);
+                    }
+                    break;
+                case rC:
+                    c0 = i > 0 ? s.charAt(i-1) : null;
+                    if(c0 != "\\"){
+                        p1 = i;
+                        p0 = stack.pop();
+                        if(stack.length == 0) end = true;
+                    }
+                    break;
+                default:
+                    break;    
+                }
+                
+                if(end) break;
+            }
+
+            return s.substring(p0, p1+1);
+        };
 
     String.prototype.hashCode = function(){
         var hash = this._hash, _char;

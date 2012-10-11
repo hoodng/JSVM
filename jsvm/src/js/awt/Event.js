@@ -124,12 +124,10 @@ js.awt.Event = function(e){
             break;
         }
 
-        this.clientX = ie ? (_e.clientX + 
-                             document.documentElement.scrollLeft - 
-                             document.body.clientLeft) : _e.pageX;
-        this.clientY = ie ? (_e.clientY +
-                             document.documentElement.scrollTop -
-                             document.body.clientTop ) : _e.pageY;
+        this.clientX = !isNaN(_e.pageX) ? _e.pageX 
+            : (_e.clientX + document.documentElement.scrollLeft - document.body.clientLeft);
+        this.clientY = !isNaN(_e.pageY) ? _e.pageY 
+            : (_e.clientY + document.documentElement.scrollTop - document.body.clientTop);
         
         this.offsetX = ff ? _e.layerX : _e.offsetX;
         this.offsetY = ff ? _e.layerY : _e.offsetY;

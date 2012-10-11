@@ -93,7 +93,7 @@ js.awt.Slider = function(def, Runtime){
             throw "The data count must large than 0";
 
         this.datacount = count;
-        _setMoverGrid.call(this, count);    
+        _setMoverGrid.call(this, count);
     };
     
     /**
@@ -521,9 +521,9 @@ js.awt.Slider = function(def, Runtime){
         
         def.classType = def.classType || "js.awt.Slider";
         def.className = def.className || "jsvm_slider";
-        def.css = (def.css || "") + "overflow:visible;";
-        def.direction = Class.isNumber(def.direction) ? def.direction : 0;
         def.type   = Class.isNumber(def.type) ? def.type : 0;
+        def.css = (def.css || "") + "overflow:" + (def.type == 0?"hidden;":"visible;");
+        def.direction = Class.isNumber(def.direction) ? def.direction : 0;
         def.duration = Class.isNumber(def.duration) ? def.duration : 1;
         def.tracemouse = Class.isNumber(def.tracemouse) ? def.tracemouse : 0;
         
