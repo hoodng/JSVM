@@ -128,37 +128,44 @@ js.lang.String = new function(){
     this.matchBrackets = String.prototype.matchBrackets = 
         function(lC, rC, s) {
             lC = lC || "{"; rC = rC || "}";
-            s = (s != undefined) ? s : this.toString();
-
-            var stack = [], c0, c, p0 = 0, p1 = 0, end;
-
-            for(var i=0, len=s.length; i<len; i++){
-                c = s.charAt(i);
-
-                switch(c) {
-                case lC:
-                    c0 = i > 0 ? s.charAt(i-1) : null;
-                    if(c0 != "\\"){
-                        p1 = i;
-                        stack.push(p1);
-                    }
-                    break;
-                case rC:
-                    c0 = i > 0 ? s.charAt(i-1) : null;
-                    if(c0 != "\\"){
-                        p1 = i;
-                        p0 = stack.pop();
-                        if(stack.length == 0) end = true;
-                    }
-                    break;
-                default:
-                    break;    
+            s = (s !== undefined) ? s : this.toString();
+            var ks=0,dqs=0,sqs=0,res=[],n="",b="",st=-1,en=-1;
+            for(var i=0;i< s.length;i++){
+                if(i!==0){
+                    b = n;
                 }
-                
-                if(end) break;
+                n= s.charAt(i);
+                if(st!==-1 && (i-1)>=0 &&b==='\\'){
+                    continue;
+                }
+                if(dqs||sqs){
+                    if(n==="'")
+                        if(sqs>0)sqs--;
+                    else if(n==='"')
+                        if(dqs>0)dqs--;
+                }else{
+                    if(n===lC){
+                        if(!ks){
+                            st=i;
+                        }
+                        ks++;
+                    }else if(n===rC){
+                        ks--;
+                        if(!ks){
+                            en=i;
+                        }
+                    }else if(n==='"'){
+                        dqs++;
+                    }else if(n==="'"){
+                        sqs++;
+                    }
+                }
+                if(st!==-1&&en!==-1){
+                    res.push(s.substring(st,(parseInt(en)+1)));
+                    st=en=-1;
+                }
             }
-
-            return s.substring(p0, p1+1);
+            return res;
         };
 
     String.prototype.hashCode = function(){

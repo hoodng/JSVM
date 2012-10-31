@@ -121,6 +121,7 @@ js.awt.Cover = function (comp){
             }
         }else{
             if(cover && cover.className == style){
+               cover.style.cursor = "default"; 
                this.removeCover();
             }
         }

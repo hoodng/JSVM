@@ -62,9 +62,14 @@ js.util.Counter = function(){
     thi$.setPos = function(p){
         var U = this._local, ret = false;
 
-        if(p >= 0 && p < U.count){
+        if(p >= 0 && p <= U.count){
             U.pos = p;
             ret = true;
+        }else{
+            if(p > U.count){
+                U.pos = p - U.count;
+                ret = true;
+            }
         }
 
         return ret;

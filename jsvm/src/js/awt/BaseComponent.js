@@ -235,8 +235,11 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
     
     thi$.getBounds = function(){
-        var el = this.view, bounds = DOM.getBounds(el), pounds,
-        position = this.getStyle("position").toLowerCase();
+        var el = this.view, bounds = DOM.getBounds(el), pounds;
+        position = this.getStyle("position");
+        if(position){
+        	position = position.toLowerCase();
+        }
         
         bounds.offsetX = el.offsetLeft;
         bounds.offsetY = el.offsetTop;

@@ -111,12 +111,13 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.responseXML = function(){
-        return this._xhr.responseXML;
+    	//For IBM WebSeal Issue
+        return this._xhr.responseXML.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/, '');
     };
 
     thi$.responseJSON = function(){
-        return JSON.parse(
-            this._xhr.responseText.matchBrackets("{","}"));
+    	//For IBM WebSeal Issue
+        return JSON.parse(this._xhr.responseText.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/, ''));
     };
 
     thi$.status = function(){

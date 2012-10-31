@@ -688,6 +688,12 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             }
             break;
         case YEAR:
+            if(value <= 0){
+                value = 9999;
+            }else{
+                value = (value > 9999 ? value - 9999 : value);
+            }
+            
             date.setFullYear(value);
             pinDayOfMonth.call(this, day);
             break;

@@ -73,6 +73,10 @@ js.awt.Slider = function(def, Runtime){
     };
 
     thi$.setDuration = function(duration){
+	    //var trackLen = this.getTrackLength(),
+		//    grid = this.def.mover.grid;
+	    //this.def.duration = duration > trackLen/(grid*10) ?
+		//    duration : trackLen/(grid*10) ;
         this.def.duration = duration;
     };
     
@@ -89,8 +93,10 @@ js.awt.Slider = function(def, Runtime){
      * will be snaped to grid.
      */    
     thi$.setDataCount = function(count){
-        if(!Class.isNumber(count) || count <=0)
-            throw "The data count must large than 0";
+        
+        //if( !Class.isNumber(count) || count <= 0 )
+            //throw "The data count must large than 0";
+        
 
         this.datacount = count;
         _setMoverGrid.call(this, count);
@@ -134,11 +140,15 @@ js.awt.Slider = function(def, Runtime){
         offset0p = offset0/trackLen,
         offset1p = offset1/trackLen,
 
-        index0 = grid > 1 ? Math.round(offset0/grid) : 
-            Math.round(offset0p*(count-1)),
+        index0 = grid > 1 ? Math.round(offset0/grid) :
+                          Class.isBigInt(count) ? 
+                                  count.minus(1).multiply(offset0).divid(trackLen).round() :
+                                  Math.round(offset0p*(count-1)),
 
         index1 = grid > 1 ? Math.round(offset1/grid) : 
-            Math.round(offset1p*(count-1));
+                            Class.isBigInt(count) ? 
+                                  count.minus(1).multiply(offset1).divid(trackLen).round() :
+                                  Math.round(offset1p*(count-1));
         
         if(this.isPlaying()){
             index0 = grid > 1 ? Math.floor( offset0/grid + 0.1 ) : 
@@ -205,6 +215,28 @@ js.awt.Slider = function(def, Runtime){
         }
     };
     
+	var _play = function(b, t0){
+        delete this.timer;
+        this.playing = true;
+		
+		var o = this.getOffset();
+
+        var slipper = this.slipper, 
+        c = this.getTrackLength(),
+        d = this.getDuration()*1000,
+        // b + v*T
+        p = o.offset0 + 1;
+
+        p = p > c ? c : p;
+        this.setOffset(p/c, null, true);
+
+        if(p < c){
+            this.timer = _play.$delay(this, d/c, b, t0);
+        }else{
+            this.play(false);
+        }
+    };
+	/**
     var _play = function(b, t0){
         delete this.timer;
         this.playing = true;
@@ -219,11 +251,12 @@ js.awt.Slider = function(def, Runtime){
         this.setOffset(p/c, null, true);
 
         if(p < c){
-            this.timer = _play.$delay(this, 100, b, t0);
+            this.timer = _play.$delay(this, 10, b, t0);
         }else{
             this.play(false);
         }
     };
+	/**/
 
     /**
      * @see js.awt.Container
@@ -235,10 +268,11 @@ js.awt.Slider = function(def, Runtime){
             if(this.offset){
                 // Adjust scale
                 var slipper = this.slipper, o = this.offset;
+                
                 this.trackLen = bounds.innerMeasure - 
                     (slipper.offset0-slipper.offset1);
                 
-                if(Class.isNumber(this.datacount)){
+                if(Class.isNumber(this.datacount) || Class.isBigInt(this.datacount)){
                     _setMoverGrid.call(this, this.datacount);
                 }
                 
@@ -348,7 +382,7 @@ js.awt.Slider = function(def, Runtime){
             xy.m  = grid*Math.round(xy.y/grid);
             xy.pm = xy.x;
         }
-
+        
         switch(this.def.tracemouse){
         case 0:
             offset = Math.floor(slipper.offset0 + (offset1-offset0)/2);
@@ -408,7 +442,7 @@ js.awt.Slider = function(def, Runtime){
             moveObj = this.slipper;
             moveObj.setMovingPeer(this);
 
-            if(Class.isNumber(this.datacount)){
+            if(Class.isNumber(this.datacount) || Class.isBigInt(this.datacount)){
                 _setMoverGrid.call(this, this.datacount);
             }
         }
@@ -426,6 +460,14 @@ js.awt.Slider = function(def, Runtime){
             grid = this.getTrackLength()/(count-1);
             grid = Class.isNumber(grid) ? (grid < 1 ? 1 : grid) : 1;
             this.def.mover.grid = grid;
+            
+            if(!this.isSingle()){
+                //System.err.println(this.getTrackLength());
+                //this.slipper.def.mover.grid = grid;
+            } 
+        }
+        else if(count == 1){
+            this.def.mover.grid = 1;
         }
     };
 
@@ -522,7 +564,7 @@ js.awt.Slider = function(def, Runtime){
         def.classType = def.classType || "js.awt.Slider";
         def.className = def.className || "jsvm_slider";
         def.type   = Class.isNumber(def.type) ? def.type : 0;
-        def.css = (def.css || "") + "overflow:" + (def.type == 0?"hidden;":"visible;");
+        def.css = (def.css || "") + "overflow:" + (def.type == 0?"hidden;":"visable;");
         def.direction = Class.isNumber(def.direction) ? def.direction : 0;
         def.duration = Class.isNumber(def.duration) ? def.duration : 1;
         def.tracemouse = Class.isNumber(def.tracemouse) ? def.tracemouse : 0;
@@ -540,7 +582,8 @@ js.awt.Slider = function(def, Runtime){
 
         if(!this.isSingle()){
             MQ.register(this.slipper.getSizingMsgType(), this, _onsizing);
-        }else{
+        }
+        else{
             if(M.tracemouse == 1 || M.tracemouse == 3){
                 M.tracemouse = 0;
             }
@@ -645,14 +688,14 @@ js.awt.Slipper = function(def, Runtime){
     /**
      * @see js.awt.Resizable
      */
-    thi$.getSizeObject = function(){
+    thi$.getSizeObject = function(){    
         var sizeObj = this.sizeObj;
         if(!sizeObj){
             sizeObj = this.sizeObj = this;
             sizeObj.setSizingPeer(this);
         }
         return sizeObj;
-    };
+    }.$override(this.getSizeObject);
 
     thi$.getSizeByRange = function(range){
         var ret;

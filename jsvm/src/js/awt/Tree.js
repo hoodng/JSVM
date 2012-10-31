@@ -327,12 +327,15 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     
     /**
      * Expand tree with the specified item
+     * 
+     * @param item, with which item
+     * @param needNitify, false for don't nofity the tree to do AfterExpand,others do.
      */
-    thi$.expand = function(item){
+    thi$.expand = function(item, needNotify){
         _keepScroll.call(this);
 
         if(item.isExpanded()){
-            item.expand(false);
+            item.expand(false, needNotify);
             if(item.def.nodes == undefined){
                 item.removeAllNodes();
             }
@@ -343,10 +346,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                 // Ask data from dataProvider
                 this.dataProvider.getData(
                     item.def, 
-                    _onGetData.$bind(this, item));
+                    _onGetData.$bind(this, item, needNotify));
             }else{
                 // No need get data, so expand item directly
-                item.expand(true);    
+                item.expand(true, needNotify);    
                 _setMaxSize.$delay(this, 1);
                 _keepScroll.$delay(this, 1, true);
             }
@@ -354,10 +357,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         }
     };
     
-    var _onGetData = function(data, item){
+    var _onGetData = function(data, item, needNotify){
         if(data && data.nodes){
             item.insertNodes(0, data.nodes);
-            item.expand(true);
+            item.expand(true, needNotify);
             _setMaxSize.$delay(this, 1);
             _keepScroll.$delay(this, 1, true);
         }else{
@@ -369,18 +372,37 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      * Expand or collapse all items
      * 
      * @param b, true for expanding and false for collapsing
+     * 
      */
     thi$.expandAll = function(b){
         var nodes = this.nodes, i, len, item;
         for(i=0, len=nodes.length; i<len; i++){
             item = nodes[i];
-            if(item.canExpand()){
-                item.expandAll(b);
+            if(b){
+	            if(item.canExpand() && !item.isExpanded()){
+	                item.expandAll(b, item);
+	            }
+            }else{
+            	if(item.canExpand() && item.isExpanded()){
+            		item.expand(b);
+            	}
             }
         }
         _setMaxSize.$delay(this, 1);
         _keepScroll.$delay(this, 1, true);
+        
+        this.onAfterExpand.$delay(this,1);
     };
+    
+    thi$.onAfterExpand = function(){
+    	var cache = this.cache,item;
+    	for(var uuid in cache){
+    		item = this.cache[uuid];
+    		if((!item.isEnabled()) && item.view.parentNode !== null){
+    			item._adjust("move");
+    		}
+    	}
+    }
     
     /**
      * Gets all nodes which were accepted by filter
@@ -697,6 +719,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
+    
+    var _onevent = function(e){
+    	
+    };
 
     thi$._init = function(def, Runtime, dataProvider){
         if(def == undefined) return;
@@ -738,6 +764,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         if(this.isMovable()){
             MQ.register(this.dataProvider.getDragMsgType(), this, _ondrag);
         }
+        
+        MQ.register("js.awt.event.TreeItemEvent", this, _onevent);
         
     }.$override(this._init);
 

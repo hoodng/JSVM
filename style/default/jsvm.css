@@ -581,10 +581,13 @@ body {
     
     background-color: #FFFFFF;
     border: 1px solid #CCCCCC;
+    
+    /*
     -moz-border-radius: 3px;
-	-khtml-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    */
     overflow: hidden;
 }
 
@@ -595,10 +598,12 @@ body {
 .jsvm_textfield_input {
     background-color: #FFFFFF;
     
+    /*
     -moz-border-radius: 3px;
-	-khtml-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    */
 }
 
 .jsvm_textfield_disable {
@@ -726,11 +731,12 @@ body {
     border: 1px solid #CCCCCC;
     overflow: hidden;
     
-    
+    /*
     -moz-border-radius: 3px;
-	-khtml-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    */
     
 }
 
@@ -1096,8 +1102,9 @@ body {
 }
 
 .jsvm_tabpane_tab_4{
+	margin-top: -1px;
 	border-top-width: 2px;
-	height:19px !important;
+	height:20px !important;
     border-color: #FAC150 #CCC #fafafa #CCC;
     background-color: #fafafa;
 }
