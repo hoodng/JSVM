@@ -235,7 +235,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
     
     thi$.getBounds = function(){
-        var el = this.view, bounds = DOM.getBounds(el), pounds;
+        var el = this.view, bounds = DOM.getBounds(el), pounds,
         position = this.getStyle("position");
         if(position){
         	position = position.toLowerCase();
@@ -439,7 +439,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         delete styles.width;
         delete styles.height;
 
-        sizeChanged = function(value, sp){
+        var sizeChanged = function(value, sp){
             return sp.match(/[wW]idth|padding/) != undefined;
         }.$some(this, styles);
 
