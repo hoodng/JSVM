@@ -54,36 +54,32 @@ js.net.URI = function (url){
 	CLASS.__defined__ = true;
 
 	var Keys = ["source", "scheme", "userInfo", "user", "password", 
-				"host", "port", "path", "query", "fragment"], 
-	
-	URIRegExp = new RegExp(
-		"(?:([-+a-zA-Z0-9]+):\\/\\/|\\/\\/)?" +						   // scheme
-		"((?:([^:@\\s]+):??:([^:@\\s]+?))@)?" +						   //userInfo
-		"((?:[^;:@=\\/\\?\\.\\s]+\\.)+[A-Za-z0-9\\-]{2,}|localhost)" + //host
-		"(?::(\\d+))?" +											   //port
-		"(?=\\/|\\?|#|$)(\\/[^\\?#]+)?" +							   // path
-		"(?:\\?([^#]+))?" +											   //query
-		"(?:#(.+))?"												   //fragment
-	),	  
+				"host", "port", "path", "query", "fragment"],	  
 	schemeRegExp = /^(?:([-+a-zA-Z0-9]+):\/\/|\/\/)/i,
-	userInfoRegExp = /^(?:([^:@\s]+):??:([^:@\s]+?))@/i,
-	hostRegExp = /^((?:[^;:@=\/\?\.\s]+\.)+[A-Za-z0-9\-]{2,}|localhost)/i,
+	userInfoRegExp = /^(?:([^:@\s]+))(:(?:[^:@\s]+))?@/i,
+	hostRegExp = /^((?:[^;:@=\/\?\.\s]+\.)+[A-Za-z0-9\-]{1,}|localhost)/i,
+
+	// For matching cusotm host names mapping ips in OS' hosts file.
+	// Such as "http://xx:8888", "xx" mapping "127.0.0.1".
+	regNameRegExp = /^([^;:@=\/\?\#\.\s]+)/i,
+	noSchemeRegNameRegExp = /^([^;:@=\/\?\#\.\s]+)(?=:\d+)/i,
+	
 	portRegExp = /^:(\d+)/,
 	pathRegExp = /^\/[^?#]*/i,
 	queryRegExp = /^\?([^#]*)/i,
 	fragmentRegExp = /^#(.+)/i,
 	
 	QueryRegExp = new RegExp("(?:^|&)([^&=]*)=?([^&]*)","g"),
+	
 	regExps = [schemeRegExp, userInfoRegExp, hostRegExp, portRegExp, 
 			   pathRegExp, queryRegExp, fragmentRegExp],
-	
 	REGX_PATH = /(.*[/|\\])(.*)/;
 	
 	var _parseURI = function(uri){
 		if(!uri) return;
-				
+		
 		var curUri = uri, regExp,
-		parseFun = function($0, $1, $2){
+		parseFun = function($0, $1, $2, $3){
 			switch(regExp){
 			case schemeRegExp:
 				this.scheme = $1;
@@ -91,9 +87,11 @@ js.net.URI = function (url){
 			case userInfoRegExp:
 				this.userInfo = $0;
 				this.user = $1;
-				this.password = $2;
+				this.password = $2 ? $2.substring(1) : $2; //$3
 				break;
 			case hostRegExp:
+			case regNameRegExp:
+			case noSchemeRegNameRegExp:
 				this.host = $0;
 				break;
 			case portRegExp:
@@ -115,9 +113,17 @@ js.net.URI = function (url){
 			return "";
 		};
 		
-		for(var i = 0; curUri && i < 7; i++){
+		var i = 0;
+		while(curUri && i < 7){
 			regExp = regExps[i];
 			curUri = curUri.replace(regExp, parseFun.$bind(this));
+			
+			if(regExp == hostRegExp && !this.host){
+				regExp = this.scheme ? regNameRegExp : noSchemeRegNameRegExp;
+				curUri = curUri.replace(regExp, parseFun.$bind(this));
+			}
+			
+			++i;
 		}
 		
 		// If and only if the rest part of the given uri doesn't contains
@@ -131,7 +137,7 @@ js.net.URI = function (url){
 		
 		this.source =  uri;
 	};
-		
+	
 	thi$.parseParams = function(query){
 		var params = {};
 		if(query){
@@ -142,7 +148,7 @@ js.net.URI = function (url){
 		}
 		return params;
 	};
-	  
+	
 	
 	thi$.toURI = function(){
 		var curUri = J$VM.System.getProperty("uri") || new js.net.URI(document.URL),
@@ -177,7 +183,7 @@ js.net.URI = function (url){
 				hasQF = true;
 			}
 		}
-	
+		
 		// Only when the path is existed,  the query and fragment
 		// will be significant.	 
 		if(hasQF){
