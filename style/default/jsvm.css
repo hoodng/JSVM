@@ -1145,6 +1145,7 @@ body {
 
 /* FOR FileInput */
 .jsvm_fileinput_file{
+	background-color:red;
 	filter: alpha(opacity = 0);
 	-moz-opacity: 0;
 	-khtml-opacity: 0;

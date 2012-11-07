@@ -131,7 +131,7 @@ js.awt.Slider = function(def, Runtime){
      * Return the slipper offset in track in pixel
      */
     thi$.getOffset = function(){
-        
+		
         var slipper = this.slipper, trackLen = this.getTrackLength(),
         grid = this.def.mover.grid, count = this.datacount,
         offset0 = slipper.getOffset0() - slipper.offset0,
@@ -151,10 +151,10 @@ js.awt.Slider = function(def, Runtime){
                                   Math.round(offset1p*(count-1));
         
         if(this.isPlaying()){
-            index0 = grid > 1 ? Math.floor( offset0/grid + 0.1 ) : 
-                Math.floor(offset0p*(count-1) + 0.1),
-            index1 = grid > 1 ? Math.floor( offset0/grid + 0.1 ) : 
-                Math.floor(offset1p*(count-1) + 0.1);
+            index0 = grid > 1 ? Math.floor( offset0/grid ) : 
+                Math.floor( offset0p*(count-1) ),
+            index1 = grid > 1 ? Math.floor( offset0/grid ) : 
+                Math.floor( offset1p*(count-1) );
         }
         
         return{
@@ -382,12 +382,13 @@ js.awt.Slider = function(def, Runtime){
             xy.m  = grid*Math.round(xy.y/grid);
             xy.pm = xy.x;
         }
-        
+		
         switch(this.def.tracemouse){
         case 0:
             offset = Math.floor(slipper.offset0 + (offset1-offset0)/2);
             max = bounds.innerMeasure - slipper.getMeasure();
-            m = xy.m - offset;
+            //m = xy.m - offset;
+			m = xy.m;
             m = m < 0 ? 0 : (m > max ? max : m);
             slipper.setUPosition(m, null, 7);
             break;
@@ -432,6 +433,7 @@ js.awt.Slider = function(def, Runtime){
         
         return true;
     };
+	/**/
 
     /**
      * @see js.awt.Movable

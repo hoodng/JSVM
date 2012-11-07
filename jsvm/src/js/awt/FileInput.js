@@ -173,6 +173,7 @@ js.awt.FileInput = function(def, Runtime){
 		});
 		file.className = "jsvm_fileinput_file";
 		file.style.cursor = "default";
+		file.style.backgroundColor = "red";
 		file.name = "fileName";
 		file.setAttribute("type", "file");
 		DOM.appendTo(file, this.form.view);
