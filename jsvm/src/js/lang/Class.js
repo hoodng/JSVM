@@ -137,7 +137,7 @@ js.lang.Class = new function (){
                 }
             }
 
-            text = text || this.getResource(filePath);
+            text = text || this.getResource(filePath, true);
             this.loadScript(filePath, text);
 
             if(!incache){
@@ -156,7 +156,7 @@ js.lang.Class = new function (){
     }.$bind(this);
 
     this.loadScript = function(filePath, text){
-        text = text || this.getResource(filePath);
+        text = text || this.getResource(filePath, true);
         var script = document.createElement("script");
         var head = document.getElementsByTagName("head")[0];
         script.type= "text/javascript";
@@ -246,7 +246,10 @@ js.lang.Class = new function (){
 				ImplementFunction=typeof ImplementFunctionName=="string"?eval(ImplementFunctionName):ImplementFunctionName;
 				return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
 			}
+
+            return null;
 		};
+
 		MakeInterface(ClassFunction,interfacies,implementBridge);
 	};
 
@@ -371,9 +374,10 @@ js.lang.Class = new function (){
      * 
      * @param url, the url to load content
      */
-    this.getResource = function(url){
+    this.getResource = function(url, nocache){
         // Synchronized request
         var xhr = new js.net.HttpURLConnection(false);
+        xhr.setNoCache(nocache || false);
         xhr.open("GET", url);
         
         if(xhr.exception == undefined && xhr.readyState() == 4 &&
@@ -425,6 +429,7 @@ js.lang.Class = new function (){
             (o === undefined) ? "undefined" :
             this.isHtmlElement(o) ? 
             "html"+o.tagName.toLowerCase()+"element" :
+			this.isBigInt(o) ? "bigint" :
             (function(){
                  var s = Object.prototype.toString.call(o);
                  return s.substring(8, s.length-1).toLowerCase();
@@ -445,6 +450,13 @@ js.lang.Class = new function (){
 	 */
     this.isDate = function(o){
         return (this.typeOf(o) == "date" && !isNaN(o));
+    };
+	
+	/**
+     * Test if the specified object is an BigInt
+     */
+    this.isBigInt = function(o){
+        return typeof o == "object" && o.objTypeIsBigIntType == true;
     };
 
     /**

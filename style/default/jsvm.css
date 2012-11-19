@@ -389,6 +389,12 @@ body {
     padding: 5px;
 }
 
+* [class$="toolbar_disable"] {
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #F5F4EA;
+}
 
 /** Dialog */
 .jsvm_dlg, .jsvm_msg, .jsvm_msg_info, .jsvm_msg_warn, .jsvm_msg_error, 
