@@ -205,12 +205,12 @@ J$VM = new function (){
      * @param timeout
      * @param ... other parameters need pass to delayed function.
      */
-	 Function.prototype.$delay = function(thi$, timeout){
+     Function.prototype.$delay = function(thi$, timeout){
         var fn = this, args = Array.prototype.slice.call(arguments, 2);
 
         fn.__timer__ = fn.__timer__ || [];
-		
-		var _timer = setTimeout(
+        
+        var _timer = setTimeout(
                 function(){
                     fn.$clearTimer(_timer);
                     fn.apply(thi$, args);

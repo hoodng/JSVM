@@ -76,10 +76,10 @@
      // Global functions
      // Should be replaced by invoing $postMessage and $sendMessage
      j$postMessage = function(msg){
-     	//below codes added by Lu YuRu, maybe flash slider needs, 
-     	//but some logic miss in flash code, no one can explain it now.
-     	//Now Flash chart not need, so we clear the code.
-     	
+         //below codes added by Lu YuRu, maybe flash slider needs, 
+         //but some logic miss in flash code, no one can explain it now.
+         //Now Flash chart not need, so we clear the code.
+         
          //var str = msg[4];
          //str = js.lang.Class.forName("js.util.Base64").decode(str);
          //msg[4] = JSON.parse(str);
