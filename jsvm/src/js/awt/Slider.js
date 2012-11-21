@@ -216,7 +216,8 @@ js.awt.Slider = function(def, Runtime){
     };
     
 	var _play = function(b, t0){
-        delete this.timer;
+	
+        //delete this.timer;
         this.playing = true;
 		
 		var o = this.getOffset();

@@ -62,7 +62,7 @@ js.awt.Desktop = function (element){
             model:{
                 msgType: type,
                 msgSubject: subject || "Subject",
-                msgContent: content || "Content"
+                msgContent: content || " "
             }
         };
 
