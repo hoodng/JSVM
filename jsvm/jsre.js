@@ -41,7 +41,7 @@
  */
 J$VM = new function (){
     this.__product__ = "J$VM";
-    this.__version__ = "0.9.s385c50b228dcaa81";
+    this.__version__ = "0.9.s4496245a32c905cd";
 
     this.env = {
         j$vm_log: false,
