@@ -183,7 +183,7 @@ js.lang.Thread = function(Runnable){
             doc.close();
 
             head = doc.getElementsByTagName("head")[0];
-            text = Class.getResource(J$VM.env["j$vm_home"]+"/jsre.js");
+            text = Class.getResource(J$VM.env["j$vm_home"]+"/jsre.js", true);
             script = doc.createElement("script");
             script.type = "text/javascript";
             script.id = "j$vm";
@@ -193,7 +193,7 @@ js.lang.Thread = function(Runnable){
             script.setAttribute("crs",J$VM.env["j$vm_home"]+"/jsre.js");
             script.setAttribute("classpath","");
             script.text = text;
-            text = Class.getResource(path + "Worker.jz");
+            text = Class.getResource(path + "Worker.jz", true);
             script.text += text;
             head.appendChild(script);
             head.removeChild(script);
