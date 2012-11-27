@@ -140,20 +140,20 @@ js.awt.Slider = function(def, Runtime){
         offset0p = offset0/trackLen,
         offset1p = offset1/trackLen,
 
-        index0 = grid > 1 ? Math.round(offset0/grid) :
+        index0 = grid > 1 ? Math.round(offset0*(count-1)/trackLen) :
                           Class.isBigInt(count) ? 
                                   count.minus(1).multiply(offset0).divid(trackLen).round() :
                                   Math.round(offset0p*(count-1)),
 
-        index1 = grid > 1 ? Math.round(offset1/grid) : 
+        index1 = grid > 1 ? Math.round(offset0*(count-1)/trackLen) : 
                             Class.isBigInt(count) ? 
                                   count.minus(1).multiply(offset1).divid(trackLen).round() :
                                   Math.round(offset1p*(count-1));
         
         if(this.isPlaying()){
-            index0 = grid > 1 ? Math.floor( offset0/grid ) : 
+            index0 = grid > 1 ? Math.floor( offset0*(count-1)/trackLen ) : 
                 Math.floor( offset0p*(count-1) ),
-            index1 = grid > 1 ? Math.floor( offset0/grid ) : 
+            index1 = grid > 1 ? Math.floor( offset0*(count-1)/trackLen ) : 
                 Math.floor( offset1p*(count-1) );
         }
         
