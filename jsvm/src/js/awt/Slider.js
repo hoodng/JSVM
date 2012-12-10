@@ -136,7 +136,6 @@ js.awt.Slider = function(def, Runtime){
         grid = this.def.mover.grid, count = this.datacount,
         offset0 = slipper.getOffset0() - slipper.offset0,
         offset1 = slipper.getOffset1() - slipper.offset0,
-
         offset0p = offset0/trackLen,
         offset1p = offset1/trackLen,
 
@@ -145,7 +144,7 @@ js.awt.Slider = function(def, Runtime){
                                   count.minus(1).multiply(offset0).divid(trackLen).round() :
                                   Math.round(offset0p*(count-1)),
 
-        index1 = grid > 1 ? Math.round(offset0*(count-1)/trackLen) : 
+        index1 = grid > 1 ? Math.round(offset1*(count-1)/trackLen) : 
                             Class.isBigInt(count) ? 
                                   count.minus(1).multiply(offset1).divid(trackLen).round() :
                                   Math.round(offset1p*(count-1));
@@ -153,7 +152,7 @@ js.awt.Slider = function(def, Runtime){
         if(this.isPlaying()){
             index0 = grid > 1 ? Math.floor( offset0*(count-1)/trackLen ) : 
                 Math.floor( offset0p*(count-1) ),
-            index1 = grid > 1 ? Math.floor( offset0*(count-1)/trackLen ) : 
+            index1 = grid > 1 ? Math.floor( offset1*(count-1)/trackLen ) : 
                 Math.floor( offset1p*(count-1) );
         }
         
