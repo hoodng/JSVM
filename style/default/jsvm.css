@@ -12,7 +12,7 @@ input, textarea {
     -khmtl-user-select: text;
     resize:none;
     outline:none;
-    
+
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 11px;
 }
@@ -25,8 +25,6 @@ body {
     margin: 0px;
     padding: 0px;
     border: 0px none;
-
-    overflow: hidden;
 
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 11px;
@@ -223,7 +221,8 @@ body {
 
 /** CheckBox */
 .jsvm_checkbox,
-.jsvm_checkbox_0, .jsvm_checkbox_1 {
+.jsvm_checkbox_0, .jsvm_checkbox_1,
+.jsvm_checkbox_2 {
     width: 200px;
     height: 22px;
     padding: 0px 2px 0px 2px;
@@ -390,6 +389,12 @@ body {
     padding: 5px;
 }
 
+* [class$="toolbar_disable"] {
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #F5F4EA;
+}
 
 /** Dialog */
 .jsvm_dlg, .jsvm_msg, .jsvm_msg_info, .jsvm_msg_warn, .jsvm_msg_error, 
@@ -488,40 +493,50 @@ body {
 
 /** Menu */
 .jsvm_menu,
-.jsvm_menu_0 {
+.jsvm_menu_0,
+.jsvm_noIconMenu,
+.jsvm_noIconMenu_0 {
     border:1px solid #e6e6e6;
     background-color:#FFFFFF;
     width:180px;
 }
 
 .jsvm_menu_item,
-.jsvm_menu_item_0, .jsvm_menu_item_1, .jsvm_menu_item_8 {
+.jsvm_menu_item_0, .jsvm_menu_item_1, .jsvm_menu_item_8,
+.jsvm_noIconMenu_item,
+.jsvm_noIconMenu_item_0, .jsvm_noIconMenu_item_1, .jsvm_noIconMenu_item_8 {
     height: 20px;
     cursor:default;
 }
 
-.jsvm_menu_item_1 {
+.jsvm_menu_item_1,
+.jsvm_noIconMenu_item_1 {
     background-color:#ffdf7c;
 }
 
-.jsvm_menu_item_8, .jsvm_menu_item_9 {
+.jsvm_menu_item_8, .jsvm_menu_item_9,
+.jsvm_noIconMenu_item_8, .jsvm_noIconMenu_item_9, {
     color: gray;
 }
 
-.jsvm_menu_separator {
+.jsvm_menu_separator,
+.jsvm_noIconMenu_separator {
     height: 1px;
     background-color:#CCCCCC;
 }
 
 .jsvm_menu_item_marker,
-.jsvm_menu_item_marker_0, .jsvm_menu_item_marker_4 {
+.jsvm_menu_item_marker_0, .jsvm_menu_item_marker_4,
+.jsvm_noIconMenu_item_marker,
+.jsvm_noIconMenu_item_marker_0, .jsvm_noIconMenu_item_marker_4 {
     width: 18px;
     height:20px;
     margin-right: 2px;
     background-color: #CCCCCC;
 }
 
-.jsvm_menu_item_marker_4 {
+.jsvm_menu_item_marker_4,
+.jsvm_noIconMenu_item_marker_4 {
     background-color: #CCCCCC;
     background-image: url("images/mark.png");
     background-repeat: no-repeat;
@@ -535,8 +550,17 @@ body {
     margin-right: 2px;
 }
 
+.jsvm_noIconMenu_item_icon,
+.jsvm_noIconMenu_item_icon_0 {
+    width: 0px;
+    height: 0px;
+    margin-right: 0px;
+}
+
 .jsvm_menu_item_label,
-.jsvm_menu_item_label_0 {
+.jsvm_menu_item_label_0,
+.jsvm_noIconMenu_item_label,
+.jsvm_noIconMenu_item_label_0 {
     height:16px;
     overflow: hidden;
 	text-overflow: ellipsis;
@@ -544,7 +568,9 @@ body {
 }
 
 .jsvm_menu_item_ctrl,
-.jsvm_menu_item_ctrl_0 {
+.jsvm_menu_item_ctrl_0,
+.jsvm_noIconMenu_item_ctrl,
+.jsvm_noIconMenu_item_ctrl_0 {
     width: 16px;
     height:16px;
     margin-left: 2px;
@@ -561,6 +587,13 @@ body {
     
     background-color: #FFFFFF;
     border: 1px solid #CCCCCC;
+    
+    /*
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    */
     overflow: hidden;
 }
 
@@ -570,6 +603,13 @@ body {
 
 .jsvm_textfield_input {
     background-color: #FFFFFF;
+    
+    /*
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    */
 }
 
 .jsvm_textfield_disable {
@@ -699,10 +739,11 @@ body {
     
     /*
     -moz-border-radius: 3px;
-	-khtml-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
     */
+    
 }
 
 .jsvm_comboBox_0, .jsvm_comboBox_2 {
@@ -744,6 +785,7 @@ body {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
 .jsvm_comboBox_dropdown,
@@ -1042,10 +1084,9 @@ body {
     
 }
 
-.jsvm_tabpane_tabs,
-.jsvm_tabpane_tabs_0 {
+.jsvm_tabpane_tabs {
     height: 25px;
-    padding: 3px 3px 0px 6px;
+    padding: 3px 3px 0px 0px;
     border-bottom: 1px solid #CCC;
 }
 
@@ -1054,17 +1095,24 @@ body {
     width: 80px;
     height: 22px;
     border-style: solid;
-    border-width: 1px 1px 1px 1px;    
+    border-width: 1px;
     padding: 0px 4px 0px 16px;
+    -moz-border-radius:3px 3px 0px 0px;
+	border-radius:3px 3px 0px 0px;
+    -webkit-border-radius:3px 3px 0px 0px; 
 }
 
 .jsvm_tabpane_tab_0{
-    border-color: #CCC;
-    background-color: #DDD;
+    border-color: #CCC;    
+    background-color: #f3f3f3;
 }
 
 .jsvm_tabpane_tab_4{
-    border-color: #CCC #CCC #EEE #CCC;
+	margin-top: -1px;
+	border-top-width: 2px;
+	height:20px !important;
+    border-color: #FAC150 #CCC #fafafa #CCC;
+    background-color: #fafafa;
 }
 
 .jsvm_tabpane_tab_label {
@@ -1077,21 +1125,33 @@ body {
     border-width: 1px;
     border-color: #CCC;
     border-style: none solid solid solid;
+    background-color: #fafafa;
     padding: 12px;
+    -moz-border-radius:0px 0px 3px 3px;
+	border-radius:0px 0px 3px 3px;
+    -webkit-border-radius:0px 0px 3px 3px;
+}
+
+.jsvm_tabpane_panes > * {
+	background-color: #fafafa;	
 }
 
 .jsvm_fieldset {
 	margin: 0px;
 	padding: 22px 12px 11px 12px;
 	border: 1px solid #ccc;
+	-moz-border-radius:6px;
+	border-radius:6px;
+    -webkit-border-radius:6px;    
 }
 
 .jsvm_fieldset legend {
-	
+
 }
 
 /* FOR FileInput */
 .jsvm_fileinput_file{
+	background-color:red;
 	filter: alpha(opacity = 0);
 	-moz-opacity: 0;
 	-khtml-opacity: 0;
@@ -1398,3 +1458,73 @@ body {
     text-overflow:ellipsis;
     overflow:hidden;
 }
+
+/********** Begin of Table *********/
+.jsvm_table, .jsvm_table_0{
+	top: 0 !important;
+	border-collapse:collapse;
+}
+
+.jsvm_table_headerHolder,
+.jsvm_table_headerHolder_0{
+	Background-color: #ffffff;
+	border-top: 1px solid #CCCCCC;
+	border-left: 1px solid #CCCCCC;
+    cursor: pointer;
+    background: url(images/title_background.png) repeat;
+}
+
+.jsvm_table_header, .jsvm_table_header_0{
+	border-right: 1px solid #CCCCCC;
+}
+
+.jsvm_table_header_ctrl{
+	display: none;
+	top: 6px !important;
+	text-indent: 2px;
+}
+
+.jsvm_table_header_label{
+	top: 6px !important;
+	text-indent: 3px;
+}
+
+.jsvm_table_header_ctrl_1{
+	width: 16px;
+	height:16px;
+	top: 6px !important;
+	background-repeat: no-repeat;
+    background-image: url("images/2-sortasc.gif");
+}
+
+.jsvm_table_header_ctrl_2{
+	width: 16px;
+	height:16px;
+	top: 6px !important;
+	background-repeat: no-repeat;
+    background-image: url("images/2-sortdesc.gif");
+}
+
+.jsvm_table_row_hover {
+	cursor: pointer;
+	background: #ffdf7c;
+}
+
+.jsvm_table_cell_0{
+	white-space: nowrap;
+	overflow:hidden;
+	text-overflow: ellipsis;
+	height: 20px;
+	line-height: 20px;
+	padding:0;
+}
+
+.jsvm_table_bodyHolder,
+.jsvm_table_bodyHolder_0{
+	Background-color: #ffffff;
+	border: 1px solid #CCCCCC;
+    overflow-y: auto; 
+    overflow-x: hidden;
+    padding: 2px;
+}
+/********** End of Table ***********/

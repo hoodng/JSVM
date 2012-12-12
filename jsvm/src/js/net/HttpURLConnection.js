@@ -75,7 +75,14 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.setNoCache = function(isNoCache){
-        this._nocache = isNoCache || false;  
+        this._nocache = isNoCache || false; 
+        var date;
+        if(this._nocache){
+            date = "Thu, 01-Jan-1970 00:00:00 GMT"; 
+        }else{
+            date = "Fri, 01-Jan-2900 00:00:00 GMT";
+        }
+        this.setRequestHeader("If-Modified-Since", date);        
     };
 
     thi$.setRequestHeader = function(key, value){
@@ -104,11 +111,13 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.responseXML = function(){
-        return this._xhr.responseXML;
+    	//For IBM WebSeal Issue
+        return this._xhr.responseXML.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/, '');
     };
 
     thi$.responseJSON = function(){
-        return JSON.parse(this._xhr.responseText);
+    	//For IBM WebSeal Issue
+        return JSON.parse(this._xhr.responseText.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/, ''));
     };
 
     thi$.status = function(){
@@ -194,8 +203,11 @@ js.net.HttpURLConnection = function (isAsync){
      */
     thi$.close = function(){
         _stopTimeout.call(this);
+        try{
+            this._xhr.onreadystatechange = null;            
+        } catch (x) {
 
-        this._xhr.onreadystatechange = null;
+        }
         this._xhr = null;
         this._headers = null;
     };
@@ -218,10 +230,6 @@ js.net.HttpURLConnection = function (isAsync){
         var buf = new js.lang.StringBuffer();
         for(var p in params){
             buf.append(p).append("=").append(params[p]).append("&");
-        }
-
-        if(this.isNoCache()){
-            buf.append("_=").append(js.lang.Math.random());
         }
 
         return buf.toString();
@@ -258,7 +266,7 @@ js.net.HttpURLConnection = function (isAsync){
 
         this.setAsync(isAsync);
         this.setNoCache(J$VM.System.getProperty("j$vm_ajax_nocache", true));
-        this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 600000));
+        this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 6000000));
         this.declareEvent(Event.SYS_EVT_TIMEOUT);
     };
 

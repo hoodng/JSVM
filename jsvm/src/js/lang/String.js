@@ -98,30 +98,75 @@ js.lang.String = new function(){
     /**
      * Escape regular expression's meta-characters as literal characters.
      */
-    this.escapeRegExp = String.prototype.escapeRegExp = function(s){
-        s = (s != undefined) ? s : this.toString();
-        return (typeof s != "string") ? s :
-            s.replace(REGX_REGEXP_METACHARS, 
-                      function($0){
-                          return "\\" + $0;
-                      });
-    };
+    this.escapeRegExp = String.prototype.escapeRegExp = 
+        function(s){
+            s = (s != undefined) ? s : this.toString();
+            return (typeof s != "string") ? s :
+                s.replace(REGX_REGEXP_METACHARS, 
+                          function($0){
+                              return "\\" + $0;
+                          });
+        };
 
-    this.unescapeRegExp = String.prototype.unescapeRegExp = function(s){
-        s = (s != undefined) ? s : this.toString();
-        return (typeof s != "string") ? s :
-            s.replace(REGX_REGEXP_ESCAPEDMETACHARS,
-                      function($0, ch){
-                          return ch;
-                      });
-        
-    };
+    this.unescapeRegExp = String.prototype.unescapeRegExp = 
+        function(s){
+            s = (s != undefined) ? s : this.toString();
+            return (typeof s != "string") ? s :
+                s.replace(REGX_REGEXP_ESCAPEDMETACHARS,
+                          function($0, ch){
+                              return ch;
+                          });
+            
+        };
     
     this.trim = String.prototype.trim = function(s){
         s = (s != undefined) ? s : this.toString();
         return (typeof s != "string") ? s :
             s.replace(REGX_TRIM, "");
     };
+
+    this.matchBrackets = String.prototype.matchBrackets = 
+        function(lC, rC, s) {
+            lC = lC || "{"; rC = rC || "}";
+            s = (s !== undefined) ? s : this.toString();
+            var ks=0,dqs=0,sqs=0,res=[],n="",b="",st=-1,en=-1;
+            for(var i=0;i< s.length;i++){
+                if(i!==0){
+                    b = n;
+                }
+                n= s.charAt(i);
+                if(st!==-1 && (i-1)>=0 &&b==='\\'){
+                    continue;
+                }
+                if(dqs||sqs){
+                    if(n==="'")
+                        if(sqs>0)sqs--;
+                    else if(n==='"')
+                        if(dqs>0)dqs--;
+                }else{
+                    if(n===lC){
+                        if(!ks){
+                            st=i;
+                        }
+                        ks++;
+                    }else if(n===rC){
+                        ks--;
+                        if(!ks){
+                            en=i;
+                        }
+                    }else if(n==='"'){
+                        dqs++;
+                    }else if(n==="'"){
+                        sqs++;
+                    }
+                }
+                if(st!==-1&&en!==-1){
+                    res.push(s.substring(st,(parseInt(en)+1)));
+                    st=en=-1;
+                }
+            }
+            return res;
+        };
 
     String.prototype.hashCode = function(){
         var hash = this._hash, _char;

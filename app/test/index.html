@@ -1,10 +1,12 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
 <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<script id="j$vm" 
+        src="../../jsvm/jsvm.jsp" 
+        classpath="lib/jsre-ui.js" 
+        -DmainClass="org.jsvm.App"></script>
+
 <style>
 
 .panel,
@@ -82,9 +84,9 @@
 
 <script type="text/javascript">
 
-J$VM.exec("Demo", function(System){
+J$VM.exec("org.jsvm.App", function(System){
 
-    this.prefer({theme: "default"});
+    this.setZ(0);
 
     var DemoWindow = new js.awt.Window({
         id: "DemoWindow",

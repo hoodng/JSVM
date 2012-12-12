@@ -688,6 +688,12 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             }
             break;
         case YEAR:
+            if(value <= 0){
+                value = 9999;
+            }else{
+                value = (value > 9999 ? value - 9999 : value);
+            }
+            
             date.setFullYear(value);
             pinDayOfMonth.call(this, day);
             break;
@@ -934,10 +940,15 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
                 this.setTimeInMillis(this.getTimeInMillis() + delta);
                 return;
             }
-
-            var fd = new Date(this.get(YEAR), 
-                              this.get(MONTH), 
-                              this.get(DATE))/ONE_DAY;
+            
+            // Refactory algorithm to avoid losing precision.
+            // var fd = new Date(this.get(YEAR), 
+            //                   this.get(MONTH), 
+            //                   this.get(DATE))/ONE_DAY;
+            var curDay = new Date(this.get(YEAR), 
+                                  this.get(MONTH), 
+                                  this.get(DATE)),
+            deltaDay = 0;
             
             timeOfDay += this.get(HOUR_OF_DAY);
             timeOfDay *= 60;
@@ -948,16 +959,20 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             timeOfDay += this.get(MILLISECOND);
             
             if(timeOfDay >= ONE_DAY){
-                fd++;
+                // fd++;
+                deltaDay = 1;
                 timeOfDay -= ONE_DAY;
             }else if(timeOfDay < 0){
-                fd--;
+                // fd--;
+                deltaDay = -1;
                 timeOfDay += ONE_DAY;
             }            
             
-            fd += delta;
+            // fd += delta;
+            deltaDay += delta;
             
-            this.setTimeInMillis(fd*ONE_DAY + timeOfDay);
+            // this.setTimeInMillis(fd*ONE_DAY + timeOfDay);
+            this.setTimeInMillis(curDay.getTime() + deltaDay * ONE_DAY + timeOfDay);
         }
         
     };

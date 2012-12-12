@@ -57,7 +57,7 @@ js.awt.TabPane = function (def, Runtime){
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System, MQ = J$VM.MQ;
-    
+
     /**
      * Add a panel to TabPane with speciifed tab definition.
      * 
@@ -88,16 +88,31 @@ js.awt.TabPane = function (def, Runtime){
      * @param tabId
      */
     thi$.activateTab = function(tabId){
-        var items = this.tabs.items0(), id;
+        var items = this.tabs.items0(), id,
+        tabs = this.tabs, panes = this.panes;
+
         for(var i=0, len=items.length; i<len; i++){
             id = items[i];
             if(id == tabId){
-                this.tabs[id].setTriggered(true);    
-                this.panes.layout.show(this.panes, i);
+                tabs[id].setTriggered(true);    
+                panes.layout.show(this.panes, i);
             }else{
-                this.tabs[id].setTriggered(false);
+                tabs[id].setTriggered(false);
             }
         }
+
+        var msg = {
+        	activateId : tabId
+        };
+        
+        this.activateId = tabId;
+        this.notifyPeer(
+            "js.awt.event.TabActivatedEvent", 
+            new Event("TabActivatedEvent", msg));
+    };
+    
+    thi$.getActivateTabId = function(){
+        return this.activateId;
     };
     
     /**
@@ -143,7 +158,9 @@ js.awt.TabPane = function (def, Runtime){
     };
     
     var _onmousedown = function(e){
-        var el = e.srcElement, uuid = el.uuid, tab = this.cache[uuid];
+        var el = e.srcElement, uuid = el.uuid, 
+        tab = this.cache[uuid];
+
         if(tab && tab.isEnabled()){
             this.activateTab(tab.id);
         }

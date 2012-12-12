@@ -235,12 +235,22 @@ js.awt.Dialog = function (def, Runtime){
 
         return event;
     };
+    
+    thi$.onbtnClose = function(button){
+        
+        var event = _buildDialogEvent.call(this, "close", false);
+        this.notifyPeer(event.msgId, event, true);
+        
+        arguments.callee.__super__.apply(this, arguments);
+        
+    }.$override(this.onbtnClose);
 
     thi$.close = function(){
         var peer = this.getPeerComponent();
-        if(peer){
-            peer.getDialogs().remove(this);
-        }
+        /*
+         if(peer){
+         peer.getDialogs().remove(this);
+         }*/
         
         var handler = this._local.handler;
         if(typeof handler == "function"){

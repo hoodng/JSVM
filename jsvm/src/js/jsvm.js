@@ -122,15 +122,15 @@ J$VM = new function (){
      * t.instanceOf(IB) // true
      */
     Function.prototype.$implements = function(superCs){
-        var proto = this.prototype, superC;
-        proto.__imps__ = proto.__imps__ || [];
+        var proto = this.prototype, superC,
+        imps = proto.__imps__ = /*proto.__imps__ ||*/ [];
         
         for(var i=0, len=arguments.length; i<len; i++){
             superC = arguments[i];
-            if(typeof superC != "function") continue;
-            
-            proto.__imps__.push(superC);
-            superC.$decorate(proto);
+            if(typeof superC == "function"){
+                imps.push(superC);
+                superC.$decorate(proto);
+            }
         }
 
         return this;
@@ -141,7 +141,9 @@ J$VM = new function (){
         if(this.__defined__ == undefined) new (this)();
 
         for(p in proto){
-            if(proto.hasOwnProperty(p) && "constructor" != p && 
+            if(proto.hasOwnProperty(p) && 
+               "constructor" != p && 
+               "__imps__" != p &&
                !o.hasOwnProperty(p)){
                 o[p] = proto[p];    
             }
@@ -203,19 +205,20 @@ J$VM = new function (){
      * @param timeout
      * @param ... other parameters need pass to delayed function.
      */
-    Function.prototype.$delay = function(thi$, timeout){
+     Function.prototype.$delay = function(thi$, timeout){
         var fn = this, args = Array.prototype.slice.call(arguments, 2);
 
         fn.__timer__ = fn.__timer__ || [];
-
-        fn.__timer__.push(
-            setTimeout(
+        
+        var _timer = setTimeout(
                 function(){
-                    fn.$clearTimer();
+                    fn.$clearTimer(_timer);
                     fn.apply(thi$, args);
-                }, timeout));
+                }, timeout);
 
-        return fn.__timer__[fn.__timer__.length-1];
+        fn.__timer__.push(_timer);
+
+        return _timer;
     };
     
     /**

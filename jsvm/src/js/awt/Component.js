@@ -427,15 +427,22 @@ js.awt.Component = function (def, Runtime, view){
     };
     
     /**
+     * When the position and size of the component has changed, we need
+     * to adjust its container's size to handle the scroll bars.
+     */
+    thi$.autoResizeContainer = function(){
+        var container = this.getContainer();
+        if(container && (container instanceof js.awt.Container)){
+            container.autoResize();
+        }
+    };
+    
+    /**
      * Handler of the component which is moving in an 
      * auto fit container 
      */
     var _onMovingEvent = function(e){
-        var container = this.getContainer();
-        if(container && (container instanceof js.awt.Container) &&
-           container.isAutoFit()){
-            container.autoResize();
-        }
+        this.autoResizeContainer();
     };
 
     /**
@@ -458,10 +465,8 @@ js.awt.Component = function (def, Runtime, view){
      * @param handler
      */
     thi$.openDialog = function(className, rect, dialogObj, handler){
-        var dialogs = this.getDialogs(),
-        dialog = J$VM.Factory.createComponent(
+        var dialog = J$VM.Factory.createComponent(
             className, rect, this.Runtime());
-        dialogs.push(dialog);
 
         dialog.setPeerComponent(this);
         dialog.setDialogObject(dialogObj, handler);
@@ -470,13 +475,6 @@ js.awt.Component = function (def, Runtime, view){
         return dialog;
     };
     
-    thi$.getDialogs = function(){
-        this._local.dialogs = this._local.dialogs || 
-            js.util.LinkedList.$decorate([]);
-
-        return this._local.dialogs;
-    };
-
     /**
      * Open confirm dialog
      * 
@@ -496,7 +494,7 @@ js.awt.Component = function (def, Runtime, view){
         def.className = def.className || "msgbox";
         def.stateless = true;
         def.model = def.model || {};
-        def.model.msgType = "confirm";
+        def.model.msgType = def.model.msgType || "confirm";
         return this.openDialog(
             className,
             rect, 
@@ -601,6 +599,9 @@ js.awt.Component = function (def, Runtime, view){
         if((fire & 0x02) != 0){
             this.doLayout(true);
         }
+        
+        // Adjust the container's size to handle the scrollbars
+        this.autoResizeContainer();
     };
 
     /**
@@ -650,14 +651,6 @@ js.awt.Component = function (def, Runtime, view){
             delete this.controller;
         }
 
-        var dialogs = this.getDialogs(), dialog;
-        while(dialogs.length >0){
-            dialog = dialogs.shift();
-            if(dialog._local){
-                dialog.destroy();
-            }
-        }
-
         var container = this.container;
         if(container && container instanceof js.awt.Container){
             container.removeComponent(this);
@@ -669,6 +662,21 @@ js.awt.Component = function (def, Runtime, view){
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
+	
+    thi$.getLastResizer = function(){
+        var resizer = this._local.resizer, 
+        len = resizer ? resizer.length : 0,
+        el;
+		
+        for(var i = 0; i < len; i++){
+            el = resizer[i];
+            if(el){
+                return el;
+            }
+        }
+		
+        return undefined;
+    };
 
     thi$._init = function(def, Runtime, view){
         if(def == undefined) return;

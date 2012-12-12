@@ -236,21 +236,24 @@ js.awt.BaseComponent = function(def, Runtime, view){
     
     thi$.getBounds = function(){
         var el = this.view, bounds = DOM.getBounds(el), pounds,
-        position = this.getStyle("position").toLowerCase();
+        position = this.getStyle("position");
+        if(position){
+        	position = position.toLowerCase();
+        }
         
         bounds.offsetX = el.offsetLeft;
         bounds.offsetY = el.offsetTop;
-        /*
-         if(J$VM.firefox && position !== "relative"){
-         pounds = DOM.getBounds(el.parentNode);
-         bounds.offsetX += pounds.MBP.borderLeftWidth;
-         bounds.offsetY += pounds.MBP.borderTopWidth;
-         }*/
+
+        if(J$VM.supports.borderEdg && position !== "relative"){
+            pounds = DOM.getBounds(el.parentNode);
+            bounds.offsetX -= pounds.MBP.borderLeftWidth;
+            bounds.offsetY -= pounds.MBP.borderTopWidth;
+        }
 
         bounds.x = bounds.offsetX - bounds.MBP.marginLeft;
         bounds.y = bounds.offsetY - bounds.MBP.marginTop;
         if(position == "relative"){
-            pounds = DOM.getBounds(el.parentNode);
+            pounds = pounds || DOM.getBounds(el.parentNode);
             bounds.x -= pounds.MBP.paddingLeft;
             bounds.y -= pounds.MBP.paddingTop;
         }
@@ -436,7 +439,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         delete styles.width;
         delete styles.height;
 
-        sizeChanged = function(value, sp){
+        var sizeChanged = function(value, sp){
             return sp.match(/[wW]idth|padding/) != undefined;
         }.$some(this, styles);
 
@@ -842,6 +845,14 @@ js.awt.BaseComponent = function(def, Runtime, view){
             ele = this.view.cloneNode(false);
             ele.style.whiteSpace = "nowrap";
             ele.style.visibility = "hidden";
+            
+            // When we append an DOM element to body, if we didn't set any "position"
+            // or set the position as "absolute" but "top" and "left" that element also
+            // be place at the bottom of body other than the (0, 0) position. Then it
+            // may extend the body's size and trigger window's "resize" event.
+            ele.style.position = "absolute";
+            ele.style.top = "-10000px";
+            ele.style.left = "-10000px";
 
             DOM.appendTo(ele, document.body);
             G.bounds = DOM.getBounds(ele);

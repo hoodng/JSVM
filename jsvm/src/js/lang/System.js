@@ -263,8 +263,8 @@ js.lang.System = function (env, vm){
     var _checkBrowser = function(){
         // Check browser supports
         vm.supports = {reliableMarginRight :true, supportCssFloat : true};
-        var buf = [], doc = document, div = doc.createElement('div');
-        buf.push('<div style="height:30px;width:50px;left:0px;">');
+        var buf = [], doc = document, div = doc.createElement('div'), ipt;
+        buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
         buf.push('<div style="height:20px;width:20px;"></div></div>');
         buf.push('<div style="float:left;"></div>');
         div.innerHTML = buf.join("");
@@ -273,7 +273,14 @@ js.lang.System = function (env, vm){
             + "visibility:hidden;";
         doc.body.appendChild(div);
         
-        var view = doc.defaultView, ccdiv = div.firstChild.firstChild;
+        // Check browser supports for Input, Textarea
+        ipt = doc.createElement('input');
+        ipt.type = "text";
+        ipt.style.cssText = "position:absolute;width:100px;height:100px;"
+            + "border:2px solid;visibility:hidden;";
+        doc.body.appendChild(ipt);
+        
+        var view = doc.defaultView, cdiv = div.firstChild, ccdiv = cdiv.firstChild;
         if(view && view.getComputedStyle 
            && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
             vm.supports.reliableMarginRight = false;
@@ -281,44 +288,94 @@ js.lang.System = function (env, vm){
 
         vm.supports.supportCssFloat = !!div.lastChild.style.cssFloat;
         vm.supports.borderBox = !(div.offsetWidth > 100);
+        vm.supports.borderEdg = !(cdiv.offsetLeft == 0);
 
+        // Check BorderBox support of Input and Textarea
+        vm.supports.iptBorderBox = !(ipt.offsetWidth > 100);
+        
         doc.body.removeChild(div);
-        div = view = undefined;
+        doc.body.removeChild(ipt);
+        div = view = ipt = undefined;
     };
     
     var _detectDoctype = function(){
-        var re=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi, 
-        doctype = vm.doctype = {declared: false};
+        var reg = /(\"[^\"]+\")/gi,
+        publicIDReg=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi,
+        DOCTYPEFEATURS = ["xhtml", "version", "importance"/*, "systemId"*/],
+        doctype = vm.doctype = {declared: false}, 
+        dtype, publicId, systemId;
 
-        if(typeof document.namespaces != "undefined"){
-            value = document.all[0].nodeType == 8
-                ? document.all[0].nodeValue : null;
+        if(document.doctype != null){
+            doctype.declared = true;
+            
+            dtype = document.doctype;
+            doctype.name = dtype.name;
+            
+            publicId = dtype.publicId || "";
+            systemId = dtype.systemId || "";
+        }else if(typeof document.namespaces != "undefined"){
+            var dt = document.all[0];
+            
+            var value = (dt.nodeType == 8 ? dt.nodeValue : "");
             if(value && (value.toLowerCase().indexOf("doctype") != -1)){
                 doctype.declared = true;
-            }
-        }else{
-            if(document.doctype != null){
-                doctype.declared = true;
-                value = document.doctype.publicId;
+                doctype.name = dt.scopeName;
+                
+                dtype = [];
+                value.replace(reg, 
+                              function($0){
+                                  if($0){
+                                      $0 = $0.replace(/"|'/g, "");
+                                      dtype.push($0);
+                                  }
+                              });
+                
+                publicId = dtype[0] || "";
+                systemId = dtype[1] || "";
             }
         }
         
-        try{
-            if(doctype.declared && re.test(value) && RegExp.$1){
-                doctype["xhtml"] = (RegExp.$1).toUpperCase();
-                doctype["version"] = RegExp.$2;
-                doctype["importance"] = RegExp.$3;
-            }
-        }catch(e){}
+        if(doctype.declared){
+            doctype.publicId = publicId = publicId.toLowerCase();
+            doctype.systemId = systemId.toLowerCase();
+            
+            try{
+                if(publicId.length > 0 && publicIDReg.test(publicId) && RegExp.$1){
+                    doctype["xhtml"] = (RegExp.$1);
+                    doctype["version"] = RegExp.$2;
+                    doctype["importance"] = RegExp.$3;
+                }
+            }catch(e){}
+            
+            doctype.getEigenStr = function(){
+                var fValues = [], v;
+                if(this.declared){
+                    for(var i = 0, len = DOCTYPEFEATURS.length; i < len; i++){
+                        v = this[DOCTYPEFEATURS[i]];
+                        if(v){
+                            fValues.push(v);
+                        }
+                    }
+                    
+                    v = fValues.length > 0 ? fValues.join("-") : "";
+                }
+                
+                return v;
+            };
+        }
+        
+        J$VM.System.log.println("Doctype:" + JSON.stringify(doctype));
     };
     
     var _onload = function(e){
-        J$VM.System.out.println("J$VM load...");
+        J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
 
         _checkBrowser.call(this);
         _detectDoctype.call(this);
 
         var Event = js.util.Event, dom = vm.hwnd.document;
+        Event.attachEvent(vm.hwnd, Event.W3C_EVT_RESIZE, 0, this, _onresize);
+        Event.attachEvent(vm.hwnd, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
         Event.attachEvent(dom, "keydown", 0, this, _onkeyevent);
         Event.attachEvent(dom, "keyup",   0, this, _onkeyevent);
 
@@ -328,7 +385,7 @@ js.lang.System = function (env, vm){
             scope = vm.runtime[proc.id];
             if(scope === undefined){
                 scope = vm.runtime[proc.id] = function(){
-                    var clazz = js.lang.Class.forName("js.awt.Desktop");
+                    var clazz = js.awt.Desktop;
                     return clazz ? new (clazz)(proc.container) : 
                         new js.lang.NoUIRuntime();
                 }();
@@ -344,7 +401,7 @@ js.lang.System = function (env, vm){
     };
     
     var _onbeforeunload = function(){
-        
+
     };
 
     var _onunload = function(e){
@@ -363,11 +420,10 @@ js.lang.System = function (env, vm){
 
         this.gc();
 
-        J$VM = undefined;
-        js = undefined;
-        com = undefined;
-
-        dom.body.innerHTML = "";
+        document.body.innerHTML = "";
+        if(J$VM.ie == undefined){
+            document.write("<html><head></head></html>");
+        }
     };
     
     var bodyW, bodyH;
@@ -456,8 +512,13 @@ js.lang.System = function (env, vm){
             vm.storage = {
                 local  : js.util.Storage.getStorage("local"),
                 session: js.util.Storage.getStorage("session"),
+                memory : js.util.Storage.getStorage("memory"),
                 cookie : new js.util.CookieStorage()
             };
+
+            vm.storage.cache = new js.util.Cache();
+
+            vm.Factory = new js.awt.ComponentFactory(this);
 
             vm.exec = function(instName, fn, containerElement){
                 if(typeof fn != "function") 
@@ -472,10 +533,7 @@ js.lang.System = function (env, vm){
             }.$bind(this);
 
             E.attachEvent(vm.hwnd, E.W3C_EVT_LOAD,   0, this, _onload);
-            //E.attachEvent(vm.hwnd, "beforeunload", 0, this, _onbeforeunload);
             E.attachEvent(vm.hwnd, E.W3C_EVT_UNLOAD, 0, this, _onunload);
-            E.attachEvent(vm.hwnd, E.W3C_EVT_RESIZE, 0, this, _onresize);
-            E.attachEvent(vm.hwnd, E.W3C_EVT_MESSAGE,0, this, _onmessage);
 
         }else{
             // Because Web Worker can not use consle to output, so we can use our MQ

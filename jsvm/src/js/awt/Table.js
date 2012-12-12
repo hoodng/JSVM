@@ -50,9 +50,7 @@ js.awt.TableBody = function(def, Runtime) {
 		return;
 	}
 	CLASS.__defined__ = true;
-
 	var Class = js.lang.Class, System = J$VM.System;
-	
 	var _buildTableBody = function(grid, def) {
 		var R = this.Runtime(), m = grid.rowNum();
 		var tbody = new (CLASS.TBody)({}, R);
@@ -99,6 +97,9 @@ js.awt.TableBody = function(def, Runtime) {
 	};
 	    
 	thi$.destroy = function() {
+		this.grid.cells = [];
+		this.grid.cols = [];
+		this.grid.rows = [];
 		delete this.grid;
 		delete this.def.cache;
 		delete this.def.data;
@@ -110,6 +111,7 @@ js.awt.TableBody = function(def, Runtime) {
 		def.classType = def.classType || "js.awt.TableBody";
 		def.className = def.className || "jsvm_table";
 		def.viewType = "TABLE";
+		this.def = def;
 		arguments.callee.__super__.apply(this, arguments);
 		this.grid = new (Class.forName("js.awt.Grid"))(def);
 		var bounds = def.bounds;
@@ -153,8 +155,7 @@ js.awt.TableBody.Row = function(def, Runtime) {
 		def.className = def.className || "jsvm_table_row";
 		def.viewType = "TR";
 		arguments.callee.__super__.apply(this, arguments);
-		var ele = this.view;
-		ele.uuid = def.uuid();
+		this.view.uuid = def.uuid();
 	}.$override(this._init);
 	this._init.apply(this, arguments);
 }.$extend(js.awt.Component);
@@ -173,16 +174,15 @@ js.awt.TableBody.Cell = function(def, Runtime) {
 	};
 
 	thi$._init = function(def, Runtime) {
-		if (def == undefined)
-			return;
+		if (def == undefined) return;
 		def.classType = def.classType || "js.awt.TableBody.Cell";
 		def.className = def.className || "jsvm_table_cell";
 		def.viewType = "TD";
 		arguments.callee.__super__.apply(this, arguments);
-		var ele = this.view;
-		ele.setAttribute("rowspan", "" + def.rowSpan);
-		ele.setAttribute("colspan", "" + def.colSpan);
-		ele.uuid = def.uuid();
+		//var ele = this.view;
+		//ele.setAttribute("rowspan", "" + def.rowSpan);
+		//ele.setAttribute("colspan", "" + def.colSpan);
+		//ele.uuid = def.uuid();
 	}.$override(this._init);
 	this._init.apply(this, arguments);
 }.$extend(js.awt.Component);
@@ -202,12 +202,20 @@ js.awt.Table = function(def, Runtime) {
 		return;
 	}
 	CLASS.__defined__ = true;
+	CLASS.ROW_UUID = 'rowuuid';
+	CLASS.ROW_CLASSNAME0 = 'jsvm_table_row_0';
+	CLASS.ROW_CLASSNAME_HOVER = 'jsvm_table_row_hover';
 	var Class = js.lang.Class, System = J$VM.System;
 
 	thi$.destroy = function() {
 		delete this.headerCache;
 		delete this.colsDef;
-		delete this.bodyDef;
+		if(this.bodyDef){
+			delete this.bodyDef.data,
+			delete this.bodyDef;
+		}
+		delete this.cache;
+		delete this.data;
 		if(this.lastHeaderItem)
 			delete this.lastHeaderItem;
 		if(this.curRow)
@@ -217,12 +225,12 @@ js.awt.Table = function(def, Runtime) {
 
 	thi$.setTableBody = function(data){
 		this.data = data;
-		var R = this.Runtime();
+		var R = this.Runtime(), rowLen;
 		var bodyHolder = this['bodyHolder'];
+		this.bodyDef = null;
 	    bodyHolder.removeAll(true);
 	    if(data)
 	    	rowLen = data.length;
-		var colsDef = this.colsDef;
 	    if(rowLen > 0){
 	    	var bounds = bodyHolder.getBounds(), MBP = bounds.MBP;
 	    	var rowsDef = new Array(rowLen);
@@ -236,9 +244,9 @@ js.awt.Table = function(def, Runtime) {
 	            rigid_w: false,
 	            rigid_h: true, 
 	            rowNum: rowLen,
-	            colNum: colsDef.length,
+	            colNum: this.colsDef.length,
 	            rows: rowsDef,
-	            cols: colsDef, 
+	            cols: this.colsDef, 
 	            data: data,
 	            cache: this.cache
 	    	};
@@ -249,14 +257,15 @@ js.awt.Table = function(def, Runtime) {
 	};
 	
 	var _sort = function(data, runtime){
+		if(!this.bodyDef){
+			return;
+		}
 		var bodyHolder = this['bodyHolder'];
 		bodyHolder.removeAll(true);
+		this.cache = {};
 		this.bodyDef.data = data;
+		this.bodyDef.cache = this.cache;
 		bodyHolder.addComponent(new js.awt.TableBody(this.bodyDef, runtime));
-	};
-	
-	thi$.clearTableBody = function(def, R) {
-		this['bodyHolder'].removeAll(true);
 	};
 	
 	thi$.clearSort = function() {
@@ -270,13 +279,14 @@ js.awt.Table = function(def, Runtime) {
 	
 	var _onSort = function(e){
 		var headerItem = this.headerCache[e.srcElement.uuid];
+		var bodyHolder = this['bodyHolder'];
 		if(this.lastHeaderItem && (headerItem !== this.lastHeaderItem)){
 			this.lastHeaderItem.ctrl.className = 'jsvm_table_header_ctrl';
 			this._sortIndex = -1;
 			this._sortAsc = false;
 			this._lastIndex = -1;
 		}
-		if(this.bodyHolder.tableBody){
+		if(this.data){
 			this._sortIndex = headerItem.def.index;
 			if (this._lastIndex == -1 || this._lastIndex != 0) {
 				this._sortAsc = false; 
@@ -304,27 +314,26 @@ js.awt.Table = function(def, Runtime) {
 		    		return x < y ? 1 : -1;
 		    	}
 		    }.$bind(this);
-		    var def = this.bodyHolder.tableBody.def;
-		    def.data.sort(_compare);
+		    this.data.sort(_compare);
 		    this._sortIndex = -1;
-		    _sort.call(this, def.data, this.Runtime());
+		    _sort.call(this, this.data, this.Runtime());
 	    }
 	};
 	
 	var _onRowMouseout = function(e) {
-		var row = this.cache[e.srcElement.getAttribute('rowuuid')];
+		var row = this.cache[e.srcElement.getAttribute(CLASS.ROW_UUID)];
 		if (row && this.curRow !== row)
-			row.view.className = row.def.className + '_0';
+			row.view.className = CLASS.ROW_CLASSNAME0;
 	};
 
 	var _onRowMouseover = function(e) {
-		var row = this.cache[e.srcElement.getAttribute('rowuuid')];
+		var row = this.cache[e.srcElement.getAttribute(CLASS.ROW_UUID)];
 		if (row && this.curRow !== row)
-			row.view.className = row.def.className + '_hover';
+			row.view.className = CLASS.ROW_CLASSNAME_HOVER;
 	};
 
 	var _onClick = function(e) {
-		var row = this.cache[e.srcElement.getAttribute('rowuuid')];
+		var row = this.cache[e.srcElement.getAttribute(CLASS.ROW_UUID)];
 		if (this.curRow)
 			this.curRow.view.className = this.curRow.def.className + '_0';
 		if (row) {
@@ -337,14 +346,14 @@ js.awt.Table = function(def, Runtime) {
 	};
 	
 	var _onDblClick = function(e) {
-		var row = this.cache[e.srcElement.getAttribute('rowuuid')];
+		var row = this.cache[e.srcElement.getAttribute(CLASS.ROW_UUID)];
 		if (this.curRow)
 			this.curRow.view.className = this.curRow.def.className + '_0';
 		if (row) {
 			row.view.className = row.def.className + '_hover';
 			this.curRow = row;
 			e.setEventTarget(row.obj);
-			e.setType("dbClick");
+			e.setType("dblClick");
 			this.notifyPeer("js.awt.event.TableItemEvent", e);
 		}
 	};
@@ -409,22 +418,22 @@ js.awt.Table = function(def, Runtime) {
 
 		arguments.callee.__super__.apply(this, arguments);
 		var headerHolder = this['headerHolder'];
+		var bodyHolder = this['bodyHolder']; 
 		headerHolder.attachEvent('click', 0, this, _onSort);
 		for(i = 0; i < columnLen; i++){
 			var headerItem = headerHolder[headerHolder.def.items[i]];
 			this.headerCache[headerItem.uuid()] = headerItem;
 		}
-		
 		this._sortIndex = -1;
 		this._sortAsc = false;
 		this._lastIndex = -1;
 		this.lastHeaderItem = null; 
 		this.cache = {};
 		this.curRow = null;
-		this.attachEvent("click", 0, this, _onClick);
-		this.attachEvent("dblclick", 0, this, _onDblClick);
-		this.attachEvent('mouseover', 0, this, _onRowMouseover);
-		this.attachEvent("mouseout", 0, this, _onRowMouseout);
+		bodyHolder.attachEvent("click", 0, this, _onClick);
+		bodyHolder.attachEvent("dblclick", 0, this, _onDblClick);
+		bodyHolder.attachEvent('mouseover', 0, this, _onRowMouseover);
+		bodyHolder.attachEvent("mouseout", 0, this, _onRowMouseout);
 	}.$override(this._init);
 	this._init.apply(this, arguments);
 }.$extend(js.awt.Container);

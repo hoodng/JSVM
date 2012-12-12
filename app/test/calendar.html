@@ -1,4 +1,4 @@
-
+<!DOCTYPE html>
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -8,15 +8,6 @@
         classpath="lib/../jsre-ui.js"
         -DmainClass="org.jsvm.App"></script>
 
-<!--
-<script src="../../jsvm/src/js/util/Calendar.js" ></script>
-<script src="../../jsvm/src/js/awt/Calendar.js" ></script>
-<script src="../../jsvm/src/js/awt/FieldSpinner.js" ></script>
-<script src="../../jsvm/src/js/awt/DatePicker.js" ></script>
--->
-<script src="../../jsvm/src/com/jinfonet/common/DateExpression.js" ></script>
-<script src="../../jsvm/src/com/jinfonet/common/Calendar.js" ></script>
-<script src="../../jsvm/src/js/util/StyleSheet.js" ></script>
 <style>
 
 </style>
@@ -36,13 +27,16 @@ J$VM.exec("org.jsvm.App",function(System){
     var Class = js.lang.Class, 
     Calendar = Class.forName("js.util.Calendar");
 
-    var calendar = new com.jinfonet.common.Calendar(
+    var calendar = new (Class.forName("com.jinfonet.common.Calendar"))(
 						  {
                               x: 20, y: 20,
                               dateType: "Time",
-                              pattern: "yyyy-MM-dd HH:mm:ss",
                               hasExp: true,
-                              hasUTD: false
+                              hasUTD: true,
+                              preValue:{
+                                  date:{dateObj: new Date("2012, 07, 17")},
+                                  pattern: "yyyy-MM-dd HH:mm:ss"
+                              }
 
 						  }, this);
 

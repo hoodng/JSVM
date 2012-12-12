@@ -74,7 +74,11 @@ js.util.Document = function (){
         valign: "vAlign",
         vspace: "vSpace"
     },
-    BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/;;
+    BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/,
+    DOCTYPECT = {
+        "html-4.01": {bodysize: false},
+        "html-4.01-transitional": {bodysize: true}
+    };
 
     /**
      * Create a DOM element
@@ -135,6 +139,15 @@ js.util.Document = function (){
         }
 
         return _s;      
+    };
+    
+    thi$.offsetParent = function(ele){
+        var body = document.body, p = ele.offsetParent;
+        if(!p || !this.contains(body, p, true)){
+            p = body;
+        }
+        
+        return p;
     };
 
     /**
@@ -512,30 +525,46 @@ js.util.Document = function (){
         return isEle ? el.getBoundingClientRect() : 
             { left: 0, top: 0, bottom: 0, right: 0 };
     };
-
-    /**
-     * Return the outer (outer border) size of the element
-     * 
-     * @return {width, height}
-     */
-    thi$.outerSize = function(el, isEle){
-        if(el.tagName !== "BODY"){
-            var r = this.getBoundRect(el, isEle);
-            return {left: r.left, 
-                    top: r.top, 
-                    width: r.right-r.left, 
-                    height:r.bottom-r.top };
-        }else{
-            var doctype = J$VM.doctype.declared;
-            return {
-                left: 0, 
-                top:  0,
-                width: !doctype ? document.body.clientWidth : 
-                    document.documentElement.clientWidth,
-                height: !doctype ? document.body.clientHeight : 
-                    document.documentElement.clientHeight};
+    
+	var _computeByBody = function(){
+        var doctype = J$VM.doctype, fValues = [], 
+        b = true, v, table;
+        if(doctype.declared){
+        	v = doctype.getEigenStr();
+        	if(v){
+                table = DOCTYPECT[v];
+                b = table ? (table["bodysize"] || false) : false;
+        	}else{
+                b = false;
+        	}
         }
-    };
+        
+        return b;
+	};
+
+	/**
+	 * Return the outer (outer border) size of the element
+	 * 
+	 * @return {width, height}
+	 */
+	thi$.outerSize = function(el, isEle){
+		if(el.tagName !== "BODY"){
+			var r = this.getBoundRect(el, isEle);
+			return {left: r.left, 
+					top: r.top, 
+					width: r.right-r.left, 
+					height:r.bottom-r.top };
+		}else{
+			var b = _computeByBody.call(this);
+			return {
+				left: 0, 
+				top:  0,
+				width: b ? document.body.clientWidth : 
+					document.documentElement.clientWidth,
+				height: b ? document.body.clientHeight : 
+					document.documentElement.clientHeight};
+		}
+	};
 
     /**
      * Return outer (outer border) width of the element
@@ -705,8 +734,12 @@ js.util.Document = function (){
         
         if(bounds.BBM === undefined){
             // BBM: BorderBoxModel
-            bounds.BBM = (J$VM.supports.borderBox ||
-                          Class.typeOf(el) === "htmlinputelement");
+            if(Class.typeOf(el) === "htmlinputelement" ||
+                Class.typeOf(el) === "htmltextareaelement"){
+                bounds.BBM = J$VM.supports.iptBorderBox;
+            }else{
+                bounds.BBM = J$VM.supports.borderBox;
+            }
 
             var currentStyles = this.currentStyles(el, isEle);
             this.getMargin(el, currentStyles, isEle);

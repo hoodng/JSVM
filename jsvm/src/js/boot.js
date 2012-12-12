@@ -76,9 +76,13 @@
      // Global functions
      // Should be replaced by invoing $postMessage and $sendMessage
      j$postMessage = function(msg){
-         var str = msg[4];
-         str = js.lang.Class.forName("js.util.Base64").decode(str);
-         msg[4] = JSON.parse(str);
+         //below codes added by Lu YuRu, maybe flash slider needs, 
+         //but some logic miss in flash code, no one can explain it now.
+         //Now Flash chart not need, so we clear the code.
+         
+         //var str = msg[4];
+         //str = js.lang.Class.forName("js.util.Base64").decode(str);
+         //msg[4] = JSON.parse(str);
          
          J$VM.MQ.post(msg[3], msg[4], msg[2], msg[1], msg[0]);
      };

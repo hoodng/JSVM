@@ -170,8 +170,8 @@ js.awt.Movable = function (){
         br = Math.max(mover.br*mW, bound),
         bb = Math.max(mover.bb*mH, bound),
         bl = Math.max(mover.bl*mW, bound),
-        pview = moveObj.view.offsetParent,
-        cview = isAutoFit ? pview.offsetParent : pview,
+        pview = DOM.offsetParent(moveObj.view),
+        cview = isAutoFit ? DOM.offsetParent(pview) : pview,
         pbounds = DOM.getBounds(pview);
 
         moveObj.minX = grid*Math.ceil((0 - marginLf - mW + bl)/grid);
@@ -201,6 +201,7 @@ js.awt.Movable = function (){
         // Notify popup LayerManager 
         e.setEventTarget(this);
         MQ.post("js.awt.event.LayerEvent", e, [this.Runtime().uuid()]);
+        this.fireEvent(e);
 
         var targ = e.srcElement;
         if(targ.nodeType == 3){
@@ -232,6 +233,9 @@ js.awt.Movable = function (){
     };
 
     var _onmouseup1 = function(e){
+        e.setEventTarget(this);
+        this.fireEvent(e);
+
         if(!_doSelect.$clearTimer()){
             //Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
             Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
