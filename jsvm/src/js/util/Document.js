@@ -898,6 +898,10 @@ js.util.Document = function (){
      * @param containSelf, whether contains the scenario of parent == child
      */
     thi$.contains = function(el, child, containSelf){
+        if(el == null || el == undefined || 
+                child == null || child == undefined){
+            return false;
+        }
         if(el.compareDocumentPosition){
             // W3C
             var res = el.compareDocumentPosition(child);

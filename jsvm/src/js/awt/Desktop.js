@@ -294,6 +294,7 @@ js.awt.Desktop = function (element){
             className: "jsvm_desktop",
             css: "position:absolute;",
             zorder:true,
+            zbase:1,
             stateless: true,
             layout:{
                 classType: "js.awt.AbstractLayout"

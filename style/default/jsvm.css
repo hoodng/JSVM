@@ -65,6 +65,12 @@ body {
     border-radius: 5px;
 }
 
+.jsvm_comp_loading {
+    background-image: url("images/loading.gif");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
 .jsvm_loading_cover {
     background-image: url("images/loading.gif");
     background-repeat: no-repeat;

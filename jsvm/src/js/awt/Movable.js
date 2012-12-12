@@ -181,13 +181,15 @@ js.awt.Movable = function (){
             (!hscroll ? pbounds.width - pbounds.MBP.BW - marginLf - br:
              Math.max(pview.scrollWidth, pbounds.width) - marginLf - br) :
         Math.max(cview.scrollWidth, cview.offsetWidth) - marginLf - br;
-        moveObj.maxX = grid*Math.floor(maxX/grid);
+        //moveObj.maxX = grid*Math.floor(maxX/grid);
+        moveObj.maxX = maxX;
 
         maxY = (!isAutoFit || rigidH) ?
             (!vscroll ? pbounds.height-pbounds.MBP.BH - marginTp - bb:
              Math.max(pview.scrollHeight, pbounds.height) - marginTp - bb) :
         Math.max(cview.scrollHeight, cview.offsetHeight) - marginTp - bb;
-        moveObj.maxY = grid*Math.floor(maxY/grid);
+        //moveObj.maxY = grid*Math.floor(maxY/grid);
+        moveObj.maxY = maxY;
 
         moveObj.showMoveCover(true);
         moveObj.cview = cview;
@@ -273,7 +275,7 @@ js.awt.Movable = function (){
         
         x = x < minX ? minX : x > maxX ? maxX : x;
         y = y < minY ? minY : y > maxY ? maxY : y;
-        
+		
         if(x != bounds.x || y != bounds.y){
             // Snap to grid
             x = grid*Math.round(x/grid);
