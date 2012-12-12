@@ -29,7 +29,7 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * Author: hudong@HuDong
+ * Author:  Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
  * Source code availability: http://jzvm.googlecode.com
