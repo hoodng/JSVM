@@ -256,13 +256,13 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     };
     
     thi$._doSort = function(){
-    	var tree = this;
-    	var _func = function(item1, item2){
-    		return tree.getNodeIndex(item1) - tree.getNodeIndex(item2);
-    	}
-    	
-    	this.marked.sort(_func);
-    	this.selected.sort(_func);
+        var tree = this;
+        var _func = function(item1, item2){
+            return tree.getNodeIndex(item1) - tree.getNodeIndex(item2);
+        };
+        
+        this.marked.sort(_func);
+        this.selected.sort(_func);
     };
 
     /**
@@ -298,18 +298,18 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         var node1 = nodes[index1], node2 = nodes[index2];        
         
         nodes[index1] = node2;
-        nodes[index2] = node1
+        nodes[index2] = node1;
         
         var idx1=marked.indexOf(node1), idx2=marked.indexOf(node2);
         if(idx1>=0 && idx2>=0){
-        	marked[idx1] = node2;
-        	marked[idx2] = node1;
+            marked[idx1] = node2;
+            marked[idx2] = node1;
         }
         
         idx1=selected.indexOf(node1), idx2=selected.indexOf(node2);
         if(idx1>=0 && idx2>=0){
-        	selected[idx1] = node2;
-        	selected[idx2] = node1;
+            selected[idx1] = node2;
+            selected[idx2] = node1;
         }
         
         var view1 = node1.view, view2 = node2.view;
@@ -318,9 +318,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         container1.removeChild(view1);
         
         if(index1<index2){
-        	DOM.insertAfter(view1, view2, container2);        	
+            DOM.insertAfter(view1, view2, container2);          
         } else {
-        	DOM.insertBefore(view1, view2, container2);
+            DOM.insertBefore(view1, view2, container2);
         }
         this._doSort();
     };
@@ -379,13 +379,13 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         for(i=0, len=nodes.length; i<len; i++){
             item = nodes[i];
             if(b){
-	            if(item.canExpand() && !item.isExpanded()){
-	                item.expandAll(b, item);
-	            }
+                if(item.canExpand() && !item.isExpanded()){
+                    item.expandAll(b, item);
+                }
             }else{
-            	if(item.canExpand() && item.isExpanded()){
-            		item.expand(b);
-            	}
+                if(item.canExpand() && item.isExpanded()){
+                    item.expand(b);
+                }
             }
         }
         _setMaxSize.$delay(this, 1);
@@ -395,14 +395,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     };
     
     thi$.onAfterExpand = function(){
-    	var cache = this.cache,item;
-    	for(var uuid in cache){
-    		item = this.cache[uuid];
-    		if((!item.isEnabled()) && item.view.parentNode !== null){
-    			item._adjust("move");
-    		}
-    	}
-    }
+        var cache = this.cache,item;
+        for(var uuid in cache){
+            item = this.cache[uuid];
+            if((!item.isEnabled()) && item.view.parentNode !== null){
+                item._adjust("move");
+            }
+        }
+    };
     
     /**
      * Gets all nodes which were accepted by filter
@@ -721,7 +721,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     }.$override(this.destroy);
     
     var _onevent = function(e){
-    	
+        
     };
 
     thi$._init = function(def, Runtime, dataProvider){

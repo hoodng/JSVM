@@ -456,7 +456,9 @@ js.lang.Class = new function (){
      * Test if the specified object is an BigInt
      */
     this.isBigInt = function(o){
-        return typeof o == "object" && o.objTypeIsBigIntType == true;
+        if(!js.text) return false;
+        if(!js.text.BigIntTools) return false;
+        return typeof o == "object" && o instanceof js.text.BigIntTools.BigInt;
     };
 
     /**

@@ -79,7 +79,7 @@ js.awt.Container = function (def, Runtime, view){
         this.def.items.push(comp.id);
         this._local.items.push(comp.id);
 
-        _addComp.call(this, comp, constraints);        
+        this._addComp(comp, constraints);        
 
         this.zOrderAdjust();
 
@@ -348,7 +348,7 @@ js.awt.Container = function (def, Runtime, view){
      */
     thi$.autoResize = function(){
         if(!this.isAutoFit()) return;
-    
+        
         var bounds = this.getBounds(), 
         prefer = this.getPreferredSize(true/*nocache*/),
         w = bounds.userW, h = bounds.userH;
@@ -376,7 +376,7 @@ js.awt.Container = function (def, Runtime, view){
         return false;
     }.$override(this.doLayout);
     
-    var _addComp = function(comp, constraints){
+    thi$._addComp = function(comp, constraints){
         constraints = constraints || comp.def.constraints;
 
         comp.setContainer(this);
@@ -437,7 +437,7 @@ js.awt.Container = function (def, Runtime, view){
                     this[compid] = comp;
                     oriComps.push(compid);
 
-                    _addComp.call(this, comp, compDef.constraints);
+                    this._addComp(comp, compDef.constraints);
 
                 }
             }

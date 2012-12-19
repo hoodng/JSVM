@@ -293,6 +293,9 @@ js.lang.System = function (env, vm){
         // Check BorderBox support of Input and Textarea
         vm.supports.iptBorderBox = !(ipt.offsetWidth > 100);
         
+        // Check placeholder support of Input and Textarea
+        vm.supports.placeholder = ("placeholder" in ipt); 
+        
         doc.body.removeChild(div);
         doc.body.removeChild(ipt);
         div = view = ipt = undefined;

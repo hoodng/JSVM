@@ -305,7 +305,7 @@ js.awt.ScrollPane = function (def, Runtime){
 
             }else if(eType == "dblclick"){
                 e.cancelBubble();
-                if(item.isEditable()) {
+                if(item.isEditable && item.isEditable()) {
                     item.editLabel();
                 }
             }
