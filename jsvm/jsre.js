@@ -41,7 +41,7 @@
  */
 J$VM = new function (){
     this.__product__ = "J$VM";
-    this.__version__ = "0.9.s4496245a32c905cd";
+    this.__version__ = "0.9.s3ec1131805a71c21";
 
     this.env = {
         j$vm_log: false,
@@ -122,15 +122,15 @@ J$VM = new function (){
      * t.instanceOf(IB) // true
      */
     Function.prototype.$implements = function(superCs){
-        var proto = this.prototype, superC;
-        proto.__imps__ = proto.__imps__ || [];
+        var proto = this.prototype, superC,
+        imps = proto.__imps__ = /*proto.__imps__ ||*/ [];
         
         for(var i=0, len=arguments.length; i<len; i++){
             superC = arguments[i];
-            if(typeof superC != "function") continue;
-            
-            proto.__imps__.push(superC);
-            superC.$decorate(proto);
+            if(typeof superC == "function"){
+                imps.push(superC);
+                superC.$decorate(proto);
+            }
         }
 
         return this;
@@ -141,7 +141,9 @@ J$VM = new function (){
         if(this.__defined__ == undefined) new (this)();
 
         for(p in proto){
-            if(proto.hasOwnProperty(p) && "constructor" != p && 
+            if(proto.hasOwnProperty(p) && 
+               "constructor" != p && 
+               "__imps__" != p &&
                !o.hasOwnProperty(p)){
                 o[p] = proto[p];    
             }
@@ -203,19 +205,20 @@ J$VM = new function (){
      * @param timeout
      * @param ... other parameters need pass to delayed function.
      */
-    Function.prototype.$delay = function(thi$, timeout){
+     Function.prototype.$delay = function(thi$, timeout){
         var fn = this, args = Array.prototype.slice.call(arguments, 2);
 
         fn.__timer__ = fn.__timer__ || [];
-
-        fn.__timer__.push(
-            setTimeout(
+        
+        var _timer = setTimeout(
                 function(){
-                    fn.$clearTimer();
+                    fn.$clearTimer(_timer);
                     fn.apply(thi$, args);
-                }, timeout));
+                }, timeout);
 
-        return fn.__timer__[fn.__timer__.length-1];
+        fn.__timer__.push(_timer);
+
+        return _timer;
     };
     
     /**
@@ -410,6 +413,7 @@ J$VM = new function (){
 
 }();
 
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -539,7 +543,7 @@ js.lang.Class = new function (){
     
     var _loadClass = function(filePath, className){
         if(!J$VM.env.j$vm_isworker){
-            var storage = J$VM.storage.local, text, incache = false,
+            var storage = J$VM.storage.cache, text, incache = false,
             cached = storage.getItem(className || filePath);
 
             if(cached){
@@ -549,7 +553,7 @@ js.lang.Class = new function (){
                 }
             }
 
-            text = text || this.getResource(filePath);
+            text = text || this.getResource(filePath, true);
             this.loadScript(filePath, text);
 
             if(!incache){
@@ -568,7 +572,7 @@ js.lang.Class = new function (){
     }.$bind(this);
 
     this.loadScript = function(filePath, text){
-        text = text || this.getResource(filePath);
+        text = text || this.getResource(filePath, true);
         var script = document.createElement("script");
         var head = document.getElementsByTagName("head")[0];
         script.type= "text/javascript";
@@ -578,14 +582,218 @@ js.lang.Class = new function (){
 
     }.$bind(this);
     
-    /**
+
+	//--MakeInterface--begin:  for make javascript interface & implement gridge by Synchronous uri.---
+	var GetARGV=function(arguments){
+		var i;
+		var argv=[];
+		for(i=0;i<arguments.length;i++){
+			argv.push(arguments[i]);
+		}
+		return argv;
+	};
+	var Require=this;
+	var MakeInterface=function(ClassFunction,interfacies,implementBridge){
+		var i;
+		var _interfaceName;
+		var idx;
+		var getProxyFunction=function(interfaceName){
+			return function(){
+				var argv=GetARGV(arguments);
+				var i;
+				argv.splice(0,0,interfaceName);
+				return implementBridge.apply(this,argv);
+			};
+		};
+		for(i=0;i<interfacies.length;++i){
+			_interfaceName=interfacies[i];
+			idx=_interfaceName.indexOf("(");
+			if(idx!=-1){
+				_interfaceName=_interfaceName.substring(0,idx);
+			}
+			ClassFunction.prototype[_interfaceName]=getProxyFunction(_interfaceName);
+		}
+	};
+
+	/**
+		this method make a synchronous javascript function.
+		and it's all instance method will exec after depend scrips loaded.
+		and make it easy debug in browser to asynchronous load depend scrips.
+
+		@param ClassFunction , a Function , all it's instances's method will be forword ImplementFunction.
+		@param ImplementFunctionName ,implement Function or implementFunction name. detail implement code should write in this function.
+		@param DependScriptUris , depeand scripts 's uris. implement code will be call after these uris be loaded.
+		@param interfacies , a Array . include method names. and only these name methode will be forword.
+		@return , no value.
+
+		simple code1:
+		
+		var ClientInterface=new Function;
+		var ServiceInterface=new Function;
+		var c=new ClientInterface;
+		NS.Make(ClientInterface,ServiceInterface,null,[
+			"test()"
+		]);
+		ServiceInterface.prototype={
+			"test":function(){
+				return "test";
+			}
+		};
+		return "test"==c.test();
+
+		simple code2: ref "com.jinfonet.report.gmap.dashboard.view"
+	
+	*/
+	this.MakeInterface=function(ClassFunction,ImplementFunctionName,DependScriptUris,interfacies){
+		var implementBridge=function(){
+			var argv=GetARGV(arguments);
+			var interfaceName=argv.shift();
+			var classInstance=this;
+			var ImplementFunction;
+			if(ImplementFunction){
+				return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
+			};
+			if(DependScriptUris){
+				Require.LoadScriptsExt(DependScriptUris,false,function(loaded,previouslyLoaded){
+					ImplementFunction=typeof ImplementFunctionName=="string"?eval(ImplementFunctionName):ImplementFunctionName;
+					return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
+				});
+			}else{
+				ImplementFunction=typeof ImplementFunctionName=="string"?eval(ImplementFunctionName):ImplementFunctionName;
+				return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
+			}
+
+            return null;
+		};
+
+		MakeInterface(ClassFunction,interfacies,implementBridge);
+	};
+
+	//--load script support for Asynchronous/Synchronous, copy from script.js.-- code begin {
+	this.LoadScriptsExt=function(srcs,synchro,callBack,isFlush){
+		var idx=0;
+		var _callback=function(loaded){
+			if(!loaded){
+				throw srcs;
+			}
+			idx++;
+			if(idx<srcs.length){
+				Require.LoadScriptExt(srcs[idx],synchro,_callback,isFlush);
+			}else{
+				if(callBack){
+					callBack(true);
+				}
+			}
+		};
+		this.LoadScriptExt(srcs[idx],synchro,_callback,isFlush);
+	};
+	var LoadedResources={};
+	var HasLoaded=function(src){
+		var head;
+		var i;
+		var c;
+		if(LoadedResources[src]==1){
+			return true;
+		}
+		head=document.getElementsByTagName("head")[0]||document.documentElement;
+		for(i=0;i<head.childNodes.length;i++){
+			c=head.childNodes[i];
+			if((c.tagName=="SCRIPT"||c.tagName=="LINK")&&c.getAttribute("uri")==src)
+				return true;
+		}
+		return false;
+	};
+	this.LoadScriptExt=function(src,synchro,callBack,isFlush){
+		var script;
+		var isHttp;
+		var xml_http;
+		var head;
+		if(!isFlush&&HasLoaded(src)){
+			if(callBack){
+				callBack(true,true);
+			}
+			return true;
+		}
+		script=document.createElement("script");
+		script.type="text/javascript";
+		synchro=synchro&&(window.location.protocol!=="file:");
+		if(synchro){
+			xml_http=window.XMLHttpRequest&&(window.location.protocol!=="file:"||!window.ActiveXObject)?new window.XMLHttpRequest():new window.ActiveXObject("Microsoft.XMLHTTP");
+			xml_http.open("GET",src,false);
+			xml_http.send(null);
+			if(xml_http.status!=200){
+				if(callBack){
+					callBack(false);
+				}
+				return false;
+			}else{
+				script.text=xml_http.responseText;
+			}
+		}else{
+			if(LoadedResources[src] instanceof Array){
+				LoadedResources[src].push(callBack);
+				return true;
+			}
+			script.src=src;
+			var onload=function(){
+				var listeners=LoadedResources[src];
+				var _callBack;
+				while(listeners instanceof Array&&listeners.length>0){
+					_callBack=listeners.shift();
+					if(_callBack){
+						_callBack(true);
+					}
+				}
+				script.onload=null;
+				script.onerror=null;
+				LoadedResources[src]=1;
+			};
+			script.onreadystatechange=function(){
+				if(script.readyState=="loaded"){
+					onload();
+				}
+			};
+			script.onload=onload;
+			script.onerror=function(){
+				var listeners=LoadedResources[src];
+				var _callBack;
+				while(listeners.length>0){
+					_callBack=listeners.shift();
+					if(_callBack){
+						_callBack(false);
+					}
+				}
+				script.onload=null;
+				script.onerror=null;
+				LoadedResources[src]=3;
+			};
+		}
+		head=document.getElementsByTagName("head")[0]||document.documentElement;
+		head.appendChild(script);
+		if(synchro){
+			LoadedResources[src]=1;
+			if(callBack){
+				callBack(true);
+			}
+		}else{
+			LoadedResources[src]=[callBack];
+		}
+		return true;
+	};
+	// } --load script support for Asynchronous/Synchronous. code end.
+
+    
+	
+	
+	/**
      * Return the content with the specified url
      * 
      * @param url, the url to load content
      */
-    this.getResource = function(url){
+    this.getResource = function(url, nocache){
         // Synchronized request
         var xhr = new js.net.HttpURLConnection(false);
+        xhr.setNoCache(nocache || false);
         xhr.open("GET", url);
         
         if(xhr.exception == undefined && xhr.readyState() == 4 &&
@@ -637,26 +845,34 @@ js.lang.Class = new function (){
             (o === undefined) ? "undefined" :
             this.isHtmlElement(o) ? 
             "html"+o.tagName.toLowerCase()+"element" :
+			this.isBigInt(o) ? "bigint" :
             (function(){
                  var s = Object.prototype.toString.call(o);
                  return s.substring(8, s.length-1).toLowerCase();
              })();
     }.$bind(this);
 
-    /**
-     * Test if the specified object is a Date.
-     * 
-     * Specially in Firefox, Chrome and Safari, when we attempt to 
-     * parse an invalid date string as a Date object. An valid Date 
-     * object will be returned but it indicates an invalid Date. 
-     * 
-     * e.g.
-     * var d = new Date("January 1, 2012 16:00:00 AM");
-     * this.typeof(d) == "date"; //true
-     * isNaN(d); //true
-     */
+	/**
+	 * Test if the specified object is a Date.
+	 * 
+	 * Specially in Firefox, Chrome and Safari, when we attempt to 
+	 * parse an invalid date string as a Date object. An valid Date 
+	 * object will be returned but it indicates an invalid Date. 
+	 * 
+	 * e.g.
+	 * var d = new Date("January 1, 2012 16:00:00 AM");
+	 * this.typeof(d) == "date"; //true
+	 * isNaN(d); //true
+	 */
     this.isDate = function(o){
         return (this.typeOf(o) == "date" && !isNaN(o));
+    };
+	
+	/**
+     * Test if the specified object is an BigInt
+     */
+    this.isBigInt = function(o){
+        return typeof o == "object" && o.objTypeIsBigIntType == true;
     };
 
     /**
@@ -755,31 +971,32 @@ js.lang.Class = new function (){
      * 
      * @return true/false if the object is of the specified type.
      */
-    this.is = function(o, type){
-        if(!type)
-            return o !== undefined && o !== null;
-        
-        var b = false;
-        type = type.toLowerCase();
-        switch(type){
-        case "number":
-            b = this.isNumber(o);
-            break;
-        case "date":
-            b = this.isDate(o);
-            break;
-        default:
-            b = (this.typeOf(o) === type);
-            break;
-        }
-        
-        return b;        
-    };
+	this.is = function(o, type){
+		if(!type)
+			return o !== undefined && o !== null;
+		
+		var b = false;
+		type = type.toLowerCase();
+		switch(type){
+			case "number":
+				b = this.isNumber(o);
+				break;
+			case "date":
+				b = this.isDate(o);
+				break;
+			default:
+				b = (this.typeOf(o) === type);
+				break;
+		}
+		
+		return b;
+	};
     
 }();
 
 $package = js.lang.Class.definePackage;
 $import  = js.lang.Class.importClass;
+
 
 /**
 
@@ -831,6 +1048,7 @@ js.lang.Math = new function (){
     };
 
 }();
+
 
 
 /**
@@ -906,16 +1124,16 @@ js.lang.Object = function (o){
     };
 
     thi$.instanceOf = function(clazz){
-        if(this.__imps__){
-            for(var i=0, len=this.__imps__.length; i<len; i++){
-                if(clazz === this.__imps__[i]){
+        var imps = this.__imps__;
+        if(imps){
+            for(var i=0, len=imps.length; i<len; i++){
+                if(clazz === imps[i]){
                     return true;
                 }
             }
         }
 
         return this instanceof clazz;
-
     };
 
     thi$.destroy = function(){
@@ -923,6 +1141,7 @@ js.lang.Object = function (o){
     };
 
 }.$extend(Object);
+
 
 
 /**
@@ -1025,30 +1244,75 @@ js.lang.String = new function(){
     /**
      * Escape regular expression's meta-characters as literal characters.
      */
-    this.escapeRegExp = String.prototype.escapeRegExp = function(s){
-        s = (s != undefined) ? s : this.toString();
-        return (typeof s != "string") ? s :
-            s.replace(REGX_REGEXP_METACHARS, 
-                      function($0){
-                          return "\\" + $0;
-                      });
-    };
+    this.escapeRegExp = String.prototype.escapeRegExp = 
+        function(s){
+            s = (s != undefined) ? s : this.toString();
+            return (typeof s != "string") ? s :
+                s.replace(REGX_REGEXP_METACHARS, 
+                          function($0){
+                              return "\\" + $0;
+                          });
+        };
 
-    this.unescapeRegExp = String.prototype.unescapeRegExp = function(s){
-        s = (s != undefined) ? s : this.toString();
-        return (typeof s != "string") ? s :
-            s.replace(REGX_REGEXP_ESCAPEDMETACHARS,
-                      function($0, ch){
-                          return ch;
-                      });
-        
-    };
+    this.unescapeRegExp = String.prototype.unescapeRegExp = 
+        function(s){
+            s = (s != undefined) ? s : this.toString();
+            return (typeof s != "string") ? s :
+                s.replace(REGX_REGEXP_ESCAPEDMETACHARS,
+                          function($0, ch){
+                              return ch;
+                          });
+            
+        };
     
     this.trim = String.prototype.trim = function(s){
         s = (s != undefined) ? s : this.toString();
         return (typeof s != "string") ? s :
             s.replace(REGX_TRIM, "");
     };
+
+    this.matchBrackets = String.prototype.matchBrackets = 
+        function(lC, rC, s) {
+            lC = lC || "{"; rC = rC || "}";
+            s = (s !== undefined) ? s : this.toString();
+            var ks=0,dqs=0,sqs=0,res=[],n="",b="",st=-1,en=-1;
+            for(var i=0;i< s.length;i++){
+                if(i!==0){
+                    b = n;
+                }
+                n= s.charAt(i);
+                if(st!==-1 && (i-1)>=0 &&b==='\\'){
+                    continue;
+                }
+                if(dqs||sqs){
+                    if(n==="'")
+                        if(sqs>0)sqs--;
+                    else if(n==='"')
+                        if(dqs>0)dqs--;
+                }else{
+                    if(n===lC){
+                        if(!ks){
+                            st=i;
+                        }
+                        ks++;
+                    }else if(n===rC){
+                        ks--;
+                        if(!ks){
+                            en=i;
+                        }
+                    }else if(n==='"'){
+                        dqs++;
+                    }else if(n==="'"){
+                        sqs++;
+                    }
+                }
+                if(st!==-1&&en!==-1){
+                    res.push(s.substring(st,(parseInt(en)+1)));
+                    st=en=-1;
+                }
+            }
+            return res;
+        };
 
     String.prototype.hashCode = function(){
         var hash = this._hash, _char;
@@ -1067,6 +1331,7 @@ js.lang.String = new function(){
     };
 
 }();
+
 
 /**
 
@@ -1150,6 +1415,7 @@ js.lang.StringBuffer = function (s){
     this._init.apply(this, arguments);
 
 }.$extend(js.lang.Object);
+
 
 
 /**
@@ -1298,6 +1564,7 @@ js.util.LinkedList.newInstance = function(array){
     var o = js.lang.Class.isArray(array) ? array : [];
     return js.util.LinkedList.$decorate(o);
 };
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -1421,6 +1688,7 @@ js.util.HashMap = function (map){
 
 }.$extend(js.lang.Object);
 
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -1481,6 +1749,7 @@ js.util.Properties = function (map){
     this._init.apply(this, arguments);
     
 }.$extend(js.util.HashMap);
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -1585,6 +1854,7 @@ js.util.Observable = function (){
 }.$extend(js.lang.Object);
 
 
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -1636,7 +1906,8 @@ js.util.Observer = function (){
         // TODO: sub class should overwrite this method
     };
 
-};/**
+};
+/**
 
  Copyright 2010-2011, The JSVM Project. 
  All rights reserved.
@@ -1858,6 +2129,7 @@ js.util.Event.SYS_MSG_CONSOLEINF    = "console_inf";
 js.util.Event.SYS_MSG_CONSOLEERR    = "console_err";
 js.util.Event.SYS_MSG_CONSOLELOG    = "console_log";
 
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -1952,6 +2224,7 @@ js.util.EventListener = function (listener, handler){
     this._init(listener, handler);
     
 }.$extend(js.lang.Object);
+
 
 /**
 
@@ -2129,6 +2402,7 @@ js.util.EventTarget = function (){
     this._init.apply(this, arguments);
     
 }.$extend(js.util.Observable);
+
 
 /**
 
@@ -2390,6 +2664,7 @@ js.util.Messenger = function (){
     }.call(this);
 
 }.$extend(js.lang.Object);
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -2466,7 +2741,11 @@ js.util.Document = function (){
         valign: "vAlign",
         vspace: "vSpace"
     },
-    BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/;;
+    BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/,
+    DOCTYPECT = {
+        "html-4.01": {bodysize: false},
+        "html-4.01-transitional": {bodysize: true}
+    };
 
     /**
      * Create a DOM element
@@ -2527,6 +2806,15 @@ js.util.Document = function (){
         }
 
         return _s;      
+    };
+    
+    thi$.offsetParent = function(ele){
+        var body = document.body, p = ele.offsetParent;
+        if(!p || !this.contains(body, p, true)){
+            p = body;
+        }
+        
+        return p;
     };
 
     /**
@@ -2904,30 +3192,46 @@ js.util.Document = function (){
         return isEle ? el.getBoundingClientRect() : 
             { left: 0, top: 0, bottom: 0, right: 0 };
     };
-
-    /**
-     * Return the outer (outer border) size of the element
-     * 
-     * @return {width, height}
-     */
-    thi$.outerSize = function(el, isEle){
-        if(el.tagName !== "BODY"){
-            var r = this.getBoundRect(el, isEle);
-            return {left: r.left, 
-                    top: r.top, 
-                    width: r.right-r.left, 
-                    height:r.bottom-r.top };
-        }else{
-            var doctype = J$VM.doctype.declared;
-            return {
-                left: 0, 
-                top:  0,
-                width: !doctype ? document.body.clientWidth : 
-                    document.documentElement.clientWidth,
-                height: !doctype ? document.body.clientHeight : 
-                    document.documentElement.clientHeight};
+    
+	var _computeByBody = function(){
+        var doctype = J$VM.doctype, fValues = [], 
+        b = true, v, table;
+        if(doctype.declared){
+        	v = doctype.getEigenStr();
+        	if(v){
+                table = DOCTYPECT[v];
+                b = table ? (table["bodysize"] || false) : false;
+        	}else{
+                b = false;
+        	}
         }
-    };
+        
+        return b;
+	};
+
+	/**
+	 * Return the outer (outer border) size of the element
+	 * 
+	 * @return {width, height}
+	 */
+	thi$.outerSize = function(el, isEle){
+		if(el.tagName !== "BODY"){
+			var r = this.getBoundRect(el, isEle);
+			return {left: r.left, 
+					top: r.top, 
+					width: r.right-r.left, 
+					height:r.bottom-r.top };
+		}else{
+			var b = _computeByBody.call(this);
+			return {
+				left: 0, 
+				top:  0,
+				width: b ? document.body.clientWidth : 
+					document.documentElement.clientWidth,
+				height: b ? document.body.clientHeight : 
+					document.documentElement.clientHeight};
+		}
+	};
 
     /**
      * Return outer (outer border) width of the element
@@ -3097,8 +3401,12 @@ js.util.Document = function (){
         
         if(bounds.BBM === undefined){
             // BBM: BorderBoxModel
-            bounds.BBM = (J$VM.supports.borderBox ||
-                          Class.typeOf(el) === "htmlinputelement");
+            if(Class.typeOf(el) === "htmlinputelement" ||
+                Class.typeOf(el) === "htmltextareaelement"){
+                bounds.BBM = J$VM.supports.iptBorderBox;
+            }else{
+                bounds.BBM = J$VM.supports.borderBox;
+            }
 
             var currentStyles = this.currentStyles(el, isEle);
             this.getMargin(el, currentStyles, isEle);
@@ -3257,6 +3565,10 @@ js.util.Document = function (){
      * @param containSelf, whether contains the scenario of parent == child
      */
     thi$.contains = function(el, child, containSelf){
+        if(el == null || el == undefined || 
+                child == null || child == undefined){
+            return false;
+        }
         if(el.compareDocumentPosition){
             // W3C
             var res = el.compareDocumentPosition(child);
@@ -3458,6 +3770,7 @@ js.util.Document = function (){
 
 }.$extend(js.lang.Object);
 
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -3511,82 +3824,33 @@ js.util.MemoryStorage = function(){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class;
-
-
-    var _check = function(){
-        var hasStorage = (this._storage != null && this._storage != undefined);
-
-        if(arguments.length > 0){
-            var key = arguments[0];
-            if(typeof key === "string" && key.length > 0){
-                return hasStorage;
-            }else{
-                return false;
-            }
-        }
-        
-        return hasStorage;
-    };
-    
-    thi$.keys = function(){
-        return this._storage.keys();  
-    };
+    thi$.isMemory = true;
 
     thi$.length = function(){
-        return this._storage.size();  
+        return this.size();
     };
 
     thi$.key = function(index){
-        return this._storage.keys().get(index);
+        return this._keys[index];
     };
 
     thi$.setItem = function(key, value){
-        if(!_check.call(this, key)) return;
-        
-        switch(Class.typeOf(value)){
-        case "string":
-            this._storage.put(key, value);
-            break;
-        case "object":
-        case "array":
-            this._storage.put(key, JSON.stringify(value));
-            break;
-        default:
-            break;
-        }
+        this.put(key, value);
     };
     
     thi$.getItem = function(key){
-        if(!_check.call(this, key)) return null;
-
-        var value =  this._storage.getItem(key);
-        if(value){
-            if(Class.typeOf(value) == "string" && 
-               (value.indexOf("{") == 0 || value.indexOf("[") == 0))
-                value =  JSON.parse(value);
-        }
-        
-        return value;
+        return this.get(key);
     };
     
     thi$.removeItem = function(key){
-        if(!_check.call(this, key)) return;
-        
-        this._storage.remove(key);
-    };
-    
-    thi$.clear = function(){
-        this._storage.clear();
-    };
-
-    thi$._init = function(){
-        this._storage = new js.util.HashMap();
+        return this.remove(key);
     };
     
     this._init.apply(this, arguments);
     
-}.$extend(js.lang.Object);
+}.$extend(js.util.HashMap);
+
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -3660,16 +3924,22 @@ js.util.Storage = function(storage){
     
     thi$.keys = function(){
         var keys = [];
-
-        for(var i = 0, len= this.length(); i < len; i++){
-            keys[i] = this._storage.key(i);                
+        
+        if(!this._storage.isMemory){
+            for(var i = 0, len= this.length(); i < len; i++){
+                keys[i] = this._storage.key(i);                
+            }
+        }else{
+            keys = this._storage.keys();
         }
 
         return keys;
     };
 
     thi$.length = function(){
-        return _check() ? this._storage.length : 0;
+        var sto = this._storage;
+        return _check() ? 
+            (sto.isMemory ? sto.size() : sto.length) : 0;
     };
     
     thi$.key = function(index){
@@ -3678,14 +3948,20 @@ js.util.Storage = function(storage){
 
     thi$.setItem = function(key, value){
         if(!_check.call(this,key)) return;
-
+        
+        var sto = this._storage;
+        
         switch(Class.typeOf(value)){
         case "string":
-            this._storage.setItem(key, value);
+            sto.setItem(key, value);
             break;
         case "object":
         case "array":
-            this._storage.setItem(key, JSON.stringify(value));
+            if(sto.isMemory){
+                sto.setItem(key, value);
+            }else{
+                sto.setItem(key, JSON.stringify(value));                
+            }
             break;
         default:
             break;
@@ -3694,7 +3970,7 @@ js.util.Storage = function(storage){
     
     thi$.getItem = function(key){
         if(!_check.call(this, key)) return null;
-
+        
         var value =  this._storage.getItem(key);
         if(value){
             if(Class.typeOf(value) == "string" && 
@@ -3749,18 +4025,56 @@ js.util.Storage.getStorage = function(type) {
         } catch (e) {}
 
         break;
+    case "memory":
     default:
+        _storage = new js.util.MemoryStorage();
         break;
     }
     
-    if(_storage){
-        _storageObj = new js.util.Storage(_storage);
-    } else {
-        _storageObj = new js.util.MemoryStorage();
-    }
+    _storageObj = new js.util.Storage(_storage || new js.util.MemoryStorage());
 
     return _storageObj;
 };
+
+js.util.Cache = function(){
+
+    var CLASS = js.util.Cache, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+
+    var local, session, memory;
+
+    thi$.setItem = function(key, value){
+        try{
+            local.setItem(key, value);
+        } catch (e1) {
+            try{
+                session.setItem(key, value);
+            } catch (e2) {
+                memory.setItem(key, value);
+            }
+        }
+    };
+    
+    thi$.getItem = function(key){
+        var value = memory.getItem(key);
+        value = value ? value : local.getItem(key);
+        value = value ? value : session.getItem(key);
+        return value;
+    };
+
+    thi$._init = function(){
+        local  = J$VM.storage.local;
+        session= J$VM.storage.session;
+        memory = J$VM.storage.memory;
+    };
+    
+    this._init.apply(this, arguments);
+
+}.$extend(js.lang.Object);
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -3886,6 +4200,7 @@ js.util.Cookie = function (k, v, e, p, d, s){
     this._init.apply(this, arguments);
     
 }.$extend(js.lang.Object);
+
 
 /**
 
@@ -4014,6 +4329,7 @@ js.util.CookieStorage = function (){
 
 }.$extend(js.lang.Object);
 
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -4062,61 +4378,189 @@ $package("js.net");
  */
 js.net.URI = function (url){
 
-    var CLASS = js.net.URI, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.net.URI, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Keys = ["source", "scheme", "userInfo", "user", "password", 
-                       "host", "port", "path", "query", "fragment"];
-    
-    var UrlRegExp = new RegExp(
-            "([-+a-zA-Z0-9]+)://"+ // scheme
-            "((.[^:]*):?(.*)?@)?"+ // userInfo
-            "(.[^:/]*)"+           // host
-            ":?([0-9]{1,6})?"+     // port
-            "(/.[^?#]*)"+          // path
-            "[?]?(.[^#]*)?"+       // query
-            "#?(.*)?"              // fragment      
-        );
-    
-    var QueryRegExp = new RegExp("(?:^|&)([^&=]*)=?([^&]*)","g");
-    
-    thi$._parse = function(query){
-        var params = {};
-        if(query){
-            query.replace(QueryRegExp, 
-                          function($0, $1, $2){
-                              if($1) params[$1] = $2;
-                          });
-        }
-        return params;
-    };
+	var Keys = ["source", "scheme", "userInfo", "user", "password", 
+				"host", "port", "path", "query", "fragment"],	  
+	schemeRegExp = /^(?:([-+a-zA-Z0-9]+):\/\/|\/\/)/i,
+	userInfoRegExp = /^(?:([^:@\s]+))(:(?:[^:@\s]+))?@/i,
+	hostRegExp = /^((?:[^;:@=\/\?\.\s]+\.)+[A-Za-z0-9\-]{1,}|localhost)/i,
 
-    thi$._init = function(){
-        if(arguments.length === 1){
-            var res = UrlRegExp.exec(decodeURI(arguments[0]));
-            for(var i=0, len=res.length; i<len; i++){
-                this[Keys[i]] = res[i];
-            }
-        }else{
-            this.scheme   = arguments[0];
-            this.userInfo = arguments[1];
-            this.host     = arguments[2];
-            this.port     = arguments[3];
-            this.path     = arguments[4];
-            this.query    = arguments[5];
-            this.fragment = arguments[6];
-        }
+	// For matching cusotm host names mapping ips in OS' hosts file.
+	// Such as "http://xx:8888", "xx" mapping "127.0.0.1".
+	regNameRegExp = /^([^;:@=\/\?\#\.\s]+)/i,
+	noSchemeRegNameRegExp = /^([^;:@=\/\?\#\.\s]+)(?=:\d+)/i,
+	
+	portRegExp = /^:(\d+)/,
+	pathRegExp = /^\/[^?#]*/i,
+	queryRegExp = /^\?([^#]*)/i,
+	fragmentRegExp = /^#(.+)/i,
+	
+	QueryRegExp = new RegExp("(?:^|&)([^&=]*)=?([^&]*)","g"),
+	
+	regExps = [schemeRegExp, userInfoRegExp, hostRegExp, portRegExp, 
+			   pathRegExp, queryRegExp, fragmentRegExp],
+	REGX_PATH = /(.*[/|\\])(.*)/;
+	
+	var _parseURI = function(uri){
+		if(!uri) return;
+		
+		var curUri = uri, regExp,
+		parseFun = function($0, $1, $2, $3){
+			switch(regExp){
+			case schemeRegExp:
+				this.scheme = $1;
+				break;
+			case userInfoRegExp:
+				this.userInfo = $0;
+				this.user = $1;
+				this.password = $2 ? $2.substring(1) : $2; //$3
+				break;
+			case hostRegExp:
+			case regNameRegExp:
+			case noSchemeRegNameRegExp:
+				this.host = $0;
+				break;
+			case portRegExp:
+				this.port = $1;
+				break;
+			case pathRegExp:
+				this.path = $0;
+				break;
+			case queryRegExp:
+				this.query = $1;
+				break;
+			case fragmentRegExp:
+				this.fragment = $1;
+				break;
+			default:
+				break;
+			}
+			
+			return "";
+		};
+		
+		var i = 0;
+		while(curUri && i < 7){
+			regExp = regExps[i];
+			curUri = curUri.replace(regExp, parseFun.$bind(this));
+			
+			if(regExp == hostRegExp && !this.host){
+				regExp = this.scheme ? regNameRegExp : noSchemeRegNameRegExp;
+				curUri = curUri.replace(regExp, parseFun.$bind(this));
+			}
+			
+			++i;
+		}
+		
+		// If and only if the rest part of the given uri doesn't contains
+		// the "?", "#" and no any query and fragment were parsed, the rest
+		// part will be the relative uri path string.
+		if(curUri && (curUri.search(/\?#/i) == -1)
+		   && this.path == undefined && this.query == undefined 
+		   && this.fragment == undefined){
+			this.path = curUri;
+		}
+		
+		this.source =  uri;
+	};
+	
+	thi$.parseParams = function(query){
+		var params = {};
+		if(query){
+			query.replace(QueryRegExp, 
+						  function($0, $1, $2){
+							  if($1) params[$1] = $2;
+						  });
+		}
+		return params;
+	};
+	
+	
+	thi$.toURI = function(){
+		var curUri = J$VM.System.getProperty("uri") || new js.net.URI(document.URL),
+		uri = "", query = "", hasQF = false, tmp;
+		if(this.host){
+			uri += (this.scheme || "http") + "://";
+			uri += this.userInfo || "";
+			uri += this.host;
+			
+			if(this.port){
+				uri += ":" + this.port;
+			}
 
-        this.params = this._parse(this.query);
-    };
+			if(this.path){
+				uri += this.path;
+				hasQF = true;
+			}
+		}else{
+			if(this.path){
+				uri += curUri.scheme + "://" + (curUri.userInfo || "") + curUri.host;
+				if(curUri.port){
+					uri += ":" + curUri.port;
+				}
+				
+				if(this.path.indexOf("/") == 0){
+					uri += this.path;
+				}else{
+					tmp = (curUri.path || "").match(REGX_PATH);
+					uri += (tmp[1] || "/") + this.path;
+				}
+				
+				hasQF = true;
+			}
+		}
+		
+		// Only when the path is existed,  the query and fragment
+		// will be significant.	 
+		if(hasQF){
+			for(var key in this.params){
+				query += key + "=" + this.params[key] + "&";
+			}
+			
+			if(query){
+				query = query.substring(0, query.length - 1);
+				uri += "?" + query;
+			}
+			
+			if(this.fragment){
+				uri += "#" + this.fragment;
+			}
+		}
+		
+		return uri;
+	};
+	
+	thi$._init = function(){
+		if(arguments.length === 1){
+			this.scheme = this.userInfo = this.user = this.password 
+				= this.host = this.port = this.path = this.query 
+				= this.fragment = undefined;
+			
+			var uri = decodeURI(arguments[0]);
+			_parseURI.call(this, uri);
+		}else{
+			this.scheme	  = arguments[0];
+			this.userInfo = arguments[1];
+			this.host	  = arguments[2];
+			this.port	  = arguments[3];
+			this.path	  = arguments[4];
+			this.query	  = arguments[5];
+			this.fragment = arguments[6];
+		}
 
-    this._init.apply(this, arguments);
+		this.params = this.parseParams(this.query);
+	};
+
+	this._init.apply(this, arguments);
 
 }.$extend(js.lang.Object);
+
 
 /**
 
@@ -4195,7 +4639,14 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.setNoCache = function(isNoCache){
-        this._nocache = isNoCache || false;  
+        this._nocache = isNoCache || false; 
+        var date;
+        if(this._nocache){
+            date = "Thu, 01-Jan-1970 00:00:00 GMT"; 
+        }else{
+            date = "Fri, 01-Jan-2900 00:00:00 GMT";
+        }
+        this.setRequestHeader("If-Modified-Since", date);        
     };
 
     thi$.setRequestHeader = function(key, value){
@@ -4224,11 +4675,13 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.responseXML = function(){
-        return this._xhr.responseXML;
+    	//For IBM WebSeal Issue
+        return this._xhr.responseXML.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/, '');
     };
 
     thi$.responseJSON = function(){
-        return JSON.parse(this._xhr.responseText);
+    	//For IBM WebSeal Issue
+        return JSON.parse(this._xhr.responseText.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/, ''));
     };
 
     thi$.status = function(){
@@ -4314,8 +4767,11 @@ js.net.HttpURLConnection = function (isAsync){
      */
     thi$.close = function(){
         _stopTimeout.call(this);
+        try{
+            this._xhr.onreadystatechange = null;            
+        } catch (x) {
 
-        this._xhr.onreadystatechange = null;
+        }
         this._xhr = null;
         this._headers = null;
     };
@@ -4338,10 +4794,6 @@ js.net.HttpURLConnection = function (isAsync){
         var buf = new js.lang.StringBuffer();
         for(var p in params){
             buf.append(p).append("=").append(params[p]).append("&");
-        }
-
-        if(this.isNoCache()){
-            buf.append("_=").append(js.lang.Math.random());
         }
 
         return buf.toString();
@@ -4378,13 +4830,104 @@ js.net.HttpURLConnection = function (isAsync){
 
         this.setAsync(isAsync);
         this.setNoCache(J$VM.System.getProperty("j$vm_ajax_nocache", true));
-        this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 600000));
+        this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 6000000));
         this.declareEvent(Event.SYS_EVT_TIMEOUT);
     };
 
     this._init(isAsync != undefined ? isAsync : true);
 
 }.$extend(js.util.EventTarget);
+
+
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * Author: Hu Dong
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: http://jzvm.googlecode.com
+ */
+
+$package("js.awt");
+
+js.awt.ComponentFactory = function(System){
+
+    var CLASS = js.awt.ComponentFactory, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init();
+        return;
+    }
+    CLASS.__defined__ = true;
+
+    var Class = js.lang.Class;
+
+    thi$.registerClass = function(wClass){
+        var className = wClass.className;
+        if(this._classes[className] == undefined){
+            this._classes[className] = wClass;
+        }else{
+            throw new Error("The class definition "+className+" is existed.");
+        }
+        return className;
+    };
+    
+    thi$.getClass = function(className, nocache){
+        var _wClass = this._classes[className], wClass;
+        if(_wClass == undefined) 
+            throw "Can not found the wClass with name "+className;
+        
+        return nocache === true ? 
+            _wClass : System.objectCopy(_wClass, {}, true);
+    };
+    
+    thi$.hasClass = function(className){
+        return Class.isObject(this._classes[className]);
+    };
+
+    thi$.createComponent = function(className, opitons, Runtime){
+        var comp, wClass = this.getClass(className);
+
+        wClass = System.objectCopy(opitons, wClass, true);
+        comp = new (Class.forName(wClass.classType))(wClass, Runtime);
+
+        return comp;
+    };
+
+    thi$._init = function(){
+        this._classes = {};
+    };
+
+    this._init();
+};
+
 
 /**
 
@@ -4512,12 +5055,10 @@ js.awt.Event = function(e){
             break;
         }
 
-        this.clientX = ie ? (_e.clientX + 
-                             document.documentElement.scrollLeft - 
-                             document.body.clientLeft) : _e.pageX;
-        this.clientY = ie ? (_e.clientY +
-                             document.documentElement.scrollTop -
-                             document.body.clientTop ) : _e.pageY;
+        this.clientX = !isNaN(_e.pageX) ? _e.pageX 
+            : (_e.clientX + document.documentElement.scrollLeft - document.body.clientLeft);
+        this.clientY = !isNaN(_e.pageY) ? _e.pageY 
+            : (_e.clientY + document.documentElement.scrollTop - document.body.clientTop);
         
         this.offsetX = ff ? _e.layerX : _e.offsetX;
         this.offsetY = ff ? _e.layerY : _e.offsetY;
@@ -4537,6 +5078,7 @@ js.awt.Event = function(e){
     this._init.apply(this, arguments);
 
 }.$extend(js.util.Event);
+
 
 /**
 
@@ -4779,7 +5321,7 @@ js.lang.Runtime = function(){
     var _updateJ$VMCSS = function(){
         var style = document.getElementById("j$vm_css"),
         stylePath = J$VM.env.j$vm_home + "/../style/"+this.theme()+"/", 
-        cssText = Class.getResource(stylePath + "jsvm.css");
+        cssText = Class.getResource(stylePath + "jsvm.css", true);
         
         if(!style){
             style = document.createElement("style");
@@ -4793,7 +5335,11 @@ js.lang.Runtime = function(){
         cssText = cssText.replace(/images\//gi, stylePath+"images/");
         if(style.styleSheet){
             // IE
-            style.styleSheet.cssText = cssText;
+            try{
+                style.styleSheet.cssText = cssText;                
+            } catch (x) {
+
+            }
         }else{
             // Others
             style.innerHTML = cssText;
@@ -4839,6 +5385,7 @@ js.lang.NoUIRuntime = function(){
     this._init.apply(this, arguments);
     
 }.$extend(js.util.EventTarget).$implements(js.lang.Runtime);
+
 
 /**
 
@@ -5105,8 +5652,8 @@ js.lang.System = function (env, vm){
     var _checkBrowser = function(){
         // Check browser supports
         vm.supports = {reliableMarginRight :true, supportCssFloat : true};
-        var buf = [], doc = document, div = doc.createElement('div');
-        buf.push('<div style="height:30px;width:50px;left:0px;">');
+        var buf = [], doc = document, div = doc.createElement('div'), ipt;
+        buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
         buf.push('<div style="height:20px;width:20px;"></div></div>');
         buf.push('<div style="float:left;"></div>');
         div.innerHTML = buf.join("");
@@ -5115,7 +5662,14 @@ js.lang.System = function (env, vm){
             + "visibility:hidden;";
         doc.body.appendChild(div);
         
-        var view = doc.defaultView, ccdiv = div.firstChild.firstChild;
+        // Check browser supports for Input, Textarea
+        ipt = doc.createElement('input');
+        ipt.type = "text";
+        ipt.style.cssText = "position:absolute;width:100px;height:100px;"
+            + "border:2px solid;visibility:hidden;";
+        doc.body.appendChild(ipt);
+        
+        var view = doc.defaultView, cdiv = div.firstChild, ccdiv = cdiv.firstChild;
         if(view && view.getComputedStyle 
            && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
             vm.supports.reliableMarginRight = false;
@@ -5123,44 +5677,94 @@ js.lang.System = function (env, vm){
 
         vm.supports.supportCssFloat = !!div.lastChild.style.cssFloat;
         vm.supports.borderBox = !(div.offsetWidth > 100);
+        vm.supports.borderEdg = !(cdiv.offsetLeft == 0);
 
+        // Check BorderBox support of Input and Textarea
+        vm.supports.iptBorderBox = !(ipt.offsetWidth > 100);
+        
         doc.body.removeChild(div);
-        div = view = undefined;
+        doc.body.removeChild(ipt);
+        div = view = ipt = undefined;
     };
     
     var _detectDoctype = function(){
-        var re=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi, 
-        doctype = vm.doctype = {declared: false};
+        var reg = /(\"[^\"]+\")/gi,
+        publicIDReg=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi,
+        DOCTYPEFEATURS = ["xhtml", "version", "importance"/*, "systemId"*/],
+        doctype = vm.doctype = {declared: false}, 
+        dtype, publicId, systemId;
 
-        if(typeof document.namespaces != "undefined"){
-            value = document.all[0].nodeType == 8
-                ? document.all[0].nodeValue : null;
+        if(document.doctype != null){
+            doctype.declared = true;
+            
+            dtype = document.doctype;
+            doctype.name = dtype.name;
+            
+            publicId = dtype.publicId || "";
+            systemId = dtype.systemId || "";
+        }else if(typeof document.namespaces != "undefined"){
+            var dt = document.all[0];
+            
+            var value = (dt.nodeType == 8 ? dt.nodeValue : "");
             if(value && (value.toLowerCase().indexOf("doctype") != -1)){
                 doctype.declared = true;
-            }
-        }else{
-            if(document.doctype != null){
-                doctype.declared = true;
-                value = document.doctype.publicId;
+                doctype.name = dt.scopeName;
+                
+                dtype = [];
+                value.replace(reg, 
+                              function($0){
+                                  if($0){
+                                      $0 = $0.replace(/"|'/g, "");
+                                      dtype.push($0);
+                                  }
+                              });
+                
+                publicId = dtype[0] || "";
+                systemId = dtype[1] || "";
             }
         }
         
-        try{
-            if(doctype.declared && re.test(value) && RegExp.$1){
-                doctype["xhtml"] = (RegExp.$1).toUpperCase();
-                doctype["version"] = RegExp.$2;
-                doctype["importance"] = RegExp.$3;
-            }
-        }catch(e){}
+        if(doctype.declared){
+            doctype.publicId = publicId = publicId.toLowerCase();
+            doctype.systemId = systemId.toLowerCase();
+            
+            try{
+                if(publicId.length > 0 && publicIDReg.test(publicId) && RegExp.$1){
+                    doctype["xhtml"] = (RegExp.$1);
+                    doctype["version"] = RegExp.$2;
+                    doctype["importance"] = RegExp.$3;
+                }
+            }catch(e){}
+            
+            doctype.getEigenStr = function(){
+                var fValues = [], v;
+                if(this.declared){
+                    for(var i = 0, len = DOCTYPEFEATURS.length; i < len; i++){
+                        v = this[DOCTYPEFEATURS[i]];
+                        if(v){
+                            fValues.push(v);
+                        }
+                    }
+                    
+                    v = fValues.length > 0 ? fValues.join("-") : "";
+                }
+                
+                return v;
+            };
+        }
+        
+        J$VM.System.log.println("Doctype:" + JSON.stringify(doctype));
     };
     
     var _onload = function(e){
-        J$VM.System.out.println("J$VM load...");
+        J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
 
         _checkBrowser.call(this);
         _detectDoctype.call(this);
 
         var Event = js.util.Event, dom = vm.hwnd.document;
+        Event.attachEvent(vm.hwnd, Event.W3C_EVT_RESIZE, 0, this, _onresize);
+        Event.attachEvent(vm.hwnd, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
         Event.attachEvent(dom, "keydown", 0, this, _onkeyevent);
         Event.attachEvent(dom, "keyup",   0, this, _onkeyevent);
 
@@ -5170,7 +5774,7 @@ js.lang.System = function (env, vm){
             scope = vm.runtime[proc.id];
             if(scope === undefined){
                 scope = vm.runtime[proc.id] = function(){
-                    var clazz = js.lang.Class.forName("js.awt.Desktop");
+                    var clazz = js.awt.Desktop;
                     return clazz ? new (clazz)(proc.container) : 
                         new js.lang.NoUIRuntime();
                 }();
@@ -5186,7 +5790,7 @@ js.lang.System = function (env, vm){
     };
     
     var _onbeforeunload = function(){
-        
+
     };
 
     var _onunload = function(e){
@@ -5205,11 +5809,10 @@ js.lang.System = function (env, vm){
 
         this.gc();
 
-        J$VM = undefined;
-        js = undefined;
-        com = undefined;
-
-        dom.body.innerHTML = "";
+        document.body.innerHTML = "";
+        if(J$VM.ie == undefined){
+            document.write("<html><head></head></html>");
+        }
     };
     
     var bodyW, bodyH;
@@ -5298,8 +5901,13 @@ js.lang.System = function (env, vm){
             vm.storage = {
                 local  : js.util.Storage.getStorage("local"),
                 session: js.util.Storage.getStorage("session"),
+                memory : js.util.Storage.getStorage("memory"),
                 cookie : new js.util.CookieStorage()
             };
+
+            vm.storage.cache = new js.util.Cache();
+
+            vm.Factory = new js.awt.ComponentFactory(this);
 
             vm.exec = function(instName, fn, containerElement){
                 if(typeof fn != "function") 
@@ -5314,10 +5922,7 @@ js.lang.System = function (env, vm){
             }.$bind(this);
 
             E.attachEvent(vm.hwnd, E.W3C_EVT_LOAD,   0, this, _onload);
-            //E.attachEvent(vm.hwnd, "beforeunload", 0, this, _onbeforeunload);
             E.attachEvent(vm.hwnd, E.W3C_EVT_UNLOAD, 0, this, _onunload);
-            E.attachEvent(vm.hwnd, E.W3C_EVT_RESIZE, 0, this, _onresize);
-            E.attachEvent(vm.hwnd, E.W3C_EVT_MESSAGE,0, this, _onmessage);
 
         }else{
             // Because Web Worker can not use consle to output, so we can use our MQ
@@ -5348,6 +5953,7 @@ js.lang.System = function (env, vm){
     }
 
 }.$extend(js.lang.Object);
+
 
 /**
 
@@ -5524,8 +6130,7 @@ js.lang.Thread = function(Runnable){
             iframe.style.cssText = "visibility:hidden;border:0;width:0;height:0;";
             document.body.appendChild(iframe);
             var text = new js.lang.StringBuffer();
-            text = text.append("<html><head>")
-                .append("<meta http-equiv='X-UA-Compatible' content='IE=edge'>")
+            text = text.append("<!DOCTYPE html>\n<html><head>")
                 .append("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>")
                 .append("</head></html>").toString();
 
@@ -5535,7 +6140,7 @@ js.lang.Thread = function(Runnable){
             doc.close();
 
             head = doc.getElementsByTagName("head")[0];
-            text = Class.getResource(J$VM.env["j$vm_home"]+"/jsre.js");
+            text = Class.getResource(J$VM.env["j$vm_home"]+"/jsre.js", true);
             script = doc.createElement("script");
             script.type = "text/javascript";
             script.id = "j$vm";
@@ -5545,7 +6150,7 @@ js.lang.Thread = function(Runnable){
             script.setAttribute("crs",J$VM.env["j$vm_home"]+"/jsre.js");
             script.setAttribute("classpath","");
             script.text = text;
-            text = Class.getResource(path + "Worker.jz");
+            text = Class.getResource(path + "Worker.jz", true);
             script.text += text;
             head.appendChild(script);
             head.removeChild(script);
@@ -5561,6 +6166,7 @@ js.lang.Thread = function(Runnable){
     this._init.apply(this, arguments);
     
 }.$extend(js.lang.Object);
+
 
 /**
 
@@ -5640,9 +6246,13 @@ js.lang.Thread = function(Runnable){
      // Global functions
      // Should be replaced by invoing $postMessage and $sendMessage
      j$postMessage = function(msg){
-         var str = msg[4];
-         str = js.lang.Class.forName("js.util.Base64").decode(str);
-         msg[4] = JSON.parse(str);
+         //below codes added by Lu YuRu, maybe flash slider needs, 
+         //but some logic miss in flash code, no one can explain it now.
+         //Now Flash chart not need, so we clear the code.
+         
+         //var str = msg[4];
+         //str = js.lang.Class.forName("js.util.Base64").decode(str);
+         //msg[4] = JSON.parse(str);
          
          J$VM.MQ.post(msg[3], msg[4], msg[2], msg[1], msg[0]);
      };
@@ -5674,4 +6284,5 @@ js.lang.Thread = function(Runnable){
       }).$forEach(this, libs);
 
  }).call(self.J$VM);
+
 
