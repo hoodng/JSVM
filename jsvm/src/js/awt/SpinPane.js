@@ -66,7 +66,7 @@ js.awt.SpinPane = function(def, Runtime){
     }.$override(this.doLayout);
 
     var _layout = function(D){
-        var ctrl0 = this.ctrl0, ctrl1 = this.ctrl1, w;
+        var ctrl0 = this.ctrl0, ctrl1 = this.ctrl1, pane = this.pane, w;
 
         this.setUBounds(0,0, undefined, D.innerPMeasure, null, ctrl0);
         w = this.getMeasure(ctrl0);
@@ -75,6 +75,8 @@ js.awt.SpinPane = function(def, Runtime){
         this.setUBounds(null, 0, undefined, D.innerPMeasure, null, ctrl1);
         this.setUEndStyle(0, ctrl1);
         this.offset1 = 0 - D.MBP.borderM1 - this.getMeasure(ctrl1);
+
+        this.setUSize(D.innerMeasure, D.innerPMeasure, 3, pane);
 
         if(this.def.miniSize == undefined){
             w += this.getMeasure(ctrl1);
@@ -86,6 +88,16 @@ js.awt.SpinPane = function(def, Runtime){
         var ctrl0, ctrl1, pane, R = this.Runtime();
         this.cache = {};
         
+        var pdef = this.def.pane;
+        pdef.className = this.className + "_pane";
+        pdef.id = "pane";
+        pdef.movable = false;
+        pdef.stateless = true;
+        pdef.css = "position:absolute;overflow:hidden;";
+        pane = new js.awt.ScrollPane(pdef, R);
+        this.addComponent(pane);
+        this.cache[pane.uuid()] = pane;
+
         ctrl0 = new js.awt.Component(
             {
                 className: this.className + "_ctrl0",
@@ -103,17 +115,7 @@ js.awt.SpinPane = function(def, Runtime){
             }, R);
         this.addComponent(ctrl1);
         this.cache[ctrl1.uuid()] = ctrl1;
-
-        pane = new js.awt.Container(
-            {
-                className: this.className + "_pane",
-                id: "pane",
-                stateless: true,
-                css: "position:absolute;overflow:hidden;"
-            }, R);
-        this.addComponent(pane);
-        this.cache[pane.uuid()] = pane;
-
+        
         this.attachEvent("mouseover", 0, this, _onmouseover);
         this.attachEvent("mouseout",  0, this, _onmouseover);
         this.attachEvent("mousedown", 0, this, _onmousedown);
@@ -141,7 +143,7 @@ js.awt.SpinPane = function(def, Runtime){
         var src = e.srcElement,
         eid = src ? src.uuid : undefined, eobj = this.cache[eid];
         if(eobj && eobj.isEnabled()){
-
+            System.err.println(eobj.id+" mousedn");
         }
     };
 
@@ -149,7 +151,14 @@ js.awt.SpinPane = function(def, Runtime){
         var src = e.srcElement,
         eid = src ? src.uuid : undefined, eobj = this.cache[eid];
         if(eobj && eobj.isEnabled()){
-
+            switch(eobj.id){
+                case "ctrl0":
+                this.pane.scrollPrevious();
+                break;
+                case "ctrl1":
+                this.pane.scrollNext();
+                break;
+            }
         }
     };
 
@@ -160,6 +169,7 @@ js.awt.SpinPane = function(def, Runtime){
         def.className = def.className || "jsvm_hspinpane";
         def.direction = Class.isNumber(def.direction) ? def.direction : 0;
         def.stateless = true;
+        def.pane = def.pane || js.awt.ScrollPane.DEFAULTDEF();
 
         arguments.callee.__super__.apply(this, arguments);
 

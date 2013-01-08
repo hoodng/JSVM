@@ -321,12 +321,16 @@ js.awt.BaseComponent = function(def, Runtime, view){
         var d;
         if(nocache === true){
             d = this.getBounds();
-            this.setMinimumSize(d.MBP.BPW, d.MBP.BPH);
+            this.setMinimumSize(
+                this.isRigidWidth() ? d.width :d.MBP.BPW, 
+                this.isRigidHeight()? d.height:d.MBP.BPH);
         }else{
             d = this.def.miniSize;
             if(!d){
                 d = this.getBounds();
-                this.setMinimumSize(d.MBP.BPW, d.MBP.BPH);
+                this.setMinimumSize(
+                    this.isRigidWidth() ? d.width :d.MBP.BPW, 
+                    this.isRigidHeight()? d.height:d.MBP.BPH);
             }
         }
 
@@ -342,11 +346,17 @@ js.awt.BaseComponent = function(def, Runtime, view){
     thi$.getMaximumSize = function(nocache){
         var d;
         if(nocache === true){
-            this.setMaximumSize(Number.MAX_VALUE, Number.MAX_VALUE);
+            d = this.getBounds();
+            this.setMaximumSize(
+                /*this.isRigidWidth() ? d.width :*/Number.MAX_VALUE, 
+                /*this.isRigidHeight()? d.height:*/Number.MAX_VALUE);
         }else{
             d = this.def.maxiSize;
             if(!d){
-                this.setMaximumSize(Number.MAX_VALUE, Number.MAX_VALUE);
+                d = this.getBounds();
+                this.setMaximumSize(
+                    /*this.isRigidWidth() ? d.width :*/Number.MAX_VALUE, 
+                    /*this.isRigidHeight()? d.height:*/Number.MAX_VALUE);
             }
         }
 

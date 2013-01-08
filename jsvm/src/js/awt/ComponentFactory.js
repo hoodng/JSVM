@@ -58,6 +58,10 @@ js.awt.ComponentFactory = function(System){
         return className;
     };
     
+    thi$.unRegisterClass = function(className){
+        delete this._classes[className];
+    };
+    
     thi$.getClass = function(className, nocache){
         var _wClass = this._classes[className], wClass;
         if(_wClass == undefined) 

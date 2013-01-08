@@ -241,8 +241,8 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         }
         
         if(isLast){
-        	//nofity
-        	_afterExpand.call(this);
+            //nofity
+            _afterExpand.call(this);
         }
     };
     
@@ -291,7 +291,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             this.setIconImage(0);
             //notify
             if(needNotify != false && root == undefined){
-            	_afterExpand.call(this);
+                _afterExpand.call(this);
             }
         }
     };
@@ -317,7 +317,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         
         //notify
         if(!root){
-        	_afterExpand.$delay(this, 1);
+            _afterExpand.$delay(this, 1);
         }
     };
 

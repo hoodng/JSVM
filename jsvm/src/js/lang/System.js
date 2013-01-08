@@ -293,6 +293,9 @@ js.lang.System = function (env, vm){
         // Check BorderBox support of Input and Textarea
         vm.supports.iptBorderBox = !(ipt.offsetWidth > 100);
         
+        // Check placeholder support of Input and Textarea
+        vm.supports.placeholder = ("placeholder" in ipt); 
+        
         doc.body.removeChild(div);
         doc.body.removeChild(ipt);
         div = view = ipt = undefined;
@@ -367,11 +370,18 @@ js.lang.System = function (env, vm){
         J$VM.System.log.println("Doctype:" + JSON.stringify(doctype));
     };
     
+    // Initialize JSVM's locale with browser's. 
+    var _initJSVMLocale = function(){
+        var lang = (navigator.userLanguage || navigator.language).split("-");
+        vm.locale = new js.util.Locale(lang[0], lang[1]); 
+    };
+    
     var _onload = function(e){
         J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
 
         _checkBrowser.call(this);
         _detectDoctype.call(this);
+        _initJSVMLocale.call(this);
 
         var Event = js.util.Event, dom = vm.hwnd.document;
         Event.attachEvent(vm.hwnd, Event.W3C_EVT_RESIZE, 0, this, _onresize);

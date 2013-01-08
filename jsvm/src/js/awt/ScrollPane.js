@@ -271,12 +271,12 @@ js.awt.ScrollPane = function (def, Runtime){
             this._local.avgheight= r.avgheight;
 
             if(this.isHScroll()){
-                width =  Math.min(r.width, max.width);
+                width =  this.def.onlyMax ? max.width : Math.min(r.width, max.width);
                 if(oldw != width){
                     this.setWidth(width);
                 }
             }else{
-                height= Math.min(r.height, max.height);
+                height= this.def.onlyMax ? max.height: Math.min(r.height, max.height);
                 if(oldh != height){
                     this.setHeight(height);
                 }
@@ -305,7 +305,7 @@ js.awt.ScrollPane = function (def, Runtime){
 
             }else if(eType == "dblclick"){
                 e.cancelBubble();
-                if(item.isEditable()) {
+                if(item.isEditable && item.isEditable()) {
                     item.editLabel();
                 }
             }

@@ -585,6 +585,48 @@ body {
     background-position:center;
 }
 
+/* Menu bar*/
+.jsvm_menubar, .jsvm_menubar_0{
+    background-color:#EEE;
+}
+
+.jsvm_menubar_item, .jsvm_menubar_item_0 {
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    padding-left: 13px;
+    cursor: default;
+}
+
+.jsvm_toolbar, .jsvm_toolbar_0{
+    border-width: 0px 0px 0px 0px;
+    border-style: solid;
+    border-color: gray;
+    background-color:#EEE;
+    padding: 3px 8px 3px 8px;
+}
+.jsvm_toolbar_split {
+	width: 1px;
+	background-color: #B0B0B0;
+}
+
+.jsvm_statusbar,.jsvm_statusbar_0{
+    border-width: 1px 0px 0px 0px;
+    border-style: solid;
+    border-color: gray;
+    background-color:#EEE;
+	padding: 2px;
+}
+
+.jsvm_statusbar_space0 {
+	height: 1px;
+}
+
+.jsvm_statusbar_split {
+	width:6px;
+	border-left:1px solid #b0b0b0;	
+}
+
 /* For TextField */
 .jsvm_textfield,
 .jsvm_textfield_0, .jsvm_textfield_1 {
@@ -600,6 +642,7 @@ body {
     -webkit-border-radius: 3px;
     border-radius: 3px;
     */
+    
     overflow: hidden;
 }
 
@@ -618,11 +661,16 @@ body {
     */
 }
 
+.jsvm_textfield_placeholder {
+    white-space: nowrap;
+    color: #A9A9A9;
+}
+
 .jsvm_textfield_disable {
-	filter: alpha(Opacity = 50);
+    filter: alpha(Opacity = 50);
     -moz-opacity: 0.5;
     opacity: 0.5;
-	background-color: #F5F4EA;
+    background-color: #F5F4EA;
 }
 
 /* For List */
@@ -631,17 +679,17 @@ body {
     width: 100px;
     height: 160px;
 
-	background-color: #FFFFFF;
-	border: 1px solid #CCCCCC;
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
     
     overflow: auto;
 }
 
 .jsvm_list_disable {
-	filter: alpha(Opacity = 50);
+    filter: alpha(Opacity = 50);
     -moz-opacity: 0.5;
     opacity: 0.5;
-	background: #F5F4EA;
+    background: #F5F4EA;
 }
 
 /* For ListItem */

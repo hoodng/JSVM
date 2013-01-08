@@ -41,7 +41,7 @@
  */
 J$VM = new function (){
     this.__product__ = "J$VM";
-    this.__version__ = "0.9.s3ec1131805a71c21";
+    this.__version__ = "0.9.s2db5f6c9016e6ab7";
 
     this.env = {
         j$vm_log: false,
@@ -872,7 +872,9 @@ js.lang.Class = new function (){
      * Test if the specified object is an BigInt
      */
     this.isBigInt = function(o){
-        return typeof o == "object" && o.objTypeIsBigIntType == true;
+        if(!js.text) return false;
+        if(!js.text.BigIntTools) return false;
+        return typeof o == "object" && o instanceof js.text.BigIntTools.BigInt;
     };
 
     /**
@@ -4899,6 +4901,10 @@ js.awt.ComponentFactory = function(System){
         return className;
     };
     
+    thi$.unRegisterClass = function(className){
+        delete this._classes[className];
+    };
+    
     thi$.getClass = function(className, nocache){
         var _wClass = this._classes[className], wClass;
         if(_wClass == undefined) 
@@ -5119,271 +5125,305 @@ js.awt.Event = function(e){
 
 js.lang.Runtime = function(){
 
-    var CLASS = js.lang.Runtime, thi$ = CLASS.prototype;
-    if(CLASS.__defined__) return;
-    CLASS.__defined__ = true;
+	var CLASS = js.lang.Runtime, thi$ = CLASS.prototype;
+	if(CLASS.__defined__) return;
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event;
-    
-    thi$.getProperty = function(key, defValue){
-        return this._local[key] || defValue;
-    };
-    
-    thi$.setProperty = function(key, value){
-        this._local[key] = value;
-    };
+	var Class = js.lang.Class, Event = js.util.Event;
+	
+	thi$.getProperty = function(key, defValue){
+		return this._local[key] || defValue;
+	};
+	
+	thi$.setProperty = function(key, value){
+		this._local[key] = value;
+	};
 
-    thi$.PID = function(pid){
-        if(pid != undefined){
-            this.setProperty("pid", pid);
-        }
-        return this.getProperty("pid", "");
-    };
+	thi$.PID = function(pid){
+		if(pid != undefined){
+			this.setProperty("pid", pid);
+		}
+		return this.getProperty("pid", "");
+	};
 
-    thi$.userInfo = function(userinfo){
-        if(Class.isObject(userinfo)){
-            this.setProperty("userinfo", userinfo);
-        }
-        return this.getProperty("userinfo");
-    };
+	thi$.userInfo = function(userinfo){
+		if(Class.isObject(userinfo)){
+			this.setProperty("userinfo", userinfo);
+			
+			// Re-intialize the runtime locale
+			_initLocale.call(this);
+		}
+		return this.getProperty("userinfo");
+	};
+	
+	/**
+	 * In fact, there are two locales in jsvm. One is J$VM.locale, it always be
+	 * initialized with current browser client's language. Another is runtime
+	 * locale, it always be intialized with userinfo from server. However if there
+	 * is no language information in the userinfo, we will inialize the runtime 
+	 * locale with J$VM.locale. And we always assure the same language and country
+	 * in userinfo and locale.
+	 * Those two loacales may be same or different.
+	 * 
+	 * @param locale: {js.util.Locale} The locale object to set.
+	 */
+	thi$.locale = function(locale){
+		if(locale && locale instanceof js.util.Locale){
+			this.setProperty("locale", locale);
+		}
+		return this.getProperty("locale");
+	};
+	
+	thi$.getLocal = function(){
+		var userinfo = this.userInfo();
+		if(!userinfo){
+			userinfo = this._local.userinfo = {};  
+		}
+		
+		if(!Class.isString(userinfo.lang)){
+			var lang = J$VM.locale.getLanguage(),
+			country = J$VM.locale.getCountry();
+			
+			userinfo.lang = lang;
+			userinfo.country = country;
 
-    thi$.getLocal = function(){
-        var userinfo = this.userInfo(), buf = [];
-        if(!userinfo){
-            userinfo = this._local.userinfo = {};
-        }
+			_initLocale.call(this);
+		}
+		
+		return this.locale().toString();
+	};
 
-        if(!Class.isString(userinfo.lang)){
-            var locale = (navigator.userLanguage || 
-                          navigator.language).split("-");
-            userinfo.lang = locale[0];
-            userinfo.country = locale[1].toUpperCase(); 
-        }
-        
-        buf.push(userinfo.lang);
-        if(userinfo.country){
-            buf.push("_");
-            buf.push(userinfo.country.toUpperCase());
-        }
+	thi$.dateSymbols = function(symbols){
+		if(Class.isObject(symbols)){
+			this.setProperty("dateSymbols", symbols);
+		}
 
-        return buf.join("");
-    };
+		return this.getProperty(
+			"dateSymbols", 
+			Class.forName("js.text.resources."+this.getLocal()).dateSymbols);
+	};
+	
+	thi$.numberSymbols = function(symbols){
+		if(Class.isObject(symbols)){
+			this.setProperty("numrSymbols", symbols);
+		}
 
-    thi$.dateSymbols = function(symbols){
-        if(Class.isObject(symbols)){
-            this.setProperty("dateSymbols", symbols);
-        }
+		return this.getProperty(
+			"numrSymbols",
+			Class.forName("js.text.resources."+this.getLocal()).numrSymbols);
+	};
 
-        return this.getProperty(
-            "dateSymbols", 
-            Class.forName("js.text.resources."+this.getLocal()).dateSymbols);
-    };
-    
-    thi$.numberSymbols = function(symbols){
-        if(Class.isObject(symbols)){
-            this.setProperty("numrSymbols", symbols);
-        }
+	/**
+	 * Set i18n dictionary 
+	 * 
+	 * @param dict, i18n dictionary
+	 */
+	thi$.setDict = function(dict){
+		this.setProperty("dict", (dict || {}));
+	};
+	
+	/**
+	 * Returen i18n dictionary.
+	 */
+	thi$.getDict = function(){
+		return this.getProperty("dict", {});
+	};
 
-        return this.getProperty(
-            "numrSymbols",
-            Class.forName("js.text.resources."+this.getLocal()).numrSymbols);
-    };
+	/**
+	 * Return i18n text with the specified key
+	 * 
+	 * @param key, the text id
+	 * @return i18n text of the key
+	 */
+	thi$.nlsText = function(key, defaultText){
+		var dict = this.getDict();
 
-    /**
-     * Set i18n dictionary 
-     * 
-     * @param dict, i18n dictionary
-     */
-    thi$.setDict = function(dict){
-        this.setProperty("dict", (dict || {}));
-    };
-    
-    /**
-     * Returen i18n dictionary.
-     */
-    thi$.getDict = function(){
-        return this.getProperty("dict", {});
-    };
+		return dict[key] || defaultText || key;
+	};
+	
+	thi$.prefer = function(prefer){
+		if(Class.isObject(prefer)){
+			this.setProperty("prefer", prefer);
+		}
+		return this.getProperty("prefer", {});
+	};
 
-    /**
-     * Return i18n text with the specified key
-     * 
-     * @param key, the text id
-     * @return i18n text of the key
-     */
-    thi$.nlsText = function(key, defaultText){
-        var dict = this.getDict();
+	thi$.datePattern = function(){
+		var common = this.prefer().common;
+		return common ? common.dateFormat : "yyyy-MM-dd";
+	};
 
-        return dict[key] || defaultText || key;
-    };
-    
-    thi$.prefer = function(prefer){
-        if(Class.isObject(prefer)){
-            this.setProperty("prefer", prefer);
-        }
-        return this.getProperty("prefer", {});
-    };
+	thi$.timePattern = function(){
+		var common = this.prefer().common;
+		return common ? common.timeFormat : "HH:mm:ss";
+	};
 
-    thi$.datePattern = function(){
-        var common = this.prefer().common;
-        return common ? common.dateFormat : "yyyy-MM-dd";
-    };
+	thi$.timestampPattern = function(){
+		var common = this.prefer().common;
+		return common ? common.timestampFormat : "yyyy-MM-dd HH:mm:ss";
+	};
 
-    thi$.timePattern = function(){
-        var common = this.prefer().common;
-        return common ? common.timeFormat : "HH:mm:ss";
-    };
+	thi$.themes = function(themes){
+		if(Class.isArray(themes)){
+			this.setProperty("themes", themes);
+		}
+		return this.getProperty("themes", ["default"]);
+	};
 
-    thi$.timestampPattern = function(){
-        var common = this.prefer().common;
-        return common ? common.timestampFormat : "yyyy-MM-dd HH:mm:ss";
-    };
+	thi$.theme = function(theme){
+		if(Class.isString(theme)){
+			this.setProperty("theme", theme);
+			_updateJ$VMCSS.call(this);
+		}
+		return this.getProperty("theme", "default");
+	};
+	
+	thi$.imagePath = function(imagePath){
+		if(Class.isString(imagePath)){
+			this.setProperty("imagePath", imagePath);
+		}
+		
+		return this.getProperty(
+			"imagePath", 
+			J$VM.env.j$vm_home+"/../style/"+this.theme()+"/images/");
+	};
 
-    thi$.themes = function(themes){
-        if(Class.isArray(themes)){
-            this.setProperty("themes", themes);
-        }
-        return this.getProperty("themes", ["default"]);
-    };
+	thi$.postEntry = function(entry){
+		if(Class.isString(entry)){
+			this.setProperty("postEntry", entry);
+			this.servlet = entry;
+		}
+		return this.getProperty("postEntry", ".vt");
+	};
 
-    thi$.theme = function(theme){
-        if(Class.isString(theme)){
-            this.setProperty("theme", theme);
-            _updateJ$VMCSS.call(this);
-        }
-        return this.getProperty("theme", "default");
-    };
-    
-    thi$.imagePath = function(imagePath){
-        if(Class.isString(imagePath)){
-            this.setProperty("imagePath", imagePath);
-        }
-        
-        return this.getProperty(
-            "imagePath", 
-            J$VM.env.j$vm_home+"/../style/"+this.theme()+"/images/");
-    };
+	thi$.getsEntry = function(entry){
+		if(Class.isString(entry)){
+			this.setProperty("getsEntry", entry);
+			this.getpath = entry;
+		}
+		return this.getProperty("getsEntry", "/vt");
+	};
+	
 
-    thi$.postEntry = function(entry){
-        if(Class.isString(entry)){
-            this.setProperty("postEntry", entry);
-            this.servlet = entry;
-        }
-        return this.getProperty("postEntry", ".vt");
-    };
+	thi$.mode = function(mode){
+		if(Class.isNumber(mode)){
+			this.setProperty("mode", mode);
+		}
+		return this.getProperty("mode", 0);
+	};
 
-    thi$.getsEntry = function(entry){
-        if(Class.isString(entry)){
-            this.setProperty("getsEntry", entry);
-            this.getpath = entry;
-        }
-        return this.getProperty("getsEntry", "/vt");
-    };
-    
+	thi$.isEditMode = function(){
+		return (this.mode() & 0x01) != 0;
+	};
 
-    thi$.mode = function(mode){
-        if(Class.isNumber(mode)){
-            this.setProperty("mode", mode);
-        }
-        return this.getProperty("mode", 0);
-    };
+	/**
+	 * Show message on console or popup a message box
+	 * 
+	 * @param type, info | warn | error
+	 * @param subject, any string
+	 * @param content, any string
+	 * 
+	 * @see js.awt.MessageBox
+	 */
+	thi$.message = function(type, subject, content){
+		switch(type){
+		case "info":
+			J$VM.System.out.println(subject+": "+content);
+			break;
+		case "warn":
+			J$VM.System.err.println(subject+": "+content);
+			break;
+		case "error":
+			J$VM.System.err.println(subject+": "+content);
+			break;
+		default:
+			throw "Unsupport message type "+ type;
+			break;
+		}
+	};
 
-    thi$.isEditMode = function(){
-        return (this.mode() & 0x01) != 0;
-    };
+	var _updateJ$VMCSS = function(){
+		var style = document.getElementById("j$vm_css"),
+		stylePath = J$VM.env.j$vm_home + "/../style/"+this.theme()+"/", 
+		cssText = Class.getResource(stylePath + "jsvm.css", true);
+		
+		if(!style){
+			style = document.createElement("style");
+			style.id   = "j$vm_css";
+			style.title= "j$vm_css";
+			style.type = "text/css";
+		}else{
+			style.parentNode.removeChild(style);
+		}
 
-    /**
-     * Show message on console or popup a message box
-     * 
-     * @param type, info | warn | error
-     * @param subject, any string
-     * @param content, any string
-     * 
-     * @see js.awt.MessageBox
-     */
-    thi$.message = function(type, subject, content){
-        switch(type){
-        case "info":
-            J$VM.System.out.println(subject+": "+content);
-            break;
-        case "warn":
-            J$VM.System.err.println(subject+": "+content);
-            break;
-        case "error":
-            J$VM.System.err.println(subject+": "+content);
-            break;
-        default:
-            throw "Unsupport message type "+ type;
-            break;
-        }
-    };
+		cssText = cssText.replace(/images\//gi, stylePath+"images/");
+		if(style.styleSheet){
+			// IE
+			try{
+				style.styleSheet.cssText = cssText;				   
+			} catch (x) {
 
-    var _updateJ$VMCSS = function(){
-        var style = document.getElementById("j$vm_css"),
-        stylePath = J$VM.env.j$vm_home + "/../style/"+this.theme()+"/", 
-        cssText = Class.getResource(stylePath + "jsvm.css", true);
-        
-        if(!style){
-            style = document.createElement("style");
-            style.id   = "j$vm_css";
-            style.title= "j$vm_css";
-            style.type = "text/css";
-        }else{
-            style.parentNode.removeChild(style);
-        }
+			}
+		}else{
+			// Others
+			style.innerHTML = cssText;
+		}
 
-        cssText = cssText.replace(/images\//gi, stylePath+"images/");
-        if(style.styleSheet){
-            // IE
-            try{
-                style.styleSheet.cssText = cssText;                
-            } catch (x) {
-
-            }
-        }else{
-            // Others
-            style.innerHTML = cssText;
-        }
-
-        var jsvm = document.getElementById("j$vm");
-        jsvm.parentNode.insertBefore(style, jsvm);
-    };
-    
-    var _loadJ$VMCSS = function(){
-        var style = document.getElementById("j$vm_css");
-        if(!style){
-            _updateJ$VMCSS.call(this);
-        }
-    };
-    
-    thi$.initialize = function(env){
-        var System = J$VM.System;
-        System.objectCopy(System.getProperties(), this._local, true);
-        System.objectCopy(env || {}, this._local);
-
-        _loadJ$VMCSS.call(this);
-    };
+		var jsvm = document.getElementById("j$vm");
+		jsvm.parentNode.insertBefore(style, jsvm);
+	};
+	
+	var _loadJ$VMCSS = function(){
+		var style = document.getElementById("j$vm_css");
+		if(!style){
+			_updateJ$VMCSS.call(this);
+		}
+	};
+	
+	// Initialize locale with userinfo
+	var _initLocale = function(){
+		var userinfo = this.userInfo(), locale = this.locale();
+		if(!locale){
+			locale = this._local.locale = new js.util.Locale();
+		}
+		
+		if(userinfo){
+			locale.setLanguage(userinfo.lang);
+			locale.setCountry(userinfo.country);
+		}
+		
+		return locale;
+	};
+	
+	thi$.initialize = function(env){
+		var System = J$VM.System;
+		System.objectCopy(System.getProperties(), this._local, true);
+		System.objectCopy(env || {}, this._local);
+		
+		_initLocale.call(this);
+		_loadJ$VMCSS.call(this);
+	};
 
 };
 
 js.lang.NoUIRuntime = function(){
-    
-    var CLASS = js.lang.NoUIRuntime, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    thi$._init = function(){
-        arguments.callee.__super__.apply(this, arguments);
-        
-        this._local = {};
+	
+	var CLASS = js.lang.NoUIRuntime, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	thi$._init = function(){
+		arguments.callee.__super__.apply(this, arguments);
+		
+		this._local = {};
 
-    }.$override(this._init);
+	}.$override(this._init);
 
-    this._init.apply(this, arguments);
-    
+	this._init.apply(this, arguments);
+	
 }.$extend(js.util.EventTarget).$implements(js.lang.Runtime);
 
 
@@ -5682,6 +5722,9 @@ js.lang.System = function (env, vm){
         // Check BorderBox support of Input and Textarea
         vm.supports.iptBorderBox = !(ipt.offsetWidth > 100);
         
+        // Check placeholder support of Input and Textarea
+        vm.supports.placeholder = ("placeholder" in ipt); 
+        
         doc.body.removeChild(div);
         doc.body.removeChild(ipt);
         div = view = ipt = undefined;
@@ -5756,11 +5799,18 @@ js.lang.System = function (env, vm){
         J$VM.System.log.println("Doctype:" + JSON.stringify(doctype));
     };
     
+    // Initialize JSVM's locale with browser's. 
+    var _initJSVMLocale = function(){
+        var lang = (navigator.userLanguage || navigator.language).split("-");
+        vm.locale = new js.util.Locale(lang[0], lang[1]); 
+    };
+    
     var _onload = function(e){
         J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
 
         _checkBrowser.call(this);
         _detectDoctype.call(this);
+        _initJSVMLocale.call(this);
 
         var Event = js.util.Event, dom = vm.hwnd.document;
         Event.attachEvent(vm.hwnd, Event.W3C_EVT_RESIZE, 0, this, _onresize);
