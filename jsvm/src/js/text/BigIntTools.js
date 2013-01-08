@@ -145,9 +145,12 @@ js.text.BigIntTools = function(){
     };
     
     /**
-     * calculate by expression
-     * 
-     * @param expression :String or array   
+     * calculate by expression and variables
+     * You can use this function by 3 forms:
+     *     1: calculate( expression<string>, variable1, variable2..., variableN )
+     *     2: calculate( expression<string>, {varName1:variable1, varName2:variable2... N} )
+     *     3: calculate( expression<array> ) the expression is display by polish style
+     * @param expression :String or array
      *        String like this: "(a+b)*c-d"
      *        array like this : ["-", ["*", ["+",a,b], c], d]
      * @return  :  BigInt (see js.text.BigInt)
@@ -155,12 +158,18 @@ js.text.BigIntTools = function(){
     thi$.calculate = function(expression){
         
         
-        if(Class.typeOf(expression) === "array")  return _calculateByArray.call(this, expression);
+        if(Class.typeOf(expression) === "array")  return _calculate.call(this, expression);
         if(Class.typeOf(expression) !== "string")  return NaN;
         
         var result = expression.replace(/\s/g,""), _expression;
 
-        if(Class.typeOf(arguments[1]) !== "object"){
+        if(Class.typeOf(arguments[1]) === "object"){
+            var params = arguments[1];
+            for(var paramName in params){
+                result = result.replace(new RegExp(paramName, "g"), params[paramName]);
+            }
+        }
+        else if(arguments[1] !== undefined){
             
             var _caller = arguments.callee.caller;
             if(this.calMap[_caller] === undefined){
@@ -199,77 +208,28 @@ js.text.BigIntTools = function(){
             }
             
         }
-        else{
-            var params = arguments[1];
-            for(var paramName in params){
-                result = result.replace(new RegExp(paramName, "g"), params[paramName]);
-            }
-        }
+
+        result = _transToPolish.call(this, result);
         
-        while(result.indexOf("(") !== -1){
-            _expression = result.match(/\([^\(|\)]+\)/)[0];
-            result = result.replace(_expression, _calculate.call(this,_expression));
-        }
-        
-        return this.parseBigInt(_calculate.call(this, result));
-        
+        return _calculate.call(this, result);
     };
     
+    //the expression is The Polish expression
+    // like this ["+", a, b]
     var _calculate = function(expression){
-        var result = expression.replace("(","").replace(")",""), _expression;
-        var index,index0,index1;
         
-        while(true){
-            //_expression = result.match(/(\-?\d+\.?\d*)\*(\-?\d+\.?\d*)/);
-            index0 = result.indexOf("*"), index1 = result.indexOf("/");
-            if(index0 === -1 && index1 === -1)  break;
-            index = index0 === -1 ? index1 : index1 === -1 ? index0 
-                : index0 < index1 ? index0 : index1;
-            _expression = _makeCalArray.call(this, result, index);
-            result = result.replace(_expression[0],
-                                    index === index0 
-                                    ? this.multiply(_expression[1],_expression[2])
-                                    : this.divid(_expression[1],_expression[2]));
-            
-        }
-        while(true){
-            index0 = result.indexOf("+"), 
-            index1 = _findMinusSign.call(this, result);
-            if(index0 === -1 && index1 === -1)  break;
-            
-            if(index0 === -1){
-                _expression = result.match(/(\-?\d+\.?\d*)\-(\-?\d+\.?\d*)/);
-                result = result.replace(_expression[0],this.minus(_expression[1],_expression[2]));
-            }
-            else if(index1 === -1){
-                _expression = result.match(/(\-?\d+\.?\d*)\+(\-?\d+\.?\d*)/);
-                result = result.replace(_expression[0], this.plus(_expression[1],_expression[2]));
-            }
-            else if(index0 < index1){
-                _expression = result.match(/(\-?\d+\.?\d*)\+(\-?\d+\.?\d*)/);
-                result = result.replace(_expression[0], this.plus(_expression[1],_expression[2]));
-            }
-            else{
-                _expression = result.match(/(\-?\d+\.?\d*)\-(\-?\d+\.?\d*)/);
-                result = result.replace(_expression[0],this.minus(_expression[1],_expression[2]));
-            }
-        }
-        
-        return result;
-    };
-    
-    var _calculateByArray = function(expression){
-        
+        if(Class.typeOf(expression) === "string")  return this.parseBigInt(expression);
         if(expression.length < 3)  throw "The expression is not right!";
         
-        var ret = Class.typeOf(expression[1]) === "array"?
-            _calculateByArray.call(this, expression[1]) : expression[1] ;
+        var e0 = expression[0], e1 = expression[1];
+        var ret = Class.typeOf(e1) === "array"?
+            _calculate.call(this, e1) : e1 ;
         
-        switch(expression[0]){
+        switch(e0){
         case "+":
             for(var i = 2, len = expression.length; i<len; i++){
                 if( Class.typeOf(expression[i]) === "array"){
-                    ret = this.plus(ret ,_calculateByArray.call(this, expression[i]));
+                    ret = this.plus(ret ,_calculate.call(this, expression[i]));
                 }
                 else{
                     ret = this.plus(ret, expression[i]);
@@ -279,7 +239,7 @@ js.text.BigIntTools = function(){
         case "-":
             for(i = 2, len = expression.length; i<len; i++){
                 if( Class.typeOf(expression[i]) === "array"){
-                    ret = this.minus(ret ,_calculateByArray.call(this, expression[i]));
+                    ret = this.minus(ret ,_calculate.call(this, expression[i]));
                 }
                 else{
                     ret = this.minus(ret, expression[i]);
@@ -289,7 +249,7 @@ js.text.BigIntTools = function(){
         case "*":
             for(i = 2, len = expression.length; i<len; i++){
                 if( Class.typeOf(expression[i]) === "array"){
-                    ret = this.multiply(ret ,_calculateByArray.call(this, expression[i]));
+                    ret = this.multiply(ret ,_calculate.call(this, expression[i]));
                 }
                 else{
                     ret = this.multiply(ret, expression[i]);
@@ -299,7 +259,7 @@ js.text.BigIntTools = function(){
         case "/":
             for(i = 2, len = expression.length; i<len; i++){
                 if( Class.typeOf(expression[i]) === "array"){
-                    ret = this.divid(ret ,_calculateByArray.call(this, expression[i]));
+                    ret = this.divid(ret ,_calculate.call(this, expression[i]));
                 }
                 else{
                     ret = this.divid(ret, expression[i]);
@@ -312,68 +272,89 @@ js.text.BigIntTools = function(){
         return ret;
     };
     
-    // make calculate array : [expression, number1, number2]
-    var _makeCalArray = function(expression, index){
+    var _transToPolish = function(expression){
+        var s1 = [], s2 = [], temp, ret, _char, _number = "", k;
         
-        var temp, num0 = "", num1 = "", symbol = expression.charAt(index);
-        var negative = false;
-        
-        //make num0
-        for(var i = index - 1; i>-1; i--){
-            temp = expression.charAt(i);
-            if( isNaN(+temp) && temp !== "." ){
-                if(negative){
-                    num0 = "-" + num0;
-                    break;
+        for(var i = expression.length - 1; i > -1; i--){
+            
+            _char = expression.charAt(i);
+            
+            if(isNaN(+_char) && !_isNegative.call(this, _char, i, expression) && _char !== "."){
+                
+                if(_number !== ""){
+                    s1.unshift(_number);
+                    _number = "";
                 }
-                if(temp === "-"){
-                    if(i === 0){
-                        num0 = "-" + num0;
+                
+                switch(_char){
+                case "(":
+                    k = 0;
+                    while(true && k<100){
+                        if(s2[0] === ")"){
+                            s2.shift();
+                            break;
+                        }
+                        else{
+                            s1.unshift( [s2.shift(), s1.shift(), s1.shift()] );
+                        }
+                        k++;
                     }
-                    negative = true;
-                }else{
+                    break;
+                case ")":
+                    s2.unshift(_char);
+                    break;
+                case "*":
+                case "/":
+                    s2.unshift(_char);
+                    break;
+                case "+":
+                case "-":
+                    k = 0;
+                    while(true && k<100){
+                        if(s2[0] === "*" || s2[0] === "/"){
+                            s1.unshift( [s2.shift(), s1.shift(), s1.shift()] );
+                        }
+                        else{
+                            s2.unshift(_char);
+                            break;
+                        }
+                        k++;
+                    }
                     break;
                 }
             }
             else{
-                if(negative){
-                    negative = false;
-                    break;
-                }
-                num0 = temp + num0;
+                _number = _char + _number;
+                if(i === 0)  s1.unshift(_number);
             }
-        }
-        //make num1
-        for(var j = index + 1, len = expression.length; j<len; j++){
-            temp = expression.charAt(j);
-            if( isNaN(+temp) && temp !== "." ){
-                if(num1 === ""){
-                    if(temp === "-") num1 = "-" + num1;
-                }
-                else{
-                    break;
-                }
-            }
-            else{
-                num1 += temp;
-            }
+            
         }
         
-        return [ num0 + symbol + num1, num0, num1];
+        i = 0;
+        while(s2.length !== 0 && i<100){
+            if(!ret){
+                ret = [s2.shift(), s1.shift(), s1.shift()];
+            }else{
+                ret = [s2.shift(), ret, s1.shift()];
+            }
+            i++;
+        }
+        
+        if(s1.length === 1)  return s1.shift();
+        
+        return ret;
     };
     
-    var _findMinusSign = function(str){
-        var temp, index = -1;
-        for(var i = 0, len = str.length; i< len; i++){
-            temp = str.charAt(i);
-            if(temp === "-"){
-                if(i === 0) continue;
-                if( isNaN(+str.charAt(i-1)) && str.charAt(i-1) !== "." ) continue;
-                index = i;
-                break;
-            }
-        }
-        return index;
+    var _isNegative = function(_char, index, expression){
+        if(_char !== "-") return false;
+        if(index === 0)  return true;
+        
+        var preChar = expression.charAt( index - 1 );
+        
+        if(preChar === "+" || preChar === "-" || preChar === "*" 
+           || preChar === "/")  return true;
+        
+        return false;
     };
     
     var _findFunction = function(str){
@@ -436,28 +417,38 @@ js.text.BigIntTools = function(){
     
     /**/
     thi$.test = function(){
-        var ret, tools = this ,v0 = -10, v1 = 5, time = 20;
+        var ret, tools = this ,v0 = 11111111, v1 = 2, time = 3;
         
+        /* test time cost */
         var s = new Date(), e;
-	    for(var i = 0; i<100; i++)
-            ret = tools.calculate("(v0*time + v1)*((v0-v1)/time - v0)",v0, v1, time);
+	    for(var i = 0; i<1000; i++)
+            ret = tools.calculate("(v0*time + v1)*((v0-v1)/time - v0)", v0, v1, time);
 	    e = new Date();
         System.out.println( ret + "" );
 	    System.out.println( e - s );
 	    
 	    s = new Date();
-	    for(i = 0; i<100; i++)
-            ret = tools.calculate("(v0*time + v1)*((v0-v1)/time - v0)",{v0:v0,v1:v1,time:time});
+	    for(i = 0; i<1000; i++)
+            ret = tools.calculate("(v0*time + v1)*( (v0-v1)/time - v0)",{v0:v0,v1:v1,time:time});
 	    e = new Date();
         System.out.println( ret + "" );
 	    System.out.println( e - s );
 	    
 	    s = new Date();
-	    for(i = 0; i<100; i++)
+	    for(i = 0; i<1000; i++)
             ret = tools.calculate(["*",["+",["*",v0,time],v1],["-",["/",["-",v0,v1],time],v0]]);
 	    e = new Date();
         System.out.println( ret + "" );
 	    System.out.println( e - s );
+        
+        s = new Date();
+        v0 = tools.parseBigInt(v0);
+	    for(i = 0; i<1000; i++)
+            ret = v0.multiply(time).plus(v1).multiply(v0.minus(v1).divid(time).minus(v0));
+	    e = new Date();
+        System.out.println( ret + "" );
+	    System.out.println( e - s );
+        /**/
         
     };
     /**/
@@ -588,12 +579,12 @@ js.text.BigIntTools = function(){
                 j--;
                 continue;
             }
-            if( this.a_MoreThan_b(array[i], array[i+1]) && !desc ){
+            if( this.moreThan(array[i], array[i+1]) && !desc ){
                 temp = array[i];
                 array[i] = array[i+1];
                 array[i+1] = temp;
             }
-            else if( this.a_LessThan_b(array[i], array[i+1]) && desc ){
+            else if( this.lessThan(array[i], array[i+1]) && desc ){
                 temp = array[i];
                 array[i] = array[i+1];
                 array[i+1] = temp;
@@ -603,31 +594,56 @@ js.text.BigIntTools = function(){
         return array;
     };
     
-    thi$.a_LessThan_b = function(a, b){
+    thi$.a_LessThan_b = function(){
+        System.err.println("This method is not deprecated!");
+        this.lessThan();
+    };
+
+    thi$.a_MoreThan_b = function(){
+        System.err.println("This method is deprecated!");
+        this.moreThan();
+    };
+    
+    thi$.a_Equals_b = function(){
+        System.err.println("This method is deprecated!");
+        this.equals();
+    };
+    
+    thi$.a_LessOrEqual_b = function(){
+        System.err.println("This method is deprecated!");
+        this.lessOrEqual();
+    };
+    
+    thi$.a_MoreOrEqual_b = function(){
+        System.err.println("This method is deprecated!");
+        this.moreOrEqual();
+    };
+    
+    thi$.lessThan = function(a, b){
         var x = this.parseBigInt(a),
         y = this.parseBigInt(b);
         return x.lessThan(b);
     };
     
-    thi$.a_MoreThan_b = function(a, b){
+    thi$.moreThan = function(a, b){
         var x = this.parseBigInt(a),
         y = this.parseBigInt(b);
         return x.moreThan(b);
     };
     
-    thi$.a_Equals_b = function(a, b){
+    thi$.equals = function(a, b){
         var x = this.parseBigInt(a),
         y = this.parseBigInt(b);
         return x.equal(b);
     };
     
-    thi$.a_LessOrEqual_b = function(a, b){
+    thi$.lessOrEqual = function(a, b){
         var x = this.parseBigInt(a),
         y = this.parseBigInt(b);
         return x.lessOrEqual(b);
     };
     
-    thi$.a_MoreOrEqual_b = function(a, b){
+    thi$.moreOrEqual = function(a, b){
         var x = this.parseBigInt(a),
         y = this.parseBigInt(b);
         return x.moreOrEqual(b);
@@ -766,7 +782,7 @@ js.text.BigInt = function( data ){
             result.decArray.push( temp?temp:0 );
         }
         if(result.array.length === 0)  result.array.push(0);
-        checkDecArray(result.decArray);
+        checkDecArray.call(this, result.decArray);
         /****/
         
         return result;
@@ -898,7 +914,7 @@ js.text.BigInt = function( data ){
             result.decArray.push( temp?temp:0 );
         }
         if(result.array.length === 0)  result.array.push(0);
-        checkDecArray(result.decArray);
+        checkDecArray.call(this, result.decArray);
         /****/
         
         result.negative = negative;
@@ -978,7 +994,7 @@ js.text.BigInt = function( data ){
             }
             
             result.ret.decArray = temp;
-            checkDecArray(result.ret.decArray);
+            checkDecArray.call(this, result.ret.decArray);
         }
         
         return result.ret;
@@ -1076,7 +1092,7 @@ js.text.BigInt = function( data ){
             mod.decArray.push( temp?temp:0 );
         }
         if(result.array.length === 0)  result.array.push(0);
-        checkDecArray(mod.decArray);
+        checkDecArray.call(this, mod.decArray);
         /****/
         
         checkZero(result.array);
@@ -1257,7 +1273,7 @@ js.text.BigInt = function( data ){
             ret.negative = true;
         }
         //make integer array
-        for(var len=intArr.length; i<len; i++){
+        for(var len = intArr.length; i<len; i++){
             ret.array.unshift( +intArr.charAt(i) );
         }
         
@@ -1269,7 +1285,7 @@ js.text.BigInt = function( data ){
         }
         
         checkZero(ret.array);
-        checkDecArray(ret.decArray);
+        checkDecArray.call(this, ret.decArray);
         
         return ret;
         
@@ -1291,14 +1307,15 @@ js.text.BigInt = function( data ){
         }
     };
     
-    thi$.isDecMaxLen = function(){
-        return this.decArray.length === 16;
-    };
-    
-    var checkDecArray = function(array){
-        for(var i = 0; i < array.length; ){
-            if(array[i] !== 0) break;
-            array.shift();
+    var checkDecArray = function(decArray){
+        var decLen = decArray.length;
+        
+        if(decLen > this.decMaxLen)  decArray.splice(0, decLen - this.decMaxLen);
+        
+        decLen = decArray.length;
+        for(var i = 0; i < decLen; ){
+            if(decArray[i] !== 0) break;
+            decArray.shift();
         }
     };
     
@@ -1306,10 +1323,19 @@ js.text.BigInt = function( data ){
         return this.decArray.length !== 0;
     };
     
+    thi$.isDecMaxLen = function(){
+        return this.decArray.length === this.getDecMaxLen();
+    };
+    
+    thi$.getDecMaxLen = function(){
+        return this.decMaxLen;
+    };
+    
     thi$._init = function(data){
         
         this.array = [0];
         this.decArray = []; // decimal part
+        this.decMaxLen = 16;
         this.negative = false;
         this.pattern = "####";
         this.objTypeIsBigIntType = true;

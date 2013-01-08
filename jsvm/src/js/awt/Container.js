@@ -253,21 +253,22 @@ js.awt.Container = function (def, Runtime, view){
      * Remove all components
      */
     thi$.removeAll = function(gc){
-        var comps = this.items0(), id, comp;
+        var comps = this.items0(), id, comp,
+        M = this.def, U = this._local,
+        List = js.util.LinkedList;
+
         while(comps && comps.length > 0){
             id = comps.shift();
             comp = this[id];
             delete this[id];
+            delete M[id];
             if(gc === true){
                 delete comp.container;
                 comp.destroy();
             }
         }
         
-        if(gc !== true){
-            this.def.items = js.util.LinkedList.$decorate([]);
-            this._local.items = js.util.LinkedList.$decorate([]);
-        }
+        M.items = List.$decorate([]);
 
         if(this.layout){
             this.layout.invalidateLayout();
@@ -388,6 +389,37 @@ js.awt.Container = function (def, Runtime, view){
     };
     
     /**
+     * def:{
+     *     items:[compid],
+     *     compid:{}
+     * }
+     */
+    thi$._addComps = function(def){
+        var comps = def.items, R = this.Runtime(),
+        oriComps = this._local.items;
+        
+        js.util.LinkedList.$decorate(def.items);
+
+        for(var i=0, len=comps.length; i<len; i++){
+            var compid = comps[i], compDef = def[compid];
+            if(Class.typeOf(compDef) === "object"){
+                compDef.id = compDef.id || compid;
+                compDef.className = compDef.className || 
+                    (this.def.className + "_" + compid);
+
+                var comp = new (Class.forName(compDef.classType))(
+                    compDef, R);
+
+                this[compid] = comp;
+                oriComps.push(compid);
+
+                this._addComp(comp, compDef.constraints);
+
+            }
+        }
+    };
+    
+    /**
      * Override the destroy of js.awt.Component
      */
     thi$.destroy = function(){
@@ -422,25 +454,7 @@ js.awt.Container = function (def, Runtime, view){
         // Add children components
         var comps = def.items;
         if(Class.typeOf(comps) === "array"){
-            List.$decorate(def.items);
-
-            for(var i=0, len=comps.length; i<len; i++){
-                var compid = comps[i], compDef = def[compid];
-                if(Class.typeOf(compDef) === "object"){
-                    compDef.id = compDef.id || compid;
-                    compDef.className = compDef.className || 
-                        (this.def.className + "_" + compid);
-
-                    var comp = new (Class.forName(compDef.classType))(
-                        compDef, Runtime);
-
-                    this[compid] = comp;
-                    oriComps.push(compid);
-
-                    this._addComp(comp, compDef.constraints);
-
-                }
-            }
+            this._addComps(def);
         }else{
             def.items = List.$decorate([]);
         }

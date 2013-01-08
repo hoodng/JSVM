@@ -211,7 +211,7 @@ js.awt.Button = function(def, Runtime){
     
     thi$.setEnabled = function(b){
         if(!b){
-           _showEffectLayer.call(this, "normal") 
+            _showEffectLayer.call(this, "normal");
         }
         
         arguments.callee.__super__.apply(this, arguments);

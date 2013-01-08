@@ -46,7 +46,8 @@ $package("js.awt");
  *     cells:[
  *       {rowIndex, colIndex, rowSpan, colSpan, paddingTop...},
  *       ...
- *     ]
+ *     ],
+ *     cellpadding: [t, r, b, l]
  * }
  */
 js.awt.Grid = function(def){
@@ -161,8 +162,9 @@ js.awt.Grid = function(def){
         }
     };
     
-    var _initCells = function(cells, cellDefs){
-        var defs, cellDef, cell, i, j, rspan, cspan, ri, cj,
+    var _initCells = function(cells, def){
+        var defs, cellDefs = def.cells, cellDef, cell, 
+        i, j, rspan, cspan, ri, cj, padding = def.cellpadding,
         m = this.rowNum(), n = this.colNum(), visible;
 
         defs = new Array(m);
@@ -189,7 +191,16 @@ js.awt.Grid = function(def){
                 if(cellDef === null) continue;
 
                 if(cellDef === undefined){
-                    cellDef = {rowIndex:i, colIndex:j, rowSpan:1, colSpan:1};
+                    cellDef = {
+                        rowIndex:i, 
+                        colIndex:j, 
+                        rowSpan:1, 
+                        colSpan:1,
+                        paddingTop: padding[0],
+                        paddingRight: padding[1],
+                        paddingBottom: padding[2],
+                        paddingLeft: padding[3]                     
+                    };
                 }
                 
                 visible = false;
@@ -235,6 +246,8 @@ js.awt.Grid = function(def){
         
         var m, n;
         
+        def.cellpadding = def.cellpadding || [0,0,0,0];
+
         // Init rows
         m = def.rowNum;
         m = Class.isNumber(m) ? (m > 0 ? m : 1) : 1;
@@ -250,7 +263,7 @@ js.awt.Grid = function(def){
         // Init cells
         this.cells = new Array(m);
         for(var i=0; i<m; i++) this.cells[i] = new Array(n);
-        _initCells.call(this, this.cells, def.cells);
+        _initCells.call(this, this.cells, def);
 
     };
     

@@ -1,39 +1,39 @@
 /**
 
-   Copyright 2010-2011, The JSVM Project. 
-   All rights reserved.
-   
-   Redistribution and use in source and binary forms, with or without modification, 
-   are permitted provided that the following conditions are met:
-   
-   1. Redistributions of source code must retain the above copyright notice, 
-   this list of conditions and the following disclaimer.
-   
-   2. Redistributions in binary form must reproduce the above copyright notice, 
-   this list of conditions and the following disclaimer in the 
-   documentation and/or other materials provided with the distribution.
-   
-   3. Neither the name of the JSVM nor the names of its contributors may be 
-   used to endorse or promote products derived from this software 
-   without specific prior written permission.
-   
-   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
-   ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
-   WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
-   IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
-   INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
-   BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
-   DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-   LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
-   OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
-   OF THE POSSIBILITY OF SUCH DAMAGE.
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
 
-   *
-   * Author: Hu Dong
-   * Contact: jsvm.prj@gmail.com
-   * License: BSD 3-Clause License
-   * Source code availability: http://jzvm.googlecode.com
-   */
+ *
+ * Author: Hu Dong
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: http://jzvm.googlecode.com
+ */
 
 $package("js.awt");
 
@@ -73,10 +73,10 @@ js.awt.Slider = function(def, Runtime){
     };
 
     thi$.setDuration = function(duration){
-	    //var trackLen = this.getTrackLength(),
-		//    grid = this.def.mover.grid;
-	    //this.def.duration = duration > trackLen/(grid*10) ?
-		//    duration : trackLen/(grid*10) ;
+        //var trackLen = this.getTrackLength(),
+        //    grid = this.def.mover.grid;
+        //this.def.duration = duration > trackLen/(grid*10) ?
+        //    duration : trackLen/(grid*10) ;
         this.def.duration = duration;
     };
     
@@ -95,7 +95,7 @@ js.awt.Slider = function(def, Runtime){
     thi$.setDataCount = function(count){
         
         //if( !Class.isNumber(count) || count <= 0 )
-            //throw "The data count must large than 0";
+        //throw "The data count must large than 0";
         
 
         this.datacount = count;
@@ -131,7 +131,7 @@ js.awt.Slider = function(def, Runtime){
      * Return the slipper offset in track in pixel
      */
     thi$.getOffset = function(){
-		
+        
         var slipper = this.slipper, trackLen = this.getTrackLength(),
         grid = this.def.mover.grid, count = this.datacount,
         offset0 = slipper.getOffset0() - slipper.offset0,
@@ -140,19 +140,19 @@ js.awt.Slider = function(def, Runtime){
         offset1p = offset1/trackLen,
 
         index0 = grid > 1 ? Math.round(offset0*(count-1)/trackLen) :
-                          Class.isBigInt(count) ? 
-                                  count.minus(1).multiply(offset0).divid(trackLen).round() :
-                                  Math.round(offset0p*(count-1)),
+            Class.isBigInt(count) ? 
+            count.minus(1).multiply(offset0).divid(trackLen).round() :
+            Math.round(offset0p*(count-1)),
 
         index1 = grid > 1 ? Math.round(offset1*(count-1)/trackLen) : 
-                            Class.isBigInt(count) ? 
-                                  count.minus(1).multiply(offset1).divid(trackLen).round() :
-                                  Math.round(offset1p*(count-1));
+            Class.isBigInt(count) ? 
+            count.minus(1).multiply(offset1).divid(trackLen).round() :
+            Math.round(offset1p*(count-1));
         
         if(this.isPlaying()){
-            index0 = grid > 1 ? Math.floor( offset0*(count-1)/trackLen ) : 
+            index0 = grid > 1 ? Math.floor(offset0*(count-1)/trackLen ) : 
                 Math.floor( offset0p*(count-1) ),
-            index1 = grid > 1 ? Math.floor( offset1*(count-1)/trackLen ) : 
+            index1 = grid > 1 ? Math.floor(offset1*(count-1)/trackLen ) : 
                 Math.floor( offset1p*(count-1) );
         }
         
@@ -214,12 +214,12 @@ js.awt.Slider = function(def, Runtime){
         }
     };
     
-	var _play = function(b, t0){
-	
+    var _play = function(b, t0){
+        
         //delete this.timer;
         this.playing = true;
-		
-		var o = this.getOffset();
+        
+        var o = this.getOffset();
 
         var slipper = this.slipper, 
         c = this.getTrackLength(),
@@ -236,27 +236,27 @@ js.awt.Slider = function(def, Runtime){
             this.play(false);
         }
     };
-	/**
-    var _play = function(b, t0){
-        delete this.timer;
-        this.playing = true;
+    /**
+     var _play = function(b, t0){
+     delete this.timer;
+     this.playing = true;
 
-        var slipper = this.slipper, 
-        c = this.getTrackLength(),
-        d = this.getDuration()*1000,
-        // b + v*T
-        p = b + (c/d)*(new Date().getTime()-t0);
+     var slipper = this.slipper, 
+     c = this.getTrackLength(),
+     d = this.getDuration()*1000,
+     // b + v*T
+     p = b + (c/d)*(new Date().getTime()-t0);
 
-        p = p > c ? c : p;
-        this.setOffset(p/c, null, true);
+     p = p > c ? c : p;
+     this.setOffset(p/c, null, true);
 
-        if(p < c){
-            this.timer = _play.$delay(this, 10, b, t0);
-        }else{
-            this.play(false);
-        }
-    };
-	/**/
+     if(p < c){
+     this.timer = _play.$delay(this, 10, b, t0);
+     }else{
+     this.play(false);
+     }
+     };
+     /**/
 
     /**
      * @see js.awt.Container
@@ -308,8 +308,8 @@ js.awt.Slider = function(def, Runtime){
             
             //new
             //if(off0 != U.off0 || off1 != U.off1 || (fire & 0x01) != 0){
-                this.onSliderChanged(fire);
-                U.off0 = off0; U.off1 = off1;
+            this.onSliderChanged(fire);
+            U.off0 = off0; U.off1 = off1;
             //}
         }
         
@@ -382,13 +382,13 @@ js.awt.Slider = function(def, Runtime){
             xy.m  = grid*Math.round(xy.y/grid);
             xy.pm = xy.x;
         }
-		
+        
         switch(this.def.tracemouse){
         case 0:
             offset = Math.floor(slipper.offset0 + (offset1-offset0)/2);
             max = bounds.innerMeasure - slipper.getMeasure();
             //m = xy.m - offset;
-			m = xy.m;
+            m = xy.m;
             m = m < 0 ? 0 : (m > max ? max : m);
             slipper.setUPosition(m, null, 7);
             break;
@@ -433,7 +433,7 @@ js.awt.Slider = function(def, Runtime){
         
         return true;
     };
-	/**/
+    /**/
 
     /**
      * @see js.awt.Movable

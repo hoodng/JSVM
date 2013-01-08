@@ -271,6 +271,11 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		
 		if(item && item.isEnabled()){
 			if(e.getType() == "click"){
+				if(item.hitCtrl(e)){
+					System.log.println("Hit the \"" + el.id + "\" ctrl.");
+					e.setType("hitctrl");
+				}
+				
 				_notify.call(this, e, item);
 			}
 		}

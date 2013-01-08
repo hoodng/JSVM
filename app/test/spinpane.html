@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsvm.jsp" -DmainClass="org.jsvm.App" ></script>
+<script src="../../jsvm/jsre-ui.js" ></script>
+<script src="../../jsvm/src/js/awt/SpinPane.js" ></script>
+<script src="../../jsvm/src/js/awt/ScrollPaneExt.js" ></script>
+<style>
+.jsvm_hspinpane {
+   position: absolute;
+   border: 1px solid gray;
+   padding: 0px 18px 0px 18px;
+   overflow: hidden;
+}
+
+.jsvm_hspinpane_pane {
+  border: 1px solid red;
+}
+
+.box {
+    border: 1px solid red;
+}
+
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("org.jsvm.App",function(System){
+
+
+    this.prefer({theme: "default"});
+    this.setZ(0);
+    var R = this;
+
+    var spinpane = new js.awt.SpinPane({
+        x: 10, y: 10, 
+        width: 640, height:160, 
+        miniSize:{width: 40, height: 40},
+        resizable:true,
+        pane:{
+            layout:{align_y:0.5, hgap:5}
+        }
+    }, R);
+
+
+    this.addComponent(spinpane);
+
+   for(var i=0; i< 15; i++){
+     var box = new js.awt.Component({
+       className: "box",
+       stateless: true,
+       x:0, y:0,
+       width: 80, height: 80,
+   }, R);
+     box.view.innerHTML = i;
+   spinpane.pane.addComponent(box);
+   }
+   
+
+    spinpane.doLayout(true);
+
+   //spinpane.ctrl0.setEnabled(false);
+
+});
+</script>
+</html>
