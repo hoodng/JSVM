@@ -498,6 +498,10 @@ js.awt.Resizable = function(){
 
         if(b){
             _createResizer.call(this, this.def.resizer);
+            if(this.isDOMElement()){
+                this.addResizer();
+                this.adjustResizer();
+            }
         }else{
             this.def.resizable = false;
             this.removeResizer(true);
@@ -536,10 +540,10 @@ js.awt.Resizable = function(){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
         
-        var div, i;
-        for(i=0; i<8; i++){
+        var div, i, isDOM = this.isDOMElement();
+        for(i=0; isDOM && i<8; i++){
             div = resizer[i];
-            if(div && this.isDOMElement()){
+            if(div){
                 div.style.zIndex = this.getZ();
                 DOM.insertAfter(div, this.view);
             }

@@ -79,9 +79,11 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	 * @param nodes: {Array} Nodes of the submenu to creat.
 	 * @param force: {Boolean} Indicate whether a new submenu will always be
 	 *				 created. 
-	 */	
+	 */ 
 	thi$.showSubMenu = function(nodes, force){
-		var M = this.def, subMenu = this.subMenu();
+		var M = this.def, menu = this.menuContainer(),
+		subMenu = this.subMenu(), thickness;
+		
 		if(force === true && subMenu && Class.isArray(nodes)){
 			subMenu.hide();
 			subMenu = this._local.submenu = null;
@@ -93,16 +95,18 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		}
 		
 		if(subMenu && !subMenu.isShown()){
-			subMenu.showBy(this.view, true, menu.getWidth()-8);
+			thickness = M.beInMenu ? menu.getWidth() - 8 : this.getHeight();
+			subMenu.showBy(this.view, M.beInMenu, thickness);
 		}
 	};
 	
 	thi$.onStateChanged = function(){
 		arguments.callee.__super__.apply(this, arguments);
 
-		if(this.isHover()){
+		if(this.isHover()){	 
 			var M = this.def, menu = this.menuContainer(),
 			active = menu.active, subMenu, timeout;
+			
 			if(active && active != this){
 				subMenu = active.subMenu();
 				if(subMenu && subMenu.isShown()){
@@ -116,7 +120,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			   && (typeof this.loadMenu == "function")){
 				timeout = !isNaN(M.timeout) ? M.timeout : 500;
 				this.loadMenu.$clearTimer();
-				this.loadMenu.$delay(this, timeout, this.showSubMenu);
+				this.loadMenu.$delay(this, timeout);
 			}else{
 				this.showSubMenu(M.nodes);
 			}
@@ -128,9 +132,17 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	 * @see js.awt.Component
 	 */
 	thi$.getPeerComponent = function(){
-		return this.menuContainer().rootLayer().getPeerComponent();
+		var peer;
+		if(this.def.beInMenu){
+			peer = this.menuContainer().rootLayer().getPeerComponent();
+		}else{
+			peer = arguments.callee.__super__.apply(this, arguments);
+		}
+		
+		return peer;
+		
 	}.$override(this.getPeerComponent);
-    
+	
 	/**
 	 * @see js.awt.Item #getPreferedSize
 	 */
@@ -204,29 +216,39 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		}
 		
 	}.$override(this.doLayout);
-    
+	
 	var _onInput = function(e){
 		e.cancelBubble();
 	};
 
 	var _createSubMenu = function(nodes, mClass){
-		var menuC = this.menuContainer(), menuD = menuC.def,
+		var M = this.def, menuC = this.menuContainer(), menuD = menuC.def,
+		mClassType = M.beInMenu ? menuD.classType : (M.mClassType || "js.awt.Menu"),
+		menuShadow = M.beInMenu ? menuD.shadow : (M.menuShadow !== false),
 		menudef = {
-			classType: menuD.classType,
+			classType: mClassType,
 			className: mClass || menuD.className,
 			id: this.def.id,
 			nodes: nodes,
-			shadow: menuD.shadow,
+			shadow: menuShadow,
 			PMFlag: 0x07,
 			isfloating: true
-		};
+		}, pmenu, root;
 		
-		var submenu =new (Class.forName(menudef.classType))(
-			menudef, this.Runtime(), menuC.parentMenu(), menuC.rootLayer());
+		if(M.beInMenu){
+			pmenu = menuC.parentMenu();
+			root = menuC.rootLayer();
+		}
+		
+		var submenu =new (Class.forName(mClassType))(
+			menudef, this.Runtime(), pmenu, root);
+		if(!M.beInMenu){
+			submenu.setPeerComponent(this.getPeerComponent());
+		}
 
 		return submenu;
 	};
-    
+	
 	var _checkItems = function(def){
 		var items = def.items;
 
@@ -240,8 +262,9 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		}else{
 			items.push("label");	
 		}
-        
-		if(Class.isArray(def.nodes) || def.dynamic === true){
+		
+		if(def.beInMenu && (Class.isArray(def.nodes) 
+							|| def.dynamic === true)){
 			def.controlled = true;
 			items.push("ctrl");
 		}
@@ -378,10 +401,14 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	
 	thi$._init = function(def, Runtime, menu, view){
 		if(def == undefined) return;
-        
+		
+		def.beInMenu = (def.beInMenu !== false);
 		def.classType = def.classType || "js.awt.MenuItem";
 		def.className = menu.className + "_item";
-		def.css = "position:relative;width:100%;";
+		
+		if(def.beInMenu){
+			def.css = "position:relative;width:100%;";
+		}
 		
 		def.markable = Class.isBoolean(def.markable) ? def.markable : true; 
 		

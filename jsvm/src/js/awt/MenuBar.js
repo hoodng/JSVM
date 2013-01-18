@@ -43,306 +43,199 @@ $import("js.awt.MenuItem");
 /**
  * 
  * @param def :{
- *     className: "jsvm_menubar",
+ *	   className: "jsvm_menubar",
  * 
- *     nodes:[] // sub menu
+ *	   nodes:[] // sub menu
  * } 
  */
 js.awt.MenuBar = function (def, Runtime){
 
-    var CLASS = js.awt.MenuBar, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
-    
-    thi$.getPeerComponent = function(){
-        var root = this.rootLayer();
+	var CLASS = js.awt.MenuBar, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class, Event = js.util.Event, 
+	LList = js.util.LinkedList, DOM = J$VM.DOM, 
+	System = J$VM.System, MQ = J$VM.MQ;
+	
+	/**
+	 * Insert menu items into specified position
+	 * 
+	 * @param index
+	 * @param itemDefs, an array of menu item definition
+	 */
+	thi$.insertNodes = function(index, itemDefs){
+		var M = this.def, items0 = LList.$decorate(this.items0()),
+		items = LList.$decorate(this.items()),
+		nodes = this.nodes, ibase = index, item, refNode, 
+		itemDef, i, len, R = this.Runtime();
 
-        return this == root ? 
-            arguments.callee.__super__.apply(this, arguments) :
-            root.getPeerComponent();
+		if(!nodes){
+			nodes = this.nodes = js.util.LinkedList.$decorate([]);
+		}
 
-    }.$override(this.getPeerComponent);
-    
-    thi$.parentMenu = function(){
-        return this._local.parent;
-    };
-    
-    var _setRootMenu = function(menu){
-        if(menu instanceof js.awt.Menu){
-            this._local.root = menu;
-        }else if(!Class.isValid(menu)){
-            this._local.root = this;
-            MQ.register("hideMenuRoot", this, _onhideMenuRoot);
-        }
-    };
-    
-    var _setParentMenu = function(menu){
-        if(menu instanceof js.awt.Menu){
-            this._local.parent = menu;
-        }else if(!Class.isValid(menu)){
-            this._local.parent = this;
-        }
-    };
-    
-    /**
-     * Insert menu items into specified position
-     * 
-     * @param index
-     * @param itemDefs, an array of menu item definition
-     */
-    thi$.insertNodes = function(index, itemDefs){
-        var nodes = this.nodes, ibase = index, item, refNode, 
-        itemDef, clazz, i, len, R = this.Runtime();
+		item = nodes.get(index);
+		refNode = item ? item.view : undefined;
+		
+		for(i=0, len=itemDefs.length; i<len; i++){
+			itemDef = itemDefs[i];
+			itemDef.beInMenu = false;
+			itemDef.markable = itemDef.markable || false;
+			itemDef.text = itemDef.name;
+			itemDef.className = this.className + "_item";
+			itemDef.css = (itemDef.css || "") + "position:absolute;";
+			itemDef.menuClass = M.subMenuClass 
+				? M.subMenuClass : (this.className + "_menu");
+			
+			item = new (Class.forName("js.awt.MenuItem"))(itemDef, R, this);
+			item.setPeerComponent(this);
+			item.setContainer(this);
+			
+			this[item.id] = item;
+			items0.add(ibase, item.id);
+			items.add(ibase, item.id);
+			nodes.add(ibase, item);
+			
+			if(refNode){
+				DOM.insertAfter(item.view, refNode);
+			}else{
+				DOM.appendTo(item.view, this.view);
+			}
 
-        if(!nodes){
-            nodes = this.nodes = js.util.LinkedList.$decorate([]);
-        }
+			refNode = item.view;
+			++ibase;
+		};
+	};
 
-        item = nodes.get(index);
-        refNode = item ? item.view : undefined;
-        
-        for(i=0, len=itemDefs.length; i<len; i++){
-            itemDef = itemDefs[i];
-            itemDef.text = itemDef.name;
-            itemDef.className = this.className + "_item";
-            clazz = "js.awt.Label";
-            
-            item = new (Class.forName(clazz))(itemDef, R);    
+	/**
+	 * Remove menu items from index to index + length
+	 */
+	thi$.removeNodes = function(index, length){
+		var nodes = this.nodes, ritems = nodes.splice(index, length), 
+		items0 = this.items0(), items = this.items(),
+		cache = this.cache, item;
+		
+		items0.splice(index, length);
+		items.splice(index, length);
+		
+		while(ritems && ritems.length > 0){
+			item = ritems.shift();
+			delete cache[item.uuid()];
+			delete this[item.id];
+			item.destroy();
+		}
+	};
+	
+	/**
+	 * Remove all menu times
+	 */
+	thi$.removeAllNodes = function(){
+		var nodes = this.nodes;
+		if(nodes){
+			this.removeNodes(0, nodes.length);	  
+		}
+	};
+	
+	var _notify = function(e, item){
+		e.setEventTarget(item);
+		this.notifyPeer("js.awt.event.MenuItemEvent", e);
+	};
+	
+	var _onclick = function(e){
+		var el = e.srcElement, uuid = el.uuid, 
+		item = this.cache[uuid];
+		
+		if(item && item.isEnabled()){
+			this._local.triggerMenu = true;
+		}
+	};
+	
+	var _onMenuItem = function(e){
+		if(e.getType() == "input"){
+			_notify.call(this, e, e.getEventTarget());
+		}
+	};
+	
+	var _onmouseover = function(e){
+		var from = e.fromElement, to = e.toElement, 
+		fid = from ? from.uuid : undefined, 
+		tid = to ? to.uuid : undefined,
+		fitem, titem, cache = this.cache;
 
-            this[item.id] = item;
+		if(fid !== tid){
+			fitem = cache[fid];
+			titem = cache[tid];
+			if(fitem && fitem.isHover()){
+				var subMenu = fitem.subMenu();
+				if(!subMenu || !subMenu.isShown()){
+					fitem.setHover(false);
+					this.active = undefined;
+				}
+			}
+			if(titem && !titem.isHover()){
+				titem.setHover(true);
+				this.active = titem;
+			}
+		}
+	};
 
-            nodes.add(ibase++, item);
-            
-            if(refNode){
-                DOM.insertAfter(item.view, refNode);
-            }else{
-                DOM.appendTo(item.view, this.view);
-            }
+	var _onMenuHide = function(e){
+		var menu = e.getEventTarget(), type = e.getType(), item;
+		if(type = "afterRemoveLayer" && menu 
+		   && menu == menu.rootLayer()){
+			item = this[menu.def.id];
+			if(item && item.isHover()){
+				item.setHover(false);
+			}
+		}
+	};
+	
+	thi$.destroy = function(){
+		this.removeAllNodes();
 
-            refNode = item.view;
-        };
-    };
+		delete this.cache;
 
-    /**
-     * Remove menu items from index to index + length
-     */
-    thi$.removeNodes = function(index, length){
-        var nodes = this.nodes, items = nodes.splice(index, length), item,
-        cache = this.cache;
-        while(items && items.length > 0){
-            item = items.shift();
-            delete cache[item.uuid()];
-            delete this[item.id];
-            item.destroy();
-        }
-    };
-    
-    /**
-     * Remove all menu times
-     */
-    thi$.removeAllNodes = function(){
-        var nodes = this.nodes;
-        if(nodes){
-            this.removeNodes(0, nodes.length);    
-        }
-    };
-    
-    /**
-     * @see js.awt.PopupLayer
-     */
-    thi$.canHide = function(e){
-        var  type = e.getType();
-        switch(type){
-        case "blur":
-            return this.rootLayer().isHideOnBlur();
-        case "mousedown":
-            var el = e.srcElement;
+		arguments.callee.__super__.apply(this, arguments);
 
-            if(el && this.contains(el, true)){
-                return false;
-            }
-            break;
-        }
+	}.$override(this.destroy);
+	
 
-        return arguments.callee.__super__.apply(this, arguments);
+	thi$._init = function(def, Runtime){
+		if(def == undefined) return;
+		
+		def.classType = def.classType || "js.awt.MenuBar";
+		def.className = def.className || "jsvm_menubar";
 
-    }.$override(this.canHide);    
-    
-    /**
-     * @see js.awt.PopupLayer
-     */
-    thi$.hide = function(){
-        // Close my sub menu at first
-        var item = this.active, subMenu = item ? item.subMenu() : undefined;
-        if(item && subMenu && subMenu.isShown()){
-            subMenu.hide();
-            item.setHover(false);
-        }
-        arguments.callee.__super__.apply(this, arguments);
-    }.$override(this.hide);
-    
-    /**
-     * @see js.awt.BaseComponent 
-     * @see js.awt.Component
-     */
-    /*
-    thi$.repaint = function(){
-        if(!this._local.repaint){
-            var M = this.def, bounds = this.getBounds();
-            
-            M.width = bounds.width;
-            M.width -= bounds.BBM ? 0 : bounds.MBP.BPW;
-            
-            M.height = bounds.height;
-            M.height-= bounds.BBM ? 0 : bounds.MBP.BPH;
-            
-            M.z = this.getStyle("z-index");
+		var layout = def.layout = def.layout || {};
+		layout.classType = layout.classType || "js.awt.BoxLayout";
+		layout.axis = layout.axis || 0;
+		layout.align_x = layout.align_x || 0.0;
+		layout.align_y = layout.align_y || 0.5;
 
-            // For shadow
-            if(M.shadow === true && !this.shadowSettled()){
-                this.setShadowy(true);
-            }
-            
-            // For floating layer
-            if(M.isfloating === true && !this.floatingSettled()){
-                this.setFloating(true);    
-            }
-
-            var nodes = this.nodes, node, i, len;
-            for(i=0, len=nodes.length; i<len; i++){
-                node = nodes[i];
-                if(!(node instanceof js.awt.MenuSeparator)){
-                    node.doLayout();
-                    node.setEnabled(node.isEnabled());
-                }
-            }
-            this._local.repaint = true;
-        }
-        
-        if(this.shadowSettled()){
-            this.addShadow();
-            this.adjustShadow();
-        }
-        
-        if(this.active){
-            this.active.setHover(false);
-            this.active = undefined;
-        }
-
-    }.$override(this.repaint);
-    */
-
-    var _notify = function(e, item){
-        /* After click a menu item, a process block may occur so that the menu
-         * cann't be hide. Maybe that is reasonable to hide it first. However, 
-         * if we hide it before notifing its peer component to do something, 
-         * the menu may be destoried. Meanwhile, the data carried by that menu 
-         * item may be destoried, too.
-         * So we copy the def of menu item and build an object as the event 
-         * target in order to avoid much change. Then we can hide menu first. 
-         * 
-         * P.S.
-         * The menu of dashboard and gadget has menu item to do something like
-         * mark. So we also need use the menu item as the event target. However,
-         * In this case, there are some memory leak risk existed.
-         */
-        // e.setEventTarget(item);
-        // this.notifyPeer("js.awt.event.MenuItemEvent", e);
-        e.setEventTarget(item);
-
-        // Here, we will invoke the hide() to hide the menu rather than trigger
-        // it by the message post. Because the message execution is asynchronously.
-        // In some case, it may be block, too.      
-        //MQ.post("hideMenuRoot","", [this.rootLayer().uuid()]);
-        this.rootLayer().hide();
-        
-        this.notifyPeer("js.awt.event.MenuItemEvent", e);
-    };
-    
-    var _onclick = function(e){
-        var el = e.srcElement, uuid = el.uuid, 
-        item = this.cache[uuid];
-        
-        if(item && item.isEnabled()){
-            if(e.getType() == "click"){
-                _notify.call(this, e, item);
-            }
-        }
-    };
-    
-    var _onMenuItem = function(e){
-        if(e.getType() == "input"){
-            _notify.call(this, e, e.getEventTarget());
-        }
-    };
-    
-    var _onhideMenuRoot = function(){
-        this.hide();    
-    };
-
-    var _onmouseover = function(e){
-        var from = e.fromElement, to = e.toElement, 
-        fid = from ? from.uuid : undefined, 
-        tid = to ? to.uuid : undefined,
-        fitem, titem, cache = this.cache;
-
-        if(fid !== tid){
-            fitem = cache[fid];
-            titem = cache[tid];
-            if(fitem && fitem.isHover()){
-                var subMenu = fitem.subMenu();
-                if(!subMenu || !subMenu.isShown()){
-                    fitem.setHover(false);
-                    this.active = undefined;
-                }
-            }
-            if(titem && !titem.isHover()){
-                titem.setHover(true);
-                this.active = titem;
-            }
-        }
-    };
-    
-
-    thi$.destroy = function(){
-        this.removeAllNodes();
-
-        delete this.cache;
-
-        arguments.callee.__super__.apply(this, arguments);
-
-    }.$override(this.destroy);
-    
-
-    thi$._init = function(def, Runtime){
-        if(def == undefined) return;
-        
-        def.classType = def.classType || "js.awt.MenuBar";
-        def.className = def.className || "jsvm_menubar";
-
-        arguments.callee.__super__.apply(this, [def, Runtime]);
-        
-        this.cache = {};
-        
-        if(def.nodes && def.nodes.length > 0){
-            this.insertNodes(0, def.nodes);
-        }
-        
-        Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
-        Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
-        Event.attachEvent(this.view, "click",     0, this, _onclick);
-        
-        MQ.register("js.awt.event.ItemTextEvent", this, _onMenuItem);
-        
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
+		arguments.callee.__super__.apply(this, [def, Runtime]);
+		
+		this.cache = {};
+		
+		// Indicate whether the item can trigger its submenu
+		this._local.triggerMenu = false;
+		
+		if(def.nodes && def.nodes.length > 0){
+			this.insertNodes(0, def.nodes);
+		}
+		
+		Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
+		Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
+		Event.attachEvent(this.view, "click",	  0, this, _onclick);
+		
+		MQ.register("js.awt.event.ItemTextEvent", this, _onMenuItem);
+		MQ.register("js.awt.event.LayerEvent", this, _onMenuHide);
+		
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Container);
 
