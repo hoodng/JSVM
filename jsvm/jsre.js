@@ -41,7 +41,7 @@
  */
 J$VM = new function (){
     this.__product__ = "J$VM";
-    this.__version__ = "0.9.s2db5f6c9016e6ab7";
+    this.__version__ = "0.9.s5b5a17cc10bbbbac";
 
     this.env = {
         j$vm_log: false,
@@ -583,209 +583,7 @@ js.lang.Class = new function (){
     }.$bind(this);
     
 
-	//--MakeInterface--begin:  for make javascript interface & implement gridge by Synchronous uri.---
-	var GetARGV=function(arguments){
-		var i;
-		var argv=[];
-		for(i=0;i<arguments.length;i++){
-			argv.push(arguments[i]);
-		}
-		return argv;
-	};
-	var Require=this;
-	var MakeInterface=function(ClassFunction,interfacies,implementBridge){
-		var i;
-		var _interfaceName;
-		var idx;
-		var getProxyFunction=function(interfaceName){
-			return function(){
-				var argv=GetARGV(arguments);
-				var i;
-				argv.splice(0,0,interfaceName);
-				return implementBridge.apply(this,argv);
-			};
-		};
-		for(i=0;i<interfacies.length;++i){
-			_interfaceName=interfacies[i];
-			idx=_interfaceName.indexOf("(");
-			if(idx!=-1){
-				_interfaceName=_interfaceName.substring(0,idx);
-			}
-			ClassFunction.prototype[_interfaceName]=getProxyFunction(_interfaceName);
-		}
-	};
-
-	/**
-		this method make a synchronous javascript function.
-		and it's all instance method will exec after depend scrips loaded.
-		and make it easy debug in browser to asynchronous load depend scrips.
-
-		@param ClassFunction , a Function , all it's instances's method will be forword ImplementFunction.
-		@param ImplementFunctionName ,implement Function or implementFunction name. detail implement code should write in this function.
-		@param DependScriptUris , depeand scripts 's uris. implement code will be call after these uris be loaded.
-		@param interfacies , a Array . include method names. and only these name methode will be forword.
-		@return , no value.
-
-		simple code1:
-		
-		var ClientInterface=new Function;
-		var ServiceInterface=new Function;
-		var c=new ClientInterface;
-		NS.Make(ClientInterface,ServiceInterface,null,[
-			"test()"
-		]);
-		ServiceInterface.prototype={
-			"test":function(){
-				return "test";
-			}
-		};
-		return "test"==c.test();
-
-		simple code2: ref "com.jinfonet.report.gmap.dashboard.view"
-	
-	*/
-	this.MakeInterface=function(ClassFunction,ImplementFunctionName,DependScriptUris,interfacies){
-		var implementBridge=function(){
-			var argv=GetARGV(arguments);
-			var interfaceName=argv.shift();
-			var classInstance=this;
-			var ImplementFunction;
-			if(ImplementFunction){
-				return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
-			};
-			if(DependScriptUris){
-				Require.LoadScriptsExt(DependScriptUris,false,function(loaded,previouslyLoaded){
-					ImplementFunction=typeof ImplementFunctionName=="string"?eval(ImplementFunctionName):ImplementFunctionName;
-					return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
-				});
-			}else{
-				ImplementFunction=typeof ImplementFunctionName=="string"?eval(ImplementFunctionName):ImplementFunctionName;
-				return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
-			}
-
-            return null;
-		};
-
-		MakeInterface(ClassFunction,interfacies,implementBridge);
-	};
-
-	//--load script support for Asynchronous/Synchronous, copy from script.js.-- code begin {
-	this.LoadScriptsExt=function(srcs,synchro,callBack,isFlush){
-		var idx=0;
-		var _callback=function(loaded){
-			if(!loaded){
-				throw srcs;
-			}
-			idx++;
-			if(idx<srcs.length){
-				Require.LoadScriptExt(srcs[idx],synchro,_callback,isFlush);
-			}else{
-				if(callBack){
-					callBack(true);
-				}
-			}
-		};
-		this.LoadScriptExt(srcs[idx],synchro,_callback,isFlush);
-	};
-	var LoadedResources={};
-	var HasLoaded=function(src){
-		var head;
-		var i;
-		var c;
-		if(LoadedResources[src]==1){
-			return true;
-		}
-		head=document.getElementsByTagName("head")[0]||document.documentElement;
-		for(i=0;i<head.childNodes.length;i++){
-			c=head.childNodes[i];
-			if((c.tagName=="SCRIPT"||c.tagName=="LINK")&&c.getAttribute("uri")==src)
-				return true;
-		}
-		return false;
-	};
-	this.LoadScriptExt=function(src,synchro,callBack,isFlush){
-		var script;
-		var isHttp;
-		var xml_http;
-		var head;
-		if(!isFlush&&HasLoaded(src)){
-			if(callBack){
-				callBack(true,true);
-			}
-			return true;
-		}
-		script=document.createElement("script");
-		script.type="text/javascript";
-		synchro=synchro&&(window.location.protocol!=="file:");
-		if(synchro){
-			xml_http=window.XMLHttpRequest&&(window.location.protocol!=="file:"||!window.ActiveXObject)?new window.XMLHttpRequest():new window.ActiveXObject("Microsoft.XMLHTTP");
-			xml_http.open("GET",src,false);
-			xml_http.send(null);
-			if(xml_http.status!=200){
-				if(callBack){
-					callBack(false);
-				}
-				return false;
-			}else{
-				script.text=xml_http.responseText;
-			}
-		}else{
-			if(LoadedResources[src] instanceof Array){
-				LoadedResources[src].push(callBack);
-				return true;
-			}
-			script.src=src;
-			var onload=function(){
-				var listeners=LoadedResources[src];
-				var _callBack;
-				while(listeners instanceof Array&&listeners.length>0){
-					_callBack=listeners.shift();
-					if(_callBack){
-						_callBack(true);
-					}
-				}
-				script.onload=null;
-				script.onerror=null;
-				LoadedResources[src]=1;
-			};
-			script.onreadystatechange=function(){
-				if(script.readyState=="loaded"){
-					onload();
-				}
-			};
-			script.onload=onload;
-			script.onerror=function(){
-				var listeners=LoadedResources[src];
-				var _callBack;
-				while(listeners.length>0){
-					_callBack=listeners.shift();
-					if(_callBack){
-						_callBack(false);
-					}
-				}
-				script.onload=null;
-				script.onerror=null;
-				LoadedResources[src]=3;
-			};
-		}
-		head=document.getElementsByTagName("head")[0]||document.documentElement;
-		head.appendChild(script);
-		if(synchro){
-			LoadedResources[src]=1;
-			if(callBack){
-				callBack(true);
-			}
-		}else{
-			LoadedResources[src]=[callBack];
-		}
-		return true;
-	};
-	// } --load script support for Asynchronous/Synchronous. code end.
-
-    
-	
-	
-	/**
+    /**
      * Return the content with the specified url
      * 
      * @param url, the url to load content
@@ -845,30 +643,30 @@ js.lang.Class = new function (){
             (o === undefined) ? "undefined" :
             this.isHtmlElement(o) ? 
             "html"+o.tagName.toLowerCase()+"element" :
-			this.isBigInt(o) ? "bigint" :
+            this.isBigInt(o) ? "bigint" :
             (function(){
                  var s = Object.prototype.toString.call(o);
                  return s.substring(8, s.length-1).toLowerCase();
              })();
     }.$bind(this);
 
-	/**
-	 * Test if the specified object is a Date.
-	 * 
-	 * Specially in Firefox, Chrome and Safari, when we attempt to 
-	 * parse an invalid date string as a Date object. An valid Date 
-	 * object will be returned but it indicates an invalid Date. 
-	 * 
-	 * e.g.
-	 * var d = new Date("January 1, 2012 16:00:00 AM");
-	 * this.typeof(d) == "date"; //true
-	 * isNaN(d); //true
-	 */
+    /**
+     * Test if the specified object is a Date.
+     * 
+     * Specially in Firefox, Chrome and Safari, when we attempt to 
+     * parse an invalid date string as a Date object. An valid Date 
+     * object will be returned but it indicates an invalid Date. 
+     * 
+     * e.g.
+     * var d = new Date("January 1, 2012 16:00:00 AM");
+     * this.typeof(d) == "date"; //true
+     * isNaN(d); //true
+     */
     this.isDate = function(o){
         return (this.typeOf(o) == "date" && !isNaN(o));
     };
-	
-	/**
+    
+    /**
      * Test if the specified object is an BigInt
      */
     this.isBigInt = function(o){
@@ -973,26 +771,26 @@ js.lang.Class = new function (){
      * 
      * @return true/false if the object is of the specified type.
      */
-	this.is = function(o, type){
-		if(!type)
-			return o !== undefined && o !== null;
-		
-		var b = false;
-		type = type.toLowerCase();
-		switch(type){
-			case "number":
-				b = this.isNumber(o);
-				break;
-			case "date":
-				b = this.isDate(o);
-				break;
-			default:
-				b = (this.typeOf(o) === type);
-				break;
-		}
-		
-		return b;
-	};
+    this.is = function(o, type){
+        if(!type)
+            return o !== undefined && o !== null;
+        
+        var b = false;
+        type = type.toLowerCase();
+        switch(type){
+        case "number":
+            b = this.isNumber(o);
+            break;
+        case "date":
+            b = this.isDate(o);
+            break;
+        default:
+            b = (this.typeOf(o) === type);
+            break;
+        }
+        
+        return b;
+    };
     
 }();
 
@@ -4331,6 +4129,123 @@ js.util.CookieStorage = function (){
 
 }.$extend(js.lang.Object);
 
+
+/**
+ * Copyright (c) Jinfonet Inc. 2000-2012, All rights reserved.
+ * 
+ * @File: Locale.js
+ * @Create: 2012/12/26 06:22:48
+ * @Author: mingfa.pan@china.jinfonet.com
+ */
+
+$package("js.util");
+
+/**
+ * A <em>Locale</em> object represents a specific geographical, political,
+ * or cultural region.
+ */
+js.util.Locale = function(language, country){
+    var CLASS = js.util.Locale,
+    thi$ = CLASS.prototype;
+    
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var C = js.lang.Class, System = J$VM.System;
+
+    /**
+     * Sets the language of current Locale. Language always be lower case. 
+     * If the specified language isn't be the valid string, a blank string 
+     * will be used.     
+     * 
+     * @param language: {String} 2 or 3 letter language code.
+     */
+    thi$.setLanguage = function(language){
+        this.language = C.isString(language) ? language : "";
+    };
+    
+    /**
+     * Returns the language code of this Locale.
+     *
+     * @return The language code, or the empty string if none is defined.
+     */
+    thi$.getLanguage = function(){
+        return this.language ? this.language.toLowerCase() : "";
+    };
+    
+    /**
+     * Sets the country for the Locale. Country always be upper case.
+     * If the specified country isn't be the valid string, a blank string
+     * will be used.
+     * 
+     * @param country: {String} An ISO 3166 alpha-2 country code or a UN M.49 
+     *        numeric-3 area code.
+     */
+    thi$.setCountry = function(country){
+        this.country = C.isString(country) ? country : "";  
+    };
+    
+    /**
+     * Returns the country code of this Locale.
+     * 
+     * @return The country code, or the empty string if none is defined.
+     */
+    thi$.getCountry = function(){
+        return this.country ? this.country.toUpperCase() : "";
+    };
+    
+    thi$.equals = function(locale){
+        return locale && (locale.getLanguage() === this.getLanguage()) 
+            && (locale.getCountry() === this.getCountry());
+    };
+    
+    thi$.toString = function(){
+        var language = this.getLanguage(), 
+        country = this.getCountry(),
+        symbol = (language && country) ? "_" : "",
+        buf = [];
+        
+        buf.push(language);
+        buf.push(symbol);
+        buf.push(country);
+        
+        return buf.join("");
+    };
+    
+    thi$._init = function(language, country){
+        if(!C.isString(language) && !C.isString(country)){
+            return;
+        }
+        
+        this.setLanguage(language);
+        this.setCountry(country);
+    };
+    
+    this._init.apply(this, arguments);
+};
+
+js.util.Locale.getDateSymbols = function(locale){
+    var res, symbols;
+    if(locale && locale instanceof js.util.Locale){
+        res = js.lang.Class.forName("js.text.resources." + locale.toString());
+        symbols = res ? res.dateSymbols : undefined;
+    }
+    
+    return symbols;
+};
+
+js.util.Locale.getNumberSymbols = function(locale){
+    var res, symbols;
+    if(locale && locale instanceof js.util.Locale){
+        res = js.lang.Class.forName("js.text.resources." + locale.toString());
+        symbols = res ? res.numrSymbols : undefined;
+    }
+    
+    return symbols;
+};
 
 /**
 
