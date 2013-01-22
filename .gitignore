@@ -1,0 +1,4 @@
+*~
+WEB-INF/classes/**/*
+jsvm/classes/**/*
+
