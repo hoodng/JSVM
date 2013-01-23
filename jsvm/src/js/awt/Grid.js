@@ -59,7 +59,8 @@ js.awt.Grid = function(def){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Object = js.lang.Object;
+    var Class = js.lang.Class, Object = js.lang.Object,
+    System = J$VM.System;
     
     thi$.rowNum = function(){
         return this.rows.length;
@@ -80,8 +81,58 @@ js.awt.Grid = function(def){
     thi$.cell = function(rowIndex, colIndex){
         return this.cells[rowIndex][colIndex];
     };
+
+    /**
+     * Set attributes of a specified row.
+     * 
+     * @param index, row index
+     * @param attrs, an object which include one or more following attributes 
+     * "rigid", "measure", "weight", "visible". 
+     */
+    thi$.rowAttrs = function(index, attrs){
+        _dimAttrs.call(this, this.rows, index, attrs);
+    };
+
+    /**
+     * Set attributes of a specified column.
+     * 
+     * @param index, column index
+     * @param attrs, an object which include one or more following attributes 
+     * "rigid", "measure", "weight", "visible". 
+     */
+    thi$.colAttrs = function(index, attrs){
+        _dimAttrs.call(this, this.cols, index, attrs);
+    };
+
+    var _dimAttrs = function(dims, index, attrs){
+        var dim, p;
+        if(Class.isObject(attrs) && 
+           (index>=0 && index < dims.length)){
+            dim = dims[index];
+            for(p in attrs && attrs.hasOwnProperty(p)){
+                switch(p){
+                case "rigid":
+                    if(dim.rigid !== attrs.rigid){
+                        dim.rigid = attrs.rigid;
+                        dims.dirty |= 0x01; // need re-calc weight
+                    }
+                    break;
+                case "visible":
+                    if(dim.visible !== attrs.visible){
+                        dim.visible = attrs.visible;
+                        dims.dirty |= 0x01; // need re-calc weight
+                    }
+                    break;
+                default:
+                    dim[p] = attrs[p];                  
+                }
+            }
+        }
+    };
     
     thi$.layout = function(xbase, ybase, width, height){
+
+        this.update();
 
         // Calculates height of every row
         _calcDimsMeasure.call(this, this.rows, ybase, height);
@@ -93,34 +144,30 @@ js.awt.Grid = function(def){
         _calcCellsMeasure.call(this, this.rowNum(), this.colNum());
         
     };
-    
-    var _initDims = function(dims, dimDefs){
-        var dlen = dims.length, dimDef, dim, weight = 1.0, 
-        i, len, index, v, tmps = [];
 
-        if(Class.isArray(dimDefs)){
-            for(i=0, len=dimDefs.length; i<len; i++){
-                dimDef = dimDefs[i];
-                index = dimDef.index;
-                if(index >=0 && index <dlen){
-                    dims[index] = {
-                        visible: !(dimDef.visible === false),
-                        measure: Class.isNumber(dimDef.measure) ? dimDef.measure : 0,
-                        weight: dimDef.weight,
-                        rigid: (dimDef.rigid === true)
-                    };
-                }
-            }
+    /**
+     * Update grid model
+     *
+     */
+    thi$.update = function(){
+        
+        // Adjust weight
+        if(this.rows.dirty & 0x01 !== 0){
+            _adjustWeight.call(this, this.rows);
+        }
+        if(this.cols.dirty & 0x01 !== 0){
+            _adjustWeight.call(this, this.cols);
         }
 
-        for(i=0; i<dlen; i++){
+        
+    };
+
+    var _adjustWeight = function(dims){
+
+        var dim, i, len, weight = 1.0, v, tmps=[];
+
+        for(i=0, len=dims.length; i<len; i++){
             dim = dims[i];
-            if(dim === undefined){
-                dim = dims[i] = {visible:true, rigid:false};
-            }
-            
-            
-            Object.$decorate(dim);
 
             if(!dim.rigid && dim.visible){
                 v = dim.weight;
@@ -139,27 +186,74 @@ js.awt.Grid = function(def){
                 tmps.shift().weight = weight;
             }
         }
+
+        dims.dirty &= ~0x01;
+
+    };
+    
+    var _initDims = function(dims, dimDefs){
+        var dlen = dims.length, dimDef, dim, i, len, index, v;
+
+        dims.dirty = 0;
+
+        if(Class.isArray(dimDefs)){
+            for(i=0, len=dimDefs.length; i<len; i++){
+                dimDef = dimDefs[i];
+                index = dimDef.index;
+                if(index >=0 && index <dlen){
+                    v = dimDef.measure;
+                    dims[index] = {
+                        visible: !(dimDef.visible === false),
+                        measure: Class.isNumber(v) ? v : 0,
+                        weight: dimDef.weight,
+                        rigid: (dimDef.rigid === true)
+                    };
+                }
+            }
+        }
+
+        for(i=0; i<dlen; i++){
+            dim = dims[i];
+            if(dim === undefined){
+                dim = dims[i] = {visible:true, rigid:false};
+            }
+            
+            //Object.$decorate(dim);
+        }
+
+        _adjustWeight.call(this, dims);
     };
 
     var _initCells = function(cells, cellDefs){
         var rows = this.rows, cols = this.cols, 
         m = rows.length, n = cols.length,
         cellDef, cell, i, j, len, rspan, cspan, 
-        ri, cj, visible, padding = this.cellpadding;
+        pt, pr, pb, pl, ri, cj, visible, 
+        padding = this.cellpadding;
 
         // Initialize cell definition according to the definition
         if(Class.isArray(cellDefs)){
             for(i=0, len=cellDefs.length; i<len; i++){
                 cellDef = cellDefs[i];
                 ri = cellDef.rowIndex, cj = cellDef.colIndex;
+
                 if(ri >=0 && ri < m && cj >=0 && cj < n){
+
+                    rspan = cellDef.rowSpan; 
+                    cspan = cellDef.colSpan;
+
+                    pt = cellDef.paddingTop;
+                    pr = cellDef.paddingRight;
+                    pb = cellDef.paddingBottom;
+                    pl = cellDef.paddingLeft;
+
                     cells[ri][cj] = {
-                        rowSpan: Class.isNumber(cellDef.rowSpan) ? cellDef.rowSpan : 1,
-                        colSpan: Class.isNumber(cellDef.colSpan) ? cellDef.colSpan : 1,
-                        paddingTop: Class.isNumber(cellDef.paddingTop) ? cellDef.paddingTop : padding[0],
-                        paddingRight: Class.isNumber(cellDef.paddingRight) ? cellDef.paddingLeft : padding[1],
-                        paddingBottom: Class.isNumber(cellDef.paddingBottom) ? cellDef.paddingBottom : padding[2],
-                        paddingLeft: Class.isNumber(cellDef.paddingLeft) ? cellDef.paddingLeft : padding[3]
+                        rowSpan: Class.isNumber(rspan) ? rspan : 1,
+                        colSpan: Class.isNumber(cspan) ? cspan : 1,
+                        paddingTop: Class.isNumber(pt) ? pt : padding[0],
+                        paddingRight: Class.isNumber(pr) ? pr : padding[1],
+                        paddingBottom: Class.isNumber(pb) ? pb : padding[2],
+                        paddingLeft: Class.isNumber(pl) ? pl : padding[3]
                     };
                 }
             }

@@ -66,6 +66,7 @@
             "js/util/Storage.js",
             "js/util/Cookie.js",
             "js/util/CookieStorage.js",
+			"js/util/Locale.js",
             "js/net/URI.js",
             "js/net/HttpURLConnection.js",
             "js/awt/ComponentFactory.js",
