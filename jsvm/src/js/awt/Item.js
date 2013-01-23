@@ -172,6 +172,17 @@ js.awt.Item = function(def, Runtime, view){
 		}
 	};
 	
+	thi$.triggerCtrl = function(b){
+		var ctrl = this.ctrl;
+		if(!ctrl) return;
+		
+		if(b){
+			ctrl.className = this.className + "_ctrl_4";
+		}else{
+			ctrl.className = this.className + "_ctrl_0";
+		}
+	};
+	
 	/**
 	 * @see js.awt.BaseComponent#setToolTipText
 	 * 

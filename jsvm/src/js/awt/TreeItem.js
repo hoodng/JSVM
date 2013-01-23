@@ -273,12 +273,13 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             this.setIconImage(4);
             
             refNode = this.view;
-            for(i=0, len=nodes.length; i<len; i++){
-                item = nodes[i];
-                _addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
-                refNode = item.view;
-            }
-            
+            if(nodes && nodes.length > 0){
+            	 for(i=0, len=nodes.length; i<len; i++){
+                     item = nodes[i];
+                     _addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
+                     refNode = item.view;
+                 }
+            }           
         }else{
             for(i=nodes.length-1; i>=0; i--){
                 item = nodes[i];
@@ -307,12 +308,14 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
         if(b){
             var nodes = this.nodes, i, len, item;
-            for(i=0, len=nodes.length; i<len; i++){
-                item = nodes[i];
-                if(item.canExpand() && !item.isExpanded()){
-                    item.expandAll(b, this);
+            if(nodes && this.nodes.length > 0){
+            	for(i=0, len=nodes.length; i<len; i++){
+                    item = nodes[i];
+                    if(item.canExpand() && !item.isExpanded()){
+                        item.expandAll(b, this);
+                    }
                 }
-            }
+            }           
         }
         
         //notify

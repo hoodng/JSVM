@@ -376,18 +376,20 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      */
     thi$.expandAll = function(b){
         var nodes = this.nodes, i, len, item;
-        for(i=0, len=nodes.length; i<len; i++){
-            item = nodes[i];
-            if(b){
-                if(item.canExpand() && !item.isExpanded()){
-                    item.expandAll(b, item);
-                }
-            }else{
-                if(item.canExpand() && item.isExpanded()){
-                    item.expand(b);
-                }
-            }
-        }
+        if(nodes && nodes.length>0){
+        	 for(i=0, len=nodes.length; i<len; i++){
+                 item = nodes[i];
+                 if(b){
+                     if(item.canExpand() && !item.isExpanded()){
+                         item.expandAll(b, item);
+                     }
+                 }else{
+                     if(item.canExpand() && item.isExpanded()){
+                         item.expand(b);
+                     }
+                 }
+             }
+        }      
         _setMaxSize.$delay(this, 1);
         _keepScroll.$delay(this, 1, true);
         

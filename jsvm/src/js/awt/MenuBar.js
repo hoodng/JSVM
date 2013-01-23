@@ -153,12 +153,6 @@ js.awt.MenuBar = function (def, Runtime){
 		}
 	};
 	
-	var _onMenuItem = function(e){
-		if(e.getType() == "input"){
-			_notify.call(this, e, e.getEventTarget());
-		}
-	};
-	
 	var _onmouseover = function(e){
 		var from = e.fromElement, to = e.toElement, 
 		fid = from ? from.uuid : undefined, 
@@ -180,6 +174,10 @@ js.awt.MenuBar = function (def, Runtime){
 				this.active = titem;
 			}
 		}
+	};
+
+	var _onMenuItem = function(e){
+		this.notifyPeer("js.awt.event.MenuItemEvent", e);
 	};
 
 	var _onMenuHide = function(e){
@@ -230,7 +228,7 @@ js.awt.MenuBar = function (def, Runtime){
 		Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
 		Event.attachEvent(this.view, "click",	  0, this, _onclick);
 		
-		MQ.register("js.awt.event.ItemTextEvent", this, _onMenuItem);
+		MQ.register("js.awt.event.MenuItemEvent", this, _onMenuItem);
 		MQ.register("js.awt.event.LayerEvent", this, _onMenuHide);
 		
 	}.$override(this._init);

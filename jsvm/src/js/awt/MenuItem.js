@@ -36,6 +36,7 @@
  */
 
 $package("js.awt");
+$import("js.awt.FlexibleItem");
 
 /**
  * 
@@ -144,76 +145,18 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	}.$override(this.getPeerComponent);
 	
 	/**
-	 * @see js.awt.Item #getPreferedSize
-	 */
-	thi$.getPreferredSize = function(){
-		if(this.def.prefSize == undefined && this._local.leftmostCtrl){
-			var G = this.getGeometric(), nodes = this.view.childNodes,
-			len = nodes.length, preEle, ele, width;
-			for(var i = 0; i < len; i++){
-				ele = nodes[i];
-				if(ele == this._local.leftmostCtrl){
-					preEle = nodes[i - 1];
-
-					if(preEle.tagName == "SPAN"){
-						width = preEle.offsetLeft + DOM.getTextSize(preEle).width;
-					}else{
-						width = preEle.offsetLeft + preEle.scrollWidth;
-					}
-					
-					break;
-				}
-			}
-			
-			width += this._local.ctrlsWidth;
-			if(G.ctrl){
-				width += G.ctrl.MBP.marginLeft + G.ctrl.width + G.ctrl.MBP.marginRight;
-			}
-			width += G.bounds.MBP.BPW;
-			
-			this.setPreferredSize(width, G.bounds.height);
-		}else{
-			arguments.callee.__super__.apply(this, arguments);
-		}
-		
-		return this.def.prefSize;
-		
-	}.$override(this.getPreferredSize);
-	
-	/**
-	 * @see js.awt.Item #isMoverSpot
-	 */
-	thi$.isMoverSpot = function(el, x, y){
-		var b = arguments.callee.__super__.apply(this, arguments),
-		extraCtrls = this._local.extraCtrls,
-		ids = extraCtrls ? extraCtrls.keys() : [];
-		for(var i = 0, len = ids; i < len; i++){
-			b = b && this[ids[i]];
-		}
-		
-		return b;
-		
-	}.$override(this.isMoverSpot);
-	
-	/**
-	 * @see js.awt.Item #doLayout
+	 * @see js.awt.FlexibleItem #doLayout
 	 */
 	thi$.doLayout = function(){
-		var leftmostCtrl = this._local.leftmostCtrl;
-		if(leftmostCtrl){
-			var ele = this.label || this.input,
-			maxWidth = leftmostCtrl.offsetLeft;
-			width = maxWidth - ele.offsetLeft;
-			width = width < 0 ? 0 : width;
-			
-			if(this.input){
-				DOM.setSize(ele, width, undefined);
-			}else{
-				ele.style.width = width + "px";
+		if(this.isCustomized()){
+			var customComp = this.getCustomComponent(),
+			peer = customComp.getPeerComponent();
+			if(!peer && DOM.isDOMElement(customComp.view)){
+				customComp.setPeerComponent(this.getPeerComponent());
 			}
-		}else{
-			arguments.callee.__super__.apply(this, arguments);
 		}
+		
+		arguments.callee.__super__.apply(this, arguments);
 		
 	}.$override(this.doLayout);
 	
@@ -249,147 +192,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		return submenu;
 	};
 	
-	var _checkItems = function(def){
-		var items = def.items;
-
-		if(def.markable === true){
-			items.push("marker");	 
-		}
-		
-		items.push("icon");
-		if(def.inputText){
-			items.push("input");
-		}else{
-			items.push("label");	
-		}
-		
-		if(def.beInMenu && (Class.isArray(def.nodes) 
-							|| def.dynamic === true)){
-			def.controlled = true;
-			items.push("ctrl");
-		}
-		
-		return def;
-	};
-
-	/**
-	 * Judge whethe the current event hit some extra ctrl.
-	 * 
-	 * @param e: {js.awt.Event}
-	 */	   
-	thi$.hitCtrl = function(e){
-		var src = e.srcElement, extraCtrls = this._local.extraCtrls, 
-		ids = extraCtrls ? extraCtrls.keys() : undefined, id, ele, ctrl;
-		if(!src || !ids || ids.length == 0) {
-			return false;
-		}
-		
-		for(var i = 0, len = ids.length; i < len; i++){
-			id = ids[i];
-			ele = this[id];
-			
-			if(ele && DOM.contains(ele, src, true)){
-				// ctrl = extraCtrls.get(id);
-				return true;
-			}
-		}
-		
-		return false;
-	};
-	
-	var _createExtraCtrls = function(){
-		var M = this.def, buf = this.__buf__, ctrls = M.ctrls,
-		len = Class.isArray(ctrls) ? ctrls.length : 0;
-		if(len == 0){
-			return;
-		}
-
-		var G = this.getGeometric(), ybase = G.bounds.MBP.paddingTop,
-		height = G.bounds.BBM ? 
-			G.bounds.height : G.bounds.height - G.bounds.MBP.BPH,
-		innerHeight = height - G.bounds.MBP.BPH, anchor = this.ctrl,
-		ctrlsWidth = 0, top = 0, right = 0, el, iid, D, styleW, styleH;
-		
-		if(this.ctrl){
-			right = G.bounds.MBP.paddingRight 
-				+ G.ctrl.MBP.marginLeft + G.ctrl.width + G.ctrl.MBP.marginRight; 
-		}
-		
-		var extraCtrls = this._local.extraCtrls = new js.util.HashMap(),
-		ctrl, ctrlId;
-		for(var i = len - 1; i >= 0; i--){
-			ctrl = ctrls[i];
-			ctrlId = ctrl.id || ("ctrl" + i);
-			iid = ctrlId.split(/\d+/g)[0];
-
-			if(ctrlId !== "ctrl"){
-				extraCtrls.put(ctrlId, ctrl);
-				
-				el = DOM.createElement("DIV");
-				el.id = ctrlId;
-				el.iid = iid;
-				el.uuid = this.uuid();
-				el.className = ctrl.className || (this.className + "_extra");
-				
-				buf.clear();
-				buf.append("position:absolute;");
-				
-				if(ctrl.image){
-					buf.append("background-image: url(")
-						.append(this.Runtime().imagePath() + ctrl.image).append(");")
-						.append("background-repeat:no-repeat;background-position:center;");
-				}
-				
-				if(ctrl.css){
-					buf.append(css);
-				}				 
-				el.style.cssText = buf.toString();
-				
-				DOM.appendTo(el, document.body);
-				DOM.setSize(el, ctrl.width, ctrl.height);
-				D = G[ctrlId] = DOM.getBounds(el);
-				styleW = DOM.getStyle(el, "width");
-				styleH = DOM.getStyle(el, "height");
-				DOM.removeFrom(el);
-				
-				if(styleW){
-					buf.append("width:").append(styleW).append(";");
-				}
-				
-				if(styleH){
-					buf.append("height:").append(styleH).append(";");
-				}
-				
-				top = ybase + (innerHeight - D.height)*0.5;
-				buf.append("top:").append(top).append("px;");
-				buf.append("right:").append(right).append("px;");
-				el.style.cssText = buf.toString();
-				
-				DOM.insertBefore(el, anchor, this.view);
-				anchor = el;
-				
-				// The leftmost ctrl which will be used to calculate the lable 
-				// or input width in doLayout
-				this._local.leftmostCtrl = el;
-
-				M.items.push(ctrlId);
-				this[ctrlId] = el;
-				
-				ctrlsWidth = D.MBP.marginLeft + D.width + D.MBP.marginRight;
-				right += ctrlsWidth;
-			}else{
-				System.err.println("The \"ctrl\" has been reserved for the submenu.");
-			}
-			
-			// Cache this value for calculate the prefered size
-			this._local.ctrlsWidth = ctrlsWidth;
-		}
-	};
-	
 	thi$.destroy = function(){
-		delete this._local.leftmostCtrl;
-		delete this._local.extraCtrls;
-		
 		if(this._local.submenu){
 			this._local.submenu.destroy();
 		}
@@ -402,43 +205,32 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	thi$._init = function(def, Runtime, menu, view){
 		if(def == undefined) return;
 		
-		def.beInMenu = (def.beInMenu !== false);
 		def.classType = def.classType || "js.awt.MenuItem";
 		def.className = menu.className + "_item";
+		def.beInMenu = (def.beInMenu !== false);
+		def.markable =(def.markable !== false);
+		def.controlled = (def.beInMenu && (Class.isArray(def.nodes) 
+										   || def.dynamic === true));
 		
 		if(def.beInMenu){
 			def.css = "position:relative;width:100%;";
 		}
 		
-		def.markable = Class.isBoolean(def.markable) ? def.markable : true; 
-		
-		if(view == undefined){
-			def.items = js.util.LinkedList.$decorate([]);
-			_checkItems.call(this, def);
-		}
-
 		arguments.callee.__super__.apply(this, [def, Runtime, view]);
 		
-		// Add extra ctrls
-		_createExtraCtrls.call(this);		 
-
 		this.setContainer(menu);
 		menu.cache[this.uuid()] = this;
-		
+
 		if(this.input){
 			Event.attachEvent(this.input, "mousedown", 0, this, _onInput);
 			Event.attachEvent(this.input, "click", 0, this, _onInput); 
-		}
-		
-		if(this.isMarkable()){
-			this.mark(def.checked);
 		}
 
 	}.$override(this._init);
 	
 	this._init.apply(this, arguments);
 
-}.$extend(js.awt.Item);
+}.$extend(js.awt.FlexibleItem);
 
 js.awt.MenuSeparator = function(def, Runtime, menu){
 

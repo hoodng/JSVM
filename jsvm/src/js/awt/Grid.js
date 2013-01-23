@@ -237,7 +237,6 @@ js.awt.Grid = function(def){
         }
     };
     
-    
     var _calcCellsMeasure = function(m, n){
         var cells = this.cells, cell, i, j;
 
