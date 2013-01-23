@@ -72,7 +72,7 @@ js.awt.TableBody = function(def, Runtime) {
 					cell = grid.cell(i, j);
 					cellData = rowData[j];
 					if (cell && cell.visible) {
-						className = cellData.className
+						className = cellData.className;
 						if(cellData.isNoWrap){
 							if(className)
 								tempDiv = "<div class=\"" + className + "\" rowuuid=\""  +  rowUuid + "\" >" + cellData.value + "</div>";
@@ -155,7 +155,7 @@ js.awt.TableBody.Row = function(def, Runtime) {
 		def.className = def.className || "jsvm_table_row";
 		def.viewType = "TR";
 		arguments.callee.__super__.apply(this, arguments);
-		this.view.uuid = def.uuid();
+		this.view.uuid = js.lang.Math.uuid();
 	}.$override(this._init);
 	this._init.apply(this, arguments);
 }.$extend(js.awt.Component);
