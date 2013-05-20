@@ -32,14 +32,14 @@
  * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://jzvm.googlecode.com
+ * Source code availability: http://github.com/jsvm
  */
 
 /*var tasks = */{
     list: ["jsre", "jsreui"],
 
     jsre: {
-        compress: false,
+        compress: true,
 
         despath: "../",
         name: "jsre.js",
@@ -66,20 +66,25 @@
             "js/util/Storage.js",
             "js/util/Cookie.js",
             "js/util/CookieStorage.js",
-			"js/util/Locale.js",
+            "js/util/Locale.js",
             "js/net/URI.js",
             "js/net/HttpURLConnection.js",
-            "js/awt/ComponentFactory.js",
             "js/awt/Event.js",
+            "js/awt/ComponentFactory.js",
             "js/lang/Runtime.js",
             "js/lang/System.js",
             "js/lang/Thread.js",
-            "js/boot.js"
+            "js/boot.js",
+            "js/text/Format.js",
+            "js/text/DateFormatSymbols.js",
+            "js/text/NumberFormat.js",
+            "js/text/SimpleDateFormat.js",
+            "js/text/NumberFormat.js"
         ]
     },
 
     jsreui: {
-        compress: false,
+        compress: true,
 
         despath: "../lib/",
         name: "jsre-ui.js",
@@ -101,7 +106,6 @@
             "js/awt/CardLayout.js",
             "js/awt/FlowLayout.js",
             "js/awt/GridLayout.js",
-            "js/awt/GridBagLayout.js",
             "js/awt/BaseComponent.js",
             "js/awt/Component.js",
             "js/awt/Container.js",
