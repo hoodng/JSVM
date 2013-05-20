@@ -1,0 +1,1 @@
+$package("js.awt");js.awt.Brush = function (fillStyle) {var CLASS = js.awt.Brush, thi$ = CLASS.prototype;if (CLASS.__defined__) {this._init.apply(this, arguments);return;}CLASS.__defined__ = true;var Class = js.lang.Class, System = J$VM.System;thi$._init = function (fillStyle) {this.fillStyle = fillStyle || "#FFFFFF";};this._init.apply(this, arguments);};

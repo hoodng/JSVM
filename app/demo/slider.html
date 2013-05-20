@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/report.css"/>
+
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/jsre-ui.js" ></script>
+
+<script src="../../jsvm/src/js/text/NumberFormat.js" ></script>
+<script src="../../jsvm/src/js/awt/Slider.js" ></script>
+<script src="../../jsvm/src/com/jinfonet/report/slider/Slider.js" ></script>
+<script src="../../jsvm/src/com/jinfonet/report/slider/MontionSlider.js" ></script>
+<script src="../../jsvm/src/com/jinfonet/report/slider/SingleFCSlider.js" ></script>
+<script src="../../jsvm/src/com/jinfonet/report/slider/RangerFCSlider.js" ></script>
+<script src="../../jsvm/src/com/jinfonet/report/slider/SliderDataProvider.js" ></script>
+<style>
+
+
+</style>
+</head>
+<body>
+
+
+</body>
+
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+    var Class = js.lang.Class;
+
+    this.prefer({theme: "default"});
+
+    this.setZ(0);
+
+    var slider0 = new js.awt.Slider(
+        {
+           className: "jsvm_slider_single",
+           id: "slider0",
+           type: 0,
+           resizable:true,
+           resizer: 0x22
+        }, this);
+
+    slider0.onSliderChanged = function(fire){
+        //System.err.println(JSON.stringify(this.getOffset()));
+    };
+
+    slider0.onPlay = function(){
+        System.err.println("Playing...");
+    };
+
+    slider0.onStop = function(){
+        System.err.println("End play");
+    };
+
+    //slider0.setDataCount(10);
+
+    this.addComponent(slider0);
+
+    var slider1 = new js.awt.Slider(
+        {
+           className: "jsvm_slider_ranger",
+           id: "slider1",
+           type: 1,
+           resizable: true,
+           resizer: 0x22,
+           tracemouse:3
+        }, this);
+
+    slider1.onSliderChanged = function(fire){
+        var o = this.getOffset();
+        var d = Math.round(5+(1-o.offset0p)*10);
+        slider0.setDuration(d);
+    };
+
+    this.addComponent(slider1);
+
+    slider0.adjustResizer();
+    slider1.adjustResizer();
+
+    var btnFirst = new js.awt.Button(
+        {
+            id: "btnFirst",
+            x: 10, y: 120,
+            labelText: "First"
+        }, this);
+    btnFirst.attachEvent("click", 0, this, 
+    function(){
+        slider0.first();
+        slider1.first();
+    });
+
+    this.addComponent(btnFirst);
+
+    var btnLast = new js.awt.Button(
+        {
+            id: "btnLast",
+            x: 100, y: 120,
+            labelText: "Last"
+        }, this);
+    this.addComponent(btnLast);
+    btnLast.attachEvent("click", 0, this, 
+    function(){
+        slider0.last();
+        slider1.last();
+    });
+
+    var btnAll = new js.awt.Button(
+        {
+            id: "btnAll",
+            x: 190, y: 120,
+            labelText: "All"
+        }, this);
+    btnAll.attachEvent("click", 0, this, 
+    function(){
+        slider0.setOffset(0, 1);
+        slider1.setOffset(0, 1);
+    });
+
+    this.addComponent(btnAll);
+
+    var btnPlay = new js.awt.Button(
+        {
+            id: "btnPlay",
+            x: 280, y: 120,
+            labelText: "Play"
+        }, this);
+    btnPlay.attachEvent("click", 0, this, 
+    function(){
+        slider0.setDuration(10);
+        slider0.play(true);
+    });
+
+    this.addComponent(btnPlay);
+
+    var btnStop = new js.awt.Button(
+        {
+            id: "btnStop",
+            x: 370, y: 120,
+            labelText: "Stop"
+        }, this);
+    btnStop.attachEvent("click", 0, this, 
+    function(){
+        slider0.play(false);
+    });
+
+    this.addComponent(btnStop);
+    
+    slider0.first();
+    slider1.first();
+
+    var montion = new com.jinfonet.report.slider.MontionSlider(
+       {
+           x: 10,
+           y: 200,
+           width: 400,
+           resizable: true,
+           resizer: 0x22
+       }, this);
+    montion.setDataProvider(new com.jinfonet.report.slider.ArrayData([9,8,7,6,5,4,3,2,1,0],{sql:4}));
+    montion.setPeerComponent(this);
+    this.addComponent(montion);
+    montion.adjustResizer();
+
+    J$VM.MQ.register(montion.getMsgType(), 
+                this, 
+                function(e){
+                    System.err.println(e.getType());
+                    if(e.getType() == "changed"){
+                        var slider = e.getEventTarget();
+                        var offset = slider.getOffset();
+                        System.err.println(offset.index0);
+                    }
+                });
+
+    var single = new com.jinfonet.report.slider.SingleFCSlider(
+       {
+           x: 10,
+           y: 280,
+           width: 400,
+           resizable: true,
+           resizer: 0x22
+       }, this);
+    single.setPeerComponent(this);
+    this.addComponent(single);
+    single.adjustResizer();
+
+    var ranger = new com.jinfonet.report.slider.RangerFCSlider(
+       {
+           x: 10,
+           y: 360,
+           width: 400,
+           resizable: true,
+           resizer: 0x22
+       }, this);
+    ranger.setPeerComponent(this);
+    this.addComponent(ranger);
+    ranger.adjustResizer();
+
+   var formater = new (Class.forName("js.text.NumberFormat"))();
+   var pattern = "$#,###.0000";
+   formater.setPattern(pattern);
+   var str = "1,234,567.123";
+   System.err.println("formater: "+formater.format(-1234567.891));
+   var num = 0.001254;
+   System.err.println("Number: "+ num.$format("#.##%"));
+});
+</script>
+</html>

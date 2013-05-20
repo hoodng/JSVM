@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsvm.jsp" -DmainClass="org.jsvm.App" ></script>
+<script src="../../jsvm/jsre-ui.js" ></script>
+
+<style>
+
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("org.jsvm.App",function(System){
+
+
+    this.prefer({theme: "default"});
+    this.setZ(0);
+
+    var tabpane = new js.awt.TabPane({
+        x: 10, y: 10, 
+        width: 640, height:480, 
+        tabs: {layout:{hgap:1}},
+        resizable:true,
+        movable: true
+    }, this);
+
+
+    
+    var panel1 = new js.awt.Component({
+        css: "background-color:red;"
+    }, this.Runtime());
+
+    var panel2 = new js.awt.Component({
+        css: "background-color:green;"
+    }, this.Runtime());
+
+    var panel3 = new js.awt.Component({
+        css: "background-color:blue;"
+    }, this.Runtime());
+
+    tabpane.addTab({
+        id: "red",
+        labelText: "Red"
+    }, panel1);
+
+    tabpane.addTab({
+        id: "green",
+        labelText: "Green"
+    }, panel2);
+
+    tabpane.addTab({
+        id: "blue",
+        labelText: "Blue"
+    }, panel3);
+
+    this.addComponent(tabpane);
+
+    tabpane.doLayout();
+    tabpane.activateTab("red");
+
+    //tabpane.disableTab("blue");
+
+
+});
+</script>
+</html>

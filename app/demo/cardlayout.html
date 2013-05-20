@@ -1,0 +1,111 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/../jsre-ui.js" ></script>
+
+<style>
+
+.panel, 
+.panel_0 {
+    position: absolute;
+    left: 100px;
+    top: 100px;
+    width: 400px;
+    height:300px;
+    border: 2px solid red;
+    padding: 5px;
+    background-color: #FFFFFF;
+}
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("Demo",function(System){
+
+    this.prefer({theme: "default"});
+    this.setZ(0);
+
+    var Panel = new js.awt.Container({
+        className: "panel",
+        id: "panel",
+        layout:{
+            classType: "js.awt.CardLayout",
+            status:{index:1}
+        },
+        mover:{}, movable:true,
+        resizer:0xFF, resizable: true
+
+    },this);
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card1",
+        id:"card1",
+        css:"background-color:green;"
+    },this));
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card2",
+        id:"card2",
+        css:"background-color:blue;"
+    },this));
+
+    Panel.addComponent(new js.awt.Component({
+        className: "card3",
+        id:"card3",
+        css:"background-color:yellow;"
+    },this));
+
+    this.addComponent(Panel);
+    
+    this.addComponent(new js.awt.Button({
+        id: "btFirst",
+        labelText:"First",
+        x: 10, y: 10
+    }, this));
+
+    this.addComponent(new js.awt.Button({
+        id: "btNext",
+        labelText:"Next",
+        x: 100, y: 10
+    }, this));
+
+    this.addComponent(new js.awt.Button({
+        id: "btPrev",
+        labelText:"Prev",
+        x: 190, y: 10
+    }, this));
+
+    this.addComponent(new js.awt.Button({
+        id: "btLast",
+        labelText:"Last",
+        x: 280, y: 10
+    }, this));
+
+    var _first = function(){
+        this.panel.layout.first(this.panel);
+    };
+    var _next = function(){
+        this.panel.layout.next(this.panel);
+    };
+    var _prev = function(){
+        this.panel.layout.previous(this.panel);
+    };
+    var _last = function(){
+        this.panel.layout.last(this.panel);
+    };
+
+    this.btFirst.attachEvent("click", 0, this, _first);
+    this.btNext.attachEvent("click", 0, this, _next);
+    this.btPrev.attachEvent("click", 0, this, _prev);
+    this.btLast.attachEvent("click", 0, this, _last);
+
+});
+</script>
+</html>

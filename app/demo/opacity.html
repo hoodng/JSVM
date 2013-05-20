@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>  
+<html>  
+<body>  
+<canvas id="canvas" width="600"height="400">      
+         <p>Your browserdoes not support the canvas element!</p>      
+</canvas>      
+       
+<script type="text/javascript">      
+    var canvas =document.getElementById("canvas");      
+    var context2D =canvas.getContext("2d");   
+    const TIME = 1      
+    var factor = 0;    
+      
+    function changeAlpha() {      
+         factor+= TIME/50;      
+         context2D.globalAlpha= (Math.sin(factor) + 1) / 2;   //这里采用简单算法布置透明      
+    }    
+      
+    function draw() {   
+        context2D.clearRect(0,0, canvas.width, canvas.height);    
+        
+        context2D.save();
+
+        changeAlpha();  
+        context2D.beginPath();
+        //将上面的圆填充为灰色          
+        context2D.fillStyle ="#FF0000";   
+        context2D.arc(80,80, 60, 0, Math.PI*2 , false);    //注意这里的参数是弧度制，而不是角度制  
+        context2D.fill(); 
+
+        context2D.restore();
+
+        
+        context2D.save();
+
+        context2D.beginPath();
+        //将上面的圆填充为灰色          
+        context2D.fillStyle ="rgba(255,0,0,128)";   
+        context2D.arc(120,120, 60, 0, Math.PI*2 , false);    //注意这里的参数是弧度制，而不是角度制  
+        context2D.fill(); 
+
+        context2D.restore();
+        
+        
+    }      
+      
+    setInterval(draw, TIME);   
+       
+</script>      
+</body>  
+</html>  

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<script id="j$vm" 
+		src="../../jsvm/jsvm.jsp"
+		classpath="lib/../jsre-ui.js"
+		-DmainClass="org.jsvm.App"></script>
+<style>
+
+</style>
+</head>
+<body>
+	<a href="/index.jsp">Index</a>
+	<a href="index.jsp">Index2</a>
+	<a href="xx:8888">Index3</a>
+	<a href="http://xx">Index4</a>
+	<a href="http://xx:8888">Index5</a>
+</body>
+
+
+<script type="text/javascript">
+
+J$VM.exec("org.jsvm.App",function(System){
+	
+	this.initialize();
+	
+	var urls = [
+		"foo://username:password@www.example.com:123/hello/world/there.html?name=ferret&type=test#foo",
+		"username:password@",
+		"username@",
+		"/baidu",
+		"baidu",
+		"?xyz=0&name=ferret",
+		"www.baidu.com",
+		"/?#baidu",
+		"../baidu/index.jsp",
+		"127.0.0.1:8888/webos/app/dashboard/index.jsp?j$vm_pid=s03fdb3c7b33d4389",
+		"http://127.0.0.1:8888/webos/app/dashboard/index.jsp?j$vm_pid=s03fdb3c7b33d4389",
+		"-ht://127.0.0.1:8888/webos/app/dashboard/index.jsp?j$vm_pid=s03fdb3c7b33d4389",
+		"+hp://127.0.0.1:8888/webos/app/dashboard/index.jsp?j$vm_pid=s03fdb3c7b33d4389",
+		"192.168.128.35:8888/webos/app/dashboard/index.jsp?j$vm_pid=s03fdb3c7b33d4389",
+		"localhost:8888/webos/app/dashboard/index.jsp?j$vm_pid=s03fdb3c7b33d4389"
+	],
+	uris = [
+		"http://xx:8888/webos/app/demo/uri.html",
+		"xx:8888/webos/app/demo/uri.html",
+		"http://xx.cn:8888/webos/app/demo/uri.html",
+		"xx.cn:8888/webos/app/demo/uri.html",
+		"http://qq/webos/app/demo/uri.html",
+		"xx/webos/app/demo/uri.html",
+		"http://xx:8888",
+		"xx:8888",
+		"http://x-x:8888/webos/app/demo/uri.html",
+		"x-x:8888/webos/app/demo/uri.html",
+		"http://x_x:8888/webos/app/demo/uri.html",
+		"x_x:8888/webos/app/demo/uri.html",
+		"http://x3:8888/webos/app/demo/uri.html",
+		"x3:8888/webos/app/demo/uri.html"
+	],
+	url, uri, prop, v;
+	
+	var test = function(uris){
+		for(var i = 0, ii = uris.length; i < ii; i++){
+			J$VM.System.err.println("###################################");
+			url = uris[i];
+			uri = new js.net.URI(url);
+			
+			for(prop in uri){
+				v = uri[prop];
+				
+				if(uri.hasOwnProperty(prop) && typeof v != "function"){
+					if(typeof v == "object"){
+						v = JSON.stringify(v);
+					}
+					J$VM.System.err.println(prop + " = " + v);
+				}
+			}
+			J$VM.System.err.println(uri.source + "\n--> " + uri.toURI());
+			J$VM.System.err.println("###################################");
+		}
+	};
+	
+	test.call(this, uris);
+});
+</script>
+</html>

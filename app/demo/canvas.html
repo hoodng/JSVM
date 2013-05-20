@@ -1,0 +1,76 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsvm.jsp"></script>
+    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGraphic.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/com/jinfonet/designer/DataCellRunder.js"></script>
+    <script type="text/javascript">
+        var gcan;
+        J$VM.exec("Demo",function(System){
+//            var cc=document.getElementById("ttt").getContext("2d");
+//            cc.beginPath();
+//            cc.rect(0,0,50,50);
+//            cc.fillStyle="#fff";
+//            cc.fill();
+//            var can=new js.awt.CanvasGraphic({},document.getElementById("ttt"));
+//            this.view.appendChild(document.getElementById("ttt"));
+//            can.drawText("Two Parameter",{x:5,y:18,w:100,h:90});
+
+//            var c=js.lang.Class,can=new js.awt.CanvasGraphic({},document.getElementById("ttt"));
+            var c=js.lang.Class,can=new js.awt.CanvasGraphic({width:500,height:500,css:"position:absolute;left:500px;top:0px;"},this.view);
+
+            can.drawRect({x:10,y:10,w:100,h:100},{type:1,color:"#000",lineWidth:3});//fill type(default)
+            can.drawRect({x:0,y:0,w:500,h:500},{type:1,color:"#000",lineWidth:3});//stroke type
+
+            can.setFont({fontSize:"18px",fontFamily:"monotype corsiva"});//set font of text
+            can.drawText("One Parameter");
+            can.setFont({fontSize:"18px",fontFamily:"verdana"});
+            can.drawText("Two Parameter",{x:100,y:100,w:100,h:90},{type:0,va:0,ha:0,rotate:90,textOverflow:"normal"},{x:10,y:10});
+//            can.drawRect({x:5,y:18,w:100,h:90},{type:1,color:"red"});
+            can.drawText("All Parameter",{x:100,y:100,w:100,h:90},{type:0,va:0,ha:0,rotate:0,font:{fontStyle:"bold",fontSize:"10px",fontFamily:"arial"}});
+
+//            can.drawLine([{x:200,y:200},{x:300,y:200},{x:200,y:300},{x:400,y:300},{x:300,y:400},{x:280,y:450}],0);
+//            can.drawLine([{x:200,y:200},{x:300,y:200},{x:200,y:300},{x:400,y:300},{x:300,y:400},{x:280,y:450}],1);
+//            can.drawLine([{x:200,y:200},{x:300,y:200},{x:200,y:300},{x:400,y:300},{x:300,y:400},{x:280,y:450}],2);
+//            can.drawLine([{x:200,y:200},{x:300,y:200},{x:200,y:300},{x:400,y:300},{x:300,y:400},{x:280,y:450}],3,{lineWidth:10});
+//            can.drawLine([{x:200,y:200},{x:300,y:200},{x:200,y:300},{x:400,y:300},{x:300,y:400},{x:280,y:450}],1,{type:1,color:"blue"});
+
+            /*
+                TickMark Test
+             */
+//            var run=new com.jinfonet.designer.DataCellRunder({});
+//            run.setProper("pen",can);
+//            run.drawTickMark({rect:{x:10,y:100,w:150,h:300},rotate:90,va:1,ha:1});
+//            can.drawRect({x:10,y:100,w:150,h:300},{type:1,color:"#000",lineWidth:1});
+
+        });
+/*
+    function ccc(){
+        var can=document.getElementById("ttt").getContext("2d");
+        can.fillStyle="green";
+        can.font="30px sans-serif";
+        can.textBaseline="middle";
+        can.fillText("test",50,50);
+        can.save();
+        can.fillStyle="black";
+        can.translate(50+can.measureText("test").width/2,50+6);
+        can.rotate(Math.PI*90/180);
+        can.fillText("test",0,0);
+        can.restore();
+        can.fillStyle="red";
+        can.beginPath();
+        can.rect(50+can.measureText("test").width/2,50+6,1,1);
+        can.fill();
+//        gcan.style.left=0;
+//        document.body.appendChild(gcan);
+    }*/
+    </script>
+</head>
+<body>
+<button onclick="ccc()">clone</button>
+
+</body>
+</html>

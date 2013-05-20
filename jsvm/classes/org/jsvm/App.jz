@@ -1,0 +1,1 @@
+$package("org.jsvm");org.jsvm.App = function () {var CLASS = org.jsvm.App, thi$ = CLASS.prototype;if (CLASS.__defined__) {return;}CLASS.__defined__ = true;var Class = js.lang.Class, Event = js.util.Event, System = J$VM.System, MQ = J$VM.MQ;thi$.main = function (Runtime) {};};

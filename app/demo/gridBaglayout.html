@@ -1,0 +1,150 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/../jsre-ui.js" ></script>
+
+<style>
+
+.window,
+.window_0 {
+    position: absolute;
+    left: 20px;
+    top: 10px;
+    width: 500px;
+    height:350px;
+    border: 2px solid red;
+      padding: 5px;
+    background-color: #FFFFFF;
+}
+
+.window_client,
+.window_client_0 {
+    border: 5px solid red;
+    padding: 3px;
+    overflow: auto;
+}
+
+.window_client,
+.window_title_0 {
+    border: 5px solid green;
+    padding: 3px;
+    overflow: hidden;
+    position: absolute;
+    
+}
+
+.window_status,
+.window_status_0 {
+    border: 5px solid gray;
+    padding: 3px;
+    overflow: hidden;
+    position: absolute;
+}
+
+.window_panel1,
+.window_panel1_0 {
+    border: 5px solid #CF3333;
+    padding: 3px;
+    position: absolute;
+}
+
+.window_panel2,
+.window_panel2_0 {
+    border: 5px solid #CF3333;
+    padding: 3px;
+    position: absolute;
+}
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec('gridBaglayout', function(System){
+
+    this.prefer({theme: "default"});
+
+  var testWinDef = {   
+        classType: "js.awt.Container",
+        id: "testWin",
+        className: "window",
+        layout:{
+            classType: "js.awt.GridBagLayout",
+            constraints:[new js.awt.GridBagConstraints(0, 0, 1, 1, 0.8, 0.0,0,0,'center', 'both', {top:2, bottom:1, left:2, right:1}), 
+                         new js.awt.GridBagConstraints(1, 0, 1, 1, 0.8, 0.0,0,0,'center', 'both', {top:2, bottom:1, left:2, right:1}), 
+                         new js.awt.GridBagConstraints(2, 0, 1, 1, 0.8, 0.0,0,0,'center', 'both', {top:2, bottom:1, left:2, right:2}), 
+                         new js.awt.GridBagConstraints(1, 1, 2, 1, 0.0, 0.0, 0, 0, 'center', 'both', {top:1, bottom:1, left:1, right:2}), 
+                         new js.awt.GridBagConstraints(0, 1, 1, 2, 0.0, 1.0, 0, 0, 'center', 'both', {top:1, bottom:1, left:2, right:1}), 
+                         new js.awt.GridBagConstraints(1, 2, 2, 1, 0.0, 1.0,0,0, 'center', 'both', {top:1, bottom:2, left:1, right:2}),
+                         new js.awt.GridBagConstraints(0, 3, 3, 1, 0.0, 1.0,0,0, 'center', 'both', {top:1, bottom:2, left:2, right:2})]
+        },
+        width: 580, height: 420,
+      
+        resizer : 0xFF, resizable:true,
+        mover :{mode:2, delay:150, tolerant:50}, movable:true,
+        shadow : true,
+
+        items:["title","status", "panel1", "panel2","title3", "status1", "status2"],
+
+        title3:{
+            classType:"js.awt.Component",
+            className: "window_title",
+            height:80,
+            width:60
+        },
+
+        title:{
+            classType:"js.awt.Component",
+            className: "window_title",
+            height:100,
+            width:160
+        },
+
+        status:{
+            classType:"js.awt.Component",
+            className: "window_status",
+            height:100,
+            width:160
+        },
+
+        panel1:{
+            classType:"js.awt.Component",
+            className: "window_panel1",
+            height:100,
+            width:160
+        },
+
+        panel2:{
+            classType:"js.awt.Component",
+            className: "window_panel2",
+            height:80,
+            width:150
+        },
+    
+         status1:{
+            classType:"js.awt.Component",
+            className: "window_status",
+            height:70,
+            width:160
+        },
+        
+        status2:{
+            classType:"js.awt.Component",
+            className: "window_status",
+            height:70,
+            width:160
+        }
+    };
+    
+    testWin = new js.awt.Container(testWinDef, this);
+    //testWin.appendTo(document.body);
+     this.addComponent(testWin);
+
+});
+</script>
+</html>

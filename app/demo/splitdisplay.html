@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsvm.jsp" -DmainClass="org.jsvm.App" ></script>
+<script src="../../jsvm/jsre-ui.js" ></script>
+
+<style>
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+J$VM.exec("org.jsvm.App",function(System){
+
+	
+    this.prefer({theme: "default"});
+
+	var unit_width = 40;
+	var max_unit = 10000; 
+	var win_unit = 30;
+	var viw_unit = 10;
+	
+	
+	var n = win_unit*unit_width;
+	var m = viw_unit*unit_width;
+	var N = max_unit*unit_width;
+	
+	var xW = 0;
+	var xV = 0;
+	
+	divView =new js.awt.Container({
+			height:42,width:m,
+			css:"overflow-y:hidden;overflow-x:auto;border: 1px solid gray",
+			x:100,y:100,
+			resizer:0xFF,
+			resizable: true,
+			movable:true
+	},this.Runtime()),	
+
+	divMax = new js.awt.Container({
+			height:24,width:N,		
+			css:"position:absolute;background:blue;"
+		},this.Runtime()),
+
+	divWin = new js.awt.Container({
+		css:"position:absolute;border:1px solid red;",
+		height:22,width:win_unit*unit_width,
+		layout:{
+			classType: "js.awt.BoxLayout"
+			}
+	},this.Runtime());
+
+	divMax.addComponent(divWin);
+	divView.addComponent(divMax);
+
+    this.addComponent(divView);
+
+	var _getXW = function(x){
+		return (xV >= 0 && xV <= (n - m)) ? 0 :
+			((xV >= (N - n) && xV <= (N - m)) ? N - n : 
+				(xV < xW || xV >= xW+n-m) ? xV - ((n-m)>>1) : xW); 
+	};
+	
+	var _onHscroll = function(e){
+		xV = Math.min(N-m, divView.view.scrollLeft);
+		
+		var x1 = _getXW.call(this, xV);
+
+		System.err.println(xV+"---"+xW+"----"+x1);
+		
+		if(x1 != xW){
+			xW = x1;
+
+			divWin.setPosition(xW, null);
+			
+			var p = Math.floor(xW/unit_width);
+
+			System.err.println(p);
+			
+		
+			divWin.removeAll(true);
+		
+			var comp;
+	    	for(var i=p; i<p+win_unit; i++){
+	        	comp = new js.awt.Component({
+	            		css:"border: 1px solid green; background-color:yellow;",
+	            		width:unit_width,
+	            		height:20
+	            	}, this.Runtime());
+	        	comp.view.innerHTML = ""+i;
+	        	divWin.addComponent(comp);
+	    	}
+	    	divWin.doLayout(true);
+		}
+	};
+    
+    divView.attachEvent("scroll", 0, this, _onHscroll);
+
+	_onHscroll.call(this);
+
+	this.doLayout(true);
+});
+</script>
+</html>
