@@ -12,7 +12,6 @@ input, textarea {
     -khmtl-user-select: text;
     resize:none;
     outline:none;
-
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 11px;
 }
@@ -20,6 +19,8 @@ input, textarea {
 textarea {
     overflow: auto;
 }
+
+input::-ms-clear{display:none;}
 
 body {
     margin: 0px;
@@ -168,6 +169,13 @@ body {
     height:16px;
     line-height:16px;
     cursor: default;
+}
+
+.jsvm_button_disable {
+    filter: alpha(Opacity = 50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    background: #FFFFFF;
 }
 
 /** For Button's effect */
@@ -447,7 +455,9 @@ body {
 
 /** General Item */
 .jsvm_item,
-.jsvm_item_0, .jsvm_item_1 {
+.jsvm_item_0, .jsvm_item_1,
+.jsvm_item_2,
+.jsvm_item_4, .jsvm_item_6 {
     position: absolute;
     width: 100%;
     height: 22px;
@@ -623,86 +633,86 @@ body {
 }
 
 /* Menu for menubar*/
-.jsvm_menubar_menu,
-.jsvm_menubar_menu_0,
-.jsvm_menubar_noIconMenu,
-.jsvm_menubar_noIconMenu_0 {
+.jsvm_mbMenu,
+.jsvm_mbMenu_0,
+.jsvm_mbNoIconMenu,
+.jsvm_mbNoIconMenu_0 {
     border:1px solid #e6e6e6;
     background-color:#FFFFFF;
     width:180px;
 }
 
-.jsvm_menubar_menu_item,
-.jsvm_menubar_menu_item_0, .jsvm_menubar_menu_item_1, 
-.jsvm_menubar_menu_item_2, .jsvm_menubar_menu_item_8,
-.jsvm_menubar_noIconMenu_item,
-.jsvm_menubar_noIconMenu_item_0, .jsvm_menubar_noIconMenu_item_1, 
-.jsvm_menubar_noIconMenu_item_2, .jsvm_menubar_noIconMenu_item_8 {
+.jsvm_mbMenu_item,
+.jsvm_mbMenu_item_0, .jsvm_mbMenu_item_1, 
+.jsvm_mbMenu_item_2, .jsvm_mbMenu_item_8,
+.jsvm_mbNoIconMenu_item,
+.jsvm_mbNoIconMenu_item_0, .jsvm_mbNoIconMenu_item_1, 
+.jsvm_mbNoIconMenu_item_2, .jsvm_mbNoIconMenu_item_8 {
     height: 20px;
     cursor: default;
 }
 
-.jsvm_menubar_menu_item_1,
-.jsvm_menubar_noIconMenu_item_1 {
+.jsvm_mbMenu_item_1,
+.jsvm_mbNoIconMenu_item_1 {
     color: #CCCCCC;
 }
 
-.jsvm_menubar_menu_item_2,
-.jsvm_menubar_noIconMenu_item_2 {
+.jsvm_mbMenu_item_2,
+.jsvm_mbNoIconMenu_item_2 {
     background-color: #ffdf7c;
 }
 
-.jsvm_menubar_menu_separator,
-.jsvm_menubar_noIconMenu_separator {
+.jsvm_mbMenu_separator,
+.jsvm_mbNoIconMenu_separator {
     height: 1px;
     background-color: #EEEEEE;
 }
 
-.jsvm_menubar_menu_item_marker,
-.jsvm_menubar_menu_item_marker_0, .jsvm_menubar_menu_item_marker_4,
-.jsvm_menubar_noIconMenu_item_marker,
-.jsvm_menubar_noIconMenu_item_marker_0, .jsvm_menubar_noIconMenu_item_marker_4 {
+.jsvm_mbMenu_item_marker,
+.jsvm_mbMenu_item_marker_0, .jsvm_mbMenu_item_marker_4,
+.jsvm_mbNoIconMenu_item_marker,
+.jsvm_mbNoIconMenu_item_marker_0, .jsvm_mbNoIconMenu_item_marker_4 {
     width: 18px;
     height:20px;
     margin-right: 2px;
     background-color: #EEEEEE;
 }
 
-.jsvm_menubar_menu_item_marker_4,
-.jsvm_menubar_noIconMenu_item_marker_4 {
+.jsvm_mbMenu_item_marker_4,
+.jsvm_mbNoIconMenu_item_marker_4 {
     background-image: url("images/mark.png");
     background-repeat: no-repeat;
     background-position:center;
 }
 
-.jsvm_menubar_menu_item_icon,
-.jsvm_menubar_menu_item_icon_0 {
+.jsvm_mbMenu_item_icon,
+.jsvm_mbMenu_item_icon_0 {
     width: 16px;
     height:16px;
     margin-right: 2px;
 }
 
-.jsvm_menubar_noIconMenu_item_icon,
-.jsvm_menubar_noIconMenu_item_icon_0 {
+.jsvm_mbNoIconMenu_item_icon,
+.jsvm_mbNoIconMenu_item_icon_0 {
     width: 0px;
     height: 0px;
     margin-right: 0px;
 }
 
-.jsvm_menubar_menu_item_label,
-.jsvm_menubar_menu_item_label_0,
-.jsvm_menubar_noIconMenu_item_label,
-.jsvm_menubar_noIconMenu_item_label_0 {
+.jsvm_mbMenu_item_label,
+.jsvm_mbMenu_item_label_0,
+.jsvm_mbNoIconMenu_item_label,
+.jsvm_mbNoIconMenu_item_label_0 {
     height:16px;
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: default;
 }
 
-.jsvm_menubar_menu_item_ctrl,
-.jsvm_menubar_menu_item_ctrl_0,
-.jsvm_menubar_noIconMenu_item_ctrl,
-.jsvm_menubar_noIconMenu_item_ctrl_0 {
+.jsvm_mbMenu_item_ctrl,
+.jsvm_mbMenu_item_ctrl_0,
+.jsvm_mbNoIconMenu_item_ctrl,
+.jsvm_mbNoIconMenu_item_ctrl_0 {
     width: 16px;
     height:16px;
     margin-left: 2px;
@@ -766,7 +776,6 @@ body {
 
 .jsvm_textfield_input {
     background-color: #FFFFFF;
-    
     /*
     -moz-border-radius: 3px;
     -khtml-border-radius: 3px;
@@ -925,6 +934,13 @@ body {
 
 .jsvm_comboBox_1 {  
     color: #ACA899; /* #CCCCCC */
+    background: #F5F4EA;
+}
+
+.jsvm_comboBox_disable { 
+    filter: alpha(Opacity = 45);
+    -moz-opacity: 0.45;
+    opacity: 0.45;
     background: #F5F4EA;
 }
 
@@ -1254,7 +1270,7 @@ body {
 
 .jsvm_tabpane_tabs {
     height: 25px;
-    padding: 3px 3px 0px 0px;
+    padding: 3px 0px 0px 0px;
     border-bottom: 1px solid #CCC;
 }
 
