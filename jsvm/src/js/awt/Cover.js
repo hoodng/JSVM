@@ -114,8 +114,12 @@ js.awt.Cover = function (comp){
                 cover.className = style;
                 cover.style.cssText = "position:absolute;";
                 //cover.uuid = this.uuid();
-				
-                var el = this.getLastResizer() || this.view;
+                
+                var el = this.view;
+                if(typeof this.getLastResizer == "function"){
+                    el = this.getLastResizer() || this.view;
+                }
+                
                 DOM.insertAfter(cover, el);
                 this.adjustCover();
             }

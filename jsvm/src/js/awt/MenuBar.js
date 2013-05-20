@@ -148,8 +148,14 @@ js.awt.MenuBar = function (def, Runtime){
 		var el = e.srcElement, uuid = el.uuid, 
 		item = this.cache[uuid];
 		
-		if(item && item.isEnabled()){
+		if(!this._local.triggerMenu){
 			this._local.triggerMenu = true;
+			if(item && item.isEnabled()){
+				item.setHover(true);
+				this.active = item;
+			}
+		}else{
+			this._local.triggerMenu = false;
 		}
 	};
 	
@@ -169,7 +175,9 @@ js.awt.MenuBar = function (def, Runtime){
 					this.active = undefined;
 				}
 			}
-			if(titem && !titem.isHover()){
+			
+			if(this._local.triggerMenu 
+				&& titem && !titem.isHover()){
 				titem.setHover(true);
 				this.active = titem;
 			}
@@ -181,14 +189,33 @@ js.awt.MenuBar = function (def, Runtime){
 	};
 
 	var _onMenuHide = function(e){
-		var menu = e.getEventTarget(), type = e.getType(), item;
+		var menu = e.getEventTarget(), type = e.getType(), 
+		evt = e.getData(), eType = evt ? evt.getType() : undefined,
+		canTrigger = false, item, activeItem, src;
 		if(type = "afterRemoveLayer" && menu 
 		   && menu == menu.rootLayer()){
 			item = this[menu.def.id];
 			if(item && item.isHover()){
 				item.setHover(false);
 			}
+			
+			switch(eType){
+				case "mousedown":
+					src = evt.srcElement;
+					activeItem = src && src.uuid ? this.cache[src.uuid] : undefined;
+					break;
+				case "hide":
+					activeItem = evt.getData();
+					break;
+			}
+
+			if(activeItem && (activeItem instanceof js.awt.MenuItem)){
+				this._local.triggerMenu = true;
+			}else{
+				this._local.triggerMenu = false;
+			}
 		}
+   
 	};
 	
 	thi$.destroy = function(){

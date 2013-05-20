@@ -84,16 +84,17 @@ J$VM = new function (){
      * 
      */
     Function.prototype.$extend = function(superC){
+        var proto;
         if(typeof superC === "function"){
-            var proto = this.prototype = new (superC)();
+            proto = this.prototype = new (superC)();
             proto.constructor = superC;
             //proto.constructor.$decorate(proto);
         }else if(typeof superC === "object"){
-            var proto = this.prototype = superC;
+            proto = this.prototype = superC;
             proto.constructor = superC.constructor;
             //proto.constructor.$decorate(proto);
         }else{
-            throw new Error("superC must be a function or object");
+            throw new Error("Parameter 'superC' must be a function or object");
         }
 
         return this;
@@ -123,7 +124,7 @@ J$VM = new function (){
      */
     Function.prototype.$implements = function(superCs){
         var proto = this.prototype, superC,
-        imps = proto.__imps__ = /*proto.__imps__ ||*/ [];
+            imps = proto.__imps__ = /*proto.__imps__ ||*/ [];
         
         for(var i=0, len=arguments.length; i<len; i++){
             superC = arguments[i];
@@ -136,15 +137,20 @@ J$VM = new function (){
         return this;
     };
 
-    Function.prototype.$decorate = function(o){
+    Function.prototype.$decorate = function(o, replaceMap){
+        if(o === undefined){
+            throw new Error("Parameter 'o' must be an object");
+        }
+
         var p, proto = this.prototype;
         if(this.__defined__ == undefined) new (this)();
 
+        replaceMap = replaceMap || {};
         for(p in proto){
             if(proto.hasOwnProperty(p) && 
                "constructor" != p && 
                "__imps__" != p &&
-               !o.hasOwnProperty(p)){
+               (!o.hasOwnProperty(p) || replaceMap[p] == true)){
                 o[p] = proto[p];    
             }
         }
@@ -205,16 +211,16 @@ J$VM = new function (){
      * @param timeout
      * @param ... other parameters need pass to delayed function.
      */
-     Function.prototype.$delay = function(thi$, timeout){
+    Function.prototype.$delay = function(thi$, timeout){
         var fn = this, args = Array.prototype.slice.call(arguments, 2);
 
         fn.__timer__ = fn.__timer__ || [];
         
         var _timer = setTimeout(
-                function(){
-                    fn.$clearTimer(_timer);
-                    fn.apply(thi$, args);
-                }, timeout);
+            function(){
+                fn.$clearTimer(_timer);
+                fn.apply(thi$, args);
+            }, timeout);
 
         fn.__timer__.push(_timer);
 
@@ -286,7 +292,7 @@ J$VM = new function (){
      */
     Function.prototype.$forEach = function(thi$, set){
         var fn = this, i, len,
-        $args = Array.prototype.slice.call(arguments, 2);
+            $args = Array.prototype.slice.call(arguments, 2);
 
         switch(js.lang.Class.typeOf(set)){
         case "array":
@@ -326,11 +332,11 @@ J$VM = new function (){
      */
     Function.prototype.$map = function(thi$, set){
         var fn = this, ret = js.lang.Class.isArray(set) ? [] :{},
-        $args = Array.prototype.slice.call(arguments, 2);
+            $args = Array.prototype.slice.call(arguments, 2);
 
         (function(v, i, set){
-             ret[i] = fn.apply(thi$, $args.concat(v,i,set));
-         }).$forEach(thi$, set);
+            ret[i] = fn.apply(thi$, $args.concat(v,i,set));
+        }).$forEach(thi$, set);
 
         return ret;
     };
@@ -348,14 +354,14 @@ J$VM = new function (){
      */
     Function.prototype.$filter = function(thi$, set){
         var fn = this, isArray = js.lang.Class.isArray(set), 
-        ret = isArray ? [] : {},
-        $args = Array.prototype.slice.call(arguments, 2);
+            ret = isArray ? [] : {},
+            $args = Array.prototype.slice.call(arguments, 2);
 
         (function(v, i, set){
-             if(fn.apply(thi$, $args.concat(v, i, set))){
-                 isArray ? ret.push(v) : ret[i] = v;
-             }
-         }).$forEach(thi$, set);
+            if(fn.apply(thi$, $args.concat(v, i, set))){
+                isArray ? ret.push(v) : ret[i] = v;
+            }
+        }).$forEach(thi$, set);
         
         return ret;        
     };
@@ -373,14 +379,14 @@ J$VM = new function (){
      */
     Function.prototype.$some = function(thi$, set){
         var fn = this, ret = false,
-        $args = Array.prototype.slice.call(arguments, 2);
+            $args = Array.prototype.slice.call(arguments, 2);
 
         (function(v, i, set){
-             if(fn.apply(thi$, $args.concat(v, i, set))){
-                 ret = true;
-                 throw "break";
-             }
-         }).$forEach(thi$, set);
+            if(fn.apply(thi$, $args.concat(v, i, set))){
+                ret = true;
+                throw "break";
+            }
+        }).$forEach(thi$, set);
 
         return ret;
     };
@@ -399,14 +405,14 @@ J$VM = new function (){
      */
     Function.prototype.$every = function(thi$, set){
         var fn = this, ret = true,
-        $args = Array.prototype.slice(arguments, 2);
+            $args = Array.prototype.slice(arguments, 2);
 
         (function(v, i, set){
-             if(fn.apply(thi$, $args.concat(v, i, set))){
-                 ret = false;
-                 throw "break";
-             }
-         }).$forEach(thi$, set);
+            if(fn.apply(thi$, $args.concat(v, i, set))){
+                ret = false;
+                throw "break";
+            }
+        }).$forEach(thi$, set);
 
         return ret;
     };

@@ -168,6 +168,28 @@ js.awt.Color = function(r, g, b, a) {
         return v;
     };
 
+    CLASS.randomColor = function(type){
+        var uuid = js.lang.Math.uuid(), 
+            v = parseInt(uuid.substring(1), 16),
+            c = new js.awt.Color(v), ret;
+        
+        if(c.A() == 0){
+            c.value |= 0x01<<24;
+        }
+
+        type = type || "rgba";
+
+        switch(type){
+        case "obj":
+            ret = c;
+            break;
+        default:
+            ret = c.toString(type);
+            break;
+        }
+        return ret;
+    };
+
     var _makeValue = function(r,g,b,a){
         a = Class.isNumber(a) ? a : 0x00;
 
@@ -205,14 +227,38 @@ js.awt.Color = function(r, g, b, a) {
         return CLASS.RGB2HSL(this.R(), this.G(), this.B());
     };
 
-    thi$.toString = function() {
-        if (this.A() != 0) {
-            return "Transparent";
-        } else {
-            var temp = this.value & 0x00FFFFFF,
-            s = "00000" + temp.toString(16);
-            return "#" + s.substring(s.length - 6);
+    thi$.toString = function(type) {
+        var ret, buf;
+
+        type = type || "hex";
+
+        switch(type){
+        case "hex":
+            if (this.A() != 0) {
+                ret =  "Transparent";
+            } else {
+                var temp = this.value & 0x00FFFFFF,
+                    s = "00000" + temp.toString(16);
+                ret = "#" + s.substring(s.length - 6);
+            }
+            break;
+        case "rgb":
+            buf = new js.lang.StringBuffer("rgb(");
+            buf.append(this.R()).append(",")
+                .append(this.G()).append(",")
+                .append(this.B()).append(")");
+            ret = buf.toString();
+            break;
+        case "rgba":
+            buf = new js.lang.StringBuffer("rgba(");
+            buf.append(this.R()).append(",")
+                .append(this.G()).append(",")
+                .append(this.B()).append(",")
+                .append(this.A()).append(")");
+            ret = buf.toString();
+            break;
         }
+        return ret;
     };
 
     thi$._init = function() {

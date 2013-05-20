@@ -68,8 +68,8 @@ js.util.Observable = function (){
         if(!this.hasChanged()) return;
 
         (function(observer){
-             observer.update.$delay(observer, 0, this, data);
-         }).$forEach(this, this._obs);    
+            observer.update.$delay(observer, 0, this, data);
+        }).$forEach(this, this._obs);    
     };
     
     thi$.hasChanged = function(){

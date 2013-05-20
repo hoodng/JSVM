@@ -155,7 +155,8 @@ js.awt.TableBody.Row = function(def, Runtime) {
 		def.className = def.className || "jsvm_table_row";
 		def.viewType = "TR";
 		arguments.callee.__super__.apply(this, arguments);
-		this.view.uuid = js.lang.Math.uuid();
+		var ele = this.view;
+		ele.uuid = this.uuid();
 	}.$override(this._init);
 	this._init.apply(this, arguments);
 }.$extend(js.awt.Component);

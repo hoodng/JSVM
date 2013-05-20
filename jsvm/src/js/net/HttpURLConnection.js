@@ -107,17 +107,17 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.responseText = function(){
-        return this._xhr.responseText;
+        return this._xhr.responseText.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/im, '');
     };
 
     thi$.responseXML = function(){
-    	//For IBM WebSeal Issue
-        return this._xhr.responseXML.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/, '');
+        //For IBM WebSeal Issue
+        return this._xhr.responseXML.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/im, '');
     };
 
     thi$.responseJSON = function(){
-    	//For IBM WebSeal Issue
-        return JSON.parse(this._xhr.responseText.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/, ''));
+        //For IBM WebSeal Issue
+        return JSON.parse(this._xhr.responseText.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/im, ''));
     };
 
     thi$.status = function(){
@@ -135,19 +135,22 @@ js.net.HttpURLConnection = function (isAsync){
     /**
      * Open url by method and with params
      */
-    thi$.open = function(method, url, params){
+    thi$.open = function(method, url, params, preventInjection){
         var _url, query = _makeQueryString.$bind(this)(params),
-        xhr = this._xhr, async = this.isAsync();
+            xhr = this._xhr, async = this.isAsync();
 
         switch(method.toUpperCase()){
         case "GET":
             _url = (query != null) ? [url, "?", query].join("") : url;
             query = null;
+
+            if(preventInjection){
+                this.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            }
             break;
         case "POST":
             _url = url;
-            this.setRequestHeader("Content-Type",
-                                  "application/x-www-form-urlencoded");
+            this.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             break;
         default:
             // TOOD in the furture ?

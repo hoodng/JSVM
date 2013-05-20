@@ -115,6 +115,12 @@ js.lang.System = function (env, vm){
             for(var p in src){
                 item = src[p];
                 if(deep === true){
+                    /* check if Object have _transient setting, all memeber in _transient setting
+                     * will not be deep copy */
+                    if (src._transient && src._transient[p]) {
+                        continue;
+                    }
+                    
                     switch(typeOf(item)){
                     case "object":
                         if(merge === true){
@@ -261,44 +267,62 @@ js.lang.System = function (env, vm){
     };
 
     var _checkBrowser = function(){
-        // Check browser supports
-        vm.supports = {reliableMarginRight :true, supportCssFloat : true};
-        var buf = [], doc = document, div = doc.createElement('div'), ipt;
-        buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
-        buf.push('<div style="height:20px;width:20px;"></div></div>');
-        buf.push('<div style="float:left;"></div>');
-        div.innerHTML = buf.join("");
-        div.style.cssText = "position:absolute;width:100px;height:100px;"
-            + "border:5px solid black;padding:5px;"
-            + "visibility:hidden;";
-        doc.body.appendChild(div);
-        
-        // Check browser supports for Input, Textarea
-        ipt = doc.createElement('input');
-        ipt.type = "text";
-        ipt.style.cssText = "position:absolute;width:100px;height:100px;"
-            + "border:2px solid;visibility:hidden;";
-        doc.body.appendChild(ipt);
-        
-        var view = doc.defaultView, cdiv = div.firstChild, ccdiv = cdiv.firstChild;
-        if(view && view.getComputedStyle 
-           && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
-            vm.supports.reliableMarginRight = false;
-        }
+		// Check browser supports
+		vm.supports = {reliableMarginRight :true, supportCssFloat : true};
+		var buf = [], doc = document, div = doc.createElement('div'), ipt, obj;
+		buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
+		buf.push('<div style="height:20px;width:20px;"></div></div>');
+		buf.push('<div style="float:left;"></div>');
+		div.innerHTML = buf.join("");
+		div.style.cssText = "position:absolute;width:100px;height:100px;"
+			+ "border:5px solid black;padding:5px;"
+			+ "visibility:hidden;";
+		doc.body.appendChild(div);
+		
+		// Check browser supports for Input, Textarea
+		ipt = doc.createElement('input');
+		ipt.type = "text";
+		ipt.style.cssText = "position:absolute;width:100px;height:100px;"
+			+ "border:2px solid;visibility:hidden;";
+		doc.body.appendChild(ipt);
+		
+		var view = doc.defaultView, cdiv = div.firstChild, ccdiv = cdiv.firstChild;
+		if(view && view.getComputedStyle 
+		   && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
+			vm.supports.reliableMarginRight = false;
+		}
 
-        vm.supports.supportCssFloat = !!div.lastChild.style.cssFloat;
-        vm.supports.borderBox = !(div.offsetWidth > 100);
-        vm.supports.borderEdg = !(cdiv.offsetLeft == 0);
+		vm.supports.supportCssFloat = !!div.lastChild.style.cssFloat;
+		vm.supports.borderBox = !(div.offsetWidth > 100);
+		vm.supports.borderEdg = !(cdiv.offsetLeft == 0);
 
-        // Check BorderBox support of Input and Textarea
-        vm.supports.iptBorderBox = !(ipt.offsetWidth > 100);
-        
-        // Check placeholder support of Input and Textarea
-        vm.supports.placeholder = ("placeholder" in ipt); 
-        
-        doc.body.removeChild(div);
-        doc.body.removeChild(ipt);
-        div = view = ipt = undefined;
+		// Check BorderBox support of Input and Textarea
+		vm.supports.iptBorderBox = !(ipt.offsetWidth > 100);
+		
+		// Check placeholder support of Input and Textarea
+		vm.supports.placeholder = ("placeholder" in ipt); 
+
+		// Check scrollbars' thicknesses
+		// Attention:
+		// In firefox (win 19.0.2 1024 * 768), if there is no enough space(width, height) to show
+        // the scrollbar, the scrollbar won't be display and its thickness is 0. So, the width of
+        // the horizontal scrollbar should be large than (16px (left button) + 16px (right button) 
+        // + xpx (minwidth of the slider, maybe 2px)) and the width of div should be large than 51px
+        // (include width of virtical scrollbar.)
+        // Additionally, when screen resolution ratio (maybe dpi) is special, the scrollbar's thickness
+        // and button may be more large. So we use a big size for div to check.
+		div.innerHTML = "";
+		div.style.cssText = "position:absolute;left:-550px;top:-550px;"
+            + "width:550px;height:550px;overflow:scroll;visibility:hidden;";
+		obj = J$VM.DOM.hasScrollbar(div);
+		vm.supports.hscrollbar = obj.hbw;
+		vm.supports.vscrollbar = obj.vbw;
+		obj = null;
+
+		// Clean
+		doc.body.removeChild(div);
+		doc.body.removeChild(ipt);
+		div = view = ipt = undefined;
     };
     
     var _detectDoctype = function(){
@@ -454,7 +478,7 @@ js.lang.System = function (env, vm){
     var _onmessage = function(e){
         var _e = e.getData();
         if(_e.source == self) return;
-        
+
         var msg;
         try{
             msg = JSON.parse(_e.data);    

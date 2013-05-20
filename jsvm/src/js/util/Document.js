@@ -246,104 +246,104 @@ js.util.Document = function (){
         return styles;
     };
     
-	/**
-	 * Fetch and return the value of attribute from the specified
-	 * DOM element. 
-	 * 
-	 * @param el: {DOM} Specified DOM element
-	 * @param attr: {String} Specified attribute name to fetch
-	 * 
-	 * @return {String} Value fo the specified attribute. Return
-	 *		  "" if not found.
-	 */	   
-	thi$.getAttribute = function(el, attr){
-		if(!el || el.nodeType !== 1 || !attr){
-			return "";
-		}
-		
-		var tmp = attr.toLowerCase(), prop = tmp, v;
-		if(J$VM.ie){
-			prop = ATTRIBUTESCT[attr] || ATTRIBUTESCT[tmp] || attr;
-		}else{
-			prop = tmp;
-		}
-		
-		if(J$VM.ie){
-			v = el[prop];
-		}
-		
-		if(!v){
-			v = el.getAttribute(attr);
-		}
-		
-		// Check boolean attributes
-		if(BOOLATTRREGEXP.test(tmp)){
-			if(el[prop] === true && v === ""){
-				return tmp;
-			}
-			
-			return v ? tmp : "";
-		}
-		
-		return v ? "" + v : "";
-	};
+    /**
+     * Fetch and return the value of attribute from the specified
+     * DOM element. 
+     * 
+     * @param el: {DOM} Specified DOM element
+     * @param attr: {String} Specified attribute name to fetch
+     * 
+     * @return {String} Value fo the specified attribute. Return
+     *        "" if not found.
+     */    
+    thi$.getAttribute = function(el, attr){
+        if(!el || el.nodeType !== 1 || !attr){
+            return "";
+        }
+        
+        var tmp = attr.toLowerCase(), prop = tmp, v;
+        if(J$VM.ie){
+            prop = ATTRIBUTESCT[attr] || ATTRIBUTESCT[tmp] || attr;
+        }else{
+            prop = tmp;
+        }
+        
+        if(J$VM.ie){
+            v = el[prop];
+        }
+        
+        if(!v){
+            v = el.getAttribute(attr);
+        }
+        
+        // Check boolean attributes
+        if(BOOLATTRREGEXP.test(tmp)){
+            if(el[prop] === true && v === ""){
+                return tmp;
+            }
+            
+            return v ? tmp : "";
+        }
+        
+        return v ? "" + v : "";
+    };
     
-	/**
-	 * Judge whether the specified DOM element has the specified
-	 * attribute. 
-	 * 
-	 * @param attr: {String} Name of the specified attribute.
-	 */
-	thi$.hasAttribute = function(el, attr){
-		if(el.hasAttribute){
-			return el.hasAttribute(attr);
-		}
+    /**
+     * Judge whether the specified DOM element has the specified
+     * attribute. 
+     * 
+     * @param attr: {String} Name of the specified attribute.
+     */
+    thi$.hasAttribute = function(el, attr){
+        if(el.hasAttribute){
+            return el.hasAttribute(attr);
+        }
 
-		return el.getAttribute(attr) != null;
-	};
-	
-	/**
-	 * Set value of given attribute for the specified DOM element.
-	 * If the attribute is boolen kind, when only when the given 
-	 * value is true/"true" it will be setten otherwise the specified
-	 * attribute will be removed.
-	 */
-	thi$.setAttribute = function(el, attr, value){
-		if(!el || el.nodeType !== 1 || !attr){
-			return;
-		}
-		
-		var prop = attr.toLowerCase(), v;
-		if(J$VM.ie){
-			attr = ATTRIBUTESCT[attr] || ATTRIBUTESCT[prop] || attr;
-		}else{
-			attr = prop;			
-		}
-		
-		if(BOOLATTRREGEXP.test(prop)){
-			if(Class.isString(value)){
-				v = (value.toLowerCase() === "true");
-			}else{
-				v = (value === true);
-			}
-			
-			if(v){
-				el.setAttribute(attr, "" + v);
-			}else{
-				el.removeAttribute(attr);
-			}
-			
-			return;
-		}
-		
-		v = Class.isValid(value) ? "" + value : "";
-		if(v.length > 0){
-			el.setAttribute(attr, v);
-		}else{
-			el.removeAttribute(attr);		 
-		}
-	};
-	
+        return el.getAttribute(attr) != null;
+    };
+    
+    /**
+     * Set value of given attribute for the specified DOM element.
+     * If the attribute is boolen kind, when only when the given 
+     * value is true/"true" it will be setten otherwise the specified
+     * attribute will be removed.
+     */
+    thi$.setAttribute = function(el, attr, value){
+        if(!el || el.nodeType !== 1 || !attr){
+            return;
+        }
+        
+        var prop = attr.toLowerCase(), v;
+        if(J$VM.ie){
+            attr = ATTRIBUTESCT[attr] || ATTRIBUTESCT[prop] || attr;
+        }else{
+            attr = prop;            
+        }
+        
+        if(BOOLATTRREGEXP.test(prop)){
+            if(Class.isString(value)){
+                v = (value.toLowerCase() === "true");
+            }else{
+                v = (value === true);
+            }
+            
+            if(v){
+                el.setAttribute(attr, "" + v);
+            }else{
+                el.removeAttribute(attr);
+            }
+            
+            return;
+        }
+        
+        v = Class.isValid(value) ? "" + value : "";
+        if(v.length > 0){
+            el.setAttribute(attr, v);
+        }else{
+            el.removeAttribute(attr);        
+        }
+    };
+    
     thi$.removeAttribute = function(el, attr){
         el.removeAttribute(attr);
     };
@@ -359,7 +359,7 @@ js.util.Document = function (){
         var style = el.style,
         currentStyle = el.currentStyle;
         
-        if(J$VM.ie) {
+        if(J$VM.ie && parseInt(J$VM.ie) < 10) {
             var opacity = isNaN(value) ? "" : "alpha(opacity=" + value * 100 + ")";
             var filter = currentStyle && currentStyle.filter || style.filter || "";
             filter = filter.replace(/alpha\(opacity=(.*)\)/i, "")
@@ -526,45 +526,45 @@ js.util.Document = function (){
             { left: 0, top: 0, bottom: 0, right: 0 };
     };
     
-	var _computeByBody = function(){
+    var _computeByBody = function(){
         var doctype = J$VM.doctype, fValues = [], 
         b = true, v, table;
         if(doctype.declared){
-        	v = doctype.getEigenStr();
-        	if(v){
+            v = doctype.getEigenStr();
+            if(v){
                 table = DOCTYPECT[v];
                 b = table ? (table["bodysize"] || false) : false;
-        	}else{
+            }else{
                 b = false;
-        	}
+            }
         }
         
         return b;
-	};
+    };
 
-	/**
-	 * Return the outer (outer border) size of the element
-	 * 
-	 * @return {width, height}
-	 */
-	thi$.outerSize = function(el, isEle){
-		if(el.tagName !== "BODY"){
-			var r = this.getBoundRect(el, isEle);
-			return {left: r.left, 
-					top: r.top, 
-					width: r.right-r.left, 
-					height:r.bottom-r.top };
-		}else{
-			var b = _computeByBody.call(this);
-			return {
-				left: 0, 
-				top:  0,
-				width: b ? document.body.clientWidth : 
-					document.documentElement.clientWidth,
-				height: b ? document.body.clientHeight : 
-					document.documentElement.clientHeight};
-		}
-	};
+    /**
+     * Return the outer (outer border) size of the element
+     * 
+     * @return {width, height}
+     */
+    thi$.outerSize = function(el, isEle){
+        if(el.tagName !== "BODY"){
+            var r = this.getBoundRect(el, isEle);
+            return {left: r.left, 
+                    top: r.top, 
+                    width: r.right-r.left, 
+                    height:r.bottom-r.top };
+        }else{
+            var b = _computeByBody.call(this);
+            return {
+                left: 0, 
+                top:  0,
+                width: b ? document.body.clientWidth : 
+                    document.documentElement.clientWidth,
+                height: b ? document.body.clientHeight : 
+                    document.documentElement.clientHeight};
+        }
+    };
 
     /**
      * Return outer (outer border) width of the element
@@ -624,8 +624,10 @@ js.util.Document = function (){
      * @param bounds @see getBounds(el)
      */
     thi$.setSize = function(el, w, h, bounds){
+
         bounds = bounds || this.getBounds(el);
-        var BBM = bounds.BBM, styleW, styleH;
+        var BBM = bounds.BBM, styleW, styleH, 
+        isCanvas = (el.tagName === "CANVAS");
 
         if(BBM){
             styleW = w;
@@ -634,15 +636,25 @@ js.util.Document = function (){
             styleW = w - bounds.MBP.BPW;
             styleH = h - bounds.MBP.BPH;
         }
-
+        
         if(Class.isNumber(styleW) && styleW >= 0){
             bounds.width = w;    
-            el.style.width = styleW + "px";
+            
+            if(isCanvas){
+                el.width = styleW;
+            }else{
+                el.style.width = styleW + "px";
+            }
         }
 
         if(Class.isNumber(styleH) && styleH >= 0){
             bounds.height= h;
-            el.style.height = styleH + "px";
+            
+            if(isCanvas){
+                el.height = styleH;
+            }else{
+                el.style.height = styleH + "px";
+            }
         }
     };
     
@@ -990,6 +1002,27 @@ js.util.Document = function (){
     /**
      * Calculate the text size of the specified span node.
      * 
+     * @param str: A string.
+     * @param styles: Some styles, such as font-size, font-weight, font-family. Any possible impact "width" styles. 
+     * 
+     */
+    thi$.getStringSize = function(str, styles){
+        
+        var textNode = this.createElement("SPAN");
+        textNode.innerHTML = str;
+        textNode.style.cssText = this.toCssText(styles);
+        this.appendTo(textNode, document.body);
+        
+        var s = this.outerSize(textNode);
+        this.remove(textNode, true);
+        textNode = null;
+        
+        return s;
+    };
+    
+    /**
+     * Calculate the text size of the specified span node.
+     * 
      * @param span: A "SPAN" DOM node.
      */
     thi$.getTextSize = function(span){
@@ -1007,99 +1040,90 @@ js.util.Document = function (){
         styles = J$VM.System.objectCopy(styles, 
                                         this.getStyles(span, textSps) || {});
         
-        var textNode = this.createElement("SPAN");
-        textNode.innerHTML = span.innerHTML;
-        textNode.style.cssText = this.toCssText(styles);
-        this.appendTo(textNode, document.body);
-        
-        var s = this.outerSize(textNode);
-        this.remove(textNode, true);
-        textNode = null;
-        
-        return s;
+        return this.getStringSize(span.innerHTML, styles);
     };
-	
-	/**
-	 * Set the given HTML content inside the given element.
-	 * 
-	 * @param e: {DOM} A given DOM element into which the given HTML content will be set.
-	 * @param html: {Strin} HTML content to set.
-	 */
-	thi$.setHTML = function(el, html){
-		if(J$VM.ie){
-			// Remove children, IE keeps empty text nodes in DOM
-			while(el.firstChild){
-				el.removeChild(el.firstChild);
-			}
+    
+    /**
+     * Set the given HTML content inside the given element.
+     * 
+     * @param e: {DOM} A given DOM element into which the given HTML content will be set.
+     * @param html: {Strin} HTML content to set.
+     */
+    thi$.setHTML = function(el, html){
+        if(J$VM.ie){
+            // Remove children, IE keeps empty text nodes in DOM
+            while(el.firstChild){
+                el.removeChild(el.firstChild);
+            }
 
-			try{
-				// IE will remove comments from the beginning unless 
-				// place the contents with something.
-				el.innerHTML = "<br />" + html;
-				el.removeChild(el.firstChild);
-			} catch (e) {
-				// IE sometimes produce an unknown runtime error on innerHTML 
-				// if it's an block element within a block element.
-				var tempDiv = this.create("div");
-				tempDiv.innerHTML = "<br />" + html;
+            try{
+                // IE will remove comments from the beginning unless 
+                // place the contents with something.
+                el.innerHTML = "<br />" + html;
+                el.removeChild(el.firstChild);
+            } catch (e) {
+                // IE sometimes produce an unknown runtime error on innerHTML 
+                // if it's an block element within a block element.
+                var tempDiv = this.create("div");
+                tempDiv.innerHTML = "<br />" + html;
 
-				// Add all children from div to target element except br
-				var children = tempDiv.childNodes, 
-				len = children ? children.length : 0;
-				for(var i = 1; i < len; i++){
-					el.appendChild(children[i]);
-				}
-			}
-		} else {
-			el.innerHTML = html;
-		}
+                // Add all children from div to target element except br
+                var children = tempDiv.childNodes, 
+                len = children ? children.length : 0;
+                for(var i = 1; i < len; i++){
+                    el.appendChild(children[i]);
+                }
+            }
+        } else {
+            el.innerHTML = html;
+        }
 
-		return el;
-	};
-	
-	/**
-	 * Add styles specified the given CSS codes to current document or 
-	 * the specified document at runtime.
-	 * If only one argument is given, which should be the CSS codes. If
-	 * two are given, the first should be the specified CSS codes, and 
-	 * the second should be a document object.
-	 * 
-	 * @param css: {String} CSS codes to add
-	 * @param doc: {HTMLDocument} Optional. A document object
-	 */
-	thi$.addStyle = function(css, doc){
-		doc = doc || document;
-		if(!css || !doc){
-			return;			   
-		}
-		
-		var head = doc.getElementsByTagName("head")[0],
-		styleElements = head.getElementsByTagName("style"),
-		styleElement, media, tmpEl;
-		if (styleElements.length == 0) {
-			if (J$VM.ie) {
-				doc.createStyleSheet();
-			} else { //w3c
-				tmpEl = doc.createElement('style');
-				tmpEl.setAttribute("type", "text/css");
-				head.appendChild(tmpEl);
-			}
-		}
-		
-		styleElement = styleElements[0];
-		media = styleElement.getAttribute("media");
-		if (media != null && !/screen/.test(media.toLowerCase())) {
-			styleElement.setAttribute("media", "screen");
-		}
-		
-		if (J$VM.ie) {
-			styleElement.styleSheet.cssText += css;
-		} else if (J$VM.firefox) {
-			styleElement.innerHTML += css; //Firefox supports adding style by innerHTML
-		} else {
-			styleElement.appendChild(doc.createTextNode(css));
-		}
-	};
+        return el;
+    };
+    
+    /**
+     * Add styles specified the given CSS codes to current document or 
+     * the specified document at runtime.
+     * If only one argument is given, which should be the CSS codes. If
+     * two are given, the first should be the specified CSS codes, and 
+     * the second should be a document object.
+     * 
+     * @param css: {String} CSS codes to add
+     * @param doc: {HTMLDocument} Optional. A document object
+     */
+    thi$.addStyle = function(css, doc){
+        doc = doc || document;
+        if(!css || !doc){
+            return;            
+        }
+        
+        var head = doc.getElementsByTagName("head")[0],
+        styleElements = head.getElementsByTagName("style"),
+        styleElement, media, tmpEl;
+        if (styleElements.length == 0) {
+            if (J$VM.ie) {
+                doc.createStyleSheet();
+            } else { //w3c
+                tmpEl = doc.createElement('style');
+                tmpEl.setAttribute("type", "text/css");
+                head.appendChild(tmpEl);
+            }
+        }
+        
+        styleElement = styleElements[0];
+        media = styleElement.getAttribute("media");
+        if (media != null && !/screen/.test(media.toLowerCase())) {
+            styleElement.setAttribute("media", "screen");
+        }
+        
+        if (J$VM.ie) {
+            styleElement.styleSheet.cssText += css;
+        } else if (J$VM.firefox) {
+            styleElement.innerHTML += css; //Firefox supports adding style by innerHTML
+        } else {
+            styleElement.appendChild(doc.createTextNode(css));
+        }
+    };
 
 }.$extend(js.lang.Object);
 

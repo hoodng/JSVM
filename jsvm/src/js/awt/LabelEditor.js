@@ -61,7 +61,7 @@ js.awt.LabelEditor = function(label, listener) {
         "font-family", "font-size", "font-style", "font-weight",
         "text-decoration", "text-align", "font-weight",
         "color", "background-color",
-        "padding-top", "padding-right", "padding-bottom", "padding-left",
+        "padding-top","padding-left","padding-bottom","padding-right",
         "border-top-width", "border-right-width", 
         "border-bottom-width", "border-left-width",
         "border-top-style", "border-right-style",
@@ -72,18 +72,35 @@ js.awt.LabelEditor = function(label, listener) {
 
     thi$.doEdit = function(){
 
-        var input = this.input = DOM.createElement("INPUT"), 
+        var input = this.input = DOM.createElement("INPUT"),
+        w, h, s,  
         label = this.label;
 
         input.type = "text";
         input.style.cssText = "outline:none;display:none";
         DOM.insertBefore(input, label);
+        input.className = "jsvm_textfield_input";
+        this.styles =  DOM.getStyles(label, styles);
         
-        DOM.applyStyles(input, DOM.getStyles(label, styles));
-        DOM.setSize(input, label.offsetWidth, label.offsetHeight);
-        if(J$VM.ie){
-            DOM.applyStyles(input, {lineHeight:DOM.getStyle(label, "line-height")});    
+        if(this.listener.def.autoFit){
+	        s = DOM.getStringSize(label.innerHTML, this.styles);
+			w = s.width + label.bounds.MBP.BPW;
+	        h = s.height + label.bounds.MBP.BPH;
+        }else {
+        	w = parseInt(label.clientWidth + label.bounds.MBP.BW);
+        	h = parseInt(label.clientHeight + label.bounds.MBP.BH);
         }
+        if(J$VM.ie && parseInt(J$VM.ie) == 10){
+        	w = Math.ceil(w);
+        	h = Math.ceil(h);
+        }
+        if(J$VM.ie){
+        	this.styles.lineHeight = DOM.getStyle(label, "line-height");
+            //DOM.applyStyles(input, {lineHeight:DOM.getStyle(label, "line-height")});    
+        }        
+        DOM.applyStyles(input, this.styles);
+        DOM.setSize(input, w, h);
+        input.style.cssText = input.style.cssText + "-ms-clear{display:none;}";
 
         input.value = this.text;
         input.style.display = "block";
@@ -93,9 +110,22 @@ js.awt.LabelEditor = function(label, listener) {
         Event.attachEvent(input, "blur", 0, this, _onblur);
         Event.attachEvent(input, "keydown", 0, this, _onkeydown);
         Event.attachEvent(input, "mousedown", 0, this, _oninputmsdown);
+        if(this.listener && this.listener.def && this.listener.def.autoFit){
+        	Event.attachEvent(input, "keyup", 1, this, _oninputkeyup);
+        }
 
         Event.detachEvent(document, Event.W3C_EVT_SELECTSTART, 1);
         
+//        if(this.listener && this.listener.def && this.listener.def.autoFit){
+//        	var bounds = DOM.getBounds(input);        	
+//		    var str = input.getAttribute("style");
+//		    str = str.replace(/width\b\s*\:\s*\d+\px;?/ig, "");
+//		   	input.setAttribute("style",str);
+//		   	var size = input.size = input.value.length;//input.value.replace(/[^\u0000-\u00ff]/g,"aa").length;
+//		   	bounds.width = size * 13;
+//			DOM.setSize(input, bounds.width, bounds.height);
+//        	input.style.border = "0px";    	     	
+//        }        
     };
     
     var _onblur = function(e){
@@ -116,6 +146,25 @@ js.awt.LabelEditor = function(label, listener) {
     var _oninputmsdown = function(e){
         e.cancelBubble();
     };
+    
+    var _oninputkeyup = function(e){    	
+    	var input = this.input,
+    	str = js.lang.String.encodeHtml(input.value),
+    	obj = this.listener,
+    	s = DOM.getStringSize(str, this.styles);
+    	if(obj.isDOMElement()){
+        	var b = DOM.getBounds(this.input),
+        	w = s.width,
+        	h = s.height;
+        	
+        	if(J$VM.ie && parseInt(J$VM.ie) == 10){
+	        	w = Math.ceil(w);
+	        	h = Math.ceil(h);
+	        }
+        	DOM.setSize(input, w - label.bounds.MBP.PW, h - label.bounds.MBP.PH);
+        	obj.oninputkeyup(w, h);
+    	}
+    };
 
     var _doChange = function() {
         if(this.input.value != this.text){
@@ -135,6 +184,7 @@ js.awt.LabelEditor = function(label, listener) {
         this.label.style.display = "block";
         delete this.label;
         delete this.text;
+        delete this.styles;
     };
     
     thi$._init = function(label, listener) {

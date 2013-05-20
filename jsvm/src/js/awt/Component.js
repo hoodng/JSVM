@@ -107,7 +107,7 @@ js.awt.Component = function (def, Runtime, view){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ;
 
     /**
      * Set position of the component.<p>
@@ -277,155 +277,23 @@ js.awt.Component = function (def, Runtime, view){
     };
     
     /**
-     * Return whether this component is always on top.
-     */
-    thi$.isAlwaysOnTop = function(){
-        return this.def.alwaysOnTop || false;
-    };
-    
-    /**
-     * Set this component to always on top
-     * 
-     * @param b, boolean value indicate whether is always on top
-     */
-    thi$.setAlwaysOnTop = function(b){
-        b = b || false;
-        var ZM = this.container;
-        if(ZM) ZM.setCompAlwaysOnTop(this, b);
-    };
-    
-    /**
-     * Moves the component up, or forward, one position in the order
-     */
-    thi$.bringForward = function(){
-        var ZM = this.container;
-        if(ZM) ZM.bringCompForward(this);
-    };
-    
-    /**
-     * Moves the component to the first position in the order
-     */
-    thi$.bringToFront = function(){
-        var ZM = this.container;
-        if(ZM) ZM.bringCompToFront(this);        
-    };
-    
-    /**
-     * Moves the component down, or back, one position in the order
-     */
-    thi$.sendBackward = function(){
-        var ZM = this.container;
-        if(ZM) ZM.sendCompBackward(this);        
-    };
-    
-    /**
-     * Moves the component to the last position in the order
-     */
-    thi$.sendToBack = function(){
-        var ZM = this.container;
-        if(ZM) ZM.sendCompToBack(this);        
-    };
-
-    /**
-     * The peer component is the action object of this component. 
-     * For example, window and its title, the window is title's 
-     * peer component. If there are some buttons in title area,
-     * then the window object also are peer component of those 
-     * buttons.
-     */
-    thi$.setPeerComponent = function(peer){
-        this.peer = peer;
-    };
-    
-    /**
-     * Return peer component of this component.
-     * 
-     * @see setPeerComponent(peer)
-     */
-    thi$.getPeerComponent = function(){
-        return this.peer;        
-    };
-
-    /**
-     * Notifies peer component with special message id and 
-     * event.
-     * 
-     * @param msgId, a string identify the event
-     * @param event, a js.util.Event object
-     */
-    thi$.notifyPeer = function(msgId, event, sync){
-        var peer = this.getPeerComponent();
-        if(peer){
-            _notify.call(this, peer, msgId, event, sync);
-        }
-    };
-
-    /**
      * Sets container of this component
      */
     thi$.setContainer = function(container){
-        this.container = container;
+        arguments.callee.__super__.apply(this, arguments);
 
         if(container && this.isMovable() && 
            container instanceof js.awt.Container && 
            container.isAutoFit()){
             var moveObj = this.getMoveObject(),
-            msgType = moveObj.getMovingMsgType();
+                msgType = moveObj.getMovingMsgType();
             MQ.register(msgType, this, _onMovingEvent);
             moveObj.releaseMoveObject();
             delete this.moveObj;
         }
-    };
 
-    /**
-     * Gets container of this component
-     */
-    thi$.getContainer = function(){
-        return this.container;
-    };
+    }.$override(this.setContainer);
 
-    /**
-     * Notifies container component with special message id and 
-     * event.
-     * 
-     * @param msgId, a string identify the event
-     * @param event, a js.util.Event object
-     */
-    thi$.notifyContainer = function(msgId, event, sync){
-        var comp = this.getContainer();
-        if(comp){
-            _notify.call(this, comp, msgId, event, sync);
-        }
-    };
-
-    var _notify = function(comp, msgId, event, sync){
-        sync = (sync == undefined) ? this.def.sync : sync;
-
-        if(sync == true){
-            MQ.send(msgId, event, [comp.uuid()]);    
-        }else{
-            MQ.post(msgId, event, [comp.uuid()]);
-        }
-    };
-    
-    /**
-     * Sets notify peer (container) is synchronized or not
-     * 
-     * @param b, true/false
-     */
-    thi$.setSynchronizedNotify = function(b){
-        this.def.sync = b || false;
-    };
-
-    /**
-     * Returns whether current notify mode is synchronized or not
-     * 
-     * @return true/false
-     */
-    thi$.isSynchronizedNotify = function(){
-        return this.def.sync || false;
-    };
-    
     /**
      * When the position and size of the component has changed, we need
      * to adjust its container's size to handle the scroll bars.
@@ -442,6 +310,13 @@ js.awt.Component = function (def, Runtime, view){
      * auto fit container 
      */
     var _onMovingEvent = function(e){
+        var container = this.getContainer();
+        if (container && container._local
+            && container._local.autoArrange == undefined) {
+            container._local.autoArrange = container.def.autoArrange;
+            container.def.autoArrange = false;
+        }
+
         this.autoResizeContainer();
     };
 
@@ -450,7 +325,7 @@ js.awt.Component = function (def, Runtime, view){
      * 
      */    
     thi$.activateComponent = function(){
-        var container = this.container;
+        var container = this.getContainer();
         if(container){
             container.activateComponent(this);
         }
@@ -562,7 +437,7 @@ js.awt.Component = function (def, Runtime, view){
             if(ctrl){
                 ctrl.appendTo(this.view); // Keep controller alwasy on top
                 var bounds = this.getBounds(), cbounds = ctrl.getBounds(),
-                x, y, w, h;
+                    x, y, w, h;
                 w = ctrl.isRigidWidth() ? cbounds.width : bounds.innerWidth;
                 h = ctrl.isRigidHeight()? cbounds.height: bounds.innerHeight;
                 x = bounds.MBP.paddingLeft + (bounds.innerWidth - w)*ctrl.getAlignmentX();
@@ -585,7 +460,13 @@ js.awt.Component = function (def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onMoved = function(fire){
-        
+        var container = this.getContainer();
+        if (container && container._local
+            && container._local.autoArrange != undefined) {
+            container.def.autoArrange = container._local.autoArrange;
+            delete container._local.autoArrange;
+        }
+        this.autoResizeContainer();
     };
 
     /**
@@ -599,7 +480,12 @@ js.awt.Component = function (def, Runtime, view){
         if((fire & 0x02) != 0){
             this.doLayout(true);
         }
-        
+        var container = this.getContainer();
+        if (container && container._local
+            && container._local.autoArrange != undefined) {
+            container.def.autoArrange = container._local.autoArrange;
+            delete container._local.autoArrange;
+        }
         // Adjust the container's size to handle the scrollbars
         this.autoResizeContainer();
     };
@@ -662,20 +548,38 @@ js.awt.Component = function (def, Runtime, view){
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
-	
+    
     thi$.getLastResizer = function(){
         var resizer = this._local.resizer, 
-        len = resizer ? resizer.length : 0,
-        el;
-		
+            len = resizer ? resizer.length : 0,
+            el;
+        
         for(var i = 0; i < len; i++){
             el = resizer[i];
             if(el){
                 return el;
             }
         }
-		
+        
         return undefined;
+    };
+
+    /**
+     * When some propery of component was changed, it may cause the layout of parent component change,
+     * So we must find the parent component which take charge of the change and redo layout.
+     */
+    thi$.invalidParentLayout = function() {
+        var target = this.getContainer();
+        while(target && !target.handleLayoutInvalid) {
+            if (target.getContainer && target.getContainer()) {
+                target = target.getContainer();
+            } else {
+                break;
+            }
+        }
+        if (target && target.handleLayoutInvalid) {
+            target.handleLayoutInvalid();
+        }
     };
 
     thi$._init = function(def, Runtime, view){

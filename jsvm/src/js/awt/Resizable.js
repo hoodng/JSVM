@@ -424,7 +424,12 @@ js.awt.Resizable = function(){
                 buf.clear().append("position:absolute;")
                     .append("overflow:hidden;cursor:").append(CS[i]).append(";");
                 if(J$VM.ie){
-                    buf.append("background-color:#FFFFFF;filter:alpha(Opacity=0);");
+                    buf.append("background-color:#FFFFFF;");
+                    if(parseInt(J$VM.ie) < 10){
+                    	buf.append("filter:alpha(Opacity=0);");
+                    }else{
+                    	buf.append("opacity:0;");
+                    }
                 }
                 div.style.cssText = buf.toString();
 

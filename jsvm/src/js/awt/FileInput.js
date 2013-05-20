@@ -32,14 +32,14 @@ js.awt.FileInput = function(def, Runtime){
 		var valid = _checkExt.call(this, fileName);
 
 		if (!valid) {
-			this.form.fileName.setValue("");
+			this.formPane.fileName.setValue("");
 			this.file.value = "";
 			if(typeof this.onFileError == "function"){
 				this.onFileError();
 			}
 			return;
 		} else {
-			this.form.fileName.setValue(this.file.value);
+			this.formPane.fileName.setValue(this.file.value);
 			if (typeof this.onFileChange == "function") {
 				this.onFileChange(this.getFileName());
 			}
@@ -61,7 +61,7 @@ js.awt.FileInput = function(def, Runtime){
 	};
 	
 	thi$.getFileName = function(){
-		return this.form.fileName.getValue();
+		return this.formPane.fileName.getValue();
 	};
 	
 	thi$._onMouseOver = function(e) {
@@ -79,35 +79,35 @@ js.awt.FileInput = function(def, Runtime){
 	};
 	
 	thi$.setFormAction = function(action) {
-		this.form.view.action = action;
+		this.formPane.view.action = action;
 	};
 
 	thi$.setFormMethod = function(method) {
-		this.form.view.method = method;
+		this.formPane.view.method = method;
 	};
 	
 	thi$.setFormEncoding = function(encoding){
-		this.form.view.encoding = encoding;
+		this.formPane.view.encoding = encoding;
 	};
 	
 	thi$.setVisible = function(b){
 		arguments.callee.__super__.apply(this, arguments);		
 		
-		var form = this.form;
+		var formPane = this.formPane;
 		if(!b){
-			form.view.style.visibility = "hidden";
-			form.fileName.textField.style.visibility = "hidden";
+			formPane.view.style.visibility = "hidden";
+			formPane.fileName.textField.style.visibility = "hidden";
 			this.file.style.visibility = "hidden";
 		}else {
-			form.view.style.visibility = "visible";
-			form.fileName.textField.style.visibility = "visible";
+			formPane.view.style.visibility = "visible";
+			formPane.fileName.textField.style.visibility = "visible";
 			this.file.style.visibility = "visible";
 		}
 		
 	}.$override(this.setVisible);
 
 	thi$.setFormEnctype = function(enctype) {
-		this.form.view.enctype = enctype;
+		this.formPane.view.enctype = enctype;
 	};
 	
 	thi$.setFilter = function(types){
@@ -119,7 +119,7 @@ js.awt.FileInput = function(def, Runtime){
 	};
 	
 	thi$.destroy = function(){
-		this.form.fileName.setValue("");
+		this.formPane.fileName.setValue("");
 		this.file.value = "";
 		arguments.callee.__super__.apply(this, arguments);
 	}.$override(this.destroy);
@@ -147,7 +147,40 @@ js.awt.FileInput = function(def, Runtime){
 			return;
 		}
 		
-		def = System.objectCopy(def, CLASS.DEFAULTCLASS, true, true);
+		def.layout = def.layout || {
+			classType:"js.awt.BorderLayout"
+		};		
+		def.items = def.items || ["formPane"];
+		def.className = def.className || "jsvm_fileinput";
+		def.classType = def.classType || "js.awt.FileInput";
+		def.css = def.css || "margin:0px,padding:0px;border:0px solid #000;overflow:hidden;height:24px;";
+		def.formPane = def.formPane || {
+				classType: "js.awt.HBox",
+				viewType: "form",
+				items: ["fileName", "btnBrowse"],
+				
+				fileName: {
+					classType: "js.swt.TextField",
+					className: "jsvm_textfield",
+					rigid_w: false,
+					rigid_h: true,
+					height: 18
+				},
+				
+				btnBrowse:{
+					classType: "js.awt.Button",
+					className: "jsvm_button",
+					labelText: "Browse...",
+					rigid_w : true,
+					rigid_h : true,
+					height: 18
+				},
+				
+				layout:{
+					gap:3
+				}
+			};
+		def.id = def.id || "openFile";
 		
 		arguments.callee.__super__.apply(this, arguments);
 		
@@ -160,7 +193,7 @@ js.awt.FileInput = function(def, Runtime){
 		this.setFormEncoding("multipart/form-data");
 		this.setFilter(def.types);
 		
-		this.form.btnBrowse.text = Runtime.nlsText("iidBtnBrowse", "Browse...");
+		this.formPane.btnBrowse.text = Runtime.nlsText("iidBtnBrowse", "Browse...");
 		
 		var file = this.file = DOM.createElement("input");
 		DOM.applyStyles(file, {
@@ -176,7 +209,7 @@ js.awt.FileInput = function(def, Runtime){
 		file.style.backgroundColor = "red";
 		file.name = "fileName";
 		file.setAttribute("type", "file");
-		DOM.appendTo(file, this.form.view);
+		DOM.appendTo(file, this.formPane.view);
 		
 		this._local.charsize = _calcCharSize.call(this);
 				
@@ -196,8 +229,8 @@ js.awt.FileInput.DEFAULTCLASS = {
 	className: "jsvm_fileinput",
 	css: "margin:0px,padding:0px;border:0px solid #000;overflow:hidden;height:24px;",
 	id: "openFile",
-	items: ["form"],
-	form: {
+	items: ["formPane"],
+	formPane: {
 		classType: "js.awt.HBox",
 		viewType: "form",
 		items: ["fileName", "btnBrowse"],

@@ -110,7 +110,7 @@ js.awt.FieldSpinner = function(def, Runtime){
     var _onSpinnerEvent = function(e){
         var data = e.getData();
         _setText.call(this, data.pos);
-        
+
         if(e.getType() == "changed"){
             e.setEventTarget(this);
             this.notifyPeer(this.getMsgType(), e);

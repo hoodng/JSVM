@@ -153,7 +153,7 @@ js.util.Messenger = function (){
         }
 
         var device = msg[3], g, 
-        recvs = this.table[msg[0]], recv;
+            recvs = this.table[msg[0]], recv;
         
         if(device != null){
             // Forward to other device
@@ -207,10 +207,10 @@ js.util.Messenger = function (){
             // Forward to other device
             if(J$VM.env.j$vm_isworker){
                 device.postMessage(JSON.stringify(
-                                       [priority, null, rcvs, msgId, msgData]));
+                    [priority, null, rcvs, msgId, msgData]));
             }else{
                 device.postMessage(JSON.stringify(
-                                       [priority, null, rcvs, msgId, msgData]), "*");    
+                    [priority, null, rcvs, msgId, msgData]), "*");    
             }
 
             // There are some issues at here ! Can not send message cross device

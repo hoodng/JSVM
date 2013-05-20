@@ -98,6 +98,8 @@ js.util.Storage = function(storage){
         
         var sto = this._storage;
         
+        sto.removeItem(key);
+
         switch(Class.typeOf(value)){
         case "string":
             sto.setItem(key, value);
@@ -208,8 +210,8 @@ js.util.Cache = function(){
     
     thi$.getItem = function(key){
         var value = memory.getItem(key);
-        value = value ? value : local.getItem(key);
         value = value ? value : session.getItem(key);
+        value = value ? value : local.getItem(key);
         return value;
     };
 

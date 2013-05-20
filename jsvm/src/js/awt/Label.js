@@ -143,7 +143,7 @@ js.awt.Label = function(def, Runtime) {
     
     var _onedit = function(e){
         var data = e.getData(); 
-        this.setText(data.text);
+        this.setText(data.text, undefined, true);
         e.getEventTarget().destroy();
         MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
 

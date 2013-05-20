@@ -37,8 +37,8 @@
 
 $package("js.awt");
 
-$import("js.util.EventTarget");
 $import("js.awt.Cover");
+$import("js.awt.Element");
 
 /**
  * A BaseComponent is an object having a graphical representation
@@ -77,58 +77,8 @@ js.awt.BaseComponent = function(def, Runtime, view){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+        System = J$VM.System;
 
-    /**
-     * Return the position left of the component.<p>
-     * This value also is css left value.
-     */
-    thi$.getX = function(){
-        return this.def.x;
-    };
-    
-    /**
-     * Set the position left of the component.<p>
-     * 
-     * @param x
-     * 
-     * @see setPosition(x, y)
-     */
-    thi$.setX = function(x, fire){
-        this.setPosition(x, undefined, fire);
-    };
-    
-    /**
-     * Return the position top of the component.<p>
-     * This value also is css top value.
-     */
-    thi$.getY = function(){
-        return this.def.y;
-    };
-    
-    /**
-     * Set the position top of the component.<p>
-     * 
-     * @param y
-     * 
-     * @see setPosition(x, y)
-     */
-    thi$.setY = function(y, fire){
-        this.setPosition(undefined, y, fire);
-    };
-    
-    /**
-     * Return position of the componet<p>
-     * 
-     * @return an object with below infomation,
-     * {x, y}
-     */
-    thi$.getPosition = function(){
-        var M = this.def;
-
-        return{x: M.x, y: M.y };
-    };
-    
     /**
      * Set position of the component.<p>
      * 
@@ -143,17 +93,9 @@ js.awt.BaseComponent = function(def, Runtime, view){
         M.y = bounds.y;
         
         this._adjust("move");
-    };
 
+    }.$override(this.setPosition);
 
-    /**
-     * Return z-index of the component.<p>
-     * It also is the css zIndex value.
-     */
-    thi$.getZ = function(){
-        return this.def.z;
-    };
-    
     /**
      * Set css z-index of the component.<p>
      * 
@@ -167,56 +109,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         
         this._adjust("zorder");
 
-    };
-    
-    /**
-     * Return the outer (outer border) width of the component.<p>
-     * This value maybe large then css value
-     */
-    thi$.getWidth = function(){
-        return this.def.width;
-    };
-    
-    /**
-     * Set the outer (outer border) width of the component.<p>
-     * 
-     * @param w
-     * 
-     * @see setSize(w, h)
-     */
-    thi$.setWidth = function(w, fire){
-        this.setSize(w, undefined, fire);
-    };
-    
-    /**
-     * Return the outer (outer border) heigth of the component.<p>
-     * This value maybe large then css value
-     */
-    thi$.getHeight = function(){
-        return this.def.height;
-    };
-
-    /**
-     * Set the outer (outer border) width of the component.<p>
-     * 
-     * @param h
-     * 
-     * @see setSize(w, h)
-     */
-    thi$.setHeight = function(h, fire){
-        this.setSize(undefined, h, fire);
-    };
-    
-    /**
-     * Return outer size of the component.<p>
-     * 
-     * @return an object with {width, height}
-     */
-    thi$.getSize = function(){
-        var M = this.def;
-
-        return{width: M.width, height: M.height};
-    };
+    }.$override(this.setZ);
     
     /**
      * Set outer size of the component.<p>
@@ -232,13 +125,14 @@ js.awt.BaseComponent = function(def, Runtime, view){
         M.height= bounds.height;
 
         this._adjust("resize");
-    };
+
+    }.$override(this.setSize);
     
     thi$.getBounds = function(){
         var el = this.view, bounds = DOM.getBounds(el), pounds,
-        position = this.getStyle("position");
+            position = this.getStyle("position");
         if(position){
-        	position = position.toLowerCase();
+            position = position.toLowerCase();
         }
         
         bounds.offsetX = el.offsetLeft;
@@ -277,7 +171,8 @@ js.awt.BaseComponent = function(def, Runtime, view){
         bounds.scrollTop   = el.scrollTop;
 
         return bounds;
-    };
+
+    }.$override(this.getBounds);
     
     thi$.setBounds = function(x, y, w, h){
         var M = this.def, bounds = this.getBounds();
@@ -290,7 +185,8 @@ js.awt.BaseComponent = function(def, Runtime, view){
         M.height= bounds.height;
         
         this._adjust("resize");
-    };
+
+    }.$override(this.setBounds);
 
     thi$.invalidateBounds = function(){
         this.view.bounds = null;
@@ -370,48 +266,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
     
     /**
-     * Returns whether the component width is rigid or flexible.
-     * 
-     * @see isRigidHeight()
-     */
-    thi$.isRigidWidth = function(){
-        var v = this.def.rigid_w;
-        return v === false ? false : true;
-    };
-    
-    /**
-     * Returns whether the component height is rigid or flexible.
-     * 
-     * @see isRigidWidth
-     */
-    thi$.isRigidHeight = function(){
-        var v = this.def.rigid_h;
-        return v === false ? false : true;
-    };
-
-    /**
-     * Returns the alignment along the x axis.  This specifies how
-     * the component would like to be aligned relative to other
-     * components.  The value should be a number between 0 and 1
-     * where 0 represents alignment along the origin, 1 is aligned
-     * the furthest away from the origin, 0.5 is centered, etc.
-     */
-    thi$.getAlignmentX = function(){
-        return this.def.align_x || 0.0;
-    };
-    
-    /**
-     * Returns the alignment along the y axis.  This specifies how
-     * the component would like to be aligned relative to other
-     * components.  The value should be a number between 0 and 1
-     * where 0 represents alignment along the origin, 1 is aligned
-     * the furthest away from the origin, 0.5 is centered, etc.
-     */
-    thi$.getAlignmentY = function(){
-        return this.def.align_y || 0.0;
-    };
-    
-    /**
      * Return the computed style with the specified style name
      */
     thi$.getStyle = function(sp){
@@ -426,7 +280,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
      */
     thi$.getStyles = function(sps){
         var currents = DOM.currentStyles(this.view), 
-        styles = {}, i, len, sp;
+            styles = {}, i, len, sp;
 
         for(i=0, len=sps.length; i<len; i++){
             sp = DOM.camelName(sps[i]);
@@ -443,8 +297,8 @@ js.awt.BaseComponent = function(def, Runtime, view){
      */
     thi$.applyStyles = function(styles){
         var el = this.view, 
-        w = parseFloat(styles.width), 
-        h = parseFloat(styles.height);
+            w = parseFloat(styles.width), 
+            h = parseFloat(styles.height);
         
         delete styles.width;
         delete styles.height;
@@ -477,7 +331,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
             this.view.style.display = "block";
             this._adjust("display", "block");
         }
-    };
+    }.$override(this.display);
 
     /**
      * Gets the attribute with specified name
@@ -575,17 +429,17 @@ js.awt.BaseComponent = function(def, Runtime, view){
      */
     thi$.contains = function(child, constainSelf){
         return DOM.contains(this.view, child, constainSelf);
-    };
+    }.$override(this.contains);
 
     /**
      * Test if the specified (x, y) is in area of the component 
      */
     thi$.inside = function(x, y){
         var d = this.getBounds(), 
-        minX = d.absX + d.MBP.borderLeftWidth, maxX = minX + d.clientWidth,
-        minY = d.absY + d.MBP.borderTopWidth,  maxY = minY + d.clientHeight;
+            minX = d.absX + d.MBP.borderLeftWidth, maxX = minX + d.clientWidth,
+            minY = d.absY + d.MBP.borderTopWidth,  maxY = minY + d.clientHeight;
         return (x > minX && x < maxX && y > minY && y < maxY);
-    };
+    }.$override(this.inside);
     
     /**
      * Map a absolute XY to this component
@@ -613,7 +467,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
      */
     thi$.repaint = function(){
         var M = this.def, U = this._local, el = this.view, 
-        bounds, ret = false;
+            bounds, ret = false;
 
         if(this.isDOMElement()){
             if(this._geometric) {
@@ -682,7 +536,8 @@ js.awt.BaseComponent = function(def, Runtime, view){
      * Notes: Sub class should override this method
      */
     thi$.doLayout = function(force){
-        if(!this.needLayout(force)) return false;
+        if(!this.needLayout(force) || 
+           (this.getStyle("display") === "none")) return false;
 
         this._local.didLayout = true;
         
@@ -781,16 +636,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
 
     /**
-     * Return runtime object
-     * 
-     * @see js.lang.Runtime
-     * @see js.awt.Desktop
-     */
-    thi$.Runtime = function(){
-        return this._local.Runtime;
-    };
-    
-    /**
      * Clone view from the view of this component
      */
     thi$.cloneView = function(){
@@ -848,8 +693,8 @@ js.awt.BaseComponent = function(def, Runtime, view){
         CLASS.G = CLASS.G || {};
         
         var className = this.className, G = NUCG ? null : CLASS.G[className], 
-        M = this.def, ele, bounds, styleW, styleH, 
-        buf = new js.lang.StringBuffer();
+            M = this.def, ele, bounds, styleW, styleH, 
+            buf = new js.lang.StringBuffer();
         if(!G){
             G = {};
             ele = this.view.cloneNode(false);
@@ -919,14 +764,9 @@ js.awt.BaseComponent = function(def, Runtime, view){
     thi$._init = function(def, Runtime, view){
         if(def == undefined) return;
         
-        this.def = def;
-        this._local = this._local || {};
-        this._local.Runtime = Runtime;
-        this.uuid(def.uuid);
-
-        this.id = def.id || this.uuid();
-
         def.classType = def.classType || "js.awt.BaseComponent";
+
+        arguments.callee.__super__.apply(this, arguments);
         
         if(view){
             this.view = view;
@@ -941,11 +781,10 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
         this.className = def.className;
         if(def.css) view.style.cssText = view.style.cssText + def.css;
-        if(view.tagName != "BODY" && view.cloned != "true"){
+        if(view.tagName != "BODY" && view.tagName != "CANVAS"
+           && view.cloned != "true"){
             _preparegeom.call(this, def.NUCG);    
         }
-
-        arguments.callee.__super__.apply(this, arguments);
 
         this._geometric = function(){
             var o = _geometric.call(this);
@@ -957,4 +796,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.util.EventTarget).$implements(js.awt.Cover);
+}.$extend(js.awt.Element).$implements(js.awt.Cover);
+
+

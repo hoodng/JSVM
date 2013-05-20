@@ -239,13 +239,34 @@ js.awt.Desktop = function (element){
         return true;
     };
     
+    var _notifyComps = function(msgid, e){
+        var comps = this.getAllComponents(),
+        len = comps ? comps.length : 0, 
+        i, comp, recs = [];
+        
+        for(i = 0; i < len; i++){
+            comp = comps[i];
+            recs.push(comp.uuid());
+        }
+        
+        if(recs.length > 0){
+            MQ.post(msgid, e, recs);
+        }
+    };
+    
     var _onresize = function(e){
         var M = this.def, U = this._local,
         isSpecified = U.isViewSpecified,
         d = isSpecified ? this.getBounds() 
-            : DOM.innerSize(document.body);
+            : DOM.innerSize(document.body),
+        evt;
         
         if(U.userW != d.width || U.userH != d.height){
+            evt = new Event(Event.W3C_EVT_RESIZE, 
+                {owidth: U.userW, oheight: U.userH, 
+                    width: d.width, height: d.height});
+            _notifyComps.call(this, "js.awt.event.WindowResized", evt);
+            
             this.LM.clearStack(e);
             
             if(isSpecified){

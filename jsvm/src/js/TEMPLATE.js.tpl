@@ -29,10 +29,10 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * Author: (>>>AUTHOR<<<)
+ * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://jzvm.googlecode.com
+ * Source code availability: http://github.com/jsvm
  */
 
 $package("(>>>package<<<)");
@@ -40,9 +40,10 @@ $package("(>>>package<<<)");
 /**
  * 
  */
-(>>>package<<<).(>>>FILE_SANS<<<) = function(){
-
-    var CLASS = (>>>package<<<).(>>>FILE_SANS<<<), thi$ = CLASS.prototype;
+(>>>package<<<).(>>>FILE_SANS<<<) = function(def, Runtime){
+    var CLASS = (>>>package<<<).(>>>FILE_SANS<<<),
+    thi$ = CLASS.prototype;
+    
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
@@ -52,14 +53,12 @@ $package("(>>>package<<<)");
     var Class = js.lang.Class, System = J$VM.System;
     
     thi$._init = function(def, Runtime){
-        if(def == undefined) return;
-        
+        if(typeof def !== "object") return;
         
     };
     
     this._init.apply(this, arguments);
 };
-
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("package" "Class Package: ")
 

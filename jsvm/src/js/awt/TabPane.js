@@ -82,6 +82,19 @@ js.awt.TabPane = function (def, Runtime){
         this.panes.addComponent(panel);
     };
     
+    thi$.removeTab = function(tabId,panId){
+    	var items = this.tabs.items0(), id,
+        tabs = this.tabs, panes = this.panes;
+//    	for(var i=0, len=items.length; i<len; i++){
+//    		id = items[i];
+//    		if(id == tabId){
+//    			
+//    		}
+//    	}
+    	tabs.removeComponent(tabs[tabId]);
+		panes.removeComponent(panes[panId]);
+    };
+    
     /**
      * Switch to tab with specified tab id
      * 

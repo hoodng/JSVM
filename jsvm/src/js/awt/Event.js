@@ -93,7 +93,7 @@ js.awt.Event = function(e){
 
     thi$._init = function(e){
         var _e = this._event = e || window.event,
-        events = J$VM.events = J$VM.events || [];
+            events = J$VM.events = J$VM.events || [];
         events.unshift(_e);
         if(events.length > 2){
             events.pop();
@@ -102,7 +102,7 @@ js.awt.Event = function(e){
         arguments.callee.__super__.call(this, _e.type, _e);
 
         var ie = (_e.stopPropagation == undefined),
-        ff = (J$VM.firefox != undefined);
+            ff = (J$VM.firefox != undefined);
 
         this.altKey   = _e.altKey   || false;
         this.ctrlKey  = _e.ctrlKey  || false;

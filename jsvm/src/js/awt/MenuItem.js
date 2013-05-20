@@ -71,6 +71,19 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	thi$.subMenu = function(){
 		return this._local.submenu;
 	};
+	
+	thi$.setNodes = function(nodes){
+		var subMenu ;
+		if(Class.isArray(nodes)){
+			this.def.nodes = nodes;
+			
+			subMenu = this.subMenu();
+			if(subMenu){
+				subMenu.hide();
+				subMenu = this._local.submenu = null;
+			}
+		}
+	};
 
 	/**
 	 * Show the current item's submenu, if the submenu hasn't been created,
@@ -111,19 +124,20 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			if(active && active != this){
 				subMenu = active.subMenu();
 				if(subMenu && subMenu.isShown()){
-					subMenu.hide();
+					subMenu.hide("hide", this);
 					active.setHover(false);
 				}
 			}
-			
-			subMenu = this.subMenu();
-			if(!subMenu && M.dynamic === true
-			   && (typeof this.loadMenu == "function")){
-				timeout = !isNaN(M.timeout) ? M.timeout : 500;
-				this.loadMenu.$clearTimer();
-				this.loadMenu.$delay(this, timeout);
-			}else{
-				this.showSubMenu(M.nodes);
+			if (this.isEnabled()){
+				subMenu = this.subMenu();
+				if(!subMenu && M.dynamic === true
+				   && (typeof this.loadMenu == "function")){
+					timeout = !isNaN(M.timeout) ? M.timeout : 500;
+					this.loadMenu.$clearTimer();
+					this.loadMenu.$delay(this, timeout);
+				}else{
+					this.showSubMenu(M.nodes);
+				}
 			}
 		}
 		

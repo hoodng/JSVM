@@ -191,6 +191,16 @@ js.awt.Dialog = function (def, Runtime){
         }
         this.setPosition(x, y);
     };
+    
+    /**
+     * @see js.awt.Cover
+     */
+    thi$.showLoading = function(b){
+		
+		arguments.callee.__super__.apply(this, arguments);
+        this.btnpane.showLoading(b);
+
+    }.$override(this.showLoading);
 
     thi$.onbtnHelp = function(button){
         MQ.post("js.awt.event.ShowHelpEvent", 
