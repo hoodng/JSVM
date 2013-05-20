@@ -1,0 +1,28 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsvm.jsp"></script>
+    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphCNV.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/math/Matrix.js"></script>
+
+    <script type="text/javascript">
+        J$VM.exec("Demo",function(System){
+            var Class = js.lang.Class, Matrix = Class.forName("js.math.Matrix");
+        
+            var M0 = new Matrix({M:[[1,2,3]]}); // 1x3
+            var M1 = new Matrix({M:[[1],[2],[3]]});
+
+            var M2 = M0.multiply(M0, M1);
+
+            System.err.println(M2);
+            
+        });
+    </script>
+</head>
+<body>
+</body>
+</html>

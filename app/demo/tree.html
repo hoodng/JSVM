@@ -1,0 +1,83 @@
+
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+
+<style>
+
+.bt_0, .bt_1{
+   width: 60px;
+   height: 30px;
+   background-color: #FFFFFF;
+   border: 1px solid blue;
+}
+
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+
+J$VM.exec(
+    "Demo",
+    function(System){
+
+        this.prefer({theme: "default"});
+
+        var treeDef = {
+            id: "root1",
+            nodes:[
+                { name:"aaa", nodes:[{nodes:[{ nodes:[{nodes:[{ nodes:[{nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},{}]},{}, {nodes:[{},{}]}]},{}]},{}, {nodes:[{},{}]}]},{}]},
+                { name:"bbb", nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+                { name: "ccc",nodes:[{text:"Node111111111111111111"},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]}
+            ],
+            resizable: true,
+            movable: true,
+            shadow: true,
+            width: 200, height: 400
+        };
+
+        var dataProvider = new js.awt.AbstractTreeDataProvider(this);
+        dataProvider.getIconImage = function(){
+            return "folder.gif";
+        };
+        dataProvider.canDrag = function(){
+            return true;
+        };
+
+
+        this.addComponent(new js.awt.Tree(treeDef, this, dataProvider));
+        this.root1.setPeerComponent(this);
+
+        var _onTreeItemEvent = function(e){
+            var target = e.getEventTarget();
+            if(target instanceof js.awt.TreeItem){
+                System.err.println(target.getText() +" "+e.getType());
+            }else{
+                System.err.println(e.getType());
+            }
+            
+        };
+
+        J$VM.MQ.register("js.awt.event.TreeItemEvent", this, _onTreeItemEvent);
+
+    });
+
+</script>
+
+</html>

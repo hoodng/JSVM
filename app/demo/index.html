@@ -1,12 +1,10 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
 <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" 
-        src="../../jsvm/jsvm.jsp" 
-        classpath="lib/jsre-ui.js" 
-        -DmainClass="org.jsvm.App"></script>
-
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/../jsre-ui.js" ></script>
 <style>
 
 .panel,
@@ -84,7 +82,9 @@
 
 <script type="text/javascript">
 
-J$VM.exec("org.jsvm.App", function(System){
+J$VM.exec("Demo", function(System){
+
+    this.prefer({theme: "default"});
 
     this.setZ(0);
 
@@ -116,7 +116,7 @@ J$VM.exec("org.jsvm.App", function(System){
 
             btnClose:{
                 classType: "js.awt.Button",
-                iconImage: "close.png"
+                iconImage: "dialog_close.png"
             }
         },
         
@@ -194,13 +194,6 @@ J$VM.exec("org.jsvm.App", function(System){
         x: 410, y: 10
     },this));
     
-    this.addComponent(new js.awt.Label({
-        className :"labButton",
-        text: "GridBagLayout",
-        id:"labGridBagLayout",
-        x: 510, y: 10
-    },this));
-    
     var _showCardLayout = function(){
         this.DemoWindow.loadUrl("cardlayout.html");
     }
@@ -230,7 +223,6 @@ J$VM.exec("org.jsvm.App", function(System){
     this.labBoxLayout.attachEvent("click", 0, this, _showBoxLayout);
     this.labFlowLayout.attachEvent("click", 0, this, _showFlowLayout);
     this.labGridLayout.attachEvent("click", 0, this, _showGridLayout);
-    this.labGridBagLayout.attachEvent("click", 0, this, _showGridBagLayout);
     
     _showCardLayout.call(this);
 

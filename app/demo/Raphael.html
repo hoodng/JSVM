@@ -1,0 +1,27 @@
+<HTMl>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsvm.jsp"
+            classpath="lib/../jsre-ui.js;
+    lib/dashboard.js;
+    lib/raphael-min.js;"></script>
+    <script src="../../jsvm/src/js/awt/Graphic.js"></script>
+    <script src="../../jsvm/src/com/jinfonet/report/chart/calculate/util/GraphUtil.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+J$VM.exec("Demo",function(System){
+    var g =new js.awt.SVGGraphic({dom:this.view,width:500,height:500},this.runtime);
+    //var lblTest=g.drawLabel({points:[{x:100,y:100}],v:"test",param:{"font":"30px '黑体'","font-size":"100px"},rotate:0});
+    //lblTest.attr();
+    var tt={font:{fontSize:"30",fontName:"arial",fontStyle:["bolder","italic"]},value:"test"};
+    var size=g.getHDimension(tt);
+    alert(size.w+":"+size.h);
+});
+</script>
+</body>
+</html>

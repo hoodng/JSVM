@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+  <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+  <link rel="stylesheet" type="text/css" href="../../style/default/report.css"/>
+  <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+
+  <script id="j$vm" 
+          src="../../jsvm/jsvm.jsp"
+          classpath=""
+          -DmainClass="org.jsvm.App"></script>
+
+    <script type="text/javascript" src="../../jsvm/jsre-ui.js"></script>
+  <script type="text/javascript" src="../../jsvm/src/com/jinfonet/ui/PopupList.js"></script>
+</head>
+
+<body>
+</body>
+
+<script type="text/javascript">
+    J$VM.exec("org.jsvm.App",function(System){
+        this.initialize();
+
+        var models = [
+            {dname:"New Parameter 0",  value: {p_country: "China", p_city: "Kunming"}},
+            {dname:"New Parameter 1",  value: {p_country: "China", p_city: "ZhaoTong"}},
+            {dname:"New Parameter 2",  value: {p_country: "China", p_city: "DaLi"}},
+            {dname:"New Parameter 3",  value: {p_country: "China", p_city: "kunming"}},
+            {dname:"New Parameter 4",  value: {p_country: "China", p_city: "kunming"}}
+        ];
+        
+        var createPopupList = function() {
+            var def = {
+                itemDeletable: true,
+
+                width: 240,
+                height: 120,
+                
+                itemModels: [
+                   {dname:"<All>", value:"All"},
+                   {dname: "item1", value: "item1", marked: true}
+                ]
+            };
+    
+            var popupList = new com.jinfonet.ui.PopupList(def, this);
+            popupList.setPeerComponent(this);
+            popupList.setItemsByModel(models);
+            
+            return popupList;
+        };
+
+        var _onPopupList = function(e){
+            var type = e.getType(), popupList = e.getEventTarget();
+            switch(type){
+            case "save":
+                var v = e.getData(), m = {dname: v};
+                m.value = JSON.stringify({param1: "china", param2: "1000.00"});
+                J$VM.System.err.println(type + ": " + JSON.stringify(m));
+                popupList.addItem(m);
+                break;
+            case "delete":
+                var item = e.getData();
+                J$VM.System.err.println(type + ": " + JSON.stringify(item.getModel()));
+                popupList.removeItem(item);
+                break;
+            case "select":
+                J$VM.System.err.println(type + ": " + JSON.stringify(e.getData()));
+                break;
+            }
+        };
+
+        var btn = new js.awt.Button({
+            className: "jsvm_button", 
+            css: "position:absolute;left:150px;top:50px;",
+            
+            labelText: "Click",
+            effect: true
+        });
+        this.addComponent(btn);
+        btn.doLayout();
+
+        btn.attachEvent("click", 0, this, function(e){
+            var list = createPopupList.call(this);
+            list.showBy(btn.view, false);
+           
+            J$VM.MQ.register(list.getMsgType(), this, _onPopupList);
+        });
+    });
+</script>
+
+</html>

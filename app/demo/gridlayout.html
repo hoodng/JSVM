@@ -4,7 +4,7 @@
 <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
 <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
 <script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<script src="../../jsvm/lib/../jsre-ui.js" ></script>
 <script src="../../jsvm/src/js/awt/Grid.js" ></script>
 <style>
 
@@ -30,6 +30,7 @@
 J$VM.exec("Demo",function(System){
 
     this.prefer({theme: "default"});
+    this.setZ(0);
 
     var panel =  new js.awt.Container({
         className: "panel",
@@ -41,14 +42,13 @@ J$VM.exec("Demo",function(System){
             rowNum: 3,
             colNum: 3,
             rows:[
+              /*{index:1, measure:100, rigid:true}*/
             ],
             cols:[
-                {index:0, rigid:false, weight:0.45},
-                {index:1, rigid:true, measure:100},
-                {index:2, rigid:false, weight:0.55}
+              /*{index:1, measure:100, rigid:true}*/
             ],
             cells:[
-                {rowIndex:0, colIndex:0, rowSpan:2, colSpan:1},
+                {rowIndex:0, colIndex:0, rowSpan:2},
                 {rowIndex:0, colIndex:1, colSpan:2},
                 {rowIndex:1, colIndex:2, rowSpan:2},
                 {rowIndex:2, colIndex:0, colSpan:2}
@@ -98,8 +98,11 @@ J$VM.exec("Demo",function(System){
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
-        rigid_w: false,
-        rigid_h: false,
+        width: 50, height:50,
+        rigid_w: true,
+        rigid_h: true,
+        align_x: 1.0,
+        align_y: 1.0,
         css: "border-color:blue;",
         constraints:{rowIndex: 1, colIndex: 1}   
     },this));
