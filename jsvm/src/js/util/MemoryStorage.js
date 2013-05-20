@@ -51,79 +51,29 @@ js.util.MemoryStorage = function(){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class;
-
-
-    var _check = function(){
-        var hasStorage = (this._storage != null && this._storage != undefined);
-
-        if(arguments.length > 0){
-            var key = arguments[0];
-            if(typeof key === "string" && key.length > 0){
-                return hasStorage;
-            }else{
-                return false;
-            }
-        }
-        
-        return hasStorage;
-    };
-    
-    thi$.keys = function(){
-        return this._storage.keys();  
-    };
+    thi$.isMemory = true;
 
     thi$.length = function(){
-        return this._storage.size();  
+        return this.size();
     };
 
     thi$.key = function(index){
-        return this._storage.keys().get(index);
+        return this._keys[index];
     };
 
     thi$.setItem = function(key, value){
-        if(!_check.call(this, key)) return;
-        
-        switch(Class.typeOf(value)){
-        case "string":
-            this._storage.put(key, value);
-            break;
-        case "object":
-        case "array":
-            this._storage.put(key, JSON.stringify(value));
-            break;
-        default:
-            break;
-        }
+        this.put(key, value);
     };
     
     thi$.getItem = function(key){
-        if(!_check.call(this, key)) return null;
-
-        var value =  this._storage.getItem(key);
-        if(value){
-            if(Class.typeOf(value) == "string" && 
-               (value.indexOf("{") == 0 || value.indexOf("[") == 0))
-                value =  JSON.parse(value);
-        }
-        
-        return value;
+        return this.get(key);
     };
     
     thi$.removeItem = function(key){
-        if(!_check.call(this, key)) return;
-        
-        this._storage.remove(key);
-    };
-    
-    thi$.clear = function(){
-        this._storage.clear();
-    };
-
-    thi$._init = function(){
-        this._storage = new js.util.HashMap();
+        return this.remove(key);
     };
     
     this._init.apply(this, arguments);
     
-}.$extend(js.lang.Object);
+}.$extend(js.util.HashMap);
+

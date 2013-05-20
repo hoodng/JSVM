@@ -154,6 +154,11 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
                     pIndex.push($0);
                     return Regx[$0];
                 }
+
+                if($0.length >= 2){
+                    $0 = $0.replace(/"|'/g, "");
+                }
+
                 return $0;
             });
 
@@ -190,9 +195,10 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
      */
     thi$.format = function(date, isUTC){
         date = date ? date : new Date();
-        if(!Class.isDate(date))
-            throw SyntaxError("Invalid date");
-
+        if(!Class.isDate(date)){
+            return date;
+        }
+        
         var _symbols = this.symbols;
         return this.pattern.replace(
             TOKEN, 

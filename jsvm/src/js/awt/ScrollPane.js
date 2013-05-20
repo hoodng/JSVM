@@ -62,41 +62,49 @@ js.awt.ScrollPane = function (def, Runtime){
         return this.def.layout.axis == 0;
     };
     
-    /**
-     * @see js.awt.Container#addComponent
-     */
-    thi$.addComponent = function(comp){
-        comp = arguments.callee.__super__.apply(this, arguments);
-        
+    var _addComp = function(comp, notify){
         this.cache[comp.uuid()] = comp;
         
-        if(comp instanceof js.awt.Item){
+        if(typeof comp.hoverCtrl == "function"){
             comp.hoverCtrl(false);
         }
 
         this.doLayout(true);
         this.scrollLast();
 
-        this.notifyPeer(
-            "js.awt.event.ItemEvent", new Event("add", "", comp));
-
-        this.activateComponent(comp);
+        if(notify !== false){
+            this.notifyPeer(
+                "js.awt.event.ItemEvent", new Event("add", "", comp));
+        }
         
-    }.$override(this.addComponent);
+        //this.activateComponent(comp);
+        return comp;
+    };
+    
+    /**
+     * @see js.awt.Container #insertComponent
+     */
+    thi$.insertComponent = function(index, comp, constraints, notify){
+        comp = arguments.callee.__super__.apply(this, [index, comp, constraints]);
+        return _addComp.call(this, comp, notify);
+        
+    }.$override(this.insertComponent);
     
     /**
      * @see js.awt.Container#removeComponent
      */
-    thi$.removeComponent = function(comp){
+    thi$.removeComponent = function(comp, notify){
         if(!comp) return;
 
         var items = this.items(), index = items.indexOf(comp.id);
-        comp = arguments.callee.__super__.apply(this, arguments);
+        comp = arguments.callee.__super__.apply(this, [comp]);
         delete this.cache[comp.uuid()];
         this.doLayout(true);
 
-        this.notifyPeer(
-            "js.awt.event.ItemEvent", new Event("remove", "", comp));
+        if(notify !== false){
+            this.notifyPeer(
+                "js.awt.event.ItemEvent", new Event("remove", "", comp));
+        }
         
         items = this.items();
         index = index >= items.length ? items.length - 1 : index;
@@ -204,11 +212,12 @@ js.awt.ScrollPane = function (def, Runtime){
         var moveObj = this.moveObj;
         if(!moveObj){
             var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-            absXY = DOM.absXY(item.view);/*e.eventXY();*/
+            absXY = DOM.absXY(item.view)/*e.eventXY()*/, 
+            moveObjClz = Class.forName(this.def.moveObjClz);
             
             var def = System.objectCopy(item.def, {}, true);
             moveObj = this.moveObj = 
-                new js.awt.Item(def, this.Runtime(), item.cloneView());
+                new moveObjClz(def, this.Runtime(), item.cloneView());
             moveObj.setMovingPeer(this);
             moveObj.appendTo(document.body);
             moveObj.setPosition(absXY.x, absXY.y);
@@ -265,24 +274,30 @@ js.awt.ScrollPane = function (def, Runtime){
     thi$.doLayout = function(force){
         if(arguments.callee.__super__.apply(this, arguments)){
             var r = _getLayoutSize.call(this), max = this.getMaximumSize(), 
-            width, height, oldw = this.getWidth(), oldh = this.getHeight();
+            width, height, oldw = this.getWidth(), oldh = this.getHeight(),
+            resized = false;
             
             this._local.avgwidth = r.avgwidth;
             this._local.avgheight= r.avgheight;
 
             if(this.isHScroll()){
-                width =  Math.min(r.width, max.width);
+                width =  this.def.onlyMax ? max.width : Math.min(r.width, max.width);
                 if(oldw != width){
                     this.setWidth(width);
+                    resized = true;
                 }
             }else{
-                height= Math.min(r.height, max.height);
+                height= this.def.onlyMax ? max.height: Math.min(r.height, max.height);
                 if(oldh != height){
                     this.setHeight(height);
+                    resized = true;
                 }
             }
-            this.notifyContainer(
-                "js.awt.event.LayoutEvent", new Event("resize","",this));
+            
+            if(resized){
+                this.notifyContainer(
+                    "js.awt.event.LayoutEvent", new Event("resize","",this));
+            }
 
             return true;
         }
@@ -305,7 +320,7 @@ js.awt.ScrollPane = function (def, Runtime){
 
             }else if(eType == "dblclick"){
                 e.cancelBubble();
-                if(item.isEditable()) {
+                if(item.isEditable && item.isEditable()) {
                     item.editLabel();
                 }
             }
@@ -318,12 +333,19 @@ js.awt.ScrollPane = function (def, Runtime){
         var item = e.getEventTarget(), d;
         item.def.prefSize = undefined;
         this.doLayout(true);
-        this.notifyPeer(
-            "js.awt.event.ItemEvent", new Event("textchanged", "", item));
+        if(e.getType() == "edit"){
+            this.notifyPeer(
+                "js.awt.event.ItemEvent", 
+                new Event("textchanged", "", item));
+        }
     };
 
     var _onmouseover = function(e){
-        var from = e.fromElement, to = e.toElement, 
+        // hoverOnCtrl: indicate whether the ctrl should hovered if
+        // and only if the mouse is over the ctrl other than whole
+        // component. Default is true.
+        var hoverOnCtrl = (this.def.hoverOnCtrl !== false),
+        from = e.fromElement, to = e.toElement, 
         fid = from ? from.uuid : undefined, 
         tid = to ? to.uuid : undefined,
         fitem, titem, cache = this.cache;
@@ -337,14 +359,14 @@ js.awt.ScrollPane = function (def, Runtime){
             }
             if(titem && !titem.isHover()){
                 titem.setHover(true);
-                if(to == titem.ctrl){
+                if(!hoverOnCtrl || to == titem.ctrl){
                     titem.hoverCtrl(true);
                 }
             }
         }else{
             titem = cache[tid];
             if(titem && titem.isHover()){
-                if(to == titem.ctrl){
+                if(!hoverOnCtrl || to == titem.ctrl){
                     titem.hoverCtrl(true);
                 }else{
                     titem.hoverCtrl(false);
@@ -352,31 +374,61 @@ js.awt.ScrollPane = function (def, Runtime){
             }
         }
     };
+    
+    /**
+     * Judge whether the specified item can be dropped. If true
+     * calculate and return the index.
+     * 
+     * @param item: {Component} The specified item to drop
+     * @param xy: {Object} The current mouse position
+     */
+    thi$.acceptInsert = function(item, xy){
+        var mvId = item.id, items = this.items0(),
+        insert, tmp;
 
+        for(var i=0, len=items.length; i<len; i++){
+            tmp = this[items[i]];
+            
+            if(tmp.id == mvId) continue;
+            
+            if(tmp.inside(xy.x, xy.y)){
+                tmp.setActivated(true);
+                insert = items.indexOf(tmp.id);
+            }else{
+                tmp.setActivated(false);
+            }
+        }            
+        
+        return insert;
+    };
+    
+    /**
+     * Show a custom indicator to indicate where to insert item.
+     * 
+     * @param b: {Boolean} true to show indicator, false to hide.
+     * @param insert: {Number} The index of inserting position.
+     */
+    thi$.showIndicator = function(b, insert){
+        //Do nothing
+    };
+    
     var _ondrag = function(e){
         var eType = e.getType(), moveObj = e.getEventTarget(),
-        xy = e.eventXY(), mvId = moveObj.id, items = this.items0(), item;
+        xy = e.eventXY(), mvId = moveObj.id, item = this[mvId],
+
+        items = this.items0(), p0 = items.indexOf(mvId), 
+        p1, insert, changed = false;
 
         switch(eType){
         case "mousemove":
-            for(var i=0, len=items.length; i<len; i++){
-                item = this[items[i]];
+            p1 = this.acceptInsert(item, xy);
+            this._local.insert = Class.isNumber(p1) ? p1 : p0;
 
-                if(item.id == mvId) continue;
-
-                if(item.inside(xy.x, xy.y)){
-                    item.setActivated(true);
-                    this._local.insert = items.indexOf(item.id);
-                }else{
-                    item.setActivated(false);
-                }
-            }            
+            this.showIndicator(true, this._local.insert);
             break;
         case "mouseup":
-            item = this[mvId];
-            var p0 = items.indexOf(mvId),
-            p1 = Class.isNumber(this._local.insert) ? this._local.insert : p0,
-            insert = this[items[p1]], changed = false;
+            p1 = this._local.insert;
+            insert = this[items[p1]];
 
             if(p0 > p1){
                 // Insert before p1
@@ -404,7 +456,9 @@ js.awt.ScrollPane = function (def, Runtime){
             }
 
             insert.setActivated(false);
-            this._local.insert = undefined;
+
+            this.showIndicator(false);
+            delete this._local.insert;
 
             break;
         }
@@ -425,19 +479,23 @@ js.awt.ScrollPane = function (def, Runtime){
         if(def == undefined) return;
         
         var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true),
-        hscroll = newDef.layout.axis == 0;
+        hscroll = (newDef.layout.axis == 0), mover, M;
         
         newDef.className = newDef.className || 
             (hscroll ? "jsvm_hscroll" : "jsvm_vscroll");
         
-        newDef.mover = newDef.mover || {};
-        newDef.mover.longpress = newDef.mover.longpress || 250;
-        newDef.mover.freedom = 1;
+        mover = newDef.mover = newDef.mover || {};
+        mover.longpress = mover.longpress || 250;
+        mover.freedom = !isNaN(mover.freedom) ? mover.freedom : (hscroll ? 1 : 2);
 
         System.objectCopy(newDef, def, true, true);
         arguments.callee.__super__.apply(this, arguments);
         
         this.cache = {};
+        
+        M = this.def;
+        M.itemClassType = M.itemClassType || "js.awt.Item";
+        M.moveObjClz = M.moveObjClz || M.itemClassType;
 
         this.attachEvent("mouseover", 0, this, _onmouseover);
         this.attachEvent("mouseout",  0, this, _onmouseover);

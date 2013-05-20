@@ -71,16 +71,16 @@ js.lang.Object = function (o){
     };
 
     thi$.instanceOf = function(clazz){
-        if(this.__imps__){
-            for(var i=0, len=this.__imps__.length; i<len; i++){
-                if(clazz === this.__imps__[i]){
+        var imps = this.__imps__;
+        if(imps){
+            for(var i=0, len=imps.length; i<len; i++){
+                if(clazz === imps[i]){
                     return true;
                 }
             }
         }
 
         return this instanceof clazz;
-
     };
 
     thi$.destroy = function(){

@@ -66,8 +66,10 @@ js.awt.AbstractLayout = function (def){
      * @param constraints  where/how the component is added to the layout.
      */
     thi$.addLayoutComponent = function(comp, constraints){
-        comp.view.style.position = "absolute";
-
+        var ele = comp.view;
+        if(ele && ele.style){
+            ele.style.position = "absolute";
+        }
     }.$override(this.addLayoutComponent);
 
     

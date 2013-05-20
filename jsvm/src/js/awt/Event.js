@@ -92,11 +92,17 @@ js.awt.Event = function(e){
     };
 
     thi$._init = function(e){
-        var _e = this._event = e || window.event;
+        var _e = this._event = e || window.event,
+            events = J$VM.events = J$VM.events || [];
+        events.unshift(_e);
+        if(events.length > 2){
+            events.pop();
+        }
+        
         arguments.callee.__super__.call(this, _e.type, _e);
 
         var ie = (_e.stopPropagation == undefined),
-        ff = (J$VM.firefox != undefined);
+            ff = (J$VM.firefox != undefined);
 
         this.altKey   = _e.altKey   || false;
         this.ctrlKey  = _e.ctrlKey  || false;
@@ -118,12 +124,10 @@ js.awt.Event = function(e){
             break;
         }
 
-        this.clientX = ie ? (_e.clientX + 
-                             document.documentElement.scrollLeft - 
-                             document.body.clientLeft) : _e.pageX;
-        this.clientY = ie ? (_e.clientY +
-                             document.documentElement.scrollTop -
-                             document.body.clientTop ) : _e.pageY;
+        this.clientX = !isNaN(_e.pageX) ? _e.pageX 
+            : (_e.clientX + document.documentElement.scrollLeft - document.body.clientLeft);
+        this.clientY = !isNaN(_e.pageY) ? _e.pageY 
+            : (_e.clientY + document.documentElement.scrollTop - document.body.clientTop);
         
         this.offsetX = ff ? _e.layerX : _e.offsetX;
         this.offsetY = ff ? _e.layerY : _e.offsetY;

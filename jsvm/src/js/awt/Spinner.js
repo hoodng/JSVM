@@ -71,7 +71,11 @@ js.awt.Spinner = function(def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+    System = J$VM.System, MQ = J$VM.MQ, BASE = 50000;
+
+    thi$.getMsgType = function(){
+        return "js.awt.event.SpinnerEvent";
+    };
     
     thi$.setRange = function(lower, upper){
         var M = this.def;
@@ -97,6 +101,12 @@ js.awt.Spinner = function(def, Runtime){
 
         return {lower: M.lower, upper: M.upper};
     };
+    
+    thi$.setPos = function(index){
+        index = Class.isNumber(index) ? index : 0;
+        arguments.callee.__super__.call(this, index);
+
+    }.$override(this.setPos);
 
     thi$.getValue = function(){
         return this.def.lower + this.getPos();        
@@ -142,6 +152,7 @@ js.awt.Spinner = function(def, Runtime){
     var _createElements = function(){
         var ctrl0, ctrl1, R = this.Runtime();
         this.cache = {};
+        this.diff  = BASE;
         
         ctrl0 = new js.awt.Component(
             {
@@ -185,6 +196,8 @@ js.awt.Spinner = function(def, Runtime){
     };
 
     var _onmousedown = function(e){
+        this.diff = BASE;
+
         _incCounter.$clearTimer(this.timer);
 
         var src = e.srcElement,
@@ -228,23 +241,36 @@ js.awt.Spinner = function(def, Runtime){
         }
         
         if(type){
-            this.notifyPeer(
-                "js.awt.event.SpinnerEvent", 
-                new Event(
-                    type, 
-                    {pos: p, 
-                     count: count}, 
-                    this), 
-                true);
-
             if(repeat !== false){
+                this.notifyPeer(
+                    this.getMsgType(),
+                    new Event(
+                        type, 
+                        {pos: p, 
+                         count: count,
+                         diff: this.diff - BASE}, 
+                        this),
+                    true);
+
                 this.timer = _incCounter.$delay(this, accel.repeat, ctrl);
+
+            }else{
+                this.notifyPeer(
+                    this.getMsgType(),
+                    new Event(
+                        "changed", 
+                        {pos: p, 
+                         count: count,
+                         diff: this.diff - BASE}, 
+                        this), 
+                    true);
             }
         }        
     };
 
     var _increase = function(cyclic, d, count, p){
         if(cyclic || (!cyclic && p < count-1)){
+            this.diff++;
             return this.increase(d);    
         }
         return null;
@@ -252,6 +278,7 @@ js.awt.Spinner = function(def, Runtime){
 
     var _decrease = function(cyclic, d, count, p){
         if(cyclic || (!cyclic && p > 0)){
+            this.diff--;
             return this.decrease(d);  
         }
         return null;

@@ -62,7 +62,7 @@ js.awt.Desktop = function (element){
             model:{
                 msgType: type,
                 msgSubject: subject || "Subject",
-                msgContent: content || "Content"
+                msgContent: content || " "
             }
         };
 
@@ -74,6 +74,8 @@ js.awt.Desktop = function (element){
     }.$override(this.message);
 
     var _registerMessageClass = function(){
+        if(Factory.hasClass("message")) return;
+
         Factory.registerClass(
             {
                 classType : "js.awt.Dialog",
@@ -143,6 +145,8 @@ js.awt.Desktop = function (element){
     };
 
     var _registerConfirmClass = function(){
+        if(Factory.hasClass("confirm")) return;
+
         Factory.registerClass(
             {
                 classType : "js.awt.Dialog",
@@ -228,24 +232,68 @@ js.awt.Desktop = function (element){
     };
 
     var _notifyLM = function(e){
-        var el = e.srcElement, target = e.getEventTarget(), 
+        var el = e.srcElement, target = e.getEventTarget(),
         uuid = el ? el.uuid : undefined;
-
-        _activateComponent.$delay(this, 1, target, uuid);
-
         this.LM.cleanLayers(e, this);
+        _activateComponent(target, uuid);
         return true;
     };
     
-    var _onresize = function(e){
-        var d = this.getBounds();
-        this.LM.clearStack(e);
-        if(this._local.userW != d.width || this._local.userH != d.height){
-            this.def.width = this._local.userW = d.width;
-            this.def.height= this._local.userH = d.height;
-
-            this.doLayout(true);
+    var _notifyComps = function(msgid, e){
+        var comps = this.getAllComponents(),
+        len = comps ? comps.length : 0, 
+        i, comp, recs = [];
+        
+        for(i = 0; i < len; i++){
+            comp = comps[i];
+            recs.push(comp.uuid());
         }
+        
+        if(recs.length > 0){
+            MQ.post(msgid, e, recs);
+        }
+    };
+    
+    var _onresize = function(e){
+        var M = this.def, U = this._local,
+        isSpecified = U.isViewSpecified,
+        d = isSpecified ? this.getBounds() 
+            : DOM.innerSize(document.body),
+        evt;
+        
+        if(U.userW != d.width || U.userH != d.height){
+            evt = new Event(Event.W3C_EVT_RESIZE, 
+                {owidth: U.userW, oheight: U.userH, 
+                    width: d.width, height: d.height});
+            _notifyComps.call(this, "js.awt.event.WindowResized", evt);
+            
+            this.LM.clearStack(e);
+            
+            if(isSpecified){
+                M.width = U.userW = d.width;
+                M.height= U.userH = d.height;                  
+            }else{
+                this.setSize(d.width, d.height, 4);
+            }
+
+            this.doLayout.$delay(this, 1, true);
+        }
+    };
+    
+    var _forbidContextMenu = function(e){
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
+
+    var _getMinZIndex = function(ele){
+        var children = ele.children, zIndex = 0, tmp, e;
+        for(var i=0, len=children.length; i<len; i++){
+            e = children[i];
+            tmp = parseInt(DOM.currentStyles(e, true).zIndex);
+            tmp = Class.isNumber(tmp) ? tmp : 0;
+            zIndex = Math.min(zIndex, tmp);
+        }
+        return zIndex;
     };
 
     /**
@@ -266,8 +314,9 @@ js.awt.Desktop = function (element){
         var def = {
             classType: "js.awt.Desktop",
             className: "jsvm_desktop",
-            css: "position:absolute;width:100%;height:100%;",
+            css: "position:absolute;",
             zorder:true,
+            zbase:1,
             stateless: true,
             layout:{
                 classType: "js.awt.AbstractLayout"
@@ -275,10 +324,19 @@ js.awt.Desktop = function (element){
         };
         
         arguments.callee.__super__.apply(this, [def, this, element]);
+        
+        // Indicate whether a specified DOM element will be as the
+        // view of current desktop.
+        this._local.isViewSpecified = !!element;
 
-        if(!element){
-            var body = document.body;
+        var body = self.document.body;
+        if(!this._local.isViewSpecified){
+            var zIndex = _getMinZIndex.call(this, body),
+            s = DOM.innerSize(body);
             this.insertBefore(body.firstChild, body);
+            this.setZ(zIndex-1);
+            
+            this.setSize(s.width, s.height);
         }
 
         this.LM = new js.awt.LayerManager(this);
@@ -298,11 +356,16 @@ js.awt.Desktop = function (element){
         this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
         
         // Bring the component to the front and notify popup LayerManager
-        Event.attachEvent(document.body, "mousedown", 0, this, _notifyLM);
+        Event.attachEvent(body, "mousedown", 
+                          0, this, _notifyLM);
 
         // Notify popup LayerManager
-        Event.attachEvent(document.body,
-                          J$VM.firefox ? "DOMMouseScroll" : "mousewheel",0, this, _notifyLM);
+        Event.attachEvent(body,
+                          J$VM.firefox ? "DOMMouseScroll" : "mousewheel", 
+                          0, this, _notifyLM);
+        
+        Event.attachEvent(body, "contextmenu",
+                          0, this, _forbidContextMenu);
 
         MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
         

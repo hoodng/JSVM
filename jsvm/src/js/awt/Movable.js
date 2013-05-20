@@ -170,8 +170,8 @@ js.awt.Movable = function (){
         br = Math.max(mover.br*mW, bound),
         bb = Math.max(mover.bb*mH, bound),
         bl = Math.max(mover.bl*mW, bound),
-        pview = moveObj.view.offsetParent,
-        cview = isAutoFit ? pview.offsetParent : pview,
+        pview = DOM.offsetParent(moveObj.view),
+        cview = isAutoFit ? DOM.offsetParent(pview) : pview,
         pbounds = DOM.getBounds(pview);
 
         moveObj.minX = grid*Math.ceil((0 - marginLf - mW + bl)/grid);
@@ -181,13 +181,15 @@ js.awt.Movable = function (){
             (!hscroll ? pbounds.width - pbounds.MBP.BW - marginLf - br:
              Math.max(pview.scrollWidth, pbounds.width) - marginLf - br) :
         Math.max(cview.scrollWidth, cview.offsetWidth) - marginLf - br;
-        moveObj.maxX = grid*Math.floor(maxX/grid);
+        //moveObj.maxX = grid*Math.floor(maxX/grid);
+        moveObj.maxX = maxX;
 
         maxY = (!isAutoFit || rigidH) ?
             (!vscroll ? pbounds.height-pbounds.MBP.BH - marginTp - bb:
              Math.max(pview.scrollHeight, pbounds.height) - marginTp - bb) :
         Math.max(cview.scrollHeight, cview.offsetHeight) - marginTp - bb;
-        moveObj.maxY = grid*Math.floor(maxY/grid);
+        //moveObj.maxY = grid*Math.floor(maxY/grid);
+        moveObj.maxY = maxY;
 
         moveObj.showMoveCover(true);
         moveObj.cview = cview;
@@ -201,6 +203,7 @@ js.awt.Movable = function (){
         // Notify popup LayerManager 
         e.setEventTarget(this);
         MQ.post("js.awt.event.LayerEvent", e, [this.Runtime().uuid()]);
+        this.fireEvent(e);
 
         var targ = e.srcElement;
         if(targ.nodeType == 3){
@@ -232,6 +235,9 @@ js.awt.Movable = function (){
     };
 
     var _onmouseup1 = function(e){
+        e.setEventTarget(this);
+        this.fireEvent(e);
+
         if(!_doSelect.$clearTimer()){
             //Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
             Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
@@ -269,7 +275,7 @@ js.awt.Movable = function (){
         
         x = x < minX ? minX : x > maxX ? maxX : x;
         y = y < minY ? minY : y > maxY ? maxY : y;
-        
+		
         if(x != bounds.x || y != bounds.y){
             // Snap to grid
             x = grid*Math.round(x/grid);

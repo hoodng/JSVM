@@ -65,7 +65,11 @@ js.awt.PopupLayer = function () {
 		return this._local.floatingSettled;
 	};
 	
-	thi$.rootLayer = function(){
+	thi$.rootLayer = function(root){
+		if(root){
+			this._local.root = root;
+		}
+		
 		return this._local.root;  
 	};
 	
@@ -99,11 +103,11 @@ js.awt.PopupLayer = function () {
 	 * For some floating layer, before it is removed, something need be done at 
 	 * first. If so it need to implement this function.
 	 */ 
-	thi$.beforeRemoveLayer = function(){
+	thi$.beforeRemoveLayer = function(e){
 		var peer = this.getPeerComponent();
 		if((this == this.rootLayer()) && peer){
 			MQ.post("js.awt.event.LayerEvent", 
-					new Event("beforeRemoveLayer", "", this), 
+					new Event("beforeRemoveLayer", e || "", this), 
 					[peer.uuid()]);	   
 		}
 	};
@@ -283,7 +287,10 @@ js.awt.PopupLayer = function () {
 	
 	thi$.hide = function (type) {
 		this.setAutoHide(false);
-		this.Runtime().LM.onHide(new js.util.Event(type || "hide"));
+		
+		var arg = arguments ? arguments[1] : undefined,
+		evt = new js.util.Event(type || "hide", arg, this);
+		this.Runtime().LM.onHide(evt);
 	};
 
 	thi$.hideOthers = function () {
@@ -304,7 +311,7 @@ js.awt.PopupLayer = function () {
 
 		if ((this._local.LMFlag & CLASS.F_TIMEOUT) != 0) {
 			this.lmtimer = 
-                LM.onHide.$delay(this, this._local.LMTimeout, new Event("timeout"));
+				LM.onHide.$delay(this, this._local.LMTimeout, new Event("timeout"));
 			
 			System.out.println("Create timer: " + this.lmtimer);
 		}
@@ -323,11 +330,11 @@ js.awt.PopupLayer = function () {
 			return;
 
 		var LM = this.Runtime().LM;
-        if(LM.onHide.$clearTimer(this.lmtimer)){
-            System.out.println("Delete timer: " + this.lmtimer);
-            delete this.lmtimer;    
-        }
-        
+		if(LM.onHide.$clearTimer(this.lmtimer)){
+			System.out.println("Delete timer: " + this.lmtimer);
+			delete this.lmtimer;	
+		}
+		
 	};
 };
 

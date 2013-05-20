@@ -46,7 +46,8 @@ $package("js.awt");
  *     cells:[
  *       {rowIndex, colIndex, rowSpan, colSpan, paddingTop...},
  *       ...
- *     ]
+ *     ],
+ *     cellpadding: [t, r, b, l]
  * }
  */
 js.awt.Grid = function(def){
@@ -58,7 +59,8 @@ js.awt.Grid = function(def){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class;
+    var Class = js.lang.Class, Object = js.lang.Object,
+        System = J$VM.System;
     
     thi$.rowNum = function(){
         return this.rows.length;
@@ -77,10 +79,221 @@ js.awt.Grid = function(def){
     };
     
     thi$.cell = function(rowIndex, colIndex){
-        return this.cells[rowIndex][colIndex];
+        return this.acells[rowIndex][colIndex];
     };
     
+    /**
+     * Extract cells array to valid cells list
+     */
+    thi$.extractCells = function(force){
+        var cells = (force === true) ? null : this.cells;
+
+        if(!Class.isArray(cells)){
+            cells = [];
+            var acells = this.acells,
+                rowNum = this.rowNum(),
+                colNum = this.colNum(), 
+                i, j, cell;
+            
+            for(i=0; i<rowNum; i++){
+                for(j=0; j<colNum; j++){
+                    cell = acells[i][j];
+                    if(Class.isObject(cell)){
+                        cell.rowIndex = i;
+                        cell.colIndex = j;
+                        cells.push(cell);
+                    }
+                } 
+            }
+
+            this.cells = cells;
+        }
+
+        return cells;
+    };
+    
+    /**
+     * Expand valid cells list to a rowNum x colNum cells array 
+     */
+    thi$.expandCells = function(force){
+        var acells = (force === true) ? null :  this.acells;
+
+        if(!Class.isArray(acells)){
+            var rowNum = this.rowNum(), colNum = this.colNum(),
+                cells = this.cells, cell, i, ilen;
+
+            acells = new Array(rowNum);
+            for(i=0; i<rowNum; i++){
+                acells[i] = new Array(colNum);
+            }
+            
+            for(i=0, ilen=cells.length; i<ilen; i++){
+                cell = cells[i];
+                acells[cell.rowIndex][cell.colIndex] = cell;
+            }
+
+            this.acells = acells;
+        }
+
+        return acells;
+    };
+
+    /**
+     * Set attributes of a specified row.
+     * 
+     * @param index, row index
+     * @param attrs, an object which include one or more following attributes 
+     * "rigid", "measure", "weight", "visible". 
+     */
+    thi$.rowAttrs = function(index, attrs){
+        _dimAttrs.call(this, this.rows, index, attrs);
+    };
+
+    /**
+     * Set attributes of a specified column.
+     * 
+     * @param index, column index
+     * @param attrs, an object which include one or more following attributes 
+     * "rigid", "measure", "weight", "visible". 
+     */
+    thi$.colAttrs = function(index, attrs){
+        _dimAttrs.call(this, this.cols, index, attrs);
+    };
+
+    var _dimAttrs = function(dims, index, attrs){
+        var dim, p;
+        if(Class.isObject(attrs) && 
+           (index>=0 && index < dims.length)){
+            dim = dims[index];
+            for(p in attrs && attrs.hasOwnProperty(p)){
+                switch(p){
+                case "rigid":
+                    if(dim.rigid !== attrs.rigid){
+                        dim.rigid = attrs.rigid;
+                        dims.dirty |= 0x01; // need re-calc weight
+                    }
+                    break;
+                case "visible":
+                    if(dim.visible !== attrs.visible){
+                        dim.visible = attrs.visible;
+                        dims.dirty |= 0x01; // need re-calc weight
+                    }
+                    break;
+                default:
+                    dim[p] = attrs[p];                  
+                }
+            }
+        }
+    };
+
+    // Judge and merge areas of line segments with the same starting point. 
+    var _mergeArea = function(set, index, area, isV){
+        var preIndex, preArea, nextIndex, nextArea, p0, p1;
+        for(var i = index; i >= 0; i--){
+            preArea = set[i];
+            if(preArea){
+                preIndex = i;                
+                break;
+            }
+        }
+        
+        for(var j = index + 1, len = set.length; j < len; j--){
+            nextArea = set[j];
+            if(nextArea){
+                nextIndex = j;
+                break;
+            }
+        }
+        
+        p0 = isV ? "y0" : "x0";
+        p1 = isV ? "y1" : "x1";
+        
+        if((preArea && preArea[p0] <= area[p0]
+            && preArea[p1] >= area[p1])){
+            // Do nothing            
+        }else if(preArea && preArea[p1] >= area[p0] 
+                 && nextArea && nextArea[p0] <= area[p1]){
+            preArea[p1] = nextArea[p1];
+            set.splice(nextIndex, 1);
+        }else if(preArea && preArea[p1] >= area[p0]){
+            preArea[p1] = area[p1];
+        }else if(nextArea && nextArea[p0] <= area[p1]){
+            area[p1] = nextArea[p1];
+            set.splice(nextIndex, 1);
+            set[index] = area;
+        }else{
+            set[index] = area;
+        }
+        
+        return set;
+    };
+    
+    var _getLineMatrix = function(lineMatrixes, cell){
+        var rIndex = cell.rowIndex, cIndex = cell.colIndex,
+            hlines = lineMatrixes.hlines, vlines = lineMatrixes.vlines,
+            rowSpan = cell.rowSpan, colSpan = cell.colSpan,
+            x0 = cell.x, x1 = x0 + cell.width, 
+            y0 = cell.y, y1 = y0 + cell.height,
+            index, hline, vline, xs, ys;
+        
+        index = rIndex;
+        hline = hlines[index] = hlines[index] || {y: y0, xs: []};
+        xs = hline.xs;
+        _mergeArea.call(this, xs, cIndex, {x0: x0, x1: x1}, false);
+        
+        index = rIndex + rowSpan;
+        hline = hlines[index] = hlines[index] || {y: y1, xs: []};
+        xs = hline.xs;
+        _mergeArea.call(this, xs, cIndex, {x0: x0, x1: x1}, false);
+        
+        index = cIndex;
+        vline = vlines[index] = vlines[index] || {x: x0, ys: []};
+        ys = vline.ys;
+        _mergeArea.call(this, ys, rIndex, {y0: y0, y1: y1}, true);
+        
+        index = cIndex + colSpan;
+        vline = vlines[index] = vlines[index] || {x: x1, ys: []};
+        ys = vline.ys;
+        _mergeArea.call(this, ys, rIndex, {y0: y0, y1: y1}, true);
+    };
+    
+    /**
+     * Calculate and return all matrixes of lines.
+     * 
+     * lineMatrixes: {
+     *     hlines: [
+     *        {y: 0, xs:[{x0, x1}, {x0, x1}, ...]},
+     *        ......
+     *        {y: n, xs:[{x0, x1}, {x0, x1}, ...]}
+     *     ],
+     *     vlines: [
+     *        {x: 0, ys:[{y0, y1}, {y0, y1}, ...]},
+     *        ......
+     *        {x: n, ys:[{y0, y1}, {y0, y1}, ...]} 
+     *     ]
+     * }
+     * 
+     * @param force: {Boolean} A boolean value to indicate whether the
+     *        old matrixes ignored.
+     */
+    thi$.getLineMatrixes = function(force){
+        var lineMatrixes = this.lineMatrixes, cells = this.extractCells();
+        if(force !== true && lineMatrixes){
+            return lineMatrixes;
+        }
+        
+        lineMatrixes = this.lineMatrixes = {hlines: [], vlines: []};
+        for(var i = 0, len = cells.length; i < len; i++){
+            _getLineMatrix.call(this, lineMatrixes, cells[i]);
+        }
+        
+        // J$VM.System.err.println(lineMatrixes);
+        return lineMatrixes;
+    };
+
     thi$.layout = function(xbase, ybase, width, height){
+
+        this.update();
 
         // Calculates height of every row
         _calcDimsMeasure.call(this, this.rows, ybase, height);
@@ -89,28 +302,39 @@ js.awt.Grid = function(def){
         _calcDimsMeasure.call(this, this.cols, xbase, width);
         
         // Calculates width and height of every cell
-        _calcCellsMeasure.call(this, this.rowNum(), this.colNum());
+        _calcCellsMeasure.call(this);
         
+        // Invalidate lineMatrixes
+        delete this.lineMatrixes;
     };
-    
-    var _initDims = function(dims, dimDefs){
-        var defs = new Array(dims.length), dimDef, dim, weight = 1.0, 
-        i, len, v, tmps = [];
+
+    /**
+     * Update grid model
+     *
+     */
+    thi$.update = function(){
         
-        if(Class.isArray(dimDefs)){
-            for(i=0, len=dimDefs.length; i<len; i++){
-                dimDef = dimDefs[i];
-                defs[dimDef.index] = dimDef;
-            }
+        // Adjust weight
+        if(this.rows.dirty & 0x01 !== 0){
+            _adjustWeight.call(this, this.rows);
+        }
+        if(this.cols.dirty & 0x01 !== 0){
+            _adjustWeight.call(this, this.cols);
         }
 
-        for(i=0, len=defs.length; i<len; i++){
-            dimDef = defs[i];
-            if(!dimDef){
-                dimDef = {index: i};
-            }
+        if(this.acells){
+            // Generate this.cells
+            this.extractCells(true);
+        }
+    };
 
-            dim = dims[i] = new (CLASS.Dimension)(dimDef);
+    var _adjustWeight = function(dims){
+
+        var dim, i, len, weight = 1.0, v, tmps=[];
+
+        for(i=0, len=dims.length; i<len; i++){
+            dim = dims[i];
+
             if(!dim.rigid && dim.visible){
                 v = dim.weight;
                 if(Class.isNumber(v)){
@@ -119,13 +343,121 @@ js.awt.Grid = function(def){
                     tmps.push(dim);
                 }
             }
-        };
-        
+        }
+
         if(tmps.length > 0){
             weight /= tmps.length;
 
             while(tmps.length > 0){
                 tmps.shift().weight = weight;
+            }
+        }
+
+        dims.dirty &= ~0x01;
+
+    };
+    
+    var _initDims = function(dims, dimDefs){
+        var dlen = dims.length, dimDef, dim, i, len, index, v;
+
+        dims.dirty = 0;
+
+        if(Class.isArray(dimDefs)){
+            for(i=0, len=dimDefs.length; i<len; i++){
+                dimDef = dimDefs[i];
+                index = dimDef.index;
+                if(index >=0 && index <dlen){
+                    v = dimDef.measure;
+                    dims[index] = {
+                        visible: !(dimDef.visible === false),
+                        measure: Class.isNumber(v) ? v : 0,
+                        weight: dimDef.weight,
+                        rigid: (dimDef.rigid === true)
+                    };
+                }
+            }
+        }
+
+        for(i=0; i<dlen; i++){
+            dim = dims[i];
+            if(dim === undefined){
+                dim = dims[i] = {visible:true, rigid:false};
+            }
+        }
+
+        _adjustWeight.call(this, dims);
+    };
+
+    var _initCells = function(cells, cellDefs){
+        var rows = this.rows, cols = this.cols, 
+            m = rows.length, n = cols.length,
+            cellDef, cell, i, j, len, rspan, cspan, 
+            pt, pr, pb, pl, ri, cj, visible, 
+            padding = this.cellpadding;
+
+        // Initialize cell definition according to the definition
+        if(Class.isArray(cellDefs)){
+            for(i=0, len=cellDefs.length; i<len; i++){
+                cellDef = cellDefs[i];
+                ri = cellDef.rowIndex, cj = cellDef.colIndex;
+
+                if(ri >=0 && ri < m && cj >=0 && cj < n){
+
+                    rspan = cellDef.rowSpan; 
+                    cspan = cellDef.colSpan;
+
+                    pt = cellDef.paddingTop;
+                    pr = cellDef.paddingRight;
+                    pb = cellDef.paddingBottom;
+                    pl = cellDef.paddingLeft;
+
+                    cells[ri][cj] = {
+                        rowSpan: Class.isNumber(rspan) ? rspan : 1,
+                        colSpan: Class.isNumber(cspan) ? cspan : 1,
+                        paddingTop: Class.isNumber(pt) ? pt : padding[0],
+                        paddingRight: Class.isNumber(pr) ? pr : padding[1],
+                        paddingBottom: Class.isNumber(pb) ? pb : padding[2],
+                        paddingLeft: Class.isNumber(pl) ? pl : padding[3]
+                    };
+                }
+            }
+        }
+        
+        // Merge cell definition and initialize cell
+        for(i=0; i<m; i++){
+            for(j=0; j<n; j++){
+                cell = cells[i][j];
+
+                if(cell === null) continue;
+
+                if(cell === undefined){
+                    cell = cells[i][j] = {
+                        rowSpan:1, 
+                        colSpan:1,
+                        paddingTop: padding[0],
+                        paddingRight: padding[1],
+                        paddingBottom: padding[2],
+                        paddingLeft: padding[3]                     
+                    };
+                }
+
+                visible = false;
+                rspan = cell.rowSpan - 1;
+                while(rspan >= 0){
+                    cspan = cell.colSpan - 1;
+                    while(cspan >= 0){
+                        if(rspan !=0 || cspan != 0){
+                            ri = i+rspan; cj = j+cspan;
+                            cells[ri][cj] = null;
+                            visible = visible || 
+                                (rows[ri].visible && cols[cj].visible);
+                        }
+                        cspan--;
+                    }
+                    rspan--;
+                }
+                
+                cell.visible = (visible || (rows[i].visible && cols[j].visible));
             }
         }
     };
@@ -161,80 +493,57 @@ js.awt.Grid = function(def){
         }
     };
     
-    var _initCells = function(cells, cellDefs){
-        var defs, cellDef, cell, i, j, rspan, cspan, ri, cj,
-        m = this.rowNum(), n = this.colNum(), visible;
+    var _calcCellsMeasure = function(){
+        var cells = this.extractCells(), 
+            cell, dim, span, offset, v, i, j, len;
 
-        defs = new Array(m);
-        for(i=0; i<m; i++) defs[i]  = new Array(n);
+        for(i=0, len=cells.length; i<len; i++){
+            cell = cells[i];
+            
+            // For width
+            offset = -1; v = 0;
+            span = cell.colSpan;
+            for(j=0; j<span; j++){
+                dim = this.column(cell.colIndex + j);
+                if(dim.visible === true){
+                    v += dim.measure;
 
-        // Initialize cell definition according to the definition
-        if(Class.isArray(cellDefs)){
-            for(i=0; i<cellDefs.length; i++){
-                cellDef = cellDefs[i];
-                if(!Class.isNumber(cellDef.rowSpan)){
-                    cellDef.rowSpan = 1;
+                    if(offset < 0){
+                        offset = dim.offset;
+                    }
                 }
-                if(!Class.isNumber(cellDef.colSpan)){
-                    cellDef.colSpan = 1;
-                }
-                defs[cellDef.rowIndex][cellDef.colIndex] = cellDef;
             }
+            cell.x = offset;
+            cell.width = v;
+            cell.innerWidth = v - cell.paddingLeft - cell.paddingRight;
+
+            // For height
+            offset = -1; v = 0;
+            span = cell.rowSpan;
+            for(j=0; j<span; j++){
+                dim = this.row(cell.rowIndex + j);
+                if(dim.visible === true){
+                    v += dim.measure;
+
+                    if(offset < 0){
+                        offset = dim.offset;
+                    }
+                }
+            }
+            cell.y = offset;
+            cell.height = v;
+            cell.innerHeight = v - cell.paddingTop - cell.paddingBottom;
         }
         
-        // Merge cell definition and initialize cell
-        for(i=0; i<m; i++){
-            for(j=0; j<n; j++){
-                cellDef = defs[i][j];
-                if(cellDef === null) continue;
-
-                if(cellDef === undefined){
-                    cellDef = {rowIndex:i, colIndex:j, rowSpan:1, colSpan:1};
-                }
-                
-                visible = false;
-                rspan = cellDef.rowSpan - 1;
-                while(rspan >= 0){
-                    cspan = cellDef.colSpan - 1;
-                    while(cspan >= 0){
-                        if(rspan !=0 || cspan != 0){
-                            ri = i+rspan; cj = j+cspan;
-                            defs[ri][cj] = null;
-                            visible = visible || 
-                                (this.row(ri).visible && this.column(cj).visible);
-                        }
-                        cspan--;
-                    }
-                    rspan--;
-                }
-                
-                cell = new (CLASS.Cell)(cellDef);
-                cell.visible = 
-                    (visible || (this.row(i).visible && this.column(j).visible));
-                cells[i][j] = cell;
-            }
-        }
-
     };
-    
-    var _calcCellsMeasure = function(m, n){
-        var cells = this.cells, cell, i, j;
 
-        for(i=0; i<m; i++){
-            for(j=0; j<n; j++){
-                cell = cells[i][j];
-                if(cell){
-                    cell.calcBounds(this);
-                }
-            }
-        }
-    };
-    
     thi$._init = function(def){
         if(def == undefined) return;
         
         var m, n;
         
+        this.cellpadding = def.cellpadding || [0,0,0,0];
+
         // Init rows
         m = def.rowNum;
         m = Class.isNumber(m) ? (m > 0 ? m : 1) : 1;
@@ -248,142 +557,12 @@ js.awt.Grid = function(def){
         _initDims.call(this, this.cols, def.cols);
         
         // Init cells
-        this.cells = new Array(m);
-        for(var i=0; i<m; i++) this.cells[i] = new Array(n);
-        _initCells.call(this, this.cells, def.cells);
+        this.acells = new Array(m);
+        for(var i=0; i<m; i++) this.acells[i] = new Array(n);
+        _initCells.call(this, this.acells, def.cells);
 
     };
     
     this._init.apply(this, arguments);
     
 }.$extend(js.lang.Object);
-
-/**
- * @param def:{
- *     index: row/column index
- *     measure: width or height of a rigid dimension
- *     rigid: true/false
- *     weight: 0 to 1
- *     visible: true/false
- * }
- */
-js.awt.Grid.Dimension = function(def){
-
-    var CLASS = js.awt.Grid.Dimension, thi$ = CLASS.prototype;
-    if (CLASS.__defined__) {
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-
-    var Class = js.lang.Class;
-    
-    thi$._init = function(def){
-        if(def == undefined) return;
-
-        this.index = def.index;
-
-        this.rigid = (def.rigid === true);
-        this.measure = 0;
-        this.weight = def.weight;
-        if(this.rigid === true){
-            this.weight = 0.0;
-            if(Class.isNumber(def.measure)){
-                this.measure = def.measure;
-            }
-        }
-        
-        this.visible = !(def.visible === false);
-    };
-    
-    this._init.apply(this, arguments);
-    
-}.$extend(js.lang.Object);
-
-/**
- * @param def:{
- *     rowIndex: Must
- *     colIndex: Must
- *     rowSpan:  Optional, the default value is 1
- *     colSpan:  Optional, the default value is 1
- * 
- *     paddingTop:   Optional
- *     paddingRight: Optional
- *     paddingBottom:Optional 
- *     paddingLeft:  Optional
- * }
- */
-js.awt.Grid.Cell = function(def){
-
-    var CLASS = js.awt.Grid.Cell, thi$ = CLASS.prototype;
-    if (CLASS.__defined__) {
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-
-    var Class = js.lang.Class;
-    
-    thi$.calcBounds = function(G){
-        var index, span, dim, v, offset, i;
-        
-        // For width
-        index = this.colIndex; span = this.colSpan;
-        v = 0; offset = null;
-        for(i=0; i<span; i++){
-            dim = G.column(index + i);
-            if(dim.visible){
-                v += dim.measure;
-
-                if(offset === null){
-                    offset = dim.offset;
-                }
-            }
-        }
-
-        this.x = offset;
-        this.width = v;
-        this.innerWidth = v - this.PW;
-        
-        // For height
-        index = this.rowIndex; span = this.rowSpan; 
-        v = 0; offset = null;
-        for(i=0; i<span; i++){
-            dim = G.row(index + i);
-            if(dim.visible){
-                v += dim.measure;
-
-                if(offset === null){
-                    offset = dim.offset;
-                }
-            }
-        }
-
-        this.y = offset;
-        this.height = v;
-        this.innerHeight = v - this.PH;
-        
-    };
-    
-    thi$._init = function(def){
-        if(def == undefined) return;
-        
-        this.rowIndex = def.rowIndex;
-        this.colIndex = def.colIndex;
-
-        this.rowSpan = Class.isNumber(def.rowSpan) ? def.rowSpan : 1;
-        this.colSpan = Class.isNumber(def.colSpan) ? def.colSpan : 1;
-        
-        this.paddingTop    = def.paddingTop    || 0;
-        this.paddingRight  = def.paddingRight  || 0;
-        this.paddingBottom = def.paddingBottom || 0;
-        this.paddingLeft   = def.paddingLeft   || 0;
-
-        this.PW = this.paddingLeft + this.paddingRight;
-        this.PH = this.paddingTop  + this.paddingBottom;
-    };
-    
-    this._init.apply(this, arguments);
-
-}.$extend(js.lang.Object);
-

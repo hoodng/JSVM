@@ -37,7 +37,7 @@
 
 $package("js.awt");
 
-js.awt.ComponentFactory = function(){
+js.awt.ComponentFactory = function(System){
 
     var CLASS = js.awt.ComponentFactory, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -46,7 +46,7 @@ js.awt.ComponentFactory = function(){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, System = J$VM.System;
+    var Class = js.lang.Class;
 
     thi$.registerClass = function(wClass){
         var className = wClass.className;
@@ -58,6 +58,10 @@ js.awt.ComponentFactory = function(){
         return className;
     };
     
+    thi$.unRegisterClass = function(className){
+        delete this._classes[className];
+    };
+    
     thi$.getClass = function(className, nocache){
         var _wClass = this._classes[className], wClass;
         if(_wClass == undefined) 
@@ -65,6 +69,10 @@ js.awt.ComponentFactory = function(){
         
         return nocache === true ? 
             _wClass : System.objectCopy(_wClass, {}, true);
+    };
+    
+    thi$.hasClass = function(className){
+        return Class.isObject(this._classes[className]);
     };
 
     thi$.createComponent = function(className, opitons, Runtime){
@@ -83,4 +91,3 @@ js.awt.ComponentFactory = function(){
     this._init();
 };
 
-J$VM.Factory = new js.awt.ComponentFactory();

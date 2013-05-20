@@ -177,7 +177,7 @@ js.awt.Button = function(def, Runtime){
                     .append("top:").append(top).append("px;");
 
                 if(ele.iid === "label"){
-                    buf.append("width:").append(cwidth).append("px;")
+                    buf.append("width:").append(cwidth+2).append("px;")
                         .append("white-space:nowrap;overflow:hidden;")
                         .append("text-overflow:ellipsis;");
                 }
@@ -208,6 +208,15 @@ js.awt.Button = function(def, Runtime){
             this.setIconImage(this.getState());
         }
     }.$override(this.onStateChanged);
+    
+    thi$.setEnabled = function(b){
+        if(!b){
+            _showEffectLayer.call(this, "normal");
+        }
+        
+        arguments.callee.__super__.apply(this, arguments);
+    
+    }.$override(this.setEnabled);
     
     var _showEffectLayer = function(style){
         if(this._effectLayer && this.isEnabled()){

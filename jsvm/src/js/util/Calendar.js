@@ -688,6 +688,12 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             }
             break;
         case YEAR:
+            if(value <= 0){
+                value = 9999;
+            }else{
+                value = (value > 9999 ? value - 9999 : value);
+            }
+            
             date.setFullYear(value);
             pinDayOfMonth.call(this, day);
             break;
@@ -745,12 +751,12 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             }
             break;
         case MINUTE:
-            if(value >=0 && value < 59){
+            if(value >=0 && value < 60){
                 date.setMinutes(value);                
             }
             break;
         case SECOND:
-            if(value >=0 && value < 59){
+            if(value >=0 && value < 60){
                 date.setSeconds(value);                
             }
             break;
@@ -934,10 +940,15 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
                 this.setTimeInMillis(this.getTimeInMillis() + delta);
                 return;
             }
-
-            var fd = new Date(this.get(YEAR), 
-                              this.get(MONTH), 
-                              this.get(DATE))/ONE_DAY;
+            
+            // Refactory algorithm to avoid losing precision.
+            // var fd = new Date(this.get(YEAR), 
+            //                   this.get(MONTH), 
+            //                   this.get(DATE))/ONE_DAY;
+            var curDay = new Date(this.get(YEAR), 
+                                  this.get(MONTH), 
+                                  this.get(DATE)),
+            deltaDay = 0;
             
             timeOfDay += this.get(HOUR_OF_DAY);
             timeOfDay *= 60;
@@ -948,16 +959,20 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             timeOfDay += this.get(MILLISECOND);
             
             if(timeOfDay >= ONE_DAY){
-                fd++;
+                // fd++;
+                deltaDay = 1;
                 timeOfDay -= ONE_DAY;
             }else if(timeOfDay < 0){
-                fd--;
+                // fd--;
+                deltaDay = -1;
                 timeOfDay += ONE_DAY;
             }            
             
-            fd += delta;
+            // fd += delta;
+            deltaDay += delta;
             
-            this.setTimeInMillis(fd*ONE_DAY + timeOfDay);
+            // this.setTimeInMillis(fd*ONE_DAY + timeOfDay);
+            this.setTimeInMillis(curDay.getTime() + deltaDay * ONE_DAY + timeOfDay);
         }
         
     };
@@ -1157,6 +1172,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         case MINUTE:
             break;
         case SECOND:
+            
             break;
         default:
             break;
@@ -1172,9 +1188,39 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             size: size
         };
     };
+
+    CLASS.compareDate = function(date0, date1){
+        var v0 = new Date(date0.getFullYear(), 
+                          date0.getMonth(), 
+                          date0.getDate());
+        var v1 = new Date(date1.getFullYear(), 
+                          date1.getMonth(), 
+                          date1.getDate());
+        
+        return v0 - v1;
+    };
+
+    CLASS.compareTime = function(date0, date1){
+        var v0 = new Date(1970, 1, 1, 
+                      date0.getHours(), 
+                      date0.getMinutes(), 
+                      date0.getSeconds(), 
+                      date0.getMilliseconds());
+        var v1 = new Date(1970, 1, 1, 
+                      date1.getHours(), 
+                      date1.getMinutes(), 
+                      date1.getSeconds(), 
+                      date1.getMilliseconds());
+
+        return v0 - v1;
+    };
+
+    CLASS.compareDateTime = function(v0, v1){
+        return v0 - v1;
+    };
     
     thi$._init = function(){
-        if(arguments.lenght == 0){
+        if(arguments.length == 0){
             this.date = new Date();
         }else if(Class.isDate(arguments[0])){
             this.date = arguments[0];

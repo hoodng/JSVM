@@ -244,9 +244,25 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         };
 
         // Update marker style
+        var marked = this.marked;
         for(i=0, len=nodes.length; i<len; i++){
-            nodes[i].updateBranchStyle();
-        }
+            item = nodes[i];
+            item.updateBranchStyle();
+            if(item.isMarked()){
+                marked.push(item);
+            }
+        }        
+        this._doSort();
+    };
+    
+    thi$._doSort = function(){
+        var tree = this;
+        var _func = function(item1, item2){
+            return tree.getNodeIndex(item1) - tree.getNodeIndex(item2);
+        };
+        
+        this.marked.sort(_func);
+        this.selected.sort(_func);
     };
 
     /**
@@ -259,6 +275,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             delete cache[item.uuid()];
             item.destroy();
         }
+        this._doSort();
     };
     
     /**
@@ -269,16 +286,56 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         if(nodes){
             this.removeNodes(0, nodes.length);    
         }
+        this._doSort();
+    };
+    
+    /**
+     * Move tree item
+     */
+    thi$.moveNode = function(index1, index2){
+        var nodes = this.nodes, marked = this.marked, selected = this.selected;
+        
+        var node1 = nodes[index1], node2 = nodes[index2];        
+        
+        nodes[index1] = node2;
+        nodes[index2] = node1;
+        
+        var idx1=marked.indexOf(node1), idx2=marked.indexOf(node2);
+        if(idx1>=0 && idx2>=0){
+            marked[idx1] = node2;
+            marked[idx2] = node1;
+        }
+        
+        idx1=selected.indexOf(node1), idx2=selected.indexOf(node2);
+        if(idx1>=0 && idx2>=0){
+            selected[idx1] = node2;
+            selected[idx2] = node1;
+        }
+        
+        var view1 = node1.view, view2 = node2.view;
+        var container1 = node1.view.parentNode;
+        var container2 = node2.view.parentNode;        
+        container1.removeChild(view1);
+        
+        if(index1<index2){
+            DOM.insertAfter(view1, view2, container2);          
+        } else {
+            DOM.insertBefore(view1, view2, container2);
+        }
+        this._doSort();
     };
     
     /**
      * Expand tree with the specified item
+     * 
+     * @param item, with which item
+     * @param needNitify, false for don't nofity the tree to do AfterExpand,others do.
      */
-    thi$.expand = function(item){
+    thi$.expand = function(item, needNotify){
         _keepScroll.call(this);
 
         if(item.isExpanded()){
-            item.expand(false);
+            item.expand(false, needNotify);
             if(item.def.nodes == undefined){
                 item.removeAllNodes();
             }
@@ -289,10 +346,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                 // Ask data from dataProvider
                 this.dataProvider.getData(
                     item.def, 
-                    _onGetData.$bind(this, item));
+                    _onGetData.$bind(this, item, needNotify));
             }else{
                 // No need get data, so expand item directly
-                item.expand(true);    
+                item.expand(true, needNotify);    
                 _setMaxSize.$delay(this, 1);
                 _keepScroll.$delay(this, 1, true);
             }
@@ -300,10 +357,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         }
     };
     
-    var _onGetData = function(data, item){
+    var _onGetData = function(data, item, needNotify){
         if(data && data.nodes){
             item.insertNodes(0, data.nodes);
-            item.expand(true);
+            item.expand(true, needNotify);
             _setMaxSize.$delay(this, 1);
             _keepScroll.$delay(this, 1, true);
         }else{
@@ -315,17 +372,38 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      * Expand or collapse all items
      * 
      * @param b, true for expanding and false for collapsing
+     * 
      */
     thi$.expandAll = function(b){
         var nodes = this.nodes, i, len, item;
-        for(i=0, len=nodes.length; i<len; i++){
-            item = nodes[i];
-            if(item.canExpand()){
-                item.expandAll(b);
-            }
-        }
+        if(nodes && nodes.length>0){
+        	 for(i=0, len=nodes.length; i<len; i++){
+                 item = nodes[i];
+                 if(b){
+                     if(item.canExpand() && !item.isExpanded()){
+                         item.expandAll(b, item);
+                     }
+                 }else{
+                     if(item.canExpand() && item.isExpanded()){
+                         item.expand(b);
+                     }
+                 }
+             }
+        }      
         _setMaxSize.$delay(this, 1);
         _keepScroll.$delay(this, 1, true);
+        
+        this.onAfterExpand.$delay(this,1);
+    };
+    
+    thi$.onAfterExpand = function(){
+        var cache = this.cache,item;
+        for(var uuid in cache){
+            item = this.cache[uuid];
+            if((!item.isEnabled()) && item.view.parentNode !== null){
+                item._adjust("move");
+            }
+        }
     };
     
     /**
@@ -351,6 +429,26 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     };
     
     /**
+     * Returns all node index
+     */    
+    thi$.getNodeIndex = function(item){
+        var nodes = this.nodes;
+        for(var i=0; i<nodes.length; i++){
+            if(nodes[i] == item){
+                return i;
+            }
+        }
+        return -1;
+    };
+    
+    /**
+     * Returns all items
+     */
+    thi$.getAllNodes = function(){
+        return this.nodes;
+    };
+    
+    /**
      * Returns all selected items
      */
     thi$.getAllSelected = function(){
@@ -366,6 +464,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             item = selected.shift();
             item.setTriggered(false);
         }
+        this._doSort();
     };
     
     /**
@@ -384,6 +483,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             item = marked.shift();
             item.mark(false);
         }
+        this._doSort();
     };
 
     /**
@@ -400,6 +500,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         }else{
             this.marked.remove(item);
         }
+        this._doSort();
     };
 
     /**
@@ -436,6 +537,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                 state.setTriggered(true);
                 item.setState(state.getState());
                 this.selected.push(item);
+                this._doSort();
             }
 
             moveObj = this.moveObj = 
@@ -527,42 +629,52 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                     e.setEventTarget(item);
                     this.notifyPeer("js.awt.event.TreeItemEvent", e);
                     return;
-                }else if(e.ctrlKey === true && item.canDrag()){
-                    item.setTriggered(!item.isTriggered());
-                    if(item.isTriggered()){
-                        selected.push(item);
-                    }else{
-                        selected.remove(item);
-                    }
-                    return;
-                }else if(e.shiftKey === true && item.canDrag()){
-                    var first = selected.length > 0 ? selected[0] : undefined;
-
-                    if(first == undefined){
-                        first = item;
-                        item.setTriggered(true);
-                        selected.push(item);
-                    }
-
-                    if(first && item && first.parentItem() == item.parentItem()){
-                        var nodes = first.parentItem().getNodes(first, item), node;
-                        for(var i=1, len=nodes.length; i<len; i++){
-                            node = nodes[i];
-                            node.setTriggered(true);
-                            selected.push(node);
+                }else if (item.canDrag()){
+                    if(e.ctrlKey === true){
+                        item.setTriggered(!item.isTriggered());
+                        if(item.isTriggered()){
+                            selected.push(item);
+                        }else{
+                            selected.remove(item);
                         }
-                        return;
+                    }else if(e.shiftKey === true){
+                        var first = selected.length > 0 ? selected[0] : undefined;
+
+                        if(first == undefined){
+                            first = item;
+                            item.setTriggered(true);
+                            selected.push(item);
+                        }
+
+                        if(first && item && first.parentItem() == item.parentItem()){
+                            var nodes = first.parentItem().getNodes(first, item), node;
+                            for(var i=1, len=nodes.length; i<len; i++){
+                                node = nodes[i];
+                                node.setTriggered(true);
+                                selected.push(node);
+                            }
+                        }
+                    }else if(item.isTriggered()){
+                        this.clearAllSelected();                        
                     }else{
                         this.clearAllSelected();
                         item.setTriggered(true);
                         selected.push(item);
-                        return;
-                    }
+                    }                   
                 }
-            }
-
+                this._doSort();
+                e.setType("selectchanged");
+                e.setData(this.getAllSelected());
+                e.setEventTarget(item);
+                this.notifyPeer("js.awt.event.TreeItemEvent", e);
+                return;
+            }            
+        }
+        
+        if(this.selected.length){
             this.clearAllSelected();
-            e.setEventTarget(item);
+            e.setType("selectchanged");
+            e.setData(this.getAllSelected());
             this.notifyPeer("js.awt.event.TreeItemEvent", e);
         }
     };
@@ -609,6 +721,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
+    
+    var _onevent = function(e){
+        
+    };
 
     thi$._init = function(def, Runtime, dataProvider){
         if(def == undefined) return;
@@ -650,6 +766,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         if(this.isMovable()){
             MQ.register(this.dataProvider.getDragMsgType(), this, _ondrag);
         }
+        
+        MQ.register("js.awt.event.TreeItemEvent", this, _onevent);
         
     }.$override(this._init);
 

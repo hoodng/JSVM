@@ -48,6 +48,11 @@ js.text.Format = function(pattern, symbols){
         return;
     }
     CLASS.__defined__ = true;
+    
+    thi$._pad = function(val, len){
+        val = "000"+String(val);
+        return val.slice(val.length - (len || 2));
+    };
 
     /**
      * Set format pattern

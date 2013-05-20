@@ -56,7 +56,7 @@ $import("js.awt.Button");
  * 
  * }
  */
-js.awt.RadioButton = function(def, model) {
+js.awt.RadioButton = function(def, Runtime) {
 
     var CLASS = js.awt.RadioButton, thi$ = CLASS.prototype;
     if(CLASS.__defined__){

@@ -233,17 +233,35 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         return ret;
     };
     
-    var _addToDOM = function(item, refNode){
+    var _addToDOM = function(item, refNode, isLast){
         item.updateLeaderStyle();
         DOM.insertAfter(item.view, refNode);
+        if(item.view.parentNode){
+            item.showDisableCover(!item.isEnabled());
+        }
+        
+        if(isLast){
+            //nofity
+            _afterExpand.call(this);
+        }
+    };
+    
+    var _afterExpand = function(){
+        var peer = this.getPeerComponent();
+        if(peer && typeof peer.onAfterExpand === "function"){
+            peer.onAfterExpand();
+        }
+        //      this.dashboard.postMQ("js.awt.event.GadgetChange", "", []);
     };
 
     /**
      * Expand or Collapse an item
      * 
      * @param b, true for expanding and false for collapsing
+     * @param needNotify, false for don't nofity the tree to do AfterExpand,others do.
+     * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
      */    
-    thi$.expand = function(b){
+    thi$.expand = function(b, needNotify, root){
         var nodes = this.nodes, tree = this.treeContainer(),
         className = this.branch.clazz, refNode, i, len, item;
 
@@ -255,40 +273,54 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             this.setIconImage(4);
             
             refNode = this.view;
-            for(i=0, len=nodes.length; i<len; i++){
-                item = nodes[i];
-                _addToDOM.$delay(this, 1, item, refNode);
-                refNode = item.view;
-            }
+            if(nodes && nodes.length > 0){
+            	 for(i=0, len=nodes.length; i<len; i++){
+                     item = nodes[i];
+                     _addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
+                     refNode = item.view;
+                 }
+            }           
         }else{
             for(i=nodes.length-1; i>=0; i--){
                 item = nodes[i];
                 if(item.isExpanded()){
-                    item.expand(false);
+                    item.expand(false, undefined, item);
                 }
                 item.removeFrom(item.view.parentNode);
             }
             this.branch.className = className + "_0";
             this.setIconImage(0);
+            //notify
+            if(needNotify != false && root == undefined){
+                _afterExpand.call(this);
+            }
         }
     };
     
     /**
      * Expand or collapse all items
      * 
-     * @param b, true for expanding and false for collapsing
+     * @param b, true for expanding and false for collapsing     
+     * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
      */
-    thi$.expandAll = function(b){
-        this.expand(b);
+    thi$.expandAll = function(b, root){
+        this.expand(b, false);
 
         if(b){
             var nodes = this.nodes, i, len, item;
-            for(i=0, len=nodes.length; i<len; i++){
-                item = nodes[i];
-                if(item.canExpand() && !item.isExpanded()){
-                    item.expandAll(b);
+            if(nodes && this.nodes.length > 0){
+            	for(i=0, len=nodes.length; i<len; i++){
+                    item = nodes[i];
+                    if(item.canExpand() && !item.isExpanded()){
+                        item.expandAll(b, this);
+                    }
                 }
-            }
+            }           
+        }
+        
+        //notify
+        if(!root){
+            _afterExpand.$delay(this, 1);
         }
     };
 

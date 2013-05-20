@@ -49,7 +49,7 @@ js.awt.Window = function (def, Runtime, view){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ;
     
     var _getTitle = function(){
         return (this.title && this.title.labTitle) ? 
@@ -155,10 +155,16 @@ js.awt.Window = function (def, Runtime, view){
 
     }.$override(this.isMoverSpot);
 
+    /**
+     * Add restricted move area
+     */
     thi$.addMoverRestricted = function(comp){
         this._local.restricted.push(comp);
     };
-
+    
+    /**
+     * Remove restricted move area
+     */
     thi$.rmvMoverRestricted = function(comp){
         this._local.restricted.remove(comp);
     };
@@ -176,16 +182,20 @@ js.awt.Window = function (def, Runtime, view){
      * @see js.awt.Component
      */
     thi$.doLayout = function(force){
+        var p, ele, styles, scroll, 
+            overflowX, overflowY, 
+            width, height;
+
         if(this.needLayout(force)){
             if(this.isMaximized()){
-                var p = this.view.parentNode,
-                scroll = DOM.hasScrollbar(p),
-                styles = DOM.currentStyles(p), 
-                overflowX = styles.overflowX, 
-                overflowY = styles.overflowY,
+                p = this.view.parentNode;
+                scroll = DOM.hasScrollbar(p);
+                styles = DOM.currentStyles(p);
+                overflowX = styles.overflowX;
+                overflowY = styles.overflowY;
 
                 width = (overflowX === "hidden") ? p.clientWidth :
-                    (scroll.hscroll ? p.scrollWidth : p.clientWidth),
+                    (scroll.hscroll ? p.scrollWidth : p.clientWidth);
 
                 height= (overflowY === "hidden") ? p.clientHeight: 
                     (scroll.vscroll ? p.scrollHeight : p.clientHeight);
@@ -195,8 +205,10 @@ js.awt.Window = function (def, Runtime, view){
                 }
                 arguments.callee.__super__.apply(this, arguments);    
             }else{
-                var ele = this.client.view, styles = DOM.currentStyles(ele),
-                overflowX = styles.overflowX, overflowY = styles.overflowY;
+                ele = this.client.view; 
+                styles = DOM.currentStyles(ele);
+                overflowX = styles.overflowX; 
+                overflowY = styles.overflowY;
                 ele.style.overflow = "hidden";
                 arguments.callee.__super__.apply(this, arguments);
                 ele.style.overflowX = overflowX;
@@ -253,14 +265,14 @@ js.awt.Window = function (def, Runtime, view){
         if(this.isMinimized()){
             // Restore
             this.setMinimized(false);
-            _setSizeTo.call(this, "normal");         
+            _setSizeTo.call(this, "normal");                
         }else{
             if(this.isMaximized()){
                 this.setMovable(this._local.movable);
                 this.setResizable(this._local.resizable);
             }
             this.setMinimized(true);
-            _setSizeTo.call(this, "minimized");
+            _setSizeTo.call(this, "minimized");            
         }
     };
     
@@ -270,6 +282,7 @@ js.awt.Window = function (def, Runtime, view){
             this.setMaximized(false);
             _setSizeTo.call(this, "normal");
             button.setTriggered(false);
+            button.setToolTipText(this.Runtime().nlsText("btnMax_tip"));    
         }else{
             if(this.isMinimized()){
                 this.setMovable(this._local.movable);
@@ -278,6 +291,7 @@ js.awt.Window = function (def, Runtime, view){
             this.setMaximized(true);
             _setSizeTo.call(this, "maximized");
             button.setTriggered(true);
+            button.setToolTipText(this.Runtime().nlsText("btnMin_tip"));
         }
     };
     
@@ -375,7 +389,7 @@ js.awt.Window = function (def, Runtime, view){
         if(!title) return;
 
         var eType = e.getType(), ele = e.toElement,  
-        xy = this.relative(e.eventXY()), style = this.getTitleStyle();
+            xy = this.relative(e.eventXY()), style = this.getTitleStyle();
 
         switch(eType){
         case "mouseover":
@@ -419,7 +433,10 @@ js.awt.Window = function (def, Runtime, view){
                 item.setVisible(b);
             }
         }
-        if(b) title.doLayout(true);
+
+        if(title.isDOMElement()){
+            title.doLayout(true);
+        }
     };
 
     var _cmdDispatcher = function(e){
@@ -430,7 +447,7 @@ js.awt.Window = function (def, Runtime, view){
         case "mouseup":
         case "message":
             var target = e.getEventTarget(),
-            func = "on"+target.id;
+                func = "on"+target.id;
             if(typeof this[func] == "function"){
                 this[func](target);
             }else{
@@ -454,26 +471,29 @@ js.awt.Window = function (def, Runtime, view){
         if(def == undefined) return;
         
         var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
-        newDef.css = (def.css || "") + "position:absolute;overflow:hidden;";
+        newDef.css = def.css || "";
         var titleDef = newDef.title;
         titleDef.className = titleDef.className || newDef.className + "_title";
         (function(name){
-             var item = titleDef[name];
-             if(name.indexOf("lab") == 0){
-                 item.className = item.className || titleDef.className + "_label";
-                 item.css = (item.css || "") + "white-space:nowrap;"
-                     + "test-overflow:ellipsis;"
-                     + "overflow:hidden;cursor:default;";
-             }else if(name.indexOf("btn") == 0){
-                 item.className = item.className || titleDef.className + "_button"; 
-             }
-         }).$forEach(this, titleDef.items);
+            var item = titleDef[name];
+            if(name.indexOf("lab") == 0){
+                item.className = item.className || titleDef.className + "_label";
+                item.css = (item.css || "") + "white-space:nowrap;"
+                    + "test-overflow:ellipsis;"
+                    + "overflow:hidden;cursor:default;";
+            }else if(name.indexOf("btn") == 0){
+                item.className = item.className || titleDef.className + "_button"; 
+            }
+        }).$forEach(this, titleDef.items);
 
         newDef.client.className = newDef.client.className || newDef.className + "_client";
 
         System.objectCopy(newDef, def, true, true);
         arguments.callee.__super__.apply(this, arguments);
-        
+        view = this.view;
+        view.style.position = "absolute";
+        view.style.overflow = "hidden";
+
         var uuid = this.uuid();
         // For MoverSpot testing
         var restricted = this._local.restricted = js.util.LinkedList.$decorate([]);
@@ -483,15 +503,15 @@ js.awt.Window = function (def, Runtime, view){
             title.setPeerComponent(this);
             title.view.uuid = uuid;
             (function(name){
-                 var item = this.title[name];
-                 item.setPeerComponent(this);
-                 item.view.uuid = uuid;
-                 if(name.indexOf("btn") == 0){
-                     this.addMoverRestricted(item);
-                     item.icon.uuid = uuid;
-                 }
+                var item = this.title[name];
+                item.setPeerComponent(this);
+                item.view.uuid = uuid;
+                if(name.indexOf("btn") == 0){
+                    this.addMoverRestricted(item);
+                    item.icon.uuid = uuid;
+                }
 
-             }).$forEach(this, title.def.items);
+            }).$forEach(this, title.def.items);
             
             var tstyle = title.def.tstyle, bstyle = title.def.bstyle;
 

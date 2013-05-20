@@ -114,11 +114,18 @@ js.awt.Cover = function (comp){
                 cover.className = style;
                 cover.style.cssText = "position:absolute;";
                 //cover.uuid = this.uuid();
-                DOM.insertAfter(cover, this.view);
+                
+                var el = this.view;
+                if(typeof this.getLastResizer == "function"){
+                    el = this.getLastResizer() || this.view;
+                }
+                
+                DOM.insertAfter(cover, el);
                 this.adjustCover();
             }
         }else{
             if(cover && cover.className == style){
+               cover.style.cursor = "default"; 
                this.removeCover();
             }
         }

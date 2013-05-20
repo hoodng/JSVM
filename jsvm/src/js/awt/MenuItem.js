@@ -36,177 +36,240 @@
  */
 
 $package("js.awt");
+$import("js.awt.FlexibleItem");
 
 /**
  * 
  * @param def :{
- *     id: "MenuItem",
- *     
- *     iconImage: "",
- *     labelText: "Menu",
- *     markable: true/false,   Default is true
- *     controlled: true/false, If has nodes, then controlles should be true
- *     nodes:[] // sub menu
+ *	   id: "MenuItem",
+ *	   
+ *	   iconImage: "",
+ *	   labelText: "Menu",
+ *	   markable: true/false,   Default is true
+ *	   controlled: true/false, If has nodes, then controlles should be true
+ *	   nodes:[] // sub menu
  * }
  * @param Runtime
  * @param menu
  */
 js.awt.MenuItem = function (def, Runtime, menu, view){
 
-    var CLASS = js.awt.MenuItem, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
-    
-    thi$.menuContainer = function(){
-        return this.container;
-    };
-    
-    thi$.subMenu = function(){
-        return this._local.submenu;
-    };
-    
-    thi$.onStateChanged = function(){
-        arguments.callee.__super__.apply(this, arguments);
+	var CLASS = js.awt.MenuItem, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System;
+	
+	thi$.menuContainer = function(){
+		return this.container;
+	};
+	
+	thi$.subMenu = function(){
+		return this._local.submenu;
+	};
+	
+	thi$.setNodes = function(nodes){
+		var subMenu ;
+		if(Class.isArray(nodes)){
+			this.def.nodes = nodes;
+			
+			subMenu = this.subMenu();
+			if(subMenu){
+				subMenu.hide();
+				subMenu = this._local.submenu = null;
+			}
+		}
+	};
 
-        if(this.isHover()){
-            var menu = this.menuContainer(),
-            active = menu.active, subMenu;
-            if(active && active != this){
-                subMenu = active.subMenu();
-                if(subMenu && subMenu.isShown()){
-                    subMenu.hide();
-                    active.setHover(false);
-                }
-            }
-            
-            subMenu = this.subMenu();
-            if(!subMenu && Class.isArray(this.def.nodes)){
-                subMenu = this._local.submenu = 
-                    _createSubMenu.call(this, this.def.nodes);
-            }
-            if(subMenu && !subMenu.isShown()){
-                subMenu.showBy(this.view, true, menu.getWidth()-8);
-            }
-        }
-        
-    }.$override(this.onStateChanged);
-    
-    /**
-     * @see js.awt.Component
-     */
-    thi$.getPeerComponent = function(){
-        return this.menuContainer().rootLayer().getPeerComponent();
-    }.$override(this.getPeerComponent);
-    
+	/**
+	 * Show the current item's submenu, if the submenu hasn't been created,
+	 * creat it. If the <em>force</em> is true, a new submenu will always be
+	 * created.
+	 * 
+	 * @param nodes: {Array} Nodes of the submenu to creat.
+	 * @param force: {Boolean} Indicate whether a new submenu will always be
+	 *				 created. 
+	 */ 
+	thi$.showSubMenu = function(nodes, force){
+		var M = this.def, menu = this.menuContainer(),
+		subMenu = this.subMenu(), thickness;
+		
+		if(force === true && subMenu && Class.isArray(nodes)){
+			subMenu.hide();
+			subMenu = this._local.submenu = null;
+		}
+		
+		if(!subMenu && Class.isArray(nodes)){
+			subMenu = this._local.submenu = 
+				_createSubMenu.call(this, nodes, M.menuClass);
+		}
+		
+		if(subMenu && !subMenu.isShown()){
+			thickness = M.beInMenu ? menu.getWidth() - 8 : this.getHeight();
+			subMenu.showBy(this.view, M.beInMenu, thickness);
+		}
+	};
+	
+	thi$.onStateChanged = function(){
+		arguments.callee.__super__.apply(this, arguments);
 
-    var _createSubMenu = function(nodes){
-        var menuC = this.menuContainer(), menuD = menuC.def,
-        menudef = {
-            classType: menuD.classType,
-            className: menuD.className,
-            id: this.def.id,
-            nodes: nodes,
-            shadow: menuD.shadow,
-            PMFlag: 0x07,
-            isfloating: true
-        };
-        
-        var submenu =new (Class.forName(menudef.classType))(
-            menudef, this.Runtime(), menuC.parentMenu(), menuC.rootLayer());
+		if(this.isHover()){	 
+			var M = this.def, menu = this.menuContainer(),
+			active = menu.active, subMenu, timeout;
+			
+			if(active && active != this){
+				subMenu = active.subMenu();
+				if(subMenu && subMenu.isShown()){
+					subMenu.hide("hide", this);
+					active.setHover(false);
+				}
+			}
+			if (this.isEnabled()){
+				subMenu = this.subMenu();
+				if(!subMenu && M.dynamic === true
+				   && (typeof this.loadMenu == "function")){
+					timeout = !isNaN(M.timeout) ? M.timeout : 500;
+					this.loadMenu.$clearTimer();
+					this.loadMenu.$delay(this, timeout);
+				}else{
+					this.showSubMenu(M.nodes);
+				}
+			}
+		}
+		
+	}.$override(this.onStateChanged);
+	
+	/**
+	 * @see js.awt.Component
+	 */
+	thi$.getPeerComponent = function(){
+		var peer;
+		if(this.def.beInMenu){
+			peer = this.menuContainer().rootLayer().getPeerComponent();
+		}else{
+			peer = arguments.callee.__super__.apply(this, arguments);
+		}
+		
+		return peer;
+		
+	}.$override(this.getPeerComponent);
+	
+	/**
+	 * @see js.awt.FlexibleItem #doLayout
+	 */
+	thi$.doLayout = function(){
+		if(this.isCustomized()){
+			var customComp = this.getCustomComponent(),
+			peer = customComp.getPeerComponent();
+			if(!peer && DOM.isDOMElement(customComp.view)){
+				customComp.setPeerComponent(this.getPeerComponent());
+			}
+		}
+		
+		arguments.callee.__super__.apply(this, arguments);
+		
+	}.$override(this.doLayout);
+	
+	var _onInput = function(e){
+		e.cancelBubble();
+	};
 
-        return submenu;
-    };
-    
-    var _checkItems = function(def){
-        var items = def.items;
+	var _createSubMenu = function(nodes, mClass){
+		var M = this.def, menuC = this.menuContainer(), menuD = menuC.def,
+		mClassType = M.beInMenu ? menuD.classType : (M.mClassType || "js.awt.Menu"),
+		menuShadow = M.beInMenu ? menuD.shadow : (M.menuShadow !== false),
+		menudef = {
+			classType: mClassType,
+			className: mClass || menuD.className,
+			id: this.def.id,
+			nodes: nodes,
+			shadow: menuShadow,
+			PMFlag: 0x07,
+			isfloating: true
+		}, pmenu, root;
+		
+		if(M.beInMenu){
+			pmenu = menuC.parentMenu();
+			root = menuC.rootLayer();
+		}
+		
+		var submenu =new (Class.forName(mClassType))(
+			menudef, this.Runtime(), pmenu, root);
+		if(!M.beInMenu){
+			submenu.setPeerComponent(this.getPeerComponent());
+		}
 
-        if(def.markable === true){
-            items.push("marker");    
-        }
-        
-        items.push("icon");
-        if(def.inputText){
-            items.push("input");
-        }else{
-            items.push("label");    
-        }
-        if(def.nodes){
-            def.controlled = true;
-            items.push("ctrl");
-        }
-        
-        return def;
-    };
+		return submenu;
+	};
+	
+	thi$.destroy = function(){
+		if(this._local.submenu){
+			this._local.submenu.destroy();
+		}
+		delete this._local.submenu;
+		
+		arguments.callee.__super__.apply(this, arguments);
 
-    thi$.destroy = function(){
-        if(this._local.submenu){
-            this._local.submenu.destroy();
-        }
-        delete this._local.submenu;
-        
-        arguments.callee.__super__.apply(this, arguments);
+	}.$override(this.destroy);
+	
+	thi$._init = function(def, Runtime, menu, view){
+		if(def == undefined) return;
+		
+		def.classType = def.classType || "js.awt.MenuItem";
+		def.className = menu.className + "_item";
+		def.beInMenu = (def.beInMenu !== false);
+		def.markable =(def.markable !== false);
+		def.controlled = (def.beInMenu && (Class.isArray(def.nodes) 
+										   || def.dynamic === true));
+		
+		if(def.beInMenu){
+			def.css = "position:relative;width:100%;";
+		}
+		
+		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		
+		this.setContainer(menu);
+		menu.cache[this.uuid()] = this;
 
-    }.$override(this.destroy);
-    
-    thi$._init = function(def, Runtime, menu, view){
-        if(def == undefined) return;
-        
-        def.classType = def.classType || "js.awt.MenuItem";
-        def.className = menu.className + "_item";
-        def.css = "position:relative;width:100%;";
-        
-        def.markable = Class.isBoolean(def.markable) ? def.markable : true; 
-        
-        if(view == undefined){
-            def.items = js.util.LinkedList.$decorate([]);
-            _checkItems.call(this, def);
-        }
+		if(this.input){
+			Event.attachEvent(this.input, "mousedown", 0, this, _onInput);
+			Event.attachEvent(this.input, "click", 0, this, _onInput); 
+		}
 
-        arguments.callee.__super__.apply(this, [def, Runtime, view]);
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
 
-        this.setContainer(menu);
-        menu.cache[this.uuid()] = this;
-        
-        if(this.isMarkable()){
-            this.mark(def.checked);
-        }
-
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
-
-}.$extend(js.awt.Item);
+}.$extend(js.awt.FlexibleItem);
 
 js.awt.MenuSeparator = function(def, Runtime, menu){
 
-    var CLASS = js.awt.MenuSeparator, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
-    
-    thi$._init = function(def, Runtime, menu){
-        if(def == undefined) return;
+	var CLASS = js.awt.MenuSeparator, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System;
+	
+	thi$._init = function(def, Runtime, menu){
+		if(def == undefined) return;
 
-        def.classType = "js.awt.MenuSeparator";
-        def.className = menu.className + "_separator";
-        def.css = "overflow:hidden;width:100%;"; // If not, IE has 13px height
+		def.classType = "js.awt.MenuSeparator";
+		def.className = menu.className + "_separator";
+		def.css = "overflow:hidden;width:100%;"; // If not, IE has 13px height
 
-        arguments.callee.__super__.apply(this, [def, Runtime]);
+		arguments.callee.__super__.apply(this, [def, Runtime]);
 
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
-    
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
+	
 }.$extend(js.awt.BaseComponent);
 

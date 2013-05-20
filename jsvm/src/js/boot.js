@@ -72,7 +72,31 @@
      // Global functions for Flash
      $postMessage = J$VM.MQ.post;
      $sendMessage = J$VM.MQ.send;
+
+     // Global functions
+     // Should be replaced by invoing $postMessage and $sendMessage
+     j$postMessage = function(msg){
+     	//below codes added by Lu YuRu, maybe flash slider needs, 
+     	//but some logic miss in flash code, no one can explain it now.
+     	//Now Flash chart not need, so we clear the code.
+     	
+         //var str = msg[4];
+         //str = js.lang.Class.forName("js.util.Base64").decode(str);
+         //msg[4] = JSON.parse(str);
+         
+         J$VM.MQ.post(msg[3], msg[4], msg[2], msg[1], msg[0]);
+     };
+     j$sendMessage = function(msg){
+         J$VM.MQ.send(msg[3], msg[4], msg[2], msg[1], msg[0]);
+     };
      
+     this.$attachEvent = js.util.Event.attachEvent;
+     this.$detachEvent = js.util.Event.detachEvent;
+     
+     // Defined some speparaters for js code
+     this.SPE1 = "RR2kfidRR";
+     this.SPE2 = "RR3uiokRR";
+
      // Load the third party library from classpath
      var home = env.j$vm_home, file,
      libs = env.j$vm_classpath ? env.j$vm_classpath.split(";") : [];

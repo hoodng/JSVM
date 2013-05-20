@@ -323,8 +323,20 @@ js.awt.LayerManager = function(Runtime){
 	};
 	
 	var _show = function (layer, rect) {
-		J$VM.System.out.println((new Date()).toString() + " : show " + layer.uuid());
-		layer.applyStyles({position: "absolute", visibility: "hidden"});
+		System.log.println((new Date()).toString() + " : show " 
+                           + layer.uuid() + "-" + layer.className);
+		
+		// When we append an DOM element to body, if we didn't set any "position"
+		// or set the position as "absolute" but "top" and "left" that element also
+		// be place at the bottom of body other than the (0, 0) position. Then it
+		// may extend the body's size and trigger window's "resize" event.
+		var styles = {
+			visibility: "hidden", 
+			position: "absolute", 
+			left: "-10000px", 
+			top: "-10000px"
+		};
+		layer.applyStyles(styles);
 		
 		if(this.indexOf(layer) < 0){
 			this.addComponent(layer);
@@ -334,7 +346,7 @@ js.awt.LayerManager = function(Runtime){
 		var size = layer.getPreferredSize() /*DOM.outerSize(layer.view)*/, 
 		w = size.width, h = size.height,
 		avaiRect = _calAvaiRect.call(this, rect, w, h);
-		System.out.println("Available Rectangle: " + JSON.stringify(avaiRect));
+		System.log.println("Available Rectangle: " + JSON.stringify(avaiRect));
 		
 		var x, y, bounds;
 		if(avaiRect.narrow == true){
@@ -438,8 +450,8 @@ js.awt.LayerManager = function(Runtime){
 			pop = this.stack[this.stack.length - 1];
 			if (pop.canHide(e)) {
 				pop = this.stack.pop();
-				System.out.println((new Date()).toString() + " : hide " + pop.uuid() 
-								   + " on \"" + e.getType() 
+				System.log.println((new Date()).toString() + " : hide " + pop.uuid() 
+								   + "-" + pop.className + " on \"" + e.getType() 
 								   + "\" - Flag: " + (pop.getPMFlag()).toString(2));
 				if (pop != root) {
 					root.focusItem = root.focusBox;
@@ -462,7 +474,10 @@ js.awt.LayerManager = function(Runtime){
 	 * there is no any event or method to cause hiding it. Now if we will push another one 
 	 * layer to it, we should invoke this method in our own initiative.
 	 */
-	thi$.clearStack = function(e){ 
+	thi$.clearStack = function(e){
+		System.log.println((new Date()).toString() + " : clearStack " 
+						   + " on \"" + (e ? e.getType() : "unknown") + "\" event.");
+		
 		var pop;
 		while (this.stack.length > 0) {
 			pop = this.stack.pop();

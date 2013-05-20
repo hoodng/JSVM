@@ -424,7 +424,12 @@ js.awt.Resizable = function(){
                 buf.clear().append("position:absolute;")
                     .append("overflow:hidden;cursor:").append(CS[i]).append(";");
                 if(J$VM.ie){
-                    buf.append("background-color:#FFFFFF;filter:alpha(Opacity=0);");
+                    buf.append("background-color:#FFFFFF;");
+                    if(parseInt(J$VM.ie) < 10){
+                    	buf.append("filter:alpha(Opacity=0);");
+                    }else{
+                    	buf.append("opacity:0;");
+                    }
                 }
                 div.style.cssText = buf.toString();
 
@@ -498,6 +503,10 @@ js.awt.Resizable = function(){
 
         if(b){
             _createResizer.call(this, this.def.resizer);
+            if(this.isDOMElement()){
+                this.addResizer();
+                this.adjustResizer();
+            }
         }else{
             this.def.resizable = false;
             this.removeResizer(true);
@@ -536,10 +545,10 @@ js.awt.Resizable = function(){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
         
-        var div, i;
-        for(i=0; i<8; i++){
+        var div, i, isDOM = this.isDOMElement();
+        for(i=0; isDOM && i<8; i++){
             div = resizer[i];
-            if(div && this.isDOMElement()){
+            if(div){
                 div.style.zIndex = this.getZ();
                 DOM.insertAfter(div, this.view);
             }
