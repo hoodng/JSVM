@@ -245,7 +245,85 @@ js.awt.Element = function(def, Runtime){
         return this.def;
     };
 
-    thi$.contains = function(ele, constainSelf){
+    thi$.getID = function(ele){
+        var id;
+        switch(Class.typeOf(ele)){
+        case "string":
+            id = ele;
+            break;
+        case "object":
+            id = ele.id;
+            break;
+        default:
+            id = this.id;
+        }
+        return id;
+    };
+
+    thi$.getOBJ = function(ele){
+        var obj;
+        switch(Class.typeOf(ele)){
+        case "string":
+            obj = this[ele];
+            break;
+        case "object":
+            obj = ele;
+            break;
+        default:
+            obj = this;
+        }
+        return obj;
+    };
+
+    /**
+     * Append this element to the specified parent node.
+     * 
+     * @param parent, the specified parent
+     */
+    thi$.appendTo = function(parent){
+        if(parent && parent.instanceOf(js.awt.Containable)){
+            parent.appendChild(this);
+        }
+    };
+
+    /**
+     * Remove this element from the specified parent node.
+     * 
+     * @param parent, the specified parent
+     */
+    thi$.removeFrom = function(parent){
+        if(parent && parent.instanceOf(js.awt.Containable)){
+            parent.removeChild(this);
+        }
+    };
+
+    /**
+     * Insert this element before the specified node.
+     *
+     * @param ref, the specified node
+     */
+    thi$.insertBefore = function(ref){
+        var parent = ref ? ref.getContainer() : undefined;
+        if(parent && parent.instanceOf(js.awt.Containable)){
+            parent.insertChildBefore(this, ref);
+        }
+    };
+
+    /**
+     * Insert this element after the specified node.
+     * 
+     * @param ref, the specified node
+     */
+    thi$.insertAfter = function(ref){
+        var parent = ref ? ref.getContainer() : undefined;
+        if(parent && parent.instanceOf(js.awt.Containable)){
+            parent.insertChildAfter(this, ref);
+        }
+    };
+
+    thi$.contains = function(ele, containSelf){
+        var id = this.getID(ele), obj = this.getOBJ(ele), o = this[id];
+        return o === obj || (containSelf ? this === obj : false);
     };
 
     thi$.inside = function(x, y){

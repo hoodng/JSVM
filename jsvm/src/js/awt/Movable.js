@@ -254,7 +254,8 @@ js.awt.Movable = function (){
 
     var _onmousemove =function(e){
 
-        if(!System.checkThreshold(e.getTimeStamp().getTime())) 
+        if(!System.checkThreshold(e.getTimeStamp().getTime(), 
+                                  this.def.mover.threshold)) 
             return e.cancelDefault();
         
         _doSelect.$clearTimer();

@@ -267,7 +267,8 @@ js.awt.Resizable = function(){
 
     var _onmousemove = function(e, i){
 
-        if(!J$VM.System.checkThreshold(e.getTimeStamp().getTime())) 
+        if(!J$VM.System.checkThreshold(e.getTimeStamp().getTime(), 
+                                       this.def.mover.threshold)) 
             return e.cancelDefault();
         
         if(!this._local.notified){

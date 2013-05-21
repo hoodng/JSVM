@@ -402,9 +402,9 @@ js.awt.Container = function (def, Runtime, view){
 
 		comp.setContainer(this);
 		
-		if(refComp && comp.insertBefore){
+		if(refComp){
 			comp.insertBefore(refComp.view, this.view);
-		}else if (comp.appendTo){
+		}else {
 			comp.appendTo(this.view);
 		}
 

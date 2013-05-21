@@ -385,7 +385,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
     thi$.removeFrom = function(parentNode){
         DOM.removeFrom(this.view, parentNode);
         this._adjust("remove");
-    };
+    }.$override(this.removeFrom);
     
     /**
      * Append the view of this component to the specified parent node.
@@ -397,7 +397,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         if(this.repaint()){
             this.doLayout(true);
         }
-    };
+    }.$override(this.appendTo);
     
     /**
      * Insert the view of this component before the specified refNode
@@ -409,7 +409,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         if(this.repaint()){
             this.doLayout(true);
         }
-    };
+    }.$override(this.insertBefore);
 
     /**
      * Insert the view of this component after the specified refNode
@@ -418,17 +418,17 @@ js.awt.BaseComponent = function(def, Runtime, view){
      */
     thi$.insertAfter = function(refNode){
         this.insertBefore(refNode.nextSibling, refNode.parentNode);
-    };
+    }.$override(this.insertAfter);
 
     /**
      * Test whether contains a child node in this component
      * 
      * @param child, a HTMLElement
-     * @param constainSelf, a boolean indicates whether includes the scenario 
+     * @param containSelf, a boolean indicates whether includes the scenario 
      * of the parent === child.
      */
-    thi$.contains = function(child, constainSelf){
-        return DOM.contains(this.view, child, constainSelf);
+    thi$.contains = function(child, containSelf){
+        return DOM.contains(this.view, child, containSelf);
     }.$override(this.contains);
 
     /**
