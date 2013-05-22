@@ -77,6 +77,8 @@ js.awt.Shape = function(def, Runtime){
 
         if(Class.isFunction(this.relDraw)){
             this.relDraw(this);
+        }else{
+            this.getLayer().getRenderer().draw();
         }
         
         if(this.def.listenin === true && 

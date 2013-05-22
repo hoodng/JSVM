@@ -198,7 +198,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
     thi$.getStyle = function(sp){
         sp = DOM.camelName(sp);
         return DOM.currentStyles(this.view)[sp];
-    }.$override(this.getStyle);
+    };
     
     /**
      * Return the computed styles set with the specified style names array.<p>
@@ -310,7 +310,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
      * @see appendTo(parentNode)
      */
     thi$.removeFrom = function(parentNode){
-        DOM.removeFrom(this.view, parentNode);
+        arguments.callee.__super__.apply(this,arguments);
         this._adjust("remove");
     }.$override(this.removeFrom);
     
@@ -320,7 +320,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
      * @see removeFrom(parentNode)
      */
     thi$.appendTo = function(parentNode){
-        DOM.appendTo(this.view, parentNode);
+        arguments.callee.__super__.apply(this,arguments);
         if(this.repaint()){
             this.doLayout(true);
         }
@@ -332,7 +332,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
      * @param refNode
      */
     thi$.insertBefore = function(refNode, parentNode){
-        DOM.insertBefore(this.view, refNode, parentNode);
+        arguments.callee.__super__.apply(this,arguments);
         if(this.repaint()){
             this.doLayout(true);
         }

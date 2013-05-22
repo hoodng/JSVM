@@ -52,8 +52,9 @@ js.awt.Element = function(def, Runtime){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event,
-        System = J$VM.System, MQ = J$VM.MQ, Z4 = [0,0,0,0];
+    var Class = js.lang.Class, Event = js.util.Event, 
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ, 
+        Z4 = [0,0,0,0];
     
     /**
      * Return the position left of the component.<p>
@@ -322,15 +323,6 @@ js.awt.Element = function(def, Runtime){
         return this.def;
     };
 
-    thi$.getStyle = function(sp){
-        var style = this.getStyles();
-        return style[sp];
-    };
-
-    thi$.getStyles = function(sps){
-        return this.def.style || {};
-    };
-
     thi$.getID = function(ele){
         var id;
         switch(Class.typeOf(ele)){
@@ -367,10 +359,11 @@ js.awt.Element = function(def, Runtime){
      * @param parent, the specified parent
      */
     thi$.appendTo = function(parent){
-        /*
-        if(parent && parent.instanceOf(js.awt.Containable)){
+        if(this.view && Class.isHtmlElement(parent)){
+            DOM.appendTo(this.view, parent);
+        }else if (parent.appendChild){
             parent.appendChild(this);
-        }*/
+        } 
     };
 
     /**
@@ -379,10 +372,11 @@ js.awt.Element = function(def, Runtime){
      * @param parent, the specified parent
      */
     thi$.removeFrom = function(parent){
-        /*
-        if(parent && parent.instanceOf(js.awt.Containable)){
+        if(this.view && Class.isHtmlElement(parent)){
+            DOM.removeFrom(this.view, parent);
+        }else if (parent.removeChild){
             parent.removeChild(this);
-        }*/
+        } 
     };
 
     /**
@@ -390,12 +384,12 @@ js.awt.Element = function(def, Runtime){
      *
      * @param ref, the specified node
      */
-    thi$.insertBefore = function(ref){
-        /*
-        var parent = ref ? ref.getContainer() : undefined;
-        if(parent && parent.instanceOf(js.awt.Containable)){
-            parent.insertChildBefore(this, ref);
-        }*/
+    thi$.insertBefore = function(ref, parent){
+        if(this.view && (ref || Class.isHtmlElement(parent))){
+            DOM.insertBefore(this.view, ref, parent);
+        }else if (ref.getContainer()){
+            ref.getContainer().insertChildBefore(this, ref);
+        } 
     };
 
     /**
@@ -404,11 +398,11 @@ js.awt.Element = function(def, Runtime){
      * @param ref, the specified node
      */
     thi$.insertAfter = function(ref){
-        /*
-        var parent = ref ? ref.getContainer() : undefined;
-        if(parent && parent.instanceOf(js.awt.Containable)){
-            parent.insertChildAfter(this, ref);
-        }*/
+        if(this.view && ref){
+            this.insertBefore(ref.nextSibling, ref.parentNode);
+        }else if (ref.getContainer()){
+            ref.getContainer().insertChildAfter(this, ref);
+        } 
     };
 
     thi$.contains = function(ele, containSelf){
@@ -653,3 +647,4 @@ js.awt.Element = function(def, Runtime){
     this._init.apply(this, arguments);
 
 }.$extend(js.util.EventTarget);
+

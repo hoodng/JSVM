@@ -40,9 +40,9 @@ $package("js.awt");
 /**
  * 
  */
-js.awt.GraphicLayer = function(def, Runtime){
+js.awt.Renderer = function(config){
 
-    var CLASS = js.awt.GraphicLayer, thi$ = CLASS.prototype;
+    var CLASS = js.awt.Renderer, thi$ = CLASS.prototype;
     
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -50,68 +50,41 @@ js.awt.GraphicLayer = function(def, Runtime){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
+    var Class = js.lang.Class, System = J$VM.System;
 
-    thi$.getGraph = function(){
-        return this.getContainer();
+    thi$.drawArc = function(ctx, shape, hit){
     };
 
-    thi$.getRenderer = function(){
-        var renderers = this._local.renderers, type = this.classType(), 
-            ret = renderers[type];
-        if(!ret){
-            ret = renderers[type] = new (Class.forName(type))({});
-        }
-
-        return ret;
+    thi$.drawCircle = function(ctx, shape, hit){
     };
 
-    thi$.getContext = function(){
-
+    thi$.drawEllipse = function(ctx, shape, hit){
     };
 
-    thi$.getShape = function(id){
-        return this.getComponent(id);
+    thi$.drawImage = function(ctx, shape, hit, callback){
     };
 
-    thi$.addShape = function(shape){
-        return this.addComponent(shape);
+    thi$.drawLine = function(ctx, shape, hit){
     };
 
-    thi$.delShape = function(id){
-        return this.removeComponent(id);
+    thi$.drawPolygon = function(ctx, shape, hit){
     };
 
-    thi$.measureText = function(text, font, ctx){
+    thi$.drawPolyline = function(ctx, shape, hit){
     };
 
-    thi$.getAttr = function(key){
-        var v = arguments.callee.__super__.apply(this, arguments), p;
-        if(!v){
-            p = this.getContainer();
-            v = p ? p.getAttr(key) : undefined;
-        }
-        return v;
-    }.$override(this.getAttr);
+    thi$.drawRect = function(ctx, shape, hit){
+    };
 
-    thi$._init = function(def, Runtime){
-		if(def == undefined) return;
+    thi$.drawText = function(ctx, shape, hit){
+    };
 
-        def.classType = def.classType || "js.awt.GraphicLayer";
-        
-        var zorder = def.zorder;
-        def.zorder = Class.isBoolean(zorder) ? zorder : true;
+    thi$._init = function(config){
+		if(config == undefined) return;
 
-        def.layout = def.layout || {classType: "js.awt.AbstractLayout"};
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        this._local.renderers = {};
-        
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Container);
+}.$extend(js.lang.Object);
 

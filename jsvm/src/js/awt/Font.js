@@ -98,6 +98,13 @@ js.awt.Font = function(family, size, style, weight, variant){
     this._init.apply(this, arguments);
 };
 
+js.awt.Font.Attrs = [
+    "fontStyle", 
+    "fontVariant", 
+    "fontWeight", 
+    "fontSize", 
+    "fontFamily"];
+
 js.awt.Font.Style = {
     normal: "normal",
     italic: "italic",

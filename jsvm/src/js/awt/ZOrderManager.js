@@ -172,9 +172,9 @@ js.awt.ZOrderManager = function(){
      */
     thi$.zOrderAdjust = function(fire){
         if(this.isZOrder()){
-            var stack = this.def.items, zbase = this.def.zbase || 0;
+            var stack = this.items(), zbase = this.def.zbase || 0;
             for(var i=stack.length-1; i>=0; i--){
-                this.getComponent(stack[i]).setZ(zbase+i-stack.length, fire);
+                this.getElementById(stack[i]).setZ(zbase+i-stack.length, fire);
             }
         }
     };
@@ -194,7 +194,7 @@ js.awt.ZOrderManager = function(){
     var _allComps = function(){
         var ret = [];
         (function(id){
-             ret.push(this.getComponent(id));
+             ret.push(this.getElementById(id));
          }).$forEach(this, this.def.items);
 
         return ret;

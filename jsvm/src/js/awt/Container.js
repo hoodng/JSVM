@@ -38,6 +38,7 @@
 $package("js.awt");
 
 $import("js.awt.Component");
+$import("js.awt.Containable");
 $import("js.awt.ZOrderManager");
 
 /**
@@ -63,8 +64,8 @@ js.awt.Container = function (def, Runtime, view){
 	}
 	CLASS.__defined__ = true;
 	
-	var Class = js.lang.Class, Event = js.util.Event, LList = js.util.LinkedList,
-	DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM, 
+        System = J$VM.System, MQ = J$VM.MQ, List = js.util.LinkedList;
 
 	/**
 	 * Add the component to the container
@@ -83,23 +84,15 @@ js.awt.Container = function (def, Runtime, view){
 	 * @constraints: {Object} The constraints of the inserting component
 	 */
 	thi$.insertComponent = function(index, comp, constraints){
-		var items = this._local.items, len = items.length,
-		cid = comp.id, refComp;
-		
-		if(!isNaN(index) && index >= 0 && index < len){
-			refComp = this.getComponent(items[index]);
-		}else{
-			index = len;
-		}
-		
-		this[cid] = comp;
-		this.def[cid] = comp.def;
-		this.def.items.push(cid);
-		
-		items = LList.$decorate(items);
-		items.add(index, cid);
+        var items = this.items0(), ref;
 
-		this._addComp(comp, constraints, refComp);		  
+		if(!isNaN(index) && index >= 0 && index < items.length){
+			ref = this.getElementById(items[index]);
+		}
+
+        this.insertChildBefore(comp, ref);
+
+		this._addComp(comp, constraints);		  
 		this.zOrderAdjust();
 
 		return comp;
@@ -109,19 +102,14 @@ js.awt.Container = function (def, Runtime, view){
 	 * Get the component with the specified component id
 	 */
 	thi$.getComponent = function(id){
-		return this[id];
+		return this.getElementById(id);
 	};
 	
 	/**
 	 * Return all components 
 	 */
-	thi$.getAllComponents = function(){
-		var ret = [], comps = this._local.items;
-		for(var i=0, len=comps.length; i<len; i++){
-			ret.push(this[comps[i]]);
-		}
-
-		return ret;
+	thi$.getAllComponents = function(filter){
+        return this.getElements(filter);
 	};
 	
 	/**
@@ -130,13 +118,7 @@ js.awt.Container = function (def, Runtime, view){
 	 * @param comp, the component or component id
 	 */
 	thi$.removeComponent = function(comp){
-		var id = (comp instanceof js.awt.Element) ? comp.id : comp;
-
-		if(this[id] === undefined) return undefined;
-		
-		this.def.items.remove(id);
-		this._local.items.remove(id);
-		comp = this[id];
+        comp = this.removeChild(comp);
 
 		if(this.layout){
 			this.layout.removeLayoutComponent(comp);
@@ -144,16 +126,20 @@ js.awt.Container = function (def, Runtime, view){
 		if(this._local.active === comp){
 			this._local.active = undefined;
 		}
-		delete this[id];
-		if(comp.removeFrom){
-            comp.removeFrom(this.view);
-        }
-		delete comp.container;
 
 		this.zOrderAdjust();
 
 		return comp;
 	};
+
+    thi$.removeAll = function(gc){
+        arguments.callee.__super__.apply(this, arguments);
+
+        if(this.layout){
+            this.layout.invalidateLayout();
+        }
+
+    }.$override(this.removeAll);
 	
 	/**
 	 * Activate the component with specified component or id
@@ -227,21 +213,7 @@ js.awt.Container = function (def, Runtime, view){
 	 * Return the amount of the components
 	 */
 	thi$.getComponentCount = function(){
-		return this.def.items.length;
-	};
-	
-	/**
-	 * Gets the component id list in current order
-	 */
-	thi$.items = function(){
-		return this.def.items;
-	};
-	
-	/**
-	 * Gets the component id list in original order
-	 */
-	thi$.items0 = function(){
-		return this._local.items;
+		return this.getElementsCount();
 	};
 	
 	/**
@@ -270,30 +242,6 @@ js.awt.Container = function (def, Runtime, view){
 
 	}.$override(this.contains);
 	
-	/**
-	 * Remove all components
-	 */
-	thi$.removeAll = function(gc){
-		var comps = this.items0(), id, comp,
-		M = this.def, U = this._local;
-
-		while(comps && comps.length > 0){
-			id = comps.shift();
-			comp = this[id];
-			delete this[id];
-			delete M[id];
-			if(gc === true){
-				delete comp.container;
-				comp.destroy();
-			}
-		}
-		
-		M.items = LList.$decorate([]);
-
-		if(this.layout){
-			this.layout.invalidateLayout();
-		}
-	};
 	
 	/**
 	 * @see js.awt.BaseComponent
@@ -400,14 +348,6 @@ js.awt.Container = function (def, Runtime, view){
 	thi$._addComp = function(comp, constraints, refComp){
 		constraints = constraints || comp.def.constraints;
 
-		comp.setContainer(this);
-		
-		if(refComp){
-			comp.insertBefore(refComp.view, this.view);
-		}else {
-			comp.appendTo(this.view);
-		}
-
 		if(this.layout){
 			this.layout.addLayoutComponent(comp, constraints);
 		}
@@ -423,7 +363,7 @@ js.awt.Container = function (def, Runtime, view){
 		var comps = def.items, R = this.Runtime(),
 		oriComps = this._local.items;
 		
-		LList.$decorate(def.items);
+		List.$decorate(def.items);
 
 		for(var i=0, len=comps.length; i<len; i++){
 			var compid = comps[i], compDef = def[compid];
@@ -434,9 +374,8 @@ js.awt.Container = function (def, Runtime, view){
 
 				var comp = new (Class.forName(compDef.classType))(
 					compDef, R);
-
-				this[compid] = comp;
-				oriComps.push(compid);
+                
+                this.appendChild(comp);
 
 				this._addComp(comp, compDef.constraints);
 
@@ -472,14 +411,14 @@ js.awt.Container = function (def, Runtime, view){
 		def.activateman = Class.isBoolean(def.activateman) ? def.activateman : false;
 
 		// Keep original order
-		var oriComps = this._local.items = LList.$decorate([]);
+		var oriComps = this._local.items = List.$decorate([]);
 		
 		// Add children components
 		var comps = def.items;
 		if(Class.typeOf(comps) === "array"){
 			this._addComps(def);
 		}else{
-			def.items = LList.$decorate([]);
+			def.items = List.$decorate([]);
 		}
 		
 		this.zOrderAdjust();
@@ -488,5 +427,6 @@ js.awt.Container = function (def, Runtime, view){
 
 	this._init.apply(this, arguments);
 
-}.$extend(js.awt.Component).$implements(js.awt.ZOrderManager);
+}.$extend(js.awt.Component).$implements(
+    js.awt.Containable, js.awt.ZOrderManager);
 
