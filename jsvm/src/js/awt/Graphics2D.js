@@ -47,6 +47,7 @@ $import("js.awt.shape.Polyline");
 $import("js.awt.shape.Rect");
 $import("js.awt.shape.Text");
 
+$import("js.awt.CanvasLayer");
 /**
  * 
  */

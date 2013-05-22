@@ -191,87 +191,14 @@ js.awt.BaseComponent = function(def, Runtime, view){
     thi$.invalidateBounds = function(){
         this.view.bounds = null;
     };
-    
-    thi$.getPreferredSize = function(nocache){
-        var d;
-        if(nocache === true){
-            d = this.getBounds();
-            return {width: d.width, height: d.height};
-        }else{
-            if(!this.def.prefSize){
-                d = this.getBounds();
-                this.setPreferredSize(d.width, d.height);
-            }
-            return this.def.prefSize;
-        }
-    };
-    
-    thi$.setPreferredSize = function(w, h){
-        this.def.prefSize = {
-            width: w > 0 ? w : 0, 
-            height:h > 0 ? h : 0
-        };
-    };
-    
-    thi$.getMinimumSize = function(nocache){
-        var d;
-        if(nocache === true){
-            d = this.getBounds();
-            this.setMinimumSize(
-                this.isRigidWidth() ? d.width :d.MBP.BPW, 
-                this.isRigidHeight()? d.height:d.MBP.BPH);
-        }else{
-            d = this.def.miniSize;
-            if(!d){
-                d = this.getBounds();
-                this.setMinimumSize(
-                    this.isRigidWidth() ? d.width :d.MBP.BPW, 
-                    this.isRigidHeight()? d.height:d.MBP.BPH);
-            }
-        }
-
-        return this.def.miniSize;
-    };
-    
-    thi$.setMinimumSize = function(w, h){
-        this.def.miniSize = {
-            width: w, height:h
-        };
-    };
-    
-    thi$.getMaximumSize = function(nocache){
-        var d;
-        if(nocache === true){
-            d = this.getBounds();
-            this.setMaximumSize(
-                /*this.isRigidWidth() ? d.width :*/Number.MAX_VALUE, 
-                /*this.isRigidHeight()? d.height:*/Number.MAX_VALUE);
-        }else{
-            d = this.def.maxiSize;
-            if(!d){
-                d = this.getBounds();
-                this.setMaximumSize(
-                    /*this.isRigidWidth() ? d.width :*/Number.MAX_VALUE, 
-                    /*this.isRigidHeight()? d.height:*/Number.MAX_VALUE);
-            }
-        }
-
-        return this.def.maxiSize;
-    };
-    
-    thi$.setMaximumSize = function(w, h){
-        this.def.maxiSize = {
-            width: w, height:h
-        };
-    };
-    
+        
     /**
      * Return the computed style with the specified style name
      */
     thi$.getStyle = function(sp){
         sp = DOM.camelName(sp);
         return DOM.currentStyles(this.view)[sp];
-    };
+    }.$override(this.getStyle);
     
     /**
      * Return the computed styles set with the specified style names array.<p>

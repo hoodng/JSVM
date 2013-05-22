@@ -168,16 +168,16 @@ js.awt.Color = function(r, g, b, a) {
         return v;
     };
 
-    CLASS.randomColor = function(type){
-        var uuid = js.lang.Math.uuid(), 
-            v = parseInt(uuid.substring(1), 16),
+    CLASS.randomColor = function(uuid, type){
+        uuid = uuid || js.lang.Math.uuid();
+        var v = parseInt(uuid.substring(1), 16),
             c = new js.awt.Color(v), ret;
         
         if(c.A() == 0){
             c.value |= 0x01<<24;
         }
 
-        type = type || "rgba";
+        type = type || "obj";
 
         switch(type){
         case "obj":
@@ -189,6 +189,38 @@ js.awt.Color = function(r, g, b, a) {
         }
         return ret;
     };
+
+    /**
+     * @param sColor: start Color
+     * @param eColor: stop Color
+     * @param min
+     * @param max
+     * @param value
+     *
+     * @return Color
+     */
+    CLASS.gradient = function(sColor, eColor, min, max, value){
+        sColor = Class.isObject(sColor) ? sColor : new CLASS(sColor);
+        eColor = Class.isObject(eColor) ? eColor : new CLASS(eColor);
+        
+        var Rs = sColor.R(), Re = eColor.R(),
+            Gs = sColor.G(), Ge = eColor.G(),
+            Bs = sColor.B(), Be = eColor.B(),
+            As = sColor.A(), Ae = eColor.A(),
+
+            Rn = Re - Rs, Gn = Ge - Gs, Bn = Be - Bs, An = Ae - As,
+            range = max != min ? max - min : 1, 
+            v = value - min,
+            s = v/range,
+            
+            r = Rs + s * Rn,
+            g = Gs + s * Gn,
+            b = Bs + s * Bn,
+            a = As + s * An;
+
+        return new CLASS(r,g,b,a);
+    };
+
 
     var _makeValue = function(r,g,b,a){
         a = Class.isNumber(a) ? a : 0x00;

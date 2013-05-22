@@ -53,7 +53,7 @@ js.awt.Element = function(def, Runtime){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event,
-        System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ, Z4 = [0,0,0,0];
     
     /**
      * Return the position left of the component.<p>
@@ -202,12 +202,38 @@ js.awt.Element = function(def, Runtime){
     };
     
     thi$.getBounds = function(){
-        var M = this.def, bounds = {
-            x: this.getX(),
-            y: this.getY(),
-            width: this.getWidth(),
-            height: this.getHeight()
-        };
+        var M = this.def, style = M.style || {},
+            margin = style.margin  || Z4,
+            border = style.border  || Z4,
+            padding= style.padding || Z4,
+            bounds = {
+                x: this.getX(),
+                y: this.getY(),
+                width:  this.getWidth(),
+                height: this.getHeight(),
+                MBP:{
+                    marginTop: margin[0],
+                    marginRight: margin[1],
+                    marginBottom: margin[2],
+                    marginLeft: margin[3],
+
+                    borderTopWidth: border[0],
+                    borderRightWidth: border[1],
+                    borderBottomWidth: border[2],
+                    borderLeftWidth: border[3],
+
+                    paddingTop: padding[0],
+                    paddingRight: padding[1],
+                    paddingBottom: padding[2],
+                    paddingLeft: padding[3],
+
+                    BPW: border[3]+padding[3]+padding[1]+border[1],
+                    BPH: border[0]+padding[0]+padding[2]+border[2]
+                }
+            };
+
+        bounds.innerWidth = bounds.width - bounds.MBP.BPW;
+        bounds.innerHeight= bounds.height- bounds.MBP.BPH;
 
         return bounds;
     };
@@ -219,6 +245,57 @@ js.awt.Element = function(def, Runtime){
         M.y = Class.isNumber(y) ? y : this.getY();
         M.width = Class.isNumber(w) ? w : this.getWidth();
         M.height= Class.isNumber(h) ? h : this.getHeight();
+    };
+
+    thi$.getPreferredSize = function(nocache){
+        var d, ret = this.def.prefSize;
+        if(nocache === true || !ret){
+            d = this.getBounds();
+            this.setPreferredSize(d.width, d.height);
+            ret = this.def.prefSize;
+        }
+        return ret;
+    };
+    
+    thi$.setPreferredSize = function(w, h){
+        this.def.prefSize = {
+            width: w > 0 ? w : 0, 
+            height:h > 0 ? h : 0
+        };
+    };
+    
+    thi$.getMinimumSize = function(nocache){
+        var d, ret = this.def.miniSize;
+        if(nocache === true || !ret){
+            d = this.getBounds();
+            this.setMinimumSize(
+                this.isRigidWidth() ? d.width : d.MBP.BPW, 
+                this.isRigidHeight()? d.height: d.MBP.BPH);
+            ret = this.def.miniSize;
+        }
+        return ret;
+    };
+    
+    thi$.setMinimumSize = function(w, h){
+        this.def.miniSize = {
+            width: w, height:h
+        };
+    };
+    
+    thi$.getMaximumSize = function(nocache){
+        var d, ret = this.def.maxiSize;
+        if(nocache === true || !ret){
+            d = this.getBounds();
+            this.setMaximumSize(Number.MAX_VALUE, Number.MAX_VALUE);
+            ret = this.def.maxiSize;
+        }
+        return ret;
+    };
+    
+    thi$.setMaximumSize = function(w, h){
+        this.def.maxiSize = {
+            width: w, height:h
+        };
     };
     
     thi$.isVisible = function(){
@@ -243,6 +320,15 @@ js.awt.Element = function(def, Runtime){
 
     thi$.getAttrs = function(){
         return this.def;
+    };
+
+    thi$.getStyle = function(sp){
+        var style = this.getStyles();
+        return style[sp];
+    };
+
+    thi$.getStyles = function(sps){
+        return this.def.style || {};
     };
 
     thi$.getID = function(ele){
@@ -281,9 +367,10 @@ js.awt.Element = function(def, Runtime){
      * @param parent, the specified parent
      */
     thi$.appendTo = function(parent){
+        /*
         if(parent && parent.instanceOf(js.awt.Containable)){
             parent.appendChild(this);
-        }
+        }*/
     };
 
     /**
@@ -292,9 +379,10 @@ js.awt.Element = function(def, Runtime){
      * @param parent, the specified parent
      */
     thi$.removeFrom = function(parent){
+        /*
         if(parent && parent.instanceOf(js.awt.Containable)){
             parent.removeChild(this);
-        }
+        }*/
     };
 
     /**
@@ -303,10 +391,11 @@ js.awt.Element = function(def, Runtime){
      * @param ref, the specified node
      */
     thi$.insertBefore = function(ref){
+        /*
         var parent = ref ? ref.getContainer() : undefined;
         if(parent && parent.instanceOf(js.awt.Containable)){
             parent.insertChildBefore(this, ref);
-        }
+        }*/
     };
 
     /**
@@ -315,10 +404,11 @@ js.awt.Element = function(def, Runtime){
      * @param ref, the specified node
      */
     thi$.insertAfter = function(ref){
+        /*
         var parent = ref ? ref.getContainer() : undefined;
         if(parent && parent.instanceOf(js.awt.Containable)){
             parent.insertChildAfter(this, ref);
-        }
+        }*/
     };
 
     thi$.contains = function(ele, containSelf){
@@ -390,7 +480,7 @@ js.awt.Element = function(def, Runtime){
      */
     thi$.setAlwaysOnTop = function(b){
         b = b || false;
-        var ZM = this.container;
+        var ZM = this.getContainer();
         if(ZM) ZM.setCompAlwaysOnTop(this, b);
     };
     

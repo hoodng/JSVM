@@ -209,7 +209,7 @@ js.awt.Shape = function(def, Runtime){
         if(!Color.randomColor){
             new Color(0,0,0);
         }
-        U.colorKey = Color.randomColor("obj");
+        U.colorKey = Color.randomColor(this.uuid());
         U.colorKey.value |= (0x00FF << 24);
         U.colorKey.rgba = U.colorKey.toString("rgba");
 

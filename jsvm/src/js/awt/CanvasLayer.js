@@ -37,6 +37,8 @@
 
 $package("js.awt");
 
+$import("js.awt.GraphicLayer");
+
 /**
  * 
  */
@@ -548,9 +550,10 @@ js.awt.CanvasLayer = function(def, Runtime){
     };
 
     thi$.erase = function(){
-        var D = this.getBounds();
-        this.relContext().clearRect(D.x, D.y, D.width, D.height);
-        this.hitContext().clearRect(D.x, D.y, D.width, D.height);
+        var D = this.getSize();//this.getBounds();
+        System.err.println(D);
+        this.relContext().clearRect(0,0, D.width, D.height);
+        this.hitContext().clearRect(0,0, D.width, D.height);
     };
 
     thi$.redraw = function(n){
@@ -612,6 +615,14 @@ js.awt.CanvasLayer = function(def, Runtime){
         }
         return shape;
     }.$override(this.removeComponent);
+
+    thi$.getSize = function(){
+        var ctx = this.relCanvas;
+        return {
+            width : ctx.width,
+            height: ctx.height
+        };
+    }.$override(this.getSize);
 
     /**
      * @see js.awt.Container
