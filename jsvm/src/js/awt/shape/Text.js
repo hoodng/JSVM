@@ -37,7 +37,7 @@
 
 $package("js.awt.shape");
 
-$import("js.awt.Shape");
+$import("js.awt.GraphicShape");
 
 /**
  * 
@@ -73,25 +73,14 @@ js.awt.shape.Text = function(def, Runtime){
         };
     };
 
-    thi$.relDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawText(shape);
-            break;
-        default:
-            // TODO: for svg, vml ?
-            break;
-        };
-    };
-
-    thi$.hitDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawText(shape, true);
-            break;
-        };
+    thi$.drawFunc = function(shape, ctx, renderer, callback){
+        renderer.drawText(ctx, shape);
+        if(shape.isCapture()){
+            renderer.drawText(ctx, shape, true);
+        }
+        if(Class.isFunction(callback)){
+            callback.call(shape);
+        }
     };
 
     thi$._init = function(def, Runtime){
@@ -116,5 +105,5 @@ js.awt.shape.Text = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Shape);
+}.$extend(js.awt.GraphicShape);
 

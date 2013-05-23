@@ -222,6 +222,43 @@ js.awt.Graphics2D = function(def, Runtime, view){
         return this._local.shapes;
     };
 
+    thi$.isCapture = function(){
+        return true;
+    };
+
+    thi$.update = function(layer){
+        layer.draw();
+    }.$override(this.update);
+
+    var _onDrawEnd = function(e){
+        var layer = e.getEventTarget();
+        if(layer){
+            layer.refresh();
+        }
+    };
+
+    /**
+     * @see js.awt.Containable
+     */
+    thi$._insert = function(){
+        var ele = arguments.callee.__super__.apply(this, arguments);
+        if(ele.addObserver){
+            ele.addObserver(this);
+        }
+        return ele;
+    }.$override(this._insert);
+
+    /**
+     * @see js.awt.Containable
+     */
+    thi$.removeChild = function(){
+        var ele = arguments.callee.__super__.apply(this, arguments);
+        if(ele.deleteObserver){
+            ele.deleteObserver(this);
+        }
+        return ele;
+    }.$override(this.removeChild);
+
     /**
      * Override destroy method of js.lang.Object
      */
@@ -238,13 +275,15 @@ js.awt.Graphics2D = function(def, Runtime, view){
         def.className = def.className || "jsvm_graphic";
         def.items = def.items || [];
         if(def.items.length == 0){
-            def.items.push("layer0");
-            def.layer0 = {
-                id: "layer0",
+            var id = "__layer0__";
+            def.items.push(id);
+            def[id] = {
+                id: id,
                 classType: def.layer || "js.awt.CanvasLayer",
                 className: "jsvm_graphlayer",
                 x:0, y:0, z:0,
-                width:300, height:150
+                width:300, height:150,
+                capture: true
             }; 
         }
         
@@ -254,6 +293,8 @@ js.awt.Graphics2D = function(def, Runtime, view){
         
         var U = this._local, itemIds = this.items0();
         U.curLayer = itemIds[itemIds.length-1];
+
+        MQ.register("graphic.draw.end", this, _onDrawEnd);        
 
         // For caching shapes with shape.colorKey 
         U.shapes = {};

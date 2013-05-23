@@ -37,7 +37,7 @@
 
 $package("js.awt.shape");
 
-$import("js.awt.Shape");
+$import("js.awt.GraphicShape");
 
 /**
  *
@@ -58,33 +58,21 @@ js.awt.shape.Polygon = function(def, Runtime){
     var Class = js.lang.Class, System = J$VM.System,
         Graph = Class.forName("js.awt.Graphics2D");
 
-    thi$.getLines = function(){
+    thi$.getPoints = function(){
         var M = this.def;
         return {
-            cmds: M.cmds,
-            coords: M.coords
+            points: M.points
         };
     };
 
-    thi$.relDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawPolygon(shape);
-            break;
-        default:
-            // TODO: for svg, vml ?
-            break;
-        };
-    };
-
-    thi$.hitDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawPolygon(shape, true);
-            break;
-        };
+    thi$.drawFunc = function(shape, c, renderer, callback){
+        renderer.drawPolygon(c.getContext(), shape);
+        if(shape.isCapture()){
+            renderer.drawPolygon(c.getContext(true), shape, true);
+        }
+        if(Class.isFunction(callback)){
+            callback.call(shape);
+        }
     };
 
     thi$._init = function(def, Runtime){
@@ -104,5 +92,5 @@ js.awt.shape.Polygon = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Shape);
+}.$extend(js.awt.GraphicShape);
 

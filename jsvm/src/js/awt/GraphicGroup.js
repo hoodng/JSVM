@@ -37,14 +37,14 @@
 
 $package("js.awt");
 
-$import("js.awt.GraphicContainer");
+$import("js.awt.GraphicContainer"); 
 
 /**
  * 
  */
-js.awt.GraphicLayer = function(def, Runtime){
+js.awt.GraphicGroup = function(def, Runtime){
 
-    var CLASS = js.awt.GraphicLayer, thi$ = CLASS.prototype;
+    var CLASS = js.awt.GraphicGroup, thi$ = CLASS.prototype;
     
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -53,75 +53,69 @@ js.awt.GraphicLayer = function(def, Runtime){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ,
-        RENDERMAP = {
-            "js.awt.CanvasLayer" : "js.awt.CanvasRenderer",
-            "js.awt.SVGLayer" : "js.awt.SVGRenderer",
-            "js.awt.VMLLayer" : "js.awt.VMLRenderer"
-        };
+        System = J$VM.System, MQ = J$VM.MQ;
 
+    /**
+     * Return the GraphicLayer that this group belong to
+     */
+    thi$.getLayer = function(){
+        var p = this.getContainer();
+        while(!p.instanceOf(js.awt.GraphicLayer)){
+            p = p.getContainer();
+        }
+        return p;
+    };
+    
     /**
      * Return the Renderer of this type layer
      */
     thi$.getRenderer = function(){
-        var renderers = this._local.renderers, 
-            type = RENDERMAP[this.classType()], 
-            ret = renderers[type];
-
-        if(!ret){
-            ret = renderers[type] = new (Class.forName(type))({});
-        }
-
-        return ret;
+        return this.getLayer().getRenderer();
     };
 
     /**
      * Get context of this layer
      */
     thi$.getContext = function(){
-    };
-
-    thi$.measureText = function(text, font, ctx){
 
     };
 
     thi$.draw = function(){
-        var U = this._local, items = this.items(), i, len, g;
+        var U = this._local, items = this.items(), i, len, ele;
 
         U.dirtyCount = 0;
 
         if(this.isVisible()){
             for(i=0, len=items.length; i<len; i++){
-                g = this[items[i]];
-                if(g.hasChanged()){
-                    U.dirtyCount++;
-                    g.draw();
+                ele = this[items[i]];
+                if(ele.instanceOf(js.awt.GraphicGroup)){
+                    if(ele.hasChanged()){
+                        U.dirtyCount++;
+                        ele.draw();
+                    }
+                }else{
+                    // Shape
+                    U.dirtyCount++;                    
+                    ele.draw.$delay(ele, 0);
                 }
             }
         }
-
-        arguments.callee.__super__.apply(this, arguments);
-
-    }.$override(this.draw);
-
-    thi$.refresh = function(){
-    };
-
-    thi$._init = function(def, Runtime){
-		if(def == undefined) return;
-
-        def.classType = def.classType || "js.awt.GraphicLayer";
         
         arguments.callee.__super__.apply(this, arguments);
+        
+    }.$override(this.draw);
 
-        this._local.renderers = {};
+    thi$._init = function(def, Runtime){
+        if(def == undefined) return;
+
+        def.classType = def.classType || "js.awt.GraphicGroup";
+        
+        arguments.callee.__super__.apply(this, arguments);
         
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.GraphicContainer);
-
-
 
 

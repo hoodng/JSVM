@@ -75,9 +75,8 @@ js.awt.Containable = function(){
             index = M.items.length, 
             index0 = U.items.length;
 
-        _insert.call(this, M, U, index, index0, id, ele, null);
+        return this._insert(M, U, index, index0, id, ele, null);
 
-        return ele;
     };
 
     thi$.insertChildBefore = function(ele, ref){
@@ -93,9 +92,8 @@ js.awt.Containable = function(){
         index = index > 0 ? index  : 0;
         index0= index0> 0 ? index0 : 0;
 
-        _insert.call(this, M, U, index, index0, id, ele, ref);
-        
-        return ele;
+        return this._insert(M, U, index, index0, id, ele, ref);
+
     };
 
     thi$.insertChildAfter = function(ele, ref){
@@ -105,21 +103,20 @@ js.awt.Containable = function(){
             id = ele.id, rid = this.getID(ref),
             index = M.items.indexOf(rid),
             index0= U.items.indexOf(rid);
-        
+
         ref = this[rid];
         if(ref && ref.isAlwaysOnTop() && index === M.items.length-1){
             throw "Reference child ["+rid+"] is always on top";
         }
         
-        index = index > 0 ? (index + 1) : 0;
-        index0= index0> 0 ? (index0+ 1) : 0;
+        index = index > 0 ? (index + 1) : M.items.length;
+        index0= index0> 0 ? (index0+ 1) : U.items.length;
 
-        _insert.call(this, M, U, index, index0, id, ele, ref);
-        
-        return ele;
+        return this._insert(M, U, index, index0, id, ele, ref);
+
     };
 
-    var _insert = function(M, U, index, index0, id, ele, ref){
+    thi$._insert = function(M, U, index, index0, id, ele, ref){
         M.items.add(index, id);
         M[id] = ele.def;
         
@@ -127,7 +124,7 @@ js.awt.Containable = function(){
         this[id] = ele;
 
         ele.setContainer(this);
-        
+
         if(Class.isHtmlElement(ele.view)){
             if(ref && ref.view){
                 ele.insertBefore(ref.view, this.view);
@@ -135,6 +132,8 @@ js.awt.Containable = function(){
                 ele.appendTo(this.view);
             }
         }
+
+        return ele;
     };
 
     thi$.removeChild = function(ele){
@@ -177,8 +176,7 @@ js.awt.Containable = function(){
                 ret.push(ele);
             }
         }
-
-        return ele;
+        return ret;
     };
 
     thi$.getElementsCount = function(){

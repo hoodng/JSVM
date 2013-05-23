@@ -37,7 +37,7 @@
 
 $package("js.awt.shape");
 
-$import("js.awt.Shape");
+$import("js.awt.GraphicShape");
 
 /**
  * {x0, y0, x1, y1}
@@ -64,25 +64,14 @@ js.awt.shape.Line = function(def, Runtime){
         };
     };
 
-    thi$.relDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawLine(shape);
-            break;
-        default:
-            // TODO: for svg, vml ?
-            break;
-        };
-    };
-
-    thi$.hitDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawLine(shape, true);
-            break;
-        };
+    thi$.drawFunc = function(shape, c, renderer, callback){
+        renderer.drawLine(c.getContext(), shape);
+        if(shape.isCapture()){
+            renderer.drawLine(c.getContext(true), shape, true);
+        }
+        if(Class.isFunction(callback)){
+            callback.call(shape);
+        }
     };
 
     thi$.isFill = function(){
@@ -112,5 +101,5 @@ js.awt.shape.Line = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Shape);
+}.$extend(js.awt.GraphicShape);
 

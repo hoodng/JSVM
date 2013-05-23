@@ -90,7 +90,7 @@ js.awt.Container = function (def, Runtime, view){
 			ref = this.getElementById(items[index]);
 		}
 
-        this.insertChildBefore(comp, ref);
+        this.insertChildAfter(comp, ref);
 
 		this._addComp(comp, constraints);		  
 		this.zOrderAdjust();

@@ -37,7 +37,7 @@
 
 $package("js.awt.shape");
 
-$import("js.awt.Shape");
+$import("js.awt.GraphicShape");
 
 /**
  * def:{
@@ -80,25 +80,14 @@ js.awt.shape.Arc = function(def, Runtime){
         };
     };
 
-    thi$.relDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawArc(shape);
-            break;
-        default:
-            // TODO: for svg, vml ?
-            break;
-        };
-    };
-
-    thi$.hitDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawArc(shape, true);
-            break;
-        };
+    thi$.drawFunc = function(shape, c, renderer, callback){
+        renderer.drawArc(c.getContext(), shape);
+        if(shape.isCapture()){
+            renderer.drawArc(c.getContext(true), shape, true);
+        }
+        if(Class.isFunction(callback)){
+            callback.call(shape);
+        }
     };
 
     thi$.isFill = function(){
@@ -123,5 +112,5 @@ js.awt.shape.Arc = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Shape);
+}.$extend(js.awt.GraphicShape);
 

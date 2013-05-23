@@ -37,7 +37,7 @@
 
 $package("js.awt.shape");
 
-$import("js.awt.Shape");
+$import("js.awt.GraphicShape");
 
 /**
  * def:{
@@ -69,25 +69,14 @@ js.awt.shape.Ellipse = function(def, Runtime){
         };
     };
 
-    thi$.relDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawEllipse(shape);
-            break;
-        default:
-            // TODO: for svg, vml ?
-            break;
-        };
-    };
-
-    thi$.hitDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawEllipse(shape, true);
-            break;
-        };
+    thi$.drawFunc = function(shape, c, renderer, callback){
+        renderer.drawEllipse(c.getContext(), shape);
+        if(shape.isCapture()){
+            renderer.drawEllipse(c.getContext(true), shape, true);
+        }
+        if(Class.isFunction(callback)){
+            callback.call(shape);
+        }
     };
 
     thi$._init = function(def, Runtime){
@@ -107,5 +96,5 @@ js.awt.shape.Ellipse = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Shape);
+}.$extend(js.awt.GraphicShape);
 

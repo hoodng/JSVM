@@ -47,16 +47,13 @@ js.util.Observable = function (){
     CLASS.__defined__ = true;
 
     thi$.addObserver = function(observer){
-        if(!(observer.instanceOf(js.util.Observer))) return;
-        
-        if(!this._obs.contains(observer)){
+        if(observer && observer.update && 
+           !this._obs.contains(observer)){
             this._obs.addLast(observer);
         }
     };
     
     thi$.deleteObserver = function(observer){
-        if(!(observer.instanceOf(js.util.Observer)) ) return;
-        
         this._obs.remove(observer);
     };
     

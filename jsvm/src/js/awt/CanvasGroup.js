@@ -37,14 +37,14 @@
 
 $package("js.awt");
 
-$import("js.awt.GraphicContainer");
+$import("js.awt.GraphicGroup"); 
 
 /**
  * 
  */
-js.awt.GraphicLayer = function(def, Runtime){
+js.awt.CanvasGroup = function(def, Runtime){
 
-    var CLASS = js.awt.GraphicLayer, thi$ = CLASS.prototype;
+    var CLASS = js.awt.CanvasGroup, thi$ = CLASS.prototype;
     
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -53,75 +53,66 @@ js.awt.GraphicLayer = function(def, Runtime){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ,
-        RENDERMAP = {
-            "js.awt.CanvasLayer" : "js.awt.CanvasRenderer",
-            "js.awt.SVGLayer" : "js.awt.SVGRenderer",
-            "js.awt.VMLLayer" : "js.awt.VMLRenderer"
-        };
-
-    /**
-     * Return the Renderer of this type layer
-     */
-    thi$.getRenderer = function(){
-        var renderers = this._local.renderers, 
-            type = RENDERMAP[this.classType()], 
-            ret = renderers[type];
-
-        if(!ret){
-            ret = renderers[type] = new (Class.forName(type))({});
-        }
-
-        return ret;
+        System = J$VM.System, MQ = J$VM.MQ;
+    
+    thi$.getCanvas = function(){
+        return this.canvas;
     };
 
     /**
-     * Get context of this layer
+     * Get context of this group
      */
-    thi$.getContext = function(){
+    thi$.getContext = function(hit){
+        var layer = this.getLayer();
+        return hit ? layer.getContext(true) : this._local.context;
     };
 
-    thi$.measureText = function(text, font, ctx){
+    thi$.getImageData = function(sx, sy, sw, sh){
+        sx = sx || 0;
+        sy = sy || 0;
+        sw = sw || this.canvas.width;
+        sh = sh || this.canvas.height;
 
+        return this.getContext().getImageData(sx, sy, sw, sh);
     };
 
-    thi$.draw = function(){
-        var U = this._local, items = this.items(), i, len, g;
+    thi$.setSize = function(w, h){
+        arguments.callee.__super__.apply(this, arguments);
 
-        U.dirtyCount = 0;
+        this.canvas.width = w;
+        this.canvas.height= h;
 
-        if(this.isVisible()){
-            for(i=0, len=items.length; i<len; i++){
-                g = this[items[i]];
-                if(g.hasChanged()){
-                    U.dirtyCount++;
-                    g.draw();
-                }
+        var items = this.items(), i, len, g;
+        for(i=0, len=items.length; i<len; i++){
+            g = this[items[i]];
+            if(g.instanceOf(js.awt.CanvasGroup)){
+                g.setSize(w, h);
             }
         }
 
+    }.$override(this.setSize);
+
+    thi$.destroy = function(){
+        delete this.canvas;
+        delete this._local.context;
+
         arguments.callee.__super__.apply(this, arguments);
 
-    }.$override(this.draw);
-
-    thi$.refresh = function(){
-    };
+    }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
-		if(def == undefined) return;
+        if(def == undefined) return;
 
-        def.classType = def.classType || "js.awt.GraphicLayer";
+        def.classType = def.classType || "js.awt.CanvasGroup";
         
         arguments.callee.__super__.apply(this, arguments);
 
-        this._local.renderers = {};
+        this.canvas = DOM.createElement("CANVAS");
+        this._local.context = this.canvas.getContext("2d");
         
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.GraphicContainer);
-
-
-
+}.$extend(js.awt.GraphicGroup);
 

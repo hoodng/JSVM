@@ -405,7 +405,7 @@ js.awt.CanvasRenderer = function(config){
     };
 
     thi$.drawPolygon = function(ctx, shape, hit){
-        var G = ctx, D = shape.getLines(), 
+        var G = ctx, D = shape.getPoints(), 
             points = D.points, p, x, y, i, len;
         
         _beforeDraw.call(this, G, shape, hit);
@@ -435,7 +435,7 @@ js.awt.CanvasRenderer = function(config){
     };
 
     thi$.drawPolyline = function(ctx, shape, hit){
-        var G = ctx, D = shape.getLines(), 
+        var G = ctx, D = shape.getPoints(), 
             points = D.points, p, x, y, i, len;
         
         _beforeDraw.call(this, G, shape, hit);

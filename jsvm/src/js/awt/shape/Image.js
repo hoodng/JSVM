@@ -37,7 +37,7 @@
 
 $package("js.awt.shape");
 
-$import("js.awt.Shape");
+$import("js.awt.GraphicShape");
 
 /**
  * 
@@ -57,7 +57,46 @@ js.awt.shape.Image = function(def, Runtime){
     
     var images = {}; // For cacheing image
 
-    thi$.getImage = function(callback){
+    thi$.getImage = function(){
+        var M = this.def, U = this._local, 
+            u = this.getAttr("angleUnit") || Graph.RAD,
+            e = M.rotate, image = U.image, ret;
+
+        e = Class.isNumber(e) ? Graph.deg2rad(e, u) : 0;
+        
+        ret = {
+            image: image,
+            sx: Class.isNumber(M.sx) ? M.sx : 0,
+            sy: Class.isNumber(M.sy) ? M.sy : 0,
+            sw: Class.isNumber(M.sw) ? M.sw : image.width,
+            sh: Class.isNumber(M.sh) ? M.sh : image.height,
+
+            dx: Class.isNumber(M.x) ? M.x : 0,
+            dy: Class.isNumber(M.y) ? M.y : 0,
+            dw: Class.isNumber(M.width) ? M.width : image.width,
+            dh: Class.isNumber(M.height) ? M.height : image.height,
+
+            rotate: e
+        };
+    };
+
+    thi$.drawFunc = function(shape, c, renderer, callback){
+        _loadImage.call(
+            this, 
+            _drawFunc.$bind(this, shape, c, renderer, callback));
+    };
+
+    var _drawFunc = function(shape, c, renderer, callback){
+        renderer.drawImage(c.getContext(), shape);
+        if(shape.isCapture()){
+            renderer.drawImage(c.getContext(true), shape, true);
+        }
+        if(Class.isFunction(callback)){
+            callback.call(shape);
+        }
+    };
+
+    var _loadImage = function(callback){
         var M = this.def, imgId = M.image, image = imgId, host = this;
 
         if(Class.isString(imgId)){
@@ -98,61 +137,9 @@ js.awt.shape.Image = function(def, Runtime){
             images[imgId] = image;
         }
 
-        var M = this.def, u = this.getAttr("angleUnit") || Graph.RAD,
-            e = M.rotate, ret;
+        this._local.image = image;
 
-        e = Class.isNumber(e) ? Graph.deg2rad(e, u) : 0;
-        ret = {
-            image: image,
-            sx: Class.isNumber(M.sx) ? M.sx : 0,
-            sy: Class.isNumber(M.sy) ? M.sy : 0,
-            sw: Class.isNumber(M.sw) ? M.sw : image.width,
-            sh: Class.isNumber(M.sh) ? M.sh : image.height,
-
-            dx: Class.isNumber(M.x) ? M.x : 0,
-            dy: Class.isNumber(M.y) ? M.y : 0,
-            dw: Class.isNumber(M.width) ? M.width : image.width,
-            dh: Class.isNumber(M.height) ? M.height : image.height,
-
-            rotate: e
-        };
-
-        if(loaded){
-            ret.loaded = true;
-        }
-
-        callback(ret);
-    };
-
-    thi$.relDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            layer.drawImage.$delay(layer, 1, shape, false, _checkHit.$bind(this));
-            break;
-        default:
-            // TODO: for svg, vml ?
-            break;
-        };
-    };
-
-    var _checkHit = function(data, shape){
-        if(data.loaded){
-            this._local.image = data.image;
-        }
-
-        if(this._local.drawHit){
-            shape.getLayer().drawImage(shape, true);
-        }
-    };
-
-    thi$.hitDraw = function(shape){
-        var layer = shape.getLayer();
-        switch(layer.classType()){
-        case "js.awt.CanvasLayer":
-            this._local.drawHit = true;
-            break;
-        };
+        callback();
     };
 
     thi$._init = function(def, Runtime){
@@ -165,5 +152,5 @@ js.awt.shape.Image = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Shape);
+}.$extend(js.awt.GraphicShape);
 
