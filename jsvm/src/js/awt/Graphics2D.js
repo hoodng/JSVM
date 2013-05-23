@@ -69,14 +69,14 @@ js.awt.Graphics2D = function(def, Runtime, view){
     CLASS.DEG = "deg";
 
     /**
-     * @param vs: [[x, y],[x1, y1]....]
+     * @param vs: [[op, x, y],[op, x1, y1]....]
      */
     CLASS.vertices2Rect = function(vs){
         var i, len, p, x = [], y =[], mx, my, r = {};
         for(i=0, len=vs.length; i<len; i++){
             p = vs[i];
-            x.push(p[0]);
-            y.push(p[1]);
+            x.push(p[1]);
+            y.push(p[2]);
         }
 
         mx = Math.max.apply(Math, x);
@@ -305,3 +305,13 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
 }.$extend(js.awt.Container);
 
+
+js.awt.Graphics2D.Events = {
+    "GM_EVENTS" : "gm.events",
+
+    "GM_SHAPE_CHANGED" : "gm.shape.changed",
+    "GM_SHAPE_DRAWEND" : "gm.shape.drawend",
+
+    "GM_GROUP_CHANGED" : "gm.group.changed",
+    "GM_GROUP_DRAWEND" : "gm.group.drawend"
+};

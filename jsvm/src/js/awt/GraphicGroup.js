@@ -80,6 +80,19 @@ js.awt.GraphicGroup = function(def, Runtime){
 
     };
 
+    thi$.absXY = function(){
+        var x = this.getX(), y = this.getY(), 
+            p = this.getContainer();
+
+        while(!p.instanceOf(js.awt.GraphicLayer)){
+            x += p.getX();
+            y += p.getY();
+            p = p.getContainer();
+        }
+
+        return {x: x, y: y};
+    };
+
     thi$.draw = function(){
         var U = this._local, items = this.items(), i, len, ele;
 

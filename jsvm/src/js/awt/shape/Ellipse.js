@@ -75,7 +75,7 @@ js.awt.shape.Ellipse = function(def, Runtime){
             renderer.drawEllipse(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 

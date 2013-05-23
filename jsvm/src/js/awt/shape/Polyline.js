@@ -71,7 +71,7 @@ js.awt.shape.Polyline = function(def, Runtime){
             renderer.drawPolyline(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 
@@ -84,7 +84,7 @@ js.awt.shape.Polyline = function(def, Runtime){
 
         def.classType = def.classType || "js.awt.shape.Polyline";
 
-        var r = Graph.vertices2Rect(def.coords);
+        var r = Graph.vertices2Rect(def.points);
         def.x = r.x;
         def.y = r.y;
         def.width = r.width;

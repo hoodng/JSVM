@@ -71,7 +71,7 @@ js.awt.shape.Polygon = function(def, Runtime){
             renderer.drawPolygon(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 
@@ -80,7 +80,7 @@ js.awt.shape.Polygon = function(def, Runtime){
 
         def.classType = def.classType || "js.awt.shape.Polygon";
 
-        var r = Graph.vertices2Rect(def.coords);
+        var r = Graph.vertices2Rect(def.points);
         def.x = r.x;
         def.y = r.y;
         def.width = r.width;

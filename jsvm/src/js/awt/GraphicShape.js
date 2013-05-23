@@ -53,6 +53,7 @@ js.awt.GraphicShape = function(def, Runtime){
     var Class = js.lang.Class, System = J$VM.System, 
         Color = Class.forName("js.awt.Color"),
         Matrix= Class.forName("js.math.Matrix"),
+        G = Class.forName("js.awt.Graphics2D"),
         TRANSFORM = {m11:1, m12:0, m21:0, m22:1, dx:0, dy:0},
         sin = Math.sin, cos = Math.cos;
 
@@ -83,21 +84,16 @@ js.awt.GraphicShape = function(def, Runtime){
         this.drawFunc = func;
     };
 
-    thi$.draw = function(){
-        if(this.isVisible && Class.isFunction(this.drawFunc)){
+    thi$.draw = function(onDrawEnd){
+        if(this.isVisible() && 
+           Class.isFunction(this.drawFunc)){
             this.drawFunc(this, 
                           this.getContainer(), 
                           this.getRenderer(), 
-                          _onDrawEnd);
+                          onDrawEnd);
         }else{
-            _onDrawEnd.call(this);
+            onDrawEnd();
         }
-    };
-
-    var _onDrawEnd = function(){
-        this.notifyContainer(
-            "graphic.draw.end", 
-            new Event("shape.draw", {}, this));
     };
 
     thi$.isFill = function(){
@@ -116,8 +112,7 @@ js.awt.GraphicShape = function(def, Runtime){
     thi$.setAttr = function(key, value){
         arguments.callee.__super__.apply(this, arguments);
 
-        this.setChanged();
-        this.notifyObservers();
+        this.getContainer().setDirty(true);
 
     }.$override(this.setAttr);
 
@@ -179,9 +174,8 @@ js.awt.GraphicShape = function(def, Runtime){
         T0.Aij(2,0,dx);
         T0.Aij(2,1,dy);
         T0.Aij(2,2,1);
-
-        this.setChanged();
-        this.notifyObservers();
+        
+        this.getContainer().setDirty(true);
     };
 
     thi$.getTransform = function(){

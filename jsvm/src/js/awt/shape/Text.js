@@ -73,13 +73,13 @@ js.awt.shape.Text = function(def, Runtime){
         };
     };
 
-    thi$.drawFunc = function(shape, ctx, renderer, callback){
-        renderer.drawText(ctx, shape);
+    thi$.drawFunc = function(shape, c, renderer, callback){
+        renderer.drawText(c.getContext(), shape);
         if(shape.isCapture()){
-            renderer.drawText(ctx, shape, true);
+            renderer.drawText(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 

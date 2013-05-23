@@ -6,11 +6,15 @@
     <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js"></script>
     <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
 
-    <script type="text/javascript" src="../../jsvm/src/js/awt/Shape.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/shape/Image.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/shape/Rect.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicGroup.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicLayer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGroup.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasLayer.js"></script>
+
     <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
 
     <script type="text/javascript">
@@ -32,34 +36,35 @@
             this.addComponent(G);
 
             G.drawRect({x:10, y:10, width:200, height:150, strokeStyle:"#0000ff", 
-                        fillStroke:1, listenin:true});
+                        fillStroke:1, capture:true});
 
             G.drawArc({cx:100, cy:100, radius:50, startAngle: 30, endAngle: 180, 
                        fillStroke: 1, close: "center" ,
-                       strokeStyle: "#00FF00", fillStyle: "#FF0000", listenin:true});
+                       strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true});
 
-            var circle = G.drawCircle({cx:200, cy:20, radius:10, fillStroke:3,strokeStyle: "#00FF00", fillStyle: "#FF0000", listenin:true});
+            var circle = G.drawCircle({cx:200, cy:20, radius:10, fillStroke:3,strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true});
 
-            var E0 = G.drawEllipse({cx:200, cy:200, ra: 60, rb: 30, listenin:true});
-            var E1 = G.drawEllipse({cx:200, cy:200, ra: 30, rb: 60, listenin:true});
+            var E0 = G.drawEllipse({cx:200, cy:200, ra: 60, rb: 30, capture:true});
+            var E1 = G.drawEllipse({cx:200, cy:200, ra: 30, rb: 60, capture:true});
 
-            G.drawLine({x0:200, y0:0, x1:200, y1:400, strokeStyle:"#0000ff", hitLineWidth: 3, listenin:true});
-            G.drawLine({x0:0, y0:200, x1:400, y1:200, strokeStyle:"#00ff00", listenin:true});
+            G.drawLine({x0:200, y0:0, x1:200, y1:400, strokeStyle:"#0000ff", hitLineWidth: 3, capture:true});
+            G.drawLine({x0:0, y0:200, x1:400, y1:200, strokeStyle:"#00ff00", capture:true});
 
-            G.drawPolyline({cmds:[0,1,1], coords:[[10, 300],[200, 250],[350, 350]], listenin:true, hitLineWidth:3});
+            G.drawPolyline({points:[[0, 10, 300],[1, 200, 250],[1, 350, 350]], capture:true, hitLineWidth:3});
 
-            var polygon = G.drawPolygon({cmds:[0, 1, 1, 3, 1], coords:[[40,320],[80, 250],[160, 320],[160, 360, 120, 360, 40],[80, 360]], fillStroke:3, strokeStyle:"red", fillStyle: "rgb(123,34,156)", fillOpacity:0.5, lineWidth:4, listenin:true});
+            var polygon = G.drawPolygon({points:[[0, 40,320],[1, 80, 250],[1, 160, 320],[3, 160, 360, 120, 360, 40],[1, 80, 360]], fillStroke:3, strokeStyle:"red", fillStyle: "rgb(123,34,156)", fillOpacity:0.5, lineWidth:4, capture:true});
 
-              G.drawText({text: "Hello world 中文 1234567890", x:0, y:0, width:100, height:40, fontSize:16, fontWeight: "bolder",  rotate: 315, align_y:0.5, align_x:0.0, listenin:true});
+              G.drawText({text: "Hello world 中文 1234567890", x:0, y:0, width:100, height:40, fontSize:16, fontWeight: "bolder",  rotate: 315, align_y:0.5, align_x:0.0, capture:true});
 
-              G.drawImage({image:"test.png", x:300, y:0, width:48, height:48, rotate:0, listenin:true});            
+              G.drawImage({image:"test.png", x:300, y:0, width:48, height:48, rotate:0, capture:true});            
 
             G.drawText({text: "for Row", x:380, y:50, width: 20, height:50, rotate: 90});
             G.drawImage({image:"test.png", x:380, y:100, width: 20, height:20, rotate: 90});
             G.drawText({text: "Drop", fontSize: 26, x:380, y:120, width: 20, height:40, rotate: 90});
 
             this.doLayout(true);
-                                
+            
+            /*
             var count = 0;
             (function(){
                 polygon.translate(1.5, -1.5);
@@ -72,7 +77,7 @@
                   arguments.callee.$delay(this, 10);
                 }
             })();
-                    
+            */      
         });
     </script>
 </head>

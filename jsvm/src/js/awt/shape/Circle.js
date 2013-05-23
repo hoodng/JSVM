@@ -73,7 +73,7 @@ js.awt.shape.Circle = function(def, Runtime){
             renderer.drawCircle(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 

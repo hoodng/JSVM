@@ -197,6 +197,11 @@ js.awt.Containable = function(){
         return this._local.items;
     };
 
+    thi$.indexOf = function(ele){
+        var id = this.getID(ele);
+        return this.items().indexOf(id);
+    };
+
     /**
      * Remove all elements in this container
      * 

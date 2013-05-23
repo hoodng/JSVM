@@ -57,7 +57,7 @@ js.awt.GraphicContainer = function(def, Runtime){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ, G = Class.forName("js.awt.Graphics2D");
 
     /**
      * Return the Grahpics2D container that this group belong to
@@ -70,35 +70,97 @@ js.awt.GraphicContainer = function(def, Runtime){
         return p;
     };
 
+    /**
+     * Return the GraphicLayer that this group belong to
+     */
+    thi$.getLayer = function(){
+        var p = this;
+        while(!p.instanceOf(js.awt.GraphicLayer)){
+            p = p.getContainer();
+        }
+        return p;
+    };
+
+    /**
+     * Return the Renderer of this type layer
+     */
+    thi$.getRenderer = function(){
+        return this.getLayer().getRenderer();
+    };
+
+    /**
+     * Get context of this layer
+     */
+    thi$.getContext = function(){
+
+    };
+
+    /**
+     * Whether capture events
+     */
     thi$.isCapture = function(){
         var cap = this.def.capture || false;
         return cap & this.getContainer().isCapture();
     };
 
-    /**
-     * @see js.util.Observer
-     */
-    thi$.update = function(observable, data){
-        this.setChanged();
-        this.notifyObservers(this);
-    }.$override(this.update);
+    thi$.absXY = function(){
+        var p = this, x = p.getX(), y = p.getY();
+
+        while(!p.instanceOf(js.awt.GraphicLayer)){
+            p = p.getContainer();
+            x += p.getX();
+            y += p.getY();
+        }
+
+        return {x: x, y: y};
+    };
+
+    thi$.erase = function(){
+    };
+
+    thi$.draw = function(onDrawEnd){
+        var U = this._local, items = this.items(), i, len, ele;
+        
+        U.dirtyCount = 0;
+
+        if(this.isVisible() && this.isDirty()){
+            this.erase();
+
+            for(i=0, len=items.length; i<len; i++){
+                ele = this[items[i]];
+                if(ele.instanceOf(CLASS) && ele.isDirty()){
+                    U.dirtyCount++;
+                    ele.draw.$delay(ele, 0);
+                }
+            }
+        }
+    };
+
+    thi$.isDirty = function(){
+        return this._local.dirty === true;
+    };
+
+    thi$.setDirty = function(dirty){
+        this._local.dirty = dirty || false;
+        
+        if(this.isDirty()){
+            this.getContainer()
+        }
+    };
 
     /**
      * @see js.awt.Containable
      */
     thi$._insert = function(){
         var ele = arguments.callee.__super__.apply(this, arguments);
-        if(ele.addObserver){
-            ele.addObserver(this);
-        }
-        
+
         if(ele.instanceOf(js.awt.GraphicShape)){
-            var cache = this.getGraphic().cachedShapes();
+            var cache = this.getLayer().cachedShapes();
             cache[ele.colorKey().rgba] = ele;
         }
-
-        this.update();
         
+        this.setDirty(true);
+
         return ele;
 
     }.$override(this._insert);
@@ -108,17 +170,14 @@ js.awt.GraphicContainer = function(def, Runtime){
      */
     thi$.removeChild = function(){
         var ele = arguments.callee.__super__.apply(this, arguments);
-        if(ele.deleteObserver){
-            ele.deleteObserver(this);
-        }
 
         if(ele.instanceOf(js.awt.GraphicShape)){
-            var cache = this.getGraphic().cachedShapes();
+            var cache = this.getLayer().cachedShapes();
             delete cache[ele.colorKey().rgba];
         }
 
-        this.update();
-        
+        this.setDirty(true);
+
         return ele;
 
     }.$override(this.removeChild);
@@ -128,7 +187,7 @@ js.awt.GraphicContainer = function(def, Runtime){
      */
     thi$.removeAll = function(){
         var items = this.items(), i, len, ele, 
-            cache = this.getGraphic().cachedShapes();
+            cache = this.getLayer().cachedShapes();
         
         for(i=0, len=items.length; i<len; i++){
             ele = this[items[i]];
@@ -139,13 +198,15 @@ js.awt.GraphicContainer = function(def, Runtime){
 
         arguments.callee.__super__.apply(this, arguments);
 
-        this.update();
+        this.setDirty(true);
 
     }.$override(this.removeAll);
 
     thi$.setAttr = function(key, value){
         arguments.callee.__super__.apply(this, arguments);
-        this.update();
+        
+        this.setDirty(true);
+
     }.$override(this.setAttr);
 
     thi$.getAttr = function(key){
@@ -158,26 +219,7 @@ js.awt.GraphicContainer = function(def, Runtime){
     }.$override(this.getAttr);
 
     thi$.repaint = function(){
-    };
 
-    thi$.draw = function(){
-        _checkDrawEnd.call(this);
-    };
-
-    var _onDrawEnd = function(e){
-        var U = this._local;
-
-        U.dirtyCount--;
-        
-        _checkDrawEnd.call(this);
-    };
-
-    var _checkDrawEnd = function(){
-        if(this._local.dirtyCount === 0){
-            this.notifyContainer(
-                "graphic.draw.end", 
-                new Event("group.draw", {}, this));
-        }
     };
 
     thi$._init = function(def, Runtime){
@@ -185,16 +227,16 @@ js.awt.GraphicContainer = function(def, Runtime){
 
         def.classType = def.classType || "js.awt.GraphicContainer";
         
-        var zorder = def.zorder;
-        def.zorder = Class.isBoolean(zorder) ? zorder : true;
+        var tmp = def.zorder;
+        def.zorder = Class.isBoolean(tmp) ? tmp : true;
+
+        tmp = def.visible;
+        def.visible = Class.isBoolean(tmp) ? tmp : true;
 
         arguments.callee.__super__.apply(this, arguments);
 
         this.def.items = [];
         this._local.items = [];
-        
-        MQ.register("graphic.draw.end", this, _onDrawEnd);
-        
         
     }.$override(this._init);
 

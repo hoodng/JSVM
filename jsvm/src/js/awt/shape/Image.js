@@ -92,7 +92,7 @@ js.awt.shape.Image = function(def, Runtime){
             renderer.drawImage(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 

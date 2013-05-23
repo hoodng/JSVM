@@ -111,7 +111,7 @@ js.awt.GraphicLayer = function(def, Runtime){
 		if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.GraphicLayer";
-        
+
         arguments.callee.__super__.apply(this, arguments);
 
         this._local.renderers = {};

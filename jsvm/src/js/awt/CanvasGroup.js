@@ -55,32 +55,51 @@ js.awt.CanvasGroup = function(def, Runtime){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
         System = J$VM.System, MQ = J$VM.MQ;
     
-    thi$.getCanvas = function(){
-        return this.canvas;
+    thi$.getCanvas = function(hit){
+        return hit ? this.hitCanvas : this.bufCanvas;
     };
 
     /**
      * Get context of this group
      */
     thi$.getContext = function(hit){
-        var layer = this.getLayer();
-        return hit ? layer.getContext(true) : this._local.context;
+        return hit ? this._local.hitContext : this._local.bufContext;
     };
 
-    thi$.getImageData = function(sx, sy, sw, sh){
-        sx = sx || 0;
-        sy = sy || 0;
-        sw = sw || this.canvas.width;
-        sh = sh || this.canvas.height;
+    /**
+     * Write image data to result layer
+     */
+    thi$.writeImage = function(layer){
+        var ctx, abs = this.absXY(), hit = false;
+            
+        // Write buf image to result layer
+        ctx= layer.getContext(hit);
+        ctx.putImageData(this.getImageData(hit), abs.x, abs.y);
+        
+        // Write hit image to hit layer
+        hit =true;
+        ctx= layer.getContext(hit);
+        ctx.putImageData(this.getImageData(hit), abs.x, abs.y);
 
-        return this.getContext().getImageData(sx, sy, sw, sh);
+        var items = this.items(), i, len, ele;
+        for(i=0, len=items.length; i<len; i++){
+            ele = this[items[i]];
+            if(ele.instanceOf(js.awt.CanvasGroup)){
+                ele.writeImage(layer);
+            }
+        }
+    };
+
+    thi$.getImageData = function(hit){
+        var ctx = hit ? this.getContext(hit) : this.getContext();
+        return ctx.getImageData(0,0, this.getWidth(), this.getHeight());
     };
 
     thi$.setSize = function(w, h){
         arguments.callee.__super__.apply(this, arguments);
 
-        this.canvas.width = w;
-        this.canvas.height= h;
+        _setCanvasSize.call(this, this.getCanvas(), w, h);
+        _setCanvasSize.call(this, this.getCanvas(true), w, h);
 
         var items = this.items(), i, len, g;
         for(i=0, len=items.length; i<len; i++){
@@ -92,9 +111,18 @@ js.awt.CanvasGroup = function(def, Runtime){
 
     }.$override(this.setSize);
 
+    var _setCanvasSize = function(canvas, w, h){
+        canvas.width = w;
+        canvas.height= h;
+    };
+
     thi$.destroy = function(){
-        delete this.canvas;
-        delete this._local.context;
+        delete this.bufCanvas;
+        delete this.hitCanvas;
+
+        var U = this._local;
+        delete U.bufContext;
+        delete U.hitContext;
 
         arguments.callee.__super__.apply(this, arguments);
 
@@ -107,9 +135,13 @@ js.awt.CanvasGroup = function(def, Runtime){
         
         arguments.callee.__super__.apply(this, arguments);
 
-        this.canvas = DOM.createElement("CANVAS");
-        this._local.context = this.canvas.getContext("2d");
+        this.bufCanvas = DOM.createElement("CANVAS");
+        this.hitCanvas = DOM.createElement("CANVAS");
         
+        var U = this._local;
+        U.bufContext = this.bufCanvas.getContext("2d");
+        U.hitContext = this.hitCanvas.getContext("2d");
+ 
     }.$override(this._init);
 
     this._init.apply(this, arguments);

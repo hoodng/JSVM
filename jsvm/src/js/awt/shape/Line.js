@@ -70,7 +70,7 @@ js.awt.shape.Line = function(def, Runtime){
             renderer.drawLine(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 

@@ -86,7 +86,7 @@ js.awt.shape.Arc = function(def, Runtime){
             renderer.drawArc(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 

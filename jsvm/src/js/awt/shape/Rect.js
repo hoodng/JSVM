@@ -70,7 +70,7 @@ js.awt.shape.Rect = function(def, Runtime){
             renderer.drawRect(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){
-            callback.call(shape);
+            callback(shape);
         }
     };
 
