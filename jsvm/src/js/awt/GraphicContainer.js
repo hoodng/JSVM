@@ -37,7 +37,8 @@
 
 $package("js.awt");
 
-$import("js.awt.Containable"); 
+$import("js.awt.Containable");
+$import("js.awt.Drawable");
 $import("js.awt.Element"); 
 $import("js.util.Observer");
 $import("js.awt.GraphicShape");
@@ -56,8 +57,9 @@ js.awt.GraphicContainer = function(def, Runtime){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ, G = Class.forName("js.awt.Graphics2D");
+    var Class = js.lang.Class, Event = js.util.Event,
+        System = J$VM.System, MQ = J$VM.MQ,
+        G = Class.forName("js.awt.Graphics2D");
 
     /**
      * Return the Grahpics2D container that this group belong to
@@ -70,13 +72,14 @@ js.awt.GraphicContainer = function(def, Runtime){
         return p;
     };
 
-    /**
-     * Whether capture events
-     */
-    thi$.canCapture = function(){
-        var cap = this.def.capture || false;
-        return cap && this.getContainer().canCapture();
-    };
+    thi$.setAttr = function(key, value){
+        arguments.callee.__super__.apply(this, arguments);
+
+        this.setDirty(true);
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_GROUP_ATTRS_CHANGED, {}, this));
+
+    }.$override(this.setAttr);
 
     thi$.getAttr = function(key){
         var v = arguments.callee.__super__.apply(this, arguments), p;
@@ -92,6 +95,15 @@ js.awt.GraphicContainer = function(def, Runtime){
     };
     
     var _onGraphicEvents = function(e){
+        var type = e.getType();
+        if(type.indexOf("changed") != -1){
+            this.setDirty(true);
+        }
+        _notifyEvent.call(this, e);
+    };
+
+    var _notifyEvent = function(e){
+        this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
 
     thi$.destroy = function(){
@@ -120,5 +132,4 @@ js.awt.GraphicContainer = function(def, Runtime){
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.Element).$implements(
-    js.awt.Containable, js.awt.ZOrderManager, js.util.Observer);
-
+    js.awt.Containable, js.awt.Drawable, js.awt.ZOrderManager, js.util.Observer);

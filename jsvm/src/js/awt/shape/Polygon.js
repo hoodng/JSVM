@@ -45,7 +45,7 @@ $import("js.awt.GraphicShape");
  *
  * cmd 0 is moveTo, cmd 1 is lineTo
  */
-js.awt.shape.Polygon = function(def, Runtime){
+js.awt.shape.Polygon = function(def, renderer){
 
     var CLASS = js.awt.shape.Polygon, thi$ = CLASS.prototype;
     
@@ -65,20 +65,11 @@ js.awt.shape.Polygon = function(def, Runtime){
         };
     };
 
-    thi$.drawFunc = function(shape, c, renderer, callback){
-        renderer.drawPolygon(c.getContext(), shape);
-        if(shape.canCapture()){
-            renderer.drawPolygon(c.getContext(true), shape, true);
-        }
-        if(Class.isFunction(callback)){
-            callback(shape);
-        }
-    };
-
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Polygon";
+        def.type = "Polygon";
 
         var r = Graph.vertices2Rect(def.points);
         def.x = r.x;

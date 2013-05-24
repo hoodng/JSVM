@@ -53,7 +53,8 @@ js.awt.CanvasGroup = function(def, Runtime){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ,
+        G = Class.forName("js.awt.Graphics2D");
     
     thi$.getCanvas = function(hit){
         return hit ? this.hitCanvas : this.bufCanvas;
@@ -64,6 +65,13 @@ js.awt.CanvasGroup = function(def, Runtime){
      */
     thi$.getContext = function(hit){
         return hit ? this._local.hitContext : this._local.bufContext;
+    };
+
+    thi$.putImageData = function(hit, image, dx, dy){
+        dx = dx || 0;
+        dy = dy || 0;
+
+        this.getContext(hit).putImageData(image, dx, dy);
     };
 
     thi$.getImageData = function(hit, sx, sy, sw, sh){
@@ -83,8 +91,63 @@ js.awt.CanvasGroup = function(def, Runtime){
         }
     };
 
-    thi$.draw = function(callback){
+    thi$.drawing = function(layer, callback){
+        this.erase();
+        
+        var U = this._local;
+        U.Queue = [];
+        var items = this.items()||[], i, len, ele, Q = U.Queue;
+        for(i=0, len=items.length; i<len; i++){
+            ele = this[items[i]];
+            if(ele){
+                Q.push(ele);
+                if(ele.instanceOf(js.awt.GraphicShape)){
+                    ele.setDirty(true);
+                }
+            }
+        }
+        
+        _onDrawEnd.call(
+            this, null, layer, 
+            this.nondirtyReturn.$bind(this, layer, callback));
+
+    }.$override(this.drawing);
+
+    thi$.nondirtyReturn = function(layer, callback){
+        var x = this.getX(), y = this.getY(), 
+            image = this.getImageData(false, 0, 0);
+
+        // Copy buf to result
+        layer.putImageData(false, image, x, y);
+        if(this.canCapture()){
+            image = this.getImageData(true, 0, 0);
+            layer.putImageData(true, image, x, y);
+        }
+
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.nondirtyReturn);
+
+
+    var _onDrawEnd = function(ele, layer, callback){
+        var U = this._local, Q = U.Queue;
+        
+        if(Q.length > 0){
+            ele = Q.shift();
+            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
+        }else{
+            this.setDirty(false);
+            callback();
+        }
     };
+
+    thi$.setPosition = function(x, y){
+        arguments.callee.__super__.apply(this, arguments);
+        
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_GROUP_TRANS_CHANGED,{}, this));
+
+    }.$override(this.setPosition);
 
     thi$.setSize = function(w, h){
         arguments.callee.__super__.apply(this, arguments);
@@ -109,6 +172,14 @@ js.awt.CanvasGroup = function(def, Runtime){
             hit.width = w;
             hit.height= h;
         }
+
+        this.setDirty(true);
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_GROUP_TRANS_CHANGED,{}, this));
+    };
+
+    var _notifyEvent = function(e){
+        this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
 
     thi$.destroy = function(){

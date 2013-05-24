@@ -42,7 +42,7 @@ $import("js.awt.GraphicShape");
 /**
  * {x0, y0, x1, y1}
  */
-js.awt.shape.Line = function(def, Runtime){
+js.awt.shape.Line = function(def, renderer){
 
     var CLASS = js.awt.shape.Line, thi$ = CLASS.prototype;
     
@@ -64,25 +64,16 @@ js.awt.shape.Line = function(def, Runtime){
         };
     };
 
-    thi$.drawFunc = function(shape, c, renderer, callback){
-        renderer.drawLine(c.getContext(), shape);
-        if(shape.canCapture()){
-            renderer.drawLine(c.getContext(true), shape, true);
-        }
-        if(Class.isFunction(callback)){
-            callback(shape);
-        }
-    };
-
     thi$.isFill = function(){
         return false;
     }.$override(this.fill);
 
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Line";
-        
+        def.type = "Line";
+
         def.x = Math.min(def.x0, def.x1);
         def.y = Math.min(def.y0, def.y1);
 

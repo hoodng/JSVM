@@ -32,7 +32,7 @@
  * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://jzvm.googlecode.com
+ * Source code availability: http://github.com/jsvm
  */
 
 $package("js.util");
@@ -48,7 +48,8 @@ js.util.EventTarget = function (){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event,  A = js.util.LinkedList;
+    var Class = js.lang.Class, Event = js.util.Event, 
+        A = js.util.LinkedList;
 
     var _getListeners = function(eventType){
         var hName = "on"+eventType, listeners = this[hName];
@@ -146,6 +147,16 @@ js.util.EventTarget = function (){
         default:
             break;
         }
+    };
+
+    thi$.canCapture = function(){
+        var cap = this.def ? this.def.capture : false, parent;
+        cap = cap || false;
+        if(cap){
+            parent = this.getContainer ? this.getContainer() : null;
+            cap = cap && ((parent && parent.canCapture) ? parent.canCapture() : false);
+        }
+        return cap;
     };
 
     thi$.destroy = function(){

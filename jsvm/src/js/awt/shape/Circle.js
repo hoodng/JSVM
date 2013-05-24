@@ -46,7 +46,7 @@ $import("js.awt.GraphicShape");
  *   radius:
  * }
  */
-js.awt.shape.Circle = function(def, Runtime){
+js.awt.shape.Circle = function(def, renderer){
 
     var CLASS = js.awt.shape.Circle, thi$ = CLASS.prototype;
     
@@ -67,20 +67,11 @@ js.awt.shape.Circle = function(def, Runtime){
         };
     };
 
-    thi$.drawFunc = function(shape, c, renderer, callback){
-        renderer.drawCircle(c.getContext(), shape);
-        if(shape.canCapture()){
-            renderer.drawCircle(c.getContext(true), shape, true);
-        }
-        if(Class.isFunction(callback)){
-            callback(shape);
-        }
-    };
-
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Circle";
+        def.type = "Circle";
 
         var r = def.radius;
         def.x = def.cx - r;

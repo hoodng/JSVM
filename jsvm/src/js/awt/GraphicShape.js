@@ -37,10 +37,13 @@
 
 $package("js.awt");
 
+$import("js.awt.Element");
+$import("js.awt.Drawable");
+
 /**
  * 
  */
-js.awt.GraphicShape = function(def, Runtime){
+js.awt.GraphicShape = function(def, renderer){
 
     var CLASS = js.awt.GraphicShape, thi$ = CLASS.prototype;
     
@@ -50,7 +53,8 @@ js.awt.GraphicShape = function(def, Runtime){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, System = J$VM.System, 
+    var Class = js.lang.Class, Event = js.util.Event, 
+        System = J$VM.System, G = Class.forName("js.awt.Graphics2D"),
         Color = Class.forName("js.awt.Color"),
         Matrix= Class.forName("js.math.Matrix"),
         TRANSFORM = {m11:1, m12:0, m21:0, m22:1, dx:0, dy:0},
@@ -60,9 +64,10 @@ js.awt.GraphicShape = function(def, Runtime){
         return this._local.colorKey;
     };
 
-    /**
-     * Return group ID of this shape
-     */
+    thi$.getType = function(){
+        return this.def.type;
+    };
+
     thi$.getGID = function(){
         return this.def.gid;
     };
@@ -71,28 +76,34 @@ js.awt.GraphicShape = function(def, Runtime){
         return this.getContainer().getLayer();
     };
 
-    thi$.getRenderer = function(){
-        return this.getContainer().getRenderer();
+    thi$.setRenderer = function(renderer){
+        this._local.renderer = renderer;
     };
 
-    thi$.getContext = function(){
-        return this.getContainer().getContext();
+    thi$.getRenderer = function(layer){
+        return this._local.renderer || layer.getRenderer();
     };
 
-    thi$.setDrawFunc = function(func){
-        this.drawFunc = func;
+    thi$.getDrawFunc = function(layer){
+        var renderer = this.getRenderer(layer), 
+            fn = "draw"+this.getType();
+
+        return renderer[fn] || renderer.draw;
     };
 
-    thi$.draw = function(callback){
-        if(this.isVisible && Class.isFunction(this.drawFunc)){
-            this.drawFunc(this, 
-                          this.getContainer(), 
-                          this.getRenderer(), 
-                          callback);
-        }else{
-            callback(this);
+    thi$.drawing = function(layer, callback){
+        var renderer = this.getRenderer(layer), 
+            fn = this.getDrawFunc(layer);
+
+        fn.call(renderer, layer.getContext(), this);
+        
+        if(this.canCapture()){
+            fn.call(renderer, layer.getContext(true), this, true);
         }
-    };
+
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.drawing);
 
     thi$.isFill = function(){
         return (this.def.fillStroke & 2) != 0;
@@ -102,13 +113,12 @@ js.awt.GraphicShape = function(def, Runtime){
         return (this.def.fillStroke & 1) != 0;
     };
 
-    thi$.canCapture = function(){
-        var cap = this.def.capture || false;
-        return cap && this.getContainer().canCapture();
-    };
-
     thi$.setAttr = function(key, value){
         arguments.callee.__super__.apply(this, arguments);
+
+        this.setDirty(true);
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_SHAPE_ATTRS_CHANGED, {}, this));
 
     }.$override(this.setAttr);
 
@@ -151,6 +161,10 @@ js.awt.GraphicShape = function(def, Runtime){
             T1 = new Matrix({M:[[m11, m12, 0],[m21, m22, 0],[dx, dy, 1]]});
 
         this._local.matrix = Matrix.multiply(T0, T1);
+
+        this.setDirty(true);        
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_SHAPE_TRANS_CHANGED, {}, this));
     };
 
     thi$.setTransform = function(m11, m12, m21, m22, dx, dy){
@@ -167,6 +181,14 @@ js.awt.GraphicShape = function(def, Runtime){
         T0.Aij(2,0,dx);
         T0.Aij(2,1,dy);
         T0.Aij(2,2,1);
+        
+        this.setDirty(true);
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_SHAPE_TRANS_CHANGED, {}, this));
+    };
+
+    var _notifyEvent = function(e){
+        this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
 
     thi$.getTransform = function(){
@@ -185,7 +207,7 @@ js.awt.GraphicShape = function(def, Runtime){
         return this._local.matrix;
     };
 
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, renderer){
         if(def == undefined) return;
         
         def.classType = def.classType || "js.awt.GraphicShape";
@@ -198,12 +220,9 @@ js.awt.GraphicShape = function(def, Runtime){
         tmp = def.fillStroke;
         def.fillStroke = Class.isNumber(tmp) ? tmp : 1;
         
-        arguments.callee.__super__.apply(this, arguments);
+        arguments.callee.__super__.call(this, def, null);
 
-        var M = this.def;
-        if(Class.isFunction(M.drawFunc)){
-            this.setDrawFunc(M.drawFunc);
-        }
+        this.setRenderer(renderer);
 
         var U = this._local;
         if(!Color.randomColor){
@@ -214,10 +233,12 @@ js.awt.GraphicShape = function(def, Runtime){
         U.colorKey.rgba = U.colorKey.toString("rgba");
 
         U.matrix = new Matrix({M:[[1,0,0],[0,1,0],[0,0,1]]});
+        
+        this.setDirty(true);
 
     }.$override(this._init);
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Element);
+}.$extend(js.awt.Element).$implements(js.awt.Drawable);
 

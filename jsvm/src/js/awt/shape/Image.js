@@ -42,7 +42,7 @@ $import("js.awt.GraphicShape");
 /**
  * 
  */
-js.awt.shape.Image = function(def, Runtime){
+js.awt.shape.Image = function(def, renderer){
 
     var CLASS = js.awt.shape.Image, thi$ = CLASS.prototype;
     
@@ -80,23 +80,15 @@ js.awt.shape.Image = function(def, Runtime){
         };
     };
 
-    thi$.drawFunc = function(shape, c, renderer, callback){
-        _loadImage.call(
-            this, 
-            _drawFunc.$bind(this, shape, c, renderer, callback));
+    var _getImage = function(imgId){
+        return images[imgId] || document.getElementById(imgId);
     };
 
-    var _drawFunc = function(shape, c, renderer, callback){
-        renderer.drawImage(c.getContext(), shape);
-        if(shape.canCapture()){
-            renderer.drawImage(c.getContext(true), shape, true);
-        }
-        if(Class.isFunction(callback)){
-            callback(shape);
-        }
-    };
+    thi$.beforeDraw = function(layer, callback){
+        _loadImage.call(this, layer, callback);
+    }.$override(this.beforeDraw);
 
-    var _loadImage = function(callback){
+    var _loadImage = function(layer, callback){
         var M = this.def, imgId = M.image, image = imgId, host = this;
 
         if(Class.isString(imgId)){
@@ -127,10 +119,6 @@ js.awt.shape.Image = function(def, Runtime){
         _onload.call(this, imgId, image, callback);
     };
 
-    var _getImage = function(imgId){
-        return images[imgId] || document.getElementById(imgId);
-    };
-
     var _onload = function(imgId, image, callback, loaded){
         // Cache the image and not need reload it again
         if(Class.isString(imgId)){
@@ -139,13 +127,17 @@ js.awt.shape.Image = function(def, Runtime){
 
         this._local.image = image;
 
-        callback();
+        if(callback) {
+            callback();
+        }
     };
 
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Image";
+        def.type = "Image";
+
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this._init);

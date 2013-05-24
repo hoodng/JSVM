@@ -6,9 +6,12 @@
     <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js"></script>
     <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
 
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Drawable.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
 
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
+
+
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
 
@@ -24,8 +27,6 @@
             var Class = js.lang.Class, 
             Color = Class.forName("js.awt.Color");
             new Color(0,0,0,0);
-
-            System.err.println(Color.gradient("#10FF10", "#104010", 100, 12000, 11000).toString("rgba"));
 
             var G = new (Class.forName("js.awt.Graphics2D"))(
                       {
@@ -43,10 +44,11 @@
             G.drawRect({ width:150, height: 150, strokeStyle:"#0000ff", 
                         fillStroke:2, fillLinearGradient:{x0:10, y0:10, x1:210, y1:210, colors:[[0, "#10FF10"],[1,"#100010"]]}, capture:true});
 
+            
             G.drawArc({cx:100, cy:100, radius:50, startAngle: 30, endAngle: 180, 
                        fillStroke: 1, close: "center" ,
                        strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true});
-
+            
             var circle = G.drawCircle({cx:200, cy:20, radius:10, fillStroke:3,strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true});
 
             var E0 = G.drawEllipse({cx:200, cy:200, ra: 60, rb: 30, capture:true});
@@ -61,26 +63,29 @@
 
               G.drawText({text: "Hello world 中文 1234567890", x:0, y:0, width:100, height:40, fontSize:16, fontWeight: "bolder",  rotate: 315, align_y:0.5, align_x:0.0, capture:true});
 
-              G.drawImage({image:"test.png", x:300, y:0, width:48, height:48, rotate:0, capture:true});            
+
+
+              G.drawImage({image:"test.png", x:300, y:0, width:48, height:48, rotate:0, capture:true});        
 
             G.drawText({text: "for Row", x:380, y:50, width: 20, height:50, rotate: 90});
             G.drawImage({image:"test.png", x:380, y:100, width: 20, height:20, rotate: 90});
             G.drawText({text: "Drop", fontSize: 26, x:380, y:120, width: 20, height:40, rotate: 90});
 
             this.doLayout(true);
-
+        
+            
             var count = 0;
             (function(){
                 polygon.translate(1.5, -1.5);
-                circle.translate(0, 1);
+                circle.translate(0, 1.5);
                 E0.rotate(10*Math.PI/180, 200, 200);
                 E1.rotate(-5*Math.PI/180, 200, 200);
                 count ++;
                 if(count < 200){
-                  G.draw.$delay(G, 10, arguments.callee.$bind(this));
+                  G.draw.$delay(G, 10, null, arguments.callee.$bind(this));
                 }
             })();
-                 
+            
         });
     </script>
 </head>

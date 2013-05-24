@@ -52,9 +52,9 @@ js.awt.GraphicLayer = function(def, Runtime){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+    var Class = js.lang.Class, Event = js.util.Event,
         System = J$VM.System, MQ = J$VM.MQ,
-        RENDERMAP = {
+        RENDERERS = {
             "js.awt.CanvasLayer" : "js.awt.CanvasRenderer",
             "js.awt.SVGLayer" : "js.awt.SVGRenderer",
             "js.awt.VMLLayer" : "js.awt.VMLRenderer"
@@ -65,7 +65,7 @@ js.awt.GraphicLayer = function(def, Runtime){
      */
     thi$.getRenderer = function(){
         var renderers = this._local.renderers, 
-            type = RENDERMAP[this.classType()], 
+            type = RENDERERS[this.classType()], 
             ret = renderers[type];
 
         if(!ret){
@@ -98,7 +98,4 @@ js.awt.GraphicLayer = function(def, Runtime){
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.GraphicGroup);
-
-
-
 

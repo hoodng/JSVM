@@ -52,9 +52,10 @@ js.awt.CanvasLayer = function(def, Runtime){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, 
-        System = J$VM.System, MQ = J$VM.MQ, DOM = J$VM.DOM,
-        Color = Class.forName("js.awt.Color");
+    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+        System = J$VM.System, MQ = J$VM.MQ, Color = Class.forName("js.awt.Color"),
+        G = Class.forName("js.awt.Graphics2D");
+
     
     thi$.getContext = function(hit){
         return hit ? this._local.hitContext : this._local.relContext;
@@ -114,7 +115,7 @@ js.awt.CanvasLayer = function(def, Runtime){
         }
     };
 
-    thi$.draw = function(callback){
+    thi$.drawing = function(layer, callback){
         this.erase();
         
         var U = this._local;
@@ -125,20 +126,24 @@ js.awt.CanvasLayer = function(def, Runtime){
             ele = this[items[i]];
             if(ele){
                 Q.push(ele);
+                if(ele.instanceOf(js.awt.GraphicShape)){
+                    ele.setDirty(true);
+                }
             }
         }
         
-        _onDrawEnd.call(this, null, callback);
+        _onDrawEnd.call(this, null, layer, callback);
 
-    };
+    }.$override(this.drawing);
 
-    var _onDrawEnd = function(ele, callback){
+    var _onDrawEnd = function(ele, layer, callback){
         var U = this._local, Q = U.Queue;
         
         if(Q.length > 0){
-            Q.shift().draw(_onDrawEnd.$bind(this, callback));
-        }else if(callback){
-            callback();
+            ele = Q.shift();
+            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
+        }else{
+            this.afterDraw(this, callback);
         }
     };
 
@@ -147,7 +152,7 @@ js.awt.CanvasLayer = function(def, Runtime){
             image = this.getImageData(true, x,y,1,1), 
             px = image.data, colorKey, shape;
         if(px[3] != 0){
-             colorKey = new Color(px[0], px[1], px[2], px[3]).toString("rgba");
+            colorKey = new Color(px[0], px[1], px[2], px[3]).toString("rgba");
             shape = cache[colorKey];
         }
         return shape;
@@ -183,7 +188,13 @@ js.awt.CanvasLayer = function(def, Runtime){
             hit.height= h;
         }
         
-        this.draw();
+        this.setDirty(true);
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_GROUP_TRANS_CHANGED,{}, this));
+    };
+
+    var _notifyEvent = function(e){
+        this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
 
     thi$.destroy = function(){
@@ -195,7 +206,7 @@ js.awt.CanvasLayer = function(def, Runtime){
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
-		if(def == undefined) return;
+        if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.CanvasLayer";
 
@@ -211,14 +222,14 @@ js.awt.CanvasLayer = function(def, Runtime){
         if(def.capture === true){
             this.hitCanvas = DOM.createElement("CANVAS");
             U.hitContext = this.hitCanvas.getContext("2d");
-//            this.attachEvent("mousemove", 0, this, _onmousemove);
+            //            this.attachEvent("mousemove", 0, this, _onmousemove);
         }
         
         // DEBUG:
-        /*
+
         this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
         document.body.appendChild(this.hitCanvas);
-        */
+
     }.$override(this._init);
 
     this._init.apply(this, arguments);

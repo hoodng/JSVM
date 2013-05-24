@@ -37,15 +37,7 @@
 
 $package("js.awt");
 
-$import("js.awt.shape.Arc");
-$import("js.awt.shape.Circle");
-$import("js.awt.shape.Ellipse");
-$import("js.awt.shape.Image");
-$import("js.awt.shape.Line");
-$import("js.awt.shape.Polygon");
-$import("js.awt.shape.Polyline");
-$import("js.awt.shape.Rect");
-$import("js.awt.shape.Text");
+$import("js.awt.Drawable");
 
 /**
  * 
@@ -61,8 +53,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ,
-        PI = Math.PI, PI180 = PI/180;
+        System = J$VM.System, MQ = J$VM.MQ;
 
     /**
      * Draw an Arc
@@ -70,8 +61,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param data: {cx, cy, radius, startAngle, endAngle}
      */
     thi$.drawArc = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Arc(data, this.Runtime()));
+        return this.drawShape("arc", data);
     };
 
     /**
@@ -80,8 +70,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param data: {cx, cy, radius}
      */
     thi$.drawCircle = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Circle(data, this.Runtime()));
+        return this.drawShape("circle", data);
     };
 
     /**
@@ -90,8 +79,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param data: {cx, cy, ra, rb}
      */
     thi$.drawEllipse = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Ellipse(data, this.Runtime()));
+        return this.drawShape("ellipse", data);
     };
 
     /**
@@ -100,8 +88,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param data: {image, sx, sy, sw, sh, x, y, width, height}
      */
     thi$.drawImage = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Image(data, this.Runtime()));
+        return this.drawShape("image", data);
     };
 
     /**
@@ -110,19 +97,17 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param data: {x, y, x1, y1}
      */
     thi$.drawLine = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Line(data, this.Runtime()));
+        return this.drawShape("line", data);
     };
 
     /**
      * Draw Polyline
      *
-     * @param data: { cmds:[0, 1,...], coords:[[x0,y0],[x1, y1],...]}
+     * @param data: { points:[[cmd, x0,y0],[cmd, x1, y1],...]}
      * cmd 0 for moveTo, cmd 1 for lineTo
      */
     thi$.drawPolyline = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Polyline(data, this.Runtime()));
+        return this.drawShape("polyline", data);
     };
 
     /**
@@ -132,8 +117,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * cmd 0 for moveTo, cmd 1 for lineTo
      */
     thi$.drawPolygon = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Polygon(data, this.Runtime()));
+        return this.drawShape("polygon", data);
     };
 
     /**
@@ -142,8 +126,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param data: {x, y, width, height}
      */
     thi$.drawRect = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Rect(data, this.Runtime()));
+        return this.drawShape("rect", data);
     };
     
     /**
@@ -152,8 +135,13 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param data: {text:xxx}
      */
     thi$.drawText = function(data){
-        var layer = this.curLayer();
-        return layer.addShape(new js.awt.shape.Text(data, this.Runtime()));
+        return this.drawShape("text", data);
+    };
+
+    this.drawShape = function(type, data){
+        var layer = this.curLayer(), renderer = layer.getRenderer(),
+            C = Class.forName(CLASS.SHAPES[type.toLowerCase()]);
+        return layer.addShape(new (C)(data, renderer));
     };
     
     /**
@@ -184,11 +172,58 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
     thi$.canCapture = function(){
         return true;
+    }.$override(this.canCapture);
+
+
+    thi$.drawing = function(layer, callback){
+        var U = this._local;
+        U.Queue = [];
+
+        var items = this.items(), i, len, Q = U.Queue;
+        for(i=0,len=items.length; i<len; i++){
+            layer = this.getLayer(items[i]);
+            if(layer.isVisible() && layer.isDirty()){
+                Q.push(layer);
+            }
+        }
+
+        _onDrawEnd.call(this, null, layer, callback);
+
+    }.$override(this.drawing);
+
+    var _onDrawEnd = function(ele, layer, callback){
+        var U = this._local, Q = U.Queue;
+        
+        if(Q.length > 0){
+            ele = Q.shift();
+            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
+        }else{
+            this.afterDraw(this, callback);
+        }
     };
 
-    thi$.draw = function(callback){
-        this.curLayer().draw(callback);
+    var _onGraphicEvents = function(e){
+        var type = e.getType();
+
+        switch(type){
+        case CLASS.Events.GM_GROUP_TRANS_CHANGED:
+            this.setDirty(true);
+            this.draw();
+            break;
+        default:
+            this.setDirty(true);
+            break;
+        }
+        _notifyEvent.call(this, e);
     };
+    
+    var _notifyEvent = function(e){
+        this.notifyContainer(CLASS.Events.GM_EVENTS, e, true);
+    };
+
+    thi$.classType = function(){
+        return "js.awt.Graphics2D";
+    }.$override(this.classType);
 
     /**
      * Override destroy method of js.lang.Object
@@ -197,7 +232,6 @@ js.awt.Graphics2D = function(def, Runtime, view){
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
-
 
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
@@ -226,13 +260,27 @@ js.awt.Graphics2D = function(def, Runtime, view){
         var U = this._local, items = this.items();
         U.curLayer = items[items.length-1];
 
+        MQ.register(CLASS.Events.GM_EVENTS, this, _onGraphicEvents);
+
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Container);
+}.$extend(js.awt.Container).$implements(js.awt.Drawable);
 
 var CLASS = js.awt.Graphics2D;
+
+CLASS.SHAPES = {
+    arc: "js.awt.shape.Arc",
+    circle: "js.awt.shape.Circle",
+    ellipse: "js.awt.shape.Ellipse",
+    image: "js.awt.shape.Image",
+    line: "js.awt.shape.Line",
+    polygon: "js.awt.shape.Polygon",
+    polyline: "js.awt.shape.Polyline",
+    rect: "js.awt.shape.Rect",
+    text: "js.awt.shape.Text"
+};
 
 CLASS.RAD = "rad";
 CLASS.DEG = "deg";
@@ -270,12 +318,12 @@ CLASS.rad2deg = function(r, u){
 
 CLASS.Events = {
     "GM_EVENTS" : "gm.events",
+    "GM_SHAPE_ATTRS_CHANGED" : "gm.shape.attrschanged",
+    "GM_SHAPE_TRANS_CHANGED" : "gm.shape.transchanged",
 
-    "GM_SHAPE_CHANGED" : "gm.shape.changed",
-    "GM_SHAPE_DRAWEND" : "gm.shape.drawend",
-
-    "GM_GROUP_CHANGED" : "gm.group.changed",
-    "GM_GROUP_DRAWEND" : "gm.group.drawend"
+    "GM_GROUP_ATTRS_CHANGED" : "gm.group.attrschanged",
+    "GM_GROUP_ITEMS_CHANGED" : "gm.group.itemschanged",
+    "GM_GROUP_TRANS_CHANGED" : "gm.group.transchanged"    
 };
 
 CLASS = undefined;

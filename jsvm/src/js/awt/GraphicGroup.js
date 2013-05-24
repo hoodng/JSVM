@@ -52,8 +52,9 @@ js.awt.GraphicGroup = function(def, Runtime){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
+    var Class = js.lang.Class, Event = js.util.Event,
+        System = J$VM.System, MQ = J$VM.MQ,
+        G = Class.forName("js.awt.Graphics2D");
 
     /**
      * Return the GraphicLayer that this group belong to
@@ -80,10 +81,6 @@ js.awt.GraphicGroup = function(def, Runtime){
         
     };
 
-    thi$.draw = function(callback){
-        
-    };
-
     thi$.absXY = function(){
         var p = this, x = p.getX(), y = p.getY();
 
@@ -95,14 +92,6 @@ js.awt.GraphicGroup = function(def, Runtime){
         }
 
         return {x: x, y: y};
-    };
-
-    thi$.isDirty = function(){
-        return this._local.dirty === true;
-    };
-
-    thi$.setDirty = function(dirty){
-        this._local.dirty = Class.isBoolean(dirty) ? dirty : true;
     };
 
     /**
@@ -117,6 +106,8 @@ js.awt.GraphicGroup = function(def, Runtime){
         }
 
         this.setDirty(true);
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_GROUP_ITEMS_CHANGED, {}, this));
         
         return ele;
 
@@ -134,6 +125,8 @@ js.awt.GraphicGroup = function(def, Runtime){
         }
         
         this.setDirty(true);
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_GROUP_ITEMS_CHANGED, {}, this));
 
         return ele;
 
@@ -155,11 +148,15 @@ js.awt.GraphicGroup = function(def, Runtime){
 
         arguments.callee.__super__.apply(this, arguments);
 
-        if(gc !== true){
-            this.setDirty(true);
-        }
+        this.setDirty(true);
+        _notifyEvent.call(
+            this, new Event(G.Events.GM_GROUP_ITEMS_CHANGED, {}, this));
 
     }.$override(this.removeAll);
+
+    var _notifyEvent = function(e){
+        this.notifyContainer(G.Events.GM_EVENTS, e, true);
+    };
 
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
@@ -173,5 +170,3 @@ js.awt.GraphicGroup = function(def, Runtime){
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.GraphicContainer);
-
-

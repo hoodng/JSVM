@@ -47,7 +47,7 @@ $import("js.awt.GraphicShape");
  *   rb:
  * }
  */
-js.awt.shape.Ellipse = function(def, Runtime){
+js.awt.shape.Ellipse = function(def, renderer){
 
     var CLASS = js.awt.shape.Ellipse, thi$ = CLASS.prototype;
     
@@ -69,20 +69,11 @@ js.awt.shape.Ellipse = function(def, Runtime){
         };
     };
 
-    thi$.drawFunc = function(shape, c, renderer, callback){
-        renderer.drawEllipse(c.getContext(), shape);
-        if(shape.canCapture()){
-            renderer.drawEllipse(c.getContext(true), shape, true);
-        }
-        if(Class.isFunction(callback)){
-            callback(shape);
-        }
-    };
-
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Ellipse";
+        def.type = "Ellipse";
 
         var ra = def.ra, rb = def.rb;
         def.x = def.cx - ra;

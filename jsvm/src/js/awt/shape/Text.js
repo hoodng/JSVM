@@ -42,7 +42,7 @@ $import("js.awt.GraphicShape");
 /**
  * 
  */
-js.awt.shape.Text = function(def, Runtime){
+js.awt.shape.Text = function(def, renderer){
 
     var CLASS = js.awt.shape.Text, thi$ = CLASS.prototype;
     
@@ -73,20 +73,11 @@ js.awt.shape.Text = function(def, Runtime){
         };
     };
 
-    thi$.drawFunc = function(shape, c, renderer, callback){
-        renderer.drawText(c.getContext(), shape);
-        if(shape.canCapture()){
-            renderer.drawText(c.getContext(true), shape, true);
-        }
-        if(Class.isFunction(callback)){
-            callback(shape);
-        }
-    };
-
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Text";
+        def.type = "Text";
 
         var v;
         v = def.align_x;

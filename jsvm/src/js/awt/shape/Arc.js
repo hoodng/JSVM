@@ -50,7 +50,7 @@ $import("js.awt.GraphicShape");
  *   close: "open" | "short" | "center"
  * }
  */
-js.awt.shape.Arc = function(def, Runtime){
+js.awt.shape.Arc = function(def, renderer){
 
     var CLASS = js.awt.shape.Arc, thi$ = CLASS.prototype;
     
@@ -80,25 +80,16 @@ js.awt.shape.Arc = function(def, Runtime){
         };
     };
 
-    thi$.drawFunc = function(shape, c, renderer, callback){
-        renderer.drawArc(c.getContext(), shape);
-        if(shape.canCapture()){
-            renderer.drawArc(c.getContext(true), shape, true);
-        }
-        if(Class.isFunction(callback)){
-            callback(shape);
-        }
-    };
-
     thi$.isFill = function(){
         return arguments.callee.__super__.apply(this, arguments) && 
             (def.close !== "open");
     }.$override(this.isFill);
 
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Arc";
+        def.type = "Arc";
 
         var r = def.radius;
         def.x = def.cx - r;
@@ -106,6 +97,7 @@ js.awt.shape.Arc = function(def, Runtime){
         def.width = def.height = 2 * r;
 
         def.close = def.close || "open";
+
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this._init);
