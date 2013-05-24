@@ -66,7 +66,7 @@ js.awt.shape.Line = function(def, Runtime){
 
     thi$.drawFunc = function(shape, c, renderer, callback){
         renderer.drawLine(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawLine(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

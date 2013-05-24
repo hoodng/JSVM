@@ -53,7 +53,6 @@ js.awt.GraphicShape = function(def, Runtime){
     var Class = js.lang.Class, System = J$VM.System, 
         Color = Class.forName("js.awt.Color"),
         Matrix= Class.forName("js.math.Matrix"),
-        G = Class.forName("js.awt.Graphics2D"),
         TRANSFORM = {m11:1, m12:0, m21:0, m22:1, dx:0, dy:0},
         sin = Math.sin, cos = Math.cos;
 
@@ -84,15 +83,14 @@ js.awt.GraphicShape = function(def, Runtime){
         this.drawFunc = func;
     };
 
-    thi$.draw = function(onDrawEnd){
-        if(this.isVisible() && 
-           Class.isFunction(this.drawFunc)){
+    thi$.draw = function(callback){
+        if(this.isVisible && Class.isFunction(this.drawFunc)){
             this.drawFunc(this, 
                           this.getContainer(), 
                           this.getRenderer(), 
-                          onDrawEnd);
+                          callback);
         }else{
-            onDrawEnd();
+            callback(this);
         }
     };
 
@@ -104,15 +102,13 @@ js.awt.GraphicShape = function(def, Runtime){
         return (this.def.fillStroke & 1) != 0;
     };
 
-    thi$.isCapture = function(){
+    thi$.canCapture = function(){
         var cap = this.def.capture || false;
-        return cap && this.getContainer().isCapture();
+        return cap && this.getContainer().canCapture();
     };
 
     thi$.setAttr = function(key, value){
         arguments.callee.__super__.apply(this, arguments);
-
-        this.getContainer().setDirty(true);
 
     }.$override(this.setAttr);
 
@@ -152,12 +148,9 @@ js.awt.GraphicShape = function(def, Runtime){
      */
     thi$.transform = function(m11, m12, m21, m22, dx, dy){
         var T0 = this.getMatrix(),
-            T1 = new Matrix({M:[[m11, m12, 0],[m21, m22, 0],[dx, dy, 1]]}),
-            M  = Matrix.multiply(T0, T1);
+            T1 = new Matrix({M:[[m11, m12, 0],[m21, m22, 0],[dx, dy, 1]]});
 
-        this.setTransform(M.Aij(0,0), M.Aij(0,1), 
-                          M.Aij(1,0), M.Aij(1,1), 
-                          M.Aij(2,0), M.Aij(2,1));
+        this._local.matrix = Matrix.multiply(T0, T1);
     };
 
     thi$.setTransform = function(m11, m12, m21, m22, dx, dy){
@@ -174,8 +167,6 @@ js.awt.GraphicShape = function(def, Runtime){
         T0.Aij(2,0,dx);
         T0.Aij(2,1,dy);
         T0.Aij(2,2,1);
-        
-        this.getContainer().setDirty(true);
     };
 
     thi$.getTransform = function(){

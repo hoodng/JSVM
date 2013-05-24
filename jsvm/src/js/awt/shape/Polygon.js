@@ -67,7 +67,7 @@ js.awt.shape.Polygon = function(def, Runtime){
 
     thi$.drawFunc = function(shape, c, renderer, callback){
         renderer.drawPolygon(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawPolygon(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

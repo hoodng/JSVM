@@ -55,18 +55,18 @@ js.awt.shape.Rect = function(def, Runtime){
     var Class = js.lang.Class, System = J$VM.System;
 
     thi$.getRect = function(){
-        var M = this.def;
+        var M = this.def, c = this.getContainer();
         return {
-            x: M.x,
-            y: M.y,
-            width: M.width,
-            height: M.height
+            x: Class.isNumber(M.x) ? M.x : (c ? c.getX() : 0),
+            y: Class.isNumber(M.y) ? M.y : (c ? c.getY() : 0),
+            width: M.width > 0 ? M.width : (c ? c.getWidth() : 100),
+            height:M.height> 0 ? M.height: (c ? c.getHeight(): 100)
         };
     };
 
     thi$.drawFunc = function(shape, c, renderer, callback){
         renderer.drawRect(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawRect(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

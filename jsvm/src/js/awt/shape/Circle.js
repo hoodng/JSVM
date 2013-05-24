@@ -69,7 +69,7 @@ js.awt.shape.Circle = function(def, Runtime){
 
     thi$.drawFunc = function(shape, c, renderer, callback){
         renderer.drawCircle(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawCircle(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

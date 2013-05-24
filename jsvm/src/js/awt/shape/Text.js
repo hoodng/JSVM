@@ -75,7 +75,7 @@ js.awt.shape.Text = function(def, Runtime){
 
     thi$.drawFunc = function(shape, c, renderer, callback){
         renderer.drawText(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawText(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

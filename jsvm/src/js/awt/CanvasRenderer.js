@@ -116,7 +116,7 @@ js.awt.CanvasRenderer = function(config){
                 k = BRUSH[i];
                 v = attrs["stroke"+k];
                 if(v !== undefined){
-                    attrs.strokeStyle = this["create"+k](ctx, v);
+                    ctx.strokeStyle = this["create"+k](ctx, v);
                     break;
                 }
             }
@@ -127,7 +127,7 @@ js.awt.CanvasRenderer = function(config){
                 k = BRUSH[i];
                 v = attrs["fill"+k];
                 if(v !== undefined){
-                    attrs.fillStyle = this["create"+k](ctx, v);
+                    ctx.fillStyle = this["create"+k](ctx, v);
                     break;
                 }
             }
@@ -348,24 +348,8 @@ js.awt.CanvasRenderer = function(config){
         _afterDraw.call(this, G, shape, hit);
     };
 
-    thi$.drawImage = function(ctx, shape, hit, callback){
-        var G = ctx;
-
-        if(hit !== true){
-            shape.getImage(_drawImage.$bind(this, ctx, shape, callback));
-        }else{
-            _beforeDraw.call(this, G, shape, hit);
-
-            G.beginPath();
-            var M = shape.getAttrs();
-            G.rect(M.x, M.y, M.width, M.height);
-
-            _afterDraw.call(this, G, shape, hit);
-        };
-    };
-
-    var _drawImage = function(data, ctx, shape, callback){
-        var G = ctx, c = data, M = shape.getAttrs(),
+    thi$.drawImage = function(ctx, shape, hit){
+        var G = ctx, c = shape.getImage(), M = shape.getAttrs(),
             x = c.dx, y = c.dy, w = c.dw, h = c.dh, a, b, e = c.rotate,
             o = e + PI/2, dx, dy;
         
@@ -388,7 +372,6 @@ js.awt.CanvasRenderer = function(config){
         
         _afterDraw.call(this, G, shape);
 
-        callback(data, shape);
     };
 
     thi$.drawLine = function(ctx, shape, hit){

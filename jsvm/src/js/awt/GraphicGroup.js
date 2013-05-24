@@ -59,7 +59,7 @@ js.awt.GraphicGroup = function(def, Runtime){
      * Return the GraphicLayer that this group belong to
      */
     thi$.getLayer = function(){
-        var p = this.getContainer();
+        var p = this;
         while(!p.instanceOf(js.awt.GraphicLayer)){
             p = p.getContainer();
         }
@@ -76,47 +76,74 @@ js.awt.GraphicGroup = function(def, Runtime){
     /**
      * Get context of this layer
      */
-    thi$.getContext = function(){
+    thi$.getContext = function(hit){
+        
+    };
 
+    thi$.draw = function(callback){
+        
     };
 
     thi$.absXY = function(){
-        var x = this.getX(), y = this.getY(), 
-            p = this.getContainer();
+        var p = this, x = p.getX(), y = p.getY();
 
         while(!p.instanceOf(js.awt.GraphicLayer)){
+            p = p.getContainer();
+
             x += p.getX();
             y += p.getY();
-            p = p.getContainer();
         }
 
         return {x: x, y: y};
     };
 
-    thi$.draw = function(){
-        var U = this._local, items = this.items(), i, len, ele;
+    /**
+     * @see js.awt.Containable
+     */
+    thi$._insert = function(){
+        var ele = arguments.callee.__super__.apply(this, arguments);
 
-        U.dirtyCount = 0;
+        if(ele.instanceOf(js.awt.GraphicShape)){
+            var cache = this.getLayer().cachedShapes();
+            cache[ele.colorKey().rgba] = ele;
+        }
 
-        if(this.isVisible()){
-            for(i=0, len=items.length; i<len; i++){
-                ele = this[items[i]];
-                if(ele.instanceOf(js.awt.GraphicGroup)){
-                    if(ele.hasChanged()){
-                        U.dirtyCount++;
-                        ele.draw();
-                    }
-                }else{
-                    // Shape
-                    U.dirtyCount++;                    
-                    ele.draw.$delay(ele, 0);
-                }
+        return ele;
+
+    }.$override(this._insert);
+
+    /**
+     * @see js.awt.Containable
+     */
+    thi$.removeChild = function(){
+        var ele = arguments.callee.__super__.apply(this, arguments);
+
+        if(ele.instanceOf(js.awt.GraphicShape)){
+            var cache = this.getLayer().cachedShapes();
+            delete cache[ele.colorKey().rgba];
+        }
+
+        return ele;
+
+    }.$override(this.removeChild);
+
+    /**
+     * @see js.awt.Containable
+     */
+    thi$.removeAll = function(){
+        var items = this.items(), i, len, ele, 
+            cache = this.getLayer().cachedShapes();
+        
+        for(i=0, len=items.length; i<len; i++){
+            ele = this[items[i]];
+            if(ele.colorKey){
+                delete cache[ele.colorKey().rgba];
             }
         }
-        
+
         arguments.callee.__super__.apply(this, arguments);
-        
-    }.$override(this.draw);
+
+    }.$override(this.removeAll);
 
     thi$._init = function(def, Runtime){
         if(def == undefined) return;

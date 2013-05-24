@@ -71,7 +71,7 @@ js.awt.shape.Ellipse = function(def, Runtime){
 
     thi$.drawFunc = function(shape, c, renderer, callback){
         renderer.drawEllipse(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawEllipse(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

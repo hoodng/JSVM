@@ -82,7 +82,7 @@ js.awt.shape.Arc = function(def, Runtime){
 
     thi$.drawFunc = function(shape, c, renderer, callback){
         renderer.drawArc(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawArc(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

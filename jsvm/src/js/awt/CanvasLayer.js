@@ -54,12 +54,18 @@ js.awt.CanvasLayer = function(def, Runtime){
     
     var Class = js.lang.Class, Event = js.util.Event, 
         System = J$VM.System, MQ = J$VM.MQ, DOM = J$VM.DOM,
-        DEFAULE_GROUP = "__g0__";
+        Color = Class.forName("js.awt.Color");
     
     thi$.getContext = function(hit){
-        var U = this._local;
-        return hit ? U.hitContext : U.relContext;
+        return hit ? this._local.hitContext : this._local.relContext;
     }.$override(this.getContext);
+
+    thi$.addShape = function(shape){
+        var g = this.getElementById(shape.getGID()),
+            c = g ? g : this;
+
+        return c.appendChild(shape);
+    };
 
     thi$.measureText = function(text, font, ctx){
         ctx = ctx || this.getContext();
@@ -84,47 +90,40 @@ js.awt.CanvasLayer = function(def, Runtime){
 
     }.$override(this.measureText);
 
-    thi$.getImageData = function(x, y, w, h, ctx){
-        ctx = ctx || this.getContext();
-        return ctx.getImageData(x, y, w, h);
+    thi$.getImageData = function(hit, sx, sy, sw, sh){
+        sx = sx || 0;
+        sy = sy || 0;
+        sw = sw || this.getWidth();
+        sh = sh || this.getHeight();
+
+        return this.getContext(hit).getImageData(sx, sy, sw, sh);
     };
 
-    thi$.putImageData = function(image, dx, dy, dw, dh, ctx){
-        ctx = ctx || this.getContext();
+    thi$.putImageData = function(hit, image, dx, dy){
         dx = dx || 0;
         dy = dy || 0;
-        dw = dw || this.getWidth();
-        dh = dh || this.getHeight();
 
-        ctx.putImageData(image, 0, 0, dx, dy, dw, dh);
+        this.getContext(hit).putImageData(image, dx, dy);
     };
-
-    thi$.addShape = function(shape){
-        var group = this.getGroup(shape.getGID());
-        shape.def.gid = group.id;
-        return group.appendChild(shape);
-    };
-
-    thi$.getGroup = function(gid){
-        return this.getElementById(gid || DEFAULE_GROUP);
-    };
-
-    thi$.refresh = function(){
-        this.erase();
-
-        var items = this.items(), i, len, g;
-        for(i=0, len=items.length; i<len; i++){
-            g = this[items[i]];
-            if(g.isVisible()){
-                this.putImageData(g.getImageData());
-            }
-        }
-    }.$override(this.refresh);
 
     thi$.erase = function(){
         var D = this.getSize();
         this.getContext().clearRect(0,0, D.width, D.height);
-        this.getContext(true).clearRect(0,0, D.width, D.height);
+        if(this.canCapture()){
+            this.getContext(true).clearRect(0,0, D.width, D.height);
+        }
+    };
+
+    thi$.refresh = function(){
+        this.erase();
+        
+        var shape, shapes = this.items()||[];
+        for(var i=0, len=shapes.length; i<len; i++){
+            shape = this[shapes[i]];
+            if(shape && shape.draw){
+                shape.draw();
+            }
+        }
     };
 
     thi$.redraw = function(n){
@@ -144,8 +143,8 @@ js.awt.CanvasLayer = function(def, Runtime){
     };
 
     var _detectShape = function(x, y){
-        var cache = this.getContainer().cachedShapes(),
-            image = this.getImageData(x,y,1,1, this.hitContext()), 
+        var cache = this.cachedShapes(),
+            image = this.getImageData(true, x,y,1,1), 
             px = image.data, colorKey, shape;
         if(px[3] != 0){
              colorKey = new Color(px[0], px[1], px[2], px[3]).toString("rgba");
@@ -160,59 +159,36 @@ js.awt.CanvasLayer = function(def, Runtime){
         if(shape) System.err.println(shape.id);
     };
 
-    thi$.getSize = function(){
-        var ctx = this.relCanvas;
-        return {
-            width : ctx.width,
-            height: ctx.height
-        };
-    }.$override(this.getSize);
+    thi$.setSize = function(w, h){
+        arguments.callee.__super__.apply(this, arguments);
 
-    /**
-     * @see js.awt.Container
-     */
-    thi$.setSize = function(w, h, fire){
-        if(DOM.isDOMElement(this.view)){
-            arguments.callee.__super__.apply(this, arguments);
-            _setSize.call(this, w, h);
-        }
+        _setSize.call(this, w, h);
+
     }.$override(this.setSize);
 
-    /**
-     * @see js.awt.Container
-     */
-    thi$.setBounds = function(x, y, w, h, fire){
-        if(DOM.isDOMElement(this.view)){
-            arguments.callee.__super__.apply(this, arguments);
-            _setSize.call(this, w, h);
-        }
+    thi$.setBounds = function(x, y, w, h){
+        arguments.callee.__super__.apply(this, arguments);
+
+        _setSize.call(this, w, h);
+        
     }.$override(this.setBounds);
 
     var _setSize = function(w, h){
-        var rel = this.relCanvas, hit = this.hitCanvas;
+        var buf = this.relCanvas, hit = this.hitCanvas;
 
-        rel.width = w;
-        rel.height= h;
-
-        hit.width = w;
-        hit.height= h;
-
-        var items = this.items(), i, len, g;
-        for(i=0, len=items.length; i<len; i++){
-            g = this[items[i]];
-            g.setSize(w, h);
+        buf.width = w;
+        buf.height= h;
+        if(hit){
+            hit.width = w;
+            hit.height= h;
         }
 
-        this.redraw();
+        this.refresh();
     };
 
     thi$.destroy = function(){
         delete this.relCanvas;
         delete this.hitCanvas;
-        
-        var U = this._local;
-        delete U.relContext;
-        delete U.hitContext;
         
         arguments.callee.__super__.apply(this, arguments);
 
@@ -224,27 +200,25 @@ js.awt.CanvasLayer = function(def, Runtime){
         def.classType = def.classType || "js.awt.CanvasLayer";
 
         arguments.callee.__super__.apply(this, arguments);
-        
-        this.relCanvas = DOM.createElement("CANVAS");
-        this.hitCanvas = DOM.createElement("CANVAS");
-        this.view = this.relCanvas;
-        this.view.id = this.id;
 
         var U = this._local;
+
+        this.relCanvas = DOM.createElement("CANVAS");
         U.relContext = this.relCanvas.getContext("2d");
-        U.hitContext = this.hitCanvas.getContext("2d");
-
-        this.appendChild(new (Class.forName("js.awt.CanvasGroup"))({
-            id: DEFAULE_GROUP,
-            capture: true
-        }, Runtime));
-
-//        this.attachEvent("mousemove", 0, this, _onmousemove);
+        this.view = this.relCanvas;
+        this.view.id = this.id;
+        
+        if(def.capture === true){
+            this.hitCanvas = DOM.createElement("CANVAS");
+            U.hitContext = this.hitCanvas.getContext("2d");
+//            this.attachEvent("mousemove", 0, this, _onmousemove);
+        }
         
         // DEBUG:
+        /*
         this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
         document.body.appendChild(this.hitCanvas);
-
+        */
     }.$override(this._init);
 
     this._init.apply(this, arguments);

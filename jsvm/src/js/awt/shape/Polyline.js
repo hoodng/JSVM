@@ -67,7 +67,7 @@ js.awt.shape.Polyline = function(def, Runtime){
 
     thi$.drawFunc = function(shape, c, renderer, callback){
         renderer.drawPolyline(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawPolyline(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

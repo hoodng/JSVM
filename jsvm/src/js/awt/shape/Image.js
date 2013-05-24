@@ -64,7 +64,7 @@ js.awt.shape.Image = function(def, Runtime){
 
         e = Class.isNumber(e) ? Graph.deg2rad(e, u) : 0;
         
-        ret = {
+        return {
             image: image,
             sx: Class.isNumber(M.sx) ? M.sx : 0,
             sy: Class.isNumber(M.sy) ? M.sy : 0,
@@ -88,7 +88,7 @@ js.awt.shape.Image = function(def, Runtime){
 
     var _drawFunc = function(shape, c, renderer, callback){
         renderer.drawImage(c.getContext(), shape);
-        if(shape.isCapture()){
+        if(shape.canCapture()){
             renderer.drawImage(c.getContext(true), shape, true);
         }
         if(Class.isFunction(callback)){

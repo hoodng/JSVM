@@ -363,6 +363,7 @@ js.awt.Container = function (def, Runtime, view){
 		var comps = def.items, R = this.Runtime(),
 		oriComps = this._local.items;
 		
+        def.items = [];
 		List.$decorate(def.items);
 
 		for(var i=0, len=comps.length; i<len; i++){

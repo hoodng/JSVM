@@ -37,7 +37,7 @@
 
 $package("js.awt");
 
-$import("js.awt.GraphicContainer");
+$import("js.awt.GraphicGroup");
 
 /**
  * 
@@ -73,54 +73,31 @@ js.awt.GraphicLayer = function(def, Runtime){
         }
 
         return ret;
-    };
 
-    /**
-     * Get context of this layer
-     */
-    thi$.getContext = function(){
-    };
+    }.$override(this.getRenderer);
 
-    thi$.measureText = function(text, font, ctx){
-
-    };
-
-    thi$.draw = function(){
-        var U = this._local, items = this.items(), i, len, g;
-
-        U.dirtyCount = 0;
-
-        if(this.isVisible()){
-            for(i=0, len=items.length; i<len; i++){
-                g = this[items[i]];
-                if(g.hasChanged()){
-                    U.dirtyCount++;
-                    g.draw();
-                }
-            }
-        }
-
-        arguments.callee.__super__.apply(this, arguments);
-
-    }.$override(this.draw);
-
-    thi$.refresh = function(){
+    thi$.cachedShapes = function(){
+        return this._local.shapes;
     };
 
     thi$._init = function(def, Runtime){
 		if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.GraphicLayer";
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        this._local.renderers = {};
         
+        arguments.callee.__super__.apply(this, arguments);
+        
+        var U = this._local;
+
+        U.shapes = {}; // For caching shapes
+
+        U.renderers = {}; // For caching renderers
+
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.GraphicContainer);
+}.$extend(js.awt.GraphicGroup);
 
 
 

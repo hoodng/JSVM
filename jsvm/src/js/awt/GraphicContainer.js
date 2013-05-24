@@ -71,143 +71,12 @@ js.awt.GraphicContainer = function(def, Runtime){
     };
 
     /**
-     * Return the GraphicLayer that this group belong to
-     */
-    thi$.getLayer = function(){
-        var p = this;
-        while(!p.instanceOf(js.awt.GraphicLayer)){
-            p = p.getContainer();
-        }
-        return p;
-    };
-
-    /**
-     * Return the Renderer of this type layer
-     */
-    thi$.getRenderer = function(){
-        return this.getLayer().getRenderer();
-    };
-
-    /**
-     * Get context of this layer
-     */
-    thi$.getContext = function(){
-
-    };
-
-    /**
      * Whether capture events
      */
-    thi$.isCapture = function(){
+    thi$.canCapture = function(){
         var cap = this.def.capture || false;
-        return cap & this.getContainer().isCapture();
+        return cap && this.getContainer().canCapture();
     };
-
-    thi$.absXY = function(){
-        var p = this, x = p.getX(), y = p.getY();
-
-        while(!p.instanceOf(js.awt.GraphicLayer)){
-            p = p.getContainer();
-            x += p.getX();
-            y += p.getY();
-        }
-
-        return {x: x, y: y};
-    };
-
-    thi$.erase = function(){
-    };
-
-    thi$.draw = function(onDrawEnd){
-        var U = this._local, items = this.items(), i, len, ele;
-        
-        U.dirtyCount = 0;
-
-        if(this.isVisible() && this.isDirty()){
-            this.erase();
-
-            for(i=0, len=items.length; i<len; i++){
-                ele = this[items[i]];
-                if(ele.instanceOf(CLASS) && ele.isDirty()){
-                    U.dirtyCount++;
-                    ele.draw.$delay(ele, 0);
-                }
-            }
-        }
-    };
-
-    thi$.isDirty = function(){
-        return this._local.dirty === true;
-    };
-
-    thi$.setDirty = function(dirty){
-        this._local.dirty = dirty || false;
-        
-        if(this.isDirty()){
-            this.getContainer()
-        }
-    };
-
-    /**
-     * @see js.awt.Containable
-     */
-    thi$._insert = function(){
-        var ele = arguments.callee.__super__.apply(this, arguments);
-
-        if(ele.instanceOf(js.awt.GraphicShape)){
-            var cache = this.getLayer().cachedShapes();
-            cache[ele.colorKey().rgba] = ele;
-        }
-        
-        this.setDirty(true);
-
-        return ele;
-
-    }.$override(this._insert);
-
-    /**
-     * @see js.awt.Containable
-     */
-    thi$.removeChild = function(){
-        var ele = arguments.callee.__super__.apply(this, arguments);
-
-        if(ele.instanceOf(js.awt.GraphicShape)){
-            var cache = this.getLayer().cachedShapes();
-            delete cache[ele.colorKey().rgba];
-        }
-
-        this.setDirty(true);
-
-        return ele;
-
-    }.$override(this.removeChild);
-
-    /**
-     * @see js.awt.Containable
-     */
-    thi$.removeAll = function(){
-        var items = this.items(), i, len, ele, 
-            cache = this.getLayer().cachedShapes();
-        
-        for(i=0, len=items.length; i<len; i++){
-            ele = this[items[i]];
-            if(ele.colorKey){
-                delete cache[ele.colorKey().rgba];
-            }
-        }
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        this.setDirty(true);
-
-    }.$override(this.removeAll);
-
-    thi$.setAttr = function(key, value){
-        arguments.callee.__super__.apply(this, arguments);
-        
-        this.setDirty(true);
-
-    }.$override(this.setAttr);
 
     thi$.getAttr = function(key){
         var v = arguments.callee.__super__.apply(this, arguments), p;
@@ -235,9 +104,6 @@ js.awt.GraphicContainer = function(def, Runtime){
 
         arguments.callee.__super__.apply(this, arguments);
 
-        this.def.items = [];
-        this._local.items = [];
-        
     }.$override(this._init);
 
     this._init.apply(this, arguments);

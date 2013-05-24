@@ -47,7 +47,6 @@ $import("js.awt.shape.Polyline");
 $import("js.awt.shape.Rect");
 $import("js.awt.shape.Text");
 
-$import("js.awt.CanvasLayer");
 /**
  * 
  */
@@ -64,41 +63,6 @@ js.awt.Graphics2D = function(def, Runtime, view){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
         System = J$VM.System, MQ = J$VM.MQ,
         PI = Math.PI, PI180 = PI/180;
-
-    CLASS.RAD = "rad";
-    CLASS.DEG = "deg";
-
-    /**
-     * @param vs: [[op, x, y],[op, x1, y1]....]
-     */
-    CLASS.vertices2Rect = function(vs){
-        var i, len, p, x = [], y =[], mx, my, r = {};
-        for(i=0, len=vs.length; i<len; i++){
-            p = vs[i];
-            x.push(p[1]);
-            y.push(p[2]);
-        }
-
-        mx = Math.max.apply(Math, x);
-        my = Math.max.apply(Math, y);
-
-        r.x = Math.min.apply(Math, x);
-        r.y = Math.min.apply(Math, y);
-
-        r.width = mx - r.x;
-        r.height= my - r.y;
-        
-        return r;
-    };
-
-    CLASS.deg2rad = function(d, u){
-        return (u === undefined || u === CLASS.RAD) ? d : d * PI180;
-    };
-
-    CLASS.rad2deg = function(r, u){
-        return (u === undefined || u === CLASS.RAD) ? r/PI180 : r;
-    };
-
 
     /**
      * Draw an Arc
@@ -215,49 +179,16 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * Get specified layer
      */
     thi$.getLayer = function(id){
-        return this[id];
+        return this.getElementById(id);
     };
 
-    thi$.cachedShapes = function(){
-        return this._local.shapes;
-    };
-
-    thi$.isCapture = function(){
+    thi$.canCapture = function(){
         return true;
     };
 
-    thi$.update = function(layer){
-        layer.draw();
-    }.$override(this.update);
-
-    var _onDrawEnd = function(e){
-        var layer = e.getEventTarget();
-        if(layer){
-            layer.refresh();
-        }
+    thi$.refresh = function(){
+        this.curLayer().refresh();
     };
-
-    /**
-     * @see js.awt.Containable
-     */
-    thi$._insert = function(){
-        var ele = arguments.callee.__super__.apply(this, arguments);
-        if(ele.addObserver){
-            ele.addObserver(this);
-        }
-        return ele;
-    }.$override(this._insert);
-
-    /**
-     * @see js.awt.Containable
-     */
-    thi$.removeChild = function(){
-        var ele = arguments.callee.__super__.apply(this, arguments);
-        if(ele.deleteObserver){
-            ele.deleteObserver(this);
-        }
-        return ele;
-    }.$override(this.removeChild);
 
     /**
      * Override destroy method of js.lang.Object
@@ -273,9 +204,10 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
         def.classType = def.classType || "js.awt.Graphics2D";
         def.className = def.className || "jsvm_graphic";
+
+        var id = "__layer0__";
         def.items = def.items || [];
         if(def.items.length == 0){
-            var id = "__layer0__";
             def.items.push(id);
             def[id] = {
                 id: id,
@@ -291,22 +223,52 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
         arguments.callee.__super__.apply(this, arguments);
         
-        var U = this._local, itemIds = this.items0();
-        U.curLayer = itemIds[itemIds.length-1];
+        var U = this._local, items = this.items();
+        U.curLayer = items[items.length-1];
 
-        MQ.register("graphic.draw.end", this, _onDrawEnd);        
-
-        // For caching shapes with shape.colorKey 
-        U.shapes = {};
-        
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.Container);
 
+var CLASS = js.awt.Graphics2D;
 
-js.awt.Graphics2D.Events = {
+CLASS.RAD = "rad";
+CLASS.DEG = "deg";
+
+/**
+ * @param vs: [[op, x, y],[op, x1, y1]....]
+ */
+CLASS.vertices2Rect = function(vs){
+    var i, len, p, x = [], y =[], mx, my, r = {};
+    for(i=0, len=vs.length; i<len; i++){
+        p = vs[i];
+        x.push(p[1]);
+        y.push(p[2]);
+    }
+
+    mx = Math.max.apply(Math, x);
+    my = Math.max.apply(Math, y);
+
+    r.x = Math.min.apply(Math, x);
+    r.y = Math.min.apply(Math, y);
+
+    r.width = mx - r.x;
+    r.height= my - r.y;
+    
+    return r;
+};
+
+CLASS.deg2rad = function(d, u){
+    return (u === undefined || u === this.RAD) ? d : d * Math.PI/180;
+};
+
+CLASS.rad2deg = function(r, u){
+    return (u === undefined || u === this.RAD) ? 180*r/Math.PI : r;
+};
+
+CLASS.Events = {
     "GM_EVENTS" : "gm.events",
 
     "GM_SHAPE_CHANGED" : "gm.shape.changed",
@@ -315,3 +277,5 @@ js.awt.Graphics2D.Events = {
     "GM_GROUP_CHANGED" : "gm.group.changed",
     "GM_GROUP_DRAWEND" : "gm.group.drawend"
 };
+
+CLASS = undefined;
