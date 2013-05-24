@@ -97,6 +97,14 @@ js.awt.GraphicGroup = function(def, Runtime){
         return {x: x, y: y};
     };
 
+    thi$.isDirty = function(){
+        return this._local.dirty === true;
+    };
+
+    thi$.setDirty = function(dirty){
+        this._local.dirty = Class.isBoolean(dirty) ? dirty : true;
+    };
+
     /**
      * @see js.awt.Containable
      */
@@ -108,6 +116,8 @@ js.awt.GraphicGroup = function(def, Runtime){
             cache[ele.colorKey().rgba] = ele;
         }
 
+        this.setDirty(true);
+        
         return ele;
 
     }.$override(this._insert);
@@ -122,6 +132,8 @@ js.awt.GraphicGroup = function(def, Runtime){
             var cache = this.getLayer().cachedShapes();
             delete cache[ele.colorKey().rgba];
         }
+        
+        this.setDirty(true);
 
         return ele;
 
@@ -130,7 +142,7 @@ js.awt.GraphicGroup = function(def, Runtime){
     /**
      * @see js.awt.Containable
      */
-    thi$.removeAll = function(){
+    thi$.removeAll = function(gc){
         var items = this.items(), i, len, ele, 
             cache = this.getLayer().cachedShapes();
         
@@ -142,6 +154,10 @@ js.awt.GraphicGroup = function(def, Runtime){
         }
 
         arguments.callee.__super__.apply(this, arguments);
+
+        if(gc !== true){
+            this.setDirty(true);
+        }
 
     }.$override(this.removeAll);
 

@@ -186,8 +186,8 @@ js.awt.Graphics2D = function(def, Runtime, view){
         return true;
     };
 
-    thi$.refresh = function(){
-        this.curLayer().refresh();
+    thi$.draw = function(callback){
+        this.curLayer().draw(callback);
     };
 
     /**

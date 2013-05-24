@@ -114,32 +114,32 @@ js.awt.CanvasLayer = function(def, Runtime){
         }
     };
 
-    thi$.refresh = function(){
+    thi$.draw = function(callback){
         this.erase();
         
-        var shape, shapes = this.items()||[];
-        for(var i=0, len=shapes.length; i<len; i++){
-            shape = this[shapes[i]];
-            if(shape && shape.draw){
-                shape.draw();
+        var U = this._local;
+        U.Queue = [];
+
+        var items = this.items()||[], i, len, ele, Q = U.Queue;
+        for(i=0, len=items.length; i<len; i++){
+            ele = this[items[i]];
+            if(ele){
+                Q.push(ele);
             }
         }
+        
+        _onDrawEnd.call(this, null, callback);
+
     };
 
-    thi$.redraw = function(n){
-        n = n || 0;
-
-        if(n == 0){
-            this.erase();
+    var _onDrawEnd = function(ele, callback){
+        var U = this._local, Q = U.Queue;
+        
+        if(Q.length > 0){
+            Q.shift().draw(_onDrawEnd.$bind(this, callback));
+        }else if(callback){
+            callback();
         }
-        /*
-        var shape, shapes = this.items();
-        for(var i=n, len=shapes.length; i<len; i++){
-            shape = this[shapes[i]];
-            if(shape && shape.draw){
-                shape.draw();
-            }
-        }*/
     };
 
     var _detectShape = function(x, y){
@@ -182,8 +182,8 @@ js.awt.CanvasLayer = function(def, Runtime){
             hit.width = w;
             hit.height= h;
         }
-
-        this.refresh();
+        
+        this.draw();
     };
 
     thi$.destroy = function(){

@@ -5,7 +5,9 @@
     <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
     <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js"></script>
     <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
-<!--
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
+
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
@@ -15,9 +17,7 @@
 
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGroup.js"></script>    
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasLayer.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/shape/Image.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
--->
+
 
     <script type="text/javascript">
         J$VM.exec("Demo",function(System){
@@ -68,19 +68,16 @@
             G.drawText({text: "Drop", fontSize: 26, x:380, y:120, width: 20, height:40, rotate: 90});
 
             this.doLayout(true);
-            //G.refresh();
-            
-            
+
             var count = 0;
             (function(){
                 polygon.translate(1.5, -1.5);
                 circle.translate(0, 1);
                 E0.rotate(10*Math.PI/180, 200, 200);
                 E1.rotate(-5*Math.PI/180, 200, 200);
-                G.refresh();
                 count ++;
                 if(count < 200){
-                  arguments.callee.$delay(this, 10);
+                  G.draw.$delay(G, 10, arguments.callee.$bind(this));
                 }
             })();
                  

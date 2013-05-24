@@ -90,6 +90,15 @@ js.awt.GraphicContainer = function(def, Runtime){
     thi$.repaint = function(){
 
     };
+    
+    var _onGraphicEvents = function(e){
+    };
+
+    thi$.destroy = function(){
+        MQ.cancel(G.Events.GM_EVENTS, this, _onGraphicEvents);
+
+        arguments.callee.__super__.apply(this, arguments);
+    }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
@@ -103,6 +112,8 @@ js.awt.GraphicContainer = function(def, Runtime){
         def.visible = Class.isBoolean(tmp) ? tmp : true;
 
         arguments.callee.__super__.apply(this, arguments);
+
+        MQ.register(G.Events.GM_EVENTS, this, _onGraphicEvents);
 
     }.$override(this._init);
 

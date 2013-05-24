@@ -83,6 +83,9 @@ js.awt.CanvasGroup = function(def, Runtime){
         }
     };
 
+    thi$.draw = function(callback){
+    };
+
     thi$.setSize = function(w, h){
         arguments.callee.__super__.apply(this, arguments);
 
