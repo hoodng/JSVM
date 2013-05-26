@@ -190,7 +190,7 @@ js.awt.CanvasLayer = function(def, Runtime){
         
         this.setDirty(true);
         _notifyEvent.call(
-            this, new Event(G.Events.GM_GROUP_TRANS_CHANGED,{}, this));
+            this, new Event(G.Events.GM_LAYER_TRANS_CHANGED,{}, this));
     };
 
     var _notifyEvent = function(e){

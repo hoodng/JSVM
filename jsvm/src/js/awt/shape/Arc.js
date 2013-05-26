@@ -63,7 +63,7 @@ js.awt.shape.Arc = function(def, renderer){
     var Class = js.lang.Class, System = J$VM.System,
         Graph = Class.forName("js.awt.Graphics2D");
 
-    thi$.getArc = function(){
+    thi$.getShapeInfo = function(){
         var M = this.def, u = this.getAttr("angleUnit") || Graph.RAD,
             s = M.startAngle, e = M.endAngle;
 
@@ -73,10 +73,9 @@ js.awt.shape.Arc = function(def, renderer){
         return {
             cx: M.cx,
             cy: M.cy,
-            radius: M.radius,
+            r: M.r,
             startAngle: s,
-            endAngle: e,
-            close: M.close
+            endAngle: e
         };
     };
 
@@ -89,14 +88,14 @@ js.awt.shape.Arc = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Arc";
-        def.type = "Arc";
+        def.type = "arc";
 
-        var r = def.radius;
+        var r = def.r;
         def.x = def.cx - r;
         def.y = def.cy - r;
         def.width = def.height = 2 * r;
 
-        def.close = def.close || "open";
+        def.close = "open";
 
         arguments.callee.__super__.apply(this, arguments);
 

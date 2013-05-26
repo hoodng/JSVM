@@ -52,35 +52,16 @@ js.awt.Renderer = function(config){
     
     var Class = js.lang.Class, System = J$VM.System;
 
-    thi$.drawArc = function(ctx, shape, hit){
-    };
 
-    thi$.drawCircle = function(ctx, shape, hit){
-    };
+    thi$.drawShape = function(ctx, shape){
 
-    thi$.drawEllipse = function(ctx, shape, hit){
     };
-
-    thi$.drawImage = function(ctx, shape, hit, callback){
-    };
-
-    thi$.drawLine = function(ctx, shape, hit){
-    };
-
-    thi$.drawPolygon = function(ctx, shape, hit){
-    };
-
-    thi$.drawPolyline = function(ctx, shape, hit){
-    };
-
-    thi$.drawRect = function(ctx, shape, hit){
-    };
-
-    thi$.drawText = function(ctx, shape, hit){
-    };
+    
 
     thi$._init = function(config){
 		if(config == undefined) return;
+        
+        // 
 
     }.$override(this._init);
 

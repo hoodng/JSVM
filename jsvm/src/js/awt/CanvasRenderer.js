@@ -56,17 +56,13 @@ js.awt.CanvasRenderer = function(config){
         Color = Class.forName("js.awt.Color"), 
         Font = Class.forName("js.awt.Font"),
 
-        cos = Math.cos, 
-        sin = Math.sin, 
-        pow = Math.pow, 
-        sqrt = Math.sqrt,
-        PI = Math.PI, 
-        TWPI = 2*PI, 
-        PI180 = PI/180, 
+        cos = Math.cos, sin = Math.sin, 
+        pow = Math.pow, sqrt = Math.sqrt,
+        PI = Math.PI,  TWPI = 2*PI, PI180 = PI/180, 
 
         BRUSH= ["LinearGradient", "RadialGradient", "Pattern"],
 
-        CTXATTRS = [
+        STYLES = [
             "globalAlpha",
             "globalCompositeOperation",
             "fillStyle",
@@ -82,25 +78,44 @@ js.awt.CanvasRenderer = function(config){
             "font",
             "textAlign",
             "textBaseline"
-        ], ATTRSLEN = CTXATTRS.length;
+        ], LEN = STYLES.length,
+
+        BASICSHAPES = {
+            rect :   "drawRect",
+            circle:  "drawCircle",
+            ellipse: "drawEllipse",
+            sector:  "drawSector",
+            polygon: "drawPolygon", 
+
+            polyline: "drawPolyline",
+
+            line: "drawLine",
+            arc: "drawArc",
+            arc1: "drawEllipticArc",
+            arc2: "drawShortestArc",
+            bezier2: "drawBezier2",
+            bezier3: "drawBezier3",
+
+            path: "drawPath"
+        };
 
     
-    thi$.setContextAttrs = function(ctx, attrs){
+    thi$.applyStyles = function(ctx, styles){
         var i, k, v;
 
-        for(i=0; i<ATTRSLEN; i++){
-            k= CTXATTRS[i];
-            v = attrs[k];
+        for(i=0; i<LEN; i++){
+            k= STYLES[i];
+            v = styles[k];
             if(v !== undefined){
                 ctx[k] = v;
             }
         }
         
-        if(attrs.font === undefined){
+        if(styles.font === undefined){
             var FAttrs = Font.Attrs, font;
             for(i=0; i<5; i++){
                 k = FAttrs[i];
-                v = attrs[k];
+                v = styles[k];
                 if(v !== undefined){
                     font = font || Font.parseFont(ctx.font);
                     font[k] = v;
@@ -111,10 +126,10 @@ js.awt.CanvasRenderer = function(config){
             }
         }
         
-        if(attrs.strokeStyle === undefined){
+        if(styles.strokeStyle === undefined){
             for(i=0; i<3; i++){
                 k = BRUSH[i];
-                v = attrs["stroke"+k];
+                v = styles["stroke"+k];
                 if(v !== undefined){
                     ctx.strokeStyle = this["create"+k](ctx, v);
                     break;
@@ -122,10 +137,10 @@ js.awt.CanvasRenderer = function(config){
             }
         };
 
-        if(attrs.fillStyle === undefined){
+        if(styles.fillStyle === undefined){
             for(i=0; i<3; i++){
                 k = BRUSH[i];
-                v = attrs["fill"+k];
+                v = styles["fill"+k];
                 if(v !== undefined){
                     ctx.fillStyle = this["create"+k](ctx, v);
                     break;
@@ -222,32 +237,80 @@ js.awt.CanvasRenderer = function(config){
 
     };
 
-    var fix = function(v){
+    thi$.fix = function(v){
         return (v == 0) ? 0.0 : Math.floor(v)-0.5;
     };
+    
+    /**
+     * @see js.awt.Renderer
+     */
+    thi$.drawShape = function(ctx, shape, hit){
+        var type = shape.getType(),
+            geom = shape.getShapeInfo(), 
+            style= shape.getStyle(),
+            trans= shape.getTransform(),
+            clip = shape.getClip(),
+            fn = BASICSHAPES[type];
+        if(this[fn]){
+            this[fn](ctx, geom, style, hit, trans, clip);
+        }else{
+            throw "Can not found method ["+fn+"] for this shape.";
+        }
+    }.$override(this.drawShape);
 
-    var _beforeDraw = function(ctx, shape, hit){
+    thi$.setContext = function(ctx, geom, style, hit, transform, clip){
+        var T = transform, color, v;
+
         ctx.save();
         
-        var attrs = shape.getAttrs(), T = shape.getTransform(), 
-            v, color;
-
-        this.setContextAttrs(ctx, attrs);
+        if(style){
+            this.applyStyles(ctx, style);
+        }
         
-        ctx.transform(T.m11, T.m12, T.m21, T.m22, T.dx, T.dy);
-        
+        if(T){
+            ctx.transform(T.m11, T.m12, T.m21, T.m22, T.dx, T.dy);
+        }
+       
         if(hit === true){
-            color = shape.colorKey();
+            color = style.colorKey;
             ctx.strokeStyle = ctx.fillStyle = color.rgba;
 
-            v = attrs.hitLineWidth;
+            v = style.hitLineWidth;
             if(v){
                 ctx.lineWidth = v;
             }
         }
     };
 
-    var _afterDraw = function(ctx, shape, hit){
+    thi$.draw = function(ctx, geom, style, hit){
+        var fillStroke = style.fillStroke, 
+            fill = ((fillStroke & 2) != 0), 
+            stroke = ((fillStroke & 1) != 0), opacity, v;
+
+        if((fill || hit) && (style.close !== "open")){
+            v = ctx.globalAlpha;
+            opacity = style ? style.fillOpacity : undefined;
+            if(Class.isNumber(opacity)){
+                ctx.globalAlpha = opacity;
+            }
+            ctx.fill();
+            ctx.globalAlpha = v;
+        }
+
+        if(stroke || hit){
+            v = ctx.globalAlpha;
+            opacity = style ? style.strokeOpacity : undefined;
+            if(Class.isNumber(opacity)){
+                ctx.globalAlpha = opacity;
+            }
+            ctx.stroke();
+            ctx.globalAlpha = v;
+        }
+
+        ctx.restore();
+    };
+
+    thi$.afterDraw = function(ctx, shape, hit){
         var attrs = shape.getAttrs(), v;
 
         if((shape.isFill() || hit === true) && 
@@ -277,12 +340,21 @@ js.awt.CanvasRenderer = function(config){
 
         ctx.restore();
     };
-
     
     /**
      * 
      */
-    thi$.drawArc = function(ctx, shape, hit){
+    thi$.drawArc = function(ctx, geom, style, hit, transform, clip){
+
+        this.setContext(ctx, geom, style, hit, transform, clip);
+        
+        ctx.beginPath();
+        ctx.arc(this.fix(geom.cx), this.fix(geom.cy), geom.r,
+                -geom.startAngle, -geom.endAngle, true);
+        
+        this.draw(ctx, geom, style, hit);
+        
+        /*
         var G = ctx, D = shape.getArc(), cx, cy, x0, y0;
         
         _beforeDraw.call(this, G, shape, hit);
@@ -319,7 +391,7 @@ js.awt.CanvasRenderer = function(config){
         }
 
         _afterDraw.call(this, G, shape, hit);
-
+        */
     };
 
     thi$.drawCircle = function(ctx, shape, hit){
@@ -355,7 +427,7 @@ js.awt.CanvasRenderer = function(config){
         
         M.x = x, M.y = y, M.width = w, M.height = h;
 
-        _beforeDraw.call(this, G, shape);
+        _beforeDraw.call(this, G, shape, hit);
         
         a = w/2; b = h/2;
         dx = x + a; dy = y + b;
@@ -368,9 +440,13 @@ js.awt.CanvasRenderer = function(config){
         x = -w/2; y = -h/2;
 
         G.beginPath();
-        G.drawImage(c.image, c.sx,c.sy, c.sw,c.sh, x, y, w, h);
+        if(!hit){
+            G.drawImage(c.image, c.sx,c.sy, c.sw,c.sh, x, y, w, h);
+        }else{
+            G.rect(x, y, w, h);
+        }
         
-        _afterDraw.call(this, G, shape);
+        _afterDraw.call(this, G, shape, hit);
 
     };
 
@@ -441,15 +517,14 @@ js.awt.CanvasRenderer = function(config){
         _afterDraw.call(this, G, shape, hit);
     };
 
-    thi$.drawRect = function(ctx, shape, hit){
-        var G = ctx, D= shape.getRect();
+    thi$.drawRect = function(ctx, geom, style, hit, transform, clip){
+
+        this.setContext(ctx, geom, style, hit, transform, clip);
         
-        _beforeDraw.call(this, G, shape, hit);
+        ctx.beginPath();
+        ctx.rect(this.fix(geom.x), this.fix(geom.y), geom.width, geom.height);
         
-        G.beginPath();
-        G.rect(fix(D.x), fix(D.y), D.width, D.height);
-        
-        _afterDraw.call(this, G, shape, hit);
+        this.draw(ctx, geom, style, hit);
     };
 
 

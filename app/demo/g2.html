@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js"></script>
+    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Drawable.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
+
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicGroup.js"></script> 
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicLayer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGroup.js"></script>    
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasLayer.js"></script>
+
+
+    <script type="text/javascript">
+        J$VM.exec("Demo",function(System){
+            var Class = js.lang.Class, 
+            Color = Class.forName("js.awt.Color");
+            new Color(0,0,0,0);
+
+            var G = new (Class.forName("js.awt.Graphics2D"))(
+                      {
+                         id: "MyG2",
+                         width: 400, height:400,
+                         css: "border: 1px solid red;",
+                         movable: true,
+                         resizable: true,
+                         miniSize:{width: 10, height:10},
+                         angleUnit: "deg"
+                      }, this);
+           
+
+            var rectA = G.drawRect({ id: "rectA", x:50, y:50, width:100, height: 100, fillStyle:"#FF0000",
+                        fillStroke:2, 
+                        capture:true});
+
+            var g0 = new (Class.forName("js.awt.CanvasGroup"))(
+                        {id:"g0", x:100, y:100, width:100, height:100, capture:true}, 
+                        this);
+            G.curLayer().appendChild(g0);
+            var rectB = G.drawRect({ id: "rectB", x:0, y:0, width:100, height: 100, fillStyle:"#00FF00",
+                        gid: "g0",
+                        fillStroke:2, 
+                        capture:true});
+
+            var rectC = G.drawRect({ id: "rectC", x:150, y:150, width:100, height: 100, fillStyle:"#0000FF",
+                        fillStroke:2, 
+                        capture:true});
+
+            
+
+            this.addComponent(G);
+        
+
+            var count = 0;
+            (function(){
+                //rectA.translate(1.5, 1.5);
+                rectA.rotate(-10*Math.PI/180, 100, 100);
+                rectC.rotate(10*Math.PI/180, 200, 200);
+                count ++;
+                if(count < 200){
+                  G.draw.$delay(G, 10, null, arguments.callee.$bind(this));
+                }
+            })();
+        });
+    </script>
+</head>
+<body>
+
+</body>
+</html>

@@ -61,11 +61,19 @@ js.awt.GraphicShape = function(def, renderer){
         sin = Math.sin, cos = Math.cos;
 
     thi$.colorKey = function(){
-        return this._local.colorKey;
+        return this.def.colorKey;
     };
 
     thi$.getType = function(){
         return this.def.type;
+    };
+
+    thi$.getShapeInfo = function(){
+        
+    };
+
+    thi$.getStyle = function(){
+        return this.def;
     };
 
     thi$.getGID = function(){
@@ -84,34 +92,17 @@ js.awt.GraphicShape = function(def, renderer){
         return this._local.renderer || layer.getRenderer();
     };
 
-    thi$.getDrawFunc = function(layer){
-        var renderer = this.getRenderer(layer), 
-            fn = "draw"+this.getType();
-
-        return renderer[fn] || renderer.draw;
-    };
-
     thi$.drawing = function(layer, callback){
-        var renderer = this.getRenderer(layer), 
-            fn = this.getDrawFunc(layer);
+        var renderer = this.getRenderer(layer);
 
-        fn.call(renderer, layer.getContext(), this);
-        
+        renderer.drawShape(layer.getContext(), this);
         if(this.canCapture()){
-            fn.call(renderer, layer.getContext(true), this, true);
+            renderer.drawShape(layer.getContext(true), this, true);
         }
 
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.drawing);
-
-    thi$.isFill = function(){
-        return (this.def.fillStroke & 2) != 0;
-    };
-
-    thi$.isStroke = function(){
-        return (this.def.fillStroke & 1) != 0;
-    };
 
     thi$.setAttr = function(key, value){
         arguments.callee.__super__.apply(this, arguments);
@@ -160,18 +151,17 @@ js.awt.GraphicShape = function(def, renderer){
         var T0 = this.getMatrix(),
             T1 = new Matrix({M:[[m11, m12, 0],[m21, m22, 0],[dx, dy, 1]]});
 
-        this._local.matrix = Matrix.multiply(T0, T1);
-
-        this.setDirty(true);        
-        _notifyEvent.call(
-            this, new Event(G.Events.GM_SHAPE_TRANS_CHANGED, {}, this));
+        T0 = Matrix.multiply(T0, T1);
+        this.setTransform(T0.Aij(0,0), T0.Aij(0,1), 
+                          T0.Aij(1,0), T0.Aij(1,1), 
+                          T0.Aij(2,0), T0.Aij(2,1));
     };
 
     thi$.setTransform = function(m11, m12, m21, m22, dx, dy){
         var T0 = this.getMatrix();
 
         T0.Aij(0,0,m11);
-        T0.Aij(0,1,m21);
+        T0.Aij(0,1,m12);
         T0.Aij(0,2,0);
 
         T0.Aij(1,0,m21);
@@ -207,6 +197,10 @@ js.awt.GraphicShape = function(def, renderer){
         return this._local.matrix;
     };
 
+    thi$.getClip = function(){
+        
+    };
+
     thi$._init = function(def, renderer){
         if(def == undefined) return;
         
@@ -224,13 +218,13 @@ js.awt.GraphicShape = function(def, renderer){
 
         this.setRenderer(renderer);
 
-        var U = this._local;
+        var M = this.def, U = this._local;
         if(!Color.randomColor){
             new Color(0,0,0);
         }
-        U.colorKey = Color.randomColor(this.uuid());
-        U.colorKey.value |= (0x00FF << 24);
-        U.colorKey.rgba = U.colorKey.toString("rgba");
+        M.colorKey = Color.randomColor(this.uuid());
+        M.colorKey.value |= (0x00FF << 24);
+        M.colorKey.rgba = M.colorKey.toString("rgba");
 
         U.matrix = new Matrix({M:[[1,0,0],[0,1,0],[0,0,1]]});
         

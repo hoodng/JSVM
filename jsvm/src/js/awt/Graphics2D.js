@@ -139,7 +139,8 @@ js.awt.Graphics2D = function(def, Runtime, view){
     };
 
     this.drawShape = function(type, data){
-        var layer = this.curLayer(), renderer = layer.getRenderer(),
+        var layer = this.getLayer(data.layer) || this.curLayer(), 
+            renderer = layer.getRenderer(),
             C = Class.forName(CLASS.SHAPES[type.toLowerCase()]);
         return layer.addShape(new (C)(data, renderer));
     };
@@ -203,12 +204,19 @@ js.awt.Graphics2D = function(def, Runtime, view){
     };
 
     var _onGraphicEvents = function(e){
-        var type = e.getType();
+        var U = this._local, type = e.getType(), tmp;
 
         switch(type){
-        case CLASS.Events.GM_GROUP_TRANS_CHANGED:
-            this.setDirty(true);
-            this.draw();
+        case CLASS.Events.GM_LAYER_TRANS_CHANGED:
+            tmp = U.dirtyCount;
+            U.dirtyCount = Class.isNumber(tmp) ? 
+                tmp : this.getElementsCount();
+            U.dirtyCount--;
+            if(U.dirtyCount === 0){
+                U.dirtyCount = this.getElementsCount();
+                this.setDirty(true);
+                this.draw();
+            }
             break;
         default:
             this.setDirty(true);
@@ -323,7 +331,10 @@ CLASS.Events = {
 
     "GM_GROUP_ATTRS_CHANGED" : "gm.group.attrschanged",
     "GM_GROUP_ITEMS_CHANGED" : "gm.group.itemschanged",
-    "GM_GROUP_TRANS_CHANGED" : "gm.group.transchanged"    
+    "GM_GROUP_TRANS_CHANGED" : "gm.group.transchanged",
+
+    "GM_LAYER_TRANS_CHANGED" : "gm.layer.transchanged"
+
 };
 
 CLASS = undefined;

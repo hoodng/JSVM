@@ -54,21 +54,22 @@ js.awt.shape.Rect = function(def, renderer){
     
     var Class = js.lang.Class, System = J$VM.System;
 
-    thi$.getRect = function(){
-        var M = this.def, c = this.getContainer();
-        return {
-            x: Class.isNumber(M.x) ? M.x : (c ? c.getX() : 0),
-            y: Class.isNumber(M.y) ? M.y : (c ? c.getY() : 0),
-            width: M.width > 0 ? M.width : (c ? c.getWidth() : 100),
-            height:M.height> 0 ? M.height: (c ? c.getHeight(): 100)
-        };
+    thi$.getShapeInfo = function(){
+        var M = this.def, c = this.getContainer(), 
+            ret = { 
+                x : Class.isNumber(M.x) ? M.x : (c ? c.getX() : 0),
+                y : Class.isNumber(M.y) ? M.y : (c ? c.getY() : 0),
+                width : M.width >= 0 ? M.width : (c ? c.getWidth() :0),
+                height : M.height>= 0 ? M.height: (c ? c.getHeight():0)
+            };
+        return ret;
     };
 
     thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Rect";
-        def.type = "Rect";
+        def.type = "rect";
 
         arguments.callee.__super__.apply(this, arguments);
 
