@@ -77,8 +77,18 @@
 
             this.addComponent(G);
             //this.doLayout(true);
-        
-            
+
+            var _onMouseEvents = function(e){
+		        System.err.println(e.getType());
+		    };
+
+		    circle.attachEvent("mousedown", 4, this, _onMouseEvents);
+		    circle.attachEvent("mouseup", 4, this, _onMouseEvents);
+		    circle.attachEvent("mouseover", 4, this, _onMouseEvents);                  circle.attachEvent("mouseout", 4, this, _onMouseEvents);
+            circle.attachEvent("mousemove", 4, this, _onMouseEvents);
+            circle.attachEvent("click", 4, this, _onMouseEvents);
+            circle.attachEvent("dblclick", 4, this, _onMouseEvents);
+
             var count = 0;
             (function(){
                 polygon.translate(1.5, -1.5);

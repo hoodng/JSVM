@@ -73,7 +73,10 @@ js.awt.Event = function(e){
             }
             
         }
-    };
+
+		arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.cancelBubble);
     
     thi$.cancelDefault = function(){
         var _e = this._event;
@@ -88,8 +91,10 @@ js.awt.Event = function(e){
             }
             
         }
-        return false;
-    };
+
+		return arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.cancelDefault);
 
     thi$._init = function(e){
         var _e = this._event = e || window.event,

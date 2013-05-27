@@ -239,8 +239,65 @@ js.awt.Graphics2D = function(def, Runtime, view){
     };
 
     var _onMouseEvents = function(e){
-        System.err.println(e.getType());
+		var eType = e.getType(), ele;
+		if(eType === "mouseover"){
+			ele = e.toElement;
+		}else if(eType === "mouseout"){
+			ele = e.fromElement;
+		}else{
+			ele = e.srcElement;
+		}
+
+		var U = this._local, XY, shape;
+		if(this.contains(ele, true) || ele === this._coverView){
+
+			XY = this.curLayer().relative(e.eventXY());
+			shape = _detectShape.call(this, XY.x, XY.y);
+
+			if(!shape){
+				if(U.curShape){
+					e.setType("mouseout");
+					e.fromElement = e.srcElement = e._target = U.curShape;
+					U.curShape.fireEvent(e);
+					U.curShape = undefined;
+				}
+			}else if(shape !== U.curShape){
+				if(U.curShape){
+					e.setType("mouseout");
+					e.fromElement = e.srcElement = e._target = U.curShape;
+					e.toElement = shape;
+					U.curShape.fireEvent(e);
+				}
+
+				if(e._default === true){
+					e.setType("mouseover");
+					e.toElement = e.srcElement = e._target = shape;
+					e.fromElement = U.curShape;
+					shape.fireEvent(e);
+				}
+
+				U.curShape = shape;
+			}else{
+				e.srcElement = e._target = shape;
+				shape.fireEvent(e);
+			}
+		}
+
+		return true;
     };
+
+	var _detectShape = function(x, y){
+		var items = this.items(), i, len, layer, shape, shapes = [];
+
+		for(i=0, len=items.length; i<len; i++){
+			layer = this.getLayer(items[i]);
+			shape = layer.detectShape(x, y);
+			if(shape){
+				shapes.push(shape);
+			}
+		}
+		return shapes.pop();
+	};
 
     thi$.classType = function(){
         return "js.awt.Graphics2D";
@@ -294,6 +351,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         var U = this._local, items = this.items();
         U.curLayer = items[items.length-1];
         U.events = {};
+		U.curShape = undefined;
 
         MQ.register(CLASS.Events.GM_EVENTS, this, _onGraphicEvents);
 

@@ -147,22 +147,17 @@ js.awt.CanvasLayer = function(def, Runtime){
         }
     };
 
-    var _detectShape = function(x, y){
+    thi$.detectShape = function(x, y){
         var cache = this.cachedShapes(),
             image = this.getImageData(true, x,y,1,1), 
             px = image.data, colorKey, shape;
         if(px[3] != 0){
-            colorKey = new Color(px[0], px[1], px[2], px[3]).toString("rgba");
-            shape = cache[colorKey];
+            colorKey = new Color(px[0], px[1], px[2], px[3]);
+            shape = cache[colorKey.toString("rgba")];
         }
         return shape;
     };
 
-    var _onmousemove = function(e){
-        var mp = this.relative(e.eventXY()), shape;
-        shape = _detectShape.call(this, mp.x, mp.y);
-        if(shape) System.err.println(shape.id);
-    };
 
     thi$.setSize = function(w, h){
         arguments.callee.__super__.apply(this, arguments);
@@ -225,9 +220,10 @@ js.awt.CanvasLayer = function(def, Runtime){
         }
         
         // DEBUG:
-
+		/*
         this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
         document.body.appendChild(this.hitCanvas);
+		*/
 
     }.$override(this._init);
 

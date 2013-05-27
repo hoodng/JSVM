@@ -73,6 +73,15 @@ js.util.Event = function (eventType, eventData, eventTarget){
     thi$.setEventTarget = function(eventTarget){
         this._target = eventTarget;        
     };
+
+    thi$.cancelBubble = function(){
+        this._bubble = false;
+    };
+
+    thi$.cancelDefault = function(){
+        this._default = false;
+        return false; 
+    };
     
     thi$._init = function(eventType, eventData, eventTarget){
         this.setType(eventType);
@@ -80,6 +89,9 @@ js.util.Event = function (eventType, eventData, eventTarget){
         this.setEventTarget(eventTarget);
 
         this._time = new Date();
+
+        this._bubble = true;
+        this._default= true;
     };
 
     this._init(eventType, eventData, eventTarget);    
@@ -121,8 +133,8 @@ js.util.Event.FLAG = {
  */
 js.util.Event.attachEvent = function(dom, eventType, flag, listener, handler){
     var fn, args = Array.prototype.slice.call(arguments, 5),
-    check = js.util.Event.FLAG.check(flag),
-    eClass = check.customized ? null : js.awt.Event;
+        check = js.util.Event.FLAG.check(flag),
+        eClass = check.customized ? null : js.awt.Event;
 
     args.unshift(listener, eClass);
     fn = handler.$listen.apply(handler, args);

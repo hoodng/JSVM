@@ -71,7 +71,7 @@ js.util.EventTarget = function (){
 
     var _prepareArgs = function(eventType, flag, listener, handler){
         var check = Event.FLAG.check(flag),
-        args = Array.prototype.slice.call(arguments, 0);
+            args = Array.prototype.slice.call(arguments, 0);
         
         if(check.customized){
             args.unshift(this);
@@ -131,10 +131,16 @@ js.util.EventTarget = function (){
      * @see dispatchEvent(evt);
      */
     thi$.fireEvent = function(evt){
-        var eventType = evt instanceof Event ? 
-            evt.getType() : evt.toString();
+        var eType, isEventObj;
+        
+        if(evt.instanceOf && evt.instanceOf(Event)){
+            isEventObj = true;
+            eType = evt.getType();
+        }else if(Class.isString(evt)) {
+            eType = evt;
+        }
 
-        var listeners = this["on"+eventType];
+        var listeners = this["on"+eType];
         switch(Class.typeOf(listeners)){
         case "function":
             listeners.call(this, evt);
@@ -146,6 +152,14 @@ js.util.EventTarget = function (){
             break;
         default:
             break;
+        }
+
+		// Bubble event
+        if(isEventObj && (evt._bubble === true)){
+            var p = this.getContainer ? this.getContainer() : undefined;
+            if(p && p.fireEvent){
+                p.fireEvent(evt);
+            }
         }
     };
 
