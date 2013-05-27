@@ -89,12 +89,6 @@ js.awt.shape.Arc = function(def, renderer){
 
         def.classType = def.classType || "js.awt.shape.Arc";
         def.type = "arc";
-
-        var r = def.r;
-        def.x = def.cx - r;
-        def.y = def.cy - r;
-        def.width = def.height = 2 * r;
-
         def.close = "open";
 
         arguments.callee.__super__.apply(this, arguments);

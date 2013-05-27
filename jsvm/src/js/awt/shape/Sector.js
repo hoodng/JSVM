@@ -40,14 +40,18 @@ $package("js.awt.shape");
 $import("js.awt.GraphicShape");
 
 /**
- *
- * { cmds:[0,1], coords:[[x,y],[x,y]]}
- *
- * cmd 0 is moveTo, cmd 1 is lineTo
+ * def:{
+ *   cx: 
+ *   cy:
+ *   r:
+ *   startAngle:
+ *   endAngle:
+ *   angleUnit: "deg" | "rad"
+ * }
  */
-js.awt.shape.Polyline = function(def, renderer){
+js.awt.shape.Sector = function(def, renderer){
 
-    var CLASS = js.awt.shape.Polyline, thi$ = CLASS.prototype;
+    var CLASS = js.awt.shape.Sector, thi$ = CLASS.prototype;
     
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -59,18 +63,28 @@ js.awt.shape.Polyline = function(def, renderer){
         Graph = Class.forName("js.awt.Graphics2D");
 
     thi$.getShapeInfo = function(){
-        var M = this.def;
+        var M = this.def, u = this.getAttr("angleUnit") || Graph.RAD,
+            s = M.startAngle, e = M.endAngle;
+
+        s = Class.isNumber(s) ? Graph.deg2rad(s, u) : 0;
+        e = Class.isNumber(e) ? Graph.deg2rad(e, u) : 2*Math.PI;
+
         return {
-            points: M.points
+            cx: M.cx,
+            cy: M.cy,
+            r: M.r,
+            startAngle: s,
+            endAngle: e,
+            close: M.close
         };
     };
 
     thi$._init = function(def, renderer){
         if(def == undefined) return;
 
-        def.classType = def.classType || "js.awt.shape.Polyline";
-        def.type = "polyline";
-        def.close = "open";
+        def.classType = def.classType || "js.awt.shape.Sector";
+        def.type = "sector";
+        def.close = def.close || "center";
 
         arguments.callee.__super__.apply(this, arguments);
 

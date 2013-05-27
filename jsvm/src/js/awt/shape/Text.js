@@ -55,7 +55,7 @@ js.awt.shape.Text = function(def, renderer){
     var Class = js.lang.Class, System = J$VM.System,
         Graph = Class.forName("js.awt.Graphics2D");
 
-    thi$.getText = function(){
+    thi$.getShapeInfo = function(){
         var M = this.def, u = this.getAttr("angleUnit") || Graph.RAD,
             e = M.rotate;
 
@@ -77,7 +77,7 @@ js.awt.shape.Text = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Text";
-        def.type = "Text";
+        def.type = "text";
 
         var v;
         v = def.align_x;

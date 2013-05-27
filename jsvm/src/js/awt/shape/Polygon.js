@@ -58,7 +58,7 @@ js.awt.shape.Polygon = function(def, renderer){
     var Class = js.lang.Class, System = J$VM.System,
         Graph = Class.forName("js.awt.Graphics2D");
 
-    thi$.getPoints = function(){
+    thi$.getShapeInfo = function(){
         var M = this.def;
         return {
             points: M.points
@@ -69,13 +69,7 @@ js.awt.shape.Polygon = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Polygon";
-        def.type = "Polygon";
-
-        var r = Graph.vertices2Rect(def.points);
-        def.x = r.x;
-        def.y = r.y;
-        def.width = r.width;
-        def.height= r.height;
+        def.type = "polygon";
 
         arguments.callee.__super__.apply(this, arguments);
 

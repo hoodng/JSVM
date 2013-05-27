@@ -54,7 +54,7 @@ js.awt.shape.Line = function(def, renderer){
     
     var Class = js.lang.Class, System = J$VM.System;
 
-    thi$.getLine = function(){
+    thi$.getShapeInfo = function(){
         var M = this.def;
         return {
             x0: M.x0,
@@ -64,26 +64,11 @@ js.awt.shape.Line = function(def, renderer){
         };
     };
 
-    thi$.isFill = function(){
-        return false;
-    }.$override(this.fill);
-
     thi$._init = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Line";
-        def.type = "Line";
-
-        def.x = Math.min(def.x0, def.x1);
-        def.y = Math.min(def.y0, def.y1);
-
-        var v;
-        v = def.width = Math.abs(def.x1 - def.x0);
-        def.width = v < 1 ? 1 : v;
-
-        v = def.height= Math.abs(def.y1 - def.y0);
-        def.height= v < 1 ? 1 : v;
-        
+        def.type = "line";
         def.close = "open";
 
         arguments.callee.__super__.apply(this, arguments);

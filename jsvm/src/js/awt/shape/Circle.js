@@ -43,7 +43,7 @@ $import("js.awt.GraphicShape");
  * def:{
  *   cx: 
  *   cy:
- *   radius:
+ *   r:
  * }
  */
 js.awt.shape.Circle = function(def, renderer){
@@ -58,12 +58,12 @@ js.awt.shape.Circle = function(def, renderer){
     
     var Class = js.lang.Class, System = J$VM.System;
 
-    thi$.getCircle = function(){
+    thi$.getShapeInfo = function(){
         var M = this.def;
         return {
             cx: M.cx,
             cy: M.cy,
-            radius: M.radius
+            r: M.r
         };
     };
 
@@ -71,12 +71,7 @@ js.awt.shape.Circle = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Circle";
-        def.type = "Circle";
-
-        var r = def.radius;
-        def.x = def.cx - r;
-        def.y = def.cy - r;
-        def.width = def.height = 2 * r;
+        def.type = "circle";
 
         arguments.callee.__super__.apply(this, arguments);
 

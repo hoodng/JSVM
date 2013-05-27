@@ -57,7 +57,7 @@ js.awt.shape.Image = function(def, renderer){
     
     var images = {}; // For cacheing image
 
-    thi$.getImage = function(){
+    thi$.getShapeInfo = function(){
         var M = this.def, U = this._local, 
             u = this.getAttr("angleUnit") || Graph.RAD,
             e = M.rotate, image = U.image, ret;
@@ -71,10 +71,10 @@ js.awt.shape.Image = function(def, renderer){
             sw: Class.isNumber(M.sw) ? M.sw : image.width,
             sh: Class.isNumber(M.sh) ? M.sh : image.height,
 
-            dx: Class.isNumber(M.x) ? M.x : 0,
-            dy: Class.isNumber(M.y) ? M.y : 0,
-            dw: Class.isNumber(M.width) ? M.width : image.width,
-            dh: Class.isNumber(M.height) ? M.height : image.height,
+            dx: Class.isNumber(M.dx) ? M.dx : 0,
+            dy: Class.isNumber(M.dy) ? M.dy : 0,
+            dw: Class.isNumber(M.dw) ? M.dw : image.width,
+            dh: Class.isNumber(M.dh) ? M.dh : image.height,
 
             rotate: e
         };
@@ -136,7 +136,7 @@ js.awt.shape.Image = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Image";
-        def.type = "Image";
+        def.type = "image";
 
         arguments.callee.__super__.apply(this, arguments);
 

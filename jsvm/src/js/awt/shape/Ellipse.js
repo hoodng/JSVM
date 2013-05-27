@@ -59,13 +59,13 @@ js.awt.shape.Ellipse = function(def, renderer){
     
     var Class = js.lang.Class, System = J$VM.System;
 
-    thi$.getEllipe = function(){
+    thi$.getShapeInfo = function(){
         var M = this.def;
         return {
             cx: M.cx,
             cy: M.cy,
-            ra: M.ra,
-            rb: M.rb
+            rx: M.rx,
+            ry: M.ry
         };
     };
 
@@ -73,13 +73,7 @@ js.awt.shape.Ellipse = function(def, renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Ellipse";
-        def.type = "Ellipse";
-
-        var ra = def.ra, rb = def.rb;
-        def.x = def.cx - ra;
-        def.y = def.cy - rb;
-        def.width = 2 * ra;
-        def.height= 2 * rb;
+        def.type = "ellipse";
 
         arguments.callee.__super__.apply(this, arguments);
 

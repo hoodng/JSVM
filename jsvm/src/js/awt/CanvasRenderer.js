@@ -86,6 +86,8 @@ js.awt.CanvasRenderer = function(config){
             ellipse: "drawEllipse",
             sector:  "drawSector",
             polygon: "drawPolygon", 
+            image: "drawImage",
+            text: "drawText",
 
             polyline: "drawPolyline",
 
@@ -258,6 +260,7 @@ js.awt.CanvasRenderer = function(config){
         }
     }.$override(this.drawShape);
 
+
     thi$.setContext = function(ctx, geom, style, hit, transform, clip){
         var T = transform, color, v;
 
@@ -289,9 +292,11 @@ js.awt.CanvasRenderer = function(config){
 
         if((fill || hit) && (style.close !== "open")){
             v = ctx.globalAlpha;
-            opacity = style ? style.fillOpacity : undefined;
-            if(Class.isNumber(opacity)){
-                ctx.globalAlpha = opacity;
+            if(!hit){
+                opacity = style ? style.fillOpacity : undefined;
+                if(Class.isNumber(opacity)){
+                    ctx.globalAlpha = opacity;
+                }
             }
             ctx.fill();
             ctx.globalAlpha = v;
@@ -299,9 +304,11 @@ js.awt.CanvasRenderer = function(config){
 
         if(stroke || hit){
             v = ctx.globalAlpha;
-            opacity = style ? style.strokeOpacity : undefined;
-            if(Class.isNumber(opacity)){
-                ctx.globalAlpha = opacity;
+            if(!hit){
+                opacity = style ? style.strokeOpacity : undefined;
+                if(Class.isNumber(opacity)){
+                    ctx.globalAlpha = opacity;
+                }
             }
             ctx.stroke();
             ctx.globalAlpha = v;
@@ -310,211 +317,130 @@ js.awt.CanvasRenderer = function(config){
         ctx.restore();
     };
 
-    thi$.afterDraw = function(ctx, shape, hit){
-        var attrs = shape.getAttrs(), v;
-
-        if((shape.isFill() || hit === true) && 
-           shape.getAttrs().close !== "open"){
-
-            v = ctx.globalAlpha;
-            if(hit !== true && attrs.fillOpacity !== undefined){
-                ctx.globalAlpha = attrs.fillOpacity;
-            }
-
-            ctx.fill();
-
-            ctx.globalAlpha = v;
-        }
-
-        if(shape.isStroke() || hit === true){
-
-            v = ctx.globalAlpha;
-
-            if(hit !== true && attrs.strokeOpacity !== undefined){
-                ctx.globalAlpha = attrs.strokeOpacity;
-            }
-            ctx.stroke();
-
-            ctx.globalAlpha = v;
-        }
-
-        ctx.restore();
-    };
-    
-    /**
-     * 
-     */
     thi$.drawArc = function(ctx, geom, style, hit, transform, clip){
 
         this.setContext(ctx, geom, style, hit, transform, clip);
         
+        var fix = this.fix;
+
         ctx.beginPath();
-        ctx.arc(this.fix(geom.cx), this.fix(geom.cy), geom.r,
+        ctx.arc(fix(geom.cx), fix(geom.cy), geom.r,
                 -geom.startAngle, -geom.endAngle, true);
         
         this.draw(ctx, geom, style, hit);
-        
-        /*
-        var G = ctx, D = shape.getArc(), cx, cy, x0, y0;
-        
-        _beforeDraw.call(this, G, shape, hit);
-        
-        G.beginPath();
 
-        cx = fix(D.cx);
-        cy = fix(D.cy);
-
-        switch(D.close){
-        case "center":
-            G.moveTo(cx, cy);
-            break;
-        case "short":
-        case "open":
-            x0 = cx + D.radius * cos(D.startAngle);
-            y0 = cy - D.radius * sin(D.startAngle);
-            G.moveTo(x0, y0);
-            break;
-        }
-
-        G.arc(cx, cy, D.radius, -D.startAngle, -D.endAngle, true);
-
-        switch(D.close){
-        case "center":
-            G.lineTo(cx, cy);
-            break;
-        case "short":
-            G.lineTo(x0, y0);
-            break;
-        case "open":
-            G.moveTo(x0, y0);
-            break;
-        }
-
-        _afterDraw.call(this, G, shape, hit);
-        */
     };
 
-    thi$.drawCircle = function(ctx, shape, hit){
-        var G = ctx, D = shape.getCircle();
+    thi$.drawCircle = function(ctx, geom, style, hit, transform, clip){
+        this.setContext(ctx, geom, style, hit, transform, clip);
         
-        _beforeDraw.call(this, G, shape, hit);
+        var fix = this.fix;
+        ctx.beginPath();
+        ctx.arc(fix(geom.cx), fix(geom.cy), geom.r, 0, TWPI, true);
         
-        G.beginPath();
-        G.arc(fix(D.cx), fix(D.cy), D.radius, 0, TWPI);
-        
-        _afterDraw.call(this, G, shape, hit);
+        this.draw(ctx, geom, style, hit);
     };
 
-    thi$.drawEllipse = function(ctx, shape, hit){
-        var G = ctx, D = shape.getEllipe(), 
-            x = D.cx, y = D.cy, a=D.ra, b=D.rb, 
-            r = Math.max(a,b), ratioX = a/r, ratioY = b/r;
+    thi$.drawEllipse = function(ctx, geom, style, hit, transform, clip){
+        this.setContext(ctx, geom, style, hit, transform, clip);
         
-        _beforeDraw.call(this, G, shape, hit);
+        var fix = this.fix,
+            x = geom.cx, y = geom.cy, a = geom.rx, b = geom.ry,
+            r = Math.max(a, b), ratioX = a/r, ratioY = b/r,
+            cx = fix(x/ratioX), cy = fix(y/ratioY),
+            x0 = fix((x+a)/ratioX);
         
-        G.beginPath();
-        G.scale(ratioX, ratioY);
-        G.moveTo((x+a)/ratioX, y/ratioY);
-        G.arc(x/ratioX, y/ratioY, r, 0, TWPI);
+        ctx.beginPath();
+
+        ctx.scale(ratioX, ratioY);
+        ctx.moveTo(x0, cy);
+        ctx.arc(cx, cy, r, 0, TWPI, true);
         
-        _afterDraw.call(this, G, shape, hit);
+        this.draw(ctx, geom, style, hit);
     };
 
-    thi$.drawImage = function(ctx, shape, hit){
-        var G = ctx, c = shape.getImage(), M = shape.getAttrs(),
-            x = c.dx, y = c.dy, w = c.dw, h = c.dh, a, b, e = c.rotate,
-            o = e + PI/2, dx, dy;
-        
-        M.x = x, M.y = y, M.width = w, M.height = h;
+    thi$.drawImage = function(ctx, geom, style, hit, transform, clip){
+        this.setContext(ctx, geom, style, hit, transform, clip);
 
-        _beforeDraw.call(this, G, shape, hit);
-        
+        var x = geom.dx, y = geom.dy, w = geom.dw, h = geom.dh, a, b, 
+            e = geom.rotate, o = e + PI/2, dx, dy;
+
         a = w/2; b = h/2;
         dx = x + a; dy = y + b;
         w = 2*sqrt(pow(a*cos(e),2)+pow(b*sin(e),2));
         h = 2*sqrt(pow(a*cos(o),2)+pow(b*sin(o),2));
         
-        G.translate(dx, dy);
-        G.rotate(-e);
-        
+        ctx.translate(dx, dy);
+        ctx.rotate(-e);
+
         x = -w/2; y = -h/2;
 
-        G.beginPath();
+        ctx.beginPath();
         if(!hit){
-            G.drawImage(c.image, c.sx,c.sy, c.sw,c.sh, x, y, w, h);
+            ctx.drawImage(geom.image, geom.sx,geom.sy, 
+                          geom.sw,geom.sh, x, y, w, h);
         }else{
-            G.rect(x, y, w, h);
+            ctx.rect(x, y, w, h);
         }
         
-        _afterDraw.call(this, G, shape, hit);
-
+        this.draw(ctx, geom, style, hit);
     };
 
-    thi$.drawLine = function(ctx, shape, hit){
-        var G = ctx, D = shape.getLine(), 
-            x0 = D.x0, y0 = D.y0, x1 = D.x1, y1 = D.y1; 
+    thi$.drawLine = function(ctx, geom, style, hit, transform, clip){
+        this.setContext(ctx, geom, style, hit, transform, clip);
+        var fix = this.fix;
+
+        ctx.beginPath();
+        ctx.moveTo(fix(geom.x0), fix(geom.y0));
+        ctx.lineTo(fix(geom.x1), fix(geom.y1));
         
-        _beforeDraw.call(this, G, shape, hit);
-        
-        G.beginPath();
-        G.moveTo(fix(x0), fix(y0));
-        G.lineTo(fix(x1), fix(y1));
-        
-        _afterDraw.call(this, G, shape, hit);
+        this.draw(ctx, geom, style, hit);
     };
 
-    thi$.drawPolygon = function(ctx, shape, hit){
-        var G = ctx, D = shape.getPoints(), 
-            points = D.points, p, x, y, i, len;
-        
-        _beforeDraw.call(this, G, shape, hit);
+    thi$.drawPolygon = function(ctx, geom, style, hit, transform, clip){
+        this.setContext(ctx, geom, style, hit, transform, clip);
 
-        G.beginPath();
-        
-        for(i=0, len=points.length; i<len; i++){
-            p = points[i];
-            switch(p[0]){
-            case 0:
-                G.moveTo(fix(p[1]), fix(p[2]));
-                break;
-            case 1:
-                G.lineTo(fix(p[1]), fix(p[2]));
-                break;
-            case 2: // @see arc
-                G.arc(p[1], p[2], p[3], p[4], p[5], p[6]);
-                break;
-            case 3: // @see arcTo
-                G.arcTo(p[1], p[2], p[3], p[4], p[5]);
-                break;
-            }
-        }
-        G.closePath();
+        var fix = this.fix, points = geom.points, p, x, y, i, len;
 
-        _afterDraw.call(this, G, shape, hit);
-    };
-
-    thi$.drawPolyline = function(ctx, shape, hit){
-        var G = ctx, D = shape.getPoints(), 
-            points = D.points, p, x, y, i, len;
-        
-        _beforeDraw.call(this, G, shape, hit);
-
-        G.beginPath();
-        
+        ctx.beginPath();
         for(i=0, len=points.length; i<len; i++){
             p = points[i];
             x = fix(p[1]); y = fix(p[2]);
             switch(p[0]){
             case 0:
-                G.moveTo(x, y);
+                ctx.moveTo(x, y);
                 break;
             case 1:
-                G.lineTo(x, y);
+                ctx.lineTo(x, y);
                 break;
             }
-        }
+        }            
+        ctx.closePath();
 
-        _afterDraw.call(this, G, shape, hit);
+        this.draw(ctx, geom, style, hit);
+
+    };
+
+    thi$.drawPolyline = function(ctx, geom, style, hit, transform, clip){
+        this.setContext(ctx, geom, style, hit, transform, clip);
+
+        var fix = this.fix, points = geom.points, p, x, y, i, len;
+
+        ctx.beginPath();
+        for(i=0, len=points.length; i<len; i++){
+            p = points[i];
+            x = fix(p[1]); y = fix(p[2]);
+            switch(p[0]){
+            case 0:
+                ctx.moveTo(x, y);
+                break;
+            case 1:
+                ctx.lineTo(x, y);
+                break;
+            }
+        }            
+
+        this.draw(ctx, geom, style, hit);
     };
 
     thi$.drawRect = function(ctx, geom, style, hit, transform, clip){
@@ -527,11 +453,53 @@ js.awt.CanvasRenderer = function(config){
         this.draw(ctx, geom, style, hit);
     };
 
+    thi$.drawSector = function(ctx, geom, style, hit, transform, clip){
 
-    thi$.drawText = function(ctx, shape, hit){
-        var G = ctx, D = shape.getText(), text = D.text,
-            x = D.x, y = D.y, w = D.width, h = D.height,
-            ax = D.align_x, ay = D.align_y, e = D.rotate, 
+        this.setContext(ctx, geom, style, hit, transform, clip);
+
+        ctx.beginPath();
+        
+        var fix = this.fix, cx, cy, x0, y0;
+        cx = fix(geom.cx);
+        cy = fix(geom.cy);
+
+        switch(geom.close){
+        case "center":
+            ctx.moveTo(cx, cy);
+            break;
+        case "short":
+        case "open":
+            x0 = cx + geom.r * cos(geom.startAngle);
+            y0 = cy - geom.r * sin(geom.startAngle);
+            ctx.moveTo(x0, y0);
+            break;
+        }
+
+        ctx.arc(cx, cy, geom.r, -geom.startAngle, -geom.endAngle, true);
+
+        switch(geom.close){
+        case "center":
+            ctx.lineTo(cx, cy);
+            break;
+        case "short":
+            ctx.lineTo(x0, y0);
+            break;
+        case "open":
+            ctx.moveTo(x0, y0);
+            break;
+        }
+        
+        this.draw(ctx, geom, style, hit);
+
+    };
+
+
+    thi$.drawText = function(ctx, geom, style, hit, transform, clip){
+        this.setContext(ctx, geom, style, hit, transform, clip);
+
+        var fix = this.fix, text = geom.text,
+            x = geom.x, y = geom.y, w = geom.width, h = geom.height,
+            ax = geom.align_x, ay = geom.align_y, e = geom.rotate, 
             fs, tw, th, dx, dy, a, b, o = e + PI/2;
         
         x = Class.isNumber(x) ? x : 0;
@@ -547,35 +515,38 @@ js.awt.CanvasRenderer = function(config){
         w = 2*sqrt(pow(a*cos(e),2)+pow(b*sin(e),2));
         h = 2*sqrt(pow(a*cos(o),2)+pow(b*sin(o),2));
 
-        _beforeDraw.call(this, G, shape, hit);
 
-        G.translate(dx, dy);        
-        G.rotate(-e);
+        ctx.translate(dx, dy);        
+        ctx.rotate(-e);
         
-        fs = this.measureText(G, text);
+        fs = this.measureText(ctx, text);
         tw = fs.width, th = fs.height;
         
         if(tw > w){
-            text = this.cutString(G, text, w, true);
-            tw = G.measureText(text).width;
+            text = this.cutString(ctx, text, w, true);
+            tw = ctx.measureText(text).width;
         }
 
         x = -w/2 + (w - tw)*ax;
         y = -h/2 + (h - th)*ay;
         
+        var fillStroke = style.fillStroke, 
+            fill = ((fillStroke & 2) != 0), 
+            stroke = ((fillStroke & 1) != 0);
+
         if(hit !== true){
-            if(shape.isFill()){
-                G.fillText(text, x, y);
+            if(fill){
+                ctx.fillText(text, x, y);
             }
 
-            if(shape.isStroke()){
-                G.strokeText(text, x, y);
+            if(stroke){
+                ctx.strokeText(text, x, y);
             };
         }else{
-            G.fillRect(x, y, tw, th);
+            ctx.fillRect(x, y, tw, th);
         }
         
-        G.restore();
+        ctx.restore();
     };
 
     this._init.apply(this, arguments);

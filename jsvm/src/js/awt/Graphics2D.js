@@ -128,6 +128,15 @@ js.awt.Graphics2D = function(def, Runtime, view){
     thi$.drawRect = function(data){
         return this.drawShape("rect", data);
     };
+
+    /**
+     * Draw a sector
+     *
+     * @param data: {cx, cy, r, startAngle, endAngle}
+     */
+    thi$.drawSector = function(data){
+        return this.drawShape("sector", data);
+    };
     
     /**
      * Draw Text
@@ -287,6 +296,7 @@ CLASS.SHAPES = {
     polygon: "js.awt.shape.Polygon",
     polyline: "js.awt.shape.Polyline",
     rect: "js.awt.shape.Rect",
+    sector:"js.awt.shape.Sector",
     text: "js.awt.shape.Text"
 };
 
