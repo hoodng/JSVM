@@ -81,19 +81,6 @@ js.awt.GraphicGroup = function(def, Runtime){
         
     };
 
-    thi$.absXY = function(){
-        var p = this, x = p.getX(), y = p.getY();
-
-        while(!p.instanceOf(js.awt.GraphicLayer)){
-            p = p.getContainer();
-
-            x += p.getX();
-            y += p.getY();
-        }
-
-        return {x: x, y: y};
-    };
-
     /**
      * @see js.awt.Containable
      */

@@ -201,17 +201,56 @@ js.awt.Element = function(def, Runtime){
         M.width = Class.isNumber(w) ? w : this.getWidth();
         M.height= Class.isNumber(h) ? h : this.getHeight();
     };
+
+    thi$.absXY = function(){
+        return {x: 0, y:0};
+    };
     
     thi$.getBounds = function(){
-        var M = this.def, style = M.style || {},
-            margin = style.margin  || Z4,
-            border = style.border  || Z4,
-            padding= style.padding || Z4,
+        var M = this.def, U = this._local, el = this.view, abs,
+            bounds, pounds, position, margin, border, padding;
+
+        if(DOM.isDOMElement(el)){
+            bounds = DOM.getBounds(el);
+            position = this.getStyle("position");
+            position = position ? position.toLowerCase() : undefined;
+            bounds.offsetX = el.offsetLeft;
+            bounds.offsetY = el.offsetTop;
+
+            if(J$VM.supports.borderEdg && position !== "relative"){
+                pounds = DOM.getBounds(el.parentNode);
+                bounds.offsetX -= pounds.MBP.borderLeftWidth;
+                bounds.offsetY -= pounds.MBP.borderTopWidth;
+            }
+
+            bounds.x = bounds.offsetX - bounds.MBP.marginLeft;
+            bounds.y = bounds.offsetY - bounds.MBP.marginTop;
+            if(position == "relative"){
+                pounds = pounds || DOM.getBounds(el.parentNode);
+                bounds.x -= pounds.MBP.paddingLeft;
+                bounds.y -= pounds.MBP.paddingTop;
+            }
+
+            bounds.clientWidth = el.clientWidth;
+            bounds.clientHeight= el.clientHeight;
+            
+            bounds.scrollWidth = el.scrollWidth;
+            bounds.scrollHeight= el.scrollHeight;
+            bounds.scrollLeft  = el.scrollLeft;
+            bounds.scrollTop   = el.scrollTop;
+            
+        }else{
+            margin = M.margin  || Z4;
+            border = M.border  || Z4;
+            padding= M.padding || Z4;
+            abs = this.absXY();
+
             bounds = {
                 x: this.getX(),
                 y: this.getY(),
                 width:  this.getWidth(),
                 height: this.getHeight(),
+
                 MBP:{
                     marginTop: margin[0],
                     marginRight: margin[1],
@@ -230,12 +269,29 @@ js.awt.Element = function(def, Runtime){
 
                     BPW: border[3]+padding[3]+padding[1]+border[1],
                     BPH: border[0]+padding[0]+padding[2]+border[2]
-                }
+                },
+
+                absX : abs.X,
+                absY : abs.Y
             };
+            
+            bounds.offsetX = bounds.x;
+            bounds.offsetY = bounds.y;
+
+            bounds.clienWidth   = bounds.width - bounds.MBP.BPW;
+            bounds.clientHeight = bounds.height- bounds.MBP.BPH;
+        }
 
         bounds.innerWidth = bounds.width - bounds.MBP.BPW;
         bounds.innerHeight= bounds.height- bounds.MBP.BPH;
 
+        if(U){
+            bounds.userX = U.userX;
+            bounds.userY = U.userY;
+            bounds.userW = U.userW;
+            bounds.userH = U.userH;
+        }
+        
         return bounds;
     };
 
@@ -297,6 +353,18 @@ js.awt.Element = function(def, Runtime){
         this.def.maxiSize = {
             width: w, height:h
         };
+    };
+
+    /**
+     * Return the computed style with the specified style name
+     */
+    thi$.getStyle = function(sp){
+        var ret;
+        if(this.view){
+            sp = DOM.camelName(sp);
+            ret = DOM.currentStyles(this.view)[sp];
+        }
+        return ret;
     };
     
     thi$.isVisible = function(){
@@ -405,15 +473,40 @@ js.awt.Element = function(def, Runtime){
         } 
     };
 
+    /**
+     * Test whether contains a child node in this component
+     * 
+     * @param ele
+     * @param containSelf, a boolean indicates whether includes the scenario 
+     * of the parent === child.
+     */
     thi$.contains = function(ele, containSelf){
         var id = this.getID(ele), obj = this.getOBJ(ele), o = this[id];
         return o === obj || (containSelf ? this === obj : false);
     };
 
+    /**
+     * Test if the specified (x, y) is in area of the component 
+     */
     thi$.inside = function(x, y){
-        var d = this.getBounds(), minX = d.x, minY = d.y, 
-            maxX = minX + d.width, maxY = minY + d.height;
-        return (x >= minX && x <= maxX && y >= minY && y <= maxY);
+        var d = this.getBounds(), 
+            minX = d.absX + d.MBP.borderLeftWidth, maxX = minX + d.clientWidth,
+            minY = d.absY + d.MBP.borderTopWidth,  maxY = minY + d.clientHeight;
+        return (x > minX && x < maxX && y > minY && y < maxY);
+    };
+
+    /**
+     * Map a absolute XY to this component
+     * 
+     * @param point: {x, y}
+     * @return {x, y}
+     */
+    thi$.relative = function(point){
+        var bounds = this.getBounds();
+        return {
+            x: point.x - bounds.absX - bounds.MBP.borderLeftWidth,
+            y: point.y - bounds.absY - bounds.MBP.borderTopWidth
+        };
     };
 
     /**

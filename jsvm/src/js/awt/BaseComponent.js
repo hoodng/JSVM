@@ -128,51 +128,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
     }.$override(this.setSize);
     
-    thi$.getBounds = function(){
-        var el = this.view, bounds = DOM.getBounds(el), pounds,
-            position = this.getStyle("position");
-        if(position){
-            position = position.toLowerCase();
-        }
-        
-        bounds.offsetX = el.offsetLeft;
-        bounds.offsetY = el.offsetTop;
-
-        if(J$VM.supports.borderEdg && position !== "relative"){
-            pounds = DOM.getBounds(el.parentNode);
-            bounds.offsetX -= pounds.MBP.borderLeftWidth;
-            bounds.offsetY -= pounds.MBP.borderTopWidth;
-        }
-
-        bounds.x = bounds.offsetX - bounds.MBP.marginLeft;
-        bounds.y = bounds.offsetY - bounds.MBP.marginTop;
-        if(position == "relative"){
-            pounds = pounds || DOM.getBounds(el.parentNode);
-            bounds.x -= pounds.MBP.paddingLeft;
-            bounds.y -= pounds.MBP.paddingTop;
-        }
-
-        bounds.innerWidth = bounds.width - bounds.MBP.BPW;
-        bounds.innerHeight= bounds.height- bounds.MBP.BPH;
-        
-        bounds.clientWidth = el.clientWidth;
-        bounds.clientHeight= el.clientHeight;
-        
-        if(this._local){
-            bounds.userX = this._local.userX;
-            bounds.userY = this._local.userY;
-            bounds.userW = this._local.userW;
-            bounds.userH = this._local.userH;
-        }
-
-        bounds.scrollWidth = el.scrollWidth;
-        bounds.scrollHeight= el.scrollHeight;
-        bounds.scrollLeft  = el.scrollLeft;
-        bounds.scrollTop   = el.scrollTop;
-
-        return bounds;
-
-    }.$override(this.getBounds);
     
     thi$.setBounds = function(x, y, w, h){
         var M = this.def, bounds = this.getBounds();
@@ -190,14 +145,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
     thi$.invalidateBounds = function(){
         this.view.bounds = null;
-    };
-        
-    /**
-     * Return the computed style with the specified style name
-     */
-    thi$.getStyle = function(sp){
-        sp = DOM.camelName(sp);
-        return DOM.currentStyles(this.view)[sp];
     };
     
     /**
@@ -357,30 +304,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
     thi$.contains = function(child, containSelf){
         return DOM.contains(this.view, child, containSelf);
     }.$override(this.contains);
-
-    /**
-     * Test if the specified (x, y) is in area of the component 
-     */
-    thi$.inside = function(x, y){
-        var d = this.getBounds(), 
-            minX = d.absX + d.MBP.borderLeftWidth, maxX = minX + d.clientWidth,
-            minY = d.absY + d.MBP.borderTopWidth,  maxY = minY + d.clientHeight;
-        return (x > minX && x < maxX && y > minY && y < maxY);
-    }.$override(this.inside);
-    
-    /**
-     * Map a absolute XY to this component
-     * 
-     * @param point: {x, y}
-     * @return {x, y}
-     */
-    thi$.relative = function(point){
-        var bounds = this.getBounds();
-        return {
-            x: point.x - bounds.absX - bounds.MBP.borderLeftWidth,
-            y: point.y - bounds.absY - bounds.MBP.borderTopWidth
-        };
-    };
 
     /**
      * When this component was add to DOM tree, then invokes

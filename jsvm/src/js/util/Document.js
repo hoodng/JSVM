@@ -46,39 +46,39 @@ js.util.Document = function (){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, cache = {},
-    
-    // Attributes Compatibility Table: Left - W3C, Right - IE
-    ATTRIBUTESCT = {
-        acceptcharset: "acceptCharset",
-        accesskey: "accessKey",
-        allowtransparency: "allowTransparency",
-        bgcolor: "bgColor",
-        cellpadding: "cellPadding",
-        cellspacing: "cellSpacing",
-        "class": "className",
-        colspan: "colSpan",
-        checked: "defaultChecked",
-        selected: "defaultSelected",
-        "for": "htmlFor" ,
-        frameborder: "frameBorder",
-        hspace: "hSpace",
-        longdesc: "longDesc",
-        maxlength: "maxLength",
-        marginwidth: "marginWidth",
-        marginheight: "marginHeight",
-        noresize: "noResize",
-        noshade: "noShade",
-        readonly: "readOnly",
-        rowspan: "rowSpan",
-        tabindex: "tabIndex",
-        valign: "vAlign",
-        vspace: "vSpace"
-    },
-    BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/,
-    DOCTYPECT = {
-        "html-4.01": {bodysize: false},
-        "html-4.01-transitional": {bodysize: true}
-    };
+        
+        // Attributes Compatibility Table: Left - W3C, Right - IE
+        ATTRIBUTESCT = {
+            acceptcharset: "acceptCharset",
+            accesskey: "accessKey",
+            allowtransparency: "allowTransparency",
+            bgcolor: "bgColor",
+            cellpadding: "cellPadding",
+            cellspacing: "cellSpacing",
+            "class": "className",
+            colspan: "colSpan",
+            checked: "defaultChecked",
+            selected: "defaultSelected",
+            "for": "htmlFor" ,
+            frameborder: "frameBorder",
+            hspace: "hSpace",
+            longdesc: "longDesc",
+            maxlength: "maxLength",
+            marginwidth: "marginWidth",
+            marginheight: "marginHeight",
+            noresize: "noResize",
+            noshade: "noShade",
+            readonly: "readOnly",
+            rowspan: "rowSpan",
+            tabindex: "tabIndex",
+            valign: "vAlign",
+            vspace: "vSpace"
+        },
+        BOOLATTRREGEXP = /^(checked|compact|declare|defer|disabled|ismap|multiple|nohref|noshade|nowrap|readonly|selected)$/,
+        DOCTYPECT = {
+            "html-4.01": {bodysize: false},
+            "html-4.01-transitional": {bodysize: true}
+        };
 
     /**
      * Create a DOM element
@@ -93,9 +93,9 @@ js.util.Document = function (){
     };
     
     var REGX_CAMEL = /[A-Z]/g, REGX_HYPHEN = /-([a-z])/ig,
-    textSps = ["font-family", "font-size", "font-style", 
-               "font-weight", "text-decoration", "text-align", "font-weight"],    
-    camelMap = {}, hyphenMap = {};
+        textSps = ["font-family", "font-size", "font-style", 
+                   "font-weight", "text-decoration", "text-align", "font-weight"],    
+        camelMap = {}, hyphenMap = {};
 
     /**
      * Convert hyphen style name to camel style name
@@ -240,8 +240,8 @@ js.util.Document = function (){
     thi$.getStyles = function(el, sps){
         var styles = {};
         (function(styles, el, sp){
-             styles[this.camelName(sp)] = this.getStyle(el, sp);      
-         }).$forEach(this, sps || [], styles, el);
+            styles[this.camelName(sp)] = this.getStyle(el, sp);      
+        }).$forEach(this, sps || [], styles, el);
         
         return styles;
     };
@@ -357,7 +357,7 @@ js.util.Document = function (){
      */
     thi$.setOpacity = function(el, value){
         var style = el.style,
-        currentStyle = el.currentStyle;
+            currentStyle = el.currentStyle;
         
         if(J$VM.ie && parseInt(J$VM.ie) < 10) {
             var opacity = isNaN(value) ? "" : "alpha(opacity=" + value * 100 + ")";
@@ -404,13 +404,13 @@ js.util.Document = function (){
      */    
     thi$.applyStyles = function(el, styles){
         (function(el, value, sp){
-             if(sp.toLowerCase() == "opacity"){
-                 this.setOpacity(el, value);
-             }else{
-                 sp = _pretreatProp.call(this, sp);
-                 el.style[sp] = value;
-             };
-         }).$map(this, styles || {}, el);
+            if(sp.toLowerCase() == "opacity"){
+                this.setOpacity(el, value);
+            }else{
+                sp = _pretreatProp.call(this, sp);
+                el.style[sp] = value;
+            };
+        }).$map(this, styles || {}, el);
     };
     
     thi$.parseNumber = function(value){
@@ -528,7 +528,7 @@ js.util.Document = function (){
     
     var _computeByBody = function(){
         var doctype = J$VM.doctype, fValues = [], 
-        b = true, v, table;
+            b = true, v, table;
         if(doctype.declared){
             v = doctype.getEigenStr();
             if(v){
@@ -589,8 +589,8 @@ js.util.Document = function (){
      */
     thi$.innerSize = function(el, currentStyles, isEle){
         var o = this.outerSize(el, isEle),
-        b = this.getBorderWidth(el, currentStyles, isEle),
-        p = this.getPadding(el, currentStyles, isEle);
+            b = this.getBorderWidth(el, currentStyles, isEle),
+            p = this.getPadding(el, currentStyles, isEle);
         
         return{
             width:  o.width - b.borderLeftWidth - b.borderRightWidth - 
@@ -627,7 +627,7 @@ js.util.Document = function (){
 
         bounds = bounds || this.getBounds(el);
         var BBM = bounds.BBM, styleW, styleH, 
-        isCanvas = (el.tagName === "CANVAS");
+            isCanvas = (el.tagName === "CANVAS");
 
         if(BBM){
             styleW = w;
@@ -741,13 +741,13 @@ js.util.Document = function (){
      */
     thi$.getBounds = function(el){
         var isEle = _checkElement.call(this, el), 
-        outer = this.outerSize(el, isEle),
-        bounds = el.bounds = el.bounds || {};
+            outer = this.outerSize(el, isEle),
+            bounds = el.bounds = el.bounds || {};
         
         if(bounds.BBM === undefined){
             // BBM: BorderBoxModel
             if(Class.typeOf(el) === "htmlinputelement" ||
-                Class.typeOf(el) === "htmltextareaelement"){
+               Class.typeOf(el) === "htmltextareaelement"){
                 bounds.BBM = J$VM.supports.iptBorderBox;
             }else{
                 bounds.BBM = J$VM.supports.borderBox;
@@ -796,8 +796,8 @@ js.util.Document = function (){
      */
     thi$.hasScrollbar = function(el){
         var MBP = this.getBounds(el).MBP,
-        vbw = el.offsetWidth - el.clientWidth - MBP.BW,
-        hbw = el.offsetHeight- el.clientHeight- MBP.BH;
+            vbw = el.offsetWidth - el.clientWidth - MBP.BW,
+            hbw = el.offsetHeight- el.clientHeight- MBP.BH;
 
         return {
             vbw: vbw, hbw: hbw,
@@ -911,7 +911,7 @@ js.util.Document = function (){
      */
     thi$.contains = function(el, child, containSelf){
         if(el == null || el == undefined || 
-                child == null || child == undefined){
+           child == null || child == undefined){
             return false;
         }
         if(el.compareDocumentPosition){
@@ -1069,7 +1069,7 @@ js.util.Document = function (){
 
                 // Add all children from div to target element except br
                 var children = tempDiv.childNodes, 
-                len = children ? children.length : 0;
+                    len = children ? children.length : 0;
                 for(var i = 1; i < len; i++){
                     el.appendChild(children[i]);
                 }
@@ -1098,8 +1098,8 @@ js.util.Document = function (){
         }
         
         var head = doc.getElementsByTagName("head")[0],
-        styleElements = head.getElementsByTagName("style"),
-        styleElement, media, tmpEl;
+            styleElements = head.getElementsByTagName("style"),
+            styleElement, media, tmpEl;
         if (styleElements.length == 0) {
             if (J$VM.ie) {
                 doc.createStyleSheet();
