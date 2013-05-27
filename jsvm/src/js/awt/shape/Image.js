@@ -71,10 +71,10 @@ js.awt.shape.Image = function(def, renderer){
             sw: Class.isNumber(M.sw) ? M.sw : image.width,
             sh: Class.isNumber(M.sh) ? M.sh : image.height,
 
-            dx: Class.isNumber(M.dx) ? M.dx : 0,
-            dy: Class.isNumber(M.dy) ? M.dy : 0,
-            dw: Class.isNumber(M.dw) ? M.dw : image.width,
-            dh: Class.isNumber(M.dh) ? M.dh : image.height,
+            dx: Class.isNumber(M.x) ? M.x : 0,
+            dy: Class.isNumber(M.y) ? M.y : 0,
+            dw: Class.isNumber(M.width) ? M.width : image.width,
+            dh: Class.isNumber(M.height) ? M.height : image.height,
 
             rotate: e
         };

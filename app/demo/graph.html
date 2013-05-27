@@ -41,20 +41,20 @@
 
 
             G.appendChild(new (Class.forName("js.awt.CanvasLayer"))({id: "myLayer", capture:true}, this));
-            G.getLayer("myLayer").appendChild(new (Class.forName("js.awt.CanvasGroup"))({id: "g1", x:200, y: 0, width: 200, height: 100, capture:true}, this));
+            G.getLayer("myLayer").appendChild(new (Class.forName("js.awt.CanvasGroup"))({id: "g1", x:300, y: 0, width: 200, height: 100, capture:true}, this));
 
             G.drawRect({ id: "rect", width:150, height: 150, strokeStyle:"#0000ff",
                         fillStroke:2, fillLinearGradient:{x0:10, y0:10, x1:210, y1:210, colors:[[0, "#10FF10"],[1,"#100010"]]}, capture:true});
 
             
-            G.drawArc({id:"arc", cx:100, cy:100, radius:50, startAngle: 30, endAngle: 180, 
-                       fillStroke: 1, close: "center" ,
+            G.drawSector({id:"arc", cx:100, cy:100, r:50, startAngle: 30, endAngle: 180, 
+                       fillStroke: 1,
                        strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true});
             
-            var circle = G.drawCircle({id:"circle", cx:200, cy:20, radius:10, fillStroke:3,strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true, layer:"myLayer"});
+            var circle = G.drawCircle({id:"circle", cx:200, cy:20, r:10, fillStroke:3,strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true, layer:"myLayer"});
 
-            var E0 = G.drawEllipse({id:"ellipse0", cx:200, cy:200, ra: 60, rb: 30, capture:true, layer:"myLayer"});
-            var E1 = G.drawEllipse({id:"ellipse1", cx:200, cy:200, ra: 30, rb: 60, capture:true, layer:"myLayer"});
+            var E0 = G.drawEllipse({id:"ellipse0", cx:200, cy:200, rx: 60, ry: 30, capture:true, layer:"myLayer"});
+            var E1 = G.drawEllipse({id:"ellipse1", cx:200, cy:200, rx: 30, ry: 60, capture:true, layer:"myLayer"});
 
             G.drawLine({id:"line-blue", x0:200, y0:0, x1:200, y1:400, strokeStyle:"#0000ff", hitLineWidth: 3, capture:true});
             G.drawLine({id:"line-green", x0:0, y0:200, x1:400, y1:200, strokeStyle:"#00ff00", capture:true});
@@ -67,11 +67,13 @@
 
 
 
-              G.drawImage({id:"image0", gid:"g1", image:"test.png", x:100, y:0, width:48, height:48, rotate:0, capture:true, layer:"myLayer"});        
+            G.drawImage({id:"image0", gid:"g1", image:"test.png", x:0, y:0, width:48, height:48, rotate:0, capture:true, layer:"myLayer"});        
 
             G.drawText({id:"text1", text: "for Row", x:380, y:50, width: 20, height:50, rotate: 90});
+
             G.drawImage({id:"image1", image:"test.png", x:380, y:100, width: 20, height:20, rotate: 90});
-            G.drawText({id:"text2",text: "Drop", fontSize: 26, x:380, y:120, width: 20, height:40, rotate: 90});
+
+            G.drawText({id:"text2",text: "Drop", fontSize: 16, x:380, y:120, width: 20, height:40, rotate: 90});
 
             this.addComponent(G);
             //this.doLayout(true);
