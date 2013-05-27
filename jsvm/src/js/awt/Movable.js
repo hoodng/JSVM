@@ -133,7 +133,9 @@ js.awt.Movable = function (){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ,
+        max = Math.max, min = Math.min, 
+        ceil = Math.ceil, floor = Math.floor, round = Math.round;
     
     var _doSelect = function(e){
         
@@ -145,7 +147,7 @@ js.awt.Movable = function (){
         Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
         Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
 
-        var moveObj = this.getMoveObject(e), 
+        var U = this._local, moveObj = this.getMoveObject(e), 
         objContainer = moveObj.getContainer(), 
         isAutoFit = false, rigidW = false, rigidH = false,
         hscroll = false, vscroll = false;
@@ -166,36 +168,36 @@ js.awt.Movable = function (){
         marginLf = bounds.MBP.marginLeft,
         marginTp = bounds.MBP.marginTop,
         mover = this.def.mover, grid = mover.grid, bound = mover.bound,
-        bt = Math.max(mover.bt*mH, bound),
-        br = Math.max(mover.br*mW, bound),
-        bb = Math.max(mover.bb*mH, bound),
-        bl = Math.max(mover.bl*mW, bound),
+        bt = max(mover.bt*mH, bound),
+        br = max(mover.br*mW, bound),
+        bb = max(mover.bb*mH, bound),
+        bl = max(mover.bl*mW, bound),
         pview = DOM.offsetParent(moveObj.view),
         cview = isAutoFit ? DOM.offsetParent(pview) : pview,
         pbounds = DOM.getBounds(pview);
 
-        moveObj.minX = grid*Math.ceil((0 - marginLf - mW + bl)/grid);
-        moveObj.minY = grid*Math.ceil((0 - marginTp - mH + bt)/grid);
+        moveObj.minX = grid*ceil((0 - marginLf - mW + bl)/grid);
+        moveObj.minY = grid*ceil((0 - marginTp - mH + bt)/grid);
         
         maxX = (!isAutoFit || rigidW) ? 
             (!hscroll ? pbounds.width - pbounds.MBP.BW - marginLf - br:
-             Math.max(pview.scrollWidth, pbounds.width) - marginLf - br) :
-        Math.max(cview.scrollWidth, cview.offsetWidth) - marginLf - br;
+             max(pview.scrollWidth, pbounds.width) - marginLf - br) :
+        max(cview.scrollWidth, cview.offsetWidth) - marginLf - br;
         //moveObj.maxX = grid*Math.floor(maxX/grid);
         moveObj.maxX = maxX;
 
         maxY = (!isAutoFit || rigidH) ?
             (!vscroll ? pbounds.height-pbounds.MBP.BH - marginTp - bb:
-             Math.max(pview.scrollHeight, pbounds.height) - marginTp - bb) :
-        Math.max(cview.scrollHeight, cview.offsetHeight) - marginTp - bb;
+             max(pview.scrollHeight, pbounds.height) - marginTp - bb) :
+        max(cview.scrollHeight, cview.offsetHeight) - marginTp - bb;
         //moveObj.maxY = grid*Math.floor(maxY/grid);
         moveObj.maxY = maxY;
 
         moveObj.showMoveCover(true);
         moveObj.cview = cview;
 
-        this._local.clickXY.x += (cview.scrollLeft- moveObj.getX());
-        this._local.clickXY.y += (cview.scrollTop - moveObj.getY());
+        U.clickXY.x += (cview.scrollLeft- moveObj.getX());
+        U.clickXY.y += (cview.scrollTop - moveObj.getY());
         
     };
 
@@ -227,10 +229,10 @@ js.awt.Movable = function (){
 
             _doSelect.$delay(this, longpress, e);
 
-            e.cancelBubble();
+            //e.cancelBubble();
         }
 
-        return e.cancelDefault;
+        return e.cancelDefault();
 
     };
 
@@ -242,7 +244,7 @@ js.awt.Movable = function (){
             //Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
             Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
         }
-        return true;
+        return e.cancelDefault();//true;
     };
     
     var _onmousemv1 = function(e){
@@ -279,10 +281,10 @@ js.awt.Movable = function (){
 		
         if(x != bounds.x || y != bounds.y){
             // Snap to grid
-            x = grid*Math.round(x/grid);
+            x = grid*round(x/grid);
             x = (freedom & 0x01) != 0 ? x : undefined;
 
-            y = grid*Math.round(y/grid);
+            y = grid*round(y/grid);
             y = (freedom & 0x02) != 0 ? y : undefined;
 
             moveObj.setPosition(x, y);

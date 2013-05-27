@@ -121,6 +121,16 @@ js.awt.GraphicShape = function(def, renderer){
         }
         return v;
     }.$override(this.getAttr);
+
+    thi$.attachEvent = function(eType, flag, listener, handler){
+        var layer = this.getLayer(), 
+            G = layer ? layer.getGraphic() : undefined;
+
+        if(G){
+            G.checkAttachEvent(eType);
+            arguments.callee.__super__.apply(this, arguments);
+        }
+    }.$override(this.attachEvent);
     
     thi$.translate =function(dx, dy){
         this.transform(1, 0, 0, 1, dx, dy);

@@ -203,7 +203,7 @@ js.awt.CanvasGroup = function(def, Runtime){
 
         this.bufCanvas = DOM.createElement("CANVAS");
         U.bufContext = this.bufCanvas.getContext("2d");
-        this.view = this.bufCanvas;
+        //this.view = this.bufCanvas;
         
         if(def.capture === true){
             this.hitCanvas = DOM.createElement("CANVAS");

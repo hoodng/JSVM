@@ -222,14 +222,13 @@ js.awt.CanvasLayer = function(def, Runtime){
         if(def.capture === true){
             this.hitCanvas = DOM.createElement("CANVAS");
             U.hitContext = this.hitCanvas.getContext("2d");
-            this.attachEvent("mousemove", 0, this, _onmousemove);
         }
         
         // DEBUG:
-        /*
+
         this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
         document.body.appendChild(this.hitCanvas);
-        */
+
     }.$override(this._init);
 
     this._init.apply(this, arguments);

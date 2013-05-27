@@ -238,14 +238,31 @@ js.awt.Graphics2D = function(def, Runtime, view){
         this.notifyContainer(CLASS.Events.GM_EVENTS, e, true);
     };
 
+    var _onMouseEvents = function(e){
+        System.err.println(e.getType());
+    };
+
     thi$.classType = function(){
         return "js.awt.Graphics2D";
     }.$override(this.classType);
+
+    thi$.checkAttachEvent = function(eType){
+        var U = this._local;
+        if(!U.events[eType]){
+            Event.attachEvent(document, eType, 0, this, _onMouseEvents);
+            U.events[eType] = true;
+        }
+    };
 
     /**
      * Override destroy method of js.lang.Object
      */
     thi$.destroy = function(){
+        var events = this._local.events;
+        for(var eType in events){
+            Event.detachEvent(eType, 0, this, _onMouseEvents);
+        }
+        
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
@@ -276,6 +293,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         
         var U = this._local, items = this.items();
         U.curLayer = items[items.length-1];
+        U.events = {};
 
         MQ.register(CLASS.Events.GM_EVENTS, this, _onGraphicEvents);
 
