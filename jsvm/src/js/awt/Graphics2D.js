@@ -248,7 +248,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
 			ele = e.srcElement;
 		}
 
-		var U = this._local, XY, shape;
+		var U = this._local, XY, shape, bubble = true;
 		if(this.contains(ele, true) || ele === this._coverView){
 
 			XY = this.curLayer().relative(e.eventXY());
@@ -258,7 +258,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
 				if(U.curShape){
 					e.setType("mouseout");
 					e.fromElement = e.srcElement = e._target = U.curShape;
-					U.curShape.fireEvent(e);
+					U.curShape.fireEvent(e, bubble);
 					U.curShape = undefined;
 				}
 			}else if(shape !== U.curShape){
@@ -266,20 +266,20 @@ js.awt.Graphics2D = function(def, Runtime, view){
 					e.setType("mouseout");
 					e.fromElement = e.srcElement = e._target = U.curShape;
 					e.toElement = shape;
-					U.curShape.fireEvent(e);
+					U.curShape.fireEvent(e, bubble);
 				}
 
 				if(e._default === true){
 					e.setType("mouseover");
 					e.toElement = e.srcElement = e._target = shape;
 					e.fromElement = U.curShape;
-					shape.fireEvent(e);
+					shape.fireEvent(e, bubble);
 				}
 
 				U.curShape = shape;
 			}else{
 				e.srcElement = e._target = shape;
-				shape.fireEvent(e);
+				shape.fireEvent(e, bubble);
 			}
 		}
 
