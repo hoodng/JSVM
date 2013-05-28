@@ -232,7 +232,7 @@ js.awt.Movable = function (){
             //e.cancelBubble();
         }
 
-        return true; //e.cancelDefault();
+        return true;
 
     };
 
@@ -244,7 +244,7 @@ js.awt.Movable = function (){
             //Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
             Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
         }
-        return true; //e.cancelDefault(); 
+        return true;
     };
     
     var _onmousemv1 = function(e){
@@ -325,7 +325,7 @@ js.awt.Movable = function (){
             delete moveObj._moved;
         }
 
-        return true; //e.cancelDefault();
+        return true;
     };
 
     var _releaseMoveObject = function(){
