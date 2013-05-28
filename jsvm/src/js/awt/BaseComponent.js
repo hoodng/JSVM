@@ -602,7 +602,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
         if(this._coverView){
             this.removeCover();
         }
-        delete this._local;
         
         DOM.remove(this.view, true);
         delete this.view;
@@ -628,6 +627,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         }
 
         view.uuid = this.uuid();
+        view.id = this.classType() + "." + js.awt.Element.count;
 
         this.className = def.className;
         if(def.css) view.style.cssText = view.style.cssText + def.css;

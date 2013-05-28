@@ -39,7 +39,7 @@ $package("js.util");
 
 $import("js.util.Observable");
 
-js.util.EventTarget = function (){
+js.util.EventTarget = function (def, Runtime){
 
     var CLASS = js.util.EventTarget, thi$ = CLASS.prototype;
     if(CLASS.__defined__) {
@@ -49,13 +49,15 @@ js.util.EventTarget = function (){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, 
-        A = js.util.LinkedList;
+        List = js.util.LinkedList,
+        // Global targets
+        gTargets = {};
 
     var _getListeners = function(eventType){
         var hName = "on"+eventType, listeners = this[hName];
 
         if(!Class.isArray(listeners)){
-            listeners = this[hName] = A.$decorate([]);
+            listeners = this[hName] = List.$decorate([]);
         }
         
         return listeners;
@@ -173,6 +175,13 @@ js.util.EventTarget = function (){
         }
         return cap;
     };
+    
+    /**
+     * Return event target with specified uuid
+     */
+    thi$.getEventTarget = function(uuid){
+        return gTargets[uuid];
+    };
 
     thi$.destroy = function(){
         var eType, handlers = this.__handlers__;
@@ -193,9 +202,20 @@ js.util.EventTarget = function (){
             this.view.__handlers__ = null;          
         }
         
+        delete gTargets[this.uuid()];
+        
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
+
+    thi$._init = function(def, Runtime){
+        if(def === undefined) return;
+
+        arguments.callee.__super__.apply(this, arguments);
+
+        gTargets[this.uuid()] = this;
+
+    }.$override(this._init);
     
     this._init.apply(this, arguments);
     

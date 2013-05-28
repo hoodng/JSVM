@@ -153,7 +153,7 @@ js.net.HttpURLConnection = function (isAsync){
             this.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             break;
         default:
-            // TOOD in the furture ?
+            // TODO in the furture ?
             break;
         }
         
@@ -213,6 +213,8 @@ js.net.HttpURLConnection = function (isAsync){
         }
         this._xhr = null;
         this._headers = null;
+
+        this.destroy();
     };
     
     var _checkTimeout = function(){
@@ -271,7 +273,8 @@ js.net.HttpURLConnection = function (isAsync){
         this.setNoCache(J$VM.System.getProperty("j$vm_ajax_nocache", true));
         this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 6000000));
         this.declareEvent(Event.SYS_EVT_TIMEOUT);
-    };
+
+    }.$override(this._init);
 
     this._init(isAsync != undefined ? isAsync : true);
 

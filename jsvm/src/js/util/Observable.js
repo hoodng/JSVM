@@ -37,7 +37,7 @@
 
 $package("js.util");
 
-js.util.Observable = function (){
+js.util.Observable = function (def, Runtime){
 
     var CLASS = js.util.Observable, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -46,52 +46,59 @@ js.util.Observable = function (){
     }
     CLASS.__defined__ = true;
 
+    var Class = js.lang.Class, Event = js.util.Event, 
+        List = js.util.LinkedList;
+
     thi$.addObserver = function(observer){
-        if(observer && observer.update && 
-           !this._obs.contains(observer)){
-            this._obs.addLast(observer);
+        var svrs = this.__observers__;
+
+        if(observer && observer.update && !svrs.contains(observer)){
+            svrs.addLast(observer);
         }
     };
     
     thi$.deleteObserver = function(observer){
-        this._obs.remove(observer);
+        this.__observers__.remove(observer);
     };
     
     thi$.deleteObservers = function(){
-        this._obs.clear();
+        this.__observers__.clear();
     };
     
     thi$.notifyObservers = function(data){
         if(!this.hasChanged()) return;
 
         (function(observer){
-            observer.update.$delay(observer, 0, this, data);
-        }).$forEach(this, this._obs);    
+            observer.update(this, data);
+        }).$forEach(this, this.__observers__);    
     };
     
     thi$.hasChanged = function(){
-        return this._changed;
+        return this._local.changed;
     };
     
     thi$.setChanged = function(){
-        this._changed = true;    
+        this._local.changed = true;    
     };
     
     thi$.clearChanged = function(){
-        this._changed = false;
+        this._local.changed = false;
     };
 
     thi$.destroy = function(){
-        this._obs.clear();
-        delete this._obs;
+        delete this.__observers__;
+        delete this._local;
 
         arguments.callee.__super__.apply(this, arguments);
         
     }.$override(this.destroy);
 
-    thi$._init = function(){
-        this._obs = js.util.LinkedList.$decorate([]);
-        this._changed = false;
+    thi$._init = function(def, Runtime){
+        if(def === undefined) return;
+
+        this.__observers__ = List.$decorate([]);
+        var U = this._local = {};
+        U.changed = false;
     };
 
     this._init.apply(this, arguments);

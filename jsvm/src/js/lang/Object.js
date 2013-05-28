@@ -43,13 +43,14 @@ js.lang.Object = function (o){
         return;
     }
     CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class, Math = js.lang.Math;
 
     thi$.hashCode = function(){
-        if(this._hash == undefined){
-            this._hash = js.lang.Math.random(new Date().getTime());
-        }
-        
-        return this._hash;
+        this.__hash__ = this.__hash__ || 
+            (new Date().getTime()+Math.gCount());
+
+        return this.__hash__;
     };
     
     thi$.equals = function(o){
@@ -61,13 +62,14 @@ js.lang.Object = function (o){
     };
     
     thi$.uuid = function(id){
-        if(id !== undefined){
-            this._uuid = id;
-        }else if(this._uuid == undefined){
-            this._uuid = js.lang.Math.uuid(this.hashCode());
+        if(Class.isString(id)){
+            this.__uuid__ = id;
         }
 
-        return this._uuid;
+        this.__uuid__ = this.__uuid__ ||
+            Math.uuid(this.hashCode());
+
+        return this.__uuid__;
     };
 
     thi$.instanceOf = function(clazz){

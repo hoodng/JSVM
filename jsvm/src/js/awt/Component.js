@@ -97,8 +97,6 @@ $import("js.util.Observer");
  */
 js.awt.Component = function (def, Runtime, view){
 
-    var ccount = 0;
-    
     var CLASS = js.awt.Component, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -597,8 +595,6 @@ js.awt.Component = function (def, Runtime, view){
             view.className = buf.append(def.className).append("_")
                 .append(this.getState()).toString();
         }
-
-        view.id = def.classType + "." + ccount++;
 
         if(def.prefSize){
             this.isPreferredSizeSet = true;

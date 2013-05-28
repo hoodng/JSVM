@@ -88,11 +88,9 @@ J$VM = new function (){
         if(typeof superC === "function"){
             proto = this.prototype = new (superC)();
             proto.constructor = superC;
-            //proto.constructor.$decorate(proto);
         }else if(typeof superC === "object"){
             proto = this.prototype = superC;
             proto.constructor = superC.constructor;
-            //proto.constructor.$decorate(proto);
         }else{
             throw new Error("Parameter 'superC' must be a function or object");
         }
@@ -124,7 +122,7 @@ J$VM = new function (){
      */
     Function.prototype.$implements = function(superCs){
         var proto = this.prototype, superC,
-            imps = proto.__imps__ = /*proto.__imps__ ||*/ [];
+            imps = proto.__imps__ = [].concat(proto.__imps__ || []);
         
         for(var i=0, len=arguments.length; i<len; i++){
             superC = arguments[i];

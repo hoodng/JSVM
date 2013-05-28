@@ -43,8 +43,12 @@ js.lang.Math = new function (){
     };
     
     this.uuid = function(hash){
-        hash = hash || (new Date().getTime()+count++);
+        hash = hash || (new Date().getTime()+this.gCount());
         return "s"+hash.toString(16);
+    };
+
+    this.gCount = function(){
+        return count++;
     };
 
 }();

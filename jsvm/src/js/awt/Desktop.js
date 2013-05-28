@@ -296,6 +296,23 @@ js.awt.Desktop = function (element){
         return zIndex;
     };
 
+    var _onmouseevents = function(e){
+		var eType = e.getType(), ele, target;
+		if(eType === "mouseover"){
+			ele = e.toElement;
+		}else if(eType === "mouseout"){
+			ele = e.fromElement;
+		}else{
+			ele = e.srcElement;
+		}
+
+        target = this.getEventTarget(ele.uuid);
+        if(target && target.fireEvent){
+            System.err.println(target.id+"--> "+eType);
+            target.fireEvent(e, true);
+        }
+    };
+
     /**
      * @see js.awt.BaseComponent
      */
@@ -354,11 +371,18 @@ js.awt.Desktop = function (element){
         }.$override(DM.destroy);
         
         this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
-        
+
+        Event.attachEvent(self.document, "mousedown", 0, this, _onmouseevents);
+        Event.attachEvent(self.document, "mouseup",   0, this, _onmouseevents);
+        Event.attachEvent(self.document, "mouseover", 0, this, _onmouseevents);
+        Event.attachEvent(self.document, "mouseout",  0, this, _onmouseevents);
+        Event.attachEvent(self.document, "mousemove", 0, this, _onmouseevents);
+
         // Bring the component to the front and notify popup LayerManager
+        /*
         Event.attachEvent(body, "mousedown", 
                           0, this, _notifyLM);
-
+        */
         // Notify popup LayerManager
         Event.attachEvent(body,
                           J$VM.firefox ? "DOMMouseScroll" : "mousewheel", 

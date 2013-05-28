@@ -715,29 +715,26 @@ js.awt.Element = function(def, Runtime){
         return this.def.classType;
     };
 
-    thi$.destroy = function(){
-        delete this._local;
-
-        arguments.callee.__super__.apply(this, arguments);
-        
-    }.$override(this.destroy);
-    
     thi$._init = function(def, Runtime){
-        if(def == undefined) return;
+        if(def === undefined) return;
         
         this.def = def;
-        this._local = this._local || {};
-        this._local.Runtime = Runtime;
         this.uuid(def.uuid);
         this.id = def.id || this.uuid();
         
         def.classType = def.classType || "js.awt.Element";
 
         arguments.callee.__super__.apply(this, arguments);
+
+        this._local.Runtime = Runtime;
+
+        CLASS.count++;
         
     }.$override(this._init);
     
     this._init.apply(this, arguments);
 
 }.$extend(js.util.EventTarget);
+
+js.awt.Element.count = 0;
 
