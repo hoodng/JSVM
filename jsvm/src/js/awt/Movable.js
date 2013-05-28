@@ -232,7 +232,7 @@ js.awt.Movable = function (){
             //e.cancelBubble();
         }
 
-        return e.cancelDefault();
+        return true; //e.cancelDefault();
 
     };
 
@@ -244,7 +244,7 @@ js.awt.Movable = function (){
             //Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
             Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
         }
-        return e.cancelDefault();//true;
+        return true; //e.cancelDefault(); 
     };
     
     var _onmousemv1 = function(e){
@@ -278,7 +278,7 @@ js.awt.Movable = function (){
         
         x = x < minX ? minX : x > maxX ? maxX : x;
         y = y < minY ? minY : y > maxY ? maxY : y;
-		
+        
         if(x != bounds.x || y != bounds.y){
             // Snap to grid
             x = grid*round(x/grid);
@@ -325,7 +325,7 @@ js.awt.Movable = function (){
             delete moveObj._moved;
         }
 
-        return e.cancelDefault();
+        return true; //e.cancelDefault();
     };
 
     var _releaseMoveObject = function(){
