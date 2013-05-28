@@ -79,7 +79,8 @@
             //this.doLayout(true);
 
             var _onMouseEvents = function(e){
-		        System.err.println(e.getType());
+                var shape = e.getEventTarget();
+		        System.err.println(shape.id+"---"+e.getType()+" "+e._bubble);
 		    };
 
 		    circle.attachEvent("mousedown", 4, this, _onMouseEvents);
