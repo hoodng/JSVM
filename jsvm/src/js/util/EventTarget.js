@@ -130,7 +130,7 @@ js.util.EventTarget = function (){
      * 
      * @see dispatchEvent(evt);
      */
-    thi$.fireEvent = function(evt){
+    thi$.fireEvent = function(evt, bubble){
         var eType, isEventObj;
         
         if(evt.instanceOf && evt.instanceOf(Event)){
@@ -155,10 +155,11 @@ js.util.EventTarget = function (){
         }
 
 		// Bubble event
-        if(isEventObj && (evt._bubble === true)){
+        if(isEventObj && (bubble === true) && 
+           (evt._bubble === true)){
             var p = this.getContainer ? this.getContainer() : undefined;
             if(p && p.fireEvent){
-                p.fireEvent(evt);
+                p.fireEvent(evt, bubble);
             }
         }
     };
