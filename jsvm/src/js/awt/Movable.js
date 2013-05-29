@@ -202,10 +202,10 @@ js.awt.Movable = function (){
     };
 
     var _onmousedown = function(e){
+        this.fireEvent(e);
         // Notify popup LayerManager 
         e.setEventTarget(this);
         MQ.post("js.awt.event.LayerEvent", e, [this.Runtime().uuid()]);
-        this.fireEvent(e);
 
         var targ = e.srcElement;
         if(targ.nodeType == 3){
@@ -255,7 +255,6 @@ js.awt.Movable = function (){
     };
 
     var _onmousemove =function(e){
-
         if(!System.checkThreshold(e.getTimeStamp().getTime(), 
                                   this.def.mover.threshold)) 
             return e.cancelDefault();
@@ -302,6 +301,7 @@ js.awt.Movable = function (){
 
     var _onmouseup =function(e){
         _doSelect.$clearTimer();
+        this.fireEvent(e);
 
         Event.detachEvent(document, "mousemove", 0, this, _onmousemove);        
         Event.detachEvent(document, "mouseup", 0, this, _onmouseup);

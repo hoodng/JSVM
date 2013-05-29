@@ -211,19 +211,21 @@ js.awt.CanvasLayer = function(def, Runtime){
 
         this.relCanvas = DOM.createElement("CANVAS");
         U.relContext = this.relCanvas.getContext("2d");
-        this.view = this.relCanvas;
-        this.view.id = this.id;
-        
+
+        var view;
+        view = this.view = this.relCanvas;
+        view.id = this.id;
+        view.uuid = this.uuid();
+
         if(def.capture === true){
             this.hitCanvas = DOM.createElement("CANVAS");
             U.hitContext = this.hitCanvas.getContext("2d");
         }
         
         // DEBUG:
-		/*
+
         this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
         document.body.appendChild(this.hitCanvas);
-		*/
 
     }.$override(this._init);
 

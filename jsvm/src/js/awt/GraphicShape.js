@@ -224,18 +224,20 @@ js.awt.GraphicShape = function(def, renderer){
         tmp = def.fillStroke;
         def.fillStroke = Class.isNumber(tmp) ? tmp : 1;
         
-        arguments.callee.__super__.call(this, def, null);
-
-        this.setRenderer(renderer);
-
-        var M = this.def, U = this._local;
+        var M = def;
         if(!Color.randomColor){
             new Color(0,0,0);
         }
         M.colorKey = Color.randomColor(this.uuid());
         M.colorKey.value |= (0x00FF << 24);
         M.colorKey.rgba = M.colorKey.toString("rgba");
+        this.uuid(M.colorKey.rgba);
+        
+        arguments.callee.__super__.call(this, def, null);
 
+        this.setRenderer(renderer);
+
+        var U = this._local;
         U.matrix = new Matrix({M:[[1,0,0],[0,1,0],[0,0,1]]});
         
         this.setDirty(true);

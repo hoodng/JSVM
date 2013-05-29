@@ -97,7 +97,7 @@ js.util.Observable = function (def, Runtime){
         if(def === undefined) return;
 
         this.__observers__ = List.$decorate([]);
-        var U = this._local = {};
+        var U = this._local = this._local || {};
         U.changed = false;
     };
 

@@ -147,7 +147,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         return this.drawShape("text", data);
     };
 
-    this.drawShape = function(type, data){
+    thi$.drawShape = function(type, data){
         var layer = this.getLayer(data.layer) || this.curLayer(), 
             renderer = layer.getRenderer(),
             C = Class.forName(CLASS.SHAPES[type.toLowerCase()]);
@@ -238,7 +238,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         this.notifyContainer(CLASS.Events.GM_EVENTS, e, true);
     };
 
-    var _onMouseEvents = function(e){
+    var _onmouseevents = function(e){
 		var eType = e.getType(), ele;
 		if(eType === "mouseover"){
 			ele = e.toElement;
@@ -247,10 +247,10 @@ js.awt.Graphics2D = function(def, Runtime, view){
 		}else{
 			ele = e.srcElement;
 		}
-
+        
 		var U = this._local, XY, shape, bubble = true;
 		if(this.contains(ele, true) || ele === this._coverView){
-
+            
 			XY = this.curLayer().relative(e.eventXY());
 			shape = _detectShape.call(this, XY.x, XY.y);
 
@@ -274,6 +274,9 @@ js.awt.Graphics2D = function(def, Runtime, view){
 					e.toElement = e.srcElement = e._target = shape;
 					e.fromElement = U.curShape;
 					shape.fireEvent(e, bubble);
+
+                    e.setType(eType);
+                    shape.fireEvent(e, bubble);
 				}
 
 				U.curShape = shape;
@@ -306,7 +309,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
     thi$.checkAttachEvent = function(eType){
         var U = this._local;
         if(!U.events[eType]){
-            Event.attachEvent(document, eType, 0, this, _onMouseEvents);
+            Event.attachEvent(this.view, eType, 0, this, _onmouseevents);
             U.events[eType] = true;
         }
     };
@@ -317,7 +320,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
     thi$.destroy = function(){
         var events = this._local.events;
         for(var eType in events){
-            Event.detachEvent(eType, 0, this, _onMouseEvents);
+            Event.detachEvent(this.view, eType, 0, this, _onmouseevents);
         }
         
         arguments.callee.__super__.apply(this, arguments);
