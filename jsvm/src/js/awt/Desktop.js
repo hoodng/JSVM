@@ -295,7 +295,8 @@ js.awt.Desktop = function (element){
         }
         return zIndex;
     };
-
+    
+    // For testing all events bind to self.document
     var _onevents = function(e){
 		var eType = e.getType(), ele, target;
 		if(eType === "mouseover"){
@@ -314,6 +315,9 @@ js.awt.Desktop = function (element){
         switch(eType){
         case "mousedown":
             _notifyLM.call(this, e);
+            if(target && target.activateComponent){
+                target.activateComponent();
+            }
             break;
         case "mousewheel":
         case "DOMMouseScroll":
@@ -326,6 +330,7 @@ js.awt.Desktop = function (element){
         
         return e._default;
     };
+    // End test
 
     /**
      * @see js.awt.BaseComponent
@@ -388,30 +393,24 @@ js.awt.Desktop = function (element){
         
         var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel",
             doc = self.document;
-
+        /*
         Event.attachEvent(doc, "mousedown",  0, this, _onevents);
         Event.attachEvent(doc, "mouseup",    0, this, _onevents);
         Event.attachEvent(doc, "mouseover",  0, this, _onevents);
         Event.attachEvent(doc, "mouseout",   0, this, _onevents);
         Event.attachEvent(doc, "mousemove",  0, this, _onevents);
-        Event.attachEvent(doc, mousewheel,   0, this, _onevents);
         Event.attachEvent(doc, "contextmenu",0, this, _onevents);
+        Event.attachEvent(doc, mousewheel,   0, this, _onevents);
+        */
 
         // Bring the component to the front and notify popup LayerManager
-        /*
-        Event.attachEvent(body, "mousedown", 
-                          0, this, _notifyLM);
-        */
+        Event.attachEvent(body, "mousedown",  0, this, _notifyLM);
+
         // Notify popup LayerManager
-        /*
-        Event.attachEvent(body,
-                          J$VM.firefox ? "DOMMouseScroll" : "mousewheel", 
-                          0, this, _notifyLM);
-        */
-        /*
-        Event.attachEvent(body, "contextmenu",
-                          0, this, _forbidContextMenu);
-        */
+        Event.attachEvent(body, mousewheel,   0, this, _notifyLM);
+
+        Event.attachEvent(body, "contextmenu",0, this, _forbidContextMenu);
+
         MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
         
         _registerMessageClass.call(this);
