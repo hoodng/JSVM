@@ -454,9 +454,10 @@ js.awt.ScrollPane = function (def, Runtime){
                 this.notifyPeer("js.awt.event.ItemEvent", 
                                 new Event("orderchanged","", this));
             }
-
-            insert.setActivated(false);
-
+            
+            if(insert){
+                insert.setActivated(false);
+            }
             this.showIndicator(false);
             delete this._local.insert;
 

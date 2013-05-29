@@ -42,7 +42,6 @@ $import("js.awt.Editable");
 $import("js.awt.Movable");
 $import("js.awt.PopupLayer");
 $import("js.awt.Resizable");
-$import("js.awt.State");
 $import("js.awt.Shadow");
 $import("js.util.Observer");
 
@@ -617,7 +616,7 @@ js.awt.Component = function (def, Runtime, view){
     this._init.apply(this, arguments);
     
 }.$extend(js.awt.BaseComponent).$implements(
-    js.awt.State, js.util.Observer, js.awt.Shadow, 
+    js.util.Observer, js.awt.Shadow, 
     js.awt.Movable, js.awt.MoveObject, 
     js.awt.Resizable, js.awt.SizeObject, 
     js.awt.Editable, js.awt.PopupLayer);

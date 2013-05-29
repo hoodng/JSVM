@@ -296,7 +296,7 @@ js.awt.Desktop = function (element){
         return zIndex;
     };
 
-    var _onmouseevents = function(e){
+    var _onevents = function(e){
 		var eType = e.getType(), ele, target;
 		if(eType === "mouseover"){
 			ele = e.toElement;
@@ -308,9 +308,23 @@ js.awt.Desktop = function (element){
 
         target = this.getEventTarget(ele.uuid);
         if(target && target.fireEvent){
-            System.err.println(target.id+"--> "+eType);
             target.fireEvent(e, true);
         }
+
+        switch(eType){
+        case "mousedown":
+            _notifyLM.call(this, e);
+            break;
+        case "mousewheel":
+        case "DOMMouseScroll":
+            _notifyLM.call(this, e);
+            break;
+        case "contextmenu":
+            e.cancelDefault();
+            break;
+        }
+        
+        return e._default;
     };
 
     /**
@@ -371,12 +385,17 @@ js.awt.Desktop = function (element){
         }.$override(DM.destroy);
         
         this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
+        
+        var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel",
+            doc = self.document;
 
-        Event.attachEvent(self.document, "mousedown", 0, this, _onmouseevents);
-        Event.attachEvent(self.document, "mouseup",   0, this, _onmouseevents);
-        Event.attachEvent(self.document, "mouseover", 0, this, _onmouseevents);
-        Event.attachEvent(self.document, "mouseout",  0, this, _onmouseevents);
-        Event.attachEvent(self.document, "mousemove", 0, this, _onmouseevents);
+        Event.attachEvent(doc, "mousedown",  0, this, _onevents);
+        Event.attachEvent(doc, "mouseup",    0, this, _onevents);
+        Event.attachEvent(doc, "mouseover",  0, this, _onevents);
+        Event.attachEvent(doc, "mouseout",   0, this, _onevents);
+        Event.attachEvent(doc, "mousemove",  0, this, _onevents);
+        Event.attachEvent(doc, mousewheel,   0, this, _onevents);
+        Event.attachEvent(doc, "contextmenu",0, this, _onevents);
 
         // Bring the component to the front and notify popup LayerManager
         /*
@@ -384,13 +403,15 @@ js.awt.Desktop = function (element){
                           0, this, _notifyLM);
         */
         // Notify popup LayerManager
+        /*
         Event.attachEvent(body,
                           J$VM.firefox ? "DOMMouseScroll" : "mousewheel", 
                           0, this, _notifyLM);
-        
+        */
+        /*
         Event.attachEvent(body, "contextmenu",
                           0, this, _forbidContextMenu);
-
+        */
         MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
         
         _registerMessageClass.call(this);

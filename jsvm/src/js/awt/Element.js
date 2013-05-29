@@ -37,6 +37,7 @@
 
 $package("js.awt");
 
+$import("js.awt.State");
 $import("js.util.EventTarget");
 
 /**
@@ -367,14 +368,6 @@ js.awt.Element = function(def, Runtime){
         return ret;
     };
     
-    thi$.isVisible = function(){
-        return this.def.visible || false;
-    };
-
-    thi$.setVisible = function(v){
-        this.def.visible = Class.isBoolean(v) ? v : this.isVisible();
-    };
-
     thi$.getAttr = function(key){
         return this.def[key];
     };
@@ -734,7 +727,7 @@ js.awt.Element = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.util.EventTarget);
+}.$extend(js.util.EventTarget).$implements(js.awt.State);
 
 js.awt.Element.count = 0;
 
