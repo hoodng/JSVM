@@ -108,10 +108,10 @@ js.awt.CanvasLayer = function(def, Runtime){
     };
 
     thi$.erase = function(){
-        var D = this.getSize();
-        this.getContext().clearRect(0,0, D.width, D.height);
+        var D = this.getSize(), canvas;
+        this.getContext().clearRect(0, 0, D.width, D.height);
         if(this.canCapture()){
-            this.getContext(true).clearRect(0,0, D.width, D.height);
+            this.getContext(true).clearRect(0, 0, D.width, D.height);
         }
     };
 

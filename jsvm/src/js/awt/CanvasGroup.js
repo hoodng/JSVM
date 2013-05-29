@@ -64,7 +64,7 @@ js.awt.CanvasGroup = function(def, Runtime){
      * Get context of this group
      */
     thi$.getContext = function(hit){
-        return hit ? this._local.hitContext : this._local.bufContext;
+        return hit ? this._local.hitContext : this._local.relContext;
     };
 
     thi$.putImageData = function(hit, image, dx, dy){
@@ -84,10 +84,10 @@ js.awt.CanvasGroup = function(def, Runtime){
     };
 
     thi$.erase = function(){
-        var D = this.getSize();
-        this.getContext().clearRect(0,0, D.width, D.height);
+        var D = this.getSize(), canvas;
+        this.getContext().clearRect(0, 0, D.width, D.height);
         if(this.canCapture()){
-            this.getContext(true).clearRect(0,0, D.width, D.height);
+            this.getContext(true).clearRect(0, 0, D.width, D.height);
         }
     };
 
@@ -164,10 +164,11 @@ js.awt.CanvasGroup = function(def, Runtime){
     }.$override(this.setBounds);
 
     var _setSize = function(w, h){
-        var buf = this.bufCanvas, hit = this.hitCanvas;
+        var buf = this.relCanvas, hit = this.hitCanvas;
 
         buf.width = w;
         buf.height= h;
+
         if(hit){
             hit.width = w;
             hit.height= h;
@@ -183,7 +184,7 @@ js.awt.CanvasGroup = function(def, Runtime){
     };
 
     thi$.destroy = function(){
-        delete this.bufCanvas;
+        delete this.relCanvas;
         delete this.hitCanvas;
         delete this.view;
 
@@ -201,9 +202,9 @@ js.awt.CanvasGroup = function(def, Runtime){
         
         var U = this._local;
 
-        this.bufCanvas = DOM.createElement("CANVAS");
-        U.bufContext = this.bufCanvas.getContext("2d");
-        //this.view = this.bufCanvas;
+        this.relCanvas = DOM.createElement("CANVAS");
+        U.relContext = this.relCanvas.getContext("2d");
+        //this.view = this.relCanvas;
         
         if(def.capture === true){
             this.hitCanvas = DOM.createElement("CANVAS");
