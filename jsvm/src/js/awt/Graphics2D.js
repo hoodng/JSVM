@@ -314,6 +314,148 @@ js.awt.Graphics2D = function(def, Runtime, view){
         }
     };
 
+    var CANVAS_MAX = "8192";
+    /**
+     * Set paper size
+     *
+     *   |--------------------max--------------------|
+     *   |------window------|
+     *   |--view--|
+     *
+     * @param max, {w:maxW, h:maxH}. the data max size
+     * @param win, {w:winW, h:winH}. the data window size
+     */
+    thi$.setPaperSize = function(max, win){
+        win = win || { w:max.w, h:max.h };
+        win.w = Math.min(win.w, CANVAS_MAX);
+        win.h = Math.min(win.h, CANVAS_MAX);
+        
+        // Make two braces if max size large than the data 
+        // window size.
+        var U = this._local, brace;
+        if(max.w > win.w){
+            brace = this.xbrace = DOM.createElement("DIV");
+            brace.className = "xbrace";
+            brace.style.cssText = "position:absolute;";
+            DOM.insertBefore(brace, this.view.firstChild);
+            DOM.setSize(brace, max.w, 1);
+        }
+
+        if(max.h > win.h){
+            brace = this.ybrace = DOM.createElement("DIV");
+            brace.className = "ybrace";
+            brace.style.cssText = "position:absolute;";
+            DOM.insertBefore(brace, this.view.firstChild);
+            DOM.setSize(brace, 1, max.h);
+        }
+        
+        if(brace){
+            Event.attachEvent(this.view, "scroll", 0, this, _onscroll);
+            U.scroll = {
+                Xw: 0,
+                Yw: 0
+            };
+        }
+
+        U.paper = {
+            maxW: max.w,
+            maxH: max.h,
+            winW: win.w,
+            winH: win.h
+        };
+
+        _setSize.call(this, win.w, win.h);
+    };
+
+    
+    var _onscroll = function(e){
+        var U = this._local, scroll = U.scroll, view = this.view, 
+            bounds = this.getBounds(), MBP = bounds.MBP, paper = U.paper, 
+            vieW = bounds.clientWidth - (MBP.paddingLeft+MBP.paddingRight),
+            vieH = bounds.clientHeight- (MBP.paddingTop+MBP.paddingBottom),
+            maxW = paper.maxW, maxH = paper.maxH,
+            winW = paper.winW, winH = paper.winH,
+            Xw = scroll.Xw, Yw = scroll.Yw, Xv, X1, Yv, Y1, reload = false;
+
+        Xv = Math.min(maxW - vieW, view.scrollLeft);
+        Yv = Math.min(maxH - vieH, view.scrollTop);
+        
+        X1 = _getWinPs(maxW, winW, vieW, Xv, Xw);
+        Y1 = _getWinPs(maxH, winH, vieH, Yv, Yw);
+        
+        if(X1 != Xw){
+            reload = true;
+            Xw = scroll.Xw = X1;
+        }
+        if(Y1 != Yw){
+            reload = true;
+            Yw = scroll.Yw = Y1;
+        }
+        
+        _setPos.call(this, Xw, Yw);
+        
+        if(reload && e){
+            System.err.println("Need reload new data");
+        };
+        
+    };
+
+    var _getWinPs = function(M, W, V, vp, wp){
+        return (vp >= 0 && vp <= (W-V)) ? 0 :
+            ((vp >= (M-W) && vp <= (M-V)) ? M-W : 
+             (vp < wp || vp >= wp+W-V) ? vp-(W-V)/2 : wp);
+    };
+
+    /**
+     * @see js.awt.Component
+     */
+    thi$.onResized = function(){
+        var overflow = this.getStyles(
+            ["overflow", "overflowX","overflowY"]);
+
+        this.applyStyles({overflowX: "hidden", overflowY: "hidden"});
+
+        arguments.callee.__super__.apply(this, arguments);
+
+        this.applyStyles(overflow);
+
+    }.$override(this.onResized);
+    
+    /**
+     * @see js.awt.Component
+     */
+    thi$.doLayout = function(){
+        var ret = false, bounds, MBP, w, h;
+        if(arguments.callee.__super__.apply(this, arguments)){
+            if(!this._local.paper){
+                bounds = this.getBounds(); MBP = bounds.MBP;
+                w = bounds.width - (MBP.borderLeftWidth + MBP.borderRightWidth),
+                h = bounds.height- (MBP.borderTopWidth + MBP.borderBottomWidth),
+                _setSize.call(this, w, h);
+            }else{
+                _onscroll.call(this, null);
+            }
+            ret = true;
+        }
+        return ret;
+    }.$override(this.doLayout);
+
+    var _setSize = function(w, h){
+        var items = this.items(), i, len, layer;
+        for(i=0, len=items.length; i<len; i++){
+            layer = this[items[i]];
+            layer.setSize(w, h);
+        }
+    };
+
+    var _setPos = function(x, y){
+        var items = this.items(), i, len, layer;
+        for(i=0, len=items.length; i<len; i++){
+            layer = this[items[i]];
+            layer.setPosition(x, y);
+        }
+    };
+
     /**
      * Override destroy method of js.lang.Object
      */
@@ -321,6 +463,23 @@ js.awt.Graphics2D = function(def, Runtime, view){
         var events = this._local.events;
         for(var eType in events){
             Event.detachEvent(this.view, eType, 0, this, _onmouseevents);
+        }
+
+        var brace, scroll = false;
+        brace = this.xbrace;
+        if(brace){
+            scroll = true;
+            DOM.removeFrom(brace, this.view);
+            delete this.xbrace;
+        }
+        brace = this.ybrace;
+        if(brace){
+            scroll = true;
+            DOM.removeFrom(brace, this.view);
+            delete this.ybrace;
+        }
+        if(scroll){
+            Event.detachEvent(this.view, "scroll", 0, this, _onscroll);
         }
         
         arguments.callee.__super__.apply(this, arguments);
@@ -346,8 +505,9 @@ js.awt.Graphics2D = function(def, Runtime, view){
                 capture: true
             }; 
         }
-        
-        def.layout = def.layout || {classType: "js.awt.SuffuseLayout"};
+        def.layout = def.layout || {
+            classType: "js.awt.AbstractLayout"
+        };
 
         arguments.callee.__super__.apply(this, arguments);
         

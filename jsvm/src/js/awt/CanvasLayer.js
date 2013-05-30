@@ -158,7 +158,28 @@ js.awt.CanvasLayer = function(def, Runtime){
         return shape;
     };
 
+    /**
+     * Set position of the component.<p>
+     * 
+     * @param x, the position left
+     * @param y, the position top
+     */
+    thi$.setPosition = function(x, y){
+        arguments.callee.__super__.apply(this, arguments);
 
+        var buf = this.relCanvas;
+
+        buf.style.left = x+"px";
+        buf.style.top  = y+"px";
+
+    }.$override(this.setPosition);
+
+    /**
+     * Set outer size of the component.<p>
+     * 
+     * @param w, width
+     * @param h, height
+     */
     thi$.setSize = function(w, h){
         arguments.callee.__super__.apply(this, arguments);
 
@@ -166,6 +187,14 @@ js.awt.CanvasLayer = function(def, Runtime){
 
     }.$override(this.setSize);
 
+    /**
+     * Set position and size of the component.<p>
+     * 
+     * @param x, the position left
+     * @param y, the position top
+     * @param w, width
+     * @param h, height
+     */
     thi$.setBounds = function(x, y, w, h){
         arguments.callee.__super__.apply(this, arguments);
 
@@ -191,6 +220,10 @@ js.awt.CanvasLayer = function(def, Runtime){
     var _notifyEvent = function(e){
         this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
+
+    thi$.needLayout = function(){
+        return false;
+    }.$override(this.needLayout);
 
     thi$.destroy = function(){
         delete this.relCanvas;

@@ -93,9 +93,9 @@ js.awt.shape.Image = function(def, renderer){
 
         if(Class.isString(imgId)){
             image = _getImage.call(this, imgId);
+
             if(!Class.isHtmlElement(image)){
-                image = document.createElement("IMG");
-                image.style.cssText = "position:absolute;left:-10000px;";
+                image = new Image();
                 image.src = imgId;
                 image.onload = function(){
                     delete image.onload;
@@ -111,12 +111,12 @@ js.awt.shape.Image = function(def, renderer){
                     };
                 };
 
-                document.body.appendChild(image);
                 return;
             }
         }
-
+            
         _onload.call(this, imgId, image, callback);
+        
     };
 
     var _onload = function(imgId, image, callback, loaded){
