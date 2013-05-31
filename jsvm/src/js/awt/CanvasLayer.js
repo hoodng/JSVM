@@ -164,13 +164,19 @@ js.awt.CanvasLayer = function(def, Runtime){
      * @param x, the position left
      * @param y, the position top
      */
-    thi$.setPosition = function(x, y){
+    thi$.setPosition = function(x, y, fire){
         arguments.callee.__super__.apply(this, arguments);
 
         var buf = this.relCanvas;
 
         buf.style.left = x+"px";
         buf.style.top  = y+"px";
+
+        if((fire & 0x01) != 0){
+            this.setDirty(true);        
+            _notifyEvent.call(
+                this, new Event(G.Events.GM_LAYER_TRANS_CHANGED,{}, this));
+        }
 
     }.$override(this.setPosition);
 
@@ -180,10 +186,10 @@ js.awt.CanvasLayer = function(def, Runtime){
      * @param w, width
      * @param h, height
      */
-    thi$.setSize = function(w, h){
+    thi$.setSize = function(w, h, fire){
         arguments.callee.__super__.apply(this, arguments);
 
-        _setSize.call(this, w, h);
+        _setSize.call(this, w, h, fire);
 
     }.$override(this.setSize);
 
@@ -195,14 +201,14 @@ js.awt.CanvasLayer = function(def, Runtime){
      * @param w, width
      * @param h, height
      */
-    thi$.setBounds = function(x, y, w, h){
+    thi$.setBounds = function(x, y, w, h, fire){
         arguments.callee.__super__.apply(this, arguments);
 
-        _setSize.call(this, w, h);
+        _setSize.call(this, w, h, fire);
         
     }.$override(this.setBounds);
 
-    var _setSize = function(w, h){
+    var _setSize = function(w, h, fire){
         var buf = this.relCanvas, hit = this.hitCanvas;
 
         buf.width = w;
@@ -211,10 +217,12 @@ js.awt.CanvasLayer = function(def, Runtime){
             hit.width = w;
             hit.height= h;
         }
-        
-        this.setDirty(true);
-        _notifyEvent.call(
-            this, new Event(G.Events.GM_LAYER_TRANS_CHANGED,{}, this));
+
+        this.setDirty(true);        
+        if((fire & 0x01) != 0){
+            _notifyEvent.call(
+                this, new Event(G.Events.GM_LAYER_TRANS_CHANGED,{}, this));
+        }
     };
 
     var _notifyEvent = function(e){
@@ -257,9 +265,9 @@ js.awt.CanvasLayer = function(def, Runtime){
         
         // DEBUG:
         /*
-        this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
-        document.body.appendChild(this.hitCanvas);
-        */
+         this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
+         document.body.appendChild(this.hitCanvas);
+         */
     }.$override(this._init);
 
     this._init.apply(this, arguments);

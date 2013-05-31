@@ -184,7 +184,6 @@ js.awt.Graphics2D = function(def, Runtime, view){
         return true;
     }.$override(this.canCapture);
 
-
     thi$.drawing = function(layer, callback){
         var U = this._local;
         U.Queue = [];
@@ -325,7 +324,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param max, {w:maxW, h:maxH}. the data max size
      * @param win, {w:winW, h:winH}. the data window size
      */
-    thi$.setDataSize = function(max, win){
+    thi$.setDataSize = function(max, win, fire){
         var bounds = this.getBounds();
         win = win || { w:max.w, h:max.h };
         win.w = Math.max(Math.min(win.w, CANVAS_MAX), bounds.innerWidth);
@@ -340,10 +339,10 @@ js.awt.Graphics2D = function(def, Runtime, view){
             winH: win.h
         };
 
-        _setSize.call(this, win.w, win.h);
+        _setSize.call(this, win.w, win.h, fire);
     };
 
-    thi$.setDataPosition = function(x, y){
+    thi$.setDataPosition = function(x, y, fire){
         _setPos.call(this, x, y);
     };
 
@@ -382,7 +381,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
                 bounds = this.getBounds(); MBP = bounds.MBP;
                 w = bounds.width - (MBP.borderLeftWidth + MBP.borderRightWidth),
                 h = bounds.height- (MBP.borderTopWidth + MBP.borderBottomWidth),
-                _setSize.call(this, w, h);
+                _setSize.call(this, w, h, 0x07);
             }
 
             ret = true;
@@ -390,19 +389,19 @@ js.awt.Graphics2D = function(def, Runtime, view){
         return ret;
     }.$override(this.doLayout);
 
-    var _setSize = function(w, h){
+    var _setSize = function(w, h, fire){
         var items = this.items(), i, len, layer,
         size = this[items[0]].getSize();
 
         if(size.width != w || size.height != h){
             for(i=0, len=items.length; i<len; i++){
                 layer = this[items[i]];
-                layer.setSize(w, h);
+                layer.setSize(w, h, fire);
             }
         }
     };
 
-    var _setPos = function(x, y){
+    var _setPos = function(x, y, fire){
         var items = this.items(), i, len, layer,
         pos = this[items[0]].getPosition();
 
@@ -410,7 +409,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
            (Class.isNumber(y) && pos.y != y)){
             for(i=0, len=items.length; i<len; i++){
                 layer = this[items[i]];
-                layer.setPosition(x, y);
+                layer.setPosition(x, y, fire);
             }
         }
     };
