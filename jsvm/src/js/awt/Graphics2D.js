@@ -325,37 +325,13 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * @param max, {w:maxW, h:maxH}. the data max size
      * @param win, {w:winW, h:winH}. the data window size
      */
-    thi$.setPaperSize = function(max, win){
+    thi$.setDataSize = function(max, win){
+        var bounds = this.getBounds();
         win = win || { w:max.w, h:max.h };
-        win.w = Math.min(win.w, CANVAS_MAX);
-        win.h = Math.min(win.h, CANVAS_MAX);
+        win.w = Math.max(Math.min(win.w, CANVAS_MAX), bounds.innerWidth);
+        win.h = Math.max(Math.min(win.h, CANVAS_MAX), bounds.innerHeight);
         
-        // Make two braces if max size large than the data 
-        // window size.
-        var U = this._local, brace;
-        if(max.w > win.w){
-            brace = this.xbrace = DOM.createElement("DIV");
-            brace.className = "xbrace";
-            brace.style.cssText = "position:absolute;";
-            DOM.insertBefore(brace, this.view.firstChild);
-            DOM.setSize(brace, max.w, 1);
-        }
-
-        if(max.h > win.h){
-            brace = this.ybrace = DOM.createElement("DIV");
-            brace.className = "ybrace";
-            brace.style.cssText = "position:absolute;";
-            DOM.insertBefore(brace, this.view.firstChild);
-            DOM.setSize(brace, 1, max.h);
-        }
-        
-        if(brace){
-            Event.attachEvent(this.view, "scroll", 0, this, _onscroll);
-            U.scroll = {
-                Xw: 0,
-                Yw: 0
-            };
-        }
+        var U = this._local;
 
         U.paper = {
             maxW: max.w,
@@ -367,43 +343,18 @@ js.awt.Graphics2D = function(def, Runtime, view){
         _setSize.call(this, win.w, win.h);
     };
 
-    
-    var _onscroll = function(e){
-        var U = this._local, scroll = U.scroll, view = this.view, 
-            bounds = this.getBounds(), MBP = bounds.MBP, paper = U.paper, 
-            vieW = bounds.clientWidth - (MBP.paddingLeft+MBP.paddingRight),
-            vieH = bounds.clientHeight- (MBP.paddingTop+MBP.paddingBottom),
-            maxW = paper.maxW, maxH = paper.maxH,
-            winW = paper.winW, winH = paper.winH,
-            Xw = scroll.Xw, Yw = scroll.Yw, Xv, X1, Yv, Y1, reload = false;
-
-        Xv = Math.min(maxW - vieW, view.scrollLeft);
-        Yv = Math.min(maxH - vieH, view.scrollTop);
-        
-        X1 = _getWinPs(maxW, winW, vieW, Xv, Xw);
-        Y1 = _getWinPs(maxH, winH, vieH, Yv, Yw);
-        
-        if(X1 != Xw){
-            reload = true;
-            Xw = scroll.Xw = X1;
-        }
-        if(Y1 != Yw){
-            reload = true;
-            Yw = scroll.Yw = Y1;
-        }
-        
-        _setPos.call(this, Xw, Yw);
-        
-        if(reload && e){
-            System.err.println("Need reload new data");
-        };
-        
+    thi$.setDataPosition = function(x, y){
+        _setPos.call(this, x, y);
     };
 
-    var _getWinPs = function(M, W, V, vp, wp){
-        return (vp >= 0 && vp <= (W-V)) ? 0 :
-            ((vp >= (M-W) && vp <= (M-V)) ? M-W : 
-             (vp < wp || vp >= wp+W-V) ? vp-(W-V)/2 : wp);
+    thi$.setScroll = function(x, y){
+        var view = this.view;
+        if(Class.isNumber(x)){
+            view.scrollLeft = x;
+        }
+        if(Class.isNumber(y)){
+            view.scrollTop = y;
+        }
     };
 
     /**
@@ -432,27 +383,35 @@ js.awt.Graphics2D = function(def, Runtime, view){
                 w = bounds.width - (MBP.borderLeftWidth + MBP.borderRightWidth),
                 h = bounds.height- (MBP.borderTopWidth + MBP.borderBottomWidth),
                 _setSize.call(this, w, h);
-            }else{
-                _onscroll.call(this, null);
             }
+
             ret = true;
         }
         return ret;
     }.$override(this.doLayout);
 
     var _setSize = function(w, h){
-        var items = this.items(), i, len, layer;
-        for(i=0, len=items.length; i<len; i++){
-            layer = this[items[i]];
-            layer.setSize(w, h);
+        var items = this.items(), i, len, layer,
+        size = this[items[0]].getSize();
+
+        if(size.width != w || size.height != h){
+            for(i=0, len=items.length; i<len; i++){
+                layer = this[items[i]];
+                layer.setSize(w, h);
+            }
         }
     };
 
     var _setPos = function(x, y){
-        var items = this.items(), i, len, layer;
-        for(i=0, len=items.length; i<len; i++){
-            layer = this[items[i]];
-            layer.setPosition(x, y);
+        var items = this.items(), i, len, layer,
+        pos = this[items[0]].getPosition();
+
+        if((Class.isNumber(x) && pos.x != x ) || 
+           (Class.isNumber(y) && pos.y != y)){
+            for(i=0, len=items.length; i<len; i++){
+                layer = this[items[i]];
+                layer.setPosition(x, y);
+            }
         }
     };
 
@@ -465,23 +424,6 @@ js.awt.Graphics2D = function(def, Runtime, view){
             Event.detachEvent(this.view, eType, 0, this, _onmouseevents);
         }
 
-        var brace, scroll = false;
-        brace = this.xbrace;
-        if(brace){
-            scroll = true;
-            DOM.removeFrom(brace, this.view);
-            delete this.xbrace;
-        }
-        brace = this.ybrace;
-        if(brace){
-            scroll = true;
-            DOM.removeFrom(brace, this.view);
-            delete this.ybrace;
-        }
-        if(scroll){
-            Event.detachEvent(this.view, "scroll", 0, this, _onscroll);
-        }
-        
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
@@ -515,6 +457,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         U.curLayer = items[items.length-1];
         U.events = {};
 		U.curShape = undefined;
+        U.scroll = {Xw: 0, Yw: 0 };
 
         MQ.register(CLASS.Events.GM_EVENTS, this, _onGraphicEvents);
 

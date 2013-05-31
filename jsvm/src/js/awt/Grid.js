@@ -165,22 +165,24 @@ js.awt.Grid = function(def){
         if(Class.isObject(attrs) && 
            (index>=0 && index < dims.length)){
             dim = dims[index];
-            for(p in attrs && attrs.hasOwnProperty(p)){
-                switch(p){
-                case "rigid":
-                    if(dim.rigid !== attrs.rigid){
-                        dim.rigid = attrs.rigid;
-                        dims.dirty |= 0x01; // need re-calc weight
+            for(p in attrs){
+                if(attrs.hasOwnProperty(p)){
+                    switch(p){
+                    case "rigid":
+                        if(dim.rigid !== attrs.rigid){
+                            dim.rigid = attrs.rigid;
+                            dims.dirty |= 0x01; // need re-calc weight
+                        }
+                        break;
+                    case "visible":
+                        if(dim.visible !== attrs.visible){
+                            dim.visible = attrs.visible;
+                            dims.dirty |= 0x01; // need re-calc weight
+                        }
+                        break;
+                    default:
+                        dim[p] = attrs[p];                  
                     }
-                    break;
-                case "visible":
-                    if(dim.visible !== attrs.visible){
-                        dim.visible = attrs.visible;
-                        dims.dirty |= 0x01; // need re-calc weight
-                    }
-                    break;
-                default:
-                    dim[p] = attrs[p];                  
                 }
             }
         }

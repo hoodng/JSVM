@@ -224,7 +224,9 @@ js.awt.FileInput = function(def, Runtime){
 		
 		this.formPane.btnBrowse.text = Runtime.nlsText("iidBtnBrowse", "Browse...");
 		
-		var file = this.file = DOM.createElement("input");
+		var filePane = this.filePane = DOM.createElement("DIV");
+		filePane.style.cssText = "position:absolute;float:right;top:0px;right:0px;width:100%;height:100%";
+		var file = this.file = DOM.createElement("INPUT");
 		DOM.applyStyles(file, {
 			position : "absolute",
 			cursor : "default",
@@ -238,7 +240,8 @@ js.awt.FileInput = function(def, Runtime){
 		file.style.backgroundColor = "red";
 		file.name = "fileName";
 		file.setAttribute("type", "file");
-		DOM.appendTo(file, this.formPane.view);
+		DOM.appendTo(file, filePane);
+		DOM.appendTo(filePane, this.formPane.view);
 		
 		this._local.charsize = _calcCharSize.call(this);
 				
