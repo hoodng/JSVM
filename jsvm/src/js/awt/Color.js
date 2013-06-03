@@ -260,7 +260,7 @@ js.awt.Color = function(r, g, b, a) {
     };
 
     thi$.toString = function(type) {
-        var ret, buf;
+        var ret, buf, tmp, s;
 
         type = type || "hex";
 
@@ -269,8 +269,8 @@ js.awt.Color = function(r, g, b, a) {
             if (this.A() != 0) {
                 ret =  "Transparent";
             } else {
-                var temp = this.value & 0x00FFFFFF,
-                    s = "00000" + temp.toString(16);
+                tmp = this.value & 0x00FFFFFF;
+                s = "00000" + tmp.toString(16);
                 ret = "#" + s.substring(s.length - 6);
             }
             break;
@@ -289,6 +289,11 @@ js.awt.Color = function(r, g, b, a) {
                 .append(this.A()).append(")");
             ret = buf.toString();
             break;
+        case "uuid":
+            tmp = this.value & 0x00FFFFFFFF;
+            s = "0000000" + tmp.toString(16);
+            ret = "s" + s.substring(s.length - 8); 
+            break;
         }
         return ret;
     };
@@ -299,7 +304,7 @@ js.awt.Color = function(r, g, b, a) {
         case 1 :
             s = arguments[0];
             if (Class.isNumber(s)) {
-                this.value = s;
+                this.value = (s & 0x00FFFFFFFF);
             } else if (Class.isString(s)) {
                 s = s.trim();
                 this.value = CLASS.parseColorString(s);

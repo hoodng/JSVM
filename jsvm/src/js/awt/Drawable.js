@@ -67,33 +67,33 @@ js.awt.Drawable = function(){
         this._local.dirty = Class.isBoolean(dirty) ? dirty : true;
     };
 
-    thi$.beforeDraw = function(paper, callback){
-        this.drawing(paper, callback);
+    thi$.beforeDraw = function(layer, callback){
+        this.drawing(layer, callback);
     };
 
-    thi$.draw = function(paper, callback){
+    thi$.draw = function(layer, callback){
         if(!this.isVisible()){
-            this.invisibleReturn(paper,callback);
+            this.invisibleReturn(layer,callback);
         }else if(!this.isDirty()){
-            this.nondirtyReturn(paper, callback);
+            this.nondirtyReturn(layer, callback);
         }else {
-            this.beforeDraw(paper, callback);
+            this.beforeDraw(layer, callback);
         }
     };
 
-    thi$.drawing = function(paper, callback){
-        this.afterDraw(paper, callback);
+    thi$.drawing = function(layer, callback){
+        this.afterDraw(layer, callback);
     };
 
-    thi$.invisibleReturn = function(paper, callback){
-        this.afterDraw(paper, callback);
+    thi$.invisibleReturn = function(layer, callback){
+        this.afterDraw(layer, callback);
     };
 
-    thi$.nondirtyReturn = function(paper, callback){
-        this.afterDraw(paper, callback);
+    thi$.nondirtyReturn = function(layer, callback){
+        this.afterDraw(layer, callback);
     };
 
-    thi$.afterDraw = function(paper, callback){
+    thi$.afterDraw = function(layer, callback){
         this.setDirty(false);
         if(callback){
             callback(this);

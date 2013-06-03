@@ -39,8 +39,9 @@
                          angleUnit: "deg"
                       }, this);
         
-            G.addComponent(new (Class.forName("js.awt.CanvasLayer"))({id: "myLayer", capture:true}, this));
-            G.getLayer("myLayer").appendChild(new (Class.forName("js.awt.CanvasGroup"))({id: "g1", x:300, y: 0, width: 200, height: 100, capture:true}, this));
+            G.addComponent(new (Class.forName("js.awt.CanvasLayer"))({id: "myLayer", capture:true}, G));
+
+            G.getLayer("myLayer").appendChild(new (Class.forName("js.awt.CanvasGroup"))({id: "g1", x:300, y: 0, width: 200, height: 100, capture:true}, G));
 
             G.drawRect({ id: "rect", width:150, height: 150, strokeStyle:"#0000ff",
                         fillStroke:2, fillLinearGradient:{x0:10, y0:10, x1:210, y1:210, colors:[[0, "#10FF10"],[1,"#100010"]]}, capture:true});
@@ -76,8 +77,9 @@
             G.drawText({id:"text2",text: "Drop", fontSize: 16, x:380, y:120, width: 20, height:40, rotate: 90});
 
             this.addComponent(G);
+            G.draw();
         
-            G.setPaperSize({w:8000, h:8000}, {w:800, h:800});
+            //G.setDataSize({w:8000, h:8000}, {w:800, h:800});
 
             var _onMouseEvents = function(e){
                 var shape = e.getEventTarget();
@@ -114,7 +116,7 @@
                   G.draw.$delay(G, 10, null, arguments.callee.$bind(this));
                 }
             })();
-            
+
         });
     </script>
 </head>

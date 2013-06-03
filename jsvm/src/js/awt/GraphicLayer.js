@@ -37,12 +37,12 @@
 
 $package("js.awt");
 
-$import("js.awt.GraphicGroup");
+$import("js.awt.GraphicContainer");
 
 /**
  * 
  */
-js.awt.GraphicLayer = function(def, Runtime){
+js.awt.GraphicLayer = function(def, Graphics2D){
 
     var CLASS = js.awt.GraphicLayer, thi$ = CLASS.prototype;
     
@@ -59,6 +59,10 @@ js.awt.GraphicLayer = function(def, Runtime){
             "js.awt.SVGLayer" : "js.awt.SVGRenderer",
             "js.awt.VMLLayer" : "js.awt.VMLRenderer"
         };
+
+    thi$.getLayer = function(){
+        return this;
+    }.$override(this.getLayer);
 
     /**
      * Return the Renderer of this type layer
@@ -80,7 +84,7 @@ js.awt.GraphicLayer = function(def, Runtime){
         return this._local.shapes;
     };
 
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, Graphics2D){
 		if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.GraphicLayer";
@@ -88,14 +92,12 @@ js.awt.GraphicLayer = function(def, Runtime){
         arguments.callee.__super__.apply(this, arguments);
         
         var U = this._local;
-
         U.shapes = {}; // For caching shapes
-
         U.renderers = {}; // For caching renderers
 
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.GraphicGroup);
+}.$extend(js.awt.GraphicContainer);
 

@@ -42,7 +42,7 @@ $import("js.awt.GraphicGroup");
 /**
  * 
  */
-js.awt.CanvasGroup = function(def, Runtime){
+js.awt.CanvasGroup = function(def, Graphics2D){
 
     var CLASS = js.awt.CanvasGroup, thi$ = CLASS.prototype;
     
@@ -92,7 +92,6 @@ js.awt.CanvasGroup = function(def, Runtime){
     };
 
     thi$.drawing = function(layer, callback){
-        System.err.println("Draw group...");
         this.erase();
         
         var U = this._local;
@@ -129,29 +128,19 @@ js.awt.CanvasGroup = function(def, Runtime){
 
     var _onDrawEnd = function(ele, layer, callback){
         var U = this._local, Q = U.Queue;
-        /*
         if(Q.length > 0){
             ele = Q.shift();
-            ele.draw.$delay(ele, 0, this, arguments.callee.$bind(this, layer, callback));
+            //ele.draw.$delay(ele, 0, this, _onDrawEnd.$bind(this, layer, callback));
+            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
         }else{
             this.nondirtyReturn(layer, callback);
-        }*/
-        while(Q.length > 0){
-            ele = Q.shift();
-            ele.draw.$delay(ele, 0 , this);
         }
-        this.nondirtyReturn.$delay(this, 0, layer, callback);
-    };
-
-    var _onDrawEnd2 = function(ele, layer, callback){
-        
     };
 
     thi$.setPosition = function(x, y){
         arguments.callee.__super__.apply(this, arguments);
         
-        _notifyEvent.call(
-            this, new Event(G.Events.GM_GROUP_TRANS_CHANGED,{}, this));
+        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
 
     }.$override(this.setPosition);
 
@@ -180,25 +169,19 @@ js.awt.CanvasGroup = function(def, Runtime){
             hit.height= h;
         }
 
-        this.setDirty(true);
-        _notifyEvent.call(
-            this, new Event(G.Events.GM_GROUP_TRANS_CHANGED,{}, this));
-    };
+        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
 
-    var _notifyEvent = function(e){
-        this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
 
     thi$.destroy = function(){
         delete this.relCanvas;
         delete this.hitCanvas;
-        delete this.view;
 
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
 
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, Graphics2D){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.CanvasGroup";

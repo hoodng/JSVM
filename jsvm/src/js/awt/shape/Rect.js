@@ -42,7 +42,7 @@ $import("js.awt.GraphicShape");
 /**
  * 
  */
-js.awt.shape.Rect = function(def, renderer){
+js.awt.shape.Rect = function(def, Graphics2D, Renderer){
 
     var CLASS = js.awt.shape.Rect, thi$ = CLASS.prototype;
     
@@ -65,7 +65,7 @@ js.awt.shape.Rect = function(def, renderer){
         return ret;
     };
 
-    thi$._init = function(def, renderer){
+    thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Rect";

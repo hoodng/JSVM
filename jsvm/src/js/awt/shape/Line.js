@@ -42,7 +42,7 @@ $import("js.awt.GraphicShape");
 /**
  * {x0, y0, x1, y1}
  */
-js.awt.shape.Line = function(def, renderer){
+js.awt.shape.Line = function(def, Graphics2D, Renderer){
 
     var CLASS = js.awt.shape.Line, thi$ = CLASS.prototype;
     
@@ -64,7 +64,7 @@ js.awt.shape.Line = function(def, renderer){
         };
     };
 
-    thi$._init = function(def, renderer){
+    thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Line";

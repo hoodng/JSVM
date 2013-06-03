@@ -47,7 +47,7 @@ $import("js.awt.GraphicShape");
  *   rb:
  * }
  */
-js.awt.shape.Ellipse = function(def, renderer){
+js.awt.shape.Ellipse = function(def, Graphics2D, Renderer){
 
     var CLASS = js.awt.shape.Ellipse, thi$ = CLASS.prototype;
     
@@ -69,7 +69,7 @@ js.awt.shape.Ellipse = function(def, renderer){
         };
     };
 
-    thi$._init = function(def, renderer){
+    thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Ellipse";

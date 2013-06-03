@@ -42,7 +42,7 @@ $import("js.awt.GraphicContainer");
 /**
  * 
  */
-js.awt.GraphicGroup = function(def, Runtime){
+js.awt.GraphicGroup = function(def, Graphics2D){
 
     var CLASS = js.awt.GraphicGroup, thi$ = CLASS.prototype;
     
@@ -56,96 +56,8 @@ js.awt.GraphicGroup = function(def, Runtime){
         System = J$VM.System, MQ = J$VM.MQ,
         G = Class.forName("js.awt.Graphics2D");
 
-    /**
-     * Return the GraphicLayer that this group belong to
-     */
-    thi$.getLayer = function(){
-        var p = this;
-        while(!p.instanceOf(js.awt.GraphicLayer)){
-            p = p.getContainer();
-        }
-        return p;
-    };
-    
-    /**
-     * Return the Renderer of this type layer
-     */
-    thi$.getRenderer = function(){
-        return this.getLayer().getRenderer();
-    };
 
-    /**
-     * Get context of this layer
-     */
-    thi$.getContext = function(hit){
-        
-    };
-
-    /**
-     * @see js.awt.Containable
-     */
-    thi$._insert = function(){
-        var ele = arguments.callee.__super__.apply(this, arguments);
-
-        if(ele.instanceOf(js.awt.GraphicShape)){
-            var cache = this.getLayer().cachedShapes();
-            cache[ele.colorKey().rgba] = ele;
-        }
-        
-
-        this.setDirty(true);
-        _notifyEvent.call(
-            this, new Event(G.Events.GM_GROUP_ITEMS_CHANGED, {}, this));
-
-        return ele;
-
-    }.$override(this._insert);
-
-    /**
-     * @see js.awt.Containable
-     */
-    thi$.removeChild = function(){
-        var ele = arguments.callee.__super__.apply(this, arguments);
-
-        if(ele.instanceOf(js.awt.GraphicShape)){
-            var cache = this.getLayer().cachedShapes();
-            delete cache[ele.colorKey().rgba];
-        }
-        
-        this.setDirty(true);
-        _notifyEvent.call(
-            this, new Event(G.Events.GM_GROUP_ITEMS_CHANGED, {}, this));
-        return ele;
-
-    }.$override(this.removeChild);
-
-    /**
-     * @see js.awt.Containable
-     */
-    thi$.removeAll = function(gc){
-        var items = this.items() || [], i, len, ele, 
-            cache = this.getLayer().cachedShapes();
-        
-        for(i=0, len=items.length; i<len; i++){
-            ele = this[items[i]];
-            if(ele && ele.colorKey){
-                delete cache[ele.colorKey().rgba];
-            }
-        }
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        this.setDirty(true);
-        _notifyEvent.call(
-            this, new Event(G.Events.GM_GROUP_ITEMS_CHANGED, {}, this));
-
-    }.$override(this.removeAll);
-
-    var _notifyEvent = function(e){
-        //this.notifyContainer(G.Events.GM_EVENTS, e, true);
-    };
-
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, Graphics2D){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.GraphicGroup";

@@ -38,16 +38,13 @@
 $package("js.awt");
 
 $import("js.awt.Containable");
-$import("js.awt.Drawable");
-$import("js.awt.Element"); 
-$import("js.util.Observer");
-$import("js.awt.GraphicShape");
+$import("js.awt.GraphicElement"); 
 $import("js.awt.ZOrderManager");
 
 /**
  * 
  */
-js.awt.GraphicContainer = function(def, Runtime){
+js.awt.GraphicContainer = function(def, Grahpics2D){
 
     var CLASS = js.awt.GraphicContainer, thi$ = CLASS.prototype;
     
@@ -62,52 +59,93 @@ js.awt.GraphicContainer = function(def, Runtime){
         G = Class.forName("js.awt.Graphics2D");
 
     /**
-     * Return the Grahpics2D container that this group belong to
+     * Return the GraphicLayer that this group belong to
      */
-    thi$.getGraphic = function(){
+    thi$.getLayer = function(){
         var p = this.getContainer();
-        while(p.classType() !== "js.awt.Graphics2D"){
+        while(p && !p.instanceOf(js.awt.GraphicLayer)){
             p = p.getContainer();
         }
         return p;
+    }.$override(this.getLayer);
+
+    /**
+     * Return the Renderer of this type layer
+     */
+    thi$.getRenderer = function(){
+        return this.getLayer().getRenderer();
     };
 
-    thi$.setAttr = function(key, value){
-        arguments.callee.__super__.apply(this, arguments);
-
-        this.setDirty(true);
-        _notifyEvent.call(
-            this, new Event(G.Events.GM_GROUP_ATTRS_CHANGED, {}, this));
-
-    }.$override(this.setAttr);
-
-    thi$.getAttr = function(key){
-        var v = arguments.callee.__super__.apply(this, arguments), p;
-        if(!v){
-            p = this.getContainer();
-            v = p ? p.getAttr(key) : undefined;
-        }
-        return v;
-    }.$override(this.getAttr);
+    /**
+     * Get context of this layer
+     */
+    thi$.getContext = function(hit){
+        
+    };
 
     thi$.repaint = function(){
 
     };
-    
-    var _onGraphicEvents = function(e){
-        var type = e.getType();
-        if(type.indexOf("changed") != -1){
-            this.setDirty(true);
+
+    /**
+     * @see js.awt.Containable
+     */
+    thi$._insert = function(){
+        var ele = arguments.callee.__super__.apply(this, arguments);
+
+        if(ele.instanceOf(js.awt.GraphicElement)){
+            var cache = this.getLayer().cachedShapes();
+            cache[ele.colorKey().uuid] = ele;
         }
-        _notifyEvent.call(this, e);
-    };
 
-    var _notifyEvent = function(e){
-        this.notifyContainer(G.Events.GM_EVENTS, e, true);
-    };
+        this.fireEvent(new Event(G.Events.ITEMS_CHANGED,{}, this), true);
 
+        return ele;
+
+    }.$override(this._insert);
+
+    /**
+     * @see js.awt.Containable
+     */
+    thi$.removeChild = function(){
+        var ele = arguments.callee.__super__.apply(this, arguments);
+
+        if(ele.instanceOf(js.awt.GraphicElement)){
+            var cache = this.getLayer().cachedShapes();
+            delete cache[ele.colorKey().uuid];
+        }
+        
+        this.fireEvent(new Event(G.Events.ITEMS_CHANGED,{}, this), true);
+
+        return ele;
+
+    }.$override(this.removeChild);
+
+    /**
+     * @see js.awt.Containable
+     */
+    thi$.removeAll = function(gc){
+        var items = this.items() || [], i, len, ele, 
+            layer = this.getLayer(), 
+            cache = layer ? layer.cachedShapes() : null;
+
+        if(cache){
+            for(i=0, len=items.length; i<len; i++){
+                ele = this[items[i]];
+                if(ele && ele.colorKey){
+                    delete cache[ele.colorKey().uuid];
+                }
+            }
+        }
+
+        arguments.callee.__super__.apply(this, arguments);
+
+        this.fireEvent(new Event(G.Events.ITEMS_CHANGED,{}, this), true);
+
+    }.$override(this.removeAll);
+    
     thi$.destroy = function(){
-        MQ.cancel(G.Events.GM_EVENTS, this, _onGraphicEvents);
+        this.removeAll(true);
 
         arguments.callee.__super__.apply(this, arguments);
     }.$override(this.destroy);
@@ -120,16 +158,11 @@ js.awt.GraphicContainer = function(def, Runtime){
         var tmp = def.zorder;
         def.zorder = Class.isBoolean(tmp) ? tmp : true;
 
-        tmp = def.visible;
-        def.visible = Class.isBoolean(tmp) ? tmp : true;
-
         arguments.callee.__super__.apply(this, arguments);
-
-        MQ.register(G.Events.GM_EVENTS, this, _onGraphicEvents);
 
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Element).$implements(
-    js.awt.Containable, js.awt.Drawable, js.awt.ZOrderManager, js.util.Observer);
+}.$extend(js.awt.GraphicElement).$implements(js.awt.Containable, js.awt.ZOrderManager);
+

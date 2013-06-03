@@ -42,7 +42,7 @@ $import("js.awt.GraphicShape");
 /**
  * 
  */
-js.awt.shape.Image = function(def, renderer){
+js.awt.shape.Image = function(def, Graphics2D, Renderer){
 
     var CLASS = js.awt.shape.Image, thi$ = CLASS.prototype;
     
@@ -100,7 +100,7 @@ js.awt.shape.Image = function(def, renderer){
                 image.onload = function(){
                     delete image.onload;
 
-                    _onload.call(host, imgId, image, callback, true);
+                    _onload.call(host, imgId, image, layer, callback, true);
                 };
                 image.onreadystatechange = function(){
                     if(image.readyState == "loaded" || 
@@ -115,11 +115,11 @@ js.awt.shape.Image = function(def, renderer){
             }
         }
             
-        _onload.call(this, imgId, image, callback);
+        _onload.call(this, imgId, image, layer, callback);
         
     };
 
-    var _onload = function(imgId, image, callback, loaded){
+    var _onload = function(imgId, image, layer, callback, loaded){
         // Cache the image and not need reload it again
         if(Class.isString(imgId)){
             images[imgId] = image;
@@ -127,12 +127,11 @@ js.awt.shape.Image = function(def, renderer){
 
         this._local.image = image;
 
-        if(callback) {
-            callback();
-        }
+        this.drawing(layer, callback);
+
     };
 
-    thi$._init = function(def, renderer){
+    thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Image";

@@ -45,7 +45,7 @@ $import("js.awt.GraphicShape");
  *
  * cmd 0 is moveTo, cmd 1 is lineTo
  */
-js.awt.shape.Polygon = function(def, renderer){
+js.awt.shape.Polygon = function(def, Graphics2D, Renderer){
 
     var CLASS = js.awt.shape.Polygon, thi$ = CLASS.prototype;
     
@@ -65,7 +65,7 @@ js.awt.shape.Polygon = function(def, renderer){
         };
     };
 
-    thi$._init = function(def, renderer){
+    thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Polygon";

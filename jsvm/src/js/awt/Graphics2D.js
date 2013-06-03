@@ -151,7 +151,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         var layer = this.getLayer(data.layer) || this.curLayer(), 
             renderer = layer.getRenderer(),
             C = Class.forName(CLASS.SHAPES[type.toLowerCase()]);
-        return layer.addShape(new (C)(data, renderer));
+        return layer.addShape(new (C)(data, this, renderer));
     };
     
     /**
@@ -203,11 +203,13 @@ js.awt.Graphics2D = function(def, Runtime, view){
     var _onDrawEnd = function(ele, layer, callback){
         var U = this._local, Q = U.Queue;
         
+        System.err.println(Q.length);
         if(Q.length > 0){
             ele = Q.shift();
-            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
+            ele.draw(null, _onDrawEnd.$bind(this, layer, callback));
+            //ele.draw.$delay(ele, 0, null, _onDrawEnd.$bind(this, layer, callback));
         }else{
-            this.afterDraw(this, callback);
+            this.afterDraw(layer, callback);
         }
     };
 
@@ -230,12 +232,8 @@ js.awt.Graphics2D = function(def, Runtime, view){
             this.setDirty(true);
             break;
         }
-        _notifyEvent.call(this, e);
     };
     
-    var _notifyEvent = function(e){
-        this.notifyContainer(CLASS.Events.GM_EVENTS, e, true);
-    };
 
     var _onmouseevents = function(e){
 		var eType = e.getType(), ele;
@@ -433,32 +431,38 @@ js.awt.Graphics2D = function(def, Runtime, view){
         def.classType = def.classType || "js.awt.Graphics2D";
         def.className = def.className || "jsvm_graphic";
 
-        var id = "__layer0__";
-        def.items = def.items || [];
-        if(def.items.length == 0){
-            def.items.push(id);
-            def[id] = {
-                id: id,
-                classType: def.layer || "js.awt.CanvasLayer",
-                className: "jsvm_graphlayer",
-                x:0, y:0, z:0,
-                width:300, height:150,
-                capture: true
-            }; 
-        }
         def.layout = def.layout || {
             classType: "js.awt.AbstractLayout"
         };
 
         arguments.callee.__super__.apply(this, arguments);
-        
-        var U = this._local, items = this.items();
-        U.curLayer = items[items.length-1];
+
+        var U = this._local;
         U.events = {};
 		U.curShape = undefined;
         U.scroll = {Xw: 0, Yw: 0 };
 
-        MQ.register(CLASS.Events.GM_EVENTS, this, _onGraphicEvents);
+        var M = this.def, id;
+        if(!M.items || M.items.length === 0){
+            id = "__layer0__";
+            this.addComponent(new (Class.forName("js.awt.CanvasLayer"))(
+                {
+                    id: id,
+                    classType: def.layer || "js.awt.CanvasLayer",
+                    className: "jsvm_graphlayer",
+                    x:0, y:0, z:0,
+                    width:300, height:150,
+                    capture: true
+                }, this
+            ));
+        }
+
+        var items = this.items();
+        U.curLayer = items[items.length-1];
+
+        this.attachEvent(CLASS.Events.ATTRS_CHANGED, 4, this, _onGraphicEvents);
+        this.attachEvent(CLASS.Events.ITEMS_CHANGED, 4, this, _onGraphicEvents);
+        this.attachEvent(CLASS.Events.TRANS_CHANGED, 4, this, _onGraphicEvents);
 
     }.$override(this._init);
 
@@ -516,16 +520,9 @@ CLASS.rad2deg = function(r, u){
 };
 
 CLASS.Events = {
-    "GM_EVENTS" : "gm.events",
-    "GM_SHAPE_ATTRS_CHANGED" : "gm.shape.attrschanged",
-    "GM_SHAPE_TRANS_CHANGED" : "gm.shape.transchanged",
-
-    "GM_GROUP_ATTRS_CHANGED" : "gm.group.attrschanged",
-    "GM_GROUP_ITEMS_CHANGED" : "gm.group.itemschanged",
-    "GM_GROUP_TRANS_CHANGED" : "gm.group.transchanged",
-
-    "GM_LAYER_TRANS_CHANGED" : "gm.layer.transchanged"
-
+    ATTRS_CHANGED: "attrschanged",
+    ITEMS_CHANGED: "itemschanged",
+    TRANS_CHANGED: "transchanged"
 };
 
 CLASS = undefined;

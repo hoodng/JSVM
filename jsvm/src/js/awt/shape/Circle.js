@@ -46,7 +46,7 @@ $import("js.awt.GraphicShape");
  *   r:
  * }
  */
-js.awt.shape.Circle = function(def, renderer){
+js.awt.shape.Circle = function(def, Graphics2D, Renderer){
 
     var CLASS = js.awt.shape.Circle, thi$ = CLASS.prototype;
     
@@ -67,7 +67,7 @@ js.awt.shape.Circle = function(def, renderer){
         };
     };
 
-    thi$._init = function(def, renderer){
+    thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Circle";

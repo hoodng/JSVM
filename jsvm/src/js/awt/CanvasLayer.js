@@ -42,7 +42,7 @@ $import("js.awt.GraphicLayer");
 /**
  * 
  */
-js.awt.CanvasLayer = function(def, Runtime){
+js.awt.CanvasLayer = function(def, Graphics2D){
 
     var CLASS = js.awt.CanvasLayer, thi$ = CLASS.prototype;
     
@@ -138,19 +138,15 @@ js.awt.CanvasLayer = function(def, Runtime){
 
     var _onDrawEnd = function(ele, layer, callback){
         var U = this._local, Q = U.Queue;
-        /*
+
         if(Q.length > 0){
             ele = Q.shift();
-            ele.draw.$delay(ele, 0, this, _onDrawEnd.$bind(this, layer, callback));
+            System.err.println("layer "+this.id+" draw "+ ele.id+" ---"+Q.length);
+            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
+            //ele.draw.$delay(ele, 0, this, _onDrawEnd.$bind(this, layer, callback));
         }else{
             this.afterDraw(layer, callback);
-        }*/
-        while(Q.length > 0){
-            ele = Q.shift();
-            ele.draw(this);
         }
-
-        this.afterDraw(layer, callback);
     };
 
     thi$.detectShape = function(x, y){
@@ -159,7 +155,7 @@ js.awt.CanvasLayer = function(def, Runtime){
             px = image.data, colorKey, shape;
         if(px[3] != 0){
             colorKey = new Color(px[0], px[1], px[2], px[3]);
-            shape = cache[colorKey.toString("rgba")];
+            shape = cache[colorKey.toString("uuid")];
         }
         return shape;
     };
@@ -178,11 +174,7 @@ js.awt.CanvasLayer = function(def, Runtime){
         buf.style.left = x+"px";
         buf.style.top  = y+"px";
 
-        if((fire & 0x01) != 0){
-            this.setDirty(true);        
-            _notifyEvent.call(
-                this, new Event(G.Events.GM_LAYER_TRANS_CHANGED,{}, this));
-        }
+        this.fireEvent(new Event(G.Events.TRANS_CHANGED), true);
 
     }.$override(this.setPosition);
 
@@ -224,15 +216,8 @@ js.awt.CanvasLayer = function(def, Runtime){
             hit.height= h;
         }
 
-        this.setDirty(true);        
-        if((fire & 0x01) != 0){
-            _notifyEvent.call(
-                this, new Event(G.Events.GM_LAYER_TRANS_CHANGED,{}, this));
-        }
-    };
+        this.fireEvent(new Event(G.Events.TRANS_CHANGED), true);
 
-    var _notifyEvent = function(e){
-        //this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
 
     thi$.needLayout = function(){
@@ -247,7 +232,7 @@ js.awt.CanvasLayer = function(def, Runtime){
 
     }.$override(this.destroy);
 
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, Graphics2D){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.CanvasLayer";

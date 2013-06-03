@@ -49,7 +49,7 @@ $import("js.awt.GraphicShape");
  *   angleUnit: "deg" | "rad"
  * }
  */
-js.awt.shape.Sector = function(def, renderer){
+js.awt.shape.Sector = function(def, Graphics2D, Renderer){
 
     var CLASS = js.awt.shape.Sector, thi$ = CLASS.prototype;
     
@@ -79,7 +79,7 @@ js.awt.shape.Sector = function(def, renderer){
         };
     };
 
-    thi$._init = function(def, renderer){
+    thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.shape.Sector";
