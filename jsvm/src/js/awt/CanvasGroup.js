@@ -92,6 +92,7 @@ js.awt.CanvasGroup = function(def, Runtime){
     };
 
     thi$.drawing = function(layer, callback){
+        System.err.println("Draw group...");
         this.erase();
         
         var U = this._local;
@@ -107,9 +108,7 @@ js.awt.CanvasGroup = function(def, Runtime){
             }
         }
         
-        _onDrawEnd.call(
-            this, null, layer, 
-            this.nondirtyReturn.$bind(this, layer, callback));
+        _onDrawEnd.call(this, null, layer, callback);
 
     }.$override(this.drawing);
 
@@ -128,17 +127,24 @@ js.awt.CanvasGroup = function(def, Runtime){
 
     }.$override(this.nondirtyReturn);
 
-
     var _onDrawEnd = function(ele, layer, callback){
         var U = this._local, Q = U.Queue;
-        
+        /*
         if(Q.length > 0){
             ele = Q.shift();
-            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
+            ele.draw.$delay(ele, 0, this, arguments.callee.$bind(this, layer, callback));
         }else{
-            this.setDirty(false);
-            callback();
+            this.nondirtyReturn(layer, callback);
+        }*/
+        while(Q.length > 0){
+            ele = Q.shift();
+            ele.draw.$delay(ele, 0 , this);
         }
+        this.nondirtyReturn.$delay(this, 0, layer, callback);
+    };
+
+    var _onDrawEnd2 = function(ele, layer, callback){
+        
     };
 
     thi$.setPosition = function(x, y){

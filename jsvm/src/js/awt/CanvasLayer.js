@@ -138,13 +138,19 @@ js.awt.CanvasLayer = function(def, Runtime){
 
     var _onDrawEnd = function(ele, layer, callback){
         var U = this._local, Q = U.Queue;
-        
+        /*
         if(Q.length > 0){
             ele = Q.shift();
-            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
+            ele.draw.$delay(ele, 0, this, _onDrawEnd.$bind(this, layer, callback));
         }else{
-            this.afterDraw(this, callback);
+            this.afterDraw(layer, callback);
+        }*/
+        while(Q.length > 0){
+            ele = Q.shift();
+            ele.draw(this);
         }
+
+        this.afterDraw(layer, callback);
     };
 
     thi$.detectShape = function(x, y){
@@ -226,7 +232,7 @@ js.awt.CanvasLayer = function(def, Runtime){
     };
 
     var _notifyEvent = function(e){
-        this.notifyContainer(G.Events.GM_EVENTS, e, true);
+        //this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
 
     thi$.needLayout = function(){

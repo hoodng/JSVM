@@ -74,7 +74,7 @@ js.awt.Font = function(family, size, style, weight, variant){
         v = this.fontSize;
         v = Class.isNumber(v) ? v : 10;
         v += "px";
-        if(this.lineHeight){
+        if(Class.isNumber(this.lineHeight)){
             v += ("/" + this.lineHeight + "px");
         }
         buf.push(v);
@@ -181,6 +181,22 @@ js.awt.Font.parseFont = function(str){
         font.fontStyle = tmp;
     }
 
+    return font;
+};
+
+/**
+ * Initialize a font object with the specified font styles.
+ */
+js.awt.Font.initFont = function(fontStyles){
+    var Font = js.awt.Font, font;
+    if(typeof fontStyles == "object"){
+        font = new Font(fontStyles["fontFamily"], fontStyles["fontSize"], 
+                        fontStyles["fontStyle"], fontStyles["fontWeight"], 
+                        fontStyles["fontVariant"], fontStyles["lineHeight"]);
+    }else{
+        font = new Font();
+    }
+    
     return font;
 };
 

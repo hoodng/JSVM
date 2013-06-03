@@ -91,11 +91,12 @@ js.awt.GraphicGroup = function(def, Runtime){
             var cache = this.getLayer().cachedShapes();
             cache[ele.colorKey().rgba] = ele;
         }
+        
 
         this.setDirty(true);
         _notifyEvent.call(
             this, new Event(G.Events.GM_GROUP_ITEMS_CHANGED, {}, this));
-        
+
         return ele;
 
     }.$override(this._insert);
@@ -114,7 +115,6 @@ js.awt.GraphicGroup = function(def, Runtime){
         this.setDirty(true);
         _notifyEvent.call(
             this, new Event(G.Events.GM_GROUP_ITEMS_CHANGED, {}, this));
-
         return ele;
 
     }.$override(this.removeChild);
@@ -123,12 +123,12 @@ js.awt.GraphicGroup = function(def, Runtime){
      * @see js.awt.Containable
      */
     thi$.removeAll = function(gc){
-        var items = this.items(), i, len, ele, 
+        var items = this.items() || [], i, len, ele, 
             cache = this.getLayer().cachedShapes();
         
         for(i=0, len=items.length; i<len; i++){
             ele = this[items[i]];
-            if(ele.colorKey){
+            if(ele && ele.colorKey){
                 delete cache[ele.colorKey().rgba];
             }
         }
@@ -142,7 +142,7 @@ js.awt.GraphicGroup = function(def, Runtime){
     }.$override(this.removeAll);
 
     var _notifyEvent = function(e){
-        this.notifyContainer(G.Events.GM_EVENTS, e, true);
+        //this.notifyContainer(G.Events.GM_EVENTS, e, true);
     };
 
     thi$._init = function(def, Runtime){

@@ -286,7 +286,7 @@ js.awt.CanvasRenderer = function(config){
     };
 
     thi$.draw = function(ctx, geom, style, hit){
-        var fillStroke = style.fillStroke, 
+        var fillStroke = style.fillStroke || 1,
             fill = ((fillStroke & 2) != 0), 
             stroke = ((fillStroke & 1) != 0), opacity, v;
 

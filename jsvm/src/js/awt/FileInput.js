@@ -96,11 +96,17 @@ js.awt.FileInput = function(def, Runtime){
 	thi$._onMouseOver = function(e) {
 		// this.btnBrowse.setMouseOver(true);
 		//this.btnBrowse.onmouseover(e);
+		if(J$VM.firefox){
+			DOM.setPosition(this.file, e.offsetX - 10, e.offsetY -10);
+		}
 	};
 
 	thi$._onMouseOut = function(e) {
 		// this.btnBrowse.setMouseOver(false);
 		//this.btnBrowse.onmouseout(e);
+		if(J$VM.firefox){
+			DOM.setPosition(this.file, 0, 0);
+		}
 	};
 
 	thi$._onKeyDown = function(e) {
@@ -156,7 +162,8 @@ js.awt.FileInput = function(def, Runtime){
 	thi$.doLayout = function(force){
 		if(arguments.callee.__super__.apply(this, arguments)){
 			if(J$VM.firefox){
-				var size = this.getWidth()/this._local.charsize;
+				var size = 1 ; 
+				//var size = this.getWidth()/this._local.charsize;
 				this.file.setAttribute("size", size);
 			}
 			return true;
@@ -193,7 +200,8 @@ js.awt.FileInput = function(def, Runtime){
 					className: "jsvm_textfield",
 					rigid_w: false,
 					rigid_h: true,
-					height: 18
+					height: 18,
+					width: 80
 				},
 				
 				btnBrowse:{
@@ -246,8 +254,14 @@ js.awt.FileInput = function(def, Runtime){
 		this._local.charsize = _calcCharSize.call(this);
 				
 		Event.attachEvent(file, "change", 0, this, this.onChange);
-		Event.attachEvent(file, "mouseover", 1, this, this._onMouseOver);
-		Event.attachEvent(file, "mouseout", 1, this, this._onMouseOut);
+//		this.formPane.fileName.attachEvent("mouseover", 1, this, this._onMouseOver);
+//		this.formPane.fileName.attachEvent("mouseout", 1, this, this._onMouseOut);
+//		this.formPane.btnBrowse.attachEvent("mouseover", 1, this, this._onMouseOver);
+//		this.formPane.btnBrowse.attachEvent("mouseout", 1, this, this._onMouseOut);
+		Event.attachEvent(this.filePane, "mouseover", 1, this, this._onMouseOver);
+//		Event.attachEvent(this.formPane.btnBrowse.view, "mouseover", 1, this, this._onMouseOver);
+		Event.attachEvent(this.filePane, "mouseout", 1, this, this._onMouseOut);
+//		Event.attachEvent(this.formPane.btnBrowse.textField, "mouseout", 1, this, this._onMouseOut);
 		Event.attachEvent(file, "keydown", 0, this, this._onKeyDown);		
 
 	}.$override(this._init);

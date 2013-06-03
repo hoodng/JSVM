@@ -68,9 +68,7 @@ js.awt.Drawable = function(){
     };
 
     thi$.beforeDraw = function(paper, callback){
-        if(callback){
-            callback();
-        }
+        this.drawing(paper, callback);
     };
 
     thi$.draw = function(paper, callback){
@@ -79,8 +77,7 @@ js.awt.Drawable = function(){
         }else if(!this.isDirty()){
             this.nondirtyReturn(paper, callback);
         }else {
-            this.beforeDraw(
-                paper, this.drawing.$bind(this, paper, callback));
+            this.beforeDraw(paper, callback);
         }
     };
 
@@ -89,15 +86,11 @@ js.awt.Drawable = function(){
     };
 
     thi$.invisibleReturn = function(paper, callback){
-        if(callback){
-            callback(this);
-        }
+        this.afterDraw(paper, callback);
     };
 
     thi$.nondirtyReturn = function(paper, callback){
-        if(callback){
-            callback(this);
-        }
+        this.afterDraw(paper, callback);
     };
 
     thi$.afterDraw = function(paper, callback){

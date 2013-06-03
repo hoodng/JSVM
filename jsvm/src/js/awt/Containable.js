@@ -104,7 +104,7 @@ js.awt.Containable = function(){
             index = M.items.indexOf(rid),
             index0= U.items.indexOf(rid);
 
-        ref = this[rid];
+        ref = this[M.items[index + 1]]; // ref = this[rid];
         if(ref && ref.isAlwaysOnTop() && index === M.items.length-1){
             throw "Reference child ["+rid+"] is always on top";
         }
@@ -183,16 +183,16 @@ js.awt.Containable = function(){
         return this.def.items.length;
     };
 
-	/**
-	 * Gets the component id list in current order
-	 */
+    /**
+     * Gets the component id list in current order
+     */
     thi$.items = function(){
         return this.def.items;
     };
 
-	/**
-	 * Gets the component id list in original order
-	 */
+    /**
+     * Gets the component id list in original order
+     */
     thi$.items0 = function(){
         return this._local.items;
     };
