@@ -54,7 +54,7 @@ js.awt.Font = function(family, size, style, weight, variant){
 
     
     thi$.toString = function(){
-        var buf = [], v;
+        var buf = [], v, h;
 
         v = this.fontStyle;
         if(v && v !== "normal"){
@@ -71,11 +71,13 @@ js.awt.Font = function(family, size, style, weight, variant){
             buf.push(CLASS.Weight[v]);
         }
 
-        v = this.fontSize;
+        v = parseInt(this.fontSize);
         v = Class.isNumber(v) ? v : 10;
         v += "px";
-        if(Class.isNumber(this.lineHeight)){
-            v += ("/" + this.lineHeight + "px");
+        
+        h = parseInt(this.lineHeight);
+        if(Class.isNumber(h)){
+            v += ("/" + h + "px");
         }
         buf.push(v);
         

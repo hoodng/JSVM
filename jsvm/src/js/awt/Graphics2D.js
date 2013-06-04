@@ -186,7 +186,6 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
     thi$.drawing = function(layer, callback){
         var U = this._local;
-        U.Queue = [];
 
         var items = this.items(), i, len, Q = U.Queue;
         for(i=0,len=items.length; i<len; i++){
@@ -327,6 +326,10 @@ js.awt.Graphics2D = function(def, Runtime, view){
         _setSize.call(this, win.w, win.h, fire);
     };
 
+    thi$.getDataSize = function(){
+        return this._local.paper;
+    };
+
     thi$.setDataPosition = function(x, y, fire){
         _setPos.call(this, x, y);
     };
@@ -429,9 +432,9 @@ js.awt.Graphics2D = function(def, Runtime, view){
 		U.curShape = undefined;
         U.scroll = {Xw: 0, Yw: 0 };
 
-        var M = this.def, id;
+        var M = this.def, id = this.id;
         if(!M.items || M.items.length === 0){
-            id = "__layer0__";
+            id += "__layer0__";
             this.addComponent(new (Class.forName("js.awt.CanvasLayer"))(
                 {
                     id: id,

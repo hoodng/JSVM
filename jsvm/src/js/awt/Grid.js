@@ -259,6 +259,27 @@ js.awt.Grid = function(def){
         _mergeArea.call(this, ys, rIndex, {y0: y0, y1: y1}, true);
     };
     
+    var _compress = function(lines){
+        var p0, ps, pa, tmp;
+        for(var i = 0, len = lines.length; i < len; i++){
+            line = lines[i];
+            
+            for(p0 in line){
+                ps = line[p0];
+                tmp = [];
+                for(var j = 0, cnt = ps.length; j < cnt; j++){
+                    pa = ps[j];
+                    if(pa){
+                        tmp.push(pa);
+                    }
+                }
+                line[p0] = tmp;
+            }
+        }
+        
+        return lines;
+    };
+    
     /**
      * Calculate and return all matrixes of lines.
      * 
@@ -288,6 +309,9 @@ js.awt.Grid = function(def){
         for(var i = 0, len = cells.length; i < len; i++){
             _getLineMatrix.call(this, lineMatrixes, cells[i]);
         }
+        
+        _compress.call(this, lineMatrixes.hlines);
+        _compress.call(this, lineMatrixes.vlines);
         
         // J$VM.System.err.println(lineMatrixes);
         return lineMatrixes;

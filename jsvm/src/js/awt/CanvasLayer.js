@@ -117,7 +117,7 @@ js.awt.CanvasLayer = function(def, Graphics2D){
 
     thi$.drawing = function(layer, callback){
         this.erase();
-        
+
         var items = this.items()||[], i, len, ele;
         for(i=0, len=items.length; i<len; i++){
             ele = this[items[i]];
