@@ -290,7 +290,7 @@ js.awt.Color = function(r, g, b, a) {
             ret = buf.toString();
             break;
         case "uuid":
-            tmp = this.value & 0x00FFFFFFFF;
+            tmp = Math.abs(this.value);
             s = "0000000" + tmp.toString(16);
             ret = "s" + s.substring(s.length - 8); 
             break;
@@ -304,7 +304,7 @@ js.awt.Color = function(r, g, b, a) {
         case 1 :
             s = arguments[0];
             if (Class.isNumber(s)) {
-                this.value = (s & 0x00FFFFFFFF);
+                this.value = s & 0x0000FFFFFFFF;
             } else if (Class.isString(s)) {
                 s = s.trim();
                 this.value = CLASS.parseColorString(s);
@@ -325,3 +325,4 @@ js.awt.Color = function(r, g, b, a) {
 
 };
 
+new js.awt.Color(0);

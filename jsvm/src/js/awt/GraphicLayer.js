@@ -85,7 +85,7 @@ js.awt.GraphicLayer = function(def, Graphics2D){
     };
 
     thi$._init = function(def, Graphics2D){
-		if(def == undefined) return;
+        if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.GraphicLayer";
         

@@ -85,3 +85,4 @@ js.awt.GraphicGroup = function(def, Graphics2D){
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.GraphicContainer);
+

@@ -11,7 +11,7 @@
 
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
 
-
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicElement.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
 
@@ -26,7 +26,7 @@
         J$VM.exec("Demo",function(System){
             var Class = js.lang.Class, 
             Color = Class.forName("js.awt.Color");
-            new Color(0,0,0,0);
+
 
             var G = new (Class.forName("js.awt.Graphics2D"))(
                       {
@@ -109,11 +109,11 @@
                 circle.translate(0, 1.5);
                 text0.translate(1.5, 1.5);
                 text0.setAttr("fillStyle", Color.randomColor().toString("rgba"));
-                E0.rotate(10*Math.PI/180, 200, 200);
+                E0.rotate(30*Math.PI/180, 200, 200);
                 E1.rotate(-5*Math.PI/180, 200, 200);
                 count ++;
                 if(count < 200){
-                  G.draw.$delay(G, 10, null, arguments.callee.$bind(this));
+                  G.draw.$delay(G, 1, null, arguments.callee.$bind(this));
                 }
             })();
 

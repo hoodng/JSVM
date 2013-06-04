@@ -58,7 +58,8 @@ js.awt.CanvasRenderer = function(config){
 
         cos = Math.cos, sin = Math.sin, 
         pow = Math.pow, sqrt = Math.sqrt,
-        PI = Math.PI,  TWPI = 2*PI, PI180 = PI/180, 
+        PI = Math.PI,  TWPI = 2*PI, 
+        PI180 = PI/180, HalfPI = PI/2,
 
         BRUSH= ["LinearGradient", "RadialGradient", "Pattern"],
 
@@ -149,7 +150,6 @@ js.awt.CanvasRenderer = function(config){
                 }
             }
         };
-        
     };
 
     /**
@@ -273,7 +273,7 @@ js.awt.CanvasRenderer = function(config){
         if(T){
             ctx.transform(T.m11, T.m12, T.m21, T.m22, T.dx, T.dy);
         }
-       
+        
         if(hit === true){
             color = style.colorKey;
             ctx.strokeStyle = ctx.fillStyle = color.rgba;
@@ -500,7 +500,7 @@ js.awt.CanvasRenderer = function(config){
         var fix = this.fix, text = geom.text,
             x = geom.x, y = geom.y, w = geom.width, h = geom.height,
             ax = geom.align_x, ay = geom.align_y, e = geom.rotate, 
-            fs, tw, th, dx, dy, a, b, o = e + PI/2;
+            fs, tw, th, dx, dy, a, b, o;
         
         x = Class.isNumber(x) ? x : 0;
         y = Class.isNumber(y) ? y : 0;
@@ -512,10 +512,15 @@ js.awt.CanvasRenderer = function(config){
 
         dx = x + a; dy = y + b;
 
-        w = 2*sqrt(pow(a*cos(e),2)+pow(b*sin(e),2));
-        h = 2*sqrt(pow(a*cos(o),2)+pow(b*sin(o),2));
-
-
+        if(e === 0){
+            // w = w; h = h;
+        }else if(e - HalfPI < 0.000000001){
+            o = w; w = h; h = o;
+        }else{
+            o = e + HalfPI;
+            w = 2*sqrt(pow(a*cos(e),2)+pow(b*sin(e),2));
+            h = 2*sqrt(pow(a*cos(o),2)+pow(b*sin(o),2));
+        }
         ctx.translate(dx, dy);        
         ctx.rotate(-e);
         

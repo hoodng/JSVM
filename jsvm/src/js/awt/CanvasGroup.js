@@ -127,7 +127,8 @@ js.awt.CanvasGroup = function(def, Graphics2D){
     thi$.setPosition = function(x, y){
         arguments.callee.__super__.apply(this, arguments);
         
-        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
+        this.fireEvent(new Event(
+            G.Events.TRANS_CHANGED, {}, this), true);
 
     }.$override(this.setPosition);
 
@@ -156,7 +157,8 @@ js.awt.CanvasGroup = function(def, Graphics2D){
             hit.height= h;
         }
 
-        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
+        this.fireEvent(new Event(
+            G.Events.TRANS_CHANGED, {}, this), true);
 
     };
 
@@ -175,7 +177,6 @@ js.awt.CanvasGroup = function(def, Graphics2D){
         
         arguments.callee.__super__.apply(this, arguments);
 
-        
         var U = this._local;
 
         this.relCanvas = DOM.createElement("CANVAS");

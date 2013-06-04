@@ -109,7 +109,8 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
     thi$.setAttr = function(key, value){
         arguments.callee.__super__.apply(this, arguments);
 
-        this.fireEvent(new Event(G.Events.ATTRS_CHANGED, {}, this), true);
+        this.fireEvent(new Event(
+            G.Events.ATTRS_CHANGED, {}, this), true);
 
     }.$override(this.setAttr);
 
@@ -149,7 +150,8 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
      */
     thi$.transform = function(m11, m12, m21, m22, dx, dy){
         var T0 = this.getMatrix(),
-            T1 = new Matrix({M:[[m11, m12, 0],[m21, m22, 0],[dx, dy, 1]]});
+            T1 = new Matrix(
+                {M:[[m11, m12, 0],[m21, m22, 0],[dx, dy, 1]]});
 
         T0 = Matrix.multiply(T0, T1);
 
@@ -173,7 +175,8 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
         T0.Aij(2,1,dy);
         T0.Aij(2,2,1);
         
-        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
+        this.fireEvent(new Event(
+            G.Events.TRANS_CHANGED, {}, this), true);
 
     };
 
@@ -190,15 +193,16 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
     };
 
     thi$.getMatrix = function(){
-        return this._local.matrix;
+        var T = this._local.matrix;
+        if(!T){
+            T = this._local.matrix = 
+                new Matrix({M:[[1,0,0],[0,1,0],[0,0,1]]});
+        }
+        return T;
     };
 
     thi$.getClip = function(){
         
-    };
-
-    var _onGraphicEvents = function(e){
-        this.setDirty(true);
     };
 
     thi$.attachEvent = function(eType, flag, listener, handler){
@@ -212,13 +216,25 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
         
     }.$override(this.attachEvent);
 
+    thi$.fireEvent = function(e, bubble){
+        var type = e.getType();
+
+        switch(type){
+        case G.Events.ATTRS_CHANGED:
+        case G.Events.ITEMS_CHANGED:
+        case G.Events.TRANS_CHANGED:
+            this.setDirty(true);
+            break;
+        default:
+            break;
+        }
+
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.fireEvent);
+
     thi$.destroy = function(){
-        this.detachEvent(G.Events.ATTRS_CHANGED, 4, this, _onGraphicEvents);
-        this.detachEvent(G.Events.ITEMS_CHANGED, 4, this, _onGraphicEvents);
-        this.detachEvent(G.Events.TRANS_CHANGED, 4, this, _onGraphicEvents);
-
         delete this.G2D;
-
         arguments.callee.__super__.apply(this, arguments);
     }.$override(this.destroy);
 
@@ -236,9 +252,6 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
         def.fillStroke = Class.isNumber(tmp) ? tmp : 1;
 
         var M = def;
-        if(!Color.randomColor){
-            new Color(0);
-        }
         M.colorKey = Color.randomColor(this.uuid());
         M.colorKey.value |= (0x00FF << 24);
         var ckey = M.colorKey;
@@ -250,14 +263,7 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
 
         this.G2D = Graphics2D;
 
-        var U = this._local;
-        U.matrix = new Matrix({M:[[1,0,0],[0,1,0],[0,0,1]]});
-
         this.setRenderer(Renderder);
-        
-        this.attachEvent(G.Events.ATTRS_CHANGED, 4, this, _onGraphicEvents);
-        this.attachEvent(G.Events.ITEMS_CHANGED, 4, this, _onGraphicEvents);
-        this.attachEvent(G.Events.TRANS_CHANGED, 4, this, _onGraphicEvents);
 
     }.$override(this._init);
 

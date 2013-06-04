@@ -98,7 +98,8 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
             cache[ele.colorKey().uuid] = ele;
         }
 
-        this.fireEvent(new Event(G.Events.ITEMS_CHANGED,{}, this), true);
+        this.fireEvent(new Event(
+            G.Events.ITEMS_CHANGED,{}, this), true);
 
         return ele;
 
@@ -115,7 +116,8 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
             delete cache[ele.colorKey().uuid];
         }
         
-        this.fireEvent(new Event(G.Events.ITEMS_CHANGED,{}, this), true);
+        this.fireEvent(new Event(
+            G.Events.ITEMS_CHANGED,{}, this), true);
 
         return ele;
 
@@ -140,13 +142,13 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
 
         arguments.callee.__super__.apply(this, arguments);
 
-        this.fireEvent(new Event(G.Events.ITEMS_CHANGED,{}, this), true);
+        this.fireEvent(new Event(
+            G.Events.ITEMS_CHANGED,{}, this), true);
 
     }.$override(this.removeAll);
     
     thi$.destroy = function(){
         this.removeAll(true);
-
         arguments.callee.__super__.apply(this, arguments);
     }.$override(this.destroy);
 

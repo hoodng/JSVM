@@ -53,7 +53,8 @@ js.awt.CanvasLayer = function(def, Graphics2D){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ, Color = Class.forName("js.awt.Color"),
+        System = J$VM.System, MQ = J$VM.MQ, 
+        Color = Class.forName("js.awt.Color"),
         G = Class.forName("js.awt.Graphics2D");
 
     
@@ -156,7 +157,8 @@ js.awt.CanvasLayer = function(def, Graphics2D){
         buf.style.left = x+"px";
         buf.style.top  = y+"px";
 
-        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
+        this.fireEvent(new Event(
+            G.Events.TRANS_CHANGED, {}, this), true);
 
     }.$override(this.setPosition);
 
@@ -198,7 +200,8 @@ js.awt.CanvasLayer = function(def, Graphics2D){
             hit.height= h;
         }
 
-        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
+        this.fireEvent(new Event(
+            G.Events.TRANS_CHANGED, {}, this), true);
 
     };
 
