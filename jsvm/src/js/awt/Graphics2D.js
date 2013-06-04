@@ -192,32 +192,19 @@ js.awt.Graphics2D = function(def, Runtime, view){
         for(i=0,len=items.length; i<len; i++){
             layer = this.getLayer(items[i]);
             if(layer.isVisible() && layer.isDirty()){
-                Q.push(layer);
+                layer.draw();
             }
         }
 
-        _onDrawEnd.call(this, null, layer, callback);
+        this.afterDraw(layer, callback);
 
     }.$override(this.drawing);
-
-    var _onDrawEnd = function(ele, layer, callback){
-        var U = this._local, Q = U.Queue;
-        
-        System.err.println(Q.length);
-        if(Q.length > 0){
-            ele = Q.shift();
-            ele.draw(null, _onDrawEnd.$bind(this, layer, callback));
-            //ele.draw.$delay(ele, 0, null, _onDrawEnd.$bind(this, layer, callback));
-        }else{
-            this.afterDraw(layer, callback);
-        }
-    };
 
     var _onGraphicEvents = function(e){
         var U = this._local, type = e.getType(), tmp;
 
         switch(type){
-        case CLASS.Events.GM_LAYER_TRANS_CHANGED:
+        case CLASS.Events.TRANS_CHANGED:
             tmp = U.dirtyCount;
             U.dirtyCount = Class.isNumber(tmp) ? 
                 tmp : this.getElementsCount();

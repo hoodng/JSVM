@@ -118,36 +118,18 @@ js.awt.CanvasLayer = function(def, Graphics2D){
     thi$.drawing = function(layer, callback){
         this.erase();
         
-        var U = this._local;
-        U.Queue = [];
-
-        var items = this.items()||[], i, len, ele, Q = U.Queue;
+        var items = this.items()||[], i, len, ele;
         for(i=0, len=items.length; i<len; i++){
             ele = this[items[i]];
             if(ele){
-                Q.push(ele);
                 if(ele.instanceOf(js.awt.GraphicShape)){
                     ele.setDirty(true);
                 }
+                ele.draw(this);
             }
         }
-        
-        _onDrawEnd.call(this, null, layer, callback);
 
     }.$override(this.drawing);
-
-    var _onDrawEnd = function(ele, layer, callback){
-        var U = this._local, Q = U.Queue;
-
-        if(Q.length > 0){
-            ele = Q.shift();
-            System.err.println("layer "+this.id+" draw "+ ele.id+" ---"+Q.length);
-            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
-            //ele.draw.$delay(ele, 0, this, _onDrawEnd.$bind(this, layer, callback));
-        }else{
-            this.afterDraw(layer, callback);
-        }
-    };
 
     thi$.detectShape = function(x, y){
         var cache = this.cachedShapes(),
@@ -174,7 +156,7 @@ js.awt.CanvasLayer = function(def, Graphics2D){
         buf.style.left = x+"px";
         buf.style.top  = y+"px";
 
-        this.fireEvent(new Event(G.Events.TRANS_CHANGED), true);
+        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
 
     }.$override(this.setPosition);
 
@@ -216,7 +198,7 @@ js.awt.CanvasLayer = function(def, Graphics2D){
             hit.height= h;
         }
 
-        this.fireEvent(new Event(G.Events.TRANS_CHANGED), true);
+        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
 
     };
 

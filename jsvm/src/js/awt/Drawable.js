@@ -73,10 +73,10 @@ js.awt.Drawable = function(){
 
     thi$.draw = function(layer, callback){
         if(!this.isVisible()){
-            this.invisibleReturn(layer,callback);
+            this.invisibleReturn(layer, callback);
         }else if(!this.isDirty()){
             this.nondirtyReturn(layer, callback);
-        }else {
+        }else{
             this.beforeDraw(layer, callback);
         }
     };

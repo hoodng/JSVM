@@ -94,20 +94,18 @@ js.awt.CanvasGroup = function(def, Graphics2D){
     thi$.drawing = function(layer, callback){
         this.erase();
         
-        var U = this._local;
-        U.Queue = [];
-        var items = this.items()||[], i, len, ele, Q = U.Queue;
+        var items = this.items()||[], i, len, ele;
         for(i=0, len=items.length; i<len; i++){
             ele = this[items[i]];
             if(ele){
-                Q.push(ele);
                 if(ele.instanceOf(js.awt.GraphicShape)){
                     ele.setDirty(true);
                 }
+                ele.draw(this);
             }
         }
-        
-        _onDrawEnd.call(this, null, layer, callback);
+
+        this.nondirtyReturn(layer, callback);
 
     }.$override(this.drawing);
 
@@ -125,17 +123,6 @@ js.awt.CanvasGroup = function(def, Graphics2D){
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.nondirtyReturn);
-
-    var _onDrawEnd = function(ele, layer, callback){
-        var U = this._local, Q = U.Queue;
-        if(Q.length > 0){
-            ele = Q.shift();
-            //ele.draw.$delay(ele, 0, this, _onDrawEnd.$bind(this, layer, callback));
-            ele.draw(this, _onDrawEnd.$bind(this, layer, callback));
-        }else{
-            this.nondirtyReturn(layer, callback);
-        }
-    };
 
     thi$.setPosition = function(x, y){
         arguments.callee.__super__.apply(this, arguments);

@@ -173,7 +173,7 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
         T0.Aij(2,1,dy);
         T0.Aij(2,2,1);
         
-        this.fireEvent(new Event(G.Events.TRANS_CHANGED,{}, this), this);
+        this.fireEvent(new Event(G.Events.TRANS_CHANGED, {}, this), true);
 
     };
 
