@@ -60,7 +60,7 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
     thi$.getShapeInfo = function(){
         var M = this.def, U = this._local, 
             u = this.getAttr("angleUnit") || Graph.RAD,
-            e = M.rotate, image = U.image, ret;
+            e = M.rotate, image = U.image || M.image, ret;
 
         e = Class.isNumber(e) ? Graph.deg2rad(e, u) : 0;
         
@@ -90,7 +90,7 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
 
     var _loadImage = function(layer, callback){
         var M = this.def, imgId = M.image, image = imgId, host = this;
-
+        System.err.println("draw image: "+imgId);
         if(Class.isString(imgId)){
             image = _getImage.call(this, imgId);
 

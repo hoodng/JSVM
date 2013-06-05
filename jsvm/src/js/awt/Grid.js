@@ -230,13 +230,13 @@ js.awt.Grid = function(def){
         return set;
     };
     
-    var _getLineMatrix = function(lineMatrixes, cell){
+    
+    var _getHLineMatrix = function(lineMatrixes, cell){
         var rIndex = cell.rowIndex, cIndex = cell.colIndex,
-            hlines = lineMatrixes.hlines, vlines = lineMatrixes.vlines,
-            rowSpan = cell.rowSpan, colSpan = cell.colSpan,
+            hlines = lineMatrixes.hlines, rowSpan = cell.rowSpan,
             x0 = cell.x, x1 = x0 + cell.width, 
             y0 = cell.y, y1 = y0 + cell.height,
-            index, hline, vline, xs, ys;
+            index, hline, xs;
         
         index = rIndex;
         hline = hlines[index] = hlines[index] || {y: y0, xs: []};
@@ -247,6 +247,14 @@ js.awt.Grid = function(def){
         hline = hlines[index] = hlines[index] || {y: y1, xs: []};
         xs = hline.xs;
         _mergeArea.call(this, xs, cIndex, {x0: x0, x1: x1}, false);
+    };
+    
+    var _getVLineMatrix = function(lineMatrixes, cell){
+        var rIndex = cell.rowIndex, cIndex = cell.colIndex,
+            vlines = lineMatrixes.vlines, colSpan = cell.colSpan,
+            x0 = cell.x, x1 = x0 + cell.width, 
+            y0 = cell.y, y1 = y0 + cell.height,
+            index, vline, ys;
         
         index = cIndex;
         vline = vlines[index] = vlines[index] || {x: x0, ys: []};
@@ -259,25 +267,41 @@ js.awt.Grid = function(def){
         _mergeArea.call(this, ys, rIndex, {y0: y0, y1: y1}, true);
     };
     
-    var _compress = function(lines){
-        var p0, ps, pa, tmp;
-        for(var i = 0, len = lines.length; i < len; i++){
+    var _getLineMatrix = function(lineMatrixes, cell){
+        switch(lineMatrixes.level){
+        case 0:
+            _getHLineMatrix.apply(this, arguments);
+            _getVLineMatrix.apply(this, arguments);
+            break;
+        case 1:
+            _getHLineMatrix.apply(this, arguments);
+            break;
+        case 2:
+            _getVLineMatrix.apply(this, arguments);
+            break;
+        default:
+            break;
+        }
+    };
+    
+    var _compress = function(lines, prop){
+        var len = lines ? lines.length : 0,
+        line, p0, ps, pa, tmp, cnt;
+        for(var i = 0; i < len; i++){
             line = lines[i];
+            ps = line[prop];
+
+            cnt = ps.length;
+            if(cnt <= 1) continue;
             
-            for(p0 in line){
-                ps = line[p0];
-                tmp = [];
-                for(var j = 0, cnt = ps.length; j < cnt; j++){
-                    pa = ps[j];
-                    if(pa){
-                        tmp.push(pa);
-                    }
+            tmp = line[prop] = [];
+            for(var j = 0; j < cnt; j++){
+                pa = ps[j];
+                if(pa){
+                    tmp.push(pa);
                 }
-                line[p0] = tmp;
             }
         }
-        
-        return lines;
     };
     
     /**
@@ -296,22 +320,52 @@ js.awt.Grid = function(def){
      *     ]
      * }
      * 
+     * @param level: {0, 1, 2} 0 indicate the horizontal line matrixes
+     *        to extract; 1 indicate the vertical line matrixes to extract;
+     *        0 indicate all line matrixes to extract.
      * @param force: {Boolean} A boolean value to indicate whether the
      *        old matrixes ignored.
      */
-    thi$.getLineMatrixes = function(force){
-        var lineMatrixes = this.lineMatrixes, cells = this.extractCells();
-        if(force !== true && lineMatrixes){
+    thi$.getLineMatrixes = function(level, force){
+        if(level !== 1 && level !== 2){
+            level = 0;
+        }
+        
+        var lineMatrixes = this.lineMatrixes, cells = this.extractCells(),
+        hlines, vlines;
+        if(force !== true && lineMatrixes 
+           && lineMatrixes.level == level){
             return lineMatrixes;
         }
         
-        lineMatrixes = this.lineMatrixes = {hlines: [], vlines: []};
+        switch(level){
+        case 1:
+            lineMatrixes = {hlines: []};
+            break;
+        case 2:
+            lineMatrixes = {vlines: []};
+            break;
+        default:
+            lineMatrixes = {hlines: [], vlines: []};
+            break;
+        }
+        
+        lineMatrixes.level = level;
+        this.lineMatrixes = lineMatrixes;
+        
         for(var i = 0, len = cells.length; i < len; i++){
             _getLineMatrix.call(this, lineMatrixes, cells[i]);
         }
         
-        _compress.call(this, lineMatrixes.hlines);
-        _compress.call(this, lineMatrixes.vlines);
+        hlines = lineMatrixes.hlines;
+        if(hlines && hlines.length > 0){
+            _compress.call(this, hlines, "xs");
+        }
+        
+        vlines = lineMatrixes.vlines;
+        if(vlines && vlines.length > 0){
+            _compress.call(this, vlines, "ys");
+        }
         
         // J$VM.System.err.println(lineMatrixes);
         return lineMatrixes;
