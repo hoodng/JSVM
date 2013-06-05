@@ -1,0 +1,61 @@
+
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<script src="../../jsvm/src/js/math/Traveller.js" ></script>
+<style>
+
+.bt_0, .bt_1{
+   width: 60px;
+   height: 30px;
+   background-color: #FFFFFF;
+   border: 1px solid blue;
+}
+
+
+</style>
+</head>
+
+<body></body>
+
+<script type="text/javascript">
+
+
+J$VM.exec("Demo", function(System){
+
+        var tree = {
+            id: "root1",
+            nodes:[
+                { name:"aaa", nodes:[{nodes:[{ nodes:[{nodes:[{ nodes:[{nodes:[{ nodes:[{},{}]}, {}, {nodes:[{},{}]}]},{}]},{}, {nodes:[{},{}]}]},{}]},{}, {nodes:[{},{}]}]},{}]},
+                { name:"bbb", nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+                { name: "ccc",nodes:[{text:"Node111111111111111111"},{},{}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+               { name: "a", nodes:[{name:"b", nodes:[{name:"c"},
+                                                     {name:"d"}]},
+                                   {name:"e"}, 
+                                   {name:"f", nodes:[{name:"g"},
+                                                     {name:"h"}]}]}
+            ]
+        };
+    
+        var handler = new js.math.TraveHandler({});
+        js.math.Traveller.trave(handler, tree);
+
+        System.err.println("Deepth: "+handler.getDeepth());
+        System.err.println("Breadth: "+handler.getBreadth());
+        System.err.println(handler.getPath(58));
+    });
+
+</script>
+
+</html>
