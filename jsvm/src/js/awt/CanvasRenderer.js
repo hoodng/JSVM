@@ -102,6 +102,10 @@ js.awt.CanvasRenderer = function(config){
             path: "drawPath"
         };
 
+
+    CLASS.getInstance = function(){
+        return this.instance;
+    };
     
     thi$.applyStyles = function(ctx, styles){
         var i, k, v;
@@ -261,7 +265,7 @@ js.awt.CanvasRenderer = function(config){
     }.$override(this.drawShape);
 
 
-    thi$.setContext = function(ctx, geom, style, hit, transform, clip){
+    thi$.setContext = function(ctx, style, hit, transform, clip){
         var T = transform, color, v;
 
         ctx.save();
@@ -285,7 +289,7 @@ js.awt.CanvasRenderer = function(config){
         }
     };
 
-    thi$.draw = function(ctx, geom, style, hit){
+    thi$.draw = function(ctx, style, hit){
         var fillStroke = style.fillStroke || 1,
             fill = ((fillStroke & 2) != 0), 
             stroke = ((fillStroke & 1) != 0), opacity, v;
@@ -319,7 +323,7 @@ js.awt.CanvasRenderer = function(config){
 
     thi$.drawArc = function(ctx, geom, style, hit, transform, clip){
 
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
         
         var fix = this.fix;
 
@@ -327,22 +331,22 @@ js.awt.CanvasRenderer = function(config){
         ctx.arc(fix(geom.cx), fix(geom.cy), geom.r,
                 -geom.startAngle, -geom.endAngle, true);
         
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
 
     };
 
     thi$.drawCircle = function(ctx, geom, style, hit, transform, clip){
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
         
         var fix = this.fix;
         ctx.beginPath();
         ctx.arc(fix(geom.cx), fix(geom.cy), geom.r, 0, TWPI, true);
         
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
     };
 
     thi$.drawEllipse = function(ctx, geom, style, hit, transform, clip){
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
         
         var fix = this.fix,
             x = geom.cx, y = geom.cy, a = geom.rx, b = geom.ry,
@@ -356,11 +360,11 @@ js.awt.CanvasRenderer = function(config){
         ctx.moveTo(x0, cy);
         ctx.arc(cx, cy, r, 0, TWPI, true);
         
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
     };
 
     thi$.drawImage = function(ctx, geom, style, hit, transform, clip){
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
 
         var x = geom.dx, y = geom.dy, w = geom.dw, h = geom.dh, a, b, 
             e = geom.rotate, o = e + PI/2, dx, dy;
@@ -383,22 +387,22 @@ js.awt.CanvasRenderer = function(config){
             ctx.rect(x, y, w, h);
         }
         
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
     };
 
     thi$.drawLine = function(ctx, geom, style, hit, transform, clip){
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
         var fix = this.fix;
 
         ctx.beginPath();
         ctx.moveTo(fix(geom.x0), fix(geom.y0));
         ctx.lineTo(fix(geom.x1), fix(geom.y1));
         
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
     };
 
     thi$.drawPolygon = function(ctx, geom, style, hit, transform, clip){
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
 
         var fix = this.fix, points = geom.points, p, x, y, i, len;
 
@@ -417,12 +421,12 @@ js.awt.CanvasRenderer = function(config){
         }            
         ctx.closePath();
 
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
 
     };
 
     thi$.drawPolyline = function(ctx, geom, style, hit, transform, clip){
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
 
         var fix = this.fix, points = geom.points, p, x, y, i, len;
 
@@ -440,22 +444,22 @@ js.awt.CanvasRenderer = function(config){
             }
         }            
 
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
     };
 
     thi$.drawRect = function(ctx, geom, style, hit, transform, clip){
 
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
         
         ctx.beginPath();
         ctx.rect(this.fix(geom.x), this.fix(geom.y), geom.width, geom.height);
         
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
     };
 
     thi$.drawSector = function(ctx, geom, style, hit, transform, clip){
 
-        this.setContext(ctx, geom, style, hit, transform, clip);
+        this.setContext(ctx, style, hit, transform, clip);
 
         ctx.beginPath();
         
@@ -489,68 +493,90 @@ js.awt.CanvasRenderer = function(config){
             break;
         }
         
-        this.draw(ctx, geom, style, hit);
+        this.draw(ctx, style, hit);
 
     };
 
 
     thi$.drawText = function(ctx, geom, style, hit, transform, clip){
-        this.setContext(ctx, geom, style, hit, transform, clip);
 
-        var fix = this.fix, text = geom.text,
-            x = geom.x, y = geom.y, w = geom.width, h = geom.height,
-            ax = geom.align_x, ay = geom.align_y, e = geom.rotate, 
-            fs, tw, th, dx, dy, a, b, o;
+        this.setContext(ctx, style, hit, transform, clip);
         
-        x = Class.isNumber(x) ? x : 0;
-        y = Class.isNumber(y) ? y : 0;
+        var fix = this.fix, tArray, t, text, 
+            x, y, w, h, ax, ay, tw, th, dx, dy, e, fs, a, b, o;
 
-        w = Class.isNumber(w) ? w : 160;
-        h = Class.isNumber(h) ? h : 16;
-        
-        a = w/2; b = h/2;
-
-        dx = x + a; dy = y + b;
-
-        if(e === 0){
-            // w = w; h = h;
-        }else if(e - HalfPI < 0.000000001){
-            o = w; w = h; h = o;
+        if(Class.isArray(geom)){
+            tArray = geom;
         }else{
-            o = e + HalfPI;
-            w = 2*sqrt(pow(a*cos(e),2)+pow(b*sin(e),2));
-            h = 2*sqrt(pow(a*cos(o),2)+pow(b*sin(o),2));
+            tArray = [geom];
         }
-        ctx.translate(dx, dy);        
-        ctx.rotate(-e);
         
-        fs = this.measureText(ctx, text);
-        tw = fs.width, th = fs.height;
-        
-        if(tw > w){
-            text = this.cutString(ctx, text, w, true);
-            tw = ctx.measureText(text).width;
-        }
+        for(var i=0, len=tArray.length; i<len; i++){
+            t = tArray[i];
 
-        x = -w/2 + (w - tw)*ax;
-        y = -h/2 + (h - th)*ay;
-        
-        var fillStroke = style.fillStroke, 
-            fill = ((fillStroke & 2) != 0), 
-            stroke = ((fillStroke & 1) != 0);
+            text = t.text;
+            x = t.x;  y = t.y;  
+            w = t.width; h = t.height;
+            ax = t.align_x; ay = t.align_y; 
+            e = geom.rotate, 
 
-        if(hit !== true){
-            if(fill){
-                ctx.fillText(text, x, y);
+            
+            x = Class.isNumber(x) ? x : 0;
+            y = Class.isNumber(y) ? y : 0;
+
+            w = Class.isNumber(w) ? w : 160;
+            h = Class.isNumber(h) ? h : 16;
+            
+            a = w/2; b = h/2;
+
+            dx = x + a; dy = y + b;
+
+            if(e === 0){
+                // w = w; h = h;
+            }else if(e - HalfPI < 0.000000001){
+                o = w; w = h; h = o;
+            }else{
+                o = e + HalfPI;
+                w = 2*sqrt(pow(a*cos(e),2)+pow(b*sin(e),2));
+                h = 2*sqrt(pow(a*cos(o),2)+pow(b*sin(o),2));
+            }
+            
+            ctx.save();
+
+            ctx.translate(dx, dy);        
+            ctx.rotate(-e);
+            
+            fs = this.measureText(ctx, text);
+            tw = fs.width, th = fs.height;
+            
+            if(tw > w){
+                text = this.cutString(ctx, text, w, true);
+                tw = ctx.measureText(text).width;
             }
 
-            if(stroke){
-                ctx.strokeText(text, x, y);
-            };
-        }else{
-            ctx.fillRect(x, y, tw, th);
+            x = -w/2 + (w - tw)*ax;
+            y = -h/2 + (h - th)*ay;
+            
+            var fillStroke = style.fillStroke, 
+                fill = ((fillStroke & 2) != 0), 
+                stroke = ((fillStroke & 1) != 0);
+
+            if(hit !== true){
+                if(fill){
+                    ctx.fillText(text, x, y);
+                }
+
+                if(stroke){
+                    ctx.strokeText(text, x, y);
+                };
+            }else{
+                ctx.fillRect(x, y, tw, th);
+            }
+
+            ctx.restore();
+
         }
-        
+
         ctx.restore();
     };
 
@@ -558,4 +584,6 @@ js.awt.CanvasRenderer = function(config){
 
 }.$extend(js.awt.Renderer);
 
-
+var $ = js.awt.CanvasRenderer;
+$.instance = $.instance || new ($)("");
+delete $;

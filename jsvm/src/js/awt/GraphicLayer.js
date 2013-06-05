@@ -73,7 +73,7 @@ js.awt.GraphicLayer = function(def, Graphics2D){
             ret = renderers[type];
 
         if(!ret){
-            ret = renderers[type] = new (Class.forName(type))({});
+            ret = renderers[type] = Class.forName(type).getInstance();
         }
 
         return ret;
