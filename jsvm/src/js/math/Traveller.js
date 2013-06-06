@@ -87,22 +87,14 @@ js.math.TraveHandler = function(data){
             path = [];
             for(i=0; i<=level; i++){
                 lnodes = levels[i];
-                path.push(lnodes.length-1);
+                path.push(lnodes[lnodes.length-1]);
             }
             U.paths.push(path);
         }        
     };
 
     thi$.getPath = function(index){
-        var U = this._local, ret = [], i, len,
-            levels = U.levels, paths = U.paths, 
-            path = paths[index];
-        
-        for(i=0, len=path.length; i<len; i++){
-            ret.push(levels[i][path[i]]);
-        }
-
-        return ret;
+        return this._local.paths[index];
     };
 
     thi$.getDeepth = function(){

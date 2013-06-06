@@ -55,7 +55,8 @@ js.awt.CanvasRenderer = function(config){
     var Class = js.lang.Class, System = J$VM.System,
         Color = Class.forName("js.awt.Color"), 
         Font = Class.forName("js.awt.Font"),
-
+        
+        abs = Math.abs,
         cos = Math.cos, sin = Math.sin, 
         pow = Math.pow, sqrt = Math.sqrt,
         PI = Math.PI,  TWPI = 2*PI, 
@@ -518,7 +519,7 @@ js.awt.CanvasRenderer = function(config){
             x = t.x;  y = t.y;  
             w = t.width; h = t.height;
             ax = t.align_x; ay = t.align_y; 
-            e = geom.rotate, 
+            e = t.rotate, 
 
             
             x = Class.isNumber(x) ? x : 0;
@@ -533,7 +534,7 @@ js.awt.CanvasRenderer = function(config){
 
             if(e === 0){
                 // w = w; h = h;
-            }else if(e - HalfPI < 0.000000001){
+            }else if(abs(e - HalfPI) < 0.000000001){
                 o = w; w = h; h = o;
             }else{
                 o = e + HalfPI;
