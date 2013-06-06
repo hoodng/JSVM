@@ -82,8 +82,19 @@
             //G.setDataSize({w:8000, h:8000}, {w:800, h:800});
 
             var _onMouseEvents = function(e){
-                var shape = e.getEventTarget();
-		        System.err.println(shape.id+"---"+e.getType()+" "+e._bubble);
+                var eType = e.getType(), shape = e.getEventTarget(),
+                    doc = document.body;
+                switch(eType){
+                case "mouseover":
+                case "mousemove":
+                    if(shape === lineB){
+                        document.body.style.cursor = "e-resize";
+                    }
+                    break;
+                default:
+                    document.body.style.cursor = "default";
+                    break;
+                }
 		    };
 
 		    circle.attachEvent("mousedown", 4, this, _onMouseEvents);

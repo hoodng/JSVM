@@ -90,7 +90,7 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
 
     var _loadImage = function(layer, callback){
         var M = this.def, imgId = M.image, image = imgId, host = this;
-        System.err.println("draw image: "+imgId);
+
         if(Class.isString(imgId)){
             image = _getImage.call(this, imgId);
 
