@@ -253,6 +253,14 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         }
         //      this.dashboard.postMQ("js.awt.event.GadgetChange", "", []);
     };
+    
+    thi$.isExpanding = function(){
+    	return this._local.expanding;
+    };
+    
+    thi$.setExpanding = function(b){
+    	this._local.expanding = b;
+    };
 
     /**
      * Expand or Collapse an item
@@ -262,6 +270,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
      * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
      */    
     thi$.expand = function(b, needNotify, root){
+    	this.setExpanding(false);
         var nodes = this.nodes, tree = this.treeContainer(),
         className = this.branch.clazz, refNode, i, len, item;
 

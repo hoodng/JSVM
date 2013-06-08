@@ -93,19 +93,25 @@ js.awt.CanvasLayer = function(def, Graphics2D){
     }.$override(this.measureText);
 
     thi$.getImageData = function(hit, sx, sy, sw, sh){
+        var ctx = this.getContext(hit);
+
         sx = sx || 0;
         sy = sy || 0;
         sw = sw || this.getWidth();
         sh = sh || this.getHeight();
-
-        return this.getContext(hit).getImageData(sx, sy, sw, sh);
+        
+        return ctx ? ctx.getImageData(sx, sy, sw, sh) : null;
     };
 
     thi$.putImageData = function(hit, image, dx, dy){
+        var ctx = this.getContext(hit);
+
         dx = dx || 0;
         dy = dy || 0;
-
-        this.getContext(hit).putImageData(image, dx, dy);
+        
+        if(ctx && image){
+            ctx.putImageData(image, dx, dy);
+        }
     };
 
     thi$.erase = function(){
@@ -133,13 +139,15 @@ js.awt.CanvasLayer = function(def, Graphics2D){
     }.$override(this.drawing);
 
     thi$.detectShape = function(x, y){
-        var cache = this.cachedShapes(),
-            image = this.getImageData(true, x,y,1,1), 
-            px = image.data, colorKey, shape;
-        if(px[3] != 0){
+        var cache = this.cachedShapes(), colorKey, shape,
+            image = this.getImageData(true, x,y,1,1),
+            px = image ? image.data : null;
+
+        if(px && px[3] != 0){
             colorKey = new Color(px[0], px[1], px[2], px[3]);
             shape = cache[colorKey.toString("uuid")];
         }
+
         return shape;
     };
 
@@ -237,13 +245,12 @@ js.awt.CanvasLayer = function(def, Graphics2D){
         if(def.capture === true){
             this.hitCanvas = DOM.createElement("CANVAS");
             U.hitContext = this.hitCanvas.getContext("2d");
+
+            // DEBUG:
+            this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
+            document.body.appendChild(this.hitCanvas);
         }
         
-        // DEBUG:
-        /*
-         this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
-         document.body.appendChild(this.hitCanvas);
-         */
     }.$override(this._init);
 
     this._init.apply(this, arguments);

@@ -181,8 +181,8 @@ js.awt.Graphics2D = function(def, Runtime, view){
     };
 
     thi$.canCapture = function(){
-        return true;
-    }.$override(this.canCapture);
+        return this.def.capture === true;
+    }.$override(this.capCapture);
 
     thi$.drawing = function(layer, callback){
         var U = this._local;
@@ -442,7 +442,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
                     className: "jsvm_graphlayer",
                     x:0, y:0, z:0,
                     width:300, height:150,
-                    capture: true
+                    capture: this.canCapture()
                 }, this
             ));
         }

@@ -332,8 +332,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      * @param needNitify, false for don't nofity the tree to do AfterExpand,others do.
      */
     thi$.expand = function(item, needNotify){
-        _keepScroll.call(this);
-
+    	if(item.isExpanding()){
+			return;
+		}
+		
+		item.setExpanding(true);
+		
+        _keepScroll.call(this);		
+		
         if(item.isExpanded()){
             item.expand(false, needNotify);
             if(item.def.nodes == undefined){
