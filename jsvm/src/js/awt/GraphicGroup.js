@@ -58,14 +58,13 @@ js.awt.GraphicGroup = function(def, Graphics2D){
 
     thi$.drawing = function(layer, callback){
         var renderer = this.getRenderer(), 
-            ctx = this.getContext(),
             items = this.items(), ele, i, len;
         
         for(i=0, len=items.length; i<len; i++){
             ele = this[items[i]];
             renderer.drawShape(this.getContext(), ele);
             if(ele.canCapture()){
-                renderer.drawShape(this.getContext(true), ele);
+                renderer.drawShape(this.getContext(true), ele, true);
             }
         }
         

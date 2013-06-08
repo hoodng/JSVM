@@ -247,8 +247,10 @@ js.awt.CanvasLayer = function(def, Graphics2D){
             U.hitContext = this.hitCanvas.getContext("2d");
 
             // DEBUG:
+            /*
             this.hitCanvas.style.cssText = "position:absolute;right:0;top:0;";
             document.body.appendChild(this.hitCanvas);
+            */
         }
         
     }.$override(this._init);
