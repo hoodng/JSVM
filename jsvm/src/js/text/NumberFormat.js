@@ -332,14 +332,16 @@ js.text.NumberFormat = function(pattern, symbols){
             return NaN;
         }
 
-        var i = parseInt(d.integer.join("")), s = i<0 ? -1:1,
+        var integerStr = d.integer.join(""), 
+        i = parseInt(integerStr), 
+        s = integerStr.indexOf("-") != -1 ? -1 : 1,
         f = _digits2Number(d.fraction), 
         b = Math.pow(10, d.fraction.length);
 
         f = s*(Math.abs(i*b)+f)/b;
         
         f = d.percent ? f/100 : (d.permill ? f/1000 : f);
-
+        
         return f;
         
     }.$override(this.parse);

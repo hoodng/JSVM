@@ -378,7 +378,7 @@ js.text.BigIntTools = function(){
     
     var _findTopLevelNested = function(str, startSymbol, endSymbol){
         var ret = [], reg = new RegExp(),
-            s = _checkPattern(startSymbol), e = _checkPattern(endSymbol);
+        s = _checkPattern(startSymbol), e = _checkPattern(endSymbol);
         var pattern = s + "[^" + s + e + "]*" + e, flag = true, temp = [] , i = 0;
         
         while(flag){
@@ -421,33 +421,33 @@ js.text.BigIntTools = function(){
         
         /* test time cost */
         var s = new Date(), e;
-	    for(var i = 0; i<1000; i++)
+        for(var i = 0; i<1000; i++)
             ret = tools.calculate("(v0*time + v1)*((v0-v1)/time - v0)", v0, v1, time);
-	    e = new Date();
+        e = new Date();
         System.out.println( ret + "" );
-	    System.out.println( e - s );
-	    
-	    s = new Date();
-	    for(i = 0; i<1000; i++)
+        System.out.println( e - s );
+        
+        s = new Date();
+        for(i = 0; i<1000; i++)
             ret = tools.calculate("(v0*time + v1)*( (v0-v1)/time - v0)",{v0:v0,v1:v1,time:time});
-	    e = new Date();
+        e = new Date();
         System.out.println( ret + "" );
-	    System.out.println( e - s );
-	    
-	    s = new Date();
-	    for(i = 0; i<1000; i++)
+        System.out.println( e - s );
+        
+        s = new Date();
+        for(i = 0; i<1000; i++)
             ret = tools.calculate(["*",["+",["*",v0,time],v1],["-",["/",["-",v0,v1],time],v0]]);
-	    e = new Date();
+        e = new Date();
         System.out.println( ret + "" );
-	    System.out.println( e - s );
+        System.out.println( e - s );
         
         s = new Date();
         v0 = tools.parseBigInt(v0);
-	    for(i = 0; i<1000; i++)
+        for(i = 0; i<1000; i++)
             ret = v0.multiply(time).plus(v1).multiply(v0.minus(v1).divid(time).minus(v0));
-	    e = new Date();
+        e = new Date();
         System.out.println( ret + "" );
-	    System.out.println( e - s );
+        System.out.println( e - s );
         /**/
         
     };
@@ -966,7 +966,7 @@ js.text.BigInt = function( data ){
         if( isZero(this) ) return this.parseBigInt(0);
         
         var result = this.divid_mod(y), modStr = result.mod.toString(),
-            x = result.mod;
+        x = result.mod;
         
         /** for decimal support **/
         var decLength = 0,temp;
@@ -1141,7 +1141,8 @@ js.text.BigInt = function( data ){
         else if( this.negative && a_MoreThan_b( this.decArray, round) ){
             this.array = _plus(this.array, [1]);
         }
-        this.decArray.splice(0);
+        //this.decArray.splice(0);
+        this.decArray = [];
         
         return this;
     };
@@ -1154,7 +1155,8 @@ js.text.BigInt = function( data ){
             this.array = _plus(this.array, [1]);
         }
         
-        this.decArray.splice(0);
+        //this.decArray.splice(0);
+        this.decArray = [];
         return this;
     };
     
@@ -1166,7 +1168,8 @@ js.text.BigInt = function( data ){
             this.array = _plus(this.array, [1]);
         }
         
-        this.decArray.splice(0);
+        //this.decArray.splice(0);
+        this.decArray = [];
         return this;
     };
     
