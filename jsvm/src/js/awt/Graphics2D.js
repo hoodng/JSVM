@@ -223,6 +223,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
     var _onmouseevents = function(e){
 		var eType = e.getType(), ele;
+
 		if(eType === "mouseover"){
 			ele = e.toElement;
 		}else if(eType === "mouseout"){
@@ -289,11 +290,14 @@ js.awt.Graphics2D = function(def, Runtime, view){
         return "js.awt.Graphics2D";
     }.$override(this.classType);
 
-    thi$.checkAttachEvent = function(eType){
-        var U = this._local;
-        if(!U.events[eType]){
-            Event.attachEvent(this.view, eType, 0, this, _onmouseevents);
-            U.events[eType] = true;
+    thi$.checkAttachEvent = function(eTypes){
+        var U = this._local, eType;
+        for(var i=0, len=arguments.length; i<len; i++){
+            eType = arguments[i];
+            if(!U.events[eType]){
+                Event.attachEvent(this.view, eType, 0, this, _onmouseevents);
+                U.events[eType] = true;
+            }
         }
     };
 
