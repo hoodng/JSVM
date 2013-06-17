@@ -37,18 +37,20 @@
 
 $package("js.awt.shape");
 
-$import("js.awt.GraphicShape");
+$import("js.awt.shape.RPolygon");
 
 /**
- * def:{
- *   cx: 
- *   cy:
- *   r:
+ *
+ * { cx: x of center
+ *   cy: y of center
+ *   r: radius
+ *   offset: Deg, the first point offset degree
  * }
+ *
  */
-js.awt.shape.Circle = function(def, Graphics2D, Renderer){
+js.awt.shape.Square = function(def, Graphics2D, Renderer){
 
-    var CLASS = js.awt.shape.Circle, thi$ = CLASS.prototype;
+    var CLASS = js.awt.shape.Square, thi$ = CLASS.prototype;
     
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -56,22 +58,15 @@ js.awt.shape.Circle = function(def, Graphics2D, Renderer){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, System = J$VM.System;
-
-    thi$.getShapeInfo = function(hit){
-        var M = this.def;
-        return {
-            cx: M.cx,
-            cy: M.cy,
-            r: hit ? (M.r <= 1 ? 2 : M.r) : M.r
-        };
-    };
-
+    var Class = js.lang.Class, System = J$VM.System,
+        Graph = Class.forName("js.awt.Graphics2D");
+    
     thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
-        def.classType = def.classType || "js.awt.shape.Circle";
-        def.type = "circle";
+        def.classType = def.classType || "js.awt.shape.Square";
+        def.ends = 4;
+        def.offset = 45;
 
         arguments.callee.__super__.apply(this, arguments);
 
@@ -79,5 +74,5 @@ js.awt.shape.Circle = function(def, Graphics2D, Renderer){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.GraphicShape);
+}.$extend(js.awt.shape.RPolygon);
 

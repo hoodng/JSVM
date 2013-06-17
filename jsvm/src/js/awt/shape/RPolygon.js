@@ -40,15 +40,20 @@ $package("js.awt.shape");
 $import("js.awt.GraphicShape");
 
 /**
- * def:{
- *   cx: 
- *   cy:
- *   r:
+ *
+ * { cx: x of center
+ *   cy: y of center
+ *   r: radius,
+ *   ends: the number of ends, for example 3 for triangle, 5 for pentango,
+ *         10 for star and so on.
+ *   offset: Deg, the first point offset degree
+ *   rscale: even ends radius scale to odd ends radius
  * }
+ *
  */
-js.awt.shape.Circle = function(def, Graphics2D, Renderer){
+js.awt.shape.RPolygon = function(def, Graphics2D, Renderer){
 
-    var CLASS = js.awt.shape.Circle, thi$ = CLASS.prototype;
+    var CLASS = js.awt.shape.RPolygon, thi$ = CLASS.prototype;
     
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -56,24 +61,55 @@ js.awt.shape.Circle = function(def, Graphics2D, Renderer){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, System = J$VM.System;
+    var Class = js.lang.Class, System = J$VM.System,
+        Graph = Class.forName("js.awt.Graphics2D"),
+        Trig  = Class.forName("js.math.Trig"); 
 
-    thi$.getShapeInfo = function(hit){
+    var _calcPoints = function(){
+        var M = this.def, points = M.points = [],
+            r = M.r, r0 = r * M.rscale, cx = M.cx, cy = M.cy, 
+            deg = M.offset, step = 360/M.ends, p;
+
+        for(var i=0; i<M.ends; i++){
+            p = Trig.XYOfTheta(Trig.Deg2Rad(deg), 
+                               (i%2 == 0 ? r : r0), cx, cy);
+            points.push([1, p.x, p.y]);
+            deg += step;
+        }
+        
+        points[0][0] = 0;
+    };
+
+    thi$.getShapeInfo = function(){
         var M = this.def;
+        if(this.isDirty()){
+            _calcPoints.call(this);
+        }
+
         return {
-            cx: M.cx,
-            cy: M.cy,
-            r: hit ? (M.r <= 1 ? 2 : M.r) : M.r
+            points: M.points
         };
     };
 
     thi$._init = function(def, Graphics2D, Renderer){
         if(def == undefined) return;
 
-        def.classType = def.classType || "js.awt.shape.Circle";
-        def.type = "circle";
+        def.classType = def.classType || "js.awt.shape.RPolygon";
+        def.type = "polygon";
 
         arguments.callee.__super__.apply(this, arguments);
+        
+        var tmp;
+
+        tmp = def.ends;
+        tmp = Class.isNumber(tmp) ? tmp : 3;
+        this.setAttr("ends", (tmp < 3 ? 3 : tmp));
+
+        tmp = def.offset;
+        this.setAttr("offset", Class.isNumber(tmp)? tmp : 90);
+
+        tmp = def.rscale;
+        this.setAttr("rscale", Class.isNumber(tmp)? tmp : 1);
 
     }.$override(this._init);
     

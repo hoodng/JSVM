@@ -187,14 +187,14 @@ js.awt.Containable = function(){
      * Gets the component id list in current order
      */
     thi$.items = function(){
-        return this.def.items;
+        return this.def.items || [];
     };
 
     /**
      * Gets the component id list in original order
      */
     thi$.items0 = function(){
-        return this._local.items;
+        return this._local.items || [];
     };
 
     thi$.indexOf = function(ele){
@@ -219,10 +219,11 @@ js.awt.Containable = function(){
 
             delete this[id];
             delete M[id];
-            delete ele.container;
-
-            if(gc === true){
-                ele.destroy();
+            if(ele){
+                delete ele.container;
+                if(gc === true){
+                    ele.destroy();
+                }
             }
         }
 

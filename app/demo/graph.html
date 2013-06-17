@@ -11,7 +11,7 @@
 
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
 
-    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicElement.js"></script>
+
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
 
@@ -20,13 +20,14 @@
 
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGroup.js"></script>    
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasLayer.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/shape/Triangle.js"></script>
 
 
     <script type="text/javascript">
         J$VM.exec("Demo",function(System){
             var Class = js.lang.Class, 
             Color = Class.forName("js.awt.Color");
-
+            new Color(0,0,0,0);
 
             var G = new (Class.forName("js.awt.Graphics2D"))(
                       {
@@ -36,7 +37,8 @@
                          movable: false,
                          resizable: true,
                          miniSize:{width: 10, height:10},
-                         angleUnit: "deg"
+                         angleUnit: "deg",
+                         capture: true
                       }, this);
         
             G.addComponent(new (Class.forName("js.awt.CanvasLayer"))({id: "myLayer", capture:true}, G));
@@ -66,8 +68,19 @@
 
               var text0 = G.drawText({id:"text0", text: "Hello world 中文 1234567890", x:0, y:0, width:100, height:40, fontSize:16, fontWeight: "bolder",  rotate: 315, align_y:0.5, align_x:0.0, capture:true});
 
+			var C1 = G.drawCircle({id:"C1", cx:300, cy:300, r:50});
 
+			var T1 = G.drawTriangle({id:"T1", cx:300, cy: 300, r:50, offset:90});
+            var T2 = G.drawTriangle({id:"T2", cx:300, cy: 300, r:50, offset:270});
+            var S1 = G.drawStar({id:"S1", cx:300, cy: 300, r:50, 
+                                fillStyle:"#FF0000", fillStroke:2});
+            var S2 = G.drawSquare({id:"S2", cx:300, cy: 300, r:50, 
+                                strokeStyle:"#0000FF"});
 
+            var S3 = G.drawRPolygon({id:"S3", cx:300, cy: 150, r:50, ends:4, rscale:0.375,
+                                fillStyle:"#00FF00", fillStroke:2});
+             
+			
             G.drawImage({id:"image0", gid:"g1", image:"test.png", x:0, y:0, width:48, height:48, rotate:0, capture:true, layer:"myLayer"});        
 
             G.drawText({id:"text1", text: "for Row", x:380, y:50, width: 20, height:50, rotate: 90});
@@ -82,19 +95,8 @@
             //G.setDataSize({w:8000, h:8000}, {w:800, h:800});
 
             var _onMouseEvents = function(e){
-                var eType = e.getType(), shape = e.getEventTarget(),
-                    doc = document.body;
-                switch(eType){
-                case "mouseover":
-                case "mousemove":
-                    if(shape === lineB){
-                        document.body.style.cursor = "e-resize";
-                    }
-                    break;
-                default:
-                    document.body.style.cursor = "default";
-                    break;
-                }
+                var shape = e.getEventTarget();
+		        System.err.println(shape.id+"---"+e.getType()+" "+e._bubble);
 		    };
 
 		    circle.attachEvent("mousedown", 4, this, _onMouseEvents);
@@ -112,7 +114,8 @@
             lineB.attachEvent("mousemove", 4, this, _onMouseEvents);
             lineB.attachEvent("click", 4, this, _onMouseEvents);
             lineB.attachEvent("dblclick", 4, this, _onMouseEvents);
-
+           
+            
 
             var count = 0;
             (function(){
@@ -120,14 +123,20 @@
                 circle.translate(0, 1.5);
                 text0.translate(1.5, 1.5);
                 text0.setAttr("fillStyle", Color.randomColor().toString("rgba"));
-                E0.rotate(30*Math.PI/180, 200, 200);
+                E0.rotate(10*Math.PI/180, 200, 200);
                 E1.rotate(-5*Math.PI/180, 200, 200);
+                //triangle3.setOffsetDegree(count);
+                T1.rotate(5*Math.PI/180, 300, 300);
+                T2.rotate(-5*Math.PI/180, 300, 300);
+                S1.setAttr("rscale", Math.abs(count-100)/90 -1);
+                S1.translate(-1, 0);
+                S3.setAttr("ends", 4+2*(count%15));
                 count ++;
                 if(count < 200){
-                  G.draw.$delay(G, 1, null, arguments.callee.$bind(this));
+                  G.draw.$delay(G, 10, null, arguments.callee.$bind(this));
                 }
             })();
-
+            
         });
     </script>
 </head>

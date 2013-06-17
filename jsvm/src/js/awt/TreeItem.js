@@ -251,15 +251,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         if(peer && typeof peer.onAfterExpand === "function"){
             peer.onAfterExpand();
         }
-        //      this.dashboard.postMQ("js.awt.event.GadgetChange", "", []);
+        //this.dashboard.postMQ("js.awt.event.GadgetChange", "", []);
     };
     
     thi$.isExpanding = function(){
-    	return this._local.expanding;
+        return this._local.expanding;
     };
     
     thi$.setExpanding = function(b){
-    	this._local.expanding = b;
+        this._local.expanding = b;
     };
 
     /**
@@ -270,7 +270,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
      * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
      */    
     thi$.expand = function(b, needNotify, root){
-    	this.setExpanding(false);
+        this.setExpanding(false);
         var nodes = this.nodes, tree = this.treeContainer(),
         className = this.branch.clazz, refNode, i, len, item;
 
@@ -283,14 +283,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             
             refNode = this.view;
             if(nodes && nodes.length > 0){
-            	 for(i=0, len=nodes.length; i<len; i++){
+                 for(i=0, len=nodes.length; i<len; i++){
                      item = nodes[i];
                      _addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
                      refNode = item.view;
                  }
             }           
         }else{
-            for(i=nodes.length-1; i>=0; i--){
+            len = nodes ? nodes.length : 0;
+            for(i=len-1; i>=0; i--){
                 item = nodes[i];
                 if(item.isExpanded()){
                     item.expand(false, undefined, item);
@@ -318,7 +319,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         if(b){
             var nodes = this.nodes, i, len, item;
             if(nodes && this.nodes.length > 0){
-            	for(i=0, len=nodes.length; i<len; i++){
+                for(i=0, len=nodes.length; i<len; i++){
                     item = nodes[i];
                     if(item.canExpand() && !item.isExpanded()){
                         item.expandAll(b, this);

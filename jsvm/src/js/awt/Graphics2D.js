@@ -137,6 +137,15 @@ js.awt.Graphics2D = function(def, Runtime, view){
     thi$.drawSector = function(data){
         return this.drawShape("sector", data);
     };
+
+    /**
+     * Draw a square
+     *
+     * @param data: {cx, cy, r}
+     */
+    thi$.drawSquare = function(data){
+        return this.drawShape("square", data);
+    };
     
     /**
      * Draw Text
@@ -146,6 +155,44 @@ js.awt.Graphics2D = function(def, Runtime, view){
     thi$.drawText = function(data){
         return this.drawShape("text", data);
     };
+
+    /**
+     * Draw a regular polygon
+     *
+     * @param data: {cx, cy, radius, ends, offset, rscale}
+     */
+    thi$.drawRPolygon = function(data){
+        return this.drawShape("rpolygon", data);
+    };
+    
+    /**
+     * Draw a Triangle
+     *
+     * @param data: {cx, cy, radius, offset}
+     */
+    thi$.drawTriangle = function(data){
+        return this.drawShape("triangle", data);
+    };
+    
+    /**
+     * Draw a Pentagon
+     *
+     * @param data: {cx, cy, radius, offset}
+     */
+    thi$.drawPentagon = function(data){
+        return this.drawShape("pentagon", data);
+    };
+
+    /**
+     * Draw a Star
+     *
+     * @param data: {cx, cy, radius, offset, rscale}
+     */
+    thi$.drawStar = function(data){
+        return this.drawShape("star", data);
+    };
+
+
 
     thi$.drawShape = function(type, data){
         var layer = this.getLayer(data.layer) || this.curLayer(), 
@@ -222,69 +269,74 @@ js.awt.Graphics2D = function(def, Runtime, view){
     
 
     var _onmouseevents = function(e){
-		var eType = e.getType(), ele;
+        var eType = e.getType(), ele;
 
-		if(eType === "mouseover"){
-			ele = e.toElement;
-		}else if(eType === "mouseout"){
-			ele = e.fromElement;
-		}else{
-			ele = e.srcElement;
-		}
+        if(eType === "mouseover"){
+            ele = e.toElement;
+        }else if(eType === "mouseout"){
+            ele = e.fromElement;
+        }else{
+            ele = e.srcElement;
+        }
         
-		var U = this._local, XY, shape, bubble = true;
-		if(this.contains(ele, true) || ele === this._coverView){
+        var U = this._local, XY, shape, bubble = true;
+        if(this.contains(ele, true) || ele === this._coverView){
             
-			XY = this.curLayer().relative(e.eventXY());
-			shape = _detectShape.call(this, XY.x, XY.y);
+            XY = this.curLayer().relative(e.eventXY());
+            shape = _detectShape.call(this, XY.x, XY.y);
 
-			if(!shape){
-				if(U.curShape){
-					e.setType("mouseout");
-					e.fromElement = e.srcElement = e._target = U.curShape;
-					U.curShape.fireEvent(e, bubble);
-					U.curShape = undefined;
-				}
-			}else if(shape !== U.curShape){
-				if(U.curShape){
-					e.setType("mouseout");
-					e.fromElement = e.srcElement = e._target = U.curShape;
-					e.toElement = shape;
-					U.curShape.fireEvent(e, bubble);
-				}
+            if(!shape){
+                if(U.curShape){
+                    e.setType("mouseout");
+                    e.fromElement = e.srcElement = e._target = U.curShape;
+                    U.curShape.fireEvent(e, bubble);
+                    U.curShape = undefined;
+                }
 
-				if(e._default === true){
-					e.setType("mouseover");
-					e.toElement = e.srcElement = e._target = shape;
-					e.fromElement = U.curShape;
-					shape.fireEvent(e, bubble);
+                this.fireEvent(e, bubble);
 
-                    e.setType(eType);
+            }else if(shape !== U.curShape){
+                if(U.curShape){
+                    e.setType("mouseout");
+                    e.fromElement = e.srcElement = e._target = U.curShape;
+                    e.toElement = shape;
+                    U.curShape.fireEvent(e, bubble);
+                }
+
+                if(e._default === true){
+                    e.toElement = e.srcElement = e._target = shape;
+                    e.fromElement = U.curShape;
+                    e.setType("mouseover");
                     shape.fireEvent(e, bubble);
-				}
 
-				U.curShape = shape;
-			}else{
-				e.srcElement = e._target = shape;
-				shape.fireEvent(e, bubble);
-			}
-		}
+                    if(eType !== "mouseover"){
+                        e.setType(eType);
+                        shape.fireEvent(e, bubble);
+                    }
+                }
 
-		return true;
+                U.curShape = shape;
+            }else{
+                e.srcElement = e._target = shape;
+                shape.fireEvent(e, bubble);
+            }
+        }
+
+        return true;
     };
 
-	var _detectShape = function(x, y){
-		var items = this.items(), i, len, layer, shape, shapes = [];
+    var _detectShape = function(x, y){
+        var items = this.items(), i, len, layer, shape, shapes = [];
 
-		for(i=0, len=items.length; i<len; i++){
-			layer = this.getLayer(items[i]);
-			shape = layer.detectShape(x, y);
-			if(shape){
-				shapes.push(shape);
-			}
-		}
-		return shapes.pop();
-	};
+        for(i=0, len=items.length; i<len; i++){
+            layer = this.getLayer(items[i]);
+            shape = layer.detectShape(x, y);
+            if(shape){
+                shapes.push(shape);
+            }
+        }
+        return shapes.pop();
+    };
 
     thi$.classType = function(){
         return "js.awt.Graphics2D";
@@ -383,7 +435,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
     var _setSize = function(w, h, fire){
         var items = this.items(), i, len, layer,
-        size = this[items[0]].getSize();
+            size = this[items[0]].getSize();
 
         if(size.width != w || size.height != h){
             for(i=0, len=items.length; i<len; i++){
@@ -395,7 +447,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
     var _setPos = function(x, y, fire){
         var items = this.items(), i, len, layer,
-        pos = this[items[0]].getPosition();
+            pos = this[items[0]].getPosition();
 
         if((Class.isNumber(x) && pos.x != x ) || 
            (Class.isNumber(y) && pos.y != y)){
@@ -433,7 +485,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
         var U = this._local;
         U.events = {};
-		U.curShape = undefined;
+        U.curShape = undefined;
         U.scroll = {Xw: 0, Yw: 0 };
 
         var M = this.def, id = this.id;
@@ -472,12 +524,18 @@ CLASS.SHAPES = {
     ellipse: "js.awt.shape.Ellipse",
     image: "js.awt.shape.Image",
     line: "js.awt.shape.Line",
+    pentagon: "js.awt.shape.Pentagon",
     polygon: "js.awt.shape.Polygon",
     polyline: "js.awt.shape.Polyline",
     rect: "js.awt.shape.Rect",
+    rpolygon: "js.awt.shape.RPolygon",
     sector:"js.awt.shape.Sector",
-    text: "js.awt.shape.Text"
+    square:"js.awt.shape.Square",
+    star:"js.awt.shape.Star",
+    text: "js.awt.shape.Text",
+    triangle: "js.awt.shape.Triangle"
 };
+
 
 CLASS.RAD = "rad";
 CLASS.DEG = "deg";

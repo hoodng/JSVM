@@ -217,11 +217,12 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
      * Return a <code>Date<code> object from a date string
      * 
      * @param datestr, String type
+     * @param strict, boolean type, whether match the specified pattern strictly
      * @param isUTC, boolean type, whether is UTC
      * 
      * @return Date
      */
-    thi$.parse = function(datestr, isUTC){
+    thi$.parse = function(datestr, strict, isUTC){
         var info = CLASS.infos[this.pattern], 
         pIndex = info.pIndex, _symbols = this.symbols, 
         date, m = datestr.match(info.dPattern),$0;
@@ -234,10 +235,12 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
             return date;
         }
 
-        try{
-            date = new Date(Date.parse(datestr));    
-        } catch (x) {
-            
+        if(strict !== true){
+            try{
+                date = new Date(Date.parse(datestr));    
+            } catch (x) {
+                
+            }
         }
         
         if(!Class.isDate(date))

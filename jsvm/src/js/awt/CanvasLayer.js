@@ -164,10 +164,11 @@ js.awt.CanvasLayer = function(def, Graphics2D){
 
         buf.style.left = x+"px";
         buf.style.top  = y+"px";
-        
+        // Can not support clip data for now
+        /*
         this.fireEvent(new Event(
             G.Events.TRANS_CHANGED, {}, this), true);
-
+         */
     }.$override(this.setPosition);
 
     /**

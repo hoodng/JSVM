@@ -253,7 +253,7 @@ js.awt.CanvasRenderer = function(config){
      */
     thi$.drawShape = function(ctx, shape, hit){
         var type = shape.getType(),
-            geom = shape.getShapeInfo(), 
+            geom = shape.getShapeInfo(hit), 
             style= shape.getStyles(),
             trans= shape.getTransform(),
             clip = shape.getClip(),

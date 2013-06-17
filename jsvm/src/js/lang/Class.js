@@ -438,7 +438,10 @@ js.lang.Class = new function (){
      * 
      * Specially in Firefox, Chrome and Safari, when we attempt to 
      * parse an invalid date string as a Date object. An valid Date 
-     * object will be returned but it indicates an invalid Date. 
+     * object will be returned but it indicates an invalid Date.
+     * 
+     * e.g. 
+     * new Date("13").toString(); //"Invalid Date"
      * 
      * e.g.
      * var d = new Date("January 1, 2012 16:00:00 AM");

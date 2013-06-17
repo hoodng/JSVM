@@ -35,49 +35,32 @@
  * Source code availability: http://github.com/jsvm
  */
 
-$package("js.awt.shape");
-
-$import("js.awt.GraphicShape");
+$package("js.math");
 
 /**
- * def:{
- *   cx: 
- *   cy:
- *   r:
- * }
+ * 
  */
-js.awt.shape.Circle = function(def, Graphics2D, Renderer){
-
-    var CLASS = js.awt.shape.Circle, thi$ = CLASS.prototype;
+js.math.Trig = new (function(){
     
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, System = J$VM.System;
+    var Class = js.lang.Class, PI180 = Math.PI/180,
+        sin = Math.sin, cos = Math.cos;
 
-    thi$.getShapeInfo = function(hit){
-        var M = this.def;
+    this.Deg2Rad = function(deg){
+        return deg*PI180;
+    };
+
+    this.Rad2Deg = function(rad){
+        return rad/PI180;
+    };
+
+    this.XYOfTheta = function(theta, r, cx, cy){
+        cx = Class.isNumber(cx) ? cx : 0;
+        cy = Class.isNumber(cy) ? cy : 0;
+
         return {
-            cx: M.cx,
-            cy: M.cy,
-            r: hit ? (M.r <= 1 ? 2 : M.r) : M.r
+            x: cx + cos(theta)*r,
+            y: cy - sin(theta)*r
         };
     };
 
-    thi$._init = function(def, Graphics2D, Renderer){
-        if(def == undefined) return;
-
-        def.classType = def.classType || "js.awt.shape.Circle";
-        def.type = "circle";
-
-        arguments.callee.__super__.apply(this, arguments);
-
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
-
-}.$extend(js.awt.GraphicShape);
-
+})();
