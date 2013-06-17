@@ -132,7 +132,7 @@ js.util.LinkedList = function (array){
     };
 
     thi$._init = function(array){
-        if(array && js.lang.Class.isArray(Array))
+        if(array && js.lang.Class.isArray(array))
             this.addLast.$forEach(this, array);
     };
 
