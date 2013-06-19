@@ -227,7 +227,7 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
         pIndex = info.pIndex, _symbols = this.symbols, 
         date, m = datestr.match(info.dPattern),$0;
         if(m){
-            date = new Date(0);
+            date = new Date(1970, 0, 1);
             for(var i=1, len = m.length; i<len; i++){
                 $0 = pIndex[i-1];
                 date = Setter[$0](date, m[i], _symbols, isUTC);               

@@ -137,9 +137,8 @@ js.awt.Window = function (def, Runtime, view){
     /**
      * @see js.awt.Cover
      */
-    thi$.showLoading = function(b){
-
-        this.client.showLoading(b);
+    thi$.showLoading = function(b, styleClass){
+        this.client.showLoading(b, styleClass);
 
     }.$override(this.showLoading);
 

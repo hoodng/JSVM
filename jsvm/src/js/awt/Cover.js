@@ -51,11 +51,11 @@ js.awt.Cover = function (comp){
     /**
      * Show loading status in this cover
      */
-    thi$.showLoading = function(b){
+    thi$.showLoading = function(b, styleClass){
         b = b || false;
         if(b && this._coverView) return;
         
-        _showCover.call(this, b, this.className + "_loading");
+        _showCover.call(this, b, styleClass || (this.className + "_loading"));
 
     };
     
