@@ -167,7 +167,7 @@ js.lang.System = function (env, vm){
      */
     this.arrayCopy = function(src, srcPos, des, desPos, length, deep){
         var typeOf = js.lang.Class.typeOf,
-        srcIdx = srcPos, desIdx = desPos, item;
+            srcIdx = srcPos, desIdx = desPos, item;
         
         des = (des === null || des === undefined) ? [] : des;
 
@@ -210,8 +210,8 @@ js.lang.System = function (env, vm){
     var last = 0;
     this.checkThreshold = function(now, newThreshold){
         if((now - last) > 
-            (newThreshold ? newThreshold : 
-             this.getProperty("j$vm_threshold", 45))){
+           (newThreshold ? newThreshold : 
+            this.getProperty("j$vm_threshold", 45))){
             last = now;
             return true;
         }
@@ -317,6 +317,17 @@ js.lang.System = function (env, vm){
 		obj = J$VM.DOM.hasScrollbar(div);
 		vm.supports.hscrollbar = obj.hbw;
 		vm.supports.vscrollbar = obj.vbw;
+
+        // Check graphics, canvas, svg and vml.
+        obj = doc.createElement("CANVAS");
+        vm.supports.canvas = (typeof obj.getContext === "function");
+        vm.supports.svg = (doc.SVGAngle || doc.implementation.hasFeature(
+            "http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"));
+        div.innerHTML = "<v:shape id='vml_flag1' adj='1' />";
+        obj = div.firstChild;
+        obj.style.behavior = "url(#default#VML)";
+        vm.supports.vml = (obj ? typeof obj.adj === "object" : false);
+
 		obj = null;
 
 		// Clean
@@ -327,10 +338,10 @@ js.lang.System = function (env, vm){
     
     var _detectDoctype = function(){
         var reg = /(\"[^\"]+\")/gi,
-        publicIDReg=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi,
-        DOCTYPEFEATURS = ["xhtml", "version", "importance"/*, "systemId"*/],
-        doctype = vm.doctype = {declared: false}, 
-        dtype, publicId, systemId;
+            publicIDReg=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi,
+            DOCTYPEFEATURS = ["xhtml", "version", "importance"/*, "systemId"*/],
+            doctype = vm.doctype = {declared: false}, 
+            dtype, publicId, systemId;
 
         if(document.doctype != null){
             doctype.declared = true;
@@ -463,7 +474,7 @@ js.lang.System = function (env, vm){
     var bodyW, bodyH;
     var _onresize = function(e){
         var DOM = J$VM.DOM,
-        bounds = DOM.getBounds(document.body);
+            bounds = DOM.getBounds(document.body);
         if(bounds.width != bodyW || bounds.height != bodyH){
             bodyW = bounds.width;
             bodyH = bounds.height;
@@ -506,8 +517,8 @@ js.lang.System = function (env, vm){
     
     var _boot = function(env){
         var Class = js.lang.Class, mainClass,
-        mainClasName = this.getProperty("mainclass"),
-        mainFuncName = this.getProperty("mainfunction");
+            mainClasName = this.getProperty("mainclass"),
+            mainFuncName = this.getProperty("mainfunction");
 
         if(mainClasName){
             mainClass = Class.forName(mainClasName);

@@ -56,8 +56,8 @@ js.awt.GraphicLayer = function(def, Graphics2D){
         System = J$VM.System, MQ = J$VM.MQ,
         RENDERERS = {
             "js.awt.CanvasLayer" : "js.awt.CanvasRenderer",
-            "js.awt.SVGLayer" : "js.awt.SVGRenderer",
-            "js.awt.VMLLayer" : "js.awt.VMLRenderer"
+            "js.awt.SvgLayer" : "js.awt.SvgRenderer",
+            "js.awt.VmlLayer" : "js.awt.VmlRenderer"
         };
 
     thi$.getLayer = function(){
@@ -79,6 +79,9 @@ js.awt.GraphicLayer = function(def, Graphics2D){
         return ret;
 
     }.$override(this.getRenderer);
+
+    thi$.clearRect = function(x, y, width, height){
+    };
 
     thi$.cachedShapes = function(){
         return this._local.shapes;

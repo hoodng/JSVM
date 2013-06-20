@@ -38,6 +38,7 @@
 $package("js.awt");
 
 $import("js.awt.Drawable");
+$import("js.math.Trig");
 
 /**
  * 
@@ -488,13 +489,15 @@ js.awt.Graphics2D = function(def, Runtime, view){
         U.curShape = undefined;
         U.scroll = {Xw: 0, Yw: 0 };
 
-        var M = this.def, id = this.id;
+        var M = this.def, id = this.id, 
+            layerClass = CLASS.getLayerClass(def.gType);
+
         if(!M.items || M.items.length === 0){
             id += "__layer0__";
-            this.addComponent(new (Class.forName("js.awt.CanvasLayer"))(
+            this.addComponent(new (Class.forName(layerClass))(
                 {
                     id: id,
-                    classType: def.layer || "js.awt.CanvasLayer",
+                    classType: def.layer || layerClass,
                     className: "jsvm_graphlayer",
                     x:0, y:0, z:0,
                     width:300, height:150,
@@ -518,6 +521,12 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
 var CLASS = js.awt.Graphics2D;
 
+CLASS.TAGS = {
+    canvas: "js.awt.CanvasLayer",
+    svg: "js.awt.SvgLayer",
+    vml: "js.awt.VmlLayer"
+};
+
 CLASS.SHAPES = {
     arc: "js.awt.shape.Arc",
     circle: "js.awt.shape.Circle",
@@ -536,6 +545,11 @@ CLASS.SHAPES = {
     triangle: "js.awt.shape.Triangle"
 };
 
+CLASS.Events = {
+    ATTRS_CHANGED: "attrschanged",
+    ITEMS_CHANGED: "itemschanged",
+    TRANS_CHANGED: "transchanged"
+};
 
 CLASS.RAD = "rad";
 CLASS.DEG = "deg";
@@ -564,17 +578,30 @@ CLASS.vertices2Rect = function(vs){
 };
 
 CLASS.deg2rad = function(d, u){
-    return (u === undefined || u === this.RAD) ? d : d * Math.PI/180;
+    return (u === undefined || u === this.RAD) ? 
+        d : js.math.Trig.Deg2Rad(d);
 };
 
 CLASS.rad2deg = function(r, u){
-    return (u === undefined || u === this.RAD) ? 180*r/Math.PI : r;
+    return (u === undefined || u === this.RAD) ? 
+        js.math.Trig.Rad2Deg(r) : r;
 };
 
-CLASS.Events = {
-    ATTRS_CHANGED: "attrschanged",
-    ITEMS_CHANGED: "itemschanged",
-    TRANS_CHANGED: "transchanged"
+CLASS.getLayerClass = function(gtype){
+    gtype = gtype || "canvas";
+
+    if(!J$VM.supports[gtype]){
+        gtype = "svg";
+        if(!J$VM.supports[gtype]){
+            gtype = "vml";
+        }
+    }
+
+    if(!J$VM.supports[gtype]){
+        throw "Your browser does not support graphic "+gtype;
+    }
+
+    return this.TAGS[gtype];
 };
 
 CLASS = undefined;

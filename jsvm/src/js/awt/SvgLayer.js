@@ -200,14 +200,10 @@ js.awt.SvgLayer = function(def, Graphics2D){
     }.$override(this.setBounds);
 
     var _setSize = function(w, h, fire){
-        var buf = this.relCanvas, hit = this.hitCanvas;
+        var buf = this.relCanvas;
 
-        buf.width = w;
-        buf.height= h;
-        if(hit){
-            hit.width = w;
-            hit.height= h;
-        }
+        buf.style.width = w + "px";
+        buf.style.height= h + "px";
 
         this.fireEvent(new Event(
             G.Events.TRANS_CHANGED, {}, this), true);
@@ -236,7 +232,7 @@ js.awt.SvgLayer = function(def, Graphics2D){
         var U = this._local;
 
         this.relCanvas = DOM.createElement("SVG");
-        U.relContext = this.relCanvas.getContext("2d");
+        U.relContext = U.hitContext = this;
 
         var view;
         view = this.view = this.relCanvas;
