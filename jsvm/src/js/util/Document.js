@@ -639,7 +639,8 @@ js.util.Document = function (){
         
         if(Class.isNumber(styleW) && styleW >= 0){
             bounds.width = w;    
-            
+            bounds.innerWidth = w - bounds.MBP.BPW;
+
             if(isCanvas){
                 el.width = styleW;
             }else{
@@ -649,7 +650,8 @@ js.util.Document = function (){
 
         if(Class.isNumber(styleH) && styleH >= 0){
             bounds.height= h;
-            
+            bounds.innerHeight = h - bounds.MBP.BPH;
+
             if(isCanvas){
                 el.height = styleH;
             }else{
