@@ -61,6 +61,7 @@ js.awt.CanvasRenderer = function(config){
         pow = Math.pow, sqrt = Math.sqrt,
         PI = Math.PI,  TWPI = 2*PI, 
         PI180 = PI/180, HalfPI = PI/2,
+        trig = Class.forName("js.math.Trig"),
 
         BRUSH= ["LinearGradient", "RadialGradient", "Pattern"],
 
@@ -245,7 +246,8 @@ js.awt.CanvasRenderer = function(config){
     };
 
     thi$.fix = function(v){
-        return (v == 0) ? 0.0 : Math.floor(v)-0.5;
+        v = Math.round(v) - 0.5;
+        return (v < 0) ? 0.0 : v;
     };
     
     /**
@@ -274,7 +276,7 @@ js.awt.CanvasRenderer = function(config){
         if(style){
             this.applyStyles(ctx, style);
         }
-        
+
         if(T){
             ctx.transform(T.m11, T.m12, T.m21, T.m22, T.dx, T.dy);
         }
@@ -401,51 +403,116 @@ js.awt.CanvasRenderer = function(config){
         
         this.draw(ctx, style, hit);
     };
-
+    
     thi$.drawPolygon = function(ctx, geom, style, hit, transform, clip){
+        
         this.setContext(ctx, style, hit, transform, clip);
-
+        
         var fix = this.fix, points = geom.points, p, x, y, i, len;
-
+        
         ctx.beginPath();
-        for(i=0, len=points.length; i<len; i++){
+        for(i=0, len=points.length; i<len; i++){      
             p = points[i];
-            x = fix(p[1]); y = fix(p[2]);
-            switch(p[0]){
-            case 0:
-                ctx.moveTo(x, y);
-                break;
-            case 1:
+            x = fix(p[1]); y = fix(p[2]);            
+            switch(p[0]){                
+            case 0:                    
+                ctx.moveTo(x, y);                    
+                break;                
+            case 1:                    
                 ctx.lineTo(x, y);
-                break;
-            }
-        }            
-        ctx.closePath();
-
-        this.draw(ctx, style, hit);
-
+                break;                
+            }                
+        }
+        ctx.closePath();            
+        this.draw(ctx, style, hit);                    
     };
-
+    
+    /**
+     * 
+     * mode 2 
+     * drawTangent
+     * @param points:{
+     *     o1[ x, y, r, #color ],
+     *     o2[ x, y, r, #color ],
+     *     ...
+     *     on[ x, y, r, #color ]
+     *     r mandatory, #color optional
+     * }
+     * 
+     */
     thi$.drawPolyline = function(ctx, geom, style, hit, transform, clip){
-        this.setContext(ctx, style, hit, transform, clip);
+        //this.setContext(ctx, style, hit, transform, clip);
 
-        var fix = this.fix, points = geom.points, p, x, y, i, len;
+        var fix = this.fix, points = geom.points, p, x, y, i, len,
+        r,flag = false,o = [],colorBackup,mode,MODE1 = 1,MODE2 = 2,color;
 
         ctx.beginPath();
         for(i=0, len=points.length; i<len; i++){
             p = points[i];
             x = fix(p[1]); y = fix(p[2]);
-            switch(p[0]){
-            case 0:
-                ctx.moveTo(x, y);
+            r = p[3];
+            color = p[4];
+            if(r && Class.isNumber(r) && r > 0){
+                mode = MODE2;
+            }else{                
+                mode = MODE1;
+            }
+            switch(mode){
+            case MODE2:
+                style.fillStyle = color ? color : style.fillStyle ? style.fillStyle:
+                    "#B2B2B2";
+                style.strokeStyle = color ? color : style.strokeStyle ? style.strokeStyle :
+                    "#B2B2B2";
+                style.close = "close";                
+                o[i] = {x:x,y:y,r:r};                  
+                if(o.length >= 2){     
+                    ctx.beginPath();
+                    //colorBackup records the starting circle color
+                    style.fillStyle = colorBackup;
+                    //style.strokeStyle = colorBackup;                    
+                    this.setContext(ctx, style, hit, transform, clip);
+                    //Calculate tangent points via starting circle(ox,oy,or)
+                    var arcP = trig.calTangency(o[i-1], o[i]), 
+                    A = arcP.A, 
+                    B = arcP.B, 
+                    C = arcP.C, 
+                    D = arcP.D;      
+                    ctx.moveTo(A.x, A.y);                    
+                    ctx.lineTo(B.x, B.y);
+                    ctx.lineTo(C.x, C.y);
+                    ctx.lineTo(D.x, D.y);
+                    ctx.lineTo(A.x, A.y);
+                    ctx.closePath();                   
+                    this.draw(ctx, style, hit);                 
+                }
+                this.setContext(ctx, style, hit, transform, clip);               
+                ctx.closePath();
+                switch(style.fillStroke){
+                case 1:
+                    colorBackup = color;
+                    break;
+                case 2:
+                    colorBackup = color;
+                    break;
+                }                                
+                flag = false;
                 break;
-            case 1:
-                ctx.lineTo(x, y);
+            case MODE1:
+                switch(p[0]){
+                case 0:
+                    ctx.moveTo(x, y);
+                    break;
+                case 1:
+                    ctx.lineTo(x, y);
+                    break;
+                }
+                flag = true;
                 break;
             }
-        }            
-
-        this.draw(ctx, style, hit);
+            if(flag){
+                this.draw(ctx, style, hit);            
+            }        
+        }
     };
 
     thi$.drawRect = function(ctx, geom, style, hit, transform, clip){
@@ -517,7 +584,7 @@ js.awt.CanvasRenderer = function(config){
 
             text = t.text;
             x = t.x;  y = t.y;  
-            w = t.width; h = t.height;
+            w = t.width; h = t.height;//this.textHeight(text,ctx.font);//t.height;
             ax = t.align_x; ay = t.align_y; 
             e = t.rotate, 
 
@@ -550,7 +617,7 @@ js.awt.CanvasRenderer = function(config){
             fs = this.measureText(ctx, text);
             tw = fs.width, th = fs.height;
             
-            if(tw > w){
+            if(style.byEllipsis === true && tw > w){
                 text = this.cutString(ctx, text, w, true);
                 tw = ctx.measureText(text).width;
             }
@@ -564,11 +631,10 @@ js.awt.CanvasRenderer = function(config){
 
             if(hit !== true){
                 if(fill){
-                    ctx.fillText(text, x, y);
+                    ctx.fillText(text, x, this.textYoffset(y));
                 }
-
                 if(stroke){
-                    ctx.strokeText(text, x, y);
+                    ctx.strokeText(text, x, this.textYoffset(y));
                 };
             }else{
                 ctx.fillRect(x, y, tw, th);
@@ -580,7 +646,19 @@ js.awt.CanvasRenderer = function(config){
 
         ctx.restore();
     };
-
+    
+    thi$.textYoffset = function(blur) {
+  	  var userAgent = navigator.userAgent;
+  	  if (userAgent && userAgent.indexOf('Firefox') == -1) {
+  		//var kernelSize = (blur < 8 ? blur / 2 : Math.sqrt(blur * 2));
+  		var blurRadius = Math.ceil(blur/2)-1;
+  		return blurRadius * 2;
+  	  }else{
+  			var blurRadius = blur/2;//Math.floor(blur/2)+1;
+  	  		return blurRadius * 2;
+  	  }
+  	  return blur;
+      };
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.Renderer);

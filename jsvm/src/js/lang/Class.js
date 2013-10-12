@@ -169,9 +169,8 @@ js.lang.Class = new function (){
 
     //--MakeInterface--begin:  for make javascript interface & implement gridge by Synchronous uri.---
     var GetARGV=function(arguments){
-        var i;
         var argv=[];
-        for(i=0;i<arguments.length;i++){
+        for(var i=0, len = arguments.length;i<len;i++){
             argv.push(arguments[i]);
         }
         return argv;

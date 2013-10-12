@@ -283,11 +283,11 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             
             refNode = this.view;
             if(nodes && nodes.length > 0){
-                 for(i=0, len=nodes.length; i<len; i++){
-                     item = nodes[i];
-                     _addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
-                     refNode = item.view;
-                 }
+                for(i=0, len=nodes.length; i<len; i++){
+                    item = nodes[i];
+                    _addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
+                    refNode = item.view;
+                }
             }           
         }else{
             len = nodes ? nodes.length : 0;
@@ -333,6 +333,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             _afterExpand.$delay(this, 1);
         }
     };
+    
+    thi$.doLayout = function(){
+	    if(this.label && this.controller){
+    	    var ele = this.label, b, left;
+    	    b = ele.scrollWidth;
+    	    left = ele.offsetLeft;
+    	    this.controller.setPosition(b+left);        	  
+	    }   	  
+    }.$override(this.doLayout);
 
     thi$.updateBranchStyle = function(){
         var ex = this.canExpand(),

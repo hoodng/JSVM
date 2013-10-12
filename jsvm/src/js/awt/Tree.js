@@ -51,10 +51,10 @@ js.awt.TreeDataProvider = function(){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+        System = J$VM.System;
 
     /**
-     * Sets expandable map for testing whether an tree item can be expanded.
+     * Sets expandable map for testing hether an tree item can be expanded.
      * 
      * @param map, { type: true|false...}
      */
@@ -72,7 +72,7 @@ js.awt.TreeDataProvider = function(){
      */
     thi$.canExpand = function(def){
         var type = def.type, map = this.expandMap,
-        b = map ? map[type] : false;
+            b = map ? map[type] : false;
 
         return b || false;
     };
@@ -96,7 +96,7 @@ js.awt.TreeDataProvider = function(){
      */
     thi$.canDrag = function(def){
         var type = def.type, map = this.dragMap,
-        b = map ? map[type] : false;
+            b = map ? map[type] : false;
 
         return b || false;
     };
@@ -121,7 +121,7 @@ js.awt.TreeDataProvider = function(){
      */
     thi$.getIconImage = function(def){
         var type = def.type, map = this.imageMap,
-        image = map ? map[type] : "blank.gif";
+            image = map ? map[type] : "blank.gif";
         return image;
     };
 
@@ -180,7 +180,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ,
+        permission = Class.forName("js.util.Permission");
     
     thi$.setDataProvider = function(dataProvider){
         if(!dataProvider.instanceOf(js.awt.TreeDataProvider))
@@ -209,7 +210,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      */
     thi$.insertNodes = function(index, itemDefs){
         var nodes = this.nodes, ibase = index, item, refNode, 
-        itemDef, i, len;
+            itemDef, i, len;
 
         if(!nodes){
             nodes = this.nodes = js.util.LinkedList.$decorate([]);
@@ -220,6 +221,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         
         for(i=0, len=itemDefs.length; i<len; i++){
             itemDef = itemDefs[i];
+            if(itemDef.isVisible == false){
+                continue;
+            }
             itemDef.level = 0;
             if(i === 0){
                 item = new js.awt.TreeItem(itemDef, this.Runtime(), this);    
@@ -332,14 +336,17 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      * @param needNitify, false for don't nofity the tree to do AfterExpand,others do.
      */
     thi$.expand = function(item, needNotify){
-    	if(item.isExpanding()){
-			return;
-		}
-		
-		item.setExpanding(true);
-		
-        _keepScroll.call(this);		
-		
+        if(item.def.isRead == false){
+            return;
+        }
+        if(item.isExpanding()){
+            return;
+        }
+        
+        item.setExpanding(true);
+        
+        _keepScroll.call(this);     
+
         if(item.isExpanded()){
             item.expand(false, needNotify);
             if(item.def.nodes == undefined){
@@ -363,7 +370,37 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         }
     };
     
+
+    var _checkData = function(data){
+        var p = data.permission;
+        if(p){
+            data.isVisible = permission.isVisible(p);
+            data.isRead = permission.isRead(p);
+            data.isWrite = permission.isWrite(p);
+            data.isExecute = permission.isExecute(p);
+        }
+        if(data.nodes){
+            for(var i = 0,nodes = data.nodes, len = data.nodes.length;i < len; i++){
+                if(nodes[i].nodes){
+                    nodes[i] = _checkTreeNode.call(this, nodes[i]);
+                }else{
+                    p = nodes[i].permission;
+                    if(p){
+                        nodes[i].isVisible = permission.isVisible(p);
+                        nodes[i].isRead = permission.isRead(p);
+                        nodes[i].isWrite = permission.isWrite(p);
+                        nodes[i].isExecute = permission.isExecute(p);
+                    }
+                }
+            }
+        }
+        return data;
+    };
+
     var _onGetData = function(data, item, needNotify){
+
+        data = _checkData.call(this, data);
+
         if(data && data.nodes){
             item.insertNodes(0, data.nodes);
             item.expand(true, needNotify);
@@ -383,18 +420,18 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     thi$.expandAll = function(b){
         var nodes = this.nodes, i, len, item;
         if(nodes && nodes.length>0){
-        	 for(i=0, len=nodes.length; i<len; i++){
-                 item = nodes[i];
-                 if(b){
-                     if(item.canExpand() && !item.isExpanded()){
-                         item.expandAll(b, item);
-                     }
-                 }else{
-                     if(item.canExpand() && item.isExpanded()){
-                         item.expand(b);
-                     }
-                 }
-             }
+            for(i=0, len=nodes.length; i<len; i++){
+                item = nodes[i];
+                if(b){
+                    if(item.canExpand() && !item.isExpanded()){
+                        item.expandAll(b, item);
+                    }
+                }else{
+                    if(item.canExpand() && item.isExpanded()){
+                        item.expand(b);
+                    }
+                }
+            }
         }      
         _setMaxSize.$delay(this, 1);
         _keepScroll.$delay(this, 1, true);
@@ -528,6 +565,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         return false;
     };
     
+    thi$.setMultiEnable = function(b){
+        this.def.multiEnable = (b === true);
+    };
+    
+    thi$.isMultiEnable = function(){
+        return this.def.multiEnable;
+    };
+    
     /**
      * @see js.awt.Movable
      */
@@ -535,8 +580,12 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         var moveObj = this.moveObj;
         if(!moveObj){
             var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-            absXY = /*DOM.absXY(item.icon);*/e.eventXY();
+                absXY = /*DOM.absXY(item.icon);*/e.eventXY();
 
+			if(item.def.isExecute == false){
+				return null;
+			}
+            
             if(this.selected.length == 0){
                 var state = new js.awt.State(this.getState());
                 state.setHover(false);
@@ -556,7 +605,6 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
         return moveObj;
     };
-
     
     /**
      * Keep and restore scroll bar position
@@ -579,9 +627,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      */
     var _setMaxSize = function(){
         var rect = _getMaxSize.call(this), box = this.getBounds(), 
-        cw = box.innerWidth, ch = box.innerHeight,
-        w = rect.width >= cw ? rect.width : undefined,
-        h = rect.height>= ch ? rect.height: undefined;
+            cw = box.innerWidth, ch = box.innerHeight,
+            w = rect.width >= cw ? rect.width : undefined,
+            h = rect.height>= ch ? rect.height: undefined;
 
         this.view.style.overflow = "hidden";
 
@@ -619,9 +667,18 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         return false;
     }.$override(this.doLayout);
     
+    thi$.getOptimalSize = function(){
+        var size = _getMaxSize.call(this), 
+            bounds = this.getBounds();
+        
+        size.width += bounds.MBP.BPW;
+        size.height += bounds.MBP.BPH;
+        return size;
+    };
+    
     var _onclick = function(e){
-        var el = e.srcElement, uuid = el.uuid, 
-        item = this.cache[uuid], selected = this.selected;
+        var isMulti = this.def.multiEnable, el = e.srcElement, uuid = el.uuid, 
+            item = this.cache[uuid], selected = this.selected;
         
         if(item){
             if(e.getType() == "click"){
@@ -636,14 +693,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                     this.notifyPeer("js.awt.event.TreeItemEvent", e);
                     return;
                 }else if (item.canDrag()){
-                    if(e.ctrlKey === true){
+                    if(isMulti && e.ctrlKey === true){
                         item.setTriggered(!item.isTriggered());
                         if(item.isTriggered()){
                             selected.push(item);
                         }else{
                             selected.remove(item);
                         }
-                    }else if(e.shiftKey === true){
+                    }else if(isMulti && e.shiftKey === true){
                         var first = selected.length > 0 ? selected[0] : undefined;
 
                         if(first == undefined){
@@ -687,9 +744,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     
     var _onmouseover = function(e){
         var from = e.fromElement, to = e.toElement, 
-        fid = from ? from.uuid : undefined, 
-        tid = to ? to.uuid : undefined,
-        fitem, titem, cache = this.cache;
+            fid = from ? from.uuid : undefined, 
+            tid = to ? to.uuid : undefined,
+            fitem, titem, cache = this.cache;
 
         if(fid !== tid){
             fitem = cache[fid];
@@ -741,6 +798,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
         def.mover = def.mover || {};
         def.mover.longpress = def.mover.longpress || 250;
+        def.multiEnable = (def.multiEnable === true);
 
         // Call base _init
         arguments.callee.__super__.apply(this, [def, Runtime]);
@@ -796,7 +854,7 @@ js.awt.AbstractTreeDataProvider = function(Runtime, imageMap, expandMap, dragMap
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+        System = J$VM.System;
 
     thi$.destroy = function(){
         delete this._local.Runtime;
@@ -838,7 +896,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, dataProvider;
+        System = J$VM.System, dataProvider;
 
     /**
      * @see js.awt.Movable
@@ -875,8 +933,8 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
     thi$.repaint = function(){
         if(arguments.callee.__super__.apply(this, arguments)){
             var bounds = this.getBounds(), buf = new js.lang.StringBuffer(),
-            left = bounds.MBP.paddingLeft, top = bounds.MBP.paddingTop, 
-            width = bounds.innerWidth;
+                left = bounds.MBP.paddingLeft, top = bounds.MBP.paddingTop, 
+                width = bounds.innerWidth;
             
             buf.append("position:absolute;left:")
                 .append(left).append("px;")
@@ -913,8 +971,8 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
         dataProvider = tree.dataProvider;
 
         var item = selected[0], G = item.getGeometric(),
-        icon = this.icon = item.icon.cloneNode(true),
-        label = this.label = item.label.cloneNode(true);
+            icon = this.icon = item.icon.cloneNode(true),
+            label = this.label = item.label.cloneNode(true);
         
         icon.bounds = G.icon;
         DOM.appendTo(icon, this.view);

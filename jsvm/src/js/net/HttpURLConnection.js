@@ -136,7 +136,7 @@ js.net.HttpURLConnection = function (isAsync){
      * Open url by method and with params
      */
     thi$.open = function(method, url, params, preventInjection){
-        var _url, query = _makeQueryString.$bind(this)(params),
+        var _url, query = _makeQueryString.call(this, params),
             xhr = this._xhr, async = this.isAsync();
 
         switch(method.toUpperCase()){
@@ -196,7 +196,7 @@ js.net.HttpURLConnection = function (isAsync){
         this.timer = _checkTimeout.$delay(this, this.getTimeout());
 
         xhr.open(method, _url, async);
-        _setRequestHeader.$bind(this)(xhr, this._headers);
+        _setRequestHeader.call(this, xhr, this._headers);
         xhr.send(query);
 
     };

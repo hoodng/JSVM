@@ -298,14 +298,14 @@ js.awt.Desktop = function (element){
     
     // For testing all events bind to self.document
     var _onevents = function(e){
-		var eType = e.getType(), ele, target;
-		if(eType === "mouseover"){
-			ele = e.toElement;
-		}else if(eType === "mouseout"){
-			ele = e.fromElement;
-		}else{
-			ele = e.srcElement;
-		}
+        var eType = e.getType(), ele, target;
+        if(eType === "mouseover"){
+            ele = e.toElement;
+        }else if(eType === "mouseout"){
+            ele = e.fromElement;
+        }else{
+            ele = e.srcElement;
+        }
 
         target = this.getEventTarget(ele.uuid);
         if(target && target.fireEvent){
@@ -336,13 +336,13 @@ js.awt.Desktop = function (element){
      * @see js.awt.BaseComponent
      */
     thi$.destroy = function(){
-        arguments.callee.__super__.apply(this, arguments);
-
         this.DM.destroy();
         delete this.DM;
         
         this.LM.destroy();
         delete this.LM;
+
+        arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
 

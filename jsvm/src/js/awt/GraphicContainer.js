@@ -150,6 +150,7 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
     thi$.destroy = function(){
         this.removeAll(true);
         arguments.callee.__super__.apply(this, arguments);
+        
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){

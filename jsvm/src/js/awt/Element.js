@@ -693,6 +693,14 @@ js.awt.Element = function(def, Runtime){
             this.setVisible(true);
         }
     };
+    
+    thi$.destroy = function(){
+        delete this.peer;
+        delete this.container;
+        
+        arguments.callee.__super__.apply(this, arguments);
+        
+    }.$override(this.destroy);
 
     /**
      * Return runtime object

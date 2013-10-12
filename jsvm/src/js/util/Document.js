@@ -395,6 +395,22 @@ js.util.Document = function (){
             style.opacity = style['-moz-opacity'] = style['-khtml-opacity'] = "";
         }
     };
+   
+    /**
+     * Apply style for the DOM element
+     * 
+     * @param el: the DOM element
+     * @param sp: name of the specified style to apply
+     * @param value: the vlaue of the specified style to apply
+     */  
+    thi$.setStyle = function(el, sp, value){
+        if(sp.toLowerCase() == "opacity"){
+            this.setOpacity(el, value);
+        }else{
+            sp = _pretreatProp.call(this, sp);
+            el.style[sp] = value;
+        };
+    };
 
     /**
      * Apply styles to the DOM element
@@ -404,12 +420,7 @@ js.util.Document = function (){
      */    
     thi$.applyStyles = function(el, styles){
         (function(el, value, sp){
-            if(sp.toLowerCase() == "opacity"){
-                this.setOpacity(el, value);
-            }else{
-                sp = _pretreatProp.call(this, sp);
-                el.style[sp] = value;
-            };
+            this.setStyle(el, sp, value);
         }).$map(this, styles || {}, el);
     };
     

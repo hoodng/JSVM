@@ -98,7 +98,11 @@ js.awt.ScrollPane = function (def, Runtime){
 
         var items = this.items(), index = items.indexOf(comp.id);
         comp = arguments.callee.__super__.apply(this, [comp]);
-        delete this.cache[comp.uuid()];
+        
+        // While destroying, we may delete the cache first.
+        if(this.cache){
+            delete this.cache[comp.uuid()];
+        }
         this.doLayout(true);
 
         if(notify !== false){

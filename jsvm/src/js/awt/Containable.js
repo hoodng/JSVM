@@ -55,7 +55,7 @@ js.awt.Containable = function(){
 
     var _check = function(){
         var M = this.def, U = this._local;
-
+        
         M.items = M.items || [];
         if(!M.items.remove0){
             List.$decorate(M.items);
@@ -214,17 +214,24 @@ js.awt.Containable = function(){
             items = this.items0(), id, ele;
         
         while(items.length > 0){
-            id = items.shift();
+            id = items[0];
             ele = this[id];
-
-            delete this[id];
-            delete M[id];
+            
             if(ele){
-                delete ele.container;
-                if(gc === true){
+                if(gc !== true){
+                    this.removeChild(ele);
+                }else{
                     ele.destroy();
                 }
             }
+            
+            // TODO:
+            // For Component, in its destroy method, it can be removed from
+            // its container. Meanwhile, clean the cached id. 
+            // But for GraphicContainer, it doesn't do that. So we do following
+            // thing to keep it work right.
+            items.remove(id);
+            delete this[id];
         }
 
         M.items.clear();

@@ -29,7 +29,7 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * Author:  Pan Mingfa
+ * Author:	Pan Mingfa
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
  * Source code availability: http://github.com/jsvm
@@ -149,48 +149,57 @@ js.awt.FlexibleItem = function(def, Runtime){
 	/**
 	 * @see js.awt.Item #doLayout
 	 */
-	thi$.doLayout = function(){
+	thi$.doLayout = function(force){
+		if(!this.isDOMElement() || !this.needLayout(force)){
+			return false;
+		}
+		
 		var customComp = this.getCustomComponent(), 
 		leftmostCtrl = this._local.leftmostCtrl,
 		ele = (customComp && customComp.view) 
 			? customComp.view : (this.input || this.label),
-		leftEle = ele.previousSibling,
-		rightEle = leftmostCtrl || this.ctrl,
-		w = rightEle 
-			? rightEle.offsetLeft : this.getBounds().innerWidth, 
-		width;
-		
-		if(customComp && customComp.view){
-			var G = this.getGeometric(), MBP = G.bounds.MBP,
-			ybase = MBP.paddingTop,
-			h = G.bounds.BBM ? 
-				G.bounds.height : G.bounds.height - MBP.BPH,
-			innerHeight = h - MBP.BPH, x, y;
+		leftEle, rightEle, w, width, D;
 
-			if(leftEle){
-				D = G[leftEle.id] || DOM.getBounds(leftEle);
-				x = leftEle.offsetLeft + D.width + D.MBP.marginRight;
+		if(ele){
+			leftEle = ele.previousSibling;
+			rightEle = leftmostCtrl || this.ctrl;
+			w = rightEle 
+				? rightEle.offsetLeft : this.getBounds().innerWidth;
+			
+			if(customComp && customComp.view){
+				var G = this.getGeometric(), MBP = G.bounds.MBP,
+				ybase = MBP.paddingTop,
+				h = G.bounds.BBM ? 
+					G.bounds.height : G.bounds.height - MBP.BPH,
+				innerHeight = h - MBP.BPH, x, y;
+
+				if(leftEle){
+					D = G[leftEle.id] || DOM.getBounds(leftEle);
+					x = leftEle.offsetLeft + D.width + D.MBP.marginRight;
+				}else{
+					x = MBP.borderLeftWidth + MBP.paddingRight;
+				}
+
+				D = customComp.getBounds();
+				y = ybase + (innerHeight - D.height)*0.5;
+
+				width = Math.max(w - x, 0);
+				customComp.setBounds(x, y, width, undefined);
+
+				// Trigger custom component's doLayou
+				customComp.doLayout(true);
 			}else{
-				x = MBP.borderLeftWidth + MBP.paddingRight;
-			}
+				width = Math.max(w - ele.offsetLeft, 0);
 
-			D = customComp.getBounds();
-			y = ybase + (innerHeight - D.height)*0.5;
-
-			width = Math.max(w - x, 0);
-			customComp.setBounds(x, y, width, undefined);
-
-			// Trigger custom component's doLayou
-			customComp.doLayout(true);
-		}else{
-			width = Math.max(w - ele.offsetLeft, 0);
-
-			if(this.input){
-				DOM.setSize(ele, width, undefined);
-			}else{
-				ele.style.width = width + "px";
+				if(this.input){
+					DOM.setSize(ele, width, undefined);
+				}else{
+					ele.style.width = width + "px";
+				}
 			}
 		}
+		
+		return true;
 		
 	}.$override(this.doLayout);
 
@@ -226,6 +235,27 @@ js.awt.FlexibleItem = function(def, Runtime){
 		comp.applyStyles({position: "absolute"});
 		DOM.insertBefore(comp.view, ctrl, this.view);
 		comp.setContainer(this);
+		
+		var uuid = this.uuid(), items = this.def.items,
+		nodes = comp.view.childNodes || [], node, id, 
+		i = 0, len = nodes.length;
+		while(i <= len){
+			if(i == len){
+				node = comp.view;
+				
+				id = node.id = "custom";
+				items.push(id);
+				this[id] = node;
+			}else{
+				node = nodes[i];
+				id = node.id;
+			}
+			
+			node.uuid = uuid;
+			node.iid = (node.iid || id.split(/\d+/g)[0]);
+            
+            ++i;
+		}
 		
 		if(DOM.isDOMElement(comp.view)){
 			this.doLayout(true);
@@ -284,7 +314,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 		}
 		
 		var extraCtrls = this._local.extraCtrls = new js.util.HashMap(),
-		ctrl, ctrlId;
+		ctrl, ctrlId, uuid = this.uuid(), items = M.items;
 		for(var i = len - 1; i >= 0; i--){
 			ctrl = ctrls[i];
 			ctrlId = ctrl.id || ("ctrl" + i);
@@ -296,7 +326,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 				el = DOM.createElement("DIV");
 				el.id = ctrlId;
 				el.iid = iid;
-				el.uuid = this.uuid();
+				el.uuid = uuid;
 				el.className = ctrl.className || (this.className + "_extra");
 				
 				buf.clear();
@@ -341,7 +371,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 				// or input width in doLayout
 				this._local.leftmostCtrl = el;
 
-				M.items.push(ctrlId);
+				items.push(ctrlId);
 				this[ctrlId] = el;
 				
 				ctrlsWidth = D.MBP.marginLeft + D.width + D.MBP.marginRight;
