@@ -137,7 +137,7 @@ js.lang.Class = new function (){
                 }
             }
 
-            text = text || this.getResource(filePath, !this.isString(text) , true);
+            text = text || this.getResource(filePath, !this.isString(text));
             this.loadScript(filePath, text);
 
             if(!incache){
@@ -156,7 +156,7 @@ js.lang.Class = new function (){
     }.$bind(this);
 
     this.loadScript = function(filePath, text){
-        text = text || this.getResource(filePath, !this.isString(text), true);
+        text = text || this.getResource(filePath, !this.isString(text));
         var script = document.createElement("script");
         var head = document.getElementsByTagName("head")[0];
         script.type= "text/javascript";
@@ -238,8 +238,20 @@ js.lang.Class = new function (){
             };
             if(DependScriptUris){
                 Require.LoadScriptsExt(DependScriptUris,false,function(loaded,previouslyLoaded){
-                    ImplementFunction=typeof ImplementFunctionName=="string"?eval(ImplementFunctionName):ImplementFunctionName;
-                    return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
+			if(typeof ImplementFunctionName=="string"){
+				ImplementFunction=eval(ImplementFunctionName);
+				if(ImplementFunction==null){//fix IE10 eval return null error.
+					window.setTimeout(function(){
+						ImplementFunction=eval(ImplementFunctionName);
+						return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
+					},0);
+				}else{
+					return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
+				}
+			}else{
+				ImplementFunction=ImplementFunctionName;
+				return ImplementFunction.prototype[interfaceName].apply(classInstance,argv);
+			}
                 });
             }else{
                 ImplementFunction=typeof ImplementFunctionName=="string"?eval(ImplementFunctionName):ImplementFunctionName;
@@ -317,7 +329,6 @@ js.lang.Class = new function (){
                 LoadedResources[src].push(callBack);
                 return true;
             }
-            script.src=src;
             var onload=function(){
                 var listeners=LoadedResources[src];
                 var _callBack;
@@ -360,6 +371,7 @@ js.lang.Class = new function (){
             }
         }else{
             LoadedResources[src]=[callBack];
+		script.src=src;
         }
         return true;
     };
@@ -370,11 +382,11 @@ js.lang.Class = new function (){
      * 
      * @param url, the url to load content
      */
-    this.getResource = function(url, nocache, preventInjection){
+    this.getResource = function(url, nocache){
         // Synchronized request
         var xhr = new js.net.HttpURLConnection(false);
         xhr.setNoCache(nocache || false);
-        xhr.open("GET", url, undefined, preventInjection == true);
+        xhr.open("GET", url, undefined);
         
         if(xhr.exception == undefined && xhr.readyState() == 4 &&
            (xhr.status() == 200 || xhr.status() == 304)){

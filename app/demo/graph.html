@@ -10,7 +10,7 @@
     <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
 
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
-
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgRenderer.js"></script>
 
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
     <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
@@ -20,7 +20,8 @@
 
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGroup.js"></script>    
     <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasLayer.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/shape/Triangle.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgGroup.js"></script>    
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgLayer.js"></script>
 
 
     <script type="text/javascript">
@@ -38,7 +39,10 @@
                          resizable: true,
                          miniSize:{width: 10, height:10},
                          angleUnit: "deg",
-                         capture: true
+                         capture: true,
+
+                         gType: "canvas",
+
                       }, this);
         
             G.addComponent(new (Class.forName("js.awt.CanvasLayer"))({id: "myLayer", capture:true}, G));
@@ -89,6 +93,18 @@
 
             G.drawText({id:"text2",text: "Drop", fontSize: 16, x:380, y:120, width: 20, height:40, rotate: 90});
 
+            var r = 16;
+            var r1 = r; //r*Math.cos(Math.PI/4);
+            G.drawCircle({cx:100, cy:210, r:r1, ends:4, rscale:1, offset:45, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1});
+
+            G.drawRPolygon({ cx:100, cy:210, r:r1, ends:4, rscale:1, offset:45, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1});
+
+            G.drawRPolygon({ cx:100, cy:210, r:r1, ends:16, rscale:0, offset:90, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1});
+
+            G.drawRPolygon({ cx:100, cy:210, r:r1, ends:3, rscale:1, offset:90, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1});
+
+            G.drawRPolygon({ cx:100, cy:210, r:r1, ends:4, rscale:1, offset:90, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:2, lineWidth:1});
+
             this.addComponent(G);
             G.draw();
         
@@ -123,17 +139,17 @@
                 circle.translate(0, 1.5);
                 text0.translate(1.5, 1.5);
                 text0.setAttr("fillStyle", Color.randomColor().toString("rgba"));
-                E0.rotate(10*Math.PI/180, 200, 200);
+                E0.rotate(30*Math.PI/180, 200, 200);
                 E1.rotate(-5*Math.PI/180, 200, 200);
                 //triangle3.setOffsetDegree(count);
-                T1.rotate(5*Math.PI/180, 300, 300);
+                T1.rotate(15*Math.PI/180, 300, 300);
                 T2.rotate(-5*Math.PI/180, 300, 300);
                 S1.setAttr("rscale", Math.abs(count-100)/90 -1);
                 S1.translate(-1, 0);
                 S3.setAttr("ends", 4+2*(count%15));
                 count ++;
                 if(count < 200){
-                  G.draw.$delay(G, 10, null, arguments.callee.$bind(this));
+                  G.draw.$delay(G, 0, null, arguments.callee.$bind(this));
                 }
             })();
             

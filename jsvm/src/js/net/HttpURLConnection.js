@@ -107,17 +107,15 @@ js.net.HttpURLConnection = function (isAsync){
     };
 
     thi$.responseText = function(){
-        return this._xhr.responseText.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/im, '');
+        return this._xhr.responseText;
     };
 
     thi$.responseXML = function(){
-        //For IBM WebSeal Issue
-        return this._xhr.responseXML.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/im, '');
+        return this._xhr.responseXML;
     };
 
     thi$.responseJSON = function(){
-        //For IBM WebSeal Issue
-        return JSON.parse(this._xhr.responseText.replace(/<script[^>]*?>[\s\S]*?document.cookie[\s\S]*?<\/script>/im, ''));
+        return JSON.parse(this.responseText());
     };
 
     thi$.status = function(){
@@ -135,7 +133,7 @@ js.net.HttpURLConnection = function (isAsync){
     /**
      * Open url by method and with params
      */
-    thi$.open = function(method, url, params, preventInjection){
+    thi$.open = function(method, url, params){
         var _url, query = _makeQueryString.call(this, params),
             xhr = this._xhr, async = this.isAsync();
 
@@ -143,10 +141,6 @@ js.net.HttpURLConnection = function (isAsync){
         case "GET":
             _url = (query != null) ? [url, "?", query].join("") : url;
             query = null;
-
-            if(preventInjection){
-                this.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            }
             break;
         case "POST":
             _url = url;

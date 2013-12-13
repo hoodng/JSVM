@@ -8,6 +8,8 @@
         classpath="lib/../jsre-ui.js"
         -DmainClass="org.jsvm.App"></script>
 
+<script src="../../jsvm/src/js/util/Calendar.js"></script>
+
 <style>
 
 </style>
@@ -34,10 +36,10 @@ J$VM.exec("org.jsvm.App",function(System){
                               hasExp: true,
                               hasUTD: true,
                               preValue:{
-                                  date:{dateObj: new Date("2012, 07, 17")},
+                                  date:{dateObj: new Date()},
                                   pattern: "yyyy-MM-dd HH:mm:ss"
                               },
-                              locale: new (Class.forName("js.util.Locale"))("ko")    //"zh", "Cn"
+                              locale: new (Class.forName("js.util.Locale"))("zh") 
 
                           }, this);
 

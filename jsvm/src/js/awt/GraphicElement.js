@@ -201,8 +201,18 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
         return T;
     };
 
+    /**
+     * The clip object is like this:
+     * {
+     *      x:0,
+     *      y:0,
+     *      width:0,
+     *      height:0
+     *  }
+     * 
+     */
     thi$.getClip = function(){
-        
+        return this.def.clip;
     };
 
     thi$.attachEvent = function(eType, flag, listener, handler){

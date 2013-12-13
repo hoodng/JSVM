@@ -267,7 +267,7 @@ js.awt.Label = function(def, Runtime) {
         def.classType = def.classType || "js.awt.Label";
         def.className = def.className || "jsvm_label";
         def.css = (def.css || "") + "margin:0px;white-space:nowrap;";
-        def.text = def.text || "Label";
+        def.text = typeof def.text == "string" ? def.text : "Label";
         def.viewType = "SPAN";
 
         arguments.callee.__super__.apply(this, arguments);

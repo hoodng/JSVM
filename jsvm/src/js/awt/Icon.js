@@ -41,9 +41,23 @@ $package("js.awt");
  * A <em>Icon</em> is a <em>Component</em> which wraps a image. 
  * 
  * @param def:{
- *	   className: string,
+ *	   className: {String}
  *		  
- *	   image: string
+ *	   useBgImage: {Boolean} Optional. true / false, indicate whether use 
+ *		   background-image to present the icon.
+ *	   image: {String} Optional. FileName of the icon in current component. 
+ *		   If and only if the <em>useBgImage</em> is <em>false</em>, the image
+ *		   will be used as the icon's src. Otherwise, it will be ignored.
+ *	   
+ *	   sizefixed: {Boolean} Optional. Default is false. Indicate whether the
+ *		   size of the image view is fixed. If true, the image view will abound
+ *		   in the component.
+ *	   align_x: {Number} Optional. Default is 0.5. Indicate the horizontal align-
+ *		  -ment of the image view in current Icon component. When <em>sizefixed</em>
+ *		  is <em>false</em>, it will be ignored.
+ *	   align_y: {Number} Optional. Default is 0.5. Indicate the vertical alignment
+ *		  of the image view in current Icon component. When <em>sizefixed</em> is 
+ *		  <em>false</em>, it will be ignored.
  * }
  */
 js.awt.Icon = function(def, Runtime){
@@ -60,7 +74,7 @@ js.awt.Icon = function(def, Runtime){
 
 	thi$.setImage = function(image){
 		if(!this.useBgImage 
-           && Class.isString(image) && image != this.def.image){
+		   && Class.isString(image) && image != this.def.image){
 			this.def.image = image;
 			
 			var src = _buildImageSrc.call(this);
@@ -86,15 +100,18 @@ js.awt.Icon = function(def, Runtime){
 	thi$.doLayout = function(){
 		if(this.isDOMElement()){
 			var M = this.def, box = this.getBounds(), 
-			D = DOM.getBounds(this.imageView), left, top;
+			MBP = box.MBP, D = DOM.getBounds(this.imageView), 
+			align_x = Class.isNumber(M.align_x) ? M.align_x : 0.5,
+			align_y = Class.isNumber(M.align_y) ? M.align_y : 0.5,
+			left, top;
 			
 			if(this.def.sizefixed !== true){
 				DOM.setBounds(this.imageView, 
-							  box.paddingLeft, box.paddingTop, 
+							  MBP.paddingLeft, MBP.paddingTop, 
 							  box.innerWidth, box.innerHeight);
 			}else{
-				left = box.paddingLeft + (box.innerWidth - D.width) * 0.5,
-				top = box.paddingTop + (box.innerHeight - D.height) * 0.5;
+				left = MBP.paddingLeft + (box.innerWidth - D.width) * align_x,
+				top = MBP.paddingTop + (box.innerHeight - D.height) * align_y;
 				
 				DOM.setPosition(this.imageView, left, top, D);
 			}
@@ -102,8 +119,9 @@ js.awt.Icon = function(def, Runtime){
 	}.$override(this.doLayout);
 
 	thi$.destroy = function(){
-		DOM.remove(this.imageView, true);
+		var imageView = this.imageView;
 		delete this.imageView;
+		DOM.remove(imageView, true);
 
 		arguments.callee.__super__.apply(this, arguments);
 
@@ -133,7 +151,9 @@ js.awt.Icon = function(def, Runtime){
 		var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
 		newDef.className = newDef.className || "jsvm_icon";
 
-		var tip = newDef.tip; delete newDef.tip;
+		var tip = newDef.tip; 
+		delete newDef.tip;
+		
 		System.objectCopy(newDef, def, true, true);
 		arguments.callee.__super__.apply(this, arguments);
 		
@@ -143,7 +163,7 @@ js.awt.Icon = function(def, Runtime){
 		buf = this.__buf__.clear();
 		
 		image.className = buf.append(this.def.className)
-			.append("_img");
+			.append("_img").toString();
 		image.style.cssText = "position:absolute;margin:0px;";
 		
 		if(!useBgImage){

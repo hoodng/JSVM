@@ -576,7 +576,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             this.get(YEAR), 
             this.get(MONTH), 
             this.get(DAY_OF_MONTH)), 
-        dayOfWeek = this.get(DAY_OF_WEEK);
+            dayOfWeek = this.get(DAY_OF_WEEK);
         
         calendar.add(DAY_OF_MONTH, -dayOfWeek);
 
@@ -678,7 +678,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         if(!Class.isNumber(value)) return;
 
         var date = this.date, day = date.getDate(),
-        t0, t1;
+            t0, t1;
 
         switch(field){
         case ERA:
@@ -712,7 +712,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         case DATE:
         case DAY_OF_MONTH:
             if(value >= 1 && value <= this.monthLength(
-                   this.get(MONTH), this.get(YEAR))){
+                this.get(MONTH), this.get(YEAR))){
 
                 date.setDate(value);
 
@@ -914,7 +914,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
                 delta *= ONE_HOUR; // 60*60*1000
                 break;
             case MINUTE:
-                delta *= ONE_MINTUE; // 60*1000
+                delta *= ONE_MINUTE; // 60*1000
                 break;
             case SECOND:
                 delta *= ONE_SECOND;
@@ -941,14 +941,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
                 return;
             }
             
-            // Refactory algorithm to avoid losing precision.
-            // var fd = new Date(this.get(YEAR), 
-            //                   this.get(MONTH), 
-            //                   this.get(DATE))/ONE_DAY;
-            var curDay = new Date(this.get(YEAR), 
-                                  this.get(MONTH), 
-                                  this.get(DATE)),
-            deltaDay = 0;
+            var curDay, deltaDay = 0;
             
             timeOfDay += this.get(HOUR_OF_DAY);
             timeOfDay *= 60;
@@ -959,20 +952,18 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
             timeOfDay += this.get(MILLISECOND);
             
             if(timeOfDay >= ONE_DAY){
-                // fd++;
                 deltaDay = 1;
                 timeOfDay -= ONE_DAY;
             }else if(timeOfDay < 0){
-                // fd--;
                 deltaDay = -1;
                 timeOfDay += ONE_DAY;
             }            
             
-            // fd += delta;
             deltaDay += delta;
-            
-            // this.setTimeInMillis(fd*ONE_DAY + timeOfDay);
-            this.setTimeInMillis(curDay.getTime() + deltaDay * ONE_DAY + timeOfDay);
+            curDay = new Date(this.get(YEAR), 
+                              this.get(MONTH), 
+                              this.get(DATE) + deltaDay);
+            this.setTimeInMillis(curDay.getTime() + timeOfDay);
         }
         
     };
@@ -985,7 +976,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
      */
     var pinDayOfMonth = function(dom){
         var year = this.get(YEAR),
-        monthLen = this.monthLength(this.get(MONTH), year);
+            monthLen = this.monthLength(this.get(MONTH), year);
         dom = dom || this.get(DAY_OF_MONTH);
         if(dom > monthLen){
             this.set(DAY_OF_MONTH, monthLen);
@@ -1103,7 +1094,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
      */
     CLASS.rangeOf = function(from, to, field, unit){
         var t0 = new CLASS(from), t1 = new CLASS(to),
-        size = 2, firstDay, tmp;
+            size = 2, firstDay, tmp;
 
         switch(field){
         case YEAR:
@@ -1202,15 +1193,15 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
 
     CLASS.compareTime = function(date0, date1){
         var v0 = new Date(1970, 1, 1, 
-                      date0.getHours(), 
-                      date0.getMinutes(), 
-                      date0.getSeconds(), 
-                      date0.getMilliseconds());
+                          date0.getHours(), 
+                          date0.getMinutes(), 
+                          date0.getSeconds(), 
+                          date0.getMilliseconds());
         var v1 = new Date(1970, 1, 1, 
-                      date1.getHours(), 
-                      date1.getMinutes(), 
-                      date1.getSeconds(), 
-                      date1.getMilliseconds());
+                          date1.getHours(), 
+                          date1.getMinutes(), 
+                          date1.getSeconds(), 
+                          date1.getMilliseconds());
 
         return v0 - v1;
     };

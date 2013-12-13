@@ -125,48 +125,11 @@ js.lang.String = new function(){
             s.replace(REGX_TRIM, "");
     };
 
-    this.matchBrackets = String.prototype.matchBrackets = 
-        function(lC, rC, s) {
-            lC = lC || "{"; rC = rC || "}";
-            s = (s !== undefined) ? s : this.toString();
-            var ks=0,dqs=0,sqs=0,res=[],n="",b="",st=-1,en=-1;
-            for(var i=0;i< s.length;i++){
-                if(i!==0){
-                    b = n;
-                }
-                n= s.charAt(i);
-                if(st!==-1 && (i-1)>=0 &&b==='\\'){
-                    continue;
-                }
-                if(dqs||sqs){
-                    if(n==="'")
-                        if(sqs>0)sqs--;
-                    else if(n==='"')
-                        if(dqs>0)dqs--;
-                }else{
-                    if(n===lC){
-                        if(!ks){
-                            st=i;
-                        }
-                        ks++;
-                    }else if(n===rC){
-                        ks--;
-                        if(!ks){
-                            en=i;
-                        }
-                    }else if(n==='"'){
-                        dqs++;
-                    }else if(n==="'"){
-                        sqs++;
-                    }
-                }
-                if(st!==-1&&en!==-1){
-                    res.push(s.substring(st,(parseInt(en)+1)));
-                    st=en=-1;
-                }
-            }
-            return res;
-        };
+    this.fetchJSON = String.prototype.fetchJSON = function(s){
+        s = (s != undefined) ? s : this.toString();
+        return s.replace(
+                /<script.*?>[\s\S]*?<\/.*?script>/gi, "");
+    };
 
     String.prototype.hashCode = function(){
         var hash = this._hash, _char;

@@ -202,9 +202,9 @@ js.lang.System = function (env, vm){
     }.$bind(this);
     
     this.gc = function(){
-        if(J$VM.ie){
+        try{
             CollectGarbage();
-        }
+        }catch(e){};
     };
     
     var last = 0;
@@ -477,11 +477,7 @@ js.lang.System = function (env, vm){
         delete vm.runtime;
 
         this.gc();
-
-        document.body.innerHTML = "";
-        if(J$VM.ie == undefined){
-            document.write("<html><head></head></html>");
-        }
+        document.body.innerHTML="";
     };
     
     var bodyW, bodyH;

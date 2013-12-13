@@ -377,7 +377,7 @@ js.awt.Table = function(def, Runtime) {
 		this.headerCache = {};	
 		def.headerHolder = {
 			classType: 'js.awt.Container',
-			className: 'jsvm_table_headerHolder',
+			className: def.headerHolderClassName || 'jsvm_table_headerHolder',
 			stateless: true,
 			id: 'headerHolder',
 			layout: {classType: "js.awt.GridLayout",

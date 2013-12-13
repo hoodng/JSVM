@@ -2,16 +2,17 @@
     -moz-user-select: -moz-none;
     -ms-user-select: none;
     -webkit-user-select: none;
-    -khmtl-user-select: none;
+    -khtml-user-select: none;
 }
 
 input, textarea {
     -moz-user-select: text;
     -ms-user-select: text;
     -webkit-user-select: text;
-    -khmtl-user-select: text;
+    -khtml-user-select: text;
     resize:none;
     outline:none;
+    
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 11px;
 }
@@ -531,7 +532,7 @@ body {
 }
 
 .jsvm_menu_item_8, .jsvm_menu_item_9,
-.jsvm_noIconMenu_item_8, .jsvm_noIconMenu_item_9, {
+.jsvm_noIconMenu_item_8, .jsvm_noIconMenu_item_9 {
     color: gray;
 }
 
@@ -759,7 +760,7 @@ body {
     
     background-color: #FFFFFF;
     border: 1px solid #CCCCCC;
-    
+    padding-left: 2px;
     /*
     -moz-border-radius: 3px;
     -khtml-border-radius: 3px;
@@ -969,7 +970,6 @@ body {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font-family: Verdana, Arial, Helvetica, sans-serif;
 }
 
 .jsvm_comboBox_dropdown,
@@ -1099,6 +1099,82 @@ body {
 .jsvm_dropdownList_controlBar_label_2  {
     color: #8092E0;
     text-decoration: underline;
+}
+
+/* For Simple ComboBox */
+.jsvm_simpleCombo,
+.jsvm_simpleCombo_0, .jsvm_simpleCombo_1,
+.jsvm_simpleCombo_2 {
+    width: 100px;
+    height: 20px;
+    
+    border: 1px solid #CCCCCC;
+    overflow: hidden;
+    
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;  
+}
+
+.jsvm_simpleCombo_0, .jsvm_simpleCombo_2 {
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
+    background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
+    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
+    
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
+}
+
+.jsvm_simpleCombo_1 {  
+    color: #ACA899; /* #CCCCCC */
+    background: #F5F4EA;
+}
+
+.jsvm_simpleCombo_disable { 
+    filter: alpha(Opacity = 45);
+    -moz-opacity: 0.45;
+    opacity: 0.45;
+    background: #F5F4EA;
+}
+
+.jsvm_simpleCombo_dItemContainer,
+.jsvm_simpleCombo_dItemContainer_0, .jsvm_simpleCombo_dItemContainer_1 {
+    padding: 2px;
+    overflow: hidden;
+}
+
+.jsvm_simpleCombo.dItem,
+.jsvm_simpleCombo.dItem_0 {
+    /* TODO */
+}
+
+.jsvm_simpleCombo_dItem_icon {
+   width: 16px;
+   height: 16px;   
+}
+
+.jsvm_simpleCombo_dItem_icon_img {
+   width: 16px;
+   height: 16px;   
+}
+
+.jsvm_simpleCombo_dItem_label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+}
+
+.jsvm_simpleCombo_dropdown,
+.jsvm_simpleCombo_dropdown_0, .jsvm_simpleCombo_dropdown_2,
+.jsvm_simpleCombo_dropdown_4, .jsvm_simpleCombo_dropdown_6 {
+    width: 16px;
+}
+
+.jsvm_simpleCombo_dropdown_icon {
+    width: 16px;
+    height: 16px;
 }
 
 /** Tree and tree items **/
@@ -1712,3 +1788,39 @@ body {
     padding: 2px;
 }
 /********** End of Table ***********/
+
+/**** Tooltip *****/
+.jsvm_tooltip,
+.jsvm_tooltip_0,
+.jsvm_noIconTooltip,
+.jsvm_noIconTooltip_0 {
+    border:1px solid #e6e6e6;
+    background-color:#FFFFFF;
+ 
+}
+
+.jsvm_tooltip_item,
+.jsvm_tooltip_item_0, .jsvm_tooltip_item_1, .jsvm_tooltip_item_8,
+.jsvm_noIconTooltip_item,
+.jsvm_noIconTooltip_item_0, .jsvm_noIconTooltip_item_1, .jsvm_noIconTooltip_item_8 {
+    height: 20px;
+    cursor:default;
+}
+
+.jsvm_tooltip_item_1,
+.jsvm_noIconMenu_item_1 {
+    background-color:#ffdf7c;
+}
+
+.jsvm_tooltip_item_8, .jsvm_tooltip_item_9,
+.jsvm_noIconTooltip_item_8, .jsvm_noIconTooltip_item_9 {
+    color: gray;
+}
+
+.jsvm_tooltip_separator,
+.jsvm_noIconTooltip_separator {
+    height: 1px;
+    background-color:#CCCCCC;
+}
+/**** Tooltip ****/
+

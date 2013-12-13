@@ -201,6 +201,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     thi$.getIconImage = function(itemDef){
         return this.dataProvider.getIconImage(itemDef);
     };
+    
+    thi$.showTip = function(showTip){
+    	this._local.showTip = showTip;
+    };
+    
+    thi$.isShowTip = function(){
+    	return this._local.showTip || false;
+    };
 
     /**
      * Insert tree items into specified position
@@ -225,6 +233,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                 continue;
             }
             itemDef.level = 0;
+            if(this.isShowTip()){
+            	itemDef.tip = itemDef.dname;
+            	itemDef.showTip = true;
+            }
             if(i === 0){
                 item = new js.awt.TreeItem(itemDef, this.Runtime(), this);    
             }else{
@@ -235,6 +247,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                     undefined, 
                     item.cloneView());
             }
+            
+            
             
             nodes.add(ibase++, item);
             
@@ -257,6 +271,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             }
         }        
         this._doSort();
+        delete this._local.maxSize;
     };
     
     thi$._doSort = function(){
@@ -280,6 +295,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             item.destroy();
         }
         this._doSort();
+        delete this._local.maxSize;
     };
     
     /**
@@ -327,6 +343,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             DOM.insertBefore(view1, view2, container2);
         }
         this._doSort();
+        delete this._local.maxSize;
     };
     
     /**
@@ -368,6 +385,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             }
             
         }
+        delete this._local.maxSize;
     };
     
 
@@ -437,6 +455,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         _keepScroll.$delay(this, 1, true);
         
         this.onAfterExpand.$delay(this,1);
+        delete this._local.maxSize;
     };
     
     thi$.onAfterExpand = function(){
@@ -573,6 +592,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         return this.def.multiEnable;
     };
     
+    thi$.getMoveObjectDef = function(item){
+        return {}; 
+    };
+    
     /**
      * @see js.awt.Movable
      */
@@ -580,11 +603,11 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         var moveObj = this.moveObj;
         if(!moveObj){
             var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-                absXY = /*DOM.absXY(item.icon);*/e.eventXY();
+                mdef, absXY = e.eventXY();
 
-			if(item.def.isExecute == false){
-				return null;
-			}
+            if(item.def.isExecute == false){
+                return null;
+            }
             
             if(this.selected.length == 0){
                 var state = new js.awt.State(this.getState());
@@ -595,10 +618,12 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                 this._doSort();
             }
 
+            mdef = this.getMoveObjectDef() || {};
             moveObj = this.moveObj = 
-                new js.awt.TreeMoveObject({}, this.Runtime(), this);
+                new js.awt.TreeMoveObject(mdef, this.Runtime(), this);
             moveObj.setMovingPeer(this);
             moveObj.appendTo(document.body);
+            
             /*moveObj.setPosition(absXY.x, absXY.y);*/
             moveObj.setPosition(absXY.x - 10, absXY.y - 8);
         }
@@ -627,13 +652,26 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      */
     var _setMaxSize = function(){
         var rect = _getMaxSize.call(this), box = this.getBounds(), 
-            cw = box.innerWidth, ch = box.innerHeight,
+            cw = box.innerWidth, ch = box.innerHeight, MBP = box.MBP,
             w = rect.width >= cw ? rect.width : undefined,
-            h = rect.height>= ch ? rect.height: undefined;
+            h = rect.height >= ch ? rect.height : undefined;
 
         this.view.style.overflow = "hidden";
+        
+        // The treeview is relative and position in the inside of padding.
+        // For holding the padding of tree, we will add the right padding
+        // to the content width as treeview's width. And add the bottom
+        // padding to the content height as treeview's height.
+        if(w != undefined){
+            w += MBP.borderRightWidth + MBP.paddingRight;
+        }
+        
+        if(h != undefined){
+            h += MBP.borderBottomWidth + MBP.paddingBottom;
+        }
 
         DOM.setSize(this._treeView, w, h);
+        
         if(w == undefined){
             this._treeView.style.width = "100%";
         }
@@ -647,11 +685,15 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     /**
      * Gets treeView max size
      */
-    var _getMaxSize = function(){
-        var treeview = this._treeView, ret;
+    var _getMaxSize = function(force){
+        var treeview = this._treeView, ret = this._local.maxSize;
+        if(force !== true && ret){
+            return ret;
+        }
+        
         treeview.style.overflow = "hidden";
         DOM.setSize(treeview, 0, 0);
-        ret = {
+        ret = this._local.maxSize = {
             width: treeview.scrollWidth,
             height:treeview.scrollHeight
         };
@@ -669,11 +711,12 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     
     thi$.getOptimalSize = function(){
         var size = _getMaxSize.call(this), 
-            bounds = this.getBounds();
+            bounds = this.getBounds(),
+            w = size.width, h = size.height;
         
-        size.width += bounds.MBP.BPW;
-        size.height += bounds.MBP.BPH;
-        return size;
+        w += bounds.MBP.BPW;
+        h += bounds.MBP.BPH;
+        return {width: w, height: h};
     };
     
     var _onclick = function(e){
@@ -807,8 +850,11 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         this.cache = {};
         this.selected = js.util.LinkedList.$decorate([]);
         this.marked = js.util.LinkedList.$decorate([]);
+        
+        this.showTip(def.showTip);
 
         var treeView = this._treeView = DOM.createElement("DIV");
+        treeView.className = this.className + "_treeview";
         treeView.style.cssText = "position:relative;width:100%;height:100%;"
             + "overflow:visible;";
         DOM.appendTo(treeView, this.view);
@@ -929,6 +975,29 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.releaseMoveObject);
+    
+    thi$.getPreferredSize = function(nocache){
+        var ret = this.def.prefSize, d, w = 0, ch, h = 0;
+        if(nocache === true || !ret){
+            d = this.getBounds();
+            w += d.MBP.BPW;
+            h += d.MBP.BPH;
+            
+            d = DOM.getBounds(this.icon);
+            w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
+            ch = d.height;
+            
+            d = DOM.getBounds(this.label);
+            w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
+            h += Math.max(ch, d.height);
+            
+            this.setPreferredSize(w, h);
+            ret = this.def.prefSize;
+        }
+        
+        return ret;
+         
+    }.$override(this.getPreferredSize);
     
     thi$.repaint = function(){
         if(arguments.callee.__super__.apply(this, arguments)){

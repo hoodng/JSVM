@@ -93,7 +93,7 @@ js.awt.MessageBox = function(def, Runtime){
 
             DOM.setSize(text,
                         bounds.innerWidth - text.offsetLeft, 
-                        bounds.offsetTop  - text.offsetTop);
+                        bounds.innerHeight  - text.offsetTop);
 
             return true;
         }

@@ -290,6 +290,25 @@ js.awt.CanvasRenderer = function(config){
                 ctx.lineWidth = v;
             }
         }
+        
+        if(clip){
+            ctx.beginPath();
+            for(i=0, len=clip.length; i<len; i++){      
+                c = clip[i];
+                x = c[1]; y = c[2]; 
+                switch(c[0]){                
+                case 0:                    
+                    ctx.moveTo(x, y);                    
+                    break;                
+                case 1:                    
+                    ctx.lineTo(x, y);
+                    break;                
+                }                
+            }
+            //ctx.rect(clip.x,clip.y,clip.width,clip.height);
+            ctx.clip();
+            ctx.closePath(); 
+        }
     };
 
     thi$.draw = function(ctx, style, hit){
@@ -627,13 +646,23 @@ js.awt.CanvasRenderer = function(config){
             
             var fillStroke = style.fillStroke, 
                 fill = ((fillStroke & 2) != 0), 
-                stroke = ((fillStroke & 1) != 0);
+                stroke = ((fillStroke & 1) != 0),
+                opacity;
 
             if(hit !== true){
                 if(fill){
+                    opacity = style.fillOpacity;
+                    if(Class.isNumber(opacity)){
+                        ctx.globalAlpha = opacity;
+                    }
                     ctx.fillText(text, x, this.textYoffset(y));
                 }
+
                 if(stroke){
+                    opacity = style.strokeOpacity;
+                    if(Class.isNumber(opacity)){
+                        ctx.globalAlpha = opacity;
+                    }
                     ctx.strokeText(text, x, this.textYoffset(y));
                 };
             }else{
@@ -648,13 +677,15 @@ js.awt.CanvasRenderer = function(config){
     };
     
     thi$.textYoffset = function(blur) {
-  	  var userAgent = navigator.userAgent;
-  	  if (userAgent && userAgent.indexOf('Firefox') == -1) {
+    	 //userAgent = navigator.userAgent,
+    	  var browser = J$VM.chrome,
+    	      blurRadius;
+  	  if (browser && browser != null) {
   		//var kernelSize = (blur < 8 ? blur / 2 : Math.sqrt(blur * 2));
-  		var blurRadius = Math.ceil(blur/2)-1;
+  		 blurRadius = Math.ceil(blur/2)-1;
   		return blurRadius * 2;
   	  }else{
-  			var blurRadius = blur/2;//Math.floor(blur/2)+1;
+  			blurRadius = blur/2;//Math.floor(blur/2)+1;
   	  		return blurRadius * 2;
   	  }
   	  return blur;

@@ -179,6 +179,9 @@ js.awt.Slider = function(def, Runtime){
         p1 = Math.round(trackLen*offset1);
 
         if(this.isSingle()){
+        	if(offset0 !== 0 && p0 === 0){
+        		p0 = 1;
+        	}
             slipper.setUPosition(p0, null, 0x07);    
         }else{
             var S = slipper.getSizeByRange(p1-p0);

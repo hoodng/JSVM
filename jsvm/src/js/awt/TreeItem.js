@@ -118,6 +118,10 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         return this._local.expanded;    
     };
     
+    thi$.isShowTip = function(){
+    	return this._local.showTip;
+    };
+    
     /**
      * @see js.awt.Item
      */
@@ -142,6 +146,11 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         for(i=0, len=itemDefs.length; i<len; i++){
             itemDef = itemDefs[i];
             itemDef.level = this.def.level + 1;
+            
+            if(this.isShowTip()){
+            	itemDef.tip = itemDef.dname;
+            	itemDef.showTip = true;
+            }
             
             if(item && item.canCloneView(itemDef)){
                 item = new js.awt.TreeItem(
@@ -442,6 +451,8 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         _setParentItem.call(this, parent);
         
         tree.cache[this.uuid()] = this;
+        
+        this._local.showTip = def.showTip || false;
 
         if(def.nodes && def.nodes.length > 0){
             this.insertNodes(0, def.nodes);

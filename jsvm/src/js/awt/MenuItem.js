@@ -226,8 +226,13 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		def.controlled = (def.beInMenu && (Class.isArray(def.nodes) 
 										   || def.dynamic === true));
 		
+		// By testing, when a relative div is included in another div,
+		// the inner div will fetch the inner width of the outer div
+		// as its width if no set any width for it.
+		// So, there may not be "width:100%". Otherwise, if the menu
+		// item has borders and paddings, it will exceed the outer div.
 		if(def.beInMenu){
-			def.css = "position:relative;width:100%;";
+			def.css = "position:relative;";
 		}
 		
 		arguments.callee.__super__.apply(this, [def, Runtime, view]);
@@ -247,7 +252,6 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 }.$extend(js.awt.FlexibleItem);
 
 js.awt.MenuSeparator = function(def, Runtime, menu){
-
 	var CLASS = js.awt.MenuSeparator, thi$ = CLASS.prototype;
 	if(CLASS.__defined__){
 		this._init.apply(this, arguments);

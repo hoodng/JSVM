@@ -56,7 +56,7 @@ js.net.URI = function (url){
     var Keys = ["source", "scheme", "userInfo", "user", "password", 
                 "host", "port", "path", "query", "fragment"],     
         schemeRegExp = /^(?:([-+a-zA-Z0-9]+):\/\/|\/\/)/i,
-        userInfoRegExp = /^(?:([^:@\s]+))(:(?:[^:@\s]+))?@/i,
+        userInfoRegExp = /^(?:([^:@?\s]+))(:(?:[^:@?\s]+))?@/i,
         hostRegExp = /^((?:[^;:@=\/\?\.\s]+\.)+[A-Za-z0-9\-]{1,}|localhost)/i,
 
         // For matching cusotm host names mapping ips in OS' hosts file.

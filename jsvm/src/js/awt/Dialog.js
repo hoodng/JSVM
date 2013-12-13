@@ -196,8 +196,8 @@ js.awt.Dialog = function (def, Runtime){
      * @see js.awt.Cover
      */
     thi$.showLoading = function(b){
-		
-		arguments.callee.__super__.apply(this, arguments);
+        
+        arguments.callee.__super__.apply(this, arguments);
         this.btnpane.showLoading(b);
 
     }.$override(this.showLoading);
@@ -211,7 +211,7 @@ js.awt.Dialog = function (def, Runtime){
         var obj = this.getDialogObject();
         obj.validateData(
             function(){
-                var event = _buildDialogEvent.call(this, "apply");
+                var event = this.buildDialogEvent("apply");
                 this.notifyPeer(event.msgId, event, true);
             }.$bind(this));
     };
@@ -220,19 +220,19 @@ js.awt.Dialog = function (def, Runtime){
         var obj = this.getDialogObject();
         obj.validateData(
             function(){
-                var event = _buildDialogEvent.call(this, "ok");
+                var event = this.buildDialogEvent("ok");
                 this.notifyPeer(event.msgId, event, true);
                 this.close();
             }.$bind(this));
     };
 
     thi$.onbtnCancel = function(button){
-        var event = _buildDialogEvent.call(this, "cancel", false);
+        var event = this.buildDialogEvent("cancel", false);
         this.notifyPeer(event.msgId, event, true);
         this.close();
     };
 
-    var _buildDialogEvent = function(type, hasData){
+    thi$.buildDialogEvent = function(type, hasData){
         var dialogObj = this.client.dialogObj,
         msgId = dialogObj.getDialogMsgType(), 
         data, event;
@@ -248,7 +248,7 @@ js.awt.Dialog = function (def, Runtime){
     
     thi$.onbtnClose = function(button){
         
-        var event = _buildDialogEvent.call(this, "close", false);
+        var event = this.buildDialogEvent("close", false);
         this.notifyPeer(event.msgId, event, true);
         
         arguments.callee.__super__.apply(this, arguments);

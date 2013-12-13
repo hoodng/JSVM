@@ -29,7 +29,9 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * Author: Hu Dong
+ * File: (>>>FILE<<<)
+ * Create: (>>>VC_DATE<<<)
+ * Author: PanMingfa
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
  * Source code availability: http://github.com/jsvm
@@ -38,6 +40,7 @@
 $package("(>>>package<<<)");
 
 /**
+ *
  * 
  */
 (>>>package<<<).(>>>FILE_SANS<<<) = function(def, Runtime){
