@@ -34,7 +34,7 @@
  * Author: Pan Mingfa
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://github.com/jsvm
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 $package("js.swt");
@@ -348,7 +348,7 @@ js.swt.ScrollPane = function(def, Runtime){
         measure = _getIdealMeasure.call(this),
         isHScroll = this.isHScroll(),
         bounds = this.getBounds(), 
-        w, h, comp, d;
+        rigid, w, h, comp, d;
         
         if(!Class.isNumber(measure)){
             return;

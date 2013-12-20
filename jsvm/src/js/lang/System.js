@@ -32,7 +32,7 @@
  * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://jzvm.googlecode.com
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 js.lang.System = function (env, vm){
@@ -472,7 +472,10 @@ js.lang.System = function (env, vm){
             if(js.lang.Class.isFunction(scope.beforeUnload)){
                 scope.beforeUnload.call(scope);
             }
-            scope.destroy();
+            try{
+                scope.destroy();
+            }catch(e){
+            }
         }
         delete vm.runtime;
 

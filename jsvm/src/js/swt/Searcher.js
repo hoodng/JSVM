@@ -35,7 +35,7 @@
  * Author: Pan Mingfa
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://github.com/jsvm
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 $package("js.swt");

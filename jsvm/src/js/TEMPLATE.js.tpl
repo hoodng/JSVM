@@ -31,10 +31,10 @@
  *
  * File: (>>>FILE<<<)
  * Create: (>>>VC_DATE<<<)
- * Author: PanMingfa
+ * Author: 
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://github.com/jsvm
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 $package("(>>>package<<<)");

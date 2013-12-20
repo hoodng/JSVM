@@ -28,9 +28,10 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * @File: String.js 
- * @Create: 2010-11-17 
- * @Author: dong.hu@china.jinfonet.com
+ * Author: Hu Dong
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 js.lang.String = new function(){
@@ -54,6 +55,11 @@ js.lang.String = new function(){
         "&copy;": "©",
         "<br/>" : String.fromCharCode(0x0A)
         // Add more
+    };
+
+    var TAGTEST = {
+        script: /<script\b[\s\S]*?>([\s\S]*?)<\/script/i,
+        pre: /<pre\b[\s\S]*?>([\s\S]*?)<\/pre/i
     };
 
     this.encodeHtml = String.prototype.encodeHtml = 
@@ -125,10 +131,14 @@ js.lang.String = new function(){
             s.replace(REGX_TRIM, "");
     };
 
-    this.fetchJSON = String.prototype.fetchJSON = function(s){
+    this.fetchJSON = String.prototype.fetchJSON = function(tag, s){
+        tag = tag || "pre";
         s = (s != undefined) ? s : this.toString();
-        return s.replace(
-                /<script.*?>[\s\S]*?<\/.*?script>/gi, "");
+        var tester = TAGTEST[tag], ret;
+        if(tester.test(s)){
+            ret = tester.exec(s);
+        }
+        return ret ? ret[1].trim(): "";
     };
 
     String.prototype.hashCode = function(){

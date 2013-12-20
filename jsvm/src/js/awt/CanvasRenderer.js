@@ -32,7 +32,7 @@
  * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://github.com/jsvm
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 $package("js.awt");
@@ -694,6 +694,6 @@ js.awt.CanvasRenderer = function(config){
 
 }.$extend(js.awt.Renderer);
 
-var $ = js.awt.CanvasRenderer;
-$.instance = $.instance || new ($)("");
-delete $;
+var __$ = js.awt.CanvasRenderer;
+__$.instance = __$.instance || new (__$)("");
+delete __$;

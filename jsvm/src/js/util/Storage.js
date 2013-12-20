@@ -28,11 +28,13 @@
  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
- * 
- * @File: Storage.js
- * @Create: 2011-10-28
- * @Author: pmf.sei@gmail.com
+ *
+ * Author: Pan mingfa
+ * Contact: pmf.sei@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
  */
+
 $package("js.util");
 
 /**

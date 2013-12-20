@@ -32,7 +32,7 @@
  * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://jzvm.googlecode.com
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 js.lang.Runtime = function(){
@@ -210,7 +210,6 @@ js.lang.Runtime = function(){
     };
     
     
-    
     /**
      * Returen i18n dictionary.
      */
@@ -304,7 +303,21 @@ js.lang.Runtime = function(){
     thi$.isEditMode = function(){
         return (this.mode() & 0x01) != 0;
     };
-
+    
+    thi$.getLicense = function(){
+        return this.getProperty("license");  
+    };
+    
+    thi$.isProductEnabled = function(product){
+        var license, enabled = false;
+        if(Class.isString(product) && product.length > 0){
+            license = this.getLicense() || {};
+            enabled = (license[product + "_enabled"] === true);
+        }
+        
+        return enabled;
+    };
+    
     /**
      * Show message on console or popup a message box
      * 

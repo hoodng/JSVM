@@ -32,7 +32,7 @@
  * Author: mingfa.pan@china,jinfonet.com
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://jzvm.googlecode.com
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 $package("js.awt");
@@ -197,9 +197,6 @@ js.awt.DatePicker = function(def, Runtime){
 	System = J$VM.System, MQ = J$VM.MQ,
 
 	Calendar = Class.forName("js.util.Calendar"), 
-	DTComboBox = Class.forName("js.awt.DTComboBox"),
-	Spinner = Class.forName("js.awt.FieldSpinner"),
-	ACalendar= Class.forName("js.awt.Calendar"),
 	YFormat	 = Class.forName("js.text.YearFormat"),
 	MFormat	 = Class.forName("js.text.MonthFormat"),
 	HFormat	 = Class.forName("js.text.HourFormat"),
@@ -277,7 +274,7 @@ js.awt.DatePicker = function(def, Runtime){
 	var _updateTimePicker = function(calendar){
 		calendar = calendar || this.calendar;
 		
-		var use24H = this.is24HFormat(), hformater, v0, v1,
+		var use24H = this.is24HFormat(), hformater, hour, v0, v1,
 		fHour = this.fHour, pos, rdoAM, rdoPM, visible, vstyle;
 		if(fHour){
 			v0 = use24H ? 0 : 1;
@@ -434,9 +431,14 @@ js.awt.DatePicker = function(def, Runtime){
 		var R = this.Runtime(), type = def.type, fdef,
 		fYear, fMonth, fDate, tfdef, tfSelector, tFormatCombo, 
 		fHour, fMinute, fSecond, rdoAM, rdoPM, use24H = def.use24H,
-		date = def.date, symbols = def.dateSymbols;
+		date = def.date, symbols = def.dateSymbols,
+		
+		DTComboBox = Class.forName("js.awt.DTComboBox"),
+		Spinner = Class.forName("js.awt.FieldSpinner"),
+		ACalendar= Class.forName("js.awt.Calendar");
 
-		this.mdiff = 10000, this.ydiff = 10000;
+		this.mdiff = 10000;
+		this.ydiff = 10000;
 
 		date = Class.isDate(date) ? new Date(date.getTime()) : new Date();
 		symbols = symbols ? symbols : R.dateSymbols();

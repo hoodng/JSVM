@@ -1,4 +1,3 @@
-
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -33,7 +32,7 @@
  * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://jzvm.googlecode.com
+ * Source code availability: https://github.com/jsvm/JSVM
  */
 
 /**

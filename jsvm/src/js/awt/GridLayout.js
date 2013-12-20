@@ -32,7 +32,7 @@
  * Author: Lv xianhao
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://jzvm.googlecode.com
+ * Source code availability: https://github.com/jsvm/JSVM
  * 
  * Jul 1, 2012: Rewrote layout algorithm by Hu Dong by introduce js.awt.Grid class 
  */
