@@ -49,7 +49,7 @@ org.jsvm.App = function(){
     System = J$VM.System, MQ = J$VM.MQ;
     
     thi$.main = function(Runtime){
-        
+        J$VM.env["j$vm_pid"] = Runtime.PID();
     };
     
 };

@@ -94,19 +94,19 @@ js.awt.Frame = function (){
     };
     
     var _load = function(url){
-        var http = new js.net.HttpURLConnection(true);
+        var http = J$VM.XHRPool.getXHR(true);
 
         http.onsuccess = function(e){
             var xhr = e.getData();
             this.setContent(xhr.responseText());
-            http.destroy();
+            http.close();
             return;
         }.$bind(this);
 
-        http.onhttperror = function(e){
+        http.onhttperr = function(e){
             var xhr = e.getData();
             // TODO: handle error
-            http.destroy();
+            http.close();
             return;
         }.$bind(this);
 

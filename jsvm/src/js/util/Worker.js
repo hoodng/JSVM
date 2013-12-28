@@ -53,9 +53,9 @@ var _onmessage = function(e){
 };
 
 if(isworker){
-    importScripts("../../../jsre.js");
-    onmessage = _onmessage;
+    self.importScripts("../../../jsre.js");
+    self.onmessage = _onmessage;
 }else{
-	var E = js.util.Event;
+    var E = js.util.Event;
     E.attachEvent(window, E.W3C_EVT_MESSAGE, 0, this, _onmessage);
 }

@@ -39,7 +39,7 @@ $package("js.awt");
 
 $import("js.awt.Container");
 
-js.awt.Desktop = function (element){
+js.awt.Desktop = function (def, element){
 
     var CLASS = js.awt.Desktop, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -49,7 +49,7 @@ js.awt.Desktop = function (element){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ =J$VM.MQ, Factory = J$VM.Factory;
+        System = J$VM.System, MQ =J$VM.MQ, Factory = J$VM.Factory;
     
     /**
      * Popup message box
@@ -233,7 +233,7 @@ js.awt.Desktop = function (element){
 
     var _notifyLM = function(e){
         var el = e.srcElement, target = e.getEventTarget(),
-        uuid = el ? el.uuid : undefined;
+            uuid = el ? el.uuid : undefined;
         this.LM.cleanLayers(e, this);
         _activateComponent(target, uuid);
         return true;
@@ -241,8 +241,8 @@ js.awt.Desktop = function (element){
     
     var _notifyComps = function(msgid, e){
         var comps = this.getAllComponents(),
-        len = comps ? comps.length : 0, 
-        i, comp, recs = [];
+            len = comps ? comps.length : 0, 
+            i, comp, recs = [];
         
         for(i = 0; i < len; i++){
             comp = comps[i];
@@ -256,15 +256,15 @@ js.awt.Desktop = function (element){
     
     var _onresize = function(e){
         var M = this.def, U = this._local,
-        isSpecified = U.isViewSpecified,
-        d = isSpecified ? this.getBounds() 
-            : DOM.innerSize(document.body),
-        evt;
+            isSpecified = U.isViewSpecified,
+            d = isSpecified ? this.getBounds() 
+                : DOM.innerSize(document.body),
+            evt;
         
         if(U.userW != d.width || U.userH != d.height){
             evt = new Event(Event.W3C_EVT_RESIZE, 
-                {owidth: U.userW, oheight: U.userH, 
-                    width: d.width, height: d.height});
+                            {owidth: U.userW, oheight: U.userH, 
+                             width: d.width, height: d.height});
             _notifyComps.call(this, "js.awt.event.WindowResized", evt);
             
             this.LM.clearStack(e);
@@ -346,7 +346,7 @@ js.awt.Desktop = function (element){
 
     }.$override(this.destroy);
 
-    thi$._init = function(element){
+    thi$._init = function(_def, element){
         var def = {
             classType: "js.awt.Desktop",
             className: "jsvm_desktop",
@@ -358,17 +358,24 @@ js.awt.Desktop = function (element){
                 classType: "js.awt.AbstractLayout"
             }
         };
+        def.id = _def.id;
+
+        var ele = element;
+        if(Class.isString(ele)){
+            ele = self.document.getElementById(ele);
+            def.id = element;
+        }
         
-        arguments.callee.__super__.apply(this, [def, this, element]);
+        arguments.callee.__super__.apply(this, [def, this, ele]);
         
         // Indicate whether a specified DOM element will be as the
         // view of current desktop.
-        this._local.isViewSpecified = !!element;
+        this._local.isViewSpecified = !!ele;
 
         var body = self.document.body;
         if(!this._local.isViewSpecified){
             var zIndex = _getMinZIndex.call(this, body),
-            s = DOM.innerSize(body);
+                s = DOM.innerSize(body);
             this.insertBefore(body.firstChild, body);
             this.setZ(zIndex-1);
             
@@ -379,6 +386,7 @@ js.awt.Desktop = function (element){
 
         var DM = this.DM = new js.awt.Container(
             {classType: "js.awt.Desktop",
+             id: def.id,
              zorder:true,
              stateless: true,
              zbase: 1000
@@ -394,14 +402,14 @@ js.awt.Desktop = function (element){
         var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel",
             doc = self.document;
         /*
-        Event.attachEvent(doc, "mousedown",  0, this, _onevents);
-        Event.attachEvent(doc, "mouseup",    0, this, _onevents);
-        Event.attachEvent(doc, "mouseover",  0, this, _onevents);
-        Event.attachEvent(doc, "mouseout",   0, this, _onevents);
-        Event.attachEvent(doc, "mousemove",  0, this, _onevents);
-        Event.attachEvent(doc, "contextmenu",0, this, _onevents);
-        Event.attachEvent(doc, mousewheel,   0, this, _onevents);
-        */
+         Event.attachEvent(doc, "mousedown",  0, this, _onevents);
+         Event.attachEvent(doc, "mouseup",    0, this, _onevents);
+         Event.attachEvent(doc, "mouseover",  0, this, _onevents);
+         Event.attachEvent(doc, "mouseout",   0, this, _onevents);
+         Event.attachEvent(doc, "mousemove",  0, this, _onevents);
+         Event.attachEvent(doc, "contextmenu",0, this, _onevents);
+         Event.attachEvent(doc, mousewheel,   0, this, _onevents);
+         */
 
         // Bring the component to the front and notify popup LayerManager
         Event.attachEvent(body, "mousedown",  0, this, _notifyLM);

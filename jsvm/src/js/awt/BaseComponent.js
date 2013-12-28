@@ -625,9 +625,10 @@ js.awt.BaseComponent = function(def, Runtime, view){
             def.className = def.className || "jsvm_comp";
             view.clazz = view.className = def.className; 
         }
-
+        
+        view = this.view;
         view.uuid = this.uuid();
-        view.id = this.classType() + "." + js.awt.Element.count;
+        view.id = def.id || (this.classType() + "." + js.awt.Element.count);
 
         this.className = def.className;
         if(def.css) view.style.cssText = view.style.cssText + def.css;

@@ -309,6 +309,48 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         this._doSort();
     };
     
+    thi$.getTreeNodeByTypes = function(types, index){
+    	var nodes = this.nodes || [];
+    	
+    	if(!Class.isArray(types) 
+           || types.length == 0){
+            return nodes[0];
+        }
+        
+        if(!Class.isFunction(types.indexOf)){
+            js.util.LinkedList.$decorate(types);
+        }
+        
+        return _getTreeNodeByTypes.call(this, nodes, types, index);
+    }
+    
+    var _getTreeNodeByTypes = function(nodes, types, index){
+        var node, type, tmp;
+        for(var i = 0, len = nodes.length; i < len; i++){
+            node = nodes[i];
+            type = node.def["type"];
+            
+            if(types.indexOf(type) !== -1){
+            	index--;
+            	if(index <= 0){
+                	return node;
+            	}else{
+            		tmp = node.nodes;
+	                if(tmp && tmp.length > 0){
+	                    return _getTreeNodeByTypes.call(this, tmp, types, index);                    
+	                }
+            	}
+            }else{
+                tmp = node.nodes;
+                if(tmp && tmp.length > 0){
+                    return _getTreeNodeByTypes.call(this, tmp, types, index);                    
+                }
+            }
+        }
+        
+        return node;
+    };
+    
     /**
      * Move tree item
      */

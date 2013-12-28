@@ -24,7 +24,7 @@ body {
     scrollbar-darkshadow-color:#EEEEEE;
     scrollbar-track-color:#FFFFFF;
     scrollbar-arrow-color:#333333;
-        
+    
     -webkit-text-size-adjust:none;
     -webkit-user-drag:none;
 }
@@ -35,7 +35,7 @@ body {
     width:24px;
     background-color:#EEEEEE;
     border:1px solid #e6e6e6;
-    /*padding:1px;*/
+/*padding:1px;*/
 }
 
 .sidebar_button,
@@ -58,8 +58,17 @@ body {
 }
 
 .sidebar_button_icon {
+    position: absolute;
+
     width: 16px;
     height: 16px;
+}
+
+.sidebar_button_1 img[class*="sidebar_button_icon"],
+.sidebar_button_3 img[class*="sidebar_button_icon"] {
+    filter: alpha(Opacity = 40);
+    -moz-opacity: 0.4;
+    opacity: 0.4;
 }
 
 .sidebar_button_disable {
@@ -76,7 +85,7 @@ body {
     background-color:#EEEEEE;
     border:1px solid #E6E6E6;
     overflow: hidden;
-   color: #666666;
+    color: #666666;
 }
 
 .taskbar_button,
@@ -123,7 +132,7 @@ body {
 }
 
 .tasklist_item_0, .tasklist_item_8 {
-      color: #666666;
+    color: #666666;
 }
 
 .tasklist_item_2 {
@@ -185,34 +194,58 @@ body {
 }
 
 
-
 /** For Dashboard Menu **/
+/* menuDash: has mark, no icon */
+/* simpleDshMenu: no mark, no icon */
 .menuDash,
 .menuDash_0 {
-   border:1px solid #e6e6e6;
+    border:1px solid #e6e6e6;
     background-color:#FFFFFF;
     width:180px;
 }
 
-.menuDash_item,
-.menuDash_item_0, .menuDash_item_1, 
-.menuDash_item_2, .menuDash_item_3 {
-    height: 20px;
-    cursor:default;
-    overflow:hidden;
-    background-color:#EEEEEE;
+.simpleDshMenu,
+.simpleDshMenu_0 {
+    width:160px;
+    border:1px solid #e6e6e6;
+    background-color:#FFFFFF;
 }
 
-.menuDash_item_2 {
+.menuDash_item,
+.menuDash_item_0, .menuDash_item_1, 
+.menuDash_item_2, .menuDash_item_3{
+    height: 20px;
+    background-color:#EEEEEE;
+
+    cursor:default;
+    overflow:hidden;
+}
+
+.simpleDshMenu_item,
+.simpleDshMenu_item_0, .simpleDshMenu_item_1, 
+.simpleDshMenu_item_2, .simpleDshMenu_item_3 {
+    height: 20px;
+    padding: 0px 4px;
+    background-color:#EEEEEE;
+
+    cursor:default;
+    overflow:hidden;
+}
+
+.menuDash_item_2,
+.simpleDshMenu_item_2 {
     background-color:#ffdf7c;
 }
 
-.menuDash_item_1, .menuDash_item_3 {
+.menuDash_item_1, .menuDash_item_3,
+.simpleDshMenu_item_1, .simpleDshMenu_item_3 {
     color:#CCCCCC;
 }
 
 .menuDash_separator,
-.menuDash_separator_0 {
+.menuDash_separator_0,
+.simpleDshMenu_separator,
+.simpleDshMenu_separator_0 {
     height: 1px;
     background-color:#CCCCCC;
 }
@@ -232,8 +265,9 @@ body {
 }
 
 .menuDash_item_label,
-.menuDash_item_label_0, 
-.menuDash_item_label_1 {
+.menuDash_item_label_0, .menuDash_item_label_1,
+.simpleDshMenu_item_label,
+.simpleDshMenu_item_label_0, .simpleDshMenu_item_label_1 {
     height: 16px;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -241,7 +275,8 @@ body {
     /*background-color:#EEEEEE;*/
 }
 
-.menuDash_item_ctrl,.menuDash_item_ctrl_0 {
+.menuDash_item_ctrl,.menuDash_item_ctrl_0,
+.simpleDshMenu_item_ctrl,.simpleDshMenu_item_ctrl_0 {
     width: 16px;
     height:16px;
     background-image: url("images/expand.gif");
@@ -249,6 +284,8 @@ body {
     background-position:center;
 }
 
+
+/* For window */
 .window, .window_0 {
     border: 2px solid #EEEEEE;
     background-color: #F1F1FA;
@@ -658,7 +695,7 @@ body {
 
 .sadget_2, .sadget_10 {
     border: 1px solid #F57900;
-    /*border: 1px dotted #000000;*/
+/*border: 1px dotted #000000;*/
 }
 
 .sadget_movecover {
@@ -683,16 +720,16 @@ body {
 }
 
 .sadget_client, .sadget_client_0 {
-    /*overflow:hidden;*/    
+/*overflow:hidden;*/    
 }
 
 .sadget_client_cover {
     /*
-    filter: alpha(Opacity = 30);
-    -moz-opacity: 0.3;
-    opacity: 0.3;
-    background-color: #CCCCCC;
-    */
+      filter: alpha(Opacity = 30);
+      -moz-opacity: 0.3;
+      opacity: 0.3;
+      background-color: #CCCCCC;
+      */
     background-repeat:no-repeat;
     background-position:center;
     background-image: url(images/loading.gif);
@@ -764,11 +801,11 @@ body {
 .gadget_client_cover,
 .radget_client_cover  {
     /*
-    filter: alpha(Opacity = 30);
-    -moz-opacity: 0.3;
-    opacity: 0.3;
-    background-color: #CCCCCC;
-    */
+      filter: alpha(Opacity = 30);
+      -moz-opacity: 0.3;
+      opacity: 0.3;
+      background-color: #CCCCCC;
+      */
     background-repeat:no-repeat;
     background-position:center;
     background-image: url(images/loading.gif);
@@ -800,11 +837,11 @@ body {
 
 .rspanel_client_cover {
     /*
-    filter: alpha(Opacity = 30);
-    -moz-opacity: 0.3;
-    opacity: 0.3;
-    background-color: #CCCCCC;
-    */
+      filter: alpha(Opacity = 30);
+      -moz-opacity: 0.3;
+      opacity: 0.3;
+      background-color: #CCCCCC;
+      */
     background-repeat:no-repeat;
     background-position:center;
     background-image: url(images/loading.gif);
@@ -949,7 +986,7 @@ body {
 }
 
 .rspanel_mask{
-	filter: alpha(Opacity = 30);
+    filter: alpha(Opacity = 30);
     -moz-opacity: 0.3;
     opacity: 0.3;
     background-color: #000000;
@@ -1166,11 +1203,11 @@ body {
 
 .properties_client_cover {
     /*
-    filter: alpha(Opacity = 30);
-    -moz-opacity: 0.3;
-    opacity: 0.3;
-    background-color: #CCCCCC;
-    */
+      filter: alpha(Opacity = 30);
+      -moz-opacity: 0.3;
+      opacity: 0.3;
+      background-color: #CCCCCC;
+      */
     background-repeat:no-repeat;
     background-position:center;
     background-image: url(images/loading.gif);
@@ -1180,9 +1217,9 @@ body {
 /* Gadget menu*/
 .menuDash,
 .menuDash_0 {
-   border:1px solid #e6e6e6;
-   background-color:#FFFFFF;
-   width:180px;
+    border:1px solid #e6e6e6;
+    background-color:#FFFFFF;
+    width:180px;
 }
 
 .menuDash_item,
@@ -1281,7 +1318,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: default;
-    /*background-color:#EEEEEE;*/
+/*background-color:#EEEEEE;*/
 }
 
 
@@ -1761,17 +1798,17 @@ body {
 
 .ddListRender.dItem,
 .ddListRender.dItem_0 {
-    /* TODO */
+/* TODO */
 }
 
 .ddListRender_dItem_icon {
-   width: 16px;
-   height: 16px;   
+    width: 16px;
+    height: 16px;   
 }
 
 .ddListRender_dItem_icon_img {
-   width: 16px;
-   height: 16px;   
+    width: 16px;
+    height: 16px;   
 }
 
 .ddListRender_dItem_label {
@@ -1839,8 +1876,8 @@ body {
 /** End Render and Parameter **/
 
 /**
-    table
-*/
+   table
+   */
 .table_file_0 {
     width: 100%;
 }
@@ -1903,7 +1940,7 @@ body {
 .table_file_tb_label1_folder_0,
 .table_file_tb_label1_dashboard_0,
 .table_file_tb_label1_component_0
-    {
+{
     width: 80px;
     height: 100%;
     white-space: nowrap;
@@ -1926,7 +1963,7 @@ body {
 .table_file_tb_label2_folder_0,
 .table_file_tb_label2_dashboard_0,
 .table_file_tb_label2_component_0
-    {
+{
     width: 100px;
     height: 100%;
     white-space: nowrap;
@@ -1950,7 +1987,7 @@ body {
 .table_file_tb_label3_folder_0,
 .table_file_tb_label3_dashboard_0,
 .table_file_tb_label3_component_0
-    {
+{
     width: 140px;   
     height: 100%;
     white-space: nowrap;
@@ -1964,7 +2001,7 @@ body {
 }
 
 .table_file_th_label0_0,.table_file_th_label0_2,.table_file_th_label1_0,.table_file_th_label1_2,.table_file_th_label2_0,.table_file_th_label2_2,.table_file_th_label3_0,.table_file_th_label3_2
-    {
+{
     height: 26px;
     line-height: 26px;
     overflow: hidden;
@@ -1972,7 +2009,7 @@ body {
 }
 
 .table_file_th_label0_2,.table_file_th_label1_2,.table_file_th_label2_2,.table_file_th_label3_2
-    { /*color : #FF0000;*/
+{ /*color : #FF0000;*/
     cursor: pointer;
 }
 
@@ -2010,8 +2047,8 @@ body {
 }
 
 /**
-    listview
-*/
+   listview
+   */
 .listview_0 {
     width: 100%;
     height: 100%;
@@ -2021,7 +2058,7 @@ body {
 }
 
 .listview_pdf_0,.listview_xls_0,.listview_html_0,.listview_rsd_0,.listview_ps_0,.listview_text_0,.listview_rtf_0,.listview_xml_0,.listview_usual_0
-    {
+{
     clear: both;
     text-indent: 20px;
     height: 20px;
@@ -2068,10 +2105,10 @@ body {
 }
 
 /**
-    export dialog
-*/
+   export dialog
+   */
 .frame, .frame_0 { /*width : 660px;
-    height : 350px;*/
+                     height : 350px;*/
     width: 100%;
     height: 100%;
     border: 0px dashed #CCCCCC;
@@ -2110,9 +2147,9 @@ body {
 }
 
 /*.button_2 img {
-    width : 100%;
-    height : 100%;
-}*/
+  width : 100%;
+  height : 100%;
+  }*/
 
 .customize_label_0, .customize_label_2 {
     height : 20px;
@@ -2162,7 +2199,7 @@ body {
     position: absolute;
     z-index: 10001;
     right: 0px;
-    /*left : 100%;*/
+/*left : 100%;*/
 }
 
 .exp_format_combobox_listview_0 {
@@ -2181,7 +2218,7 @@ body {
 }
 
 .exp_format_combobox_listview_pdf_0,.exp_format_combobox_listview_xls_0,.exp_format_combobox_listview_html_0,.exp_format_combobox_listview_rsd_0,.exp_format_combobox_listview_ps_0,.exp_format_combobox_listview_text_0,.exp_format_combobox_listview_rtf_0,.exp_format_combobox_listview_xml_0,.exp_format_combobox_listview_chk0_0,.exp_format_combobox_listview_chk1_0,.exp_format_combobox_listview_usual_0
-    { /*clear : both;*/
+{ /*clear : both;*/
     text-indent: 20px;
     text-align: left;
     height: 20px;
@@ -2254,8 +2291,8 @@ body {
 }
 
 /**
-    save dialog
-*/
+   save dialog
+   */
 .save_main_panel {
     height: 313px;
     padding: 0 0 0 0;
@@ -2342,8 +2379,8 @@ body {
 }
 
 /**
-    Insert Filter
-*/
+   Insert Filter
+   */
 .Field_tree_item0_0,.Field_tree_item0_2 { /*width: 100%;*/
     height: 22px;
     line-height: 22px;
@@ -2354,7 +2391,7 @@ body {
 }
 
 .Field_tree_item0_2 { /*width: 100%;
-    background-color: #ffdf7c;*/
+                        background-color: #ffdf7c;*/
     color: #FF0000;
 }
 
@@ -2490,8 +2527,8 @@ table {
 }
 
 /**
-    calendar
-*/
+   calendar
+   */
 .calendar_0 {
     position: absolute;
     z-index: 10000;
@@ -2511,7 +2548,7 @@ table {
 
 .calendar_0 th {
     border-left : 1px solid #DADADA;
-    /*border-right : 1px solid #FFFFFF;*/
+/*border-right : 1px solid #FFFFFF;*/
 }
 
 .today {
@@ -2568,7 +2605,7 @@ table {
 }
 
 /**
-*/
+ */
 .customize_0,.customize_2,.customize_1,.customize_3 {
     line-height: 16px;
     margin-bottom: 2px;
@@ -2666,7 +2703,7 @@ table {
 .dsb_combo_option_0,.dsb_combo_option_2,
 .dsb_combo_option_4,.dsb_combo_option_6,
 .dsb_combo_option_select,.dsb_combo_option_deselect
-    {
+{
     height: 20px;
     line-height: 20px;
     overflow: hidden;
@@ -2719,11 +2756,11 @@ table {
 }
 
 .com_slider_table_checkbox_0,.com_slider_table_checkbox_4 {
-    /*border: 1px solid #CCCCCC;*/
+/*border: 1px solid #CCCCCC;*/
 }
 
 .com_slider_table_checkbox_2,.com_slider_table_checkbox_6 {
-    /*border: 1px solid #E0E855;*/
+/*border: 1px solid #E0E855;*/
 }
 
 .com_slider_table_checkbox_icon_0, .checkbox_icon_0 {
@@ -2765,8 +2802,8 @@ table {
     /*line-height : 25px;*/
     position: relative;
     z-index: 100;
-    /*margin : 0 0 5px 0;*/
-    /*border-bottom : 1px solid #CCCCCC;*/
+/*margin : 0 0 5px 0;*/
+/*border-bottom : 1px solid #CCCCCC;*/
 }
 
 .com_slider_table_spfunc_0 .dsb_combo_box_0 {
@@ -2797,7 +2834,7 @@ table {
 }
 
 .com_slider_table_digit_0 .com_slider_table_label_0,.com_slider_table_date_0 .com_slider_table_label_0
-    {
+{
     width: 60px;
     position: relative;
     float: left;
@@ -2805,7 +2842,7 @@ table {
 }
 
 .com_slider_table_digit_0 .dsb_combo_box_0,.com_slider_table_date_0 .dsb_combo_box_0
-    {
+{
     width: 174px;
     float: left;
 }
@@ -2824,7 +2861,7 @@ table {
 }
 
 .com_slider_table_button_cal_0,.com_slider_table_button_cal_2,.com_slider_table_button_cal_4,.com_slider_table_button_cal_6
-    {
+{
     position: relative;
     float: left;
     margin-left: 4px;
@@ -2953,9 +2990,9 @@ table {
 }
 
 .lstfile {  
-   background-color: #FFFFFF;   
-   padding: 2px;
-   overflow: auto;
+    background-color: #FFFFFF;   
+    padding: 2px;
+    overflow: auto;
 }
 
 .lstfile_item,
@@ -3037,8 +3074,8 @@ table {
     border: 1px solid #CCC;
 }
 /**
-    Insert slider dialog
-*/
+   Insert slider dialog
+   */
 .slider_title_0 {
     height : 17px;
     width : 100%;
@@ -3088,8 +3125,8 @@ table {
 }
 
 /**
-    ComboBox 
-*/
+   ComboBox 
+   */
 
 .combobox_0 {
     width : 180px;
@@ -3295,8 +3332,8 @@ table {
 }
 
 /**
-motionSlider
-*/
+   motionSlider
+   */
 .CustomTimerSliderSkin{
     position: absolute;
     padding-top: 8px;
@@ -3393,8 +3430,8 @@ motionSlider
 }
 
 /**
-Slider
-*/
+   Slider
+   */
 .CustomSliderSkin{
     position: relative;
     padding: 10px;
@@ -3481,8 +3518,8 @@ Slider
     background-color: #ffffff;
     display: block;
     position: absolute;
-    /*margin-left: 5px;*/ /* helf of SliderSingleThumb.width */
-    /*margin-right: 5px;*/ /* helf of SliderSingleThumb.width */
+/*margin-left: 5px;*/ /* helf of SliderSingleThumb.width */
+/*margin-right: 5px;*/ /* helf of SliderSingleThumb.width */
 }
 
 .CustomSliderRangeTransparentSkin_0{
@@ -3492,8 +3529,8 @@ Slider
     background-color: #ffffff;
     display: block;
     position: absolute;
-    /*margin-left: 12px;*/ /* SliderRangeLeftThumb.width */
-    /*margin-right: 12px;*/ /*SliderRangeRightThumb.width */
+/*margin-left: 12px;*/ /* SliderRangeLeftThumb.width */
+/*margin-right: 12px;*/ /*SliderRangeRightThumb.width */
 }
 
 .SliderRangeLeftThumb_0, .SliderRangeLeftThumb_2{
@@ -4376,7 +4413,7 @@ Slider
     top:24px;
     background-color: #FFFFFF;
     border: 1px solid #CCCCCC;
-   overflow: hidden;
+    overflow: hidden;
 }
 
 .enterparam_main_panel_textfield_field {
@@ -4384,7 +4421,7 @@ Slider
     height: 100%;
     padding: 0;
     border: 0 none;
-   overflow: hidden;
+    overflow: hidden;
 }
 
 /* For enterparam_item_ComboBoxDateTimeEditor */
@@ -4459,18 +4496,18 @@ Slider
     -webkit-border-radius: 3px;
     border-radius: 3px;
     
-    /* background-color: white; */
+/* background-color: white; */
 } 
 
 /* Editor */
 .editor,
 .editor_0 { 
-    /* TODO */
+/* TODO */
 }
 
 .edToolbar,
 .edToolbar_0, .edToolbar_1 {
-    /* TODO */
+/* TODO */
 }
 
 .edToolbar_disable {
@@ -4533,13 +4570,13 @@ Slider
 }
 
 .edComboBox_dItem_icon {
-   width: 16px;
-   height: 16px;   
+    width: 16px;
+    height: 16px;   
 }
 
 .edComboBox_dItem_icon_img {
-   width: 16px;
-   height: 16px;   
+    width: 16px;
+    height: 16px;   
 }
 
 .edComboBox_dItem_label {
@@ -4673,7 +4710,7 @@ Slider
     margin: 0px;
     padding: 0px;
 } 
- 
+
 /******** End of HTML LC ********/
 
 .tabularCell {
@@ -4870,7 +4907,7 @@ Slider
 .insertimage_0{
     
 }
-      
+
 .localfile_16,
 .webfile_16,
 .libraryfile_16{
@@ -5010,6 +5047,34 @@ Slider
     height:16px;
 }
 
+.icon_button2,
+.icon_button2_0, .icon_button2_16, .icon_button2_20 {
+    width: 18px;
+    height:18px;
+    border: 1px solid transparent;
+}
+
+.icon_button2_2,
+.icon_button2_4,
+.icon_button2_6{
+    border: 1px solid transparent;
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.icon_button2_16, 
+.icon_button2_20{
+    visibility: hidden;
+}
+
+.icon_button2_icon,
+.icon_button2_icon_0 {
+    width: 16px;
+    height:16px;
+}
+
 /* For Border ComboBox */
 .border_cbo,
 .border_cbo_0, .border_cbo_1 {
@@ -5045,17 +5110,17 @@ Slider
 
 .border_cbo.dItem,
 .border_cbo.dItem_0 {
-    /* TODO */
+/* TODO */
 }
 
 .border_cbo_dItem_icon {
-   width: 50px;
-   height: 3px;   
+    width: 50px;
+    height: 3px;   
 }
 
 .border_cbo_dItem_icon_img {
-   width: 50px;
-   height: 3px;   
+    width: 50px;
+    height: 3px;   
 }
 
 .border_cbo_dItem_label {
@@ -5092,11 +5157,11 @@ Slider
 .border_dropdownlist_searchBox,
 .border_dropdownlist_searchBox_0{
     /*
-    border-bottom-style: solid;
-    border-bottom-width: 1px;
-    border-bottom-color: #DDD;
-    */
-  
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
+      border-bottom-color: #DDD;
+      */
+    
     border: 1px solid #C0C0C0;
     
     -moz-border-radius: 3px;
@@ -5185,7 +5250,7 @@ Slider
 .border_dropdownlist_controlBar_label,
 .border_dropdownlist_controlBar_label_0,
 .border_dropdownlist_controlBar_label_2 {
-    /* TODO */
+/* TODO */
 }
 
 .border_dropdownlist_controlBar_label_2  {
@@ -5345,7 +5410,7 @@ Slider
  * for CustomizeValueList DropDown
  * 
  */  
- 
+
 .customizevaluelist_drop_0,
 .customizevaluelist_drop_2{
     position:absolute;
@@ -5583,7 +5648,7 @@ Slider
 }
 
 .popupList_item_2, .popupList_item_6 {
-    /* Ignore */
+/* Ignore */
 }
 
 .popupList_item_label,
@@ -5607,10 +5672,10 @@ Slider
 }
 /******************/
 
- /** For EnterParameter Reset Menu **/
+/** For EnterParameter Reset Menu **/
 .menuResetParam,
 .menuResetParam_0 {
-   border:1px solid #e6e6e6;
+    border:1px solid #e6e6e6;
     background-color:#FFFFFF;
     width:180px;
 }
@@ -5659,10 +5724,10 @@ Slider
     overflow: hidden;
     text-overflow: ellipsis;
     cursor: default;
-    /*background-color:#EEEEEE;*/
+/*background-color:#EEEEEE;*/
 }
 
- /** For SPE_Button */
+/** For SPE_Button */
 .spe_button,
 .spe_button_0, .spe_button_1, 
 .spe_button_2, .spe_button_3,
@@ -5802,3 +5867,36 @@ Slider
     background-color: #E6E6E6;
     cursor:pointer;
 }
+
+/******** For Select Data Source Dialog *********/
+.cbofield_0,
+.cbofield_1 {
+	border: 1px solid #DDD;
+}
+
+.cbofield_disable{
+	filter: alpha(Opacity = 0.3);
+	-moz-opacity: 0.3;
+	opacity: 0.3;
+	background-color: #eeeeee;
+}
+
+.lbl_textfield,
+.lbl_textfield_0, .lbl_textfield_1 {
+	width: 80px;
+	height: 20px;
+	
+	background-color: #FFFFFF;
+	border: 1px solid #CCCCCC;
+	
+	/*
+	  -moz-border-radius: 3px;
+	  -khtml-border-radius: 3px;
+	  -webkit-border-radius: 3px;
+	  border-radius: 3px;
+	  */
+	
+	overflow: hidden;
+}
+
+/****************** end *************************/

@@ -55,7 +55,7 @@ js.lang.Thread = function(Runnable){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, 
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ;
 
     var _onmessage = function(e){
         var evt = e.getData(), data;

@@ -65,7 +65,7 @@ js.net.URI = function (url){
         noSchemeRegNameRegExp = /^([^;:@=\/\?\#\.\s]+)(?=:\d+)/i,
         
         portRegExp = /^:(\d+)/,
-        pathRegExp = /^\/[^?#]*/i,
+        pathRegExp = /^\.*\/[^?#]*/i,
         queryRegExp = /^\?([^#]*)/i,
         fragmentRegExp = /^#(.+)/i,
         

@@ -444,7 +444,7 @@ js.lang.System = function (env, vm){
             if(scope === undefined){
                 scope = vm.runtime[proc.id] = function(){
                     var clazz = js.awt.Desktop;
-                    return clazz ? new (clazz)(proc.container) : 
+                    return clazz ? new (clazz)({id:proc.id},proc.container) : 
                         new js.lang.NoUIRuntime();
                 }();
                 scope.id = proc.id;

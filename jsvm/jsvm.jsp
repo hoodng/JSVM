@@ -4,8 +4,9 @@
 (function(){
 
      var env = {
+         pid: "<%=pid%>",
          getsEntry: "<%=servletPrefix%>vt",
-         postEntry: ".vt",
+         postEntry: "<%=pid%>.vt",
             
          userinfo: <%= userinfo.toString()%>,
             
@@ -15,6 +16,8 @@
             
          dict: <%= ctx.getDict(locale).toString()%>,
             
+         heartbeat: <%= ctx.getHeartBeatPeriod()%>,
+         
          mode: <%= mode%>,
 
          fontNames: <%= FontNames.toJSONObject(FontNames.getSupportedFontNames()).toString()%>,
@@ -31,5 +34,5 @@
      env.datetimeformat = env.formats.datetime;
      
      J$VM.boot(env);
-
+     
  })();
