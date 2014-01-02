@@ -55,7 +55,7 @@ js.net.XHRPool = new function(){
 
     this.getXHR = function(isAsync){
         var xhr, i, len, pool = this.pool, 
-            max = J$VM.System.getProperty("j$vm_ajax_concurrent", 4);
+            max = J$VM.System.getProperty("j$vm_ajax_concurrent", 8);
 
         for(i=0, len=pool.length; i<len; i++){
             xhr = pool[i];
@@ -100,6 +100,7 @@ js.net.XHRPool = new function(){
 
     var _dispatch = function(){
         var xhr = this.getXHR(true), req, data;
+        
         if(xhr.isBlocking()){
             _schedule(100);
             return;
@@ -182,7 +183,7 @@ js.net.HttpURLConnection = function (isAsync, blocking){
     };
 
     thi$.isOccupy = function(){
-        return this._occupy || false;
+        return (this._occupy && true); 
     };
 
     thi$.occupy = function(){
@@ -297,22 +298,23 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         xhr.open(method, _url, async);
         _setRequestHeader.call(this, xhr, this._headers);
         xhr.send(query);
-
     };
     
     /**
      * Close this connection
      */
     thi$.close = function(){
-        _stopTimeout.call(this);
-        var xhr = this._xhr;
+        if(this._xhr){
+            _stopTimeout.call(this);
+            var xhr = this._xhr;
 
-        try{
-            xhr.onreadystatechange = null;
-            xhr.response = null;
-            xhr.responseText = null;
-            xhr.responseXML = null;
-        } catch (x) {
+            try{
+                xhr.onreadystatechange = null;
+                xhr.response = null;
+                xhr.responseText = null;
+                xhr.responseXML = null;
+            } catch (x) {
+            }
         }
 
         this["on"+Event.SYS_EVT_SUCCESS] = null;

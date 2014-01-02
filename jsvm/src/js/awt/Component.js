@@ -403,8 +403,7 @@ js.awt.Component = function (def, Runtime, view){
             
             // For floating layer
             if(M.isfloating === true && !this.floatingSettled()){
-                this.setFloating(true);    
-                this.rootLayer(this);
+                this.setFloating(true);
             }
 
             if(this.resizableSettled()){

@@ -46,7 +46,7 @@ J$VM = new function (){
         j$vm_log: false,
         j$vm_ajax_nocache: true,
         j$vm_ajax_timeout: 600000,
-        j$vm_ajax_concurrent: 4,
+        j$vm_ajax_concurrent: 8,
         j$vm_timeslice: 20,
         j$vm_threshold: 45,
         j$vm_longpress: 90

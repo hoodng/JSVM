@@ -70,7 +70,7 @@ js.awt.PopupLayer = function () {
             this._local.root = root;
         }
         
-        return this._local.root;  
+        return this._local.root || this;  
     };
     
     /**

@@ -70,9 +70,9 @@ js.awt.LabelEditor = function(label, listener) {
 		"border-bottom-style", "border-left-color"
 	];
 
-	thi$.doEdit = function(){
-
-		var input = this.input = DOM.createElement("INPUT"),
+	thi$.doEdit = function(isNeedTextArea, spStyles){
+        var elType = isNeedTextArea ? "TextArea" : "INPUT";
+		var input = this.input = DOM.createElement(elType),
 		w, h, s,  
 		label = this.label;
 
@@ -81,9 +81,13 @@ js.awt.LabelEditor = function(label, listener) {
 		DOM.insertBefore(input, label);
 		input.className = "jsvm_textfield_input";
 		this.styles =  DOM.getStyles(label, styles);
-		
+		if (spStyles) {
+		    for(var p in spStyles) {
+		        this.styles[p] = spStyles[p];
+		    }
+		}
 		if(this.listener.def.autoFit){
-			s = DOM.getStringSize(js.lang.String.decodeHtml(label.innerHTML || ""), this.styles);
+			s = DOM.getStringSize(js.lang.String.decodeHtml(this.text || label.innerHTML || ""), this.styles);
 			w = s.width + label.bounds.MBP.BPW;
 			h = s.height + label.bounds.MBP.BPH;
 		}else {
