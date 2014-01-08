@@ -82,6 +82,10 @@ js.net.XHRPool = new function(){
         return xhr;
     };
 
+    this.getQ = function(){
+        return Q;
+    };
+
     this.post = function(req){
         Q.push(req);
         if(!running){

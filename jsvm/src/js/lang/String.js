@@ -59,7 +59,8 @@ js.lang.String = new function(){
 
     var TAGTEST = {
         script: /<script\b[\s\S]*?>([\s\S]*?)<\/script/i,
-        pre: /<pre\b[\s\S]*?>([\s\S]*?)<\/pre/i
+        pre: /<pre\b[\s\S]*?>([\s\S]*?)<\/pre/i,
+        TEXTAREA: /<TEXTAREA\b[\s\S]*?>([\s\S]*?)<\/TEXTAREA/i
     };
 
     this.encodeHtml = String.prototype.encodeHtml = 

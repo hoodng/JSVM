@@ -131,7 +131,13 @@ js.lang.Runtime = function(){
      * @param dict, i18n dictionary
      */
     thi$.setDict = function(dict){
-        this.setProperty("dict", (dict || {}));
+        var d = this.getProperty("dict");
+        dict = dict || {};
+        if(d == undefined){
+            this.setProperty("dict", dict);
+        }else{
+            J$VM.System.objectCopy(dict, d, false, true);
+        }
     };
     
     /**
@@ -224,9 +230,8 @@ js.lang.Runtime = function(){
      * @return i18n text of the key
      */
     thi$.nlsText = function(key, defaultText){
-        var dict = this.getDict();
-
-        return dict[key] || defaultText || key;
+        var dict = this.getDict(), v = dict[key];
+        return v ? (Class.isString(v) ? v : v.text) : (defaultText || key);
     };
     
     thi$.prefer = function(prefer){

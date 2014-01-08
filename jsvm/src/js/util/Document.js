@@ -347,6 +347,18 @@ js.util.Document = function (){
 	thi$.removeAttribute = function(el, attr){
 		el.removeAttribute(attr);
 	};
+
+    thi$.setAttributes = function(el, attrObj){
+        if(!el || el.nodeType !== 1 
+           || (typeof attrObj !== "object")){
+            return;
+        }
+        
+        var attr;
+        for(attr in attrObj){
+            this.setAttribute(el, attr, attrObj[attr]);
+        }
+    };
 	
 	/**
 	 * Apply opacity to the DOM element. 

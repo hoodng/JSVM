@@ -119,9 +119,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
     };
     
     thi$.isShowTip = function(){
-    	return this._local.showTip;
+        return this._local.showTip;
     };
-    
+
     /**
      * @see js.awt.Item
      */
@@ -148,8 +148,8 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             itemDef.level = this.def.level + 1;
             
             if(this.isShowTip()){
-            	itemDef.tip = itemDef.dname;
-            	itemDef.showTip = true;
+                itemDef.tip = itemDef.dname;
+                itemDef.showTip = true;
             }
             
             if(item && item.canCloneView(itemDef)){
@@ -279,6 +279,10 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
      * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
      */    
     thi$.expand = function(b, needNotify, root){
+        if(!this.isEnabled()){
+            return;
+        }
+        
         this.setExpanding(false);
         var nodes = this.nodes, tree = this.treeContainer(),
         className = this.branch.clazz, refNode, i, len, item;
@@ -323,6 +327,10 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
      * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
      */
     thi$.expandAll = function(b, root){
+        if(!this.isEnabled()){
+            return;
+        }
+        
         this.expand(b, false);
 
         if(b){
@@ -344,30 +352,35 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
     };
     
     thi$.doLayout = function(){
-	    if(this.label && this.controller){
-    	    var ele = this.label, b, left;
-    	    b = ele.scrollWidth;
-    	    left = ele.offsetLeft;
-    	    this.controller.setPosition(b+left);        	  
-	    }   	  
+        if(this.label && this.controller){
+            var ele = this.label, b, left;
+            b = ele.scrollWidth;
+            left = ele.offsetLeft;
+            this.controller.setPosition(b+left);              
+        }         
     }.$override(this.doLayout);
 
     thi$.updateBranchStyle = function(){
         var ex = this.canExpand(),
         ps = this.prevSibling() != undefined,
         ns = this.nextSibling() != undefined,
-        b = ((ex ? 4:0) | (ps ? 2:0) | (ns ? 1:0)),
+        b = ((ex ? 4 : 0) | (ps ? 2 : 0) | (ns ? 1 : 0)),
+        bClassName = this.className + "_branch",
         branch = this.branch;
         
-        var className = this.className + "_branch" + b;
-        branch.clazz = className;
-        if(this.isTriggered()){
-            branch.className = className + "_4";
+        if(this.isEnabled()){
+            bClassName = bClassName + b;
+            
+            branch.clazz = bClassName;
+            bClassName = bClassName + (this.isTriggered() ? "_4" : "_0");
         }else{
-            branch.className = className + "_0";
+            branch.clazz = bClassName;
+            bClassName = bClassName + "_1";
         }
+        
+        branch.className = bClassName;
     };
-
+    
     thi$.updateLeaderStyle = function(){
         var p = this.parentItem(), M = this.def, level = M.level,
         comps = M.items, comp;

@@ -53,6 +53,7 @@ js.lang.System = function (env, vm){
 
     this.setProperty = function(key, value){
         props.setProperty(key, value);
+        return this.getProperty(key);
     };
 
     this.setOut = function(print){
@@ -86,15 +87,10 @@ js.lang.System = function (env, vm){
     
     this.exit = function(){
         this.gc();
-        
-        if(self.opener){
-            window.close();        
-        }else{
-            self.opener = self;
-            window.close();
-        }
+        window.open("","_self");
+        window.close();
     };
-    
+
     /**
      * Copy the source object to the destination object.
      * 
@@ -427,6 +423,13 @@ js.lang.System = function (env, vm){
     var _onload = function(e){
         J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
 
+        var b = vm.storage.session.getItem("j$vm_log");
+        if(b === "true"){
+            vm.enableLogger();
+        }else{
+            vm.disableLogger();
+        }
+
         _checkBrowser.call(this);
         _detectDoctype.call(this);
         _initJSVMLocale.call(this);
@@ -525,13 +528,15 @@ js.lang.System = function (env, vm){
         }
         
         scopes.push({id: instName, fn: fn, container: containerElement});
-    };
+    }.$bind(this);
     
     var _boot = function(env){
         var Class = js.lang.Class, mainClass,
             mainClasName = this.getProperty("mainclass"),
-            mainFuncName = this.getProperty("mainfunction");
-
+            mainFuncName = this.getProperty("mainfunction"),
+            desktop = this.getProperty("desktop"),
+            rtName = desktop;
+            
         if(mainClasName){
             mainClass = Class.forName(mainClasName);
             if(!mainClass) return;
@@ -539,18 +544,35 @@ js.lang.System = function (env, vm){
                       function(){
                           this.initialize();
                           (new mainClass()).main(this);
-                      });
+                      },desktop);
         }else if(typeof window[mainFuncName] == "function"){
             J$VM.exec(mainFuncName, 
                       function(){
                           this.initialize();
                           window[mainFuncName].call(this, this);
-                      });
+                      },desktop);
+        }else if(rtName){
+            J$VM.exec(rtName, 
+                      function(){
+                          this.initialize();
+                      },desktop);
         }
 
         this.objectCopy((env || {}), props);
 
-    };
+    }.$bind(this);
+
+    var _enableLogger = function(){
+        this.setProperty("j$vm_log", true);
+        J$VM.storage.session.setItem("j$vm_log", "true");
+        return "J$VM logger is enabled";
+    }.$bind(this);
+
+    var _disableLogger = function(){
+        this.setProperty("j$vm_log", false);
+        J$VM.storage.session.setItem("j$vm_log", "false");
+        return "J$VM logger is disabled";
+    }.$bind(this);
     
     var _init = function(env, vm){
         var E = js.util.Event;
@@ -577,17 +599,10 @@ js.lang.System = function (env, vm){
 
             vm.Factory = new js.awt.ComponentFactory(this);
 
-            vm.exec = function(instName, fn, containerElement){
-                if(typeof fn != "function") 
-                    throw "The second parameter must be a function";
-
-                return _exec.call(this,instName, fn, containerElement);
-
-            }.$bind(this);
-            
-            vm.boot = function(){
-                return _boot.apply(this, arguments);
-            }.$bind(this);
+            vm.exec = _exec;
+            vm.boot = _boot;
+            vm.enableLogger = _enableLogger;
+            vm.disableLogger = _disableLogger;
 
             E.attachEvent(vm.hwnd, E.W3C_EVT_LOAD,   0, this, _onload);
             E.attachEvent(vm.hwnd, E.W3C_EVT_UNLOAD, 0, this, _onunload);
