@@ -95,7 +95,7 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
             image = _getImage.call(this, imgId);
 
             if(!Class.isHtmlElement(image)){
-                image = new Image();
+                image = DOM.createElement("IMG");
                 images.setItem(imgId, image);
                 Q = image.Q = [];
                 Q.push([this, imgId, image, layer, callback]);

@@ -99,8 +99,15 @@ js.awt.CanvasLayer = function(def, Graphics2D){
         sy = sy || 0;
         sw = sw || this.getWidth();
         sh = sh || this.getHeight();
-        
-        return ctx ? ctx.getImageData(sx, sy, sw, sh) : null;
+
+        var ret;
+        try{
+            ret = ctx ? ctx.getImageData(sx, sy, sw, sh) : null;
+        }catch(e){
+            ret =  null;
+            System.err.println(e);
+        }
+        return ret;
     };
 
     thi$.putImageData = function(hit, image, dx, dy){

@@ -87,6 +87,7 @@ js.util.Document = function (){
 	thi$.createElement = function(type){
 		var el = document.createElement(type);
 		if(el.tagName == "IMG"){
+            el.crossOrigin = "Anonymous";
 			this.forbidSelect(el);
 		}
 		return el;

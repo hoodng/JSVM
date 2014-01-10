@@ -75,12 +75,21 @@ js.awt.CanvasGroup = function(def, Graphics2D){
     };
 
     thi$.getImageData = function(hit, sx, sy, sw, sh){
+        var ctx = this.getContext(hit);
+
         sx = sx || 0;
         sy = sy || 0;
         sw = sw || this.getWidth();
         sh = sh || this.getHeight();
 
-        return this.getContext(hit).getImageData(sx, sy, sw, sh);
+        var ret;
+        try{
+            ret = ctx ? ctx.getImageData(sx, sy, sw, sh) : null;
+        }catch(e){
+            ret =  null;
+            System.err.println(e);
+        }
+        return ret;
     };
 
     thi$.erase = function(){
