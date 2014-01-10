@@ -1,0 +1,34 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js"></script>
+    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/com/jinfonet/util/Expression.js"></script>
+
+
+    <script type="text/javascript">
+        J$VM.exec("Demo",function(System){
+            var Class = js.lang.Class, 
+                Exp = Class.forName("com.jinfonet.util.Expression");
+
+            var exp0 = Exp.exp(["LT", {iname:"f1"}, {real:100}]);
+
+            exp0.and(Exp.exp(["GT",{iname:"f1"}, {real:10}]));
+
+            exp0.or(Exp.exp(["IN",{iname:"f2"},{real:[100, 1000]}]).not());
+            
+            exp0[2][1][2].value([200,400,2000]);
+
+            System.err.println(JSON.stringify(exp0));
+            System.err.println(exp0._local);
+
+        });
+    </script>
+</head>
+<body>
+
+</body>
+</html>

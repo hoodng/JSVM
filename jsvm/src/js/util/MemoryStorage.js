@@ -34,16 +34,15 @@
  * License: BSD 3-Clause License
  * Source code availability: https://github.com/jsvm/JSVM
  */
- 
+
 $package("js.util");
 
 /**
- * When window has no sessionStorage or localStorage, we use a
- * memory storage instead.
+ * 
  */
 $import("js.util.HashMap");
 
-js.util.MemoryStorage = function(){
+js.util.MemoryStorage = function(capacity){
 
     var CLASS = js.util.MemoryStorage, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -51,6 +50,8 @@ js.util.MemoryStorage = function(){
         return;
     }
     CLASS.__defined__ = true;
+
+    var Class = js.lang.Class;
 
     thi$.isMemory = true;
 
@@ -63,17 +64,45 @@ js.util.MemoryStorage = function(){
     };
 
     thi$.setItem = function(key, value){
-        this.put(key, value);
+        if(this.size() >= this.capacity){
+            _reduce.call(this);
+        }
+
+        this.put(key, {key:key, count:1, data:value});
     };
     
     thi$.getItem = function(key){
-        return this.get(key);
+        var ele = this.get(key), ret;
+        if(ele){
+            ele.count++;
+            ret = ele.data;
+        }
+        return ret;
     };
     
     thi$.removeItem = function(key){
         return this.remove(key);
     };
+
+    var _reduce = function(){
+        var array = this.values().sort(
+            function(a, b){return a.count - b.count;}
+        ), len = Math.floor(this.capacity/10), tmp;
+
+        len = len < 1 ? 1 : len;
+        while(len > 0){
+            tmp = array.shift();
+            this.removeItem(tmp.key);
+            len--;
+        }
+    };
     
+    thi$._init = function(capacity){
+        arguments.callee.__super__.call(this);
+        this.capacity = 
+            Class.isNumber(capacity) ? capacity : 1024;
+    }.$override(this._init);
+
     this._init.apply(this, arguments);
     
 }.$extend(js.util.HashMap);

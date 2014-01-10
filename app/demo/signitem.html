@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      
+    <style>__PSEUDO__ {background-color:gray;}</style>
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/va.css"/>
+  
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsvm.jsp"></script>
+    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script> 
+    <script type="text/javascript" src="../../jsvm/lib/designer.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/com/jinfonet/ui/MultiSignItem.js"></script>
+
+    <title>VA SignItem</title>
+    
+    <style>
+
+    </style>
+  </head>
+
+  <body>
+    
+  </body>
+  
+  <script type="text/javascript">
+    J$VM.exec("Demo",function(System){
+        this.prefer({theme: "default"});
+
+        var def = {
+            classType: "com.jinfonet.ui.MultiSignItem",
+            
+            width: 120, height: 22,
+            x: 10, y: 10,
+            
+            labelText: "label",
+            signObj: {
+                type: "graph",
+                colors: ["#FFDF7C", "#eeeeee"]
+            }
+        },
+        item = new com.jinfonet.ui.MultiSignItem(def, this);
+        this.addComponent(item);
+        
+        def = {
+            classType: "com.jinfonet.ui.MultiSignItem",
+            
+            x: 10, y: 40,
+            width: 120, height: 22,
+            
+            labelText: "label",
+            signObj: {
+                type: "color",
+                colors: ["#FFDF7C", "#eeeeee", "#dddddd"]
+            }
+        };
+        item = new com.jinfonet.ui.MultiSignItem(def, this);
+        this.addComponent(item);
+        
+        /*def = {
+            classType: "com.jinfonet.ui.MultiSignItem",
+            
+            x: 10, y: 40,
+            width: 120, height: 22,
+            
+            labelText: "label",
+            signObj: {
+                type: "shape",
+                shapes: ["circle_1", "square_1"]
+            }
+        };
+        item = new com.jinfonet.ui.MultiSignItem(def, this);
+        this.addComponent(item);*/                
+    });
+ </script>
+</html>

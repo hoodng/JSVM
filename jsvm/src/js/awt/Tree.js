@@ -181,7 +181,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System, MQ = J$VM.MQ,
-    
+
     permission = Class.forName("js.util.Permission");
 
     thi$.setDataProvider = function(dataProvider){
@@ -300,60 +300,60 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
     /**
      * Remove the specified item from current tree.
-     * 
+     *
      * @param item: {js.awt.TreeItem} A tree item to remove.
-     */    
+     */
     thi$.removeNode = function(item){
         if(!item || !(item.instanceOf(js.awt.TreeItem))){
             return;
         }
-        
+
         _keepScroll.call(this);
-        
+
         var pitem = item.parentItem,
         nodes = pitem ? pitem.nodes : null;
-        
+
         if(Class.isArray(nodes)){
             js.util.LinkedList.$decorate(nodes);
             nodes.remove(item);
         }
-        
+
         delete this.cache[item.uuid()];
         item.destroy();
-        
+
         this._doSort();
         delete this._local.maxSize;
-        
+
         _setMaxSize.$delay(this, 1);
         _keepScroll.$delay(this, 1, true);
     };
-    
+
     /**
      * Remove tree items from index to index + length
-     * 
+     *
      * @param index: {Integer} index of each item in nodes of current tree to remove.
      * @param length: {Integer} Indicate how many items to remove.
      */
-    thi$.removeNodes = function(index, length){
-        var nodes = this.nodes || [], cnt = nodes.length, 
+    thi$.removeNodes = function(index, length, isDestroying){
+        var nodes = this.nodes || [], cnt = nodes.length,
         cache = this.cache, item;
-        
+
         if(!Class.isNumber(index)){
             index = 0;
         }else{
-            index = index < 0 
+            index = index < 0
                 ? 0 : (index >= cnt ? cnt - 1 : index);
         }
-        
+
         if(!Class.isNumber(length)){
             length = cnt - index;
         }else{
-            length = length < 0 ? 0 
+            length = length < 0 ? 0
                 : (index + length > cnt ? cnt - index : length);
         }
-        
+
         _keepScroll.call(this);
-        
+
         nodes = nodes.splice(index, length);
         while(nodes.length > 0){
             item = nodes.shift();
@@ -361,9 +361,13 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             item.destroy();
         }
 
+        if(isDestroying === true){
+            return;
+        }
+
         this._doSort();
         delete this._local.maxSize;
-        
+
         _setMaxSize.$delay(this, 1);
         _keepScroll.$delay(this, 1, true);
     };
@@ -371,10 +375,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     /**
      * Remove all tree times
      */
-    thi$.removeAllNodes = function(){
+    thi$.removeAllNodes = function(isDestroying){
         var nodes = this.nodes;
         if(nodes){
-            this.removeNodes(0, nodes.length);
+            this.removeNodes(0, nodes.length, isDestroying);
         }
         this._doSort();
     };
@@ -430,8 +434,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
            || !Class.isNumber(index2) || index2 < 0 || index2 >= len){
             return;
         }
-        
-        var node1 = nodes[index1], node2 = nodes[index2], 
+
+        var node1 = nodes[index1], node2 = nodes[index2],
         view1, view2, treeView = this._treeView;
 
         nodes[index1] = node2;
@@ -439,7 +443,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
         view1 = node1.view;
         view2 = node2.view;
-        
+
         treeView.removeChild(view1);
 
         if(index1 < index2){
@@ -917,14 +921,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     var _onmousedown = function(e){
         return e.cancelDefault();
     };
-    
+
     // Notify tree peer
     var _ondrag = function(e){
         this.notifyPeer("js.awt.event.TreeItemEvent", e);
     };
 
     thi$.destroy = function(){
-        this.removeAllNodes();
+        this.removeAllNodes(true);
         delete this.nodes;
         delete this.cache;
         delete this.selected;
@@ -980,7 +984,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         Event.attachEvent(treeView, "mouseout",  0, this, _onmouseover);
         Event.attachEvent(treeView, "click",     0, this, _onclick);
         Event.attachEvent(treeView, "dblclick",  0, this, _onclick);
-        
+
         // Avoid autoscroll when drag item.
         Event.attachEvent(treeView, "mousedown", 1, this, _onmousedown);
 

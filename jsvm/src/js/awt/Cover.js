@@ -156,7 +156,8 @@ js.awt.Cover = function (comp){
             DOM.setBounds(cover,
                           bounds.x, 
                           bounds.y,
-                          bounds.width, bounds.height);    
+                          bounds.width + bounds.MBP.MW, 
+                          bounds.height+ bounds.MBP.MH);    
         }
     };
         

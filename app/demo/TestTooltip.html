@@ -1,0 +1,248 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+<script id="j$vm" src="../../jsvm/jsre.js" ></script>
+<script src="../../jsvm/lib/../jsre-ui.js" ></script>
+<script src="../../jsvm/src/com/jinfonet/ui/Tooltip.js"></script>
+<script src="../../jsvm/src/com/jinfonet/ui/TooltipItem.js"></script>
+
+<style>
+
+.panel,
+.panel_0 {
+    left: 100px;
+    top: 100px;
+    width: 400px;
+    height:300px;
+    border: 2px solid red;
+    padding: 5px;
+    background-color: #CCCCCC;
+}
+
+.bt,
+.bt_0{
+   width: 60px;
+   height: 30px;
+   background-color: #FFFFFF;
+   border: 1px solid blue;
+}
+
+.labButton,
+.labButton_0{
+    background-color:#CCCCCC;
+    color:white;
+    cursor:pointer;
+    font-weight: bold;
+    text-align : center;
+    width: 90px;
+    height:16px;
+}
+
+.card1, .card2, .card3, .card4,
+.card1_0, .card2_0, .card3_0, .card4_0 {
+    width: 60px;
+    height:60px;
+}
+
+.card1,
+.card1_0 {
+    left: 0px;
+    border: 2px solid red;
+}
+
+.card2,
+.card2_0 {
+    left: 60px;
+    border: 2px solid green;
+}
+
+.card3,
+.card3_0 {
+    left: 120px;
+    border: 2px solid blue;
+}
+
+.card4,
+.card4_0 {
+    left: 180px;
+    border: 2px solid red;
+}
+
+.demowin_title_button_icon,
+.demowin_title_button_icon_0 {
+    width: 16,
+    height:16
+}
+
+
+</style>
+</head>
+<body>
+</body>
+
+
+<script type="text/javascript">
+
+J$VM.exec("Demo", function(System){
+
+    this.prefer({theme: "default"});
+
+    this.setZ(0);
+
+
+    this.addComponent(new js.awt.Label({
+        className :"labButton",
+        text: "CardLayout",
+        id: "labCardLayout",
+        x: 10, y: 10
+    },this));
+
+    this.addComponent(new js.awt.Label({
+        className :"labButton",
+        text: "BorderLayout",
+        id:"labBorderLayout",
+        x: 110, y: 10
+    },this));
+
+    this.addComponent(new js.awt.Label({
+        className :"labButton",
+        text: "BoxLayout",
+        id:"labBoxLayout",
+        x: 210, y: 10
+    },this));
+
+    this.addComponent(new js.awt.Label({
+        className :"labButton",
+        text: "FlowLayout",
+        id:"labFlowLayout",
+        x: 310, y: 10
+    },this));
+
+    this.addComponent(new js.awt.Label({
+        className :"labButton",
+        text: "GridLayout",
+        id:"labGridLayout",
+        x: 410, y: 10
+    },this));
+    
+    this.addComponent(new js.awt.Label({
+        className :"labButton",
+        text: "hide",
+        id:"hideTooltip",
+        x: 510, y: 10
+    },this));
+    
+    var tooltipDef = {
+        id: "tooltip",
+        model:{
+            msgType: "text",
+            msgSubject: "test",
+            msgContent: "content"
+        },
+        nodes:[
+            {id:"t1", name:"tooltip1", itemtype:"label"},
+            {id:"t2", imagepath:"app/demo/test.png",itemtype:"image"},
+            {id:"t3", labelText:"tooltip5",itemtype:"label"},
+            {id:"t4", labelText:"tooltip6 ",itemtype:"label"}
+        ]
+    };
+    var tooltip = new com.jinfonet.ui.Tooltip(tooltipDef, this);
+    
+    var _showToolTip = function(e){
+    	  var sourceelm = e.srcElement;
+        var id = sourceelm.id;
+        
+        var tooltipDef1;
+        
+        var button;
+        if(id == "js.awt.Label.4"){
+            //button = this.labCardLayout;
+            tooltipDef1 = {
+                nodes:[
+                    {id:"t1", name:"tooltip1111111111111111111111111111111111111111111111111111111111111111111111##", itemtype:"label",maxwidth:"200"},
+                    {id:"t2", imagepath:"app/demo/test.png",itemtype:"image"},
+                    {id:"t3", labelText:"labCardLayout1",itemtype:"label"},
+                    {id:"t4", labelText:"labCardLayout2 ",itemtype:"label"}
+                ]
+            };
+        }
+        else if(id == "js.awt.Label.5"){
+            //button = this.labBorderLayout;
+            
+            tooltipDef1 = {
+                nodes:[
+                    {id:"t1", name:"labBorderLayout", itemtype:"label"},
+                    {id:"t2", imagepath:"app/demo/test.png",itemtype:"image"},
+                    {id:"t3", labelText:"labBorderLayout5",itemtype:"label"},
+                    {id:"t4", labelText:"labBorderLayout6 ",itemtype:"label"},
+                    {id:"t5", labelText:"labBorderLayout7 ",itemtype:"label"},
+                    {id:"t6", labelText:"labBorderLayout8 ",itemtype:"label"},
+                    {id:"t7", labelText:"labBorderLayout9 ",itemtype:"label"},
+                    {id:"t8", labelText:"labBorderLayout10 ",itemtype:"label"},
+                    {id:"t9", labelText:"labBorderLayout11 ",itemtype:"label"}
+                ]
+            };
+        }
+        else if(id == "js.awt.Label.6"){
+            //button = this.labBoxLayout;
+            tooltipDef1 = {
+                nodes:[
+                    {id:"t1", name:"labBoxLayout1111111111111111111111111111111111111111111111##", itemtype:"label"},
+                    {id:"t2", imagepath:"app/demo/test.png",itemtype:"image"},
+                    {id:"t3", labelText:"labBoxLayout5",itemtype:"label"},
+                    {id:"t4", labelText:"labBoxLayout6 ",itemtype:"label"}
+                ]
+            };
+        }
+        else if(id == "js.awt.Label.7"){
+            //button = this.labFlowLayout;
+            tooltipDef1 = {
+                nodes:[
+                    {id:"t1", name:"labFlowLayout11111111##", itemtype:"label"},
+                    {id:"t2", imagepath:"app/demo/test.png",itemtype:"image"},
+                    {id:"t3", labelText:"labFlowLayout5",itemtype:"label"},
+                    {id:"t4", labelText:"labFlowLayout6 ",itemtype:"label"}
+                ]
+            };
+        }
+        else if(id == "js.awt.Label.8"){
+            //button = this.labGridLayout;
+            tooltipDef1 = {
+                nodes:[
+                    {id:"t1", name:"labGridLayout##", itemtype:"label"},
+                    {id:"t2", imagepath:"app/demo/test.png",itemtype:"image"},
+                    {id:"t3", labelText:"labGridLayout1",itemtype:"label"},
+                    {id:"t4", labelText:"labGridLayout2 ",itemtype:"label"}
+                ]
+            };
+        }
+        else if(id == "js.awt.Label.9"){
+      	  tooltip.hide();
+          return;
+        }
+        
+        //var bounds = button.getBounds();
+        var bounds = sourceelm.bounds;
+        
+        
+        
+        //tooltip.setData(tooltipDef1.nodes);
+        tooltip.reCreate(tooltipDef1,this);
+        tooltip.showAt(bounds.userX,bounds.userY+25);
+    };
+
+    this.labCardLayout.attachEvent("mouseover", 0, this, _showToolTip);
+    this.labBorderLayout.attachEvent("mouseover", 0, this, _showToolTip);
+    this.labBoxLayout.attachEvent("mouseover", 0, this, _showToolTip);
+    this.labFlowLayout.attachEvent("mouseover", 0, this, _showToolTip);
+    this.labGridLayout.attachEvent("mouseover", 0, this, _showToolTip);
+    this.hideTooltip.attachEvent("mouseover", 0, this, _showToolTip);
+
+
+
+});
+</script>
+</html>

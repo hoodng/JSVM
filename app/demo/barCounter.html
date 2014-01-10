@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html>
+<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js"></script>
+    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Drawable.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgRenderer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicGroup.js"></script> 
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicLayer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGroup.js"></script>    
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasLayer.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgGroup.js"></script>    
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgLayer.js"></script> 
+      <style>
+       body{
+          background: #eeeeee;
+       }
+       #controls{
+          position: absolute;
+          left: 100px;
+          top:  120px;
+       }
+      }
+    </style>
+</head>
+<body>   
+   <div id='controls'>
+      Stroke color:<select id='conterSelected'>
+      <option value='100' selected>100</option>
+      <option value='200'>200</option>
+      <option value='300'>300</option>
+      <option value='400'>400</option>
+      <option value='500'>500</option>
+      <option value='600'>600</option>
+      <option value='800'>800</option>
+      <option value='1000'>1000</option>
+      </select>    
+    </div>
+</body>
+<script type="text/javascript">
+        var conterSelected = document.getElementById('conterSelected'),
+            counter;
+        J$VM.exec("Demo",function(System){
+            var Class = js.lang.Class, 
+            Color = Class.forName("js.awt.Color");
+            new Color(0,0,0,0);
+            G = new (Class.forName("js.awt.Graphics2D"))(
+                      {
+                         id: "MyGraph",
+                         width: 2048, height:400,
+                         css: "border: 1px solid red; overflow: auto",
+                         movable: false,
+                         resizable: false,
+                         miniSize:{width: 10, height:10},                       
+                         capture: false,
+                         gType: "canvas",
+                      }, this);                           
+            this.addComponent(G);             
+            var btnPlay = new js.awt.Button(
+            {
+               id: "btnPlay",
+               x: 10, y: 120,
+               labelText: "Play"
+            }, this); 
+            conterSelected.onchange = function(e){
+                    counter = conterSelected.value;
+            };            
+            btnPlay.attachEvent("click", 0, this, 
+               function(){                     
+                     var height = 50,
+                     i;    
+                     for(i=0;i<counter;i++){
+                        G.drawLine({id:"line-blue"+i, x0:i, y0:0, x1:i, y1:height, 
+                        strokeStyle:"#0000ff", hitLineWidth: 6, capture:false});
+                        //G.draw();
+                     }
+                     G.draw();
+             });
+             this.addComponent(btnPlay);
+         });       
+    </script>
+</html>
+
+(* 500 1001)

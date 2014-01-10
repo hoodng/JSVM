@@ -55,7 +55,7 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
     var Class = js.lang.Class, System = J$VM.System, DOM = J$VM.DOM,
         Graph = Class.forName("js.awt.Graphics2D");
     
-    var images = {}; // For cacheing image
+    var images = J$VM.storage.images; // For cacheing image
 
     thi$.getShapeInfo = function(){
         var M = this.def, U = this._local, 
@@ -81,7 +81,7 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
     };
 
     var _getImage = function(imgId){
-        return images[imgId] || document.getElementById(imgId);
+        return images.getItem(imgId) || document.getElementById(imgId);
     };
 
     thi$.beforeDraw = function(layer, callback){
@@ -89,28 +89,24 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
     }.$override(this.beforeDraw);
 
     var _loadImage = function(layer, callback){
-        var M = this.def, imgId = M.image, image = imgId, host = this;
+        var M = this.def, imgId = M.image, image = imgId, Q;
 
         if(Class.isString(imgId)){
             image = _getImage.call(this, imgId);
 
             if(!Class.isHtmlElement(image)){
                 image = new Image();
+                images.setItem(imgId, image);
+                Q = image.Q = [];
+                Q.push([this, imgId, image, layer, callback]);
+
+                image.onload = _imageOnLoad.$bind(image);
+                image.onreadystatechange = _imageOnState.$bind(image);
                 image.src = imgId;
-                image.onload = function(){
-                    delete image.onload;
-
-                    _onload.call(host, imgId, image, layer, callback, true);
-                };
-                image.onreadystatechange = function(){
-                    if(image.readyState == "loaded" || 
-                       image.readyState == "complete"){
-                        delete image.onreadystatechange;
-
-                        image.onload();
-                    };
-                };
-
+                return;
+            }else if(image && image.onload != null){
+                Q = image.Q;
+                Q.push([this, imgId, image, layer, callback]);
                 return;
             }
         }
@@ -119,16 +115,29 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
         
     };
 
-    var _onload = function(imgId, image, layer, callback, loaded){
-        // Cache the image and not need reload it again
-        if(Class.isString(imgId)){
-            images[imgId] = image;
+    var _imageOnLoad = function(){
+        var Q = this.Q, req;
+        while(Q.length > 0){
+            req = Q.shift();
+            _onload.apply(req.shift(), req);
         }
 
+        this.onload = null;
+        this.onreadystatechange = null;
+        delete this.Q;
+    };
+
+    var _imageOnState = function(){
+        if(this.readyState == "loaded" || 
+           this.readyState == "complete"){
+            this.onload();
+        };
+    };
+
+
+    var _onload = function(imgId, image, layer, callback){
         this._local.image = image;
-
         this.drawing(layer, callback);
-
     };
 
     thi$._init = function(def, Graphics2D, Renderer){

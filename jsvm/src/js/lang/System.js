@@ -596,6 +596,8 @@ js.lang.System = function (env, vm){
             };
 
             vm.storage.cache = new js.util.Cache();
+            vm.storage.images= new js.util.MemoryStorage(
+                this.getProperty("j$vm_images_cachesize",256));
 
             vm.Factory = new js.awt.ComponentFactory(this);
 

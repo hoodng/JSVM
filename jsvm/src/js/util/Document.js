@@ -788,6 +788,8 @@ js.util.Document = function (){
 			MBP.BH = MBP.borderTopWidth + MBP.borderBottomWidth;
 			MBP.PW = MBP.paddingLeft + MBP.paddingRight;
 			MBP.PH = MBP.paddingTop + MBP.paddingBottom;
+            MBP.MW = MBP.marginLeft + MBP.marginRight;
+            MBP.MH = MBP.marginTop + MBP.marginBottom;
 			MBP.BPW= MBP.BW + MBP.PW;
 			MBP.BPH= MBP.BH + MBP.PH;
 		}

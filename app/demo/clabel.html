@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+  <head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+      
+    <style>__PSEUDO__ {background-color:gray;}</style>
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+  
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsvm.jsp"></script>
+    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script> 
+    <script type="text/javascript" src="../../jsvm/lib/designer.js"></script>
+
+    <title>CanvasLabel</title>
+    
+    <style>
+      .pholder, .pholder_0 {
+        position: absolute;
+        left: 150px;
+        top: 50px;
+
+        padding: 4px 0px;
+
+        border: 1px solid #9CD1A8;
+        -moz-border-radius: 4px;
+        -khtml-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
+
+        cursor: default;
+        overflow: hidden;
+      }
+      
+      .pholder_label, .pholder_label_0 {
+        color: #999999;
+        font-family: Arial;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    
+  </body>
+  
+  <script type="text/javascript">
+    J$VM.exec("Demo",function(System){
+        this.prefer({theme: "default"});
+
+        var def = {
+            classType: "js.awt.Container",
+            className: "pholder",
+            
+            width: 22, height: 120,
+            items: ["label1", "icon", "label2"],
+            label1: {
+                classType: "js.awt.CanvasLabel",
+                className: "pholder_label",
+                
+                labelText: "for Row",
+
+                align_x: 0.5,
+                align_y: 1.0,
+
+                rigid_w: false,
+                rigid_h: false,
+
+                data: {
+                    rotate: 90,                    
+
+                    align_x: 0.0, // Follow the text direction of width
+                    align_y: 0.4, // Follow the text direction of width    
+                }
+            },
+            
+            icon: {
+                classType: "js.awt.Icon",
+                
+                image: "aggregation.gif",
+
+                rigid_w: true,
+                rigid_h: true,
+
+                width: 16,
+                height: 16
+            },
+            
+            label2: {
+                classType: "js.awt.CanvasLabel",
+                className: "pholder_label",
+                
+                labelText: "Drop",
+
+                align_x: 0.5,
+                align_y: 1.0,
+
+                rigid_w: false,
+                rigid_h: true,
+
+                data: {
+                    rotate: 90,
+
+                    align_x: 1.0,
+                    align_y: 0.4
+                }
+            },
+            
+            layout: {
+                classType: "js.awt.BoxLayout",
+                axis: 1,
+                gap: 6
+            }
+        },
+        con = new js.awt.Container(def, this);
+        this.addComponent(con);             
+    });
+ </script>
+</html>
