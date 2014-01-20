@@ -18,6 +18,8 @@
             
          heartbeat: <%= ctx.getHeartBeatPeriod()%>,
          
+         j$vm_max_inactive: <%=ctx.getMaxInactiveInterval()%>,
+         
          mode: <%= mode%>,
 
          fontNames: <%= FontNames.toJSONObject(FontNames.getSupportedFontNames()).toString()%>,

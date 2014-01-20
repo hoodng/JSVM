@@ -157,7 +157,7 @@ js.awt.Label = function(def, Runtime) {
     /**
      * @param keyword: The keyword of the <em>RegExp</em> object which is used 
      *        to matched.
-     * @param mode: "global|ignore|wholeword".
+     * @param mode: "global|insensitive|wholeword".
      * @param highlightClass: the style class name for highlighting text.
      */
     thi$.highlightAll = function(keyword, mode, highlightClass) {

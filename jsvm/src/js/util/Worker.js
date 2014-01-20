@@ -52,10 +52,15 @@ var _onmessage = function(e){
     thi$.run.call(thi$);
 };
 
+var _terminate = function(){
+    self.onmessage = null;
+};
+
 if(isworker){
     self.importScripts("../../../jsre.js");
     self.onmessage = _onmessage;
 }else{
     var E = js.util.Event;
     E.attachEvent(window, E.W3C_EVT_MESSAGE, 0, this, _onmessage);
+    self.terminate = _terminate;
 }

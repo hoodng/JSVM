@@ -205,6 +205,28 @@ js.lang.Class = new function (){
         return clazz;
 
     }.$bind(this);
+
+    this.loadImage = function(image, url){
+        var Base64 = this.forName("js.util.Base64"), xhr;
+        if(J$VM.safari){
+            xhr = J$VM.XHRPool.getXHR(true);
+            xhr.setRequestHeader("responseType", "arraybuffer");
+            xhr.onsuccess = function(e){
+                var buf, dataUrl;
+                xhr = e.getData(); 
+                buf = xhr.response();
+                dataUrl = ["data:",xhr.contentType(),";base64,"];
+                dataUrl.push(Base64.encodeArray(buf, Base64.standardB64));
+                dataUrl = dataUrl.join("");
+                image.src = dataUrl;
+                xhr.close();
+            };
+            xhr.open("GET", url, undefined);
+        }else{
+            image.crossOrigin = "anonymous";
+            image.src = url;
+        }
+    };
     
     /**
      * Return the type of the specified object

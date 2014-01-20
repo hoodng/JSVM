@@ -42,7 +42,7 @@ $package("js.swt");
 /**
  * <em>SearchKit</em> is an utility class for text searching.
  */
- 
+
 js.swt.SearchKit = function(){
 };
 
@@ -53,7 +53,7 @@ js.swt.SearchKit = function(){
 js.swt.SearchKit.buildRegExp = function(keyword, mode){
 	if(!keyword || keyword.length == 0)
 		return null;
-		
+	
 	// Escape regular expression's meta-characters.
 	//J$VM.System.out.println("Before escaping: " + keyword);
 	keyword = (js.lang.Class.forName("js.lang.String")).escapeRegExp(keyword);
@@ -61,20 +61,28 @@ js.swt.SearchKit.buildRegExp = function(keyword, mode){
 
 	// var unescaped = (js.lang.Class.forName("js.lang.String")).unescapeRegExp(keyword);
 	// J$VM.System.out.println("Unescaped: " + unescaped);
-		
+	
+	if(typeof mode !== "object"){
+		mode = {
+			global: true,
+			insensitive: true,
+			wholeword: false
+		};
+	}
+	
 	//"wholeword" search mode need wait for <Enter> key is pressed
-	if(mode.indexOf("wholeword") >= 0){
+	if(mode["wholdword"] === true){
 		keyword = "\\b" + keyword + "\\b";
 	}
 	
 	//global search mode
 	var reopts = "";
-	if(mode.indexOf("global") >= 0){
+	if(mode["global"] !== false){
 		reopts += "g";
 	}
 	
 	//case insensitive mode
-	if(mode.indexOf("ignore") >= 0){
+	if(mode["insensitive"] === true){
 		reopts += "i";
 	}
 	
@@ -111,9 +119,10 @@ js.swt.SearchKit.buildRegExp = function(keyword, mode){
  *	  }
  */
 js.swt.SearchKit.search = function(textSet, keyword, mode){
-	var _ = js.swt.SearchKit;
-	var pattern = _.buildRegExp(keyword, mode);
-	return _.searchByPattern(textSet, pattern);
+	var SKit = js.swt.SearchKit,
+	pattern = SKit.buildRegExp(keyword, mode);
+	
+	return SKit.searchByPattern(textSet, pattern);
 };
 
 /**
@@ -145,17 +154,17 @@ js.swt.SearchKit.search = function(textSet, keyword, mode){
  *	  }
  */
 js.swt.SearchKit.searchByPattern = function(textSet, pattern){
-	var len = textSet ? textSet.length : 0,
-		matches,
-		text,
-		textMatches;
+	var SKit = js.swt.SearchKit,
+	len = textSet ? textSet.length : 0,
+	matches, text, textMatches;
+	
 	if(len == 0)
 		return null;
 	
 	matches = new js.util.HashMap();
 	for(var i = 0; i < len; i++){
 		text = textSet[i];
-		textMatches = js.swt.SearchKit.searchInTextByPattern(text, pattern);
+		textMatches = SKit.searchInTextByPattern(text, pattern);
 		
 		if(textMatches && textMatches.length > 0){
 			matches.put(i, textMatches);
@@ -186,9 +195,10 @@ js.swt.SearchKit.searchByPattern = function(textSet, pattern){
  *		   ]
  */ 
 js.swt.SearchKit.searchInText = function(text, keyword, mode){
-	var _ = js.swt.SearchKit;
-	var pattern = _.buildRegExp(keyword, mode);
-	return _.searchInTextByPattern(text, pattern);
+	var SKit = js.swt.SearchKit,
+	pattern = SKit.buildRegExp(keyword, mode);
+	
+	return SKit.searchInTextByPattern(text, pattern);
 };
 
 
@@ -236,13 +246,13 @@ js.swt.SearchKit.searchInTextByPattern = function(text, pattern){
 	 */
 	// var isMatched = pattern.test(text);
 	// if(isMatched){
-		var matches = [];
-		text.replace(pattern, function(m, i){
-						 matches.push({start: i, length: m.length});
-					 });
-		
-		return matches;
+	var matches = [];
+	text.replace(pattern, function(m, i){
+					 matches.push({start: i, length: m.length});
+				 });
+	
+	return matches;
 	// } else {
-		// return null;
+	// return null;
 	// }
 };

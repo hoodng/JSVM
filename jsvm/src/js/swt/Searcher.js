@@ -41,9 +41,9 @@
 $package("js.swt");
 
 /**
- * <em>Search</em> is the wrapper of search behavior which can supply the
- * quick search function for a container, list or collection of multiple
- * items.<br />
+ * <em>Searcher</em> is the wrapper of search behavior which can supply the
+ * quick search function for a container, list or collection of multiple items.
+ * <br />
  * Especially, the container/list/collection must implement a method named
  * <em>getItems()</em> to return an array of all items. Each of item must 
  * implement <em>getContent()</em> to return some contents for seaching. 
@@ -60,9 +60,9 @@ $package("js.swt");
  * @param options: {
  *	  keep: <em>true/false</em>, default is false. Indicate whether
  *			mismathed items kept, <p>
- *	  mode: "global|ignore|wholeword". Detains as below: <br>
+ *	  mode: Details as below: <br>
  *			<em>global</em>: match all <br>
- *			<em>ignore</em>: case insensitive <br>
+ *			<em>insensitive</em>: case insensitive <br>
  *			<em>wholeword</em>: match the whole word, need wait for 
  *								<Enter> key is pressed <p>
  *	  highlight: <em>true/false</em>, default is true. Indicate whether
@@ -71,7 +71,6 @@ $package("js.swt");
  *			 class name for the matches, <p>
  * }
  */ 
-$import("js.swt.SearchKit");
 
 js.swt.Searcher = function(host, options){
 	var CLASS = js.swt.Searcher, thi$ = CLASS.prototype;
@@ -81,7 +80,10 @@ js.swt.Searcher = function(host, options){
 	}
 	CLASS.__defined__ = true;
 
-	var C = js.lang.Class, L = js.util.LinkedList, System = J$VM.System;
+	var Class = js.lang.Class, LinkedList = js.util.LinkedList, 
+	System = J$VM.System,
+	
+	SKit = Class.forName("js.swt.SearchKit");
 	
 	thi$.setSearchOptions = function(options){
 		if(typeof options == "object"){
@@ -101,7 +103,7 @@ js.swt.Searcher = function(host, options){
 	var _contains = function(set, e){
 		if(set && (typeof set.contains === "function")){
 			return set.contains(e);
-		}else if(set && C.isArray(set)){
+		}else if(set && Class.isArray(set)){
 			for(var i=0, len=set.length; i<len; i++){
 				var _e = set[i];
 				if(_e === e){
@@ -128,8 +130,8 @@ js.swt.Searcher = function(host, options){
 			includes = null;			
 		}
 		
-		var len = items.length, textSet = L.newInstance([]),
-			item, contents;
+		var len = items.length, textSet = LinkedList.$decorate([]),
+		item, contents;
 		for(var i = 0; i < len; i++){
 			item = items[i];
 			if(item.getContent && (typeof item.getContent === "function") 
@@ -142,19 +144,19 @@ js.swt.Searcher = function(host, options){
 	};
 	
 	var _digestMatches = function(items, keyword, options, matchedIndexes){
-		var mode = options.mode, hlight = options.highlight, 
-			hStyleClass = options.highlightClass,
-			mlen = matchedIndexes ? matchedIndexes.length : 0,
-			len = items.length, textMatches, item;
+		var hlight = options.highlight, 
+		hStyleClass = options.highlightClass,
+		mlen = matchedIndexes ? matchedIndexes.length : 0,
+		len = items.length, textMatches, item;
 		for(var i = 0; i < len; i++){
 			item = items[i];
-		
+			
 			if(mlen > 0 && (_contains.call(this, matchedIndexes, i))){
 				item.setVisible(true);
 				
 				if(hlight && (typeof item.highlight === "function")){
 					textMatches = this.matches.get(i);
-					item.highlight(keyword, mode, textMatches, hStyleClass);	
+					item.highlight(keyword, options, textMatches, hStyleClass); 
 				}
 			}else{
 				item.setVisible(options.keep);
@@ -167,17 +169,18 @@ js.swt.Searcher = function(host, options){
 	};
 	
 	thi$.restore = function(options){
-		var items = this.host.getItems(), 
 		options = options || this.getSearchOptions();
-		
+
+		var items = this.host.getItems();
+
 		(function(options, item){
-			item.setVisible(true);
-			
-			if(options && options.highlight 
+			 item.setVisible(true);
+			 
+			 if(options && options.highlight 
 				&& typeof item.clearHighlight === "function"){
-				item.clearHighlight(options.highlightClass);
-			}
-		}).$forEach(this, items, options);
+				 item.clearHighlight(options.highlightClass);
+			 }
+		 }).$forEach(this, items, options);
 
 		this.latestKeyword = undefined;
 	};
@@ -192,7 +195,7 @@ js.swt.Searcher = function(host, options){
 		
 		this.setSearchOptions(options);
 		
-		options = this.getSearchOptions();;
+		options = this.getSearchOptions();
 		if(keyword.length === 0){
 			this.latestItems = this.host.getItems();
 			this.restore(options);
@@ -212,20 +215,18 @@ js.swt.Searcher = function(host, options){
 		if(!items)
 			return;
 		
-		var isValid = _isSet.call(this, items);
-		if(!isValid){
+		if(!_isSet.call(this, items)){
 			throw new Error("Host's getItems method returned "
 							+ "an unsupported data type.");
 		}
 		
-		var textSet = _getTextSet.call(this, items);
-		var result 
-			= js.swt.SearchKit.search(textSet, keyword, options.mode);
-		var matches = this.matches = result ? result.matches : undefined;
-			
-		var matchedIndexes = L.newInstance([]);
+		var textSet = _getTextSet.call(this, items),
+		result = SKit.search(textSet, keyword, options),
+		matches = this.matches = result ? result.matches : undefined,
+
+		matchedIndexes = LinkedList.$decorate([]);
 		if(matches && matches.size() > 0){
-			matchedIndexes = L.newInstance(matches.keys());
+			matchedIndexes = LinkedList.$decorate(matches.keys());
 		}
 
 		// Highlight the matches if need
@@ -257,7 +258,10 @@ js.swt.Searcher = function(host, options){
 };
 
 js.swt.Searcher.DEFAULTSEARCHOPTIONS = {
+	global: true,
+	insensitive: true,
+	wholeword: false,
+	
 	keep: false,
-	mode: "global|ignore",
 	highlight: true
 };

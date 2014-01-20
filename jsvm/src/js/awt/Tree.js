@@ -319,6 +319,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         }
 
         delete this.cache[item.uuid()];
+        
+        this.marked.remove(item);
+        this.selected.remove(item);
         item.destroy();
 
         this._doSort();
@@ -336,7 +339,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      */
     thi$.removeNodes = function(index, length, isDestroying){
         var nodes = this.nodes || [], cnt = nodes.length,
-        cache = this.cache, item;
+        cache = this.cache, marked = this.marked, 
+        selected = this.selected, item;
 
         if(!Class.isNumber(index)){
             index = 0;
@@ -358,6 +362,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         while(nodes.length > 0){
             item = nodes.shift();
             delete cache[item.uuid()];
+            
+            marked.remove(item);
+            selected.remove(item);
             item.destroy();
         }
 
@@ -380,7 +387,6 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         if(nodes){
             this.removeNodes(0, nodes.length, isDestroying);
         }
-        this._doSort();
     };
 
     thi$.getTreeNodeByTypes = function(types, index){

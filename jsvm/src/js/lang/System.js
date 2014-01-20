@@ -37,7 +37,7 @@
 
 js.lang.System = function (env, vm){
 
-    var props, os;
+    var props, os, lastAccessTime;
 
     this.currentTimeMillis = function(){
         return (new Date()).getTime();
@@ -89,6 +89,22 @@ js.lang.System = function (env, vm){
         this.gc();
         window.open("","_self");
         window.close();
+    };
+
+    this.updateLastAccessTime = function(){
+        lastAccessTime = this.currentTimeMillis();
+    };
+
+    this.getLastAccessTime = function(){
+        return lastAccessTime;
+    };
+
+    this.getMaxInactiveInterval = function(){
+        return this.getProperty("j$vm_max_inactive", 1800000);
+    };
+
+    this.setMaxInactiveInterval = function(interval){
+        this.setProperty("j$vm_max_inactive", interval);
     };
 
     /**
@@ -336,6 +352,23 @@ js.lang.System = function (env, vm){
         obj = div.firstChild;
         obj.style.behavior = "url(#default#VML)";
         vm.supports.vml = (obj ? typeof obj.adj === "object" : false);
+        
+        // IE Binary2Array
+        if(typeof self.Uint8Array != "function"){
+            var script = doc.createElement("script"),
+                head = document.getElementsByTagName("head")[0];
+            script.type = "text/vbscript";
+            script.text = "Function IEBinaryToString(B)\r\n"+
+                "Dim I, S\r\n"+
+                "For I = 1 To LenB(B)\r\n" +
+                "If I <> 1 Then S = S & \",\"\r\n" +
+                "S = S & CStr(AscB(MidB(B, I, 1)))\r\n" +
+                "Next\r\n"+
+                "IEBinaryToString = S\r\n"+
+                "End Function\r\n";
+            head.appendChild(script);
+            head.removeChild(script);
+        }
 
         obj = null;
 
@@ -343,6 +376,8 @@ js.lang.System = function (env, vm){
         doc.body.removeChild(div);
         doc.body.removeChild(ipt);
         div = view = ipt = undefined;
+
+        
     };
     
     var _detectDoctype = function(){
@@ -439,6 +474,7 @@ js.lang.System = function (env, vm){
         Event.attachEvent(vm.hwnd, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
         Event.attachEvent(dom, "keydown", 0, this, _onkeyevent);
         Event.attachEvent(dom, "keyup",   0, this, _onkeyevent);
+        Event.attachEvent(dom, Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmouseevent);
 
         var proc, scope, i, len, body;
         for(i=0, len=scopes.length; i<len; i++){
@@ -488,6 +524,8 @@ js.lang.System = function (env, vm){
     
     var bodyW, bodyH;
     var _onresize = function(e){
+        this.updateLastAccessTime();
+
         var DOM = J$VM.DOM,
             bounds = DOM.getBounds(document.body);
         if(bounds.width != bodyW || bounds.height != bodyH){
@@ -518,7 +556,12 @@ js.lang.System = function (env, vm){
     };
 
     var _onkeyevent = function(e){
+        this.updateLastAccessTime();
         J$VM.MQ.post("js.awt.event.KeyEvent", e);        
+    };
+
+    var _onmouseevent = function(e){
+        this.updateLastAccessTime();
     };
 
     var scopes = [];
@@ -557,8 +600,11 @@ js.lang.System = function (env, vm){
                           this.initialize();
                       },desktop);
         }
-
-        this.objectCopy((env || {}), props);
+        
+        env = env || {};
+        for(var p in env){
+            this.setProperty(p, env[p]);
+        }
 
     }.$bind(this);
 

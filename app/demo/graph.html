@@ -27,7 +27,7 @@
 
     <script type="text/javascript">
         J$VM.exec("Demo",function(System){
-            var Class = js.lang.Class, 
+            var Class = js.lang.Class, Base64 = Class.forName("js.util.Base64"),
             Color = Class.forName("js.awt.Color");
             new Color(0,0,0,0);
 
@@ -41,7 +41,7 @@
                          miniSize:{width: 10, height:10},
                          angleUnit: "deg",
                          capture: true,
-
+                         x:256, y:0,
                          gType: "canvas",
 
                       }, this);
@@ -84,9 +84,28 @@
 
             var S3 = G.drawRPolygon({id:"S3", cx:300, cy: 150, r:50, ends:4, rscale:0.375,
                                 fillStyle:"#00FF00", fillStroke:2});
-             
+
+            /*
+            var http = J$VM.XHRPool.getXHR(true);
+            http.setRequestHeader("responseType", "arraybuffer");
+            //http.setRequestHeader("Origin", "http://www.baidu.com");
+            http.onsuccess = function(e){
+                var xhr = e.getData();
+                var abuf = xhr.response();
+                var dataUrl=["data:",xhr.contentType(),";base64,"];
+                dataUrl.push(js.util.Base64.encodeArray(abuf, js.util.Base64.standardB64));
+                dataUrl = dataUrl.join("");
+                document.getElementById("my-image").src = dataUrl;
+                xhr.close();
+            };
+            http.open("GET", "http://www.baidu.com/img/bdlogo.gif", null);
+            //http.open("GET", "http://a.tile.opencyclemap.org/cycle/1/1/0.png", null);
+            //http.open("GET", "http://b.tile.openstreetmap.org/1/1/0.png", null);
+            //http.open("GET", "test.png", null);
+            */
+            Class.loadImage(document.getElementById("my-image"), "http://www.baidu.com/img/bdlogo.gif");
 			
-            G.drawImage({id:"image0", gid:"g1", image:"http://b.tile.openstreetmap.org/1/1/0.png", x:0, y:0, width:48, height:48, rotate:0, capture:true, layer:"myLayer"});        
+            G.drawImage({id:"image0", gid:"g1", image:"http://a.tile2.opencyclemap.org/transport/1/1/0.png", x:0, y:0, width:48, height:48, rotate:0, capture:true, layer:"myLayer"});        
 
             G.drawText({id:"text1", text: "for Row", x:380, y:50, width: 20, height:50, rotate: 90});
 
@@ -158,6 +177,6 @@
     </script>
 </head>
 <body>
-
+<img id="my-image" width="256px" height="256px"></img>
 </body>
 </html>

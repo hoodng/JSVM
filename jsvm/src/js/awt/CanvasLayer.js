@@ -105,7 +105,7 @@ js.awt.CanvasLayer = function(def, Graphics2D){
             ret = ctx ? ctx.getImageData(sx, sy, sw, sh) : null;
         }catch(e){
             ret =  null;
-            System.err.println(e);
+            //System.err.println(e);
         }
         return ret;
     };

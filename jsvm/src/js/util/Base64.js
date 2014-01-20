@@ -39,11 +39,18 @@ $package("js.util");
 
 js.util.Base64 = new function (){
 
-    var base64chars = "ABCDEFGHIJKLMNOP" +
-        "QRSTUVWXYZabcdef"+
-        "ghijklmnopqrstuv"+
-        "wxyz0123456789@*"+
-        "-";
+    this.safeB64 = "ABCDEFGHIJKLMNOP" +
+            "QRSTUVWXYZabcdef"+
+            "ghijklmnopqrstuv"+
+            "wxyz0123456789@*"+
+            "-";
+
+    this.standardB64 = "ABCDEFGHIJKLMNOP" +
+            "QRSTUVWXYZabcdef"+
+            "ghijklmnopqrstuv"+
+            "wxyz0123456789+/"+
+            "=";
+
     /** 
      * Encodes a utf8 integer array to a ucs2 string.
      * @param s, an integer array
@@ -124,11 +131,16 @@ js.util.Base64 = new function (){
      * @param s, a normal string
      * @return a Base64 string
      */
-    this.encode = function(s){
-        if(!s || s.length == 0) return s;
+    this.encode = function(s, table){
+        return (!s || s.length == 0) ? s : 
+            this.encodeArray(ucs2_utf8.call(this,s), table);
+    };
 
-        var d = [], b = ucs2_utf8.call(this,s), len = b.length, 
-        b0, b1, b2, b3, i = 0, tmp;
+    this.encodeArray = function(array, table){
+        var d = [], b = array, len = b.length,
+            b0, b1, b2, b3, i = 0, tmp;
+        
+        table = table || this.safeB64;
 
         while(i < len){
             tmp = b[i++];
@@ -151,10 +163,10 @@ js.util.Base64 = new function (){
 
             }
 
-            d.push(base64chars.charAt(b0));
-            d.push(base64chars.charAt(b1));
-            d.push(base64chars.charAt(b2));
-            d.push(base64chars.charAt(b3));
+            d.push(table.charAt(b0));
+            d.push(table.charAt(b1));
+            d.push(table.charAt(b2));
+            d.push(table.charAt(b3));
         }
 
         return d.join("");        
@@ -165,23 +177,29 @@ js.util.Base64 = new function (){
      * @param s, a Base64 string
      * @return a normal string
      */
-    this.decode = function(s){
+    this.decode = function(s, table){
         if(!s) return null;
 
         var len = s.length;
         if(len%4 != 0)
             throw new Error(s+" is not a valid Base64 string.");
 
-        var b = [], i=0, j=0, e=0, c, tmp;
+        return utf8_ucs2.call(this, this.decodeArray(s, table));
+    };
+
+    this.decodeArray = function(s, table){
+        table = table || this.safeB64;
+
+        var b = [], i=0, j=0, e=0, len=s.length, c, tmp;
         while(i < len){
-            c = base64chars.indexOf(s.charAt(i++));
+            c = table.indexOf(s.charAt(i++));
             tmp = c << 18;
-            c = base64chars.indexOf(s.charAt(i++));
+            c = table.indexOf(s.charAt(i++));
             tmp |= c << 12;
-            c = base64chars.indexOf(s.charAt(i++));
+            c = table.indexOf(s.charAt(i++));
             if(c < 64){
                 tmp |= c << 6;
-                c = base64chars.indexOf(s.charAt(i++));
+                c = table.indexOf(s.charAt(i++));
                 if(c < 64){
                     tmp |= c;
                 }else{
@@ -202,9 +220,8 @@ js.util.Base64 = new function (){
         }
         
         b.splice(b.length-e, e);
-
-        return utf8_ucs2.call(this, b);
         
+        return b;
     };
 
 }();

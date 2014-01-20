@@ -44,7 +44,8 @@ js.lang.Runtime = function(){
     var Class = js.lang.Class, Event = js.util.Event;
     
     thi$.getProperty = function(key, defValue){
-        return this._local[key] || defValue;
+        return this._local[key] || 
+            J$VM.System.getProperty(key, defValue);
     };
     
     thi$.setProperty = function(key, value){
@@ -404,13 +405,20 @@ js.lang.Runtime = function(){
     
     thi$.initialize = function(env){
         var System = J$VM.System;
-        System.objectCopy(System.getProperties(), this._local, true);
+        //System.objectCopy(System.getProperties(), this._local, true);
         System.objectCopy(env || {}, this._local);
         
         _initLocale.call(this);
         _loadJ$VMCSS.call(this);
     };
 
+    thi$.Runtime = function(){
+        return this;
+    };
+
+    thi$.isEmbedded = function(){
+        return false;
+    };
 };
 
 js.lang.NoUIRuntime = function(){

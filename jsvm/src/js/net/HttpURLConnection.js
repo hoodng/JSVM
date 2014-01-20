@@ -195,12 +195,29 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         this._occupy = true;
     };
 
+    thi$.contentType = function(){
+        return this._xhr.contentType || this.getResponseHeader("Content-Type");
+    };
+
     thi$.getResponseHeader = function(key){
         return this._xhr.getResponseHeader(key);
     };
 
     thi$.getAllResponseHeaders = function(){
         return this._xhr.getAllResponseHeaders();
+    };
+
+    thi$.response = function(){
+        var b;
+        if(typeof self.Uint8Array == "undefined"){
+            b = IEBinaryToString(this._xhr.responseBody).split(",");
+            for(var i=0, len=b.length; i<len; i++){
+                b[i] = parseInt(b[i]);
+            }
+        }else{
+            b = new Uint8Array(this._xhr.response);
+        }
+        return b;
     };
 
     thi$.responseText = function(){
@@ -231,6 +248,7 @@ js.net.HttpURLConnection = function (isAsync, blocking){
      * Open url by method and with params
      */
     thi$.open = function(method, url, params){
+        J$VM.System.updateLastAccessTime();
 
         if(this.isBlocking()){
             this.data = {
@@ -298,7 +316,7 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         }
         
         this.timer = _checkTimeout.$delay(this, this.getTimeout());
-        
+
         xhr.open(method, _url, async);
         _setRequestHeader.call(this, xhr, this._headers);
         xhr.send(query);
@@ -350,7 +368,9 @@ js.net.HttpURLConnection = function (isAsync, blocking){
     };
 
     var _makeQueryString = function(params){
-        if(typeof params != "object") return null;
+        if(params === null || 
+           params === undefined || 
+           typeof params != "object") return null;
         
         var buf = new js.lang.StringBuffer();
         for(var p in params){
@@ -363,7 +383,16 @@ js.net.HttpURLConnection = function (isAsync, blocking){
     var _setRequestHeader = function(_xhr, map){
         if(map){
             for(var p in map){
-                _xhr.setRequestHeader(p, map[p]);
+                if(p === "responseType"){
+                    try{
+                        _xhr.responseType = map[p];
+                    }catch(e){}
+                }else{
+                    try{
+                        _xhr.setRequestHeader(p, map[p]);
+                    }catch(e){
+                    }
+                }
             }
         }
     };
@@ -403,7 +432,6 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         }
         this._blocking = blocking;
         this._usecount = 0;
-        this.setNoCache(J$VM.System.getProperty("j$vm_ajax_nocache", true));
         this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 6000000));
         this.declareEvent(Event.SYS_EVT_TIMEOUT);
     }.$override(this._init);
