@@ -74,7 +74,7 @@ js.awt.Event = function(e){
             
         }
 
-		arguments.callee.__super__.apply(this, arguments);
+        arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.cancelBubble);
     
@@ -92,7 +92,7 @@ js.awt.Event = function(e){
             
         }
 
-		return arguments.callee.__super__.apply(this, arguments);
+        return arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.cancelDefault);
 
@@ -129,6 +129,9 @@ js.awt.Event = function(e){
             break;
         }
 
+        this.pageX = _e.pageX;
+        this.pageY = _e.pageY;
+        
         this.clientX = !isNaN(_e.pageX) ? _e.pageX 
             : (_e.clientX + document.documentElement.scrollLeft - document.body.clientLeft);
         this.clientY = !isNaN(_e.pageY) ? _e.pageY 

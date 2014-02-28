@@ -122,7 +122,7 @@ js.awt.ScrollPane = function (def, Runtime){
     /**
      * @see js.awt.Container#activateComponent
      */
-    thi$.activateComponent = function(comp){
+    thi$.activateComponent = function(comp, notify){
         if(!comp) return;
 
         var items = this.items0(), id;
@@ -131,8 +131,11 @@ js.awt.ScrollPane = function (def, Runtime){
             if(this[id] == comp){
                 this[id].setTriggered(true); 
                 this._local.active = comp;
-                this.notifyPeer(
-                    "js.awt.event.ItemEvent", new Event("active", "", comp));
+                
+                if(notify !== false){
+                    this.notifyPeer(
+                        "js.awt.event.ItemEvent", new Event("active", "", comp));
+                }
             }else{
                 this[id].setTriggered(false);
             }

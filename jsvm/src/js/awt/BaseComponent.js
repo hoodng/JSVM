@@ -643,6 +643,15 @@ js.awt.BaseComponent = function(def, Runtime, view){
             return o;
         };
         
+        if(def.useUserDefinedTip === true){
+            this.setTipUserDefined(true);
+        }else{
+		    var tip = def.tip;
+		    if(Class.isString(tip) && tip.length > 0) {
+			    this.setToolTipText(tip);
+		    }
+        }
+        
     }.$override(this._init);
     
     this._init.apply(this, arguments);

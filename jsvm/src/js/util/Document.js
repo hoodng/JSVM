@@ -47,7 +47,14 @@ js.util.Document = function (){
 
 	var Class = js.lang.Class, Event = js.util.Event, cache = {},
 	
-	// Attributes Compatibility Table: Left - W3C, Right - IE
+	// Attributes Compatibility Table: Left - W3C, Right - IE 7
+	// 1) In HTML documents, the name is case-insensitive in Firefox, Opera, 
+	//	  Google Chrome, Safari and in Internet Explorer from version 8.
+	// 2) In Internet Explorer earlier than version 8, the default is that 
+	//	  the name is case-sensitive in HTML documents but these settings can 
+	//	  be modified by the caseSens parameter of the setAttribute method.
+	// 3) In Internet Explorer earlier than version 8, the corresponding JavaScript 
+	//	  property name (camelCase name) needs to be specified.
 	ATTRIBUTESCT = {
 		acceptcharset: "acceptCharset",
 		accesskey: "accessKey",
@@ -262,7 +269,7 @@ js.util.Document = function (){
 		}
 		
 		var tmp = attr.toLowerCase(), prop = tmp, v;
-		if(J$VM.ie){
+		if(J$VM.ie && parseInt(J$VM.ie) < 8){
 			prop = ATTRIBUTESCT[attr] || ATTRIBUTESCT[tmp] || attr;
 		}else{
 			prop = tmp;
@@ -314,7 +321,7 @@ js.util.Document = function (){
 		}
 		
 		var prop = attr.toLowerCase(), v;
-		if(J$VM.ie){
+		if(J$VM.ie && parseInt(J$VM.ie) < 8){
 			attr = ATTRIBUTESCT[attr] || ATTRIBUTESCT[prop] || attr;
 		}else{
 			attr = prop;			
@@ -345,20 +352,31 @@ js.util.Document = function (){
 	};
 	
 	thi$.removeAttribute = function(el, attr){
+		if(!el || el.nodeType !== 1 || !attr){
+			return;
+		}
+		
+		var prop = attr.toLowerCase();
+		if(J$VM.ie && parseInt(J$VM.ie) < 8){
+			attr = ATTRIBUTESCT[attr] || ATTRIBUTESCT[prop] || attr;
+		}else{
+			attr = prop;
+		}
+
 		el.removeAttribute(attr);
 	};
 
-    thi$.setAttributes = function(el, attrObj){
-        if(!el || el.nodeType !== 1 
-           || (typeof attrObj !== "object")){
-            return;
-        }
-        
-        var attr;
-        for(attr in attrObj){
-            this.setAttribute(el, attr, attrObj[attr]);
-        }
-    };
+	thi$.setAttributes = function(el, attrObj){
+		if(!el || el.nodeType !== 1 
+		   || (typeof attrObj !== "object")){
+			return;
+		}
+		
+		var attr;
+		for(attr in attrObj){
+			this.setAttribute(el, attr, attrObj[attr]);
+		}
+	};
 	
 	/**
 	 * Apply opacity to the DOM element. 
@@ -788,8 +806,8 @@ js.util.Document = function (){
 			MBP.BH = MBP.borderTopWidth + MBP.borderBottomWidth;
 			MBP.PW = MBP.paddingLeft + MBP.paddingRight;
 			MBP.PH = MBP.paddingTop + MBP.paddingBottom;
-            MBP.MW = MBP.marginLeft + MBP.marginRight;
-            MBP.MH = MBP.marginTop + MBP.marginBottom;
+			MBP.MW = MBP.marginLeft + MBP.marginRight;
+			MBP.MH = MBP.marginTop + MBP.marginBottom;
 			MBP.BPW= MBP.BW + MBP.PW;
 			MBP.BPH= MBP.BH + MBP.PH;
 		}

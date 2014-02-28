@@ -146,6 +146,10 @@ js.awt.CanvasLayer = function(def, Graphics2D){
     }.$override(this.drawing);
 
     thi$.detectShape = function(x, y){
+        if(this.view.style.display === "none"){
+            return null;
+        }
+
         var cache = this.cachedShapes(), colorKey, shape,
             image = this.getImageData(true, x,y,1,1),
             px = image ? image.data : null;
@@ -224,6 +228,7 @@ js.awt.CanvasLayer = function(def, Graphics2D){
     thi$.needLayout = function(){
         return false;
     }.$override(this.needLayout);
+
 
     thi$.destroy = function(){
         delete this.relCanvas;

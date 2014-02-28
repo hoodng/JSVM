@@ -1,40 +1,6 @@
-<%@ include file="../app/entry/check.jsp" %>
-<%response.setHeader("Content-Type", "application/x-javascript; charset=utf-8");%>
-<%@ include file="jsre.js" %>
-(function(){
-
-     var env = {
-         pid: "<%=pid%>",
-         getsEntry: "<%=servletPrefix%>vt",
-         postEntry: "<%=pid%>.vt",
-            
-         userinfo: <%= userinfo.toString()%>,
-            
-         prefer: <%= prefer.toString()%>,
-         themes: <%= new JSONArray(themes).toString()%>,
-         theme: "<%= theme%>",
-            
-         dict: <%= ctx.getDict(locale).toString()%>,
-            
-         heartbeat: <%= ctx.getHeartBeatPeriod()%>,
-         
-         j$vm_max_inactive: <%=ctx.getMaxInactiveInterval()%>,
-         
-         mode: <%= mode%>,
-
-         fontNames: <%= FontNames.toJSONObject(FontNames.getSupportedFontNames()).toString()%>,
-         fontSizes: <%= FontSizes.toJSONObject(FontSizes.getSignificativeFontSizes()).toString()%>,
-
-         exportFormats: <%= new JSONArray(FormatTypes.getAllFormats()).toString() %>,
-         pageTypes: <%= new JSONArray(PageTypes.getAllPrintPageTypes()).toString() %>,
-         
-         formats: <%= ClientContext.getDateFormats()%>
-     };
-     
-     env.dateformat = env.formats.dateformat;
-     env.timeformat = env.formats.timeformat;
-     env.datetimeformat = env.formats.datetime;
-     
-     J$VM.boot(env);
-     
- })();
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<% 
+String queryString = request.getQueryString();
+response.sendRedirect("../app/entry/jsvm.jsp?"+queryString);
+%>

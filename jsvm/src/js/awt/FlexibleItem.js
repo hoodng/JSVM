@@ -253,8 +253,8 @@ js.awt.FlexibleItem = function(def, Runtime){
 			
 			node.uuid = uuid;
 			node.iid = (node.iid || id.split(/\d+/g)[0]);
-            
-            ++i;
+			
+			++i;
 		}
 		
 		if(DOM.isDOMElement(comp.view)){
@@ -414,7 +414,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 		}
 		
 		if(!customized){
-			if(def.inputText){
+			if(Class.isValid(def.inputText)){
 				items.push("input");
 			}else{
 				items.push("label");

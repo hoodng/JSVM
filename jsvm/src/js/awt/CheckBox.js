@@ -43,64 +43,90 @@ $import("js.awt.Button");
  * Define CheckBox component
  * 
  * @param def:{
- *   className: string, required
+ *	 className: string, required
  * 
- *   id: request,
- *   
- *   iconImage: "",
- *   labelText: "Item",   
+ *	 id: request,
+ *	 
+ *	 iconImage: "",
+ *	 labelText: "Item",	  
  * 
- *   state:optional,
- *   marked : true/false
+ *	 state: optional,
+ *	 marked : true/false,
  * 
+ *	 wholeTrigger: true/false. Default is true, indicate the CheckBox will be
+ *		 marked once the CheckBox is clicked. false indicate it can be marked
+ *       only when the marker of the CheckBox is clicked. 
  * }
  */
 js.awt.CheckBox = function(def, Runtime, view) {
 
-    var CLASS = js.awt.CheckBox, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.CheckBox, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
-    
-    /**
-     * @see js.awt.Button
-     * @see also js.awt.Component
-     */
-    thi$.notifyPeer = function(msgID, e){
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System;
+	
+	thi$.isWholeTrigger = function(){
+		return this.def.wholeTrigger !== false;
+	};
+	
+	/**
+	 * @see js.awt.Button
+	 * @see also js.awt.Component
+	 */
+	thi$.notifyPeer = function(msgID, e){
+		if(e.getType() === "mouseup" && this.isWholeTrigger()){
+			this.mark(!this.isMarked());
+		}
 
-        if(e.getType() === "mouseup"){
-            this.mark(!this.isMarked());
-        }
+		arguments.callee.__super__.apply(this,arguments);
 
-        arguments.callee.__super__.apply(this,arguments);
+	}.$override(this.notifyPeer);
+	
+	thi$.destroy = function(e){
+		if(!this.isWholeTrigger()){
+			this.detachEvent("click", 0, this, _onclick);
+		} 
+		
+		arguments.callee.__super__.apply(this, arguments);		 
+		
+	}.$override(this.destroy);
+	
+	var _onclick = function(e){
+		var marker = this.marker, src = e.srcElement;
+		if(marker && src && marker.contains(src, true)){
+			this.mark(!this.isMarked());
+		}	 
+	};
 
-    }.$override(this.notifyPeer);
+	thi$._init = function(def, Runtime, view) {
+		if(typeof def !== "object") return;
+		
+		def.classType = def.classType || "js.awt.CheckBox";
+		def.className = def.className || "jsvm_checkbox";
+		def.css = def.css || "position:absolute;";
+		def.markable = true;
+		def.marked = Class.isBoolean(def.marked) ? def.marked : false;
 
-    thi$._init = function(def, Runtime, view) {
-        if(typeof def !== "object") return;
-        
-        def.classType = def.classType || "js.awt.CheckBox";
-        def.className = def.className || "jsvm_checkbox";
-        def.css = def.css || "position:absolute;";
-        def.markable = true;
-        def.marked = Class.isBoolean(def.marked) ? def.marked : false;
+		var layout = def.layout = def.layout || {};
+		layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.0;
+		layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
+		
+		arguments.callee.__super__.apply(this, [def, Runtime, view]);
 
-        var layout = def.layout = def.layout || {};
-        layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.0;
-        layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
-        
-        arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		this.mark(def.marked);
+		
+		if(!this.isWholeTrigger()){
+			this.attachEvent("click", 0, this, _onclick);
+		}
 
-        this.mark(def.marked);
+	}.$override(this._init);
 
-    }.$override(this._init);
-
-    this._init.apply(this, arguments);
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Button);
 

@@ -145,12 +145,12 @@ js.awt.Desktop = function (def, element){
     };
 
     var _registerConfirmClass = function(){
-        if(Factory.hasClass("confirm")) return;
+        if(Factory.hasClass("jsvmconfirm")) return;
 
         Factory.registerClass(
             {
                 classType : "js.awt.Dialog",
-                className : "confirm",
+                className : "jsvmconfirm",
 
                 items: [ "title", "client", "btnpane"],
 

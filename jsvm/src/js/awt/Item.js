@@ -37,6 +37,8 @@
 
 $package("js.awt");
 
+$import("js.awt.Highlighter");
+
 /**
  * @param def :{
  *	   
@@ -258,17 +260,32 @@ js.awt.Item = function(def, Runtime, view){
 	var _onedit = function(e){
 		var data = e.getData(); 
 		this.setText(data.text, "edit");
+		
 		e.getEventTarget().destroy();
 		MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
 	};
 	
 	thi$.canCloneView = function(itemDef){
 		var items = [];
-		if(itemDef.markable === true) items.push("marker");
-		if(itemDef.iconImage) items.push("icon");
-		if(itemDef.labelText) items.push("label");
-		if(itemDef.inputText) items.push("input");
-		if(itemDef.controlled === true) items.push("ctrl");
+		if(itemDef.markable === true){
+			items.push("marker");
+		}
+		
+		if(itemDef.iconImage){
+			items.push("icon");
+		}
+		
+		if(Class.isValid(itemDef.labelText)){
+			items.push("label");
+		}else{
+			if(Class.isValid(itemDef.inputText)){
+				items.push("input");
+			}
+		}
+		
+		if(itemDef.controlled === true){
+			items.push("ctrl");
+		}
 
 		return items.length === this.def.items.length;
 	};
@@ -463,11 +480,25 @@ js.awt.Item = function(def, Runtime, view){
 	var _checkItems = function(){
 		var M = this.def, items = M.items;
 		if(items.length == 0){
-			if(this.isMarkable()) items.push("marker");
-			if(M.iconImage) items.push("icon");
-			if(M.labelText) items.push("label");
-			if(M.inputText) items.push("input");
-			if(this.isControlled()) items.push("ctrl");
+			if(this.isMarkable()){
+				items.push("marker");
+			}
+			
+			if(M.iconImage){
+				items.push("icon");
+			}
+
+			if(Class.isValid(M.labelText)){
+				items.push("label");
+			}else{
+				if(Class.isValid(M.inputText)){
+					items.push("input");
+				}
+			}
+			
+			if(this.isControlled()){
+				items.push("ctrl");
+			}
 		}
 	};
 
@@ -490,10 +521,10 @@ js.awt.Item = function(def, Runtime, view){
 		if(!def.items.clear){
 			js.util.LinkedList.$decorate(def.items);	
 		}
-		
 		def.items.clear();
+		
 		var uuid = this.uuid(), nodes = this.view.childNodes, 
-		id, i, len, node;
+		id, i, len, node, text, ipt, placeholder;
 		for(i=0, len=nodes.length; i<len; i++){
 			node = nodes[i]; id = node.id;
 			node.uuid = uuid;
@@ -503,18 +534,31 @@ js.awt.Item = function(def, Runtime, view){
 		}
 
 		if(this.icon){
-			this.setIconImage(this.isTriggered() ? 4:0);
+			this.setIconImage(this.isTriggered() ? 4 : 0);
 			//DOM.forbidSelect(this.icon);
 		}
 		
-		if(this.label || this.input){
-			this.setText(def.labelText || def.inputText || 
-						 def.text || def.name || def.dname || 
-						 "Item");
+		ipt = this.input;
+		if(this.label || ipt){
+			if(Class.isValid(def.labelText)){
+				text = def.labelText;
+			}else if(Class.isValid(def.inputText)){
+				text = def.inputText;				 
+			}else{
+				text = def.text || def.name || def.dname || "Item";
+			}
+			
+			this.setText(text);
 		}
 		
-		if(this.input){
-			Event.attachEvent(this.input, "focus", 1, this, _onFocus);
+		if(ipt){
+			placeholder = def.placeholder;
+			if(J$VM.supports.placeholder && Class.isString(placeholder) 
+			   && placeholder.length > 0){
+				ipt.placeholder = placeholder;
+			}
+			
+			Event.attachEvent(ipt, "focus", 1, this, _onFocus);
 		}
 
 		if(this.isMarkable()){
@@ -525,5 +569,6 @@ js.awt.Item = function(def, Runtime, view){
 
 	this._init.apply(this, arguments);
 
-}.$extend(js.awt.Component);
+}.$extend(js.awt.Component)
+	.$implements(js.awt.Highlighter);
 

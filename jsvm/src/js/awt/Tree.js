@@ -310,7 +310,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
         _keepScroll.call(this);
 
-        var pitem = item.parentItem,
+        var pitem = item.parentItem(),
         nodes = pitem ? pitem.nodes : null;
 
         if(Class.isArray(nodes)){
@@ -838,7 +838,54 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         h += bounds.MBP.BPH;
         return {width: w, height: h};
     };
+    
+	thi$.scrollTo = function(ele){
+		var view = this.view, bounds, MBP, box, x, y, x0, y0, 
+		scrollLeft, scrollTop;
+		if(!ele || !DOM.contains(this._treeView, ele)){
+			return;
+		}
+		
+		bounds = this.getBounds();
+        MBP = bounds.MBP;
+		x = bounds.absX; // + MBP.borderLeftWidth + MBP.paddingLeft;
+		y = bounds.absY; // + MBP.borderTopWidth + MBP.paddingTop;
+		x0 = x + (bounds.clientWidth - MBP.BPW);
+		y0 = y + (bounds.clientHeight - MBP.BPH);
+		scrollLeft = view.scrollLeft;
+		scrollTop = view.scrollTop;
+		
+		System.log.println("Scroll Position: (" + scrollLeft + ", " + scrollTop + ")");
 
+		box = DOM.getBounds(ele);
+		
+		if(box.absX < x){
+			scrollLeft -= x - box.absX;
+		}else{
+			if(box.absX >= x0){
+				scrollLeft += box.absX - x0 + box.width;
+			}
+		}
+		
+		if(box.absY < y){
+			scrollTop -= y - box.absY;
+		}else{
+			if(box.absY >= y0){
+				scrollTop += box.absY - y0 + box.height;
+			}
+		}
+		
+		System.log.println("New Scroll Position: (" + scrollLeft + ", " + scrollTop + ")");
+		
+		if(scrollLeft != view.scrollLeft){
+			view.scrollLeft = scrollLeft;
+		}
+		
+		if(scrollTop != view.scrollTop){
+			view.scrollTop = scrollTop;
+		}
+	};
+    
     var _onclick = function(e){
         var isMulti = this.def.multiEnable, el = e.srcElement, uuid = el.uuid,
         item = this.cache[uuid], selected = this.selected;
@@ -1162,11 +1209,14 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 
         var item = selected[0], G = item.getGeometric(),
         icon = this.icon = item.icon.cloneNode(true),
-        label = this.label = item.label.cloneNode(true);
+        label = this.label = item.label.cloneNode(true),
+        text = item.getText();
 
         icon.bounds = G.icon;
         DOM.appendTo(icon, this.view);
 
+        // Maybe current label has been highlighted  
+        label.innerHTML = js.lang.String.encodeHtml(text || "");
         DOM.appendTo(label, this.view);
 
     }.$override(this._init);

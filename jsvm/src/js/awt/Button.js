@@ -223,13 +223,15 @@ js.awt.Button = function(def, Runtime){
 	}.$override(this.setEnabled);
 	
 	var _showEffectLayer = function(style){
-		if(this._effectLayer && this.isEnabled()){
-			var className = this.__buf__.clear()
-				.append(this._local.effectClass)
-				.append("_").append(style).toString();
-			this._effectLayer.className = className;
+		if(this.isEnabled()){
+			if(this._effectLayer){
+				var className = this.__buf__.clear()
+					.append(this._local.effectClass)
+					.append("_").append(style).toString();
+				this._effectLayer.className = className;
+			}
 			
-			var state = this.getState();
+			var state;
 			switch(style){
 			case "trigger":
 				state = 4;
@@ -240,9 +242,13 @@ js.awt.Button = function(def, Runtime){
 			default:
 				break;
 			}
-			this.view.className = this.__buf__.clear()
-				.append(this.className).append("_")
-				.append(state).toString();
+			
+			if(this.isStyleByState() && !isNaN(state) 
+			   && state !== this.getState()){
+				this.view.className = this.__buf__.clear()
+					.append(this.className).append("_")
+					.append(state).toString();
+			}
 		}
 	};
 	
@@ -385,6 +391,7 @@ js.awt.Button = function(def, Runtime){
 		
 		def.classType = def.classType || "js.awt.Button";
 		def.className = def.className || "jsvm_button";
+		
 		arguments.callee.__super__.apply(this, [def, Runtime, view]);
 		
 		var layout = def.layout = def.layout || {};

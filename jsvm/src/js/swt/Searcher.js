@@ -156,7 +156,8 @@ js.swt.Searcher = function(host, options){
 				
 				if(hlight && (typeof item.highlight === "function")){
 					textMatches = this.matches.get(i);
-					item.highlight(keyword, options, textMatches, hStyleClass); 
+					// item.highlight(keyword, options, hStyleClass); 
+					item.highlightByMatches(textMatches, hStyleClass);
 				}
 			}else{
 				item.setVisible(options.keep);

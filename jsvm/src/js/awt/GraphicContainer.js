@@ -88,6 +88,17 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
     };
 
     /**
+     * Sets style.display = none/blcok
+     */
+    thi$.display = function(show){
+        if(show === false){
+            this.view.style.display = "none";
+        }else{
+            this.view.style.display = "block";
+        }
+    }.$override(this.display);
+
+    /**
      * @see js.awt.Containable
      */
     thi$._insert = function(){

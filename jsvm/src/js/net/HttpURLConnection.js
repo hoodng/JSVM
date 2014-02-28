@@ -55,11 +55,12 @@ js.net.XHRPool = new function(){
 
     this.getXHR = function(isAsync){
         var xhr, i, len, pool = this.pool, 
-            max = J$VM.System.getProperty("j$vm_ajax_concurrent", 8);
-
+            max = J$VM.System.getProperty("j$vm_ajax_concurrent", 8),
+            ie = (J$VM.ie !== undefined);
+        
         for(i=0, len=pool.length; i<len; i++){
             xhr = pool[i];
-            if(!xhr.isOccupy()){
+            if(!xhr.isOccupy() && !ie){
                 break;
             }else{
                 xhr = undefined;
@@ -70,12 +71,17 @@ js.net.XHRPool = new function(){
             // Can not found available xhr, then create a new instance.
             if(!isAsync || max < 0 || this.pool.length < max){
                 xhr = new js.net.HttpURLConnection(isAsync);
-                pool.push(xhr);
+                if(!ie){
+                    pool.push(xhr);
+                }
             }else{
-                xhr = new js.net.HttpURLConnection(isAsync, true);
+                xhr = (J$VM.ie === undefined) ? 
+                    new js.net.HttpURLConnection(isAsync, true) :
+                    new js.net.HttpURLConnection(isAsync);
             }
         }
-        
+
+        //xhr = new js.net.HttpURLConnection(isAsync);
         xhr.setAsync(isAsync);
         xhr.occupy();
 

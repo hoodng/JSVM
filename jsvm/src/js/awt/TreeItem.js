@@ -39,441 +39,441 @@ $package("js.awt");
 
 /**
  * @param def :{
- *     id: ..
- *     text: 
- *     markable: true/false, indicates 
+ *	   id: ..
+ *	   text: 
+ *	   markable: true/false, indicates 
  * }
  */
 js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
-    var CLASS = js.awt.TreeItem, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
-    
-    thi$.setText = function(text){
-        this.def.text = text;
-        this.label.innerHTML = js.lang.String.encodeHtml(text);
-    };
-    
-    thi$.getText = function(){
-        return this.def.text;
-    };
+	var CLASS = js.awt.TreeItem, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System;
+	
+	thi$.setText = function(text){
+		this.def.text = text;
+		this.label.innerHTML = js.lang.String.encodeHtml(text);
+	};
+	
+	thi$.getText = function(){
+		return this.def.text;
+	};
 
-    thi$.treeContainer = function(){
-        return this.getPeerComponent();
-    };
+	thi$.treeContainer = function(){
+		return this.getPeerComponent();
+	};
 
-    var _setTreeContainer = function(tree){
-        this.setPeerComponent(tree);
-    };
+	var _setTreeContainer = function(tree){
+		this.setPeerComponent(tree);
+	};
 
-    thi$.parentItem = function(){
-        return this._local.parent;
-    };
+	thi$.parentItem = function(){
+		return this._local.parent;
+	};
 
-    var _setParentItem = function(parent){
-        this._local.parent = parent || this;
-    };
+	var _setParentItem = function(parent){
+		this._local.parent = parent || this;
+	};
 
-    thi$.hasSibling = function(){
-        return this.nextSibling() != undefined;
-    };
+	thi$.hasSibling = function(){
+		return this.nextSibling() != undefined;
+	};
 
-    thi$.prevSibling = function(prev){
-        if(prev !== undefined){
-            this._local.prev = prev;
-        }
-        return this._local.prev;
-    };
+	thi$.prevSibling = function(prev){
+		if(prev !== undefined){
+			this._local.prev = prev;
+		}
+		return this._local.prev;
+	};
 
-    thi$.nextSibling = function(next){
-        if(next !== undefined){
-            this._local.next = next;
-        }
-        return this._local.next;
-    };
+	thi$.nextSibling = function(next){
+		if(next !== undefined){
+			this._local.next = next;
+		}
+		return this._local.next;
+	};
 
-    thi$.hasChildren = function(){
-        var nodes = this.nodes;
-        return (nodes && nodes.length > 0) || false;
-    };
-    
-    thi$.canDrag = function(){
-        var tree = this.treeContainer();
-        return tree.canDrag(this.def);
-    };
+	thi$.hasChildren = function(){
+		var nodes = this.nodes;
+		return (nodes && nodes.length > 0) || false;
+	};
+	
+	thi$.canDrag = function(){
+		var tree = this.treeContainer();
+		return tree.canDrag(this.def);
+	};
 
-    thi$.canExpand = function(){
-        var tree = this.treeContainer();
-        return (tree.canExpand(this.def) || this.nodes);
-    };
+	thi$.canExpand = function(){
+		var tree = this.treeContainer();
+		return (tree.canExpand(this.def) || this.nodes);
+	};
 
-    thi$.isExpanded = function(){
-        return this._local.expanded;    
-    };
-    
-    thi$.isShowTip = function(){
-        return this._local.showTip;
-    };
+	thi$.isExpanded = function(){
+		return this._local.expanded;	
+	};
+	
+	thi$.isShowTip = function(){
+		return this._local.showTip;
+	};
 
-    /**
-     * @see js.awt.Item
-     */
-    thi$.getIconImage = function(){
-        return this.treeContainer().getIconImage(this.def);
-    }.$override(this.getIconImage);
-    
-    /**
-     * Insert tree items into specified position
-     * 
-     * @param index
-     * @param itemDefs, an array of tree item definition
-     */
-    thi$.insertNodes = function(index, itemDefs){
-        var nodes = this.nodes, ibase = index, item, prev, next, 
-        itemDef, i, len;
+	/**
+	 * @see js.awt.Item
+	 */
+	thi$.getIconImage = function(){
+		return this.treeContainer().getIconImage(this.def);
+	}.$override(this.getIconImage);
+	
+	/**
+	 * Insert tree items into specified position
+	 * 
+	 * @param index
+	 * @param itemDefs, an array of tree item definition
+	 */
+	thi$.insertNodes = function(index, itemDefs){
+		var nodes = this.nodes, ibase = index, item, prev, next, 
+		itemDef, i, len;
 
-        if(!nodes){
-            nodes = this.nodes = js.util.LinkedList.$decorate([]);
-        }
+		if(!nodes){
+			nodes = this.nodes = js.util.LinkedList.$decorate([]);
+		}
 
-        for(i=0, len=itemDefs.length; i<len; i++){
-            itemDef = itemDefs[i];
-            itemDef.level = this.def.level + 1;
-            
-            if(this.isShowTip()){
-                itemDef.tip = itemDef.dname;
-                itemDef.showTip = true;
-            }
-            
-            if(item && item.canCloneView(itemDef)){
-                item = new js.awt.TreeItem(
-                    itemDef, 
-                    this.Runtime(), 
-                    this.treeContainer(), 
-                    this, 
-                    item.cloneView());
-            }else{
-                item = new js.awt.TreeItem(
-                    itemDef, 
-                    this.Runtime(), 
-                    this.treeContainer(), 
-                    this);
-            }
+		for(i=0, len=itemDefs.length; i<len; i++){
+			itemDef = itemDefs[i];
+			itemDef.level = this.def.level + 1;
+			
+			if(this.isShowTip()){
+				itemDef.tip = itemDef.dname;
+				itemDef.showTip = true;
+			}
+			
+			if(item && item.canCloneView(itemDef)){
+				item = new js.awt.TreeItem(
+					itemDef, 
+					this.Runtime(), 
+					this.treeContainer(), 
+					this, 
+					item.cloneView());
+			}else{
+				item = new js.awt.TreeItem(
+					itemDef, 
+					this.Runtime(), 
+					this.treeContainer(), 
+					this);
+			}
 
-            prev = ibase > 0 ? nodes.get(ibase - 1) : undefined;
-            next = ibase < nodes.length ? nodes.get(ibase + 1) : undefined;
+			prev = ibase > 0 ? nodes.get(ibase - 1) : undefined;
+			next = ibase < nodes.length ? nodes.get(ibase + 1) : undefined;
 
-            nodes.add(ibase, item);
+			nodes.add(ibase, item);
 
-            if(prev){
-                prev.nextSibling(item);
-            }
+			if(prev){
+				prev.nextSibling(item);
+			}
 
-            if(next){
-                next.prevSibling(item);
-            }
+			if(next){
+				next.prevSibling(item);
+			}
 
-            item.prevSibling(prev);
-            item.nextSibling(next);
+			item.prevSibling(prev);
+			item.nextSibling(next);
 
-            ibase++;
-        };
-        
-        // Update marker style
-        for(i=0, len=nodes.length; i<len; i++){
-            nodes[i].updateBranchStyle();
-        }
-    };
-    
-    /**
-     * Remove tree items from index to index + length
-     */
-    thi$.removeNodes = function(index, length){
-        var nodes = this.nodes, cache = this.treeContainer().cache, item;
-        while(nodes.length > 0){
-            item = nodes.shift();
-            delete cache[item.uuid()];
-            item.destroy();
-        }
-    };
+			ibase++;
+		};
+		
+		// Update marker style
+		for(i=0, len=nodes.length; i<len; i++){
+			nodes[i].updateBranchStyle();
+		}
+	};
+	
+	/**
+	 * Remove tree items from index to index + length
+	 */
+	thi$.removeNodes = function(index, length){
+		var nodes = this.nodes, cache = this.treeContainer().cache, item;
+		while(nodes.length > 0){
+			item = nodes.shift();
+			delete cache[item.uuid()];
+			item.destroy();
+		}
+	};
 
-    thi$.removeAllNodes = function(){
-        var nodes = this.nodes;
-        if(nodes){
-            this.removeNodes(0, nodes.length);    
-        }
-    };
-    
-    /**
-     * Gets nodes of this item
-     * 
-     * @param from, can be start TreeItem object or start index
-     * @param to, can be end TreeItem object or end index or null, 
-     * @param filter, the filter function(itemDef) which return true or false
-     * @param recursive, true or false
-     * @param ret, the return array  
-     */
-    thi$.getNodes = function(from, to, filter, recursive, ret){
-        var nodes = this.nodes, 
-        i0 = Class.isNumber(from) ? from : ((from == null) ? 0 : nodes.indexOf(from)), 
-        i1 = Class.isNumber(to) ? to : ((to == null) ? nodes.length-1 : nodes.indexOf(to)), 
-        start = i0 < i1 ? i0:i1, end = i1 > i0 ? i1 : i0, 
-        i, item;
+	thi$.removeAllNodes = function(){
+		var nodes = this.nodes;
+		if(nodes){
+			this.removeNodes(0, nodes.length);	  
+		}
+	};
+	
+	/**
+	 * Gets nodes of this item
+	 * 
+	 * @param from, can be start TreeItem object or start index
+	 * @param to, can be end TreeItem object or end index or null, 
+	 * @param filter, the filter function(itemDef) which return true or false
+	 * @param recursive, true or false
+	 * @param ret, the return array	 
+	 */
+	thi$.getNodes = function(from, to, filter, recursive, ret){
+		var nodes = this.nodes, 
+		i0 = Class.isNumber(from) ? from : ((from == null) ? 0 : nodes.indexOf(from)), 
+		i1 = Class.isNumber(to) ? to : ((to == null) ? nodes.length-1 : nodes.indexOf(to)), 
+		start = i0 < i1 ? i0:i1, end = i1 > i0 ? i1 : i0, 
+		i, item;
 
-        ret = ret || [];
-        for(i = start; i<=end; i++){
-            item = nodes[i];
-            if(typeof filter == "function"){
-                if(filter(item.def)) ret.push(item);
-            }else{
-                ret.push(item);
-            }
-            if(recursive === true && item.hasChildren()){
-                item.getNodes(0, null, filter, true, ret);                
-            }
-        }
-        return ret;
-    };
-    
-    var _addToDOM = function(item, refNode, isLast){
-        item.updateLeaderStyle();
-        DOM.insertAfter(item.view, refNode);
-        if(item.view.parentNode){
-            item.showDisableCover(!item.isEnabled());
-        }
-        
-        if(isLast){
-            //nofity
-            _afterExpand.call(this);
-        }
-    };
-    
-    var _afterExpand = function(){
-        var peer = this.getPeerComponent();
-        if(peer && typeof peer.onAfterExpand === "function"){
-            peer.onAfterExpand();
-        }
-        //this.dashboard.postMQ("js.awt.event.GadgetChange", "", []);
-    };
-    
-    thi$.isExpanding = function(){
-        return this._local.expanding;
-    };
-    
-    thi$.setExpanding = function(b){
-        this._local.expanding = b;
-    };
+		ret = ret || [];
+		for(i = start; i<=end; i++){
+			item = nodes[i];
+			if(typeof filter == "function"){
+				if(filter(item.def)) ret.push(item);
+			}else{
+				ret.push(item);
+			}
+			if(recursive === true && item.hasChildren()){
+				item.getNodes(0, null, filter, true, ret);				  
+			}
+		}
+		return ret;
+	};
+	
+	var _addToDOM = function(item, refNode, isLast){
+		item.updateLeaderStyle();
+		DOM.insertAfter(item.view, refNode);
+		if(item.view.parentNode){
+			item.showDisableCover(!item.isEnabled());
+		}
+		
+		if(isLast){
+			//nofity
+			_afterExpand.call(this);
+		}
+	};
+	
+	var _afterExpand = function(){
+		var peer = this.getPeerComponent();
+		if(peer && typeof peer.onAfterExpand === "function"){
+			peer.onAfterExpand();
+		}
+		//this.dashboard.postMQ("js.awt.event.GadgetChange", "", []);
+	};
+	
+	thi$.isExpanding = function(){
+		return this._local.expanding;
+	};
+	
+	thi$.setExpanding = function(b){
+		this._local.expanding = b;
+	};
 
-    /**
-     * Expand or Collapse an item
-     * 
-     * @param b, true for expanding and false for collapsing
-     * @param needNotify, false for don't nofity the tree to do AfterExpand,others do.
-     * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
-     */    
-    thi$.expand = function(b, needNotify, root){
-        if(!this.isEnabled()){
-            return;
-        }
-        
-        this.setExpanding(false);
-        var nodes = this.nodes, tree = this.treeContainer(),
-        className = this.branch.clazz, refNode, i, len, item;
+	/**
+	 * Expand or Collapse an item
+	 * 
+	 * @param b, true for expanding and false for collapsing
+	 * @param needNotify, false for don't nofity the tree to do AfterExpand,others do.
+	 * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
+	 */	   
+	thi$.expand = function(b, needNotify, root){
+		if(!this.isEnabled()){
+			return;
+		}
+		
+		this.setExpanding(false);
+		var nodes = this.nodes, tree = this.treeContainer(),
+		className = this.branch.clazz, refNode, i, len, item;
 
-        b = b || false;
-        this._local.expanded = b;
+		b = b || false;
+		this._local.expanded = b;
 
-        if(b){
-            this.branch.className = className + "_4";
-            this.setIconImage(4);
-            
-            refNode = this.view;
-            if(nodes && nodes.length > 0){
-                for(i=0, len=nodes.length; i<len; i++){
-                    item = nodes[i];
-                    _addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
-                    refNode = item.view;
-                }
-            }           
-        }else{
-            len = nodes ? nodes.length : 0;
-            for(i=len-1; i>=0; i--){
-                item = nodes[i];
-                if(item.isExpanded()){
-                    item.expand(false, undefined, item);
-                }
-                item.removeFrom(item.view.parentNode);
-            }
-            this.branch.className = className + "_0";
-            this.setIconImage(0);
-            //notify
-            if(needNotify != false && root == undefined){
-                _afterExpand.call(this);
-            }
-        }
-    };
-    
-    /**
-     * Expand or collapse all items
-     * 
-     * @param b, true for expanding and false for collapsing     
-     * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
-     */
-    thi$.expandAll = function(b, root){
-        if(!this.isEnabled()){
-            return;
-        }
-        
-        this.expand(b, false);
+		if(b){
+			this.branch.className = className + "_4";
+			this.setIconImage(4);
+			
+			refNode = this.view;
+			if(nodes && nodes.length > 0){
+				for(i=0, len=nodes.length; i<len; i++){
+					item = nodes[i];
+					_addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
+					refNode = item.view;
+				}
+			}			
+		}else{
+			len = nodes ? nodes.length : 0;
+			for(i=len-1; i>=0; i--){
+				item = nodes[i];
+				if(item.isExpanded()){
+					item.expand(false, undefined, item);
+				}
+				item.removeFrom(item.view.parentNode);
+			}
+			this.branch.className = className + "_0";
+			this.setIconImage(0);
+			//notify
+			if(needNotify != false && root == undefined){
+				_afterExpand.call(this);
+			}
+		}
+	};
+	
+	/**
+	 * Expand or collapse all items
+	 * 
+	 * @param b, true for expanding and false for collapsing	 
+	 * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
+	 */
+	thi$.expandAll = function(b, root){
+		if(!this.isEnabled()){
+			return;
+		}
+		
+		this.expand(b, false);
 
-        if(b){
-            var nodes = this.nodes, i, len, item;
-            if(nodes && this.nodes.length > 0){
-                for(i=0, len=nodes.length; i<len; i++){
-                    item = nodes[i];
-                    if(item.canExpand() && !item.isExpanded()){
-                        item.expandAll(b, this);
-                    }
-                }
-            }           
-        }
-        
-        //notify
-        if(!root){
-            _afterExpand.$delay(this, 1);
-        }
-    };
-    
-    thi$.doLayout = function(){
-        if(this.label && this.controller){
-            var ele = this.label, b, left;
-            b = ele.scrollWidth;
-            left = ele.offsetLeft;
-            this.controller.setPosition(b+left);              
-        }         
-    }.$override(this.doLayout);
+		if(b){
+			var nodes = this.nodes, i, len, item;
+			if(nodes && this.nodes.length > 0){
+				for(i=0, len=nodes.length; i<len; i++){
+					item = nodes[i];
+					if(item.canExpand() && !item.isExpanded()){
+						item.expandAll(b, this);
+					}
+				}
+			}			
+		}
+		
+		//notify
+		if(!root){
+			_afterExpand.$delay(this, 1);
+		}
+	};
+	
+	thi$.doLayout = function(){
+		if(this.label && this.controller){
+			var ele = this.label, b, left;
+			b = ele.scrollWidth;
+			left = ele.offsetLeft;
+			this.controller.setPosition(b+left);			  
+		}		  
+	}.$override(this.doLayout);
 
-    thi$.updateBranchStyle = function(){
-        var ex = this.canExpand(),
-        ps = this.prevSibling() != undefined,
-        ns = this.nextSibling() != undefined,
-        b = ((ex ? 4 : 0) | (ps ? 2 : 0) | (ns ? 1 : 0)),
-        bClassName = this.className + "_branch",
-        branch = this.branch;
-        
-        if(this.isEnabled()){
-            bClassName = bClassName + b;
-            
-            branch.clazz = bClassName;
-            bClassName = bClassName + (this.isTriggered() ? "_4" : "_0");
-        }else{
-            branch.clazz = bClassName;
-            bClassName = bClassName + "_1";
-        }
-        
-        branch.className = bClassName;
-    };
-    
-    thi$.updateLeaderStyle = function(){
-        var p = this.parentItem(), M = this.def, level = M.level,
-        comps = M.items, comp;
+	thi$.updateBranchStyle = function(){
+		var ex = this.canExpand(),
+		ps = this.prevSibling() != undefined,
+		ns = this.nextSibling() != undefined,
+		b = ((ex ? 4 : 0) | (ps ? 2 : 0) | (ns ? 1 : 0)),
+		bClassName = this.className + "_branch",
+		branch = this.branch;
+		
+		if(this.isEnabled()){
+			bClassName = bClassName + b;
+			
+			branch.clazz = bClassName;
+			bClassName = bClassName + (this.isTriggered() ? "_4" : "_0");
+		}else{
+			branch.clazz = bClassName;
+			bClassName = bClassName + "_1";
+		}
+		
+		branch.className = bClassName;
+	};
+	
+	thi$.updateLeaderStyle = function(){
+		var p = this.parentItem(), M = this.def, level = M.level,
+		comps = M.items, comp;
 
-        for(var i=level-1; i>=0; i--){
-            comp = this[comps[i]];
-            if(p.hasSibling()){
-                comp.className = def.className + "_leader1";
-            }else{
-                comp.className = def.className + "_leader0";
-            }
-            p = p.parentItem();
-        }
-    };
-    
-    /**
-     * @see js.awt.Item
-     */
-    thi$.canCloneView = function(itemDef){
-        var items = [], level = itemDef.level;
+		for(var i=level-1; i>=0; i--){
+			comp = this[comps[i]];
+			if(p.hasSibling()){
+				comp.className = def.className + "_leader1";
+			}else{
+				comp.className = def.className + "_leader0";
+			}
+			p = p.parentItem();
+		}
+	};
+	
+	/**
+	 * @see js.awt.Item
+	 */
+	thi$.canCloneView = function(itemDef){
+		var items = [], level = itemDef.level;
 
-        // Leaders
-        for(var i=level; i>0; i--){
-            items.unshift("leader"+i);
-        };
-        
-        items.push("branch");
-        if(itemDef.markable === true) items.push("marker");
-        items.push("icon");
-        items.push("label");
+		// Leaders
+		for(var i=level; i>0; i--){
+			items.unshift("leader"+i);
+		};
+		
+		items.push("branch");
+		if(itemDef.markable === true) items.push("marker");
+		items.push("icon");
+		items.push("label");
 
-        return items.length === this.def.items.length;
+		return items.length === this.def.items.length;
 
-    }.$override(this.canCloneView);
-    
-    var _checkItems = function(def, tree, parent){
-        var level = def.level, items = def.items;
+	}.$override(this.canCloneView);
+	
+	var _checkItems = function(def, tree, parent){
+		var level = def.level, items = def.items;
 
-        // Leaders
-        for(var i=level; i>0; i--){
-            items.unshift("leader"+i);
-        };
-        
-        items.push("branch");
-        if(def.markable === true) items.push("marker");
-        items.push("icon");
-        items.push("label");
+		// Leaders
+		for(var i=level; i>0; i--){
+			items.unshift("leader"+i);
+		};
+		
+		items.push("branch");
+		if(def.markable === true) items.push("marker");
+		items.push("icon");
+		items.push("label");
 
-    };
+	};
 
-    thi$.destroy = function(){
-        delete this._local.parent;
-        delete this._local.prev;
-        delete this._local.next;
-        
-        this.removeAllNodes();
-        delete this.nodes;
+	thi$.destroy = function(){
+		delete this._local.parent;
+		delete this._local.prev;
+		delete this._local.next;
+		
+		this.removeAllNodes();
+		delete this.nodes;
 
-        arguments.callee.__super__.apply(this, arguments);
+		arguments.callee.__super__.apply(this, arguments);
 
-    }.$override(this.destroy);
+	}.$override(this.destroy);
 
-    thi$._init = function(def, Runtime, tree, parent, view){
-        if(def == undefined) return;
+	thi$._init = function(def, Runtime, tree, parent, view){
+		if(def == undefined) return;
 
-        _setTreeContainer.call(this, tree);
+		_setTreeContainer.call(this, tree);
 
-        def.classType = def.classType || "js.awt.TreeItem";
-        def.className = tree.className + "_item";
-        def.css = "position:relative;overflow:visible;width:100%;";
-        
-        if(view == undefined){
-            def.items = js.util.LinkedList.$decorate([]);
+		def.classType = def.classType || "js.awt.TreeItem";
+		def.className = tree.className + "_item";
+		def.css = "position:relative;overflow:visible;width:100%;";
+		
+		if(view == undefined){
+			def.items = js.util.LinkedList.$decorate([]);
 
-            def.level = Class.isNumber(def.level) ? def.level : 0;
-            _checkItems.call(this, def);
-        }
+			def.level = Class.isNumber(def.level) ? def.level : 0;
+			_checkItems.call(this, def);
+		}
 
-        arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		arguments.callee.__super__.apply(this, [def, Runtime, view]);
 
-        _setParentItem.call(this, parent);
-        
-        tree.cache[this.uuid()] = this;
-        
-        this._local.showTip = def.showTip || false;
+		_setParentItem.call(this, parent);
+		
+		tree.cache[this.uuid()] = this;
+		
+		this._local.showTip = def.showTip || false;
 
-        if(def.nodes && def.nodes.length > 0){
-            this.insertNodes(0, def.nodes);
-        }
+		if(def.nodes && def.nodes.length > 0){
+			this.insertNodes(0, def.nodes);
+		}
 
-    }.$override(this._init);
+	}.$override(this._init);
 
-    this._init.apply(this, arguments);
+	this._init.apply(this, arguments);
 
 
 }.$extend(js.awt.Item);

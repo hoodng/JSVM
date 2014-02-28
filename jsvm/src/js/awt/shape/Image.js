@@ -89,51 +89,16 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
     }.$override(this.beforeDraw);
 
     var _loadImage = function(layer, callback){
-        var M = this.def, imgId = M.image, image = imgId, Q;
-
+        var M = this.def, imgId = M.image, image = imgId, 
+            thisObj = this;
         if(Class.isString(imgId)){
-            image = _getImage.call(this, imgId);
-
-            if(!Class.isHtmlElement(image)){
-                image = DOM.createElement("IMG");
-                images.setItem(imgId, image);
-                Q = image.Q = [];
-                Q.push([this, imgId, image, layer, callback]);
-
-                image.onload = _imageOnLoad.$bind(image);
-                image.onreadystatechange = _imageOnState.$bind(image);
-                image.src = imgId;
-                return;
-            }else if(image && image.onload != null){
-                Q = image.Q;
-                Q.push([this, imgId, image, layer, callback]);
-                return;
-            }
+            Class.loadImage(imgId, function(img){
+                _onload.call(thisObj, imgId, img, layer, callback);
+            }, true);
+            return;
         }
-            
         _onload.call(this, imgId, image, layer, callback);
-        
     };
-
-    var _imageOnLoad = function(){
-        var Q = this.Q, req;
-        while(Q.length > 0){
-            req = Q.shift();
-            _onload.apply(req.shift(), req);
-        }
-
-        this.onload = null;
-        this.onreadystatechange = null;
-        delete this.Q;
-    };
-
-    var _imageOnState = function(){
-        if(this.readyState == "loaded" || 
-           this.readyState == "complete"){
-            this.onload();
-        };
-    };
-
 
     var _onload = function(imgId, image, layer, callback){
         this._local.image = image;

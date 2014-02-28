@@ -38,6 +38,7 @@
 $package("js.awt");
 
 $import("js.awt.State");
+$import("js.awt.ToolTip");
 $import("js.util.EventTarget");
 
 /**
@@ -698,6 +699,10 @@ js.awt.Element = function(def, Runtime){
         delete this.peer;
         delete this.container;
         
+        if(this.isTipUserDefined()){
+            this.setTipUserDefined(false);
+        }
+        
         arguments.callee.__super__.apply(this, arguments);
         
     }.$override(this.destroy);
@@ -731,11 +736,15 @@ js.awt.Element = function(def, Runtime){
 
         CLASS.count++;
         
+        if(def.useUserDefinedTip === true){
+            this.setTipUserDefined(true);
+        }
+        
     }.$override(this._init);
     
     this._init.apply(this, arguments);
 
-}.$extend(js.util.EventTarget).$implements(js.awt.State);
+}.$extend(js.util.EventTarget).$implements(js.awt.State, js.awt.ToolTip);
 
 js.awt.Element.count = 0;
 

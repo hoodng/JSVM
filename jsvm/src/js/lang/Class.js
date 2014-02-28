@@ -206,25 +206,77 @@ js.lang.Class = new function (){
 
     }.$bind(this);
 
-    this.loadImage = function(image, url){
-        var Base64 = this.forName("js.util.Base64"), xhr;
-        if(J$VM.safari){
-            xhr = J$VM.XHRPool.getXHR(true);
-            xhr.setRequestHeader("responseType", "arraybuffer");
-            xhr.onsuccess = function(e){
-                var buf, dataUrl;
-                xhr = e.getData(); 
-                buf = xhr.response();
-                dataUrl = ["data:",xhr.contentType(),";base64,"];
-                dataUrl.push(Base64.encodeArray(buf, Base64.standardB64));
-                dataUrl = dataUrl.join("");
-                image.src = dataUrl;
-                xhr.close();
-            };
-            xhr.open("GET", url, undefined);
+    this.loadImageFromUrl = function(image, url, callback){
+        var Q;
+        Q = image.Q = [];
+        Q.push([this, image, callback]);
+        image.onload = _imageOnLoad.$bind(image);
+        image.onreadystatechange = _imageOnStat.$bind(image);
+        this._loadImage(image, url);
+    };
+
+    this.loadImage = function(url, callback, clone){
+        var cache = J$VM.storage.images, Q,
+            image = cache.getItem(url) || document.getElementById(url);
+
+        clone = clone || false;
+
+        if(!this.isHtmlElement(image)){
+            image = J$VM.DOM.createElement("IMG");
+            cache.setItem(url, image);
+            this.loadImageFromUrl(image, url, callback);
+            return;
+        }else if(image && image.onload != null){
+            if(clone){
+                Q = image.Q;
+                Q.push([this, image, callback]);
+                return;
+            }else{
+                image = J$VM.DOM.createElement("IMG");
+                this.loadImageFromUrl(image, url, callback);
+                return;
+            }
+        }
+
+        if(clone){
+            _onload.call(this, image, callback);
         }else{
-            image.crossOrigin = "anonymous";
-            image.src = url;
+            image = J$VM.DOM.createElement("IMG");
+            this.loadImageFromUrl(image, url, callback);
+        }
+    };
+
+    this._loadImage = function(image, url){
+        url = new js.net.URI(url);
+        if(url.isSameOrigin()){
+            image.src = url.toURI();
+        }else{
+            var proxy = ["webos","HttpProxyGetAction",{target:url.toURI()}];
+            image.src = ".vt?$="+js.util.Base64.encode(JSON.stringify(proxy));
+        }
+    };
+
+    var _imageOnLoad = function(){
+        var Q = this.Q, req;
+        while(Q.length > 0){
+            req = Q.shift();
+            _onload.apply(req.shift(), req);
+        }
+
+        this.onload = null;
+        this.onreadystatechange = null;
+    };
+
+    var _imageOnStat = function(){
+        if(this.readyState == "loaded" || 
+           this.readyState == "complete"){
+            _imageOnLoad.call(this);
+        };
+    };
+
+    var _onload = function(image, callback){
+        if(typeof callback === "function"){
+            callback(image);
         }
     };
     
