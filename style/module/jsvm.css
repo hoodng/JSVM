@@ -2032,7 +2032,7 @@ body {
 .jsvm_flatTree_item_leader0,
 .jsvm_flatTree_item_leader1 {
     width: 0px;
-    height: 0px;
+    height:0px;
 }
 
 .jsvm_flatTree_item_branch,

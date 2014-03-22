@@ -81,7 +81,8 @@ js.util.MemoryStorage = function(capacity){
     };
     
     thi$.removeItem = function(key){
-        return this.remove(key);
+        var o = this.remove(key);
+        return o ? o.data : undefined;
     };
 
     var _reduce = function(){

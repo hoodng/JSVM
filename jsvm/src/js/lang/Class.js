@@ -206,25 +206,29 @@ js.lang.Class = new function (){
 
     }.$bind(this);
 
-    this.loadImageFromUrl = function(image, url, callback){
+    this.loadImageFromUrl = function(image, url, callback, proxy){
         var Q;
         Q = image.Q = [];
         Q.push([this, image, callback]);
         image.onload = _imageOnLoad.$bind(image);
         image.onreadystatechange = _imageOnStat.$bind(image);
-        this._loadImage(image, url);
+        this._loadImage(image, url, proxy);
     };
 
-    this.loadImage = function(url, callback, clone){
-        var cache = J$VM.storage.images, Q,
+    this.loadImage = function(url, callback, clone, proxy){
+        var cache = J$VM.storage.images, Q, image, dataUrl = true;
+
+        if(url.indexOf("data:") != 0){
+            dataUrl = false;
             image = cache.getItem(url) || document.getElementById(url);
+        }
 
         clone = clone || false;
 
         if(!this.isHtmlElement(image)){
             image = J$VM.DOM.createElement("IMG");
             cache.setItem(url, image);
-            this.loadImageFromUrl(image, url, callback);
+            this.loadImageFromUrl(image, url, callback, proxy);
             return;
         }else if(image && image.onload != null){
             if(clone){
@@ -233,7 +237,7 @@ js.lang.Class = new function (){
                 return;
             }else{
                 image = J$VM.DOM.createElement("IMG");
-                this.loadImageFromUrl(image, url, callback);
+                this.loadImageFromUrl(image, url, callback, proxy);
                 return;
             }
         }
@@ -246,13 +250,17 @@ js.lang.Class = new function (){
         }
     };
 
-    this._loadImage = function(image, url){
-        url = new js.net.URI(url);
-        if(url.isSameOrigin()){
-            image.src = url.toURI();
+    this._loadImage = function(image, url, proxy){
+        if(url.indexOf("data:") != 0){
+            url = new js.net.URI(url);
+            if(url.isSameOrigin() || proxy !== true){
+                image.src = url.toURI();
+            }else{
+                var goProxy = ["webos","HttpProxyGetAction",{target:url.toURI()}];
+                image.src = ".vt?$="+js.util.Base64.encode(JSON.stringify(goProxy));
+            }
         }else{
-            var proxy = ["webos","HttpProxyGetAction",{target:url.toURI()}];
-            image.src = ".vt?$="+js.util.Base64.encode(JSON.stringify(proxy));
+            image.src = url;
         }
     };
 

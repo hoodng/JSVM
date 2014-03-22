@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js" 
+            classpath="lib/../jsre-ui.js"
+            -Dmainclass="org.jsvm.App"></script>
+    <script type="text/javascript">
+      J$VM.boot({
+          theme: "default"
+      });
+    </script>
+    <script type="text/javascript" src="../../jsvm/src/org/jsvm/map/TileMapRender.js"></script>
+  </head>
+  <body style="width:100%;height:100%;">
+  </body>
+
+  <script type="text/javascript">
+    J$VM.exec("org.jsvm.App", function(System){
+    var Event = js.util.Event;
+
+    var DemoWindow = new js.awt.Window({
+        id: "DemoWindow",
+        css:"background-color:white;border:2px solid #CCCCCC;",
+
+        items:["title","client"],
+        
+        title:{
+            classType: "js.awt.HBox",
+            constraints:"north",
+
+            hovershow: true,
+            hovershowbutton: true,
+
+            items:["labTitle", "btnMax","btnClose"],
+            
+            labTitle:{
+                classType: "js.awt.Label",
+                css:"padding: 0px 2px 0px 4px;",
+                text: "J$VM Map"
+            },
+
+            btnMax:{
+                classType: "js.awt.Button",
+                iconImage: "maximize.png"
+            },
+
+            btnClose:{
+                classType: "js.awt.Button",
+                iconImage: "dialog_close.png"
+            }
+        },
+        
+        client:{
+            classType:"org.jsvm.map.TileMapRender",
+            constraints:"center"
+            
+        },
+        resizer :255,
+        mover:{longpress: 5, bt:1.0, bl:1.0}, movable:true,
+        x:50, y:50,
+        width: 530,
+        height: 380
+    },this);
+
+    this.addComponent(DemoWindow);
+
+    var map = DemoWindow.getElementById("client");
+    DemoWindow.addMoverRestricted(map);
+    map.setMapInfo();
+
+    
+    var _doZoom = function(data){
+        var delta = data.delta, 
+            dp = this.relative(data.xy),
+            zoom = this.getZoom();
+        if(delta > 0){
+            // zoom in
+            zoom += 1;
+            zoom = Math.min(zoom, this.getMaxZoom());
+        }else{
+            // zoom out
+            zoom -= 1;
+            zoom = Math.max(zoom, 0);
+        }
+        this.zoom(zoom, dp.x, dp.y);
+    }
+    
+    var _onmousewheel = function(e){
+        _doZoom.$clearTimer();
+        _doZoom.$delay(map, 300, {
+            delta: e.getData().wheelDelta,
+            xy : e.eventXY()
+        });
+    };
+
+    var _onmousedown = function(e){
+        var xy = this._local.clickXY = e.eventXY();
+        if(e.button == 1){
+            Event.attachEvent(document, "mousemove", 0, this, _onmousemove);
+            Event.attachEvent(document, "mouseup", 0, this, _onmouseup);
+        }
+    };
+
+    var _onmousemove = function(e){
+        var oxy = this._local.clickXY, xy = e.eventXY();
+        this.transform(xy.x - oxy.x, xy.y - oxy.y);
+        this._local.clickXY = xy;
+    };
+
+    var _onmouseup = function(e){
+        Event.detachEvent(document, "mousemove", 0, this, _onmousemove);        
+        Event.detachEvent(document, "mouseup", 0, this, _onmouseup);
+    };
+
+    var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel";
+    map.attachEvent(mousewheel, 0, map, _onmousewheel);
+    map.attachEvent("mousedown",0, map, _onmousedown);
+
+    
+    });
+  </script>
+</html>

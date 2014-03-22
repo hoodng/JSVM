@@ -139,7 +139,7 @@ js.lang.String = new function(){
         if(tester.test(s)){
             ret = tester.exec(s);
         }
-        return ret ? ret[1].trim(): "";
+        return ret ? ret[1].trim(): s;
     };
 
     String.prototype.hashCode = function(){

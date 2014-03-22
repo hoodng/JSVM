@@ -280,8 +280,11 @@ js.lang.System = function (env, vm){
 
     var _checkBrowser = function(){
         // Check browser supports
-        vm.supports = {reliableMarginRight :true, supportCssFloat : true};
-        var buf = [], doc = document, div = doc.createElement('div'), ipt, obj;
+        var supports = vm.supports 
+            = {reliableMarginRight :true, supportCssFloat : true},
+        buf = [], doc = document, div = doc.createElement('div'),
+        ipt, obj;
+        
         buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
         buf.push('<div style="height:20px;width:20px;"></div></div>');
         buf.push('<div style="float:left;"></div>');
@@ -301,18 +304,18 @@ js.lang.System = function (env, vm){
         var view = doc.defaultView, cdiv = div.firstChild, ccdiv = cdiv.firstChild;
         if(view && view.getComputedStyle 
            && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
-            vm.supports.reliableMarginRight = false;
+            supports.reliableMarginRight = false;
         }
 
-        vm.supports.supportCssFloat = !!div.lastChild.style.cssFloat;
-        vm.supports.borderBox = !(div.offsetWidth > 100);
-        vm.supports.borderEdg = !(cdiv.offsetLeft == 0);
+        supports.supportCssFloat = !!div.lastChild.style.cssFloat;
+        supports.borderBox = !(div.offsetWidth > 100);
+        supports.borderEdg = !(cdiv.offsetLeft == 0);
 
         // Check BorderBox support of Input and Textarea
-        vm.supports.iptBorderBox = !(ipt.offsetWidth > 100);
+        supports.iptBorderBox = !(ipt.offsetWidth > 100);
         
         // Check placeholder support of Input and Textarea
-        vm.supports.placeholder = ("placeholder" in ipt); 
+        supports.placeholder = ("placeholder" in ipt); 
 
         // Check scrollbars' thicknesses
         // Attention:
@@ -327,8 +330,13 @@ js.lang.System = function (env, vm){
         div.style.cssText = "position:absolute;left:-550px;top:-550px;"
             + "width:550px;height:550px;overflow:scroll;visibility:hidden;";
         obj = J$VM.DOM.hasScrollbar(div);
-        vm.supports.hscrollbar = obj.hbw;
-        vm.supports.vscrollbar = obj.vbw;
+        supports.hscrollbar = obj.hbw;
+        supports.vscrollbar = obj.vbw;
+        
+        // For IE, the dom element which has scrollbars should wider than the vscrollbar
+        // and higher than the hscrollbar.
+        supports.preHScrollEleH = supports.hscrollbar + (vm.ie ? 1 : 0);
+        supports.preVScrollEleW = supports.vscrollbar + (vm.ie ? 1 : 0);
         
         // Dectect logical DPI of the browser
         div.innerHTML = "";
@@ -583,6 +591,7 @@ js.lang.System = function (env, vm){
         if(mainClasName){
             mainClass = Class.forName(mainClasName);
             if(!mainClass) return;
+            desktop = desktop ? desktop : mainClasName;
             J$VM.exec(mainClasName, 
                       function(){
                           this.initialize();

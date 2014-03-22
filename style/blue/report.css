@@ -161,7 +161,7 @@
 .menusub,.menusub_0 {
     border:1px solid #e6e6e6;
     background-color:#FFFFFF;
-    width:220px;
+    width:200px;
 }
 
 .menusub_item,.menusub_item_0, .menusub_item_2, .menusub_item_1,.menusub_item_3 {
@@ -234,7 +234,6 @@
     -webkit-border-radius: 5px;
     border-radius: 5px;
 }
-
 /*** New Filter style Begin ****/
 .filter_body {
     width: 140px;
@@ -251,28 +250,12 @@
     /*float: left;*/
     margin-right: 2px;
 }
-.VAfilter_body {
-    width: 140px;
-    float: left;
-    overflow: hidden;
-    background-color: transparent;
-    color: black;
-}
 .filter_content {
     width: 140px;
     float: left;
 }
-.VAfilter_content {
-    width: 140px;
-    float: left;
-    font-family: sans-serif;
-    font-size: 12px;
-    background-color: transparent;
-    border-width: 1px;
-    border-color: rgb(225, 225, 225);
-    border-style: solid none;
-}
 .filter_content_item{
+    line-height: 13px;
     padding-left: 3px;
     white-space: nowrap;
     cursor: pointer;
@@ -313,21 +296,6 @@
     font-style: normal;
     height: 17px;
     cursor: default;
-}
-.VAfilter_title{
-    vertical-align: middle;
-    padding-top: 3px;
-    padding-bottom: 4px;
-    background-position: left center;
-    background-color: transparent;
-    height: 17px;
-    cursor: default;
-    color: black;
-    font-family: sans-serif;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: bold;
-    text-decoration: none;
 }
 .filter_title_label{
     padding-left: 2px;
@@ -585,7 +553,6 @@
     cursor: pointer;
 }
 /*** New Filter style End ****/
-
 .filter_item_content{
     cursor:pointer;
 }
@@ -826,13 +793,12 @@ li {
 
 /*** Table pagination style End ****/
 
-
 /** Montion slider **/
 .montionplayer {
     border: 0px solid #999999;
 }
 
-.montionplayer_btnplay,
+.montionplayer_btnplay, 
 .montionplayer_btnplay_0,
 .montionplayer_btnplay_1,
 .montionplayer_btnplay_2,
@@ -842,7 +808,7 @@ li {
 .montionplayer_btnplay_8,
 .montionplayer_btnplay_9 {
     background-repeat: no-repeat;
-    background-position:center;
+    background-position:center;    
 }
 
 .montionplayer_btnplay_0 {
@@ -979,7 +945,7 @@ li {
     border: 0px solid gray;
 }
 
-.rangerFC_sldplay_slipper_ctrl0,
+.rangerFC_sldplay_slipper_ctrl0, 
 .rangerFC_sldplay_slipper_ctrl1 {
     width: 12px;
     height:12px;
@@ -995,7 +961,7 @@ li {
     background-image: url("images/0-slider_range_end.png");
 }
 
-.rangerFC_sldplay_track0,
+.rangerFC_sldplay_track0, 
 .rangerFC_sldplay_track1,
 .rangerFC_sldplay_track2 {
     height: 12px;
@@ -1015,15 +981,6 @@ li {
     cursor: move;
 }
 
-/*** Navigation style Begin ****/
-.navigation_Item_disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
-    background-color: #C0C0C0;
-}
-/*** Navigation style End ****/
-
 /****** for Advanced Search Panel *******/
 
 .advancedSearchPanel,
@@ -1031,7 +988,7 @@ li {
 .advancedSearchPanel_2, .advancedSearchPanel_4{
     width: 290px;
     height: 26px;
-
+    
     border: 1px solid #C0C0C0;
     vertical-align: middle;
     padding-top: 3px;
@@ -1046,23 +1003,23 @@ li {
     background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
     background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
     
-
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
     background: -ms-linear-gradient(top, #FFFFFF, #ECECEC); /* IE10 */
+
 }
 
 .advancedSearchPanel_16{
     display: none;
 }
 
-.adSearchPanel_combo,
+.adSearchPanel_combo,           
 .adSearchPanel_combo_0, .adSearchPanel_combo_1,
 .adSearchPanel_combo_2, .adSearchPanel_combo_4,
 .adSearchPanel_combo_5, .adSearchPanel_combo_6{
     width: 75px;
     height: 18px;
-
+    
     border: 1px solid #C0C0C0;
     background-color: #FFFFFF;
     overflow: hidden;
@@ -1084,9 +1041,9 @@ li {
 
 .adSearchPanel_combo_dItem,
 .adSearchPanel_combo_dItem_0{
-
+    
 }
-
+            
 .adSearchPanel_combo_dItem_label {
     overflow: hidden;
     white-space: nowrap;
@@ -1128,20 +1085,20 @@ li {
     cursor: default;
 }
 
-.advancedSearchPanel_input,
+.advancedSearchPanel_input,         
 .advancedSearchPanel_input_0, .advancedSearchPanel_input_1,
 .advancedSearchPanel_input_2, .advancedSearchPanel_input_4{
-    border: 1px solid #C0C0C0;
+    border: 1px solid #C0C0C0; 
     background-color: #FFFFFF;
-}
+}           
 
 .advancedSearchPanel_input_16{
     display: none;
-}
+}           
 
 .advancedSearchPanel_label_16{
     display: none;
-}
+}   
 
 .filter_searchPanel_btnClose_0, .filter_searchPanel_btnClose_2,
 .filter_searchPanel_btnClose_4 {
@@ -1165,7 +1122,7 @@ li {
 .textInputDtField_0, .textInputDtField_1 {
     width: 100px;
     height: 20px;
-
+    
     overflow: hidden;
 }
 
@@ -1185,7 +1142,7 @@ li {
 .textfieldRender_0, .textfieldRender_1 {
     width: 80px;
     height: 20px;
-
+    
     background-color: #FFFFFF;
     border: 1px solid #CCCCCC;
     overflow: hidden;

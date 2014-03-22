@@ -1,37 +1,55 @@
 <!DOCTYPE HTML>
 <html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Button</title>
+    
+    <style>
+      __PSEUDO__ {background-color:gray;}
+      
+      body{
+        margin: 0px;
+        border: 0px none;
+        padding: 0px;
+        
+      }
+    </style>
 
-<style>
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
 
-.bt, 
-.bt_0, .bt_1{
-   width: 60px;
-   height: 30px;
-   background-color: #FFFFFF;
-   border: 1px solid blue;
-}
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js" 
+          classpath="lib/../jsre-ui.js;
+                     lib/dashboard.js;
+                     lib/jquery-1.4.2.min.js;
+                     lib/swfobject.js;
+                     lib/raphael-min.js;
+                     lib/apply-style.js;
+                     "></script>
 
+    <style>
+    .bt, 
+    .bt_0, .bt_1{
+        width: 60px;
+        height: 30px;
+        background-color: #FFFFFF;
+        border: 1px solid blue;
+    }
 
-.bt_label {
-  height: 16px;
-  line-height: 16px;
-}
+    .bt_label {
+        height: 16px;
+        line-height: 16px;
+    }
+    </style>
 
-</style>
 </head>
 
-<body></body>
+<body>
+</body>
 
 <script type="text/javascript">
 
 J$VM.exec("Demo",function(System){
-
 
     this.prefer({theme: "default"});
 
@@ -54,7 +72,9 @@ J$VM.exec("Demo",function(System){
 
     var checkbox = new js.awt.CheckBox({
         labelText: "CheckBox",
-        x:10, y:40
+        x:10, y:40,
+        
+        wholeTrigger: false
     }, this);
 
     this.addComponent(checkbox);

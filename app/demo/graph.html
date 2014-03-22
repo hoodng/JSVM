@@ -28,7 +28,8 @@
     <script type="text/javascript">
         J$VM.exec("Demo",function(System){
             var Class = js.lang.Class, Base64 = Class.forName("js.util.Base64"),
-            Color = Class.forName("js.awt.Color");
+            Color = Class.forName("js.awt.Color"),
+            URI = Class.forName("js.net.URI");
             new Color(0,0,0,0);
 
             var G = new (Class.forName("js.awt.Graphics2D"))(
@@ -47,84 +48,26 @@
                       }, this);
         
             G.addComponent(new (Class.forName("js.awt.CanvasLayer"))({id: "myLayer", capture:true}, G));
+            G.addComponent(new (Class.forName("js.awt.CanvasLayer"))({id: "myLayer0", capture:true}, G));
 
             G.getLayer("myLayer").appendChild(new (Class.forName("js.awt.CanvasGroup"))({id: "g1", x:300, y: 0, width: 200, height: 100, capture:true}, G));
-
-            G.drawRect({ id: "rect", width:150, height: 150, strokeStyle:"#0000ff",
-                        fillStroke:2, fillLinearGradient:{x0:10, y0:10, x1:210, y1:210, colors:[[0, "#10FF10"],[1,"#100010"]]}, capture:true});
-
-            
-            G.drawSector({id:"arc", cx:100, cy:100, r:50, startAngle: 30, endAngle: 180, 
-                       fillStroke: 1,
-                       strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true});
-            
-
-            var E0 = G.drawEllipse({id:"ellipse0", cx:200, cy:200, rx: 60, ry: 30, capture:true, layer:"myLayer"});
-            var E1 = G.drawEllipse({id:"ellipse1", cx:200, cy:200, rx: 30, ry: 60, capture:true, layer:"myLayer"});
-
-            var lineB = G.drawLine({id:"line-blue", x0:200, y0:0, x1:200, y1:400, strokeStyle:"#0000ff", hitLineWidth: 6, capture:true});
-            var lineG = G.drawLine({id:"line-green", x0:0, y0:200, x1:400, y1:200, strokeStyle:"#00ff00", capture:true});
-
-            var circle = G.drawCircle({id:"circle", cx:200, cy:20, r:10, fillStroke:3,strokeStyle: "#00FF00", fillStyle: "#FF0000", capture:true, layer:"myLayer"});
-
-            G.drawPolyline({id:"polyline", points:[[0,10, 300],[1,200, 250],[1,350, 350]], capture:true, hitLineWidth:3});
-
-            var polygon = G.drawPolygon({id:"polygon", layer:"myLayer",points:[[0,40,320],[1,80, 250],[1,160, 320],[3,160, 360, 120, 360, 40],[1,80, 360]], fillStroke:3, strokeStyle:"red", fillStyle: "rgb(123,34,156)", fillOpacity:0.5, lineWidth:4, capture:true});
-
-              var text0 = G.drawText({id:"text0", text: "Hello world 中文 1234567890", x:0, y:0, width:100, height:40, fontSize:16, fontWeight: "bolder",  rotate: 315, align_y:0.5, align_x:0.0, capture:true});
-
-			var C1 = G.drawCircle({id:"C1", cx:300, cy:300, r:50});
-
-			var T1 = G.drawTriangle({id:"T1", cx:300, cy: 300, r:50, offset:90});
-            var T2 = G.drawTriangle({id:"T2", cx:300, cy: 300, r:50, offset:270});
-            var S1 = G.drawStar({id:"S1", cx:300, cy: 300, r:50, 
-                                fillStyle:"#FF0000", fillStroke:2});
-            var S2 = G.drawSquare({id:"S2", cx:300, cy: 300, r:50, 
-                                strokeStyle:"#0000FF"});
-
-            var S3 = G.drawRPolygon({id:"S3", cx:300, cy: 150, r:50, ends:4, rscale:0.375,
-                                fillStyle:"#00FF00", fillStroke:2});
-
-            /*
-            var http = J$VM.XHRPool.getXHR(true);
-            http.setRequestHeader("responseType", "arraybuffer");
-            //http.setRequestHeader("Origin", "http://www.baidu.com");
-            http.onsuccess = function(e){
-                var xhr = e.getData();
-                var abuf = xhr.response();
-                var dataUrl=["data:",xhr.contentType(),";base64,"];
-                dataUrl.push(js.util.Base64.encodeArray(abuf, js.util.Base64.standardB64));
-                dataUrl = dataUrl.join("");
-                document.getElementById("my-image").src = dataUrl;
-                xhr.close();
-            };
-            http.open("GET", "http://www.baidu.com/img/bdlogo.gif", null);
-            //http.open("GET", "http://a.tile.opencyclemap.org/cycle/1/1/0.png", null);
-            //http.open("GET", "http://b.tile.openstreetmap.org/1/1/0.png", null);
-            //http.open("GET", "test.png", null);
-            */
-            Class.loadImage(document.getElementById("my-image"), "http://www.baidu.com/img/bdlogo.gif");
-			
-            G.drawImage({id:"image0", gid:"g1", image:"http://a.tile2.opencyclemap.org/transport/1/1/0.png", x:0, y:0, width:48, height:48, rotate:0, capture:true, layer:"myLayer"});        
-
-            G.drawText({id:"text1", text: "for Row", x:380, y:50, width: 20, height:50, rotate: 90});
-
-            G.drawImage({id:"image1", image:"test.png", x:380, y:100, width: 20, height:20, rotate: 90});
+		
 
             G.drawText({id:"text2",text: "Drop", fontSize: 16, x:380, y:120, width: 20, height:40, rotate: 90});
 
             var r = 16;
             var r1 = r; //r*Math.cos(Math.PI/4);
-            G.drawCircle({cx:100, cy:210, r:r1, ends:4, rscale:1, offset:45, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1});
+            G.drawCircle({cx:100, cy:210, r:r1, ends:4, rscale:1, offset:45, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:2, lineWidth:1,angleUnit: "rad"});
 
-            G.drawRPolygon({ cx:100, cy:210, r:r1, ends:4, rscale:1, offset:45, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1});
+            G.drawRPolygon({ cx:200, cy:210, r:r1, ends:8, rscale:0.1, offset:45, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1,angleUnit: "rad"});
 
             G.drawRPolygon({ cx:100, cy:210, r:r1, ends:16, rscale:0, offset:90, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1});
 
             G.drawRPolygon({ cx:100, cy:210, r:r1, ends:3, rscale:1, offset:90, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:1, lineWidth:1});
 
             G.drawRPolygon({ cx:100, cy:210, r:r1, ends:4, rscale:1, offset:90, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:2, lineWidth:1});
-
+            
+            G.drawImage({image:".vt?$=['webos','HttpProxyGetAction',{target:'http://www.baidu.com/img/bdlogo.gif'}]"});
             this.addComponent(G);
             G.draw();
         
@@ -134,7 +77,7 @@
                 var shape = e.getEventTarget();
 		        System.err.println(shape.id+"---"+e.getType()+" "+e._bubble);
 		    };
-
+            /*
 		    circle.attachEvent("mousedown", 4, this, _onMouseEvents);
 		    circle.attachEvent("mouseup", 4, this, _onMouseEvents);
 		    circle.attachEvent("mouseover", 4, this, _onMouseEvents);                  
@@ -150,28 +93,28 @@
             lineB.attachEvent("mousemove", 4, this, _onMouseEvents);
             lineB.attachEvent("click", 4, this, _onMouseEvents);
             lineB.attachEvent("dblclick", 4, this, _onMouseEvents);
-           
+            */
             
 
-            var count = 0;
-            (function(){
-                polygon.translate(1.5, -1.5);
-                circle.translate(0, 1.5);
-                text0.translate(1.5, 1.5);
-                text0.setAttr("fillStyle", Color.randomColor().toString("rgba"));
-                E0.rotate(30*Math.PI/180, 200, 200);
-                E1.rotate(-5*Math.PI/180, 200, 200);
-                //triangle3.setOffsetDegree(count);
-                T1.rotate(15*Math.PI/180, 300, 300);
-                T2.rotate(-5*Math.PI/180, 300, 300);
-                S1.setAttr("rscale", Math.abs(count-100)/90 -1);
-                S1.translate(-1, 0);
-                S3.setAttr("ends", 4+2*(count%15));
-                count ++;
-                if(count < 200){
-                  G.draw.$delay(G, 0, null, arguments.callee.$bind(this));
-                }
-            })();
+            //~ var count = 0;
+            //~ (function(){
+                //~ polygon.translate(1.5, -1.5);
+                //~ circle.translate(0, 1.5);
+                //~ text0.translate(1.5, 1.5);
+                //~ text0.setAttr("fillStyle", Color.randomColor().toString("rgba"));
+                //~ E0.rotate(30*Math.PI/180, 200, 200);
+                //~ E1.rotate(-5*Math.PI/180, 200, 200);
+                //~ //triangle3.setOffsetDegree(count);
+                //~ T1.rotate(15*Math.PI/180, 300, 300);
+                //~ T2.rotate(-5*Math.PI/180, 300, 300);
+                //~ S1.setAttr("rscale", Math.abs(count-100)/90 -1);
+                //~ S1.translate(-1, 0);
+                //~ S3.setAttr("ends", 4+2*(count%15));
+                //~ count ++;
+                //~ if(count < 200){
+                  //~ G.draw.$delay(G, 0, null, arguments.callee.$bind(this));
+                //~ }
+            //~ })();
             
         });
     </script>

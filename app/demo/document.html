@@ -1,0 +1,65 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>J$VM Document</title>
+
+  <style>
+      __PSEUDO__ {background-color:gray;}
+      
+      body{
+        margin: 0px;
+        border: 0px none;
+        padding: 0px;
+        
+      }
+      
+      span {
+        cursor: default;
+      }
+  </style>
+
+  <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+  
+  <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js" 
+          classpath="
+                     lib/jquery-1.4.2.min.js;
+                     lib/swfobject.js;
+                     lib/raphael-min.js;
+                     lib/apply-style.js;
+                     "></script> 
+  <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js" ></script>
+
+  <script type="text/javascript">
+  
+    J$VM.exec("Demo", function(System){
+        this.prefer({dashboard:{theme: "default"}}); 
+
+        var DOM = J$VM.DOM, System = J$VM.System, 
+        dom = new js.awt.Component({
+            css: "display:block;border:1px solid blue;",
+            width: 160, height: 20,
+            
+            x: 10, y: 10
+            
+        }, this);
+        
+        this.addComponent(dom);
+        
+        DOM.setAttribute(dom.view, "class", "testClassName");
+        System.err.println(dom.view.className);
+        System.err.println(DOM.getAttribute(dom.view, "class"));
+        
+        DOM.removeAttribute(dom.view, "class");
+        System.err.println(dom.view.className);
+        System.err.println(DOM.getAttribute(dom.view, "class"));
+});
+</script>
+
+</head>
+<body>
+</body>
+</html>
+

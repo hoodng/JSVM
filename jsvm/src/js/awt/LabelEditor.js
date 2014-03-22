@@ -86,6 +86,9 @@ js.awt.LabelEditor = function(label, listener) {
 		        this.styles[p] = spStyles[p];
 		    }
 		}
+		if (! label.bounds) {
+		    label.bounds = DOM.getBounds(label);
+		}
 		if(this.listener.def.autoFit){
 			s = DOM.getStringSize(js.lang.String.decodeHtml(this.text || label.innerHTML || ""), this.styles);
 			w = s.width + label.bounds.MBP.BPW;
