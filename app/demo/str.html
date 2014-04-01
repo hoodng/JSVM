@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>User-defined tooltips</title>
+
+  <style>
+      __PSEUDO__ {background-color:gray;}
+      
+      body{
+        margin: 0px;
+        border: 0px none;
+        padding: 0px;
+        
+      }
+      
+      span {
+        cursor: default;
+      }
+  </style>
+  
+  <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js" 
+          classpath=""></script> 
+
+  <script type="text/javascript">
+  
+    J$VM.exec("Demo", function(System){
+        this.initialize();
+
+        var Class = js.lang.Class, Str = js.lang.String,  System = J$VM.System,
+        regExpStr = "^([<.*?+>\\]$)", estr, regExp, unestr;
+        
+        System.err.println(regExpStr);
+        
+        estr = Str.escapeRxMetaChars(regExpStr);
+        System.err.println(estr);
+        
+        regExp = new RegExp(estr);
+        System.err.println(regExp.source);
+        System.err.println(estr === regExp.source);
+        
+        unestr = Str.unescapeRxMetaChars(estr);
+        System.err.println(unestr);
+});
+</script>
+
+</head>
+<body>
+</body>
+</html>
+

@@ -1,0 +1,94 @@
+.mapApp_client {
+    padding: 1px 1px 3px 1px;
+}
+
+.map_gpanel {
+    border-style: solid;
+    border-color: #E1E1E1;
+    border-width: 0px 1px 1px 1px;
+
+    padding: 0px;
+}
+
+.mapArea {
+    border-style: solid;
+    border-color: #E1E1E1;
+    border-width: 0px 1px 1px 0px;
+
+    padding: 12px;
+}
+
+/******** For SearchBox ***********/
+.searchBox, .searchBox_0 {
+    border: 1px solid #e6e6e6;
+    vertical-align: middle;
+    padding: 4px;
+    background-color: #FFFFFF;
+    position: absolute;
+
+}
+
+.searchBox_keywordBox, .searchBox_keywordBox_0{
+    border: 1px solid #C4C4C4;
+    padding: 1px;
+    position: absolute;
+}
+
+.searchbox_textfield, .searchbox_textfield_0 {
+    background-color: #FFFFFF;
+    overflow: hidden;
+    position: absolute;
+}
+
+.btnclosed, .btnclosed_0,
+.btnclosed_2, .btnclosed_4 {
+    border: 1px solid transparent;
+    background-color: #FFFFFF;
+    cursor: pointer;
+}
+
+.btnclosed_2, .btnclosed_4 {
+    background-color: #ffe6a3;
+    border: 1px solid #FFbd89;
+}
+
+.btnmenu, .btnmenu_0,
+.btnmenu_2, .btnmenu_4 {
+    border: 1px solid transparent;
+    background-color: #FFFFFF;
+    cursor: pointer;
+    position: absolute;
+}
+
+.btnmenu_2, .btnmenu_4 {
+    background-color: #ffe6a3;
+    border: 1px solid #FFbd89;
+}
+
+.btnclosed_icon {
+    height:16px; width: 16px;
+}
+
+.btnmenu_icon {
+    height: 3px; width:5px;
+}
+
+.btnprevious, .btnprevious_0,
+.btnprevious_2, .btnprevious_4 {
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    position: absolute;
+}
+
+.btnprevious_2, .btnprevious_4 {
+    border: 1px solid #FFbd89;
+    background-color: #ffe6a3;
+    cursor: pointer;
+}
+
+.btnprevious_icon {
+    width: 7px;
+    height: 4px;
+}
+
+/********* End SearchBox  **********/
