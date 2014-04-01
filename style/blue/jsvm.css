@@ -2161,7 +2161,7 @@ body {
     position: absolut;
     display: block;
     
-    height: 15px;
+    line-height: 15px;
 }
 
 /*********** End ToolTip ************/

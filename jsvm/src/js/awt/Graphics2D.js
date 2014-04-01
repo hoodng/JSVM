@@ -284,7 +284,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         if(this.contains(ele, true) || ele === this._coverView){
             
             XY = this.curLayer().relative(e.eventXY());
-            shape = _detectShape.call(this, XY.x, XY.y);
+            shape = this.detectShape(XY.x, XY.y);
 
             if(!shape){
                 if(U.curShape){
@@ -326,7 +326,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         return true;
     };
 
-    var _detectShape = function(x, y){
+    thi$.detectShape = function(x, y){
         var items = this.items(), i, len, layer, shape, shapes = [];
 
         for(i=0, len=items.length; i<len; i++){

@@ -62,12 +62,13 @@
         label.setText({abc: {abc: 123}});
         
         // label.setTipObj(tipLabel);
+        label.layerDef({css:"background-color:#FFFFFF;color:#000000;", shadow:true});
         label.setTipLabel("Base Component Labrary");
         
         label.adjustTipObj = function(e){
             var tipObj = this.getTipObj();
             if(tipObj){
-                tipObj.setText("Show 'Base Component Labrary' at " 
+                tipObj.setText("Show 'Base Component Labrary at:\n" 
                     + JSON.stringify(e.eventXY()));
                 
                 return true;

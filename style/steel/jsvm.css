@@ -2021,12 +2021,10 @@ body {
 }
 
 .jsvm_flatTree_item_2, .jsvm_flatTree_item_6 {
-
     cursor: pointer;
 }
 
 .jsvm_flatTree_item_4 {
-
     cursor: pointer;
 }
 
@@ -2161,7 +2159,7 @@ body {
     position: absolut;
     display: block;
     
-    height: 15px;
+    line-height: 15px;
 }
 
 /*********** End ToolTip ************/

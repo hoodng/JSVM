@@ -67,6 +67,8 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
 		S : "(\\d{1,3})", SSS : "(\\d{3})",
 		z : "(\\S+)", Z : "([\\-\\+]\\d{2,4})"
 	};
+    
+    var SetterOrder = js.util.LinkedList.$decorate(["y", "M", "d"]);
 	
 	var Getter = new function(){
 		var _pad  = function(val, len){val = "000"+String(val); return val.slice(val.length - (len || 2)); };
@@ -138,14 +140,17 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
 
 		CLASS.infos = CLASS.infos || {};
 
-		var info = CLASS.infos[pattern];
+		var info = CLASS.infos[pattern], pIndex, str;
 		if(info) return;
 
 		info = CLASS.infos[pattern] = {};
-
-		var pIndex = info.pIndex = js.util.LinkedList.newInstance();
+		pIndex = info.pIndex = js.util.LinkedList.newInstance();
+        
+        // Escape the RegExp meta characters
+        // Only parsing operation need to escape, formatting needn't
+        pattern = js.lang.String.escapeRxMetaChars(pattern);
 		
-		var str = pattern.replace(
+		str = pattern.replace(
 			TOKEN, 
 			function($0){
 				var t = $0.charAt(0);
@@ -222,17 +227,40 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
 	 * @param isUTC, boolean type, whether is UTC
 	 * 
 	 * @return Date
+     * 
+     * P.S. 03/25/2014 Pan Mingfa
+     * When we set value to a Date object, the order of year, month, date should
+     * be followed. Otherwise, if the February is setten first, and then set 29th 
+     * as date, the month will be changed as March because 1970 is not leap year
+     * and the February has no 29 days. So, we need to set year first to determine
+     * the leap year, and then set month and date.
 	 */
 	thi$.parse = function(datestr, strict, isUTC){
 		var info = CLASS.infos[this.pattern], 
 		pIndex = info.pIndex, _symbols = this.symbols, 
-		date, m = datestr.match(info.dPattern),$0;
+		date, m = datestr.match(info.dPattern), $0, v,
+		idx, mvs = [], i, len, obj;
 		if(m){
 			date = new Date(1970, 0, 1);
-			for(var i=1, len = m.length; i<len; i++){
+			for(i = 1, len = m.length; i < len; i++){
 				$0 = pIndex[i-1];
-				date = Setter[$0](date, m[i], _symbols, isUTC);				  
+				v = m[i];
+				
+				idx = SetterOrder.indexOf($0.charAt(0));
+				if(idx !== -1){
+					mvs[idx] = [$0, v];
+				}else{
+					date = Setter[$0](date, m[i], _symbols, isUTC);
+				}
 			}
+			
+			for(i = 0, len = mvs.length; i < len; i++){
+				obj = mvs[i];
+				if(obj){
+					date = Setter[obj[0]](date, obj[1], _symbols, isUTC);
+				}
+			}
+
 			return date;
 		}
 

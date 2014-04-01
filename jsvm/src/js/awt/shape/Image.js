@@ -54,8 +54,6 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
     
     var Class = js.lang.Class, System = J$VM.System, DOM = J$VM.DOM,
         Graph = Class.forName("js.awt.Graphics2D");
-    
-    var images = J$VM.storage.images; // For cacheing image
 
     thi$.getShapeInfo = function(){
         var M = this.def, U = this._local, 
@@ -80,21 +78,18 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
         };
     };
 
-    var _getImage = function(imgId){
-        return images.getItem(imgId) || document.getElementById(imgId);
-    };
 
     thi$.beforeDraw = function(layer, callback){
         _loadImage.call(this, layer, callback);
     }.$override(this.beforeDraw);
 
     var _loadImage = function(layer, callback){
-        var M = this.def, imgId = M.image, image = imgId, 
-            thisObj = this;
+        var M = this.def, imgId = M.image, image = imgId;
+
         if(Class.isString(imgId)){
             Class.loadImage(imgId, function(img){
-                _onload.call(thisObj, imgId, img, layer, callback);
-            }, true);
+                _onload.call(this, imgId, img, layer, callback);
+            }.$bind(this), true, true);
             return;
         }
         _onload.call(this, imgId, image, layer, callback);

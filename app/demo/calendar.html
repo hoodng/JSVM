@@ -36,14 +36,32 @@ J$VM.exec("org.jsvm.App",function(System){
                               hasExp: true,
                               hasUTD: true,
                               preValue:{
-                                  date:{dateObj: new Date()},
-                                  pattern: "yyyy-MM-dd HH:mm:ss"
+                                  date:{dateObj: new Date(1998, 1, 16)},
+                                  pattern: "yyyy'년' M'월' d'일' '(\'EE\')'"
                               },
                               locale: new (Class.forName("js.util.Locale"))("ko","KR") 
 
                           }, this);
 
     this.addComponent(calendar);
+
+    var pattern = "yyyy'년' M'월' d'일' '(\'EE\')'",
+    locale = new (Class.forName("js.util.Locale"))("ko", "KR"), 
+    symbols = new(Class.forName("js.text.DateFormatSymbols"))(this.getDateSymbolsByLocale(locale)), 
+    DF = new (Class.forName("js.text.SimpleDateFormat"))(pattern, symbols), 
+    d, dateStr;
+    
+    System.err.println("Pattern: " + pattern);
+    
+    d = new Date(1998, 1, 23)
+    System.err.println("Date: " + d);
+    dateStr = DF.format(d);
+    System.err.println("Formatted: " + dateStr);
+    
+    dateStr = "1998년 2월 16일 (월)";
+    System.err.println("DateStr: " + dateStr);
+    d = DF.parse(dateStr);
+    System.err.println("Parsed: " + d);
     
 });
 </script>

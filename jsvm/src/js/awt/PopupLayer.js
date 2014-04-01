@@ -289,12 +289,14 @@ js.awt.PopupLayer = function () {
         this.setAutoHide(false);
         
         var arg = arguments ? arguments[1] : undefined,
-        evt = new js.util.Event(type || "hide", arg, this);
+        evt = new Event(type || "hide", arg, this);
         this.Runtime().LM.onHide(evt);
     };
 
-    thi$.hideOthers = function () {
-        this.Runtime().LM.clearStack();
+    thi$.hideOthers = function (type) {
+        var arg = arguments ? arguments[1] : undefined,
+        evt = new Event(type || "hide", arg, this);
+        this.Runtime().LM.clearStack(evt);
     };
     
     var _createFocusBox = function () {

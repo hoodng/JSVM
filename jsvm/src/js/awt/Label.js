@@ -41,243 +41,263 @@ $package("js.awt");
  * Define Label component
  * 
  * @param def:{
- *            className: required, css: optional,
+ *			  className: required, css: optional,
  * 
- *            text: optional,
+ *			  text: optional,
  * 
- *            editable:optional 
+ *			  editable:optional 
  * }
  */
 js.awt.Label = function(def, Runtime) {
-    
-    var CLASS = js.awt.Label, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+	
+	var CLASS = js.awt.Label, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System, MQ = J$VM.MQ;
 
-    thi$.getPreferredSize = function(){
-        if(this.def.prefSize == undefined 
-           && this.isDOMElement()){
-            
-            var textSize = DOM.getTextSize(this.view),
-            d = this.getBounds(),
-            w = textSize.width + d.MBP.BPW,
-            h = textSize.height+ d.MBP.BPH;
+	thi$.getPreferredSize = function(){
+		if(this.def.prefSize == undefined 
+		   && this.isDOMElement()){
+			
+			var textSize = DOM.getTextSize(this.view),
+			d = this.getBounds(),
+			w = textSize.width + d.MBP.BPW,
+			h = textSize.height+ d.MBP.BPH;
 
-            this.setPreferredSize(w, h);
-        }
-        
-        return this.def.prefSize;
+			this.setPreferredSize(w, h);
+		}
+		
+		return this.def.prefSize;
 
-    }.$override(this.getPreferredSize);
-    
-    thi$.getText = function() {
-        return this.def.text;
-    };
+	}.$override(this.getPreferredSize);
+	
+	thi$.getText = function() {
+		return this.def.text;
+	};
 
-    /**
-     * Sets lable text, only and only if encode == false, the text
-     * won't be encoded for html.
-     */
-    thi$.setText = function(text, encode) {
-        this.def.text = text || "";
-        this.view.innerHTML = (encode == false) ? 
-            this.def.text : js.lang.String.encodeHtml(this.def.text);
+	/**
+	 * Sets lable text, only and only if encode == false, the text
+	 * won't be encoded for html.
+	 */
+	thi$.setText = function(text, encode) {
+		this.def.text = text || "";
 
-        if(!this.isPreferredSizeSet){
-            this.def.prefSize = undefined;
-            this.getPreferredSize();
-        }
+		var view = this.view, M = this.def, 
+		v = (encode == false) ? 
+			M.text : js.lang.String.encodeHtml(M.text),
+		tmpEle, oTextNode;
 
-    };
+		/*
+		 * Ref: http://msdn.microsoft.com/en-us/library/ms533897(VS.85).aspx
+		 * The innerHTML property is read-only on the col, colGroup, 
+		 * frameSet, html, head, style, table, tBody, tFoot, tHead, 
+		 * title, and tr objects
+		 *
+		 * However, in IE9-, if a span is the child of those DOM elements listed
+		 * above, it cannot set the value with innerHTML, too.
+		 */
+		try {
+			view.innerHTML = v;
+		} catch (e){
+			oTextNode = view.childNodes[0];
+			tmpEle = document.createElement("SPAN");
+			
+			oTextNode.replaceNode(tmpEle.childNodes[0]);
+		}
 
-    thi$.setEMail = function(text) {
-        this.def.text = text || "";
-        var mail = document.createElement("A"),
-        str = js.lang.String.encodeHtml(this.def.text);
-        mail.href = "mailto:" + str;
-        this.view.appendChild(mail);
-        mail.innerHTML = str;
+		if(!this.isPreferredSizeSet){
+			this.def.prefSize = undefined;
+			this.getPreferredSize();
+		}
+	};
 
-        if(!this.isPreferredSizeSet){
-            this.def.prefSize = undefined;
-            this.getPreferredSize();
-        }
+	thi$.setEMail = function(text) {
+		this.def.text = text || "";
+		var mail = document.createElement("A"),
+		str = js.lang.String.encodeHtml(this.def.text);
+		mail.href = "mailto:" + str;
+		this.view.appendChild(mail);
+		mail.innerHTML = str;
 
-    };
+		if(!this.isPreferredSizeSet){
+			this.def.prefSize = undefined;
+			this.getPreferredSize();
+		}
 
-    thi$.isEditable = function(){
-        return this.def.editable || false;
-    };
+	};
 
-    thi$.setEditable = function(b) {
-        b = b || false;
+	thi$.isEditable = function(){
+		return this.def.editable || false;
+	};
 
-        this.def.editable = b;
+	thi$.setEditable = function(b) {
+		b = b || false;
 
-        if (b) {
-            this.detachEvent("dblclick", 0, this, _onDblClick);
-            this.attachEvent("dblclick", 0, this, _onDblClick);
-        } else {
-            this.detachEvent("dblclick", 0, this, _onDblClick);
-        }
-    };
+		this.def.editable = b;
 
-    var _onDblClick = function(e){
-        if(!this.isEditable()) return;
+		if (b) {
+			this.detachEvent("dblclick", 0, this, _onDblClick);
+			this.attachEvent("dblclick", 0, this, _onDblClick);
+		} else {
+			this.detachEvent("dblclick", 0, this, _onDblClick);
+		}
+	};
 
-        e.cancelBubble();
-        
-        var editor = 
-            new (Class.forName("js.awt.LabelEditor"))(this.view, this);
+	var _onDblClick = function(e){
+		if(!this.isEditable()) return;
 
-        MQ.register("js.awt.event.LabelEditorEvent", this, _onedit);
+		e.cancelBubble();
+		
+		var editor = 
+			new (Class.forName("js.awt.LabelEditor"))(this.view, this);
 
-        editor.doEdit();
-    };
-    
-    var _onedit = function(e){
-        var data = e.getData(); 
-        this.setText(data.text, undefined, true);
-        e.getEventTarget().destroy();
-        MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
+		MQ.register("js.awt.event.LabelEditorEvent", this, _onedit);
 
-        this.notifyContainer(
-            "js.awt.event.LabelTextEvent", new Event("changed", {}, this));
-        
-        this.setChanged();
-        this.notifyObservers();
-    };
+		editor.doEdit();
+	};
+	
+	var _onedit = function(e){
+		var data = e.getData(); 
+		this.setText(data.text, undefined, true);
+		e.getEventTarget().destroy();
+		MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
 
-    /**
-     * @param keyword: The keyword of the <em>RegExp</em> object which is used 
-     *        to matched.
-     * @param mode: "global|insensitive|wholeword".
-     * @param highlightClass: the style class name for highlighting text.
-     */
-    thi$.highlightAll = function(keyword, mode, highlightClass) {
-        var text = this.getText();
-        if (!keyword || !mode || !text)
-            return;
+		this.notifyContainer(
+			"js.awt.event.LabelTextEvent", new Event("changed", {}, this));
+		
+		this.setChanged();
+		this.notifyObservers();
+	};
 
-        text = js.lang.String.encodeHtml(text);
-        //J$VM.System.out.println("Text:" + text);
-        keyword = js.lang.String.encodeHtml(keyword);
+	/**
+	 * @param keyword: The keyword of the <em>RegExp</em> object which is used 
+	 *		  to matched.
+	 * @param mode: "global|insensitive|wholeword".
+	 * @param highlightClass: the style class name for highlighting text.
+	 */
+	thi$.highlightAll = function(keyword, mode, highlightClass) {
+		var text = this.getText();
+		if (!keyword || !mode || !text)
+			return;
 
-        var kit = Class.forName("js.swt.SearchKit"),
-        pattern = kit.buildRegExp(keyword, mode);
-        if(!pattern){
-            return;
-        }
-        
-        var className = highlightClass;
-        if (!className) {
-            className = this.__buf__.clear().append(this.def.className)
-                .append("_").append("highlight").toString();
-        }
+		text = js.lang.String.encodeHtml(text);
+		//J$VM.System.out.println("Text:" + text);
+		keyword = js.lang.String.encodeHtml(keyword);
 
-        var newText = text.replace(
-            pattern, 
-            function(m) {
-                return "<span class=\"" + className + "\">" + m + "</span>";
-            });
+		var kit = Class.forName("js.swt.SearchKit"),
+		pattern = kit.buildRegExp(keyword, mode);
+		if(!pattern){
+			return;
+		}
+		
+		var className = highlightClass;
+		if (!className) {
+			className = this.__buf__.clear().append(this.def.className)
+				.append("_").append("highlight").toString();
+		}
 
-        this.view.innerHTML = newText;
-        newText = null;
-    };
-    
-    /**
-     * @param matches: <em>Array</em>, each element in it is a object maintained 
-     *        each match's start index and its length. Its structure is as follow:
-     *        [
-     *          {start: m, length: x},
-     *          ...
-     *          {start: n, length: x}     
-     *        ]
-     *
-     * @param highlightClass: the style class name for highlighting text.
-     */
-    thi$.highlightMatches = function(matches, highlightClass) {
-        var text = this.getText();
-        if (!C.isString(text)) return;
+		var newText = text.replace(
+			pattern, 
+			function(m) {
+				return "<span class=\"" + className + "\">" + m + "</span>";
+			});
 
-        var className = highlightClass;
-        if (!className) {
-            className = this.__buf__.clear().append(this.def.className)
-                .append("_").append("highlight").toString();
-        }
+		this.view.innerHTML = newText;
+		newText = null;
+	};
+	
+	/**
+	 * @param matches: <em>Array</em>, each element in it is a object maintained 
+	 *		  each match's start index and its length. Its structure is as follow:
+	 *		  [
+	 *			{start: m, length: x},
+	 *			...
+	 *			{start: n, length: x}	  
+	 *		  ]
+	 *
+	 * @param highlightClass: the style class name for highlighting text.
+	 */
+	thi$.highlightMatches = function(matches, highlightClass) {
+		var text = this.getText();
+		if (!C.isString(text)) return;
 
-        var rpSeg = new js.lang.StringBuffer(), subStr = null,
-        mCnt = matches ? matches.length : 0, aMatches = null,
-        vernier = 0;
-        
-        for(var i = 0; i < mCnt; i++){
-            aMatches = matches[i];
-            if(aMatches.start > vernier){
-                subStr = text.substring(vernier, aMatches.start);
-                subStr = js.lang.String.encodeHtml(subStr);
-                rpSeg.append(subStr);
-                
-                subStr = text.substr(aMatches.start, aMatches.length);
-                subStr = js.lang.String.encodeHtml(subStr);
-                subStr = "<span class=\"" + className + "\">" + subStr + "</span>";
-                rpSeg.append(subStr);
-                
-                vernier = aMatches.start + aMatches.length;
-            }else if(aMatches.start == vernier){
-                subStr = text.substr(aMatches.start, aMatches.length);
-                subStr = js.lang.String.encodeHtml(subStr);
-                subStr = "<span class=\"" + className + "\">" + subStr + "</span>";
-                rpSeg.append(subStr);
-                
-                vernier = aMatches.start + aMatches.length;
-            }else{
-                //Error
-            }
-        }
-        
-        if(vernier <= text.length){
-            subStr = text.substr(vernier);
-            subStr = js.lang.String.encodeHtml(subStr);
-            rpSeg.append(subStr);
-        }
+		var className = highlightClass;
+		if (!className) {
+			className = this.__buf__.clear().append(this.def.className)
+				.append("_").append("highlight").toString();
+		}
 
-        this.view.innerHTML = rpSeg.toString();
-        rpSeg = null;
-    };
+		var rpSeg = new js.lang.StringBuffer(), subStr = null,
+		mCnt = matches ? matches.length : 0, aMatches = null,
+		vernier = 0;
+		
+		for(var i = 0; i < mCnt; i++){
+			aMatches = matches[i];
+			if(aMatches.start > vernier){
+				subStr = text.substring(vernier, aMatches.start);
+				subStr = js.lang.String.encodeHtml(subStr);
+				rpSeg.append(subStr);
+				
+				subStr = text.substr(aMatches.start, aMatches.length);
+				subStr = js.lang.String.encodeHtml(subStr);
+				subStr = "<span class=\"" + className + "\">" + subStr + "</span>";
+				rpSeg.append(subStr);
+				
+				vernier = aMatches.start + aMatches.length;
+			}else if(aMatches.start == vernier){
+				subStr = text.substr(aMatches.start, aMatches.length);
+				subStr = js.lang.String.encodeHtml(subStr);
+				subStr = "<span class=\"" + className + "\">" + subStr + "</span>";
+				rpSeg.append(subStr);
+				
+				vernier = aMatches.start + aMatches.length;
+			}else{
+				//Error
+			}
+		}
+		
+		if(vernier <= text.length){
+			subStr = text.substr(vernier);
+			subStr = js.lang.String.encodeHtml(subStr);
+			rpSeg.append(subStr);
+		}
 
-    thi$.doLayout = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
-            return true;            
-        }
+		this.view.innerHTML = rpSeg.toString();
+		rpSeg = null;
+	};
 
-        return false;
-    }.$override(this.doLayout);
+	thi$.doLayout = function(){
+		if(arguments.callee.__super__.apply(this, arguments)){
+			this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
+			return true;			
+		}
 
-    
-    thi$._init = function(def, Runtime) {
-        if(def == undefined) return;
+		return false;
+	}.$override(this.doLayout);
 
-        def.classType = def.classType || "js.awt.Label";
-        def.className = def.className || "jsvm_label";
-        def.css = (def.css || "") + "margin:0px;white-space:nowrap;";
-        def.text = typeof def.text == "string" ? def.text : "Label";
-        def.viewType = "SPAN";
+	
+	thi$._init = function(def, Runtime) {
+		if(def == undefined) return;
 
-        arguments.callee.__super__.apply(this, arguments);
-        
-        this.setText(this.def.text, true);
-        this.setEditable(this.def.editable);
+		def.classType = def.classType || "js.awt.Label";
+		def.className = def.className || "jsvm_label";
+		def.css = (def.css || "") + "margin:0px;white-space:nowrap;";
+		def.text = typeof def.text == "string" ? def.text : "Label";
+		def.viewType = "SPAN";
 
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
+		arguments.callee.__super__.apply(this, arguments);
+		
+		this.setText(this.def.text, true);
+		this.setEditable(this.def.editable);
+
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);
 

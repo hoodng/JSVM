@@ -64,7 +64,17 @@ js.awt.ToolTip = function(){
 		classType: "js.awt.Label",
 		className: "jsvm_tipObj",
 
+		NUCG: true,
 		stateless: true		   
+	};
+	
+	thi$.layerDef = function(def){
+		var U = this._local, cdef = U.layerDef;
+		if(Class.isObject(def)){
+			cdef = U.layerDef = def;			 
+		}
+		
+		return cdef || {shadow: true};
 	};
 	
 	/**
@@ -88,7 +98,7 @@ js.awt.ToolTip = function(){
 	 * will be created with the given definition.
 	 * 
 	 * @param def: {Object} Definition for the tip object.
-	 */	
+	 */ 
 	thi$.setTipObjByDef = function(def){
 		var classType = def ? def.classType : null,
 		tipClz = Class.isString(classType) 
@@ -120,7 +130,12 @@ js.awt.ToolTip = function(){
 			System.objectCopy(extDef, tdef);
 		}
 		
-		return this.setTipObjByDef(tdef);
+		tipObj = this.setTipObjByDef(tdef);
+		tipObj.doLayout = function(){
+			return;
+		};
+		
+		return tipObj;
 	};
 	
 	/**
@@ -163,7 +178,7 @@ js.awt.ToolTip = function(){
 		tipObj = U.tipObj, xy;
 		if(!tipLayer){
 			tipLayer = this.tipLayer 
-				= new (Class.forName("js.awt.TipLayer"))({}, this.Runtime());
+				= new (Class.forName("js.awt.TipLayer"))(this.layerDef(), this.Runtime());
 			
 			tipObj = U.tipObj;
 			if(tipObj){

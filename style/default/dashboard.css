@@ -206,19 +206,19 @@ body {
 
 .simpleDshMenu,
 .simpleDshMenu_0 {
-    width:160px;
-    border:1px solid #e6e6e6;
-    background-color:#FFFFFF;
+    width: 110px;
+    border: 1px solid #e6e6e6;
+    background-color: #FFFFFF;
 }
 
 .menuDash_item,
 .menuDash_item_0, .menuDash_item_1,
 .menuDash_item_2, .menuDash_item_3{
     height: 20px;
-    background-color:#EEEEEE;
+    background-color: #EEEEEE;
 
-    cursor:default;
-    overflow:hidden;
+    cursor: default;
+    overflow: hidden;
 }
 
 .simpleDshMenu_item,
@@ -226,10 +226,10 @@ body {
 .simpleDshMenu_item_2, .simpleDshMenu_item_3 {
     height: 20px;
     padding: 0px 4px;
-    background-color:#EEEEEE;
+    background-color: #EEEEEE;
 
-    cursor:default;
-    overflow:hidden;
+    cursor: default;
+    overflow: hidden;
 }
 
 .menuDash_item_2,
@@ -258,10 +258,18 @@ body {
     margin-right: 2px;
 }
 
-.menuDash_item_icon,
-.menuDash_item_icon_0 {
+.simpleDshMenu_item_marker,
+.simpleDshMenu_item_marker_0, .simpleDshMenu_item_marker_4 {
     width: 0px;
-    height:16px;
+    height: 0px;
+}
+
+.menuDash_item_icon,
+.menuDash_item_icon_0,
+.simpleDshMenu_item_icon,
+.simpleDshMenu_item_icon_0 {
+    width: 0px;
+    height: 0px;
 }
 
 .menuDash_item_label,

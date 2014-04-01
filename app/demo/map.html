@@ -13,6 +13,10 @@
       });
     </script>
     <script type="text/javascript" src="../../jsvm/src/org/jsvm/map/TileMapRender.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/org/jsvm/map/MapComponent.js"></script>
+    <style>
+      .map {border: none;}
+    </style>
   </head>
   <body style="width:100%;height:100%;">
   </body>
@@ -54,15 +58,16 @@
         },
         
         client:{
-            classType:"org.jsvm.map.TileMapRender",
+            classType:"org.jsvm.map.MapComponent",
+            className:"MapComponent",
             constraints:"center"
             
         },
         resizer :255,
         mover:{longpress: 5, bt:1.0, bl:1.0}, movable:true,
         x:50, y:50,
-        width: 530,
-        height: 380
+        width: 685,
+        height: 480
     },this);
 
     this.addComponent(DemoWindow);
@@ -70,55 +75,6 @@
     var map = DemoWindow.getElementById("client");
     DemoWindow.addMoverRestricted(map);
     map.setMapInfo();
-
-    
-    var _doZoom = function(data){
-        var delta = data.delta, 
-            dp = this.relative(data.xy),
-            zoom = this.getZoom();
-        if(delta > 0){
-            // zoom in
-            zoom += 1;
-            zoom = Math.min(zoom, this.getMaxZoom());
-        }else{
-            // zoom out
-            zoom -= 1;
-            zoom = Math.max(zoom, 0);
-        }
-        this.zoom(zoom, dp.x, dp.y);
-    }
-    
-    var _onmousewheel = function(e){
-        _doZoom.$clearTimer();
-        _doZoom.$delay(map, 300, {
-            delta: e.getData().wheelDelta,
-            xy : e.eventXY()
-        });
-    };
-
-    var _onmousedown = function(e){
-        var xy = this._local.clickXY = e.eventXY();
-        if(e.button == 1){
-            Event.attachEvent(document, "mousemove", 0, this, _onmousemove);
-            Event.attachEvent(document, "mouseup", 0, this, _onmouseup);
-        }
-    };
-
-    var _onmousemove = function(e){
-        var oxy = this._local.clickXY, xy = e.eventXY();
-        this.transform(xy.x - oxy.x, xy.y - oxy.y);
-        this._local.clickXY = xy;
-    };
-
-    var _onmouseup = function(e){
-        Event.detachEvent(document, "mousemove", 0, this, _onmousemove);        
-        Event.detachEvent(document, "mouseup", 0, this, _onmouseup);
-    };
-
-    var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel";
-    map.attachEvent(mousewheel, 0, map, _onmousewheel);
-    map.attachEvent("mousedown",0, map, _onmousedown);
-
     
     });
   </script>

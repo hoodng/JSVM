@@ -138,7 +138,7 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
             maxZoom: 17,
             zoom: 1,
             tileSize: 256,
-            mapcoords:[134,454,303,102]
+            mapcoords:[0, 511, 511, 0]
         };
     
     /**
@@ -155,7 +155,7 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
             this.tileservice = service;
         }
         this.mapinfo = mapinfo || System.objectCopy(MAPINFO, {});
-        var bound = this.getBounds(), mw, mh, dw, dh,
+        var bound = this.getBounds(), mw, mh, dw, dh, cx, cy,
             rect = this.mapinfo.mapcoords,
             size = this.mapinfo.tileSize << this.mapinfo.zoom;
         
@@ -174,12 +174,39 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         dw = (mw - bound.width) /2.0;
         dh = (mh - bound.height)/2.0;
 
-        rect[0] += dh;        
         rect[1] -= dw;
-        rect[2] -= dh;
         rect[3] += dw;
-        
-        this._calcTiles(this.mapinfo, bound);
+        rect[0] += dh;
+        rect[2] -= dh;    
+
+        if(bound.width < size){
+            if(rect[3]<0.0){
+                rect[3] = 0;
+                rect[1] = bound.width;
+            }else if(rect[1] > size){
+                rect[1] = size - 1;
+                rect[3] = rect[1] - bound.width;
+            }
+        }
+
+        if(bound.height < size){
+            if(rect[0] < 0){
+                rect[0] = 0;
+                rect[2] = bound.height;
+            }else if(rect[2] > size){
+                rect[2] = size - 1;
+                rect[0] = rect[2] - bound.height;
+            }
+        }
+
+        cx = (rect[1] - rect[3])/2.0;
+        cy = (rect[2] - rect[0])/2.0;
+        this.zoom(this.mapinfo.zoom, cx, cy);
+
+    };
+
+    var _onloadCallback = function(image){
+        image.style.visibility = "visible";
     };
 
     thi$._calcTiles = function(mapinfo, bound){
@@ -193,10 +220,9 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
             cache = this.cache;
         
         tt = tt < 0 ? 0 : (tt >= max ? max-1 : tt);
-        tr = tr < 0 ? 0 : (tr >= max ? max-1 : tr);
         tb = tb < 0 ? 0 : (tb >= max ? max-1 : tb);
-        tl = tl < 0 ? 0 : (tl >= max ? max-1 : tl);
 
+        this.areas = [];
 
         for(var i=tt; i<=tb; i++){
             for(var j=tl; j<=tr; j++){
@@ -213,13 +239,18 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
                 if(!image){
                     image = tile.image = this._getCachedImage(key);
                     if(DOM.getAttribute(image, "__key__") != key){
-                        image.src = this._getImageUrl(mapinfo.zoom, j, i);
+                        image.src = this._getImageUrl(
+                            mapinfo.zoom, (j<0 ? Math.abs(max+j) : j)%max, i);
                     }
                 }
                 image.style.left = tile.x+"px";
                 image.style.top = tile.y+"px";
                 image.style.visibility = "visible";
                 _tiles[key] = tile; 
+
+                if(i == tt){
+                    _split.call(this, j, size, max);
+                }
             }
         }
 
@@ -240,6 +271,24 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         this.tiles = _tiles;
     };
 
+    var _split = function(j, size, max){
+        var tx = (j < 0 ? Math.abs(max+j) : j)%max,
+            areas = this.areas;
+        if(areas.length == 0){
+            if(j < 0){
+                if(tx == 0){
+                    areas.push({x: j*size});
+                }else{
+                    areas.push({x: (j-tx)*size});
+                }
+            }else{
+                areas.push({x: 0});
+            }
+        }else if(tx == 0){
+            areas.push({x: j*size});
+        }
+    };
+
     thi$._getImageUrl = function(zoom, x, y){
         var servers = this.tileservice.server,
             entry = servers[this.count++%servers.length];
@@ -253,6 +302,9 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
             img.style.position = "absolute";
             img.style.width = "256px";
             img.style.height= "256px";
+            img.style.visibility = "hidden";
+            img.className="map";
+            img.src="data:image/png;base64,R0lGODlhAQABAIAAAP8zzAAAACH5BAEAAAAALAAAAAABAAEAQAIChFEAOwA=";
             this.view.appendChild(img);
         }
         return img;
@@ -276,7 +328,8 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         k2 = mapinfo.tileSize << zoom, 
         mx = cx/k1, my = cy/k1;
         
-        if(mx < 0 || mx > 1 || my < 0 || my > 1) return;
+        mx = mx < 0 ? (1+mx) : (mx > 1 ? (mx-1) : mx);
+        my = my < 0 ? 0 : (my > 1 ? 1 : my);
 
         if(rBase){
             rect[1] = mx * k2 + dx;
@@ -297,25 +350,32 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         mapinfo.zoom = zoom;
         mapinfo.rBase = rBase;
         mapinfo.bBase = bBase;
-        
         this._calcTiles(this.mapinfo, bound);        
     };
 
     thi$.transform = function(offsetX, offsetY){
         var mapinfo = this.mapinfo, rect = mapinfo.mapcoords,
-            bound = this.getBounds();
+            cx, cy, dx, dy;
+        
+        dx = rect[3];
+        dy = rect[0];
 
-        rect[3] -= offsetX;
-        rect[1] -= offsetX;
         rect[0] -= offsetY;
+        rect[1] -= offsetX;
         rect[2] -= offsetY;
+        rect[3] -= offsetX;
 
-        this._calcTiles(this.mapinfo, bound);        
+        cx = (rect[1] - rect[3])/2.0;
+        cy = (rect[2] - rect[0])/2.0;
+        this.zoom(mapinfo.zoom, cx, cy);
+        
+        dx -= rect[3];
+        dy -= rect[0];
+
+        return {dx: dx, dy:dy};
     };
 
     thi$.onResized = function(){
-        arguments.callee.__super__.apply(this, arguments);
-
         var mapinfo = this.mapinfo, cbound = this.getBounds(),
             obound, rect, cx, cy, rBase, bBase;
         if(mapinfo){
@@ -327,6 +387,8 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
             bBase = (cbound.absY != obound.absY);
             this.zoom(mapinfo.zoom, cx, cy, rBase, bBase);
         }
+
+        arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.onResized);
 
@@ -345,6 +407,32 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         };
     };
 
+    thi$.repeatXPoint = function(point, areas){
+        var p, ret = [];
+        areas = areas || this.areas;
+
+        for(var i=0, len=areas.length; i<len; i++){
+            ret.push([point[0]+areas[i].x, point[1]]);
+        }
+        return ret;
+    };
+
+    thi$.repeatXPoly = function(poly){
+        var areas = this.areas, i, len, p, ret=[];
+
+        for(i=0, len=areas.length; i<len; i++){
+            ret.push([]);
+        }
+
+        for(i=0, len=poly.length; i<len; i++){
+            p = this.repeatXPoint(poly[i], areas);
+            for(var j=0, jen=p.length; j<jen; j++){
+                ret[j].push(p[j]);
+            }
+        }
+        return ret;
+    };
+
     var _onsizing = function(){
         var bound = this.getBounds(), obound = this._local.obound;
         obound.absX = bound.absX;
@@ -358,9 +446,9 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         arguments.callee.__super__.apply(this, arguments);
 
         this.view.style.overflow = "hidden";
-        this.tileservice = def.tileservice || TileServices["GoogleMap"];
+        this.tileservice = def.tileservice || TileServices["MapQuestMap"];
         this.tiles = {};
-        this.cache = new (Class.forName("js.util.MemoryStorage"))(64);
+        this.cache = new (Class.forName("js.util.MemoryStorage"))(128);
         this.count = 0;
         this._local.obound = {absX: 0, absY: 0};
         MQ.register(Event.SYS_EVT_RESIZING, this, _onsizing);

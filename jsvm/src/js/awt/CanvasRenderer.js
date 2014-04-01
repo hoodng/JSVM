@@ -246,8 +246,8 @@ js.awt.CanvasRenderer = function(config){
     };
 
     thi$.fix = function(v){
-        v = Math.round(v) - 0.5;
-        return (v < 0) ? 0.0 : v;
+        v = Math.round(v);
+        return  (v > 0 ? (v - 0.5) : (v < 0 ? (v + 0.5) : v));
     };
     
     /**
@@ -293,6 +293,7 @@ js.awt.CanvasRenderer = function(config){
         
         if(clip){
             ctx.beginPath();
+            var i, len, c, x, y;
             for(i=0, len=clip.length; i<len; i++){      
                 c = clip[i];
                 x = c[1]; y = c[2]; 

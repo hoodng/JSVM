@@ -4,9 +4,9 @@
 (function(){
 
      var env = {
-         pid: "<%=pid%>",
+         pid: "<%=jet.server.util.WebSecurityUtil.escapeJavaScript(pid)%>",
          getsEntry: "<%=servletPrefix%>vt",
-         postEntry: "<%=pid%>.vt",
+         postEntry: "<%=jet.server.util.WebSecurityUtil.escapeJavaScript(pid)%>.vt",
             
          userinfo: <%= userinfo.toString()%>,
             

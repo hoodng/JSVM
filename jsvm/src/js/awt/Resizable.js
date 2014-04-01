@@ -395,15 +395,24 @@ js.awt.Resizable = function(){
     };
     
     var _onsizingevent = function(e){
+        // If subclass has own user-defined event handle, invoke it.
+        // And if the boolean true was returned, break current handl.
+        if(Class.isFunction(this.onUDFResizing) 
+            && this.onUDFResizing(e)){
+            return;
+        }
+        
         var eType = e.getType(), target = e.getEventTarget(), 
         x, y, w, h;
 
         if(eType == "mouseup"){
             x = target.getX(); y = target.getY();
             w = target.getWidth(); h = target.getHeight();
+            
             if(x != this.getX() || y != this.getY()){
                 this.setPosition(x, y, 0x0F);
             }
+            
             if(w != this.getWidth() || h != this.getHeight()){
                 this.setSize(w, h, 0x0F);
             }
@@ -427,9 +436,9 @@ js.awt.Resizable = function(){
                 if(J$VM.ie){
                     buf.append("background-color:#FFFFFF;");
                     if(parseInt(J$VM.ie) < 10){
-                    	buf.append("filter:alpha(Opacity=0);");
+                        buf.append("filter:alpha(Opacity=0);");
                     }else{
-                    	buf.append("opacity:0;");
+                        buf.append("opacity:0;");
                     }
                 }
                 div.style.cssText = buf.toString();
@@ -491,25 +500,32 @@ js.awt.Resizable = function(){
      * @param resizer a number 0 to 255 identifies 8 directions
      */
     thi$.setResizable = function(b, resizer){
-        this.def = this.def || {resizer: 255};
         this._local = this._local || {};
+
         b = b || false;
+        resizer = Class.isNumber(resizer) ? (resizer & 0x0FF) : 255;
         
-        var M = this.def;
+        var M = this.def, U = this._local;
+        if(U.resizableSettled && M.resizable === b){
+            if(b == false || M.resizer === resizer){
+                return;
+            }else{
+                this.removeResizer(true);
+            }
+        }
 
         M.resizable = b;
-        M.resizer = Class.isNumber(resizer) ? (resizer & 0x0FF) : 255;
+        M.resizer = resizer;
         M.mover = M.mover || {};
         M.mover.grid = M.mover.grid || 1;
 
         if(b){
-            _createResizer.call(this, this.def.resizer);
+            _createResizer.call(this, M.resizer);
             if(this.isDOMElement()){
                 this.addResizer();
                 this.adjustResizer();
             }
         }else{
-            this.def.resizable = false;
             this.removeResizer(true);
         }
         
@@ -518,7 +534,7 @@ js.awt.Resizable = function(){
             MBP: {BW: 0, BH: 0, PW: 0, PH: 0, BPW: 0, BPH: 0}
         };
         
-        this._local.resizableSettled = true;
+        U.resizableSettled = true;
     };
     
     thi$.resizableSettled = function(){

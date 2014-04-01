@@ -411,6 +411,8 @@ js.text.BigIntTools = function(){
         pattern = pattern.replace(/\)/g, "\\\)");
         pattern = pattern.replace(/\{/g, "\\\{");
         pattern = pattern.replace(/\}/g, "\\\}");
+        pattern = pattern.replace(/\^/g, "\\\^");
+        pattern = pattern.replace(/\|/g, "\\\|");
         
         return pattern;
     };

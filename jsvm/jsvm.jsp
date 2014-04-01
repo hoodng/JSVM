@@ -2,5 +2,5 @@
     pageEncoding="UTF-8"%>
 <% 
 String queryString = request.getQueryString();
-response.sendRedirect("../app/entry/jsvm.jsp?"+queryString);
+response.sendRedirect("../app/entry/jsvm.jsp?"+jet.server.util.WebSecurityUtil.escapeJavaScript(queryString));
 %>

@@ -129,7 +129,7 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
     
     thi$.scale = function(Sx, Sy, xF, yF){
         xF = xF || 0, yF = yF || 0;
-        this.transform(Sx, 0, 0, Sy, 0, (1-Sx)*xF, (1-Sy)*yF);        
+        this.transform(Sx, 0, 0, Sy, (1-Sx)*xF, (1-Sy)*yF);        
     };
 
     thi$.rotate = function(theta, xR, yR){

@@ -2139,27 +2139,18 @@ body {
 }
 /******** End FlatTree ************/
 
-/*********** For ToolTip ************/
-.jsvm_tipLayer,
-.jsvm_tipLayer_0 {
-    color: #FFFFFF;
-    background-color: black; /* #FFFF9F; */
-    
-    padding: 2px;
-    
-    -moz-border-radius: 5px;
-    -khtml-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    border-radius: 5px;
-    
-    cursor: default;
+.json_textfield, .json_textfield_0 {
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    padding-left: 2px;
+    overflow: hidden;
 }
 
 .jsvm_tipObj {
     position: absolut;
     display: block;
     
-    height: 15px;
+    line-height: 15px;
 }
 
 /*********** End ToolTip ************/
