@@ -55,10 +55,46 @@ org.jsvm.map.MapComponent = function(def, Runtime){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, System = J$VM.System, 
-        Event = js.util.Event, MQ = J$VM.MQ, DOM = J$VM.DOM;
+        Event = js.util.Event, MQ = J$VM.MQ, DOM = J$VM.DOM,
+        MapMath = Class.forName("org.jsvm.map.MapMath");
 
     thi$.setMapInfo = function(){
         this.map.setMapInfo.apply(this.map, arguments);
+    };
+
+    thi$.showGeoCode = function(geoCode, shape){
+        var G = this.g2d, M = this.map, L = G.curLayer();
+
+        if(L.marker){
+            L.removeChild("marker");
+        }
+
+        if(!geoCode){
+            this.geoCode = null;
+            this.marker = null;
+            G.draw();
+            return;
+        }
+
+        this.geoCode = geoCode;
+
+        var mapinfo = M.getMapInfo(),
+            rect = mapinfo.mapcoords,
+            size = mapinfo.tileSize << mapinfo.zoom,
+            x = MapMath.lng2pixel(geoCode.lng, size) - rect[3],
+            y = MapMath.lat2pixel(geoCode.lat, size) - rect[0];
+
+        shape = shape || {type: "circle", 
+                          r: 7, 
+                          fillStroke: 2,
+                          fillStyle: "#FF0000",
+                          fillOpacity: 0.8,
+                          capture: true};
+        shape.id = "marker";
+        shape.cx = x;
+        shape.cy = y;
+        this.marker = G.drawShape(shape.type, shape);
+        G.draw();
     };
 
     thi$.doLayout = function(){
@@ -83,6 +119,9 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             zoom = Math.max(zoom, 0);
         }
         this.map.zoom(zoom, dp.x, dp.y);
+        if(this.marker){
+            this.showGeoCode(this.geoCode, this.marker.def);
+        }
     };
     
     var _onmousewheel = function(e){
@@ -94,34 +133,118 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         });
     };
 
+    var _detectMove = function(e){
+        var U = this._local, G = this.g2d, 
+            xy = U.eventXY = e.eventXY(), 
+            rxy = G.relative(xy), shape;
+
+        Event.attachEvent(document, "mousemove", 0, this, _onmousemove);
+        Event.attachEvent(document, "mouseup", 0, this, _onmouseup);
+        U.inDrag = true;
+
+        shape = G.detectShape(rxy.x, rxy.y);
+        if(shape == null){
+            U.dragEle= this.map;
+        }else if(shape === this.marker) {
+            U.dragEle= this.marker;
+            U.inDrag = false;
+        }
+    };
+
     var _onmousedown = function(e){
-        var xy = this._local.clickXY = e.eventXY();
+        var G = this.g2d, 
+            xy = e.eventXY(), rxy = G.relative(xy);
         if(e.button == 1){
-            Event.attachEvent(document, "mousemove", 0, this, _onmousemove);
-            Event.attachEvent(document, "mouseup", 0, this, _onmouseup);
+            _detectMove.$delay(
+                this, 
+                System.getProperty("j$vm_longpress", 145), e);
         }
     };
 
     var _onmousemove = function(e){
-        var oxy = this._local.clickXY, xy = e.eventXY();
-        this.map.transform(xy.x - oxy.x, xy.y - oxy.y);
-        this._local.clickXY = xy;
+        _detectMove.$clearTimer();
+        var U = this._local, oxy = U.eventXY, xy = e.eventXY(),
+            dx, dy, moveObj;
+        if(!U.notified){
+            MQ.post(Event.SYS_EVT_MOVING,"");
+            U.notified = true;
+        }
+        
+        dx = xy.x - oxy.x; dy = xy.y - oxy.y;
+        moveObj = U.dragEle;
+        if(moveObj === this.map){
+            moveObj.transform(dx, dy);
+            if(this.marker){
+                this.marker.translate(dx, dy);
+            }
+        }else if(moveObj === this.marker){
+            moveObj.translate(dx, dy);
+        }
+
+        U.eventXY = xy;
     };
 
     var _onmouseup = function(e){
+        var U = this._local, M = this.map, 
+            mk = this.marker, geoCode = this.geoCode;
+
+        _detectMove.$clearTimer();
+        MQ.post(Event.SYS_EVT_MOVED, "");
+
         Event.detachEvent(document, "mousemove", 0, this, _onmousemove);        
         Event.detachEvent(document, "mouseup", 0, this, _onmouseup);
+        U.notified = false;
+        U.inDrag = false;
+        
+        if(U.dragEle && U.dragEle === mk){
+            var def = mk.def, TR = mk.getTransform(), xy;
+            def.cx += TR.dx;
+            def.cy += TR.dy;
+            mk.setTransform(1,0,0,1,0,0);
+            xy = M.getMercatorXY({x:def.cx, y:def.cy});
+            geoCode.lng = MapMath.inverseMercatorX(xy.x);
+            geoCode.lat = MapMath.inverseMercatorY(xy.y);
+            this.fireEvent(new Event("geocodechanged", geoCode, this), true);
+        }
+        
+        U.dragEle = undefined;
+    };
+
+    var _onMapMousemove = function(e){
+        var M = this.map;
+        if(this._local.inDrag != true && M.isReady()){
+            var XY = M.getMercatorXY(M.relative(e.eventXY())),
+                lng, lat;
+            lng = MapMath.inverseMercatorX(XY.x),
+            lat = MapMath.inverseMercatorY(XY.y);
+            this.board.setData({
+                Longitude: lng.$format("###.######"),
+                Latitude: lat.$format("###.######")
+            });
+        }
     };
 
     var _initDef = function(def){
-        def.items = ["map","g2d"];
+        def.items = ["map","g2d", "board"];
         def["map"] = {
             classType: "org.jsvm.map.TileMapRender",
+            stateless: true,
             css: "position:absolute;"
         };
         def["g2d"] = {
             classType: "js.awt.Graphics2D",
-            css: "position:absolute;"
+            stateless: true,
+            css: "position:absolute;",
+            capture: true
+        };
+        def["board"] = {
+            classType: "js.awt.Board",
+            stateless: true,
+            css: "position:absolute;left:5px;",
+            data:{
+                Longitude: "000.000000",
+                Latitude: "000.000000"
+            }
         };
     };
 
@@ -135,6 +258,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel";
         this.attachEvent(mousewheel, 0, this, _onmousewheel);
         this.attachEvent("mousedown",0, this, _onmousedown);
+        this.attachEvent("mousemove", 0, this, _onMapMousemove);
 
     }.$override(this._init);
     

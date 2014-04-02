@@ -42,7 +42,11 @@ js.lang.System = function (env, vm){
     this.currentTimeMillis = function(){
         return (new Date()).getTime();
     };
-
+    
+    this.hasProperty = function(key){
+        return props.contains(key);  
+    };
+    
     this.getProperties = function(){
         return props;
     };
@@ -54,6 +58,10 @@ js.lang.System = function (env, vm){
     this.setProperty = function(key, value){
         props.setProperty(key, value);
         return this.getProperty(key);
+    };
+    
+    this.removeProperty = function(key){
+        return props.remove(key);  
     };
 
     this.setOut = function(print){

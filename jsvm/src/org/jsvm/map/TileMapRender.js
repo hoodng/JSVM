@@ -205,6 +205,36 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
 
     };
 
+    thi$.getMapInfo = function(){
+        return this.mapinfo;
+    };
+
+    thi$.isReady = function(){
+        return this.mapinfo != undefined;
+    };
+
+    thi$.getMapCoords = function(){
+        return this.getMapInfo().mapcoords;
+    };
+
+    thi$.getMercatorXY = function(xy){
+        var mapinfo = this.mapinfo, rect = mapinfo.mapcoords,
+            size = mapinfo.tileSize << mapinfo.zoom,
+
+            mx = (xy.x + rect[3])/size, my = (xy.y + rect[0])/size;
+                    while(mx < 0){
+                mx += 1;
+            }
+
+            while(mx > 1){
+                mx -= 1;
+            }
+
+		    my = my < 0 ? 0 : (my > 1 ? 1 : my);
+        
+        return {x: mx, y:my };
+    };
+
     var _onloadCallback = function(image){
         image.style.visibility = "visible";
     };
@@ -327,8 +357,15 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         k1 = mapinfo.tileSize << mapinfo.zoom, 
         k2 = mapinfo.tileSize << zoom, 
         mx = cx/k1, my = cy/k1;
-        
-        mx = mx < 0 ? (1+mx) : (mx > 1 ? (mx-1) : mx);
+
+        while(mx < 0){
+            mx += 1;
+        }
+
+        while(mx > 1){
+            mx -= 1;
+        }
+
         my = my < 0 ? 0 : (my > 1 ? 1 : my);
 
         if(rBase){

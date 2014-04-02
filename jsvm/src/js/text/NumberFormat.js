@@ -234,7 +234,7 @@ js.text.NumberFormat = function(pattern, symbols){
             }
         }
 
-        buf.unshift(s == -1 ? minus : "");
+        buf.unshift(s == -1 ? minus : " ");
         
         return buf.join("");;
         
