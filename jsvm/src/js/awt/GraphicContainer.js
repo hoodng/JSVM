@@ -122,7 +122,7 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
     thi$.removeChild = function(){
         var ele = arguments.callee.__super__.apply(this, arguments);
 
-        if(ele.instanceOf(js.awt.GraphicElement)){
+        if(ele && ele.instanceOf(js.awt.GraphicElement)){
             var cache = this.getLayer().cachedShapes();
             delete cache[ele.colorKey().uuid];
         }

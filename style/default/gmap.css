@@ -15,7 +15,7 @@
     border-color: #E1E1E1;
     border-width: 0px 1px 1px 0px;
 
-    padding: 12px;
+    padding: 2px 6px;
 }
 
 /******** For SearchBox ***********/
@@ -94,15 +94,28 @@
 /********* End SearchBox  **********/
 
 /** For Board **/
+.mapComp_board,
+.mapComp_board_0 {
+
+}
+
 .mapComp_board_label,
 .mapComp_board_label_0 {
+    display: block;
+
     font-weight: bold;
     color: #505050;
+    
+    text-align: right;
 }
 
 .mapComp_board_field,
 .mapComp_board_field_0 {
     background-color:transparent;
+    
     font-weight: bold;
     color: red;
+    
+    padding: 0px 2px;
+    border: 0 none;
 }

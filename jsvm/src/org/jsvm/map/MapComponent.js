@@ -56,36 +56,56 @@ org.jsvm.map.MapComponent = function(def, Runtime){
     
     var Class = js.lang.Class, System = J$VM.System, 
         Event = js.util.Event, MQ = J$VM.MQ, DOM = J$VM.DOM,
-        MapMath = Class.forName("org.jsvm.map.MapMath");
+        MapMath = Class.forName("org.jsvm.map.MapMath"),
+        DBLPATTERN = "###.######";
 
     thi$.setMapInfo = function(){
         this.map.setMapInfo.apply(this.map, arguments);
     };
 
-    thi$.showGeoCode = function(geoCode, shape){
-        var G = this.g2d, M = this.map, L = G.curLayer();
-
-        if(L.marker){
-            L.removeChild("marker");
+    thi$.autoFit = function(autoFit){
+        var U = this._local;
+        U.autoFit = autoFit;
+        if(U.autoFit == true){
+            if(this.geoCode){
+                
+            }
+        }else{
+            
         }
+    };
+
+
+    thi$.showGeoCode = function(geoCode, shape){
+        var G = this.g2d, M = this.map, L = G.curLayer(),
+            mapinfo = M.getMapInfo();
+
+        L.removeChild("marker");
+        L.removeChild("boundingbox");
 
         if(!geoCode){
             this.geoCode = null;
             this.marker = null;
+            this.boundingbox = null;
             G.draw();
             return;
         }
 
         this.geoCode = geoCode;
+        _drawBoundingBox.call(this, G, mapinfo, geoCode);
+        _drawMarker.call(this, G, mapinfo, geoCode, shape);
 
-        var mapinfo = M.getMapInfo(),
-            rect = mapinfo.mapcoords,
+        G.draw();
+    };
+
+    var _drawMarker = function(G, mapinfo, geoCode, shape){
+        var rect = mapinfo.mapcoords,
             size = mapinfo.tileSize << mapinfo.zoom,
             x = MapMath.lng2pixel(geoCode.lng, size) - rect[3],
             y = MapMath.lat2pixel(geoCode.lat, size) - rect[0];
 
         shape = shape || {type: "circle", 
-                          r: 7, 
+                          r: 7,
                           fillStroke: 2,
                           fillStyle: "#FF0000",
                           fillOpacity: 0.8,
@@ -94,9 +114,33 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         shape.cx = x;
         shape.cy = y;
         this.marker = G.drawShape(shape.type, shape);
-        G.draw();
     };
 
+    var _drawBoundingBox = function(G, mapinfo, geoCode, shape){
+        var rect = mapinfo.mapcoords, 
+            bound = geoCode.boundingbox,
+            size = mapinfo.tileSize << mapinfo.zoom,
+            t = MapMath.lat2pixel(bound[0], size) - rect[0],
+            r = MapMath.lng2pixel(bound[1], size) - rect[3],
+            b = MapMath.lat2pixel(bound[2], size) - rect[0],
+            l = MapMath.lng2pixel(bound[3], size) - rect[3];
+
+        shape = shape || {type: "rect",
+                          strokeStyle: "#ffd070",
+                          fillStroke: 3,
+                          fillStyle: "#ffdf7c",
+                          fillOpacity: 0.3,
+                          capture: true,
+                          lineWidth: 3};
+        shape.id = "boundingbox";
+        shape.x = l;
+        shape.y = t;
+        shape.width = r-l;
+        shape.height = b-t;
+        
+        this.boundingbox = G.drawRect(shape);
+    };
+    
     thi$.doLayout = function(){
         if(arguments.callee.__super__.apply(this, arguments)){
             var bounds = this.getBounds(), MBP = bounds.MBP;
@@ -119,8 +163,9 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             zoom = Math.max(zoom, 0);
         }
         this.map.zoom(zoom, dp.x, dp.y);
-        if(this.marker){
-            this.showGeoCode(this.geoCode, this.marker.def);
+        
+        if(this.geoCode){
+            this.showGeoCode(this.geoCode, this.marker.def);            
         }
     };
     
@@ -145,9 +190,19 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         shape = G.detectShape(rxy.x, rxy.y);
         if(shape == null){
             U.dragEle= this.map;
-        }else if(shape === this.marker) {
-            U.dragEle= this.marker;
-            U.inDrag = false;
+        }else if(Runtime.isEditMode()){
+            if(shape == this.marker){
+                U.dragEle= this.marker;
+                U.inDrag = false;
+            }else if(shape == this.boundingbox){
+                var dx = rxy.x - shape.def.x,
+                    dy = rxy.y - shape.def.y;
+                if(dx > 3 && dy > 3 && dx < shape.def.width - 6 
+                   && dy < shape.def.height - 6){
+                    U.dragEle= this.boundingbox;
+                    U.inDrag = false;
+                }
+            }
         }
     };
 
@@ -176,8 +231,13 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             moveObj.transform(dx, dy);
             if(this.marker){
                 this.marker.translate(dx, dy);
+            } 
+            if(this.boundingbox){
+                this.boundingbox.translate(dx,dy);
             }
         }else if(moveObj === this.marker){
+            moveObj.translate(dx, dy);
+        }else if(moveObj === this.boundingbox){
             moveObj.translate(dx, dy);
         }
 
@@ -186,7 +246,8 @@ org.jsvm.map.MapComponent = function(def, Runtime){
 
     var _onmouseup = function(e){
         var U = this._local, M = this.map, 
-            mk = this.marker, geoCode = this.geoCode;
+            mk = this.marker, bbox = this.boundingbox,
+            geoCode = this.geoCode;
 
         _detectMove.$clearTimer();
         MQ.post(Event.SYS_EVT_MOVED, "");
@@ -202,9 +263,11 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             def.cy += TR.dy;
             mk.setTransform(1,0,0,1,0,0);
             xy = M.getMercatorXY({x:def.cx, y:def.cy});
-            geoCode.lng = MapMath.inverseMercatorX(xy.x);
-            geoCode.lat = MapMath.inverseMercatorY(xy.y);
+            geoCode.lng = parseFloat(MapMath.inverseMercatorX(xy.x).$format(DBLPATTERN));
+            geoCode.lat = parseFloat(MapMath.inverseMercatorY(xy.y).$format(DBLPATTERN));
             this.fireEvent(new Event("geocodechanged", geoCode, this), true);
+        }else if(U.dragEle && U.dragEle === bbox){
+            _boundingBoxChanged.call(this);
         }
         
         U.dragEle = undefined;
@@ -218,10 +281,36 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             lng = MapMath.inverseMercatorX(XY.x),
             lat = MapMath.inverseMercatorY(XY.y);
             this.board.setData({
-                Longitude: lng.$format("###.######"),
-                Latitude: lat.$format("###.######")
+                Longitude: lng.$format(DBLPATTERN),
+                Latitude: lat.$format(DBLPATTERN)
             });
         }
+    };
+    
+    var _onShapeChanged = function(e){
+        var shape = e.getData();
+        if(shape.id == "boundingbox"){
+            _boundingBoxChanged.call(this);
+        }
+    };
+    
+    var _boundingBoxChanged = function(){
+        var t, r, b, l, xy1, xy2,
+            U = this._local, M = this.map, 
+            bbox = this.boundingbox, geoCode = this.geoCode,
+            def = bbox.def, TR = bbox.getTransform();
+            
+        def.x += TR.dx;
+        def.y += TR.dy;
+        bbox.setTransform(1,0,0,1,0,0);
+        xy1 = M.getMercatorXY({x: def.x, y: def.y});
+        xy2 = M.getMercatorXY({x: def.x+def.width, y: def.y+def.height});
+
+        geoCode.boundingbox[0] = parseFloat(MapMath.inverseMercatorY(xy1.y).$format(DBLPATTERN));
+        geoCode.boundingbox[1] = parseFloat(MapMath.inverseMercatorX(xy2.x).$format(DBLPATTERN));
+        geoCode.boundingbox[2] = parseFloat(MapMath.inverseMercatorY(xy2.y).$format(DBLPATTERN));
+        geoCode.boundingbox[3] = parseFloat(MapMath.inverseMercatorX(xy1.x).$format(DBLPATTERN));
+        this.fireEvent(new Event("geocodechanged", geoCode, this), true);
     };
 
     var _initDef = function(def){
@@ -259,7 +348,16 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         this.attachEvent(mousewheel, 0, this, _onmousewheel);
         this.attachEvent("mousedown",0, this, _onmousedown);
         this.attachEvent("mousemove", 0, this, _onMapMousemove);
-
+        
+        this.paintTool = new (Class.forName("org.jsvm.map.PaintTool"))({
+            graphic: this.g2d,
+            toolState: "modify",
+            shapeType: "js.awt.shape.Rect"
+        },Runtime);
+        
+        this.paintTool.setPeerComponent(this);
+        MQ.register("shapeChanged", this, _onShapeChanged);
+        
     }.$override(this._init);
     
     this._init.apply(this, arguments);

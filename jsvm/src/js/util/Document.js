@@ -1085,15 +1085,29 @@ js.util.Document = function (){
     /**
      * Calculate the text size of the specified span node.
      * 
-     * @param span: A "SPAN" DOM node.
+     * @param ele: A DOM node with text as display content,
+     *        include "SPAN", "INPUT", "TEXTAREA"
      */
-    thi$.getTextSize = function(span){
-        if(!span || span.tagName !== "SPAN"){
+    thi$.getTextSize = function(ele){
+        var tagName = ele ? ele.tagName : null,
+        str, styles;
+        switch(tagName){
+        case "SPAN":
+            str = js.lang.String.decodeHtml(ele.innerHTML);
+            break;
+        case "INPUT":
+        case "TEXTAREA":
+            str = ele.value;
+            break;
+        default:
+            break;
+        }
+        
+        if(!Class.isValid(str)){
             return {width: 0, height: 0};
         }
         
-        var str = js.lang.String.decodeHtml(span.innerHTML),
-        styles = this.getStyles(span, textSps);
+        styles = this.getStyles(ele, textSps);
         return this.getStringSize(str, styles);
     };
     

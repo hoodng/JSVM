@@ -2155,4 +2155,31 @@ body {
 
 /*********** End ToolTip ************/
 
+/** For Board **/
+.jsvm_board,
+.jsvm_board_0 {
+    border: 1px solid #EEEEEE;
+}
+
+.jsvm_board_label,
+.jsvm_board_label_0 {
+    display: block;
+
+    font-weight: bold;
+    color: #505050;
+    
+    text-align: right;
+}
+
+.jsvm_board_field,
+.jsvm_board_field_0 {
+    background-color:transparent;
+    
+    font-weight: bold;
+    color: red;
+    
+    padding: 0px 2px;
+    border: 0 none;
+}
+
 /********************************************************************/
