@@ -134,6 +134,7 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
     var Class = js.lang.Class, System = J$VM.System, 
         Event = js.util.Event, MQ = J$VM.MQ, DOM = J$VM.DOM,
         TileServices = org.jsvm.map.TileServices,
+        MapMath = Class.forName("org.jsvm.map.MapMath"),
         MAPINFO = {
             maxZoom: 17,
             zoom: 1,
@@ -443,6 +444,105 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
             resolution: J$VM.supports.logicalXDPI
         };
     };
+
+    thi$.getIdeaMapInfo = function(geoCode, zoom){
+        var mapinfo = this.mapinfo, 
+            rect = geoCode.boundingbox,
+            bound = this.getBounds(), 
+            size, x, y, ret = {
+                maxZoom: mapinfo.maxZoom,
+                tileSize: mapinfo.tileSize,
+                mapcoords:[0, 0, 0, 0]
+            }, mt, mr, mb, ml, vw, vh, mw, mh, dw, dh;
+
+        ret.zoom = Math.min(
+            (Class.isNumber(zoom) ? zoom : 4), 
+            this.calcZoom(rect));
+        size = mapinfo.tileSize << ret.zoom;
+        
+        mt = MapMath.lat2pixel(rect[0], size);
+        mr = MapMath.lng2pixel(rect[1], size);
+        mb = MapMath.lat2pixel(rect[2], size);
+        ml = MapMath.lng2pixel(rect[3], size);
+		vw = bound.width;
+		vh = bound.height;
+		
+        if (vw >= size) {
+			ml = 0;
+			mr = size - 1;
+		}
+
+		if (vh >= size) {
+			mt = 0;
+			mb = size - 1;
+        }
+        
+		mw = mr - ml + 1;
+		mh = mb - mt + 1;
+		dw = (mw - vw) / 2.0;
+		dh = (mh - vh) / 2.0;
+
+		mt += dh;
+		mb -= dh;
+		ml += dw;
+		mr -= dw;
+
+		if (vw < size) {
+			if (ml < 0.0) {
+				ml = 0;
+				mr = vw;
+			} else if (mr > size) {
+				mr = size - 1;
+				ml = mr - vw;
+			}
+		}
+
+		if (vh < size) {
+			if (mt < 0.0) {
+				mt = 0;
+				mb = vh;
+			} else if (mb > size) {
+				mb = size - 1;
+				mt = mb - vh;
+			}
+		}
+
+        rect = ret.mapcoords;
+        rect[0] = mt;
+        rect[1] = mr;
+        rect[2] = mb;
+        rect[3] = ml;
+        
+        return ret;
+    };
+
+
+	thi$.calcZoom = function(rect) {
+		var mapinfo = this.mapinfo, bound  = this.getBounds(),
+		    d = MapMath.MIN_DIFF,
+		    lngMd = Math.abs(MapMath.mercatorX(rect[1])
+				             - MapMath.mercatorX(rect[3])),
+            latMd = Math.abs(MapMath.mercatorY(rect[2])
+				             - MapMath.mercatorY(rect[0])),
+            wZoom, hZoom;
+
+		lngMd = lngMd < d ? d : lngMd;
+		latMd = latMd < d ? d : latMd;
+
+        wZoom = _calcZoom0.call(this, lngMd, bound.innerWidth, mapinfo.tileSize);
+		hZoom = _calcZoom0.call(this, latMd, bound.innerHeight,mapinfo.tileSize);
+
+		return Math.min(wZoom, hZoom);
+	};
+
+	var _calcZoom0 = function(md, v, tileSize) {
+		var zoom = 0, w = md * tileSize;
+		while (w < v) {
+			w = md * (tileSize << ++zoom);
+		}
+		zoom = (zoom == 0) ? 0 : zoom - 1;
+		return zoom;
+	};
 
     thi$.repeatXPoint = function(point, areas){
         var p, ret = [];

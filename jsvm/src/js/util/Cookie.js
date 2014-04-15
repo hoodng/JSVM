@@ -110,7 +110,7 @@ js.util.Cookie = function (k, v, e, p, d, s){
         return buf.toString();
     };
     
-    thi$._init = function(k, v, e){
+    thi$._init = function(k, v, e, p, d, s){
         this._name = k;
 
         this.setValue(v);

@@ -242,7 +242,7 @@ js.lang.System = function (env, vm){
     var _buildEnv = function(){
         var script = document.getElementById("j$vm");
         if (script) {
-            var attrs = script.attributes, name, value;
+            var attrs = script.attributes, name, value, params;
             for(var i=0, len=attrs.length; i<len; i++){
                 name = attrs[i].nodeName; value = attrs[i].nodeValue;
                 switch(name){
@@ -250,6 +250,10 @@ js.lang.System = function (env, vm){
                 case "crs":
                     var p = value.lastIndexOf("/");
                     this.setProperty("j$vm_home", value.substring(0,p));
+                    params = new js.net.URI(value).params;
+                    for(p in params){
+                        this.setProperty(p, params[p]);
+                    }
                     break;
                 case "classpath":
                     value = value.replace(/(\s*)/g, "");

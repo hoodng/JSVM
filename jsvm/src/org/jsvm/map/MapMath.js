@@ -44,7 +44,7 @@ org.jsvm.map.MapMath = new function(){
 
     var RAD = Math.PI / 180.0, 
         TWICEPI = 2.0 * Math.PI;
-    
+
     /**
      * Mercator project longitude to 0~1
      *
@@ -104,6 +104,8 @@ org.jsvm.map.MapMath = new function(){
     this.pixel2lat = function(y, size){
         return this.inverseMercatorY(y / size);
     };
+
+    this.MIN_DIFF = this.mercatorX(15.0 / 3600.0) - 0.5;
 
     if(!Math.sinh){
         Math.sinh = function(x){

@@ -2605,10 +2605,6 @@ table {
     /*border-right : 1px solid #FFFFFF;*/
 }
 
-.today {
-    background: #b3b3b3;
-}
-
 .cal_sel {
     background: #FFDF7C;
 }
@@ -6232,7 +6228,7 @@ Slider
 
 .wizzard_item_2, .wizzard_item_4,
 .wizzard_item_6 {
-	background: #ffdf7c;
+    background: #ffdf7c;
 }
 
 .wizzard_item_marker {

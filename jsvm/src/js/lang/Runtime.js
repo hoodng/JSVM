@@ -497,7 +497,7 @@ js.lang.Runtime = function(){
     
     // Initialize locale with userinfo
     var _initLocale = function(){
-        var userinfo = this.userInfo(), locale = this.locale(),
+        var userinfo = this.userInfo() || {}, locale = this.locale(),
         lang = userinfo.lang, country = userinfo.country;
         
         if(!locale){

@@ -40,6 +40,7 @@ $package("org.jsvm.map");
 $import("js.awt.Container");
 $import("js.awt.Graphics2D");
 $import("org.jsvm.map.TileMapRender");
+$import("org.jsvm.map.PaintTool");
 
 /**
  * 
@@ -59,26 +60,31 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         MapMath = Class.forName("org.jsvm.map.MapMath"),
         DBLPATTERN = "###.######";
 
-    thi$.setMapInfo = function(){
-        this.map.setMapInfo.apply(this.map, arguments);
+    thi$.setMapInfo = function(mapinfo){
+        mapinfo = mapinfo || {
+            maxZoom: 17,
+            zoom: 2,
+            tileSize: 256,
+            mapcoords:[0, 1023, 1023, 0]
+        };
+        this.map.setMapInfo.call(this.map, mapinfo);
     };
 
-    thi$.autoFit = function(autoFit){
+    thi$.autoFit = function(autoFit, geoCode){
         var U = this._local;
         U.autoFit = autoFit;
         if(U.autoFit == true){
-            if(this.geoCode){
-                
+            if(geoCode){
+                this.setMapInfo(this.map.getIdeaMapInfo(geoCode));
             }
         }else{
-            
+            this.setMapInfo();
         }
     };
 
-
     thi$.showGeoCode = function(geoCode, shape){
         var G = this.g2d, M = this.map, L = G.curLayer(),
-            mapinfo = M.getMapInfo();
+            mapinfo;
 
         L.removeChild("marker");
         L.removeChild("boundingbox");
@@ -87,13 +93,14 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             this.geoCode = null;
             this.marker = null;
             this.boundingbox = null;
-            G.draw();
-            return;
+            _showMapinfo.call(this, {lng:0.0, lat:0.0});
+        }else{
+            this.geoCode = geoCode;
+            mapinfo = M.getMapInfo();
+            _drawBoundingBox.call(this, G, mapinfo, geoCode);
+            _drawMarker.call(this, G, mapinfo, geoCode, shape);
+            _showMapinfo.call(this, {lng:geoCode.lng, lat:geoCode.lat});
         }
-
-        this.geoCode = geoCode;
-        _drawBoundingBox.call(this, G, mapinfo, geoCode);
-        _drawMarker.call(this, G, mapinfo, geoCode, shape);
 
         G.draw();
     };
@@ -131,7 +138,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
                           fillStyle: "#ffdf7c",
                           fillOpacity: 0.3,
                           capture: true,
-                          lineWidth: 3};
+                          lineWidth: 2};
         shape.id = "boundingbox";
         shape.x = l;
         shape.y = t;
@@ -166,6 +173,8 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         
         if(this.geoCode){
             this.showGeoCode(this.geoCode, this.marker.def);            
+        }else{
+            _showMapinfo.call(this);
         }
     };
     
@@ -195,13 +204,9 @@ org.jsvm.map.MapComponent = function(def, Runtime){
                 U.dragEle= this.marker;
                 U.inDrag = false;
             }else if(shape == this.boundingbox){
-                var dx = rxy.x - shape.def.x,
-                    dy = rxy.y - shape.def.y;
-                if(dx > 3 && dy > 3 && dx < shape.def.width - 6 
-                   && dy < shape.def.height - 6){
-                    U.dragEle= this.boundingbox;
-                    U.inDrag = false;
-                }
+                U.resizeInfo = this.ptInRect(rxy, shape, 12);
+                U.dragEle= this.boundingbox;
+                U.inDrag = false;
             }
         }
     };
@@ -219,7 +224,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
     var _onmousemove = function(e){
         _detectMove.$clearTimer();
         var U = this._local, oxy = U.eventXY, xy = e.eventXY(),
-            dx, dy, moveObj;
+            dx, dy, moveObj, info, info2;
         if(!U.notified){
             MQ.post(Event.SYS_EVT_MOVING,"");
             U.notified = true;
@@ -238,7 +243,15 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         }else if(moveObj === this.marker){
             moveObj.translate(dx, dy);
         }else if(moveObj === this.boundingbox){
-            moveObj.translate(dx, dy);
+            info = U.resizeInfo;
+            if(info.inBorder.eastwest == "" 
+                    && info.inBorder.northsouth == ""){
+                moveObj.translate(dx, dy);
+            }else{
+                info2 = this.dragResizeRect(dx, dy, info, moveObj);
+                U.resizeInfo = info2.pointInfo;
+                this.g2d.drawing();
+            }
         }
 
         U.eventXY = xy;
@@ -280,11 +293,25 @@ org.jsvm.map.MapComponent = function(def, Runtime){
                 lng, lat;
             lng = MapMath.inverseMercatorX(XY.x),
             lat = MapMath.inverseMercatorY(XY.y);
-            this.board.setData({
-                Longitude: lng.$format(DBLPATTERN),
-                Latitude: lat.$format(DBLPATTERN)
-            });
+            _showMapinfo.call(this, {lng: lng, lat:lat});
         }
+    };
+
+    var _showMapinfo = function(data){
+        data = data || this.board.getData();
+        if(data.Longitude){
+            data.lng = parseFloat(data.Longitude);
+            data.lat = parseFloat(data.Latitude);
+        }
+        this.board.setData({
+            Longitude: data.lng.$format(DBLPATTERN),
+            Latitude:  data.lat.$format(DBLPATTERN),
+            "Zoom level": " "+this.map.mapinfo.zoom
+            //"rect[0]" : this.map.mapinfo.mapcoords[0],
+            //"rect[1]" : this.map.mapinfo.mapcoords[1],
+            //"rect[2]" : this.map.mapinfo.mapcoords[2],
+            //"rect[3]" : this.map.mapinfo.mapcoords[3]
+        });
     };
     
     var _onShapeChanged = function(e){
@@ -295,21 +322,32 @@ org.jsvm.map.MapComponent = function(def, Runtime){
     };
     
     var _boundingBoxChanged = function(){
-        var t, r, b, l, xy1, xy2,
-            U = this._local, M = this.map, 
+        var t, r, b, l, xy1, xy2,x1, x2, 
+            U = this._local, M = this.map,
             bbox = this.boundingbox, geoCode = this.geoCode,
-            def = bbox.def, TR = bbox.getTransform();
+            def = bbox.def, mapinfo = M.mapinfo, TR = bbox.getTransform();
             
         def.x += TR.dx;
         def.y += TR.dy;
         bbox.setTransform(1,0,0,1,0,0);
+        
+        // the boundingbox can not across two map.
+        x1 = -mapinfo.mapcoords[3];
+        x2 = x1 + (mapinfo.tileSize << mapinfo.zoom);
+        if(def.x + def.width > x2 && def.x < x2){
+            def.width = x2 - def.x;
+        }else if(def.x < x1 && def.x + def.width > x1){
+            def.width = def.width + def.x - x1;
+            def.x = x1;
+        }
+        
         xy1 = M.getMercatorXY({x: def.x, y: def.y});
         xy2 = M.getMercatorXY({x: def.x+def.width, y: def.y+def.height});
-
         geoCode.boundingbox[0] = parseFloat(MapMath.inverseMercatorY(xy1.y).$format(DBLPATTERN));
         geoCode.boundingbox[1] = parseFloat(MapMath.inverseMercatorX(xy2.x).$format(DBLPATTERN));
         geoCode.boundingbox[2] = parseFloat(MapMath.inverseMercatorY(xy2.y).$format(DBLPATTERN));
         geoCode.boundingbox[3] = parseFloat(MapMath.inverseMercatorX(xy1.x).$format(DBLPATTERN));
+        
         this.fireEvent(new Event("geocodechanged", geoCode, this), true);
     };
 
@@ -348,19 +386,10 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         this.attachEvent(mousewheel, 0, this, _onmousewheel);
         this.attachEvent("mousedown",0, this, _onmousedown);
         this.attachEvent("mousemove", 0, this, _onMapMousemove);
-        
-        this.paintTool = new (Class.forName("org.jsvm.map.PaintTool"))({
-            graphic: this.g2d,
-            toolState: "modify",
-            shapeType: "js.awt.shape.Rect"
-        },Runtime);
-        
-        this.paintTool.setPeerComponent(this);
-        MQ.register("shapeChanged", this, _onShapeChanged);
-        
+
     }.$override(this._init);
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Container);
+}.$extend(js.awt.Container).$implements(org.jsvm.map.PaintTool);
 

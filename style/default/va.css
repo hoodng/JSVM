@@ -3105,6 +3105,12 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     background: #ffdf7c;
 } 
 
+.custiomizecolor_tick {
+    background-image: url("images/transparent.gif");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
 .custiomizecolor_tick_img {
     height: 19px; 
     width: 21px;

@@ -121,7 +121,7 @@ js.net.XHRPool = new function(){
         req._blocking = false;
         req.xhr = xhr;
         data = req.data;
-        req.open(data.method, data.url, data.params);
+        req.open(data.method, data.url, data.params, data.withCookie);
         _schedule(100);
 
     }.$bind(this);
@@ -168,11 +168,11 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         this._nocache = isNoCache || false; 
         var date;
         if(this._nocache){
-            date = "Thu, 01-Jan-1970 00:00:00 GMT"; 
+            date = "Thu, 01 Jan 1970 00:00:00 GMT"; 
         }else{
-            date = "Fri, 01-Jan-2900 00:00:00 GMT";
+            date = "Fri, 01 Jan 2900 00:00:00 GMT";
         }
-        this.setRequestHeader("If-Modified-Since", date);        
+        //this.setRequestHeader("If-Modified-Since", date);
     };
 
     thi$.setRequestHeader = function(key, value){
@@ -235,7 +235,17 @@ js.net.HttpURLConnection = function (isAsync, blocking){
     };
 
     thi$.responseJSON = function(){
-        return JSON.parse(this.responseText());
+        var json, text = this.responseText();
+        try{
+            json = JSON.parse(text);
+        }catch(x){
+            json = {
+                err: -1,
+                exception: x,
+                text: text
+            };
+        }
+        return json;
     };
 
     thi$.status = function(){
@@ -253,14 +263,15 @@ js.net.HttpURLConnection = function (isAsync, blocking){
     /**
      * Open url by method and with params
      */
-    thi$.open = function(method, url, params){
+    thi$.open = function(method, url, params, withCookie){
         J$VM.System.updateLastAccessTime();
 
         if(this.isBlocking()){
             this.data = {
                 method: method,
                 url: url,
-                params: params
+                params: params,
+                withCookie: withCookie
             };
             J$VM.XHRPool.post(this);
             return;
@@ -325,6 +336,9 @@ js.net.HttpURLConnection = function (isAsync, blocking){
 
         xhr.open(method, _url, async);
         _setRequestHeader.call(this, xhr, this._headers);
+        if(withCookie == true){
+            xhr.withCredentials = true;
+        }
         xhr.send(query);
     };
     
@@ -424,7 +438,6 @@ js.net.HttpURLConnection = function (isAsync, blocking){
                 }// For
             }// progid
         }
-        
         return xhr;
     };
 

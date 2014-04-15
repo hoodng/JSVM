@@ -122,16 +122,52 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
         }
         return v;
     }.$override(this.getAttr);
-
+    
+    /*
+     *  Translation Transform 
+     * 
+     *  the translation transformation matrix:
+     *              [1, 0, 0]
+     *              [0, 1, 0]
+     *              [dx,dy,1]
+     */
     thi$.translate =function(dx, dy){
         this.transform(1, 0, 0, 1, dx, dy);
     };
     
+    /**
+     *  Scale Transform 
+     * 
+     * @param Sx {Number}: the magnification times of x-axis.
+     * @param Sy {Number}: the magnification times of y-axis.
+     * 
+     * @param xF, yF {Number}: the coordinate of a point. 
+     *                         And this transformation relative to this point. 
+     * 
+     *  the scale transformation matrix:
+     *      [    Sx,         0,    0]
+     *      [     0,        Sy,    0]
+     *      [(1-Sx)*xF, (1-Sy)*yF, 1]
+     * 
+     */
     thi$.scale = function(Sx, Sy, xF, yF){
         xF = xF || 0, yF = yF || 0;
         this.transform(Sx, 0, 0, Sy, (1-Sx)*xF, (1-Sy)*yF);        
     };
-
+    
+    /**
+     * Rotate Transform
+     * 
+     * @param theta {Number} the rotation angle.
+     * 
+     * @param xR, yR {Number} the coordinate of a point. 
+     *                        And this transformation relative to this point.
+     * 
+     * the rotate transformation matrix: (ps. a = theta)
+     *      [           cos(a),                 sin(a),         0]
+     *      [          -sin(a),                 cos(a),         0]
+     *      [(1-cos(a))*xR+sin(a)*yR, -sin(a)*xR+(1-cos(a))*yR, 0]
+     */
     thi$.rotate = function(theta, xR, yR){
         xR = xR || 0; yR = yR || 0;
         var a = theta;
@@ -140,7 +176,19 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
                        (1-cos(a))*xR+sin(a)*yR,
                        -sin(a)*xR+(1-cos(a))*yR);
     };
-
+    
+    /**
+     * Shear Transform
+     * 
+     * @param Hx {Number}: work on x-axis
+     * 
+     * @param Hy {Number}: work on y-axis
+     * 
+     * the shear transformation matrix:
+     *      [ 1, Hy, 0]
+     *      [Hx,  1, 0]
+     *      [ 0,  0, 0] 
+     */
     thi$.skew = function(Hx, Hy){
         this.transform(1, Hy, Hx, 1, 0, 0);
     };

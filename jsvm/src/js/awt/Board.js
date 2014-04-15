@@ -88,9 +88,15 @@ js.awt.Board = function(def, Runtime){
 			this.removeAll();
 		}
 		
-		var R = this.Runtime(), key, v, idef, ext, n = 0;
+		var R = this.Runtime(), compRows = this.compRows = [],
+		row, key, v, idef, ext, comp, n = 0;
 		for(key in data){
 			v = data[key];
+			row = compRows[n] = {
+				index: n,
+				key: key,
+				comps: []
+			};
 			
 			ext = {
 				className: this.className + "_label",
@@ -98,7 +104,11 @@ js.awt.Board = function(def, Runtime){
 				constraints: {rowIndex: n, colIndex: 0}
 			};
 			idef = this.rectifyDef(System.objectCopy(lblDef, ext));
-			this.addComponent(new Label(idef, R));
+			comp = new (Class.forName(idef.classType))(idef, R);
+			row.comps[0] = comp;
+			this.addComponent(comp);
+			
+			
 			
 			ext = {
 				className: this.className + "_field",
@@ -106,8 +116,11 @@ js.awt.Board = function(def, Runtime){
 				constraints: {rowIndex: n, colIndex: 1}
 			};
 			idef = this.rectifyDef(System.objectCopy(fieldDef, ext));
-			this.addComponent(new TextField(idef, R));
+			comp = new (Class.forName(idef.classType))(idef, R);
+			row.comps[1] = comp;
+			this.addComponent(comp);
 			
+			compRows[n] = row;
 			++n;
 		}
 		
@@ -129,6 +142,143 @@ js.awt.Board = function(def, Runtime){
 		txtSize.height += MBP.BPH;
 		
 		return txtSize;
+	};
+	
+	var _calRow = function(rows, rkey, prefer){
+		var row = rows[rkey], isRigid = true;
+		if(!row){
+			row = rows[rkey] = {
+				rigid: true,
+				measure: prefer,
+				prefer: prefer
+			};				  
+		}else{
+			row.prefer = prefer;
+			
+			if(row.rigid !== false){
+				row.rigid = true;
+				
+				if(!Class.isNumber(row.measure) 
+				   || row.measure <= 0){
+					row.measure = prefer;
+				}
+			}else{
+				delete row.measure;
+			}
+		}
+		
+		return row;
+	};
+	
+	var _calCol = function(cols, index, prefer){
+		var col = cols[index], oprefer;
+		if(!col){
+			col = cols[j] = {
+				index: index,
+				rigid: true,
+				measure: prefer,
+				prefer: prefer
+			};				  
+		}else{
+			col.index = index;
+			
+			oprefer = col.prefer;
+			if(!Class.isNumber(oprefer)){
+				col.prefer = prefer;
+			}else{
+				prefer = col.prefer = Math.max(prefer, oprefer);
+			}
+			
+			if(col.rigid !== false){
+				col.rigid = true;
+				
+				if(!Class.isNumber(col.measure) 
+				   || col.measure <= 0){
+					col.measure = prefer;
+				}
+			}else{
+				delete col.measure;
+			}
+		}
+		
+		return col;
+	};
+	
+	/**
+	 * data: {
+	 *	   key: value,
+	 *	   key1: value1
+	 * }
+	 * 
+	 * layoutConstraints: {
+	 *	   cols: [
+	 *		   {index: 0, rigid: true, measure: 45} 
+	 *		   ..........
+	 *	   ],
+	 * 
+	 *	   rows: {
+	 *		   key: {rigid: true, measure: 80},
+	 *		   key1: {rigid: false}
+	 *	   }
+	 * }
+	 */
+	var _initMatrix = function(){
+		var M = this.def, 
+		layout = M.layoutConstraints 
+			= M.layoutConstraints || {},
+		rows = layout.rows,
+		cols = layout.cols,
+		
+		compRows = this.compRows, len = compRows.length,
+		crow, rkey, comps, c0, c1, s0, s1, prefer, oprefer,
+		row, col, rcnt = 0, ccnt;
+		
+		if(!rows || !Class.isObject(rows)){
+			rows = layout.rows = {};
+		}
+		
+		if(!Class.isArray(cols)){
+			cols = layout.cols = [];
+		}
+		
+		for(var i = 0; i < len; i++){
+			crow = compRows[i];
+			rkey = crow.key;
+			row = rows[rkey];
+			
+			comps = crow.comps;
+			c0 = comps[0];
+			c1 = comps[1];
+			
+			s0 = this.getCompOptimalSize(c0);
+			s1 = this.getCompOptimalSize(s1);
+			prefer = Math.max(s0.height, s1.height);
+			
+			row = _calRow.call(rows, rkey, prefer);
+			row.index = i;
+
+			if(!Class.isValid(row.measure)){
+				rcnt += 1;
+			}
+			
+			col = _calCol.call(cols, 0, s0.width);
+			if(!col.rigid){
+				ccnt = 1;
+			}
+			
+			col = _calCol.call(cols, 1, s0.width);
+			if(!col.rigid){
+				ccnt = 2;
+			}
+		}
+		
+		layout.rowNum = len;
+		layout.colNum = 2;
+		
+		layout.flexRowNum = rcnt;
+		layout.flexColNum = ccnt;
+		
+		return layout;
 	};
 	
 	var _layout = function(){

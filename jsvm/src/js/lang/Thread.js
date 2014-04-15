@@ -128,7 +128,7 @@ js.lang.Thread = function(Runnable){
 
         var msg = buf.toString();
         //System.err.println("Thread post msg: "+msg);
-        if(self.Worker){
+        if(this._realWorker === true){
             worker.postMessage(msg);
         }else{
             // IE must
@@ -163,10 +163,12 @@ js.lang.Thread = function(Runnable){
                 J$VM.System.out.println("Web Worker is running");
             }};
         
-        var path = J$VM.env["j$vm_home"]+"/classes/js/util/";
-
-        if(self.Worker){
+        var path = J$VM.env["j$vm_home"]+"/classes/js/util/",
+            uri = new js.net.URI(path);
+        
+        if(self.Worker && uri.isSameOrigin() ){
             this._worker = new Worker(path+"Worker.jz");
+            this._realWorker = true;
         }else{
             // iframe ?
             var iframe = document.createElement("iframe");
@@ -199,6 +201,7 @@ js.lang.Thread = function(Runnable){
             head.removeChild(script);
 
             this._worker = iframe.contentWindow;
+            this._realWorker = false;
         }
 
         Event.attachEvent(this._worker, Event.W3C_EVT_MESSAGE, 0, this, _onmessage);
