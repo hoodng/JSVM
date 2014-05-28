@@ -299,6 +299,7 @@ js.awt.Window = function (def, Runtime, view){
     };
 
     thi$.close = function(){
+        
         if(typeof this.beforClose == "function"){
             this.beforClose();
         }
@@ -306,7 +307,7 @@ js.awt.Window = function (def, Runtime, view){
         if(this.container instanceof js.awt.Container){
             this.container.removeComponent(this);
         }
-
+        
         this.destroy();
     };
     
@@ -461,9 +462,7 @@ js.awt.Window = function (def, Runtime, view){
 
     thi$.destroy = function(){
         delete this._local.restricted;
-
         arguments.callee.__super__.apply(this,arguments);
-
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, view){

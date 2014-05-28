@@ -48,18 +48,28 @@
             
         }, this),
         
+        label2 = new js.awt.Label({
+            css: "display:block;border:1px solid blue;",
+            width: 160, height: 20,
+            
+            text: "Base Component Labrary 2",
+            x: 10, y: 50,
+            
+            useUserDefinedTip: true
+            
+        }, this),
+        
         tipLabel = new js.awt.Label({
             stateless: true,
             NUCG: true,
             
             css: "display:block;",
             
-            text: "Base Component Labrary"
+            text: "Base Component Labrary..."
         }, this);
 
         this.addComponent(label);
-        
-        label.setText({abc: {abc: 123}});
+        this.addComponent(label2);
         
         // label.setTipObj(tipLabel);
         label.layerDef({css:"background-color:#FFFFFF;color:#000000;", shadow:true});
@@ -69,6 +79,20 @@
             var tipObj = this.getTipObj();
             if(tipObj){
                 tipObj.setText("Show 'Base Component Labrary at:\n" 
+                    + JSON.stringify(e.eventXY()));
+                
+                return true;
+            }
+            
+            return false;
+        };
+        
+        label2.setTipLabel("Base Component Labrary 2");
+        
+        label2.adjustTipObj = function(e){
+            var tipObj = this.getTipObj();
+            if(tipObj){
+                tipObj.setText("Show 'Base Component Labrary 2 at:\n" 
                     + JSON.stringify(e.eventXY()));
                 
                 return true;

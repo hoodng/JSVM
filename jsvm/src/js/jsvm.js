@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -36,12 +36,18 @@
  */
 
 /**
+ * @class J$VM
  * Define J$VM name-space and run-time environment
+ * @singleton
  */
 J$VM = new function (){
-    this.__product__ = "J$VM";
-    this.__version__ = "0.9.${build}";
 
+    this.__product__ = "J$VM";
+
+    this.__version__ = "0.9.${build}";
+    /**
+     * @property {Object}
+     */
     this.env = {
         j$vm_log: false,
         j$vm_ajax_nocache: true,
@@ -51,9 +57,12 @@ J$VM = new function (){
         j$vm_threshold: 45,
         j$vm_longpress: 90
     };
-    
+
     /**
+     * @method
      * Test whether the J$VM is working in Web Worker
+     *
+     * @return {Boolean}
      */
     this.env.j$vm_isworker = function(){
         try{
@@ -66,22 +75,26 @@ J$VM = new function (){
     js = {lang:{}};
 
     /**
-     * Provides inheritance to javascript class.<p>
+     * @member Function.prototype
+     * Provides inheritance to javascript class.
+     *
      * For example:
-     * A = function(){
-     * };
-     * 
-     * // B will extends A
-     * 
-     * B = function(){
-     * 
-     * }.$extend(A)
-     * 
-     * new B() instanceof A // true
-     * 
-     * @param superC, super class
-     * @return 
-     * 
+     *
+     *     @example
+     *     var A = function(){
+     *     };
+     *
+     *     // B will extends A
+     *
+     *     var B = function(){
+     *
+     *     }.$extend(A)
+     *
+     *     new B() instanceof A // true
+     *
+     * @param {function} superC super class
+     * @return {function} A class which extends from superC
+     *
      */
     Function.prototype.$extend = function(superC){
         var proto;
@@ -97,33 +110,39 @@ J$VM = new function (){
 
         return this;
     };
-    
+
     /**
-     * Provides implement interface to javascript class.<p>
+     * @member Function.prototype
+     * Provides implement interface to javascript class.
+     *
      * For example:
-     * 
-     * IA = function(){
-     *     this.funA = function(){
+     *
+     *     @example
+     *     var IA = function(){
+     *                  this.funA = function(){
+     *                  };
      *     };
-     * };
-     * 
-     * IB = function(){
-     *      this.funB = function(){
-     *      };
-     * };
-     * 
-     * C = function(){
-     *    
-     * }.$implements(IA, IB);
-     * 
-     * var t = new C();
-     * t.instanceOf(IA) // true
-     * t.instanceOf(IB) // true
+     *
+     *     var IB = function(){
+     *                  this.funB = function(){
+     *                  };
+     *     };
+     *
+     *     var C = function(){
+     *
+     *     }.$implements(IA, IB);
+     *
+     *     var t = new C();
+     *     t.instanceOf(IA) // true
+     *     t.instanceOf(IB) // true
+     *
+     * @param {function} superCs interfaces
+     * @return {function} A class which implements superCs interfaces.
      */
     Function.prototype.$implements = function(superCs){
         var proto = this.prototype, superC,
             imps = proto.__imps__ = [].concat(proto.__imps__ || []);
-        
+
         for(var i=0, len=arguments.length; i<len; i++){
             superC = arguments[i];
             if(typeof superC == "function"){
@@ -135,6 +154,35 @@ J$VM = new function (){
         return this;
     };
 
+    /**
+     * @member Function.prototype
+     * Use this class to decorate an object, same as copy all methods in this class
+     * to the object.
+     *
+     * For example:
+     *
+     *     @example
+     *     var IA = function(){
+     *                  this.funA = function(){
+     *                  };
+     *     };
+     *
+     *     var IB = function(){
+     *                  this.funB = function(){
+     *                  };
+     *     };
+     *
+     *     var o = new IB();
+     *
+     *     IA.$decorate(o);
+     *
+     *     o.funA(); // do funA
+     *     o.funB(); // do funB
+     *
+     * @param {Object} o The object need to be decorated
+     * @param {map} replaceMap
+     * @return {Object} The object which has been decorated use this class.
+     */
     Function.prototype.$decorate = function(o, replaceMap){
         if(o === undefined){
             throw new Error("Parameter 'o' must be an object");
@@ -145,11 +193,11 @@ J$VM = new function (){
 
         replaceMap = replaceMap || {};
         for(p in proto){
-            if(proto.hasOwnProperty(p) && 
-               "constructor" != p && 
+            if(proto.hasOwnProperty(p) &&
+               "constructor" != p &&
                "__imps__" != p &&
                (!o.hasOwnProperty(p) || replaceMap[p] == true)){
-                o[p] = proto[p];    
+                o[p] = proto[p];
             }
         }
 
@@ -157,10 +205,11 @@ J$VM = new function (){
     };
 
     /**
+     * @member Function.prototype
      * Bind a function to the specified scope.
-     * 
-     * @param thi$, the runtime scope that this function bind to.
-     * @param ..., other parameters need pass to this function
+     *
+     * @param {Object} thi$ The runtime scope that this function bind to.
+     * @param ... Other parameters need pass to this function
      */
     Function.prototype.$bind = function(thi$){
         var fn = this, args = Array.prototype.slice.call(arguments, 1);
@@ -172,13 +221,14 @@ J$VM = new function (){
         };
 
     };
-    
+
     /**
+     * @member Function.prototype
      * Bind a function to the specified scope as an event listener
-     * 
-     * @param thi$, the runtime scope that this listener bind to.
-     * @param eClass, the event class, by default you can use js.util.Event
-     * @param ..., other parameters need pass to the listener
+     *
+     * @param {Object} thi$ The runtime scope that this listener bind to.
+     * @param {function} eClass The event class, by default you can use <code>js.util.Event</code>
+     * @param ... Other parameters need pass to the listener
      */
     Function.prototype.$listen = function(thi$, eClass){
         var fn = this, args = Array.prototype.slice.call(arguments, 2);
@@ -195,25 +245,28 @@ J$VM = new function (){
     };
 
     /**
-     * Delay a function with specified timeout.<p>
+     * @member Function.prototype
+     * Delay a function with specified timeout.
      * For example:
-     * 
-     * var fun = function(){
-     *     // do something
-     * };
-     * 
-     * // The function fun will be delay 20 millisecons to executing.
-     * fun.$delay(this, 20, param1...);
-     * 
-     * @param thi$, the runtime scope of the delayed function bind to.
-     * @param timeout
-     * @param ... other parameters need pass to delayed function.
+     *
+     *    @example
+     *     var fun = function(){
+     *         // do something
+     *     };
+     *
+     *     // The function fun will be delay 20 millisecons to executing.
+     *     fun.$delay(this, 20, param1...);
+     *
+     * @param {Object} thi$ The runtime scope of the delayed function bind to.
+     * @param {Number} timeout The timeout of delay
+     * @param ... Other parameters need pass to delayed function.
+     * @return {Timer} A timer
      */
     Function.prototype.$delay = function(thi$, timeout){
         var fn = this, args = Array.prototype.slice.call(arguments, 2);
 
         fn.__timer__ = fn.__timer__ || [];
-        
+
         var _timer = setTimeout(
             function(){
                 fn.$clearTimer(_timer);
@@ -224,9 +277,25 @@ J$VM = new function (){
 
         return _timer;
     };
-    
+
     /**
+     * @member Function.prototype
      * Clear timer on a function
+     * For example:
+     *
+     *    @example
+     *     var fun = function(){
+     *         // do something
+     *     };
+     *
+     *     // The function fun will be delay 20 millisecons to executing.
+     *     fun.$delay(this, 20, param1...);
+     *
+     *     // Clear timer of this function
+     *     fun.$clearTimer();
+     *
+     * @param {Timer} timer The timer which return by call {@link #$delay}
+     * @return {Boolean} Return true if the timer is cleared else return false.
      */
     Function.prototype.$clearTimer = function(timer){
         var timers = this.__timer__, index = -1, ret = false;
@@ -250,31 +319,31 @@ J$VM = new function (){
         }
         return ret;
     };
-    
+
     /**
-     * Override a function.<p>
+     * @member Function.prototype
+     * Override a function.
      * For example:
-     * 
-     * this.fun = function(txt){
-     *     // do A thing  
-     * };
-     * 
-     * this.fun = function(txt){
-     * 
-     *     // You can call super do A before do B
-     *     arguments.callee.__super__.apply(this, arguments);
-     * 
-     *     // do B thing
-     * 
-     *     // Or you can call super do A after do B
-     *     arguments.callee.__super__.apply(this, arguments);
-     * 
-     * }.$override(this.fun);
-     * 
-     * @param func, the super function.
-     * 
-     * @return the overrided function that has a <em>__super__</em> property 
-     * point to the super function.
+     *
+     *     @example
+     *     this.fun = function(txt){
+     *         // do A thing
+     *     };
+     *
+     *     this.fun = function(txt){
+     *
+     *          // You can call super do A before do B
+     *          arguments.callee.__super__.apply(this, arguments);
+     *
+     *          // do B thing
+     *
+     *          // Or you can call super do A after do B
+     *          arguments.callee.__super__.apply(this, arguments);
+     *
+     *      }.$override(this.fun);
+     *
+     * @param {function} func The super function.
+     * @return {function} The overrided function.
      */
     Function.prototype.$override = function(func){
         this.__super__ = func;
@@ -282,11 +351,21 @@ J$VM = new function (){
     };
 
     /**
-     * Calls a function for each element in a set<p>
-     * 
-     * @param thi$, the runtime scope of this function
-     * @param set, can be an array or an object
-     * @param ..., other arguments need pass to this function
+     * @member Function.prototype
+     * Calls a function for each element in a set.
+     * For example:
+     *
+     *     @example
+     *     var array = [1,2,3];
+     *
+     *     var fun = function(item, index, set){
+     *         // do A thing
+     *     }.$forEach(this, array);
+     *
+     *
+     * @param {Object} thi$ The runtime scope of this function
+     * @param {Array/Map} set Can be an array or a map
+     * @param ... Other arguments need pass to this function
      */
     Function.prototype.$forEach = function(thi$, set){
         var fn = this, i, len,
@@ -296,20 +375,26 @@ J$VM = new function (){
         case "array":
             for(i=0, len=set.length; i<len; i++){
                 try{
-                    fn.apply(thi$, $args.concat(set[i], i, set));   
+                    fn.apply(thi$, $args.concat(set[i], i, set));
                 } catch (x) {
-                    if("break" === x) 
+                    if("break" === x){
                         break;
+                    }else{
+                        throw x;
+                    }
                 }
             }
             break;
         case "object":
             for(i in set){
                 try{
-                    fn.apply(thi$, $args.concat(set[i], i, set));   
+                    fn.apply(thi$, $args.concat(set[i], i, set));
                 } catch (x) {
-                    if("break" === x)
+                    if("break" === x){
                         break;
+                    }else{
+                        throw x;
+                    }
                 }
             }
             break;
@@ -317,16 +402,17 @@ J$VM = new function (){
             break;
         }
     };
-    
+
     /**
-     * Calls a function for each element in a set, and returns a set that contains 
-     * the results<p>
-     * 
-     * @param thi$, the runtime scope of this function
-     * @param set, can be an array or an object
-     * @param ..., other arguments need pass to this function
-     * 
-     * @return array or object follow the input "set"
+     * @member Function.prototype
+     * Calls a function for each element in a set, and returns a set that contains
+     * the results
+     *
+     * @param {Object} thi$ The runtime scope of this function
+     * @param {Array/Map} set Can be an array or a map
+     * @param ... Other arguments need pass to this function
+     *
+     * @return {Array/Map} Array or Map follow the input "set"
      */
     Function.prototype.$map = function(thi$, set){
         var fn = this, ret = js.lang.Class.isArray(set) ? [] :{},
@@ -341,17 +427,18 @@ J$VM = new function (){
 
 
     /**
-     * Returns the elements of a set that meet the condition specified 
-     * in this function<p>
-     * 
-     * @param thi$, the runtime scope of this function
-     * @param set, can be an array or an object
-     * @param ..., other arguments need pass to this function
-     * 
-     * @return array or object follow the input "set"
+     * @member Function.prototype
+     * Returns the elements of a set that meet the condition specified
+     * in this function.
+     *
+     * @param {Object} thi$ The runtime scope of this function
+     * @param {Array/Map} set Can be an array or a map
+     * @param ... Other arguments need pass to this function
+     *
+     * @return {Array/Map} Array or Map follow the input "set"
      */
     Function.prototype.$filter = function(thi$, set){
-        var fn = this, isArray = js.lang.Class.isArray(set), 
+        var fn = this, isArray = js.lang.Class.isArray(set),
             ret = isArray ? [] : {},
             $args = Array.prototype.slice.call(arguments, 2);
 
@@ -360,19 +447,20 @@ J$VM = new function (){
                 isArray ? ret.push(v) : ret[i] = v;
             }
         }).$forEach(thi$, set);
-        
-        return ret;        
+
+        return ret;
     };
 
     /**
-     * Checks whether a defined callback function returns true for 
-     * any element of a set.<p>
-     * 
-     * @param thi$, the runtime scope of this function
-     * @param set, can be an array or an object
-     * @param ..., other arguments need pass to this function
-     * 
-     * @return true if the callbackfn function returns true for any set element; 
+     * @member Function.prototype
+     * Checks whether a defined callback function returns true for
+     * any element of a set.
+     *
+     * @param {Object} thi$ The runtime scope of this function
+     * @param {Array/Map} set Can be an array or a map
+     * @param ... Other arguments need pass to this function
+     *
+     * @return {Boolean} true if the callbackfn function returns true for any set element;
      * otherwise, false.
      */
     Function.prototype.$some = function(thi$, set){
@@ -390,15 +478,16 @@ J$VM = new function (){
     };
 
     /**
-     * Checks whether a defined callback function returns true for all 
-     * elements in a set.<p>
-     * 
-     * @param thi$, the runtime scope of this function
-     * @param set, can be an array or an object
-     * @param ..., other arguments need pass to this function
-     * 
-     * @return true if the callbackfn function returns true for all set elements; 
-     * otherwise, false. If the set is has no elements, the every method returns 
+     * @member Function.prototype
+     * Checks whether a defined callback function returns true for all
+     * elements in a set.
+     *
+     * @param {Object} thi$ The runtime scope of this function
+     * @param {Array/Map} set Can be an array or a map
+     * @param ... Other arguments need pass to this function
+     *
+     * @return {Boolean} true if the callbackfn function returns true for all set elements;
+     * otherwise, false. If the set is has no elements, the every method returns
      * true.
      */
     Function.prototype.$every = function(thi$, set){
@@ -415,5 +504,50 @@ J$VM = new function (){
         return ret;
     };
 
-}();
+    /**
+     * @member Function.prototype
+     * Delay the logic in a loop
+     *
+     * For example:
+     *
+     *     @example
+     *     var ctx = {
+     *         count: 0
+     *     };
+     *
+     *     var foo = function(i, ctx){
+     *         System.err.println(i);
+     *         ctx.count += i;
+     *     };
+     *
+     *     for(var i=0, len=10; i<len; i++){
+     *         foo(i, ctx);
+     *     }
+     *
+     *     // If you want to delay foo one by one, then use $delayLoop instead of for loop as
+     *     // below:
+     *
+     *     foo.$delayLoop(this, 1000, {index:0, length:10, step:1}, ctx);
+     *
+     * @param {Object} thi$ The runtime scope of this function
+     * @param {Number} timeout The timeout of delay, @see Function.$delay
+     * @param {Object} iterator A simple object, within 3 keys index, length and step
+     * @param {Object} context The context of this function
+     * @param {function} callback The callback function when loop is finished
+     */
+    Function.prototype.$delayLoop = function(thi$, timeout, iterator, context, callback){
+        var fn = this;
+        if(iterator.index == iterator.length){
+            if(callback){
+                callback.call(thi$, context);
+            }
+        }else{
+            (function(){
+                fn.call(thi$, iterator, context);
+                iterator.index += iterator.step;
+                fn.$delayLoop(thi$, timeout, iterator, context, callback);
+            }).$delay(thi$, timeout);
+        }
+    };
 
+}();

@@ -599,15 +599,18 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
 
     thi$.destroy = function(){
-        if(this._coverView){
-            this.removeCover();
-        }
-        
-        DOM.remove(this.view, true);
-        delete this.view;
+        if(this.destroied != true){
+            if(this._coverView){
+                this.removeCover();
+            }
+            
+            var view = this.view;
+            delete this.view;
+            
+            DOM.remove(view, true);
 
-        arguments.callee.__super__.apply(this, arguments);    
-        
+            arguments.callee.__super__.apply(this, arguments);    
+        }
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, view){

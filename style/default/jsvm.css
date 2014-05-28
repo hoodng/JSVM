@@ -135,6 +135,8 @@ body {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
     background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
     background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
@@ -1108,6 +1110,8 @@ body {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
     background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
     background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
+    background: -ms-linear-gradient(top, #FFFFFF, #ECECEC); /* IE10+ */
+    background: linear-gradient(top, #FFFFFF, #ECECEC); /* w3c */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
@@ -1302,6 +1306,8 @@ body {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
     background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
     background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
+    background: -ms-linear-gradient(top, #FFFFFF, #ECECEC); /* IE10+ */
+    background: linear-gradient(top, #FFFFFF, #ECECEC); /* W3C */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
@@ -2139,11 +2145,20 @@ body {
 }
 /******** End FlatTree ************/
 
-.json_textfield, .json_textfield_0 {
-    background-color: #FFFFFF;
-    border: 1px solid #CCCCCC;
-    padding-left: 2px;
-    overflow: hidden;
+/*********** For ToolTip ************/
+.jsvm_tipLayer,
+.jsvm_tipLayer_0 {
+    color: #FFFFFF;
+    background-color: black; /* #FFFF9F; */
+    
+    padding: 2px;
+    
+    -moz-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    
+    cursor: default;
 }
 
 .jsvm_tipObj {

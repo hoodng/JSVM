@@ -56,22 +56,15 @@ js.awt.ToolTip = function(){
 	}
 	CLASS.__defined__ = true;
 	
-	var Class = js.lang.Class, Event = js.util.Event, 
-	System = J$VM.System, MQ = J$VM.MQ,
+	CLASS.DEFAULTTOOLTIPID =  "__J$VMTOOLTIP__";
 	
-	tipLabelDef = {
-		id: "tipObj",
-		classType: "js.awt.Label",
-		className: "jsvm_tipObj",
-
-		NUCG: true,
-		stateless: true		   
-	};
+	var Class = js.lang.Class, Event = js.util.Event, 
+	System = J$VM.System, MQ = J$VM.MQ;
 	
 	thi$.layerDef = function(def){
 		var U = this._local, cdef = U.layerDef;
 		if(Class.isObject(def)){
-			cdef = U.layerDef = def;			 
+			cdef = U.layerDef = System.objectCopy(def, {}, true);			 
 		}
 		
 		return cdef || {shadow: true};
@@ -83,27 +76,34 @@ js.awt.ToolTip = function(){
 	 * "Container" instance object.
 	 * 
 	 * @param tipObj: {Component} A Component or Container instance object.
+	 * @param gc: {Boolean} Indicate whether gc the old useless tipObj.
 	 */
-	thi$.setTipObj = function(tipObj){
-		this._local.tipObj = tipObj;
-		
-		var tipLayer = this.tipLayer;
+	thi$.setTipObj = function(tipObj, gc){
+		var tipLayer = this.tipLayer, oTipObj;
 		if(tipLayer){
-			tipLayer.setTipObj(tipObj);			   
+			delete this._local.tipObj;
+			oTipObj = tipLayer.setTipObj(tipObj, gc);
+			
+			if(gc === true && oTipObj && !oTipObj.destroied 
+			   && Class.isFunction(oTipObj.destroy)){
+				oTipObj.destroy();
+			}
+		}else{
+			this._local.tipObj = tipObj;
 		}
 	};
-
-	/**
-	 * Set the tip object by the specified definition. The real tip object
-	 * will be created with the given definition.
-	 * 
-	 * @param def: {Object} Definition for the tip object.
-	 */ 
-	thi$.setTipObjByDef = function(def){
+	
+	thi$.getTipObj = function(){
+		var tipLayer = this.tipLayer, U = this._local,
+		tipObj = tipLayer ? tipLayer.tipObj : null;
+		return tipObj || U.tipObj;
+	};
+	
+	var _createTipObjByDef = function(def){
 		var classType = def ? def.classType : null,
 		tipClz = Class.isString(classType) 
 			? Class.forName(def.classType) : null,
-		tipObj = this._local.tipObj;	  
+		tipObj;	  
 		if(!tipClz){
 			return tipObj;
 		}
@@ -113,31 +113,22 @@ js.awt.ToolTip = function(){
 		def.className = def.className || "jsvm_tipObj";
 		
 		tipObj = new (tipClz)(def, this.Runtime());
-		this.setTipObj(tipObj);
-		
 		return tipObj;
 	};
 	
-	var _getTipLabel = function(extDef){
-		var tipObj = this._local.tipObj, LabelClz = js.awt.Label,
-		tdef;
-		if(tipObj && LabelClz && (tipObj instanceof LabelClz)){
-			return tipObj;
-		}
-		
-		tdef = System.objectCopy(tipLabelDef, {});
-		if(extDef && Class.isObject(extDef)){
-			System.objectCopy(extDef, tdef);
-		}
-		
-		tipObj = this.setTipObjByDef(tdef);
-		tipObj.doLayout = function(){
-			return;
-		};
+	/**
+	 * Set the tip object by the specified definition. The real tip object
+	 * will be created with the given definition.
+	 * 
+	 * @param def: {Object} Definition for the tip object.
+	 */ 
+	thi$.setTipObjByDef = function(def){
+		var tipObj = _createTipobjByDef.call(this, def);
+		this.setTipObj(tipObj, true);
 		
 		return tipObj;
 	};
-	
+
 	/**
 	 * Set the text for the label tip. If the label tip object is not
 	 * existed, create it first.
@@ -148,21 +139,9 @@ js.awt.ToolTip = function(){
 	 * @param extDef: {Object} Optional. Some extra definition.
 	 */
 	thi$.setTipLabel = function(labelText, styles, extDef){
-		if(!Class.isString(labelText) 
-		   || labelText.length == 0){
-			return;
-		}
-		
-		var tipLabel = _getTipLabel.call(this, extDef);
-		if(styles && Class.isObject(styles)){
-			tipLabel.applyStyles(styles);
-		}
-
-		tipLabel.setText(labelText);
-	};
-	
-	thi$.getTipObj = function(){
-		return this._local.tipObj;
+		// Creat it when show
+		this._local.tipLabelArgs 
+			= Array.prototype.slice.call(arguments, 0);
 	};
 	
 	/**
@@ -173,20 +152,100 @@ js.awt.ToolTip = function(){
 		return false;  
 	};
 	
-	var _showTipLayer = function(b, e){
-		var U = this._local, tipLayer = this.tipLayer, 
-		tipObj = U.tipObj, xy;
-		if(!tipLayer){
-			tipLayer = this.tipLayer 
-				= new (Class.forName("js.awt.TipLayer"))(this.layerDef(), this.Runtime());
+	var _initTipLabel = function(labelText, styles, extDef){
+		var LabelClz = js.awt.Label, tipLabel = this.getTipObj(), tdef;
+		if(!tipLabel || !(tipLabel instanceof LabelClz)){
+			tdef = {
+				id: "tipObj",
+				classType: "js.awt.Label",
+				className: "jsvm_tipObj",
+
+				NUCG: true,
+				stateless: true		   
+			};
 			
-			tipObj = U.tipObj;
-			if(tipObj){
-				tipLayer.setTipObj(tipObj);
+			if(extDef && Class.isObject(extDef)){
+				System.objectCopy(extDef, tdef);
 			}
-		}		 
+			
+			tdef.classType = "js.awt.Label";
+			tipLabel = _createTipObjByDef.call(this, tdef);
+			tipLabel.doLayout = function(){
+				return;
+			};
+		}
 		
+		if(styles && Class.isObject(styles)){
+			tipLabel.applyStyles(styles);
+		}
+		
+		tipLabel.setText(labelText);
+		
+		return tipLabel;
+	};
+	
+	var _initTipObj = function(){
+		var U = this._local, tipObj = this.getTipObj(),
+		args = U.tipLabelArgs;
+		
+		// Destroy cache
+		//delete U.tipLabelArgs;
+		
+		if(Class.isArray(args) && args.length > 0){
+			tipObj = _initTipLabel.apply(this, args);
+		}
+		
+		return tipObj;
+	};
+	
+	var _getTipLayer = function(){
+		var M = this.def, tipLayer = this.tipLayer, 
+		tipLayers, tipId, tdef;
+		if(tipLayer){
+			return tipLayer;
+		}
+		
+		tipLayers = CLASS.TIPLAYERS;
+		if(!tipLayers){
+			tipLayers = CLASS.TIPLAYERS = {cnt: 0};
+		}
+		
+		tipId = M.tipId;
+		if(!tipId){
+			tipId = M.tipId = this.hasOwnTip() 
+				? this.uuid() + "_tip" : CLASS.DEFAULTTOOLTIPID;
+		}
+		
+		tipLayer = tipLayers[tipId];
+		if(tipLayer){
+			tipLayer["__refCnt__"] += 1;
+			return tipLayer;
+		}
+		
+		tdef = this.layerDef();
+		tdef.id = tipId;
+		tipLayer = this.tipLayer 
+			= new (Class.forName("js.awt.TipLayer"))(tdef, this.Runtime());
+		tipLayer["__refCnt__"] = 1;
+		
+		tipLayers.cnt += 1;
+		tipLayers[tipLayer.id] = tipLayer;
+		return tipLayer;
+	};
+
+	
+	thi$.showTipLayer = function(b, e){
+		var U = this._local, tipLayer = this.tipLayer, tipObj, xy;
 		if(b){
+			if(!tipLayer){
+				tipLayer = this.tipLayer = _getTipLayer.call(this);
+			}
+
+			tipObj = _initTipObj.call(this);
+			if(tipObj){
+				tipLayer.setTipObj(tipObj, true);
+			}
+			
 			if(this.adjustTipObj(e) 
 			   && tipLayer.isDOMElement()){
 				tipLayer.doLayout(true); 
@@ -195,22 +254,55 @@ js.awt.ToolTip = function(){
 			xy = e.eventXY();
 			tipLayer.showAt(xy.x - 2, xy.y + 18, true);
 		}else{
-			tipLayer.hide(e);
+			if(tipLayer){
+				tipLayer.hide(e);
+			}
 		}
 	};
 	
 	var _onhover = function(e){
 		if(e.getType() === "mouseover"){
-			_showTipLayer.call(this, true, e);
+			this.showTipLayer(true, e);
 		}else{
-			_showTipLayer.call(this, false);
+			this.showTipLayer(false);
 		}
 	};
 	
 	var _onmousemv = function(e){
 		var tipLayer = this.tipLayer, xy;
 		if(tipLayer && tipLayer.isShown()){
-			_showTipLayer.call(this, true, e);
+			this.showTipLayer(true, e);
+		}
+	};
+	
+	thi$.gcTipLayer = function(){
+		var M = this.def, tipLayer = this.tipLayer, 
+		tipLayers = CLASS.TIPLAYERS, tipId, tipObj;
+		
+		delete this.tipLayer;
+		if(!tipLayer){
+			return;
+		}
+		
+		tipId = M.tipId;
+		tipLayer["__refCnt__"] -= 1;
+
+		if(tipLayer["__refCnt__"] == 0){
+			delete tipLayers[tipId];
+			tipLayers.cnt -= 1;
+			
+			tipObj = tipLayer.removeTipObj();
+			if(tipObj && !tipObj.destroied 
+			   && Class.isFunction(tipObj.destroy)){
+				tipObj.destroy();
+			}
+			
+			
+			tipLayer.destroy();
+		}
+		
+		if(tipLayers.cnt == 0){
+			delete CLASS.TIPLAYERS;
 		}
 	};
 	
@@ -253,16 +345,15 @@ js.awt.ToolTip = function(){
 				U.attachedFlag = flag;
 			}
 		}else{
-			delete this._local.tipObj;
+			delete U.layerDef;
+			delete U.tipLabelArgs;
 			
 			tipLayer = this.tipLayer;
-			delete this.tipLayer;
-			
 			if(tipLayer){
 				tipLayer.hide();
-				tipLayer.destroy();
+				this.gcTipLayer();
 			}
-			
+
 			tip = U.nativeTip;
 			if(Class.isString(tip) && tip.length > 0 
 			   && Class.isFunction(this.setToolTipText)){
@@ -281,5 +372,9 @@ js.awt.ToolTip = function(){
 	
 	thi$.isTipUserDefined = function(){
 		return this.def.useUserDefinedTip;
+	};
+	
+	thi$.hasOwnTip = function(){
+		return this.def.hasOwnTip === true;
 	};
 };

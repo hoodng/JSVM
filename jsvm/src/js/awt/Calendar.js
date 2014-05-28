@@ -215,14 +215,12 @@ js.awt.Calendar = function(def, Runtime){
     };
 
     thi$.destroy = function(){
-        arguments.callee.__super__.apply(this, arguments);
-
         delete this.cache;
-
         this.detachEvent("mouseover", 0, this, _onmouseover);
         this.detachEvent("mouseout",  0, this, _onmouseover);
         this.detachEvent("click",     0, this, _onclick);
-        
+
+        arguments.callee.__super__.apply(this, arguments);        
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){

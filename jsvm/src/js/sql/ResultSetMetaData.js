@@ -380,9 +380,8 @@ js.sql.ResultSetMetaData = function (def){
     };
 
     thi$.destroy = function(){
-        this.cols = null;
         delete this.cols;
-
+        arguments.callee.__super__.apply(this, arguments);
     }.$override(this.destroy);
 
     thi$._init = function(def){

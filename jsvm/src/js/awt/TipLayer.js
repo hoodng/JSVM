@@ -54,17 +54,17 @@ js.awt.TipLayer = function(def, Runtime){
 	 * Set the tip object for current tip layer. If a old tip object is existed
 	 * and not same as the new given object, remove if first. Otherwise, use the
 	 * old one directly.
+	 * 
+	 * @param tipObj: {Component} A Component or Container instance object.
 	 */
 	thi$.setTipObj = function(tipObj){
 		var oTipObj = this.tipObj;
-		if(oTipObj === tipObj){
-			return;
+		if(oTipObj && tipObj === oTipObj){
+			return null;
 		}
-		
+
 		if(oTipObj){
-			delete this.tipObj;
-			// oTipObj.removeFrom(this.view);
-			oTipObj.destroy();
+			oTipObj = this.removeTipObj();
 		}
 		
 		if(tipObj && tipObj.view){
@@ -74,6 +74,25 @@ js.awt.TipLayer = function(def, Runtime){
 			tipObj.id = "tipObj";
 			tipObj.appendTo(this.view);
 		}
+		
+		return oTipObj;
+	};
+	
+	/**
+	 * Attention:
+	 * 
+	 * The tipObj is not created by tip layer. So tip layer won't
+	 * take responsibility for destroy it.
+	 */
+	thi$.removeTipObj = function(){
+		var tipObj = this.tipObj;
+		delete this.tipObj;
+		
+		if(tipObj){
+			tipObj.removeFrom(this.view);
+		}
+		
+		return tipObj;
 	};
 	
 	thi$.getTipObj = function(){
@@ -99,6 +118,13 @@ js.awt.TipLayer = function(def, Runtime){
 		return false;
 		
 	}.$override(this.doLayout);
+	
+	thi$.destroy = function(){
+		this.removeTipObj();
+		
+		arguments.callee.__super__.apply(this, arguments);
+		
+	}.$override(this.destroy);
 	
 	thi$._init = function(def, Runtime){
 		if(typeof def !== "object") return;

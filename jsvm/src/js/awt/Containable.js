@@ -218,9 +218,8 @@ js.awt.Containable = function(){
             ele = this[id];
             
             if(ele){
-                if(gc !== true){
-                    this.removeChild(ele);
-                }else{
+                this.removeChild(ele);
+                if(gc == true){
                     ele.destroy();
                 }
             }

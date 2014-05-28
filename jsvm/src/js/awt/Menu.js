@@ -267,7 +267,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		 */
 		// e.setEventTarget(item);
 		// this.notifyPeer("js.awt.event.MenuItemEvent", e);
-		e.setEventTarget(item);
+		e.setEventTarget(System.objectCopy(item, {}));
 
 		// Here, we will invoke the hide() to hide the menu rather than trigger
 		// it by the message post. Because the message execution is asynchronously.

@@ -115,6 +115,36 @@ org.jsvm.map.TileServices = {
             "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.png",
             "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.png"
         ]
+    },
+
+    "MapBoxMap":{
+        name: "MapBox Map",
+        server: [
+            "http://a.tiles.mapbox.com/v3/hoodng.i07o8plf/${z}/${x}/${y}.png/",
+            "http://b.tiles.mapbox.com/v3/hoodng.i07o8plf/${z}/${x}/${y}.png/",
+            "http://c.tiles.mapbox.com/v3/hoodng.i07o8plf/${z}/${x}/${y}.png/",
+            "http://d.tiles.mapbox.com/v3/hoodng.i07o8plf/${z}/${x}/${y}.png/"
+        ]
+    },
+
+    "MapBoxSat":{
+        name: "MapBox Satellite Map",
+        server: [
+            "http://a.tiles.mapbox.com/v3/hoodng.i07o8plf/${z}/${x}/${y}.png/",
+            "http://b.tiles.mapbox.com/v3/hoodng.i07o8plf/${z}/${x}/${y}.png/",
+            "http://c.tiles.mapbox.com/v3/hoodng.i07o8plf/${z}/${x}/${y}.png/",
+            "http://d.tiles.mapbox.com/v3/hoodng.i07o8plf/${z}/${x}/${y}.png/"
+        ]
+    },
+
+    "MapBoxTer":{
+        name: "MapBox Terrian Map",
+        server: [
+            "http://a.tiles.mapbox.com/v3/hoodng.i096lhfd/${z}/${x}/${y}.png/",
+            "http://b.tiles.mapbox.com/v3/hoodng.i096lhfd/${z}/${x}/${y}.png/",
+            "http://c.tiles.mapbox.com/v3/hoodng.i096lhfd/${z}/${x}/${y}.png/",
+            "http://d.tiles.mapbox.com/v3/hoodng.i096lhfd/${z}/${x}/${y}.png/"
+        ]
     }
 };
 
@@ -583,7 +613,7 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         arguments.callee.__super__.apply(this, arguments);
 
         this.view.style.overflow = "hidden";
-        this.tileservice = def.tileservice || TileServices["MapQuestMap"];
+        this.tileservice = def.tileservice || TileServices["MapBoxTer"];
         this.tiles = {};
         this.cache = new (Class.forName("js.util.MemoryStorage"))(128);
         this.count = 0;

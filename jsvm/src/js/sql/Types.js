@@ -37,51 +37,84 @@
 
 $package("js.sql");
 
+/**
+ * @class js.sql.Types
+ * Define SQL types
+ * @singleton
+ */
 js.sql.Types = new function (){
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>BIT</code>.
      */
     this.BIT        =  -7;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>TINYINT</code>.
      */
     this.TINYINT    =  -6;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>SMALLINT</code>.
      */
     this.SMALLINT   =   5;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>INTEGER</code>.
      */
     this.INTEGER    =   4;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>BIGINT</code>.
      */
     this.BIGINT         =  -5;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>FLOAT</code>.
      */
     this.FLOAT          =   6;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>REAL</code>.
      */
@@ -89,42 +122,66 @@ js.sql.Types = new function (){
     
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>DOUBLE</code>.
      */
     this.DOUBLE         =   8;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>NUMERIC</code>.
      */
     this.NUMERIC    =   2;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>DECIMAL</code>.
      */
     this.DECIMAL        =   3;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>CHAR</code>.
      */
     this.CHAR       =   1;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>VARCHAR</code>.
      */
     this.VARCHAR    =  12;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>LONGVARCHAR</code>.
      */
@@ -132,21 +189,33 @@ js.sql.Types = new function (){
     
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>DATE</code>.
      */
     this.DATE       =  91;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>TIME</code>.
      */
     this.TIME       =  92;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>TIMESTAMP</code>.
      */
@@ -154,34 +223,54 @@ js.sql.Types = new function (){
     
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>BINARY</code>.
      */
     this.BINARY         =  -2;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>VARBINARY</code>.
      */
     this.VARBINARY      =  -3;
     
     /**
-     * <P>The constant in the Java programming language, sometimes referred
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language, sometimes referred
      * to as a type code, that identifies the generic SQL type 
      * <code>LONGVARBINARY</code>.
      */
     this.LONGVARBINARY      =  -4;
     
     /**
-     * <P>The constant in the Java programming language
+     * @property
+     * 
+     * @readonly
+     *
+     * The constant in the Java programming language
      * that identifies the generic SQL value 
      * <code>NULL</code>.
      */
     this.NULL       =   0;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language that indicates
      * that the SQL type is database-specific and
      * gets mapped to a Java object that can be accessed via
@@ -192,6 +281,10 @@ js.sql.Types = new function (){
     
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
      * <code>JAVA_OBJECT</code>.
@@ -200,6 +293,10 @@ js.sql.Types = new function (){
     this.JAVA_OBJECT          = 2000;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
      * <code>DISTINCT</code>.
@@ -208,6 +305,10 @@ js.sql.Types = new function (){
     this.DISTINCT             = 2001;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
      * <code>STRUCT</code>.
@@ -216,6 +317,10 @@ js.sql.Types = new function (){
     this.STRUCT               = 2002;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
      * <code>ARRAY</code>.
@@ -224,6 +329,10 @@ js.sql.Types = new function (){
     this.ARRAY                = 2003;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
      * <code>BLOB</code>.
@@ -232,6 +341,10 @@ js.sql.Types = new function (){
     this.BLOB                 = 2004;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
      * <code>CLOB</code>.
@@ -240,6 +353,10 @@ js.sql.Types = new function (){
     this.CLOB                 = 2005;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type
      * <code>REF</code>.
@@ -248,6 +365,10 @@ js.sql.Types = new function (){
     this.REF                  = 2006;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, somtimes referred to
      * as a type code, that identifies the generic SQL type <code>DATALINK</code>.
      *
@@ -256,6 +377,10 @@ js.sql.Types = new function (){
     this.DATALINK   = 70;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, somtimes referred to
      * as a type code, that identifies the generic SQL type <code>BOOLEAN</code>.
      *
@@ -266,6 +391,10 @@ js.sql.Types = new function (){
     //------------------------- JDBC 4.0 -----------------------------------
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type <code>ROWID</code>
      * 
@@ -275,6 +404,10 @@ js.sql.Types = new function (){
     this.ROWID  = -8;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type <code>NCHAR</code>
      *
@@ -283,6 +416,10 @@ js.sql.Types = new function (){
     this.NCHAR  = -15;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type <code>NVARCHAR</code>.
      *
@@ -291,6 +428,10 @@ js.sql.Types = new function (){
     this.NVARCHAR  = -9;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type <code>LONGNVARCHAR</code>.
      *
@@ -299,6 +440,10 @@ js.sql.Types = new function (){
     this.LONGNVARCHAR  = -16;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type <code>NCLOB</code>.
      *
@@ -307,6 +452,10 @@ js.sql.Types = new function (){
     this.NCLOB  = 2011;
     
     /**
+     * @property
+     * 
+     * @readonly
+     *
      * The constant in the Java programming language, sometimes referred to
      * as a type code, that identifies the generic SQL type <code>XML</code>.
      *
@@ -316,10 +465,26 @@ js.sql.Types = new function (){
 
     var _sqlMapName = {}, _nameMapsql = {};
 
+    /**
+     * 
+     * @method
+     * Return the name of the specified SQL type.
+     *
+     * @param {Number} sql The number of SQL type
+     * @return {String} the name of the SQL type
+     */
     this.getNameBySql = function(sql){
         return _sqlMapName[""+sql];
     };
 
+    /**
+     * 
+     * @method
+     * Return the SQL type of the specified name.
+     *
+     * @param {String} name The name of the SQL type.
+     * @return {Number} the SQL type of the name.
+     */
     this.getSqlByName = function(name){
         name = name || "";
         return _nameMapsql[name.toUpperCase()];

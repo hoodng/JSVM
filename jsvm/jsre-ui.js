@@ -4019,15 +4019,18 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
 
     thi$.destroy = function(){
-        if(this._coverView){
-            this.removeCover();
-        }
-        
-        DOM.remove(this.view, true);
-        delete this.view;
+        if(this.destroied != true){
+            if(this._coverView){
+                this.removeCover();
+            }
+            
+            var view = this.view;
+            delete this.view;
+            
+            DOM.remove(view, true);
 
-        arguments.callee.__super__.apply(this, arguments);    
-        
+            arguments.callee.__super__.apply(this, arguments);    
+        }
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, view){
@@ -4616,25 +4619,26 @@ js.awt.Component = function (def, Runtime, view){
 	 * Override destroy method of js.lang.Object
 	 */
 	thi$.destroy = function(){
-		this.setShadowy(false);
-		this.setResizable(false);
-		this.setMovable(false);
+        if(this.destroied != true){
+		    this.setShadowy(false);
+		    this.setResizable(false);
+		    this.setMovable(false);
 
-		if(this.controller){
-			this.controller.destroy();
-			delete this.controller;
-		}
+		    if(this.controller){
+			    this.controller.destroy();
+			    delete this.controller;
+		    }
 
-		var container = this.container;
-		if(container && container instanceof js.awt.Container){
-			container.removeComponent(this);
-		}
+		    var container = this.container;
+		    if(container && container instanceof js.awt.Container){
+			    container.removeComponent(this);
+		    }
 
-		delete this.container;		  
-		delete this.peer;
+		    delete this.container;		  
+		    delete this.peer;
 
-		arguments.callee.__super__.apply(this, arguments);
-
+		    arguments.callee.__super__.apply(this, arguments);
+        }
 	}.$override(this.destroy);
 	
 	thi$.getLastResizer = function(){
@@ -5104,10 +5108,10 @@ js.awt.Container = function (def, Runtime, view){
      * Override the destroy of js.awt.Component
      */
     thi$.destroy = function(){
-        this.removeAll(true);
-
-        arguments.callee.__super__.apply(this, arguments);
-
+        if(this.destroied !== true){
+            this.removeAll(true);
+            arguments.callee.__super__.apply(this, arguments);
+        }
     }.$override(this.destroy);
 
     /**
@@ -7984,6 +7988,18 @@ js.awt.RadioButton = function(def, Runtime) {
     thi$.getGroup = function(){
         return CLASS.groups[this.def.group];        
     };
+    
+    thi$.destroy = function(){
+        var group = this.getGroup();
+        group.remove(this);
+        
+        if(group.length === 0){
+            delete CLASS.groups[this.def.group];
+        }
+        
+        arguments.callee.__super__.apply(this, arguments);
+        
+    }.$override(this.destroy)
 
     thi$._init = function(def, Runtime, view) {
         if(typeof def !== "object") return;
@@ -8567,7 +8583,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		 */
 		// e.setEventTarget(item);
 		// this.notifyPeer("js.awt.event.MenuItemEvent", e);
-		e.setEventTarget(item);
+		e.setEventTarget(System.objectCopy(item, {}));
 
 		// Here, we will invoke the hide() to hide the menu rather than trigger
 		// it by the message post. Because the message execution is asynchronously.
@@ -8728,7 +8744,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	CLASS.__defined__ = true;
 	
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System;
+	System = J$VM.System, Permission = js.util.Permission;
 	
 	thi$.setText = function(text){
 		this.def.text = text;
@@ -8804,6 +8820,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	}.$override(this.getIconImage);
 	
 	/**
+	 * check permission, visible will' be hide.
+	 */
+	thi$.checkHide = function(){
+		var p = parseInt(this.def.permission, 10);
+		p = isNaN(p) ? 1 : p;
+		this.setVisible(Permission.isVisible(p));
+	};
+	
+	/**
 	 * Insert tree items into specified position
 	 * 
 	 * @param index
@@ -8856,6 +8881,8 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
 			item.prevSibling(prev);
 			item.nextSibling(next);
+			
+			item.checkHide();
 
 			ibase++;
 		};
@@ -9399,9 +9426,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
         for(i=0, len=itemDefs.length; i<len; i++){
             itemDef = itemDefs[i];
-            if(itemDef.isVisible == false){
-                continue;
-            }
+//            if(itemDef.isVisible == false){
+//                continue;
+//            }
             itemDef.level = 0;
             if(this.isShowTip()){
                 itemDef.tip = itemDef.dname;
@@ -9425,6 +9452,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             }else{
                 DOM.appendTo(item.view, this._treeView);
             }
+            
+            item.checkHide();
 
             refNode = item.view;
         };
@@ -9671,7 +9700,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         if(data.nodes){
             for(var i = 0,nodes = data.nodes, len = data.nodes.length;i < len; i++){
                 if(nodes[i].nodes){
-                    nodes[i] = _checkTreeNode.call(this, nodes[i]);
+                    nodes[i] = _checkData.call(this, nodes[i]);
                 }else{
                     p = nodes[i].permission;
                     if(p){
@@ -12096,6 +12125,7 @@ js.awt.Window = function (def, Runtime, view){
     };
 
     thi$.close = function(){
+        
         if(typeof this.beforClose == "function"){
             this.beforClose();
         }
@@ -12103,7 +12133,7 @@ js.awt.Window = function (def, Runtime, view){
         if(this.container instanceof js.awt.Container){
             this.container.removeComponent(this);
         }
-
+        
         this.destroy();
     };
     
@@ -12258,9 +12288,7 @@ js.awt.Window = function (def, Runtime, view){
 
     thi$.destroy = function(){
         delete this._local.restricted;
-
         arguments.callee.__super__.apply(this,arguments);
-
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, view){

@@ -100,9 +100,39 @@ js.text.SimpleDateFormat = function(pattern, DateFormatSymbols){
 		this.z	  = function(D,$,b){return b ? "UTC" : (String(D).match(TIMEZONE) || [""]).pop().replace(/[^-+\dA-Z]/g, "");};
 		this.Z	  = function(D,$,b){var o = D.getTimezoneOffset(), ao = Math.abs(o);return (o > 0 ? "-" : "+") + _pad(Math.floor(ao/60)*100 + ao%60, 4);};
 	};
-
+    
 	var Setter = new function(){
-		this.yy	  = function(D,v,$,b){return this.yyyy(D,v,$,b);};
+        /*
+         * For bug #103576
+         * Covert two-digital year as four-digital.
+         * 
+         * Ref js.text.SimpleDateFormat.java:
+         * 
+         * #initializeDefaultCentury()
+         * #subParse()
+         * 
+         * Limitation:
+         * When the "v === (now.getFullYear() - 80) % 100" (e.g: 34 === (2014 - 80) % 100), 
+         * there are some special handle in JDK. However, it's impossible to do such thing
+         * in javascript. So that, in 2014, to parse "34" as year, the 2534 will be returned,
+         * but 1934 will be returned in javascript.
+         */
+        var _toFullYear = function(v){
+            v = parseInt(v, 10);
+            if(isNaN(v) || (v.toString().length > 2)){
+                return v;
+            }
+            
+            var d = new Date(), 
+            defaultCenturyStartYear = d.getFullYear() - 80,
+            ambiguousTwoDigitYear = defaultCenturyStartYear % 100;
+            
+            v += parseInt(defaultCenturyStartYear / 100) * 100 +
+                (v < ambiguousTwoDigitYear ? 100 : 0);
+            return v;
+        };
+        
+		this.yy	  = function(D,v,$,b){v = _toFullYear(v); return this.yyyy(D,v,$,b);};
 		this.yyyy = function(D,v,$,b){var y = parseInt(v, 10); D.y = (y > 0 && D.bc) ? 0-y : y; b ? D.setUTCFullYear(D.y) : D.setFullYear(D.y); return D;};
 		this.M	  = function(D,v,$,b){var M = parseInt(v, 10)-1; b ? D.setUTCMonth(M) : D.setMonth(M); return D;};
 		this.MM	  = function(D,v,$,b){return this.M(D,v,$,b);};

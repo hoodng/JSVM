@@ -35,6 +35,13 @@
  * Source code availability: https://github.com/jsvm/JSVM
  */
 
+/**
+ * @class js.lang.Object
+ * Define the root object of J$VM objects.
+ *
+ * @constructor
+ * @extends Object
+ */
 js.lang.Object = function (o){
     
     var CLASS = js.lang.Object, thi$ = CLASS.prototype;
@@ -45,7 +52,11 @@ js.lang.Object = function (o){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Math = js.lang.Math;
-
+    
+    /**
+     * Return hash code of this object
+     * @return {Number}
+     */
     thi$.hashCode = function(){
         this.__hash__ = this.__hash__ || 
             (new Date().getTime()+Math.gCount());
@@ -53,14 +64,28 @@ js.lang.Object = function (o){
         return this.__hash__;
     };
     
+    /**
+     * Test whether this object equals to the specified object.
+     * @param {Object} o The test object
+     * @return {Boolean}
+     */
     thi$.equals = function(o){
         return o === this;
     };
 
+    /**
+     * Return the string of this object
+     * @return {String}
+     */
     thi$.toString = function(){
         return (typeof this) + "@" + this.uuid();
     };
     
+    /**
+     * Set/Get the unique ID of this object.
+     * @param {String} id Set id as unique ID to this object
+     * @return {String}
+     */
     thi$.uuid = function(id){
         if(Class.isString(id)){
             this.__uuid__ = id;
@@ -72,6 +97,11 @@ js.lang.Object = function (o){
         return this.__uuid__;
     };
 
+    /**
+     * Test whether this object is instance of a class
+     * @param {Class} clazz The test class
+     * @return {Boolean} 
+     */
     thi$.instanceOf = function(clazz){
         var imps = this.__imps__;
         if(imps){
@@ -84,9 +114,18 @@ js.lang.Object = function (o){
 
         return this instanceof clazz;
     };
-
+    
+    /**
+     * Destroy this object
+     */
     thi$.destroy = function(){
         J$VM.MQ.remove(this.uuid());
+        var p, v;
+        for(p in this){
+            v = this[p];
+            delete this[p];
+        }
+        this.destroied = true;
     };
 
 }.$extend(Object);

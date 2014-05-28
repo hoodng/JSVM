@@ -244,9 +244,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
         for(i=0, len=itemDefs.length; i<len; i++){
             itemDef = itemDefs[i];
-            if(itemDef.isVisible == false){
-                continue;
-            }
+//            if(itemDef.isVisible == false){
+//                continue;
+//            }
             itemDef.level = 0;
             if(this.isShowTip()){
                 itemDef.tip = itemDef.dname;
@@ -270,6 +270,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             }else{
                 DOM.appendTo(item.view, this._treeView);
             }
+            
+            item.checkHide();
 
             refNode = item.view;
         };
@@ -516,7 +518,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         if(data.nodes){
             for(var i = 0,nodes = data.nodes, len = data.nodes.length;i < len; i++){
                 if(nodes[i].nodes){
-                    nodes[i] = _checkTreeNode.call(this, nodes[i]);
+                    nodes[i] = _checkData.call(this, nodes[i]);
                 }else{
                     p = nodes[i].permission;
                     if(p){

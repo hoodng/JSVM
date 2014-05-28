@@ -55,6 +55,21 @@
         DOM.removeAttribute(dom.view, "class");
         System.err.println(dom.view.className);
         System.err.println(DOM.getAttribute(dom.view, "class"));
+        
+        var css = dom.view.style.cssText, 
+        styleMap = DOM.parseCssText(css);
+        System.err.println("\nCSSText:\n" + css);
+        System.err.println(styleMap);
+        System.err.println("Joined CSSText:\n" + DOM.joinMapToCssText(styleMap));
+        System.err.println("Removed border:\n" + DOM.rmStyleFromCssText(css, "border"));
+        
+        css = "width: 158px; height: 18px;   ;;;";
+        styleMap = DOM.parseCssText(css);
+        System.err.println("\nCSSText:\n" + css);
+        System.err.println(styleMap);
+        System.err.println("Joined CSSText:\n" + DOM.joinMapToCssText(styleMap));
+        System.err.println("Removed border:\n" + DOM.rmStyleFromCssText(css, "border"));
+
 });
 </script>
 

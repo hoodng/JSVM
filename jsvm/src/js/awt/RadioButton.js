@@ -104,6 +104,18 @@ js.awt.RadioButton = function(def, Runtime) {
     thi$.getGroup = function(){
         return CLASS.groups[this.def.group];        
     };
+    
+    thi$.destroy = function(){
+        var group = this.getGroup();
+        group.remove(this);
+        
+        if(group.length === 0){
+            delete CLASS.groups[this.def.group];
+        }
+        
+        arguments.callee.__super__.apply(this, arguments);
+        
+    }.$override(this.destroy)
 
     thi$._init = function(def, Runtime, view) {
         if(typeof def !== "object") return;

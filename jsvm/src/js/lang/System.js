@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -34,40 +34,107 @@
  * License: BSD 3-Clause License
  * Source code availability: https://github.com/jsvm/JSVM
  */
+/**
+ * @member js.lang
+ * @class js.lang.System
+ * @constructor
+ * @singleton
+ */
 
 js.lang.System = function (env, vm){
 
     var props, os, lastAccessTime;
 
+    /**
+     * @method
+     * Returns the current time in milliseconds.  Note that
+     * while the unit of time of the return value is a millisecond,
+     * the granularity of the value depends on the underlying
+     * operating system and may be larger.  For example, many
+     * operating systems measure time in units of tens of
+     * milliseconds.
+     *
+     * @return  the difference, measured in milliseconds, between
+     *          the current time and midnight, January 1, 1970 UTC.
+     */
     this.currentTimeMillis = function(){
         return (new Date()).getTime();
     };
-    
+
+    /**
+     * @method
+     * Test the current system properties has specified property.
+     *
+     * @param {String} key
+     * @return {Boolean}
+     */
     this.hasProperty = function(key){
-        return props.contains(key);  
+        return props.contains(key);
     };
-    
+
+    /**
+     * @method
+     * Determines the current system properties.
+     *
+     * @param {String} key
+     * @return the system properties
+     */
     this.getProperties = function(){
         return props;
     };
 
+    /**
+     * @method
+     * Gets the system property indicated by the specified key.
+     *
+     * @param {String} key   the name of the system property.
+     * @param {Any} defaultValue the default value if can not found this property.
+     * @return     the value of the system property,
+     */
     this.getProperty = function(key, defaultValue){
         return props.getProperty(key, defaultValue);
     };
 
+    /**
+     * @method
+     * Sets the system property indicated by the specified key.
+     *
+     * @param {String} key   the name of the system property.
+     * @param {Any} value the value of the system property.
+     * @return     the previous value of the system property,
+     */
     this.setProperty = function(key, value){
         props.setProperty(key, value);
         return this.getProperty(key);
     };
-    
+
+    /**
+     * @method
+     * Removes the system property indicated by the specified key.
+     *
+     * @param {String} key   the name of the system property to be removed.
+     * @return     the previous string value of the system property,
+     */
     this.removeProperty = function(key){
-        return props.remove(key);  
+        return props.remove(key);
     };
 
     this.setOut = function(print){
         os = print;
     };
 
+    /**
+     * @property
+     * The "standard" output stream. This stream is already
+     * open and ready to accept output data. Typically this stream
+     * corresponds to display output or another output destination
+     * specified by the host environment or user.
+     *
+     * For example:
+     *
+     *     @example
+     *     System.out.println("Hello, World");
+     */
     this.out = function(){
         return {
             println : function(s){
@@ -76,6 +143,17 @@ js.lang.System = function (env, vm){
         };
     }();
 
+    /**
+     * @property
+     * The "standard" error output stream. This stream is already
+     * open and ready to accept output data.
+     *
+     * For example:
+     *
+     *     @example
+     *     System.err.println("Hello, World");
+     *
+     */
     this.err = function(){
         return {
             println : function(s){
@@ -84,6 +162,17 @@ js.lang.System = function (env, vm){
         };
     }();
 
+    /**
+     * @property
+     * The "standard" log output stream. This stream is already
+     * open and ready to accept output data.
+     *
+     * For example:
+     *
+     *     @example
+     *     System.err.println("Hello, World");
+     *
+     */
     this.log = function(){
         return{
             println : function(s){
@@ -92,7 +181,13 @@ js.lang.System = function (env, vm){
             }
         };
     }();
-    
+
+    /**
+     * @method
+     * Terminates the currently running Java Virtual Machine. The
+     * argument serves as a status code; by convention, a nonzero status
+     * code indicates abnormal termination.
+     */
     this.exit = function(){
         this.gc();
         window.open("","_self");
@@ -117,14 +212,16 @@ js.lang.System = function (env, vm){
 
     /**
      * Copy the source object to the destination object.
-     * 
-     * @param src, the source object, can be any type
-     * @param des, the destination object, can be null, undefined 
+     * See also {@link #arrayCopy}
+     *
+     * @param {Object} src the source object, can be any type
+     * @param {Object} des the destination object, can be null, undefined
      * or same type as the src object.
-     * @param deep, whether deep copy
-     * @param merge, whether merge copy
-     * 
-     * @see arrayCopy(src, srcPos, des, desPos, length, deep)
+     * @param {Boolean} deep whether deep copy
+     * @param {Boolean} merge whether merge copy
+     *
+     * @return {Object} the destination object
+     *
      */
     this.objectCopy = function(src, des, deep, merge){
         var typeOf = js.lang.Class.typeOf, t = typeOf(src), item;
@@ -140,24 +237,24 @@ js.lang.System = function (env, vm){
                     if (src._transient && src._transient[p]) {
                         continue;
                     }
-                    
+
                     switch(typeOf(item)){
                     case "object":
                         if(merge === true){
                             des[p] = this.objectCopy(item, des[p], deep, merge);
                         }else{
-                            des[p] = this.objectCopy(item, null, deep);    
+                            des[p] = this.objectCopy(item, null, deep);
                         }
                         break;
                     case "array":
-                        des[p] = 
+                        des[p] =
                             this.arrayCopy(item, 0, [], 0, item.length, deep);
                         break;
                     default:
                         des[p] = item;
                     }
                 }else{
-                    des[p] = item;    
+                    des[p] = item;
                 }
             }
             break;
@@ -172,23 +269,24 @@ js.lang.System = function (env, vm){
         return des;
 
     }.$bind(this);
-    
+
     /**
      * Copy the source array to the destination array.
-     * 
-     * @param src, the source array
-     * @param srcPos, the start position of the source array
-     * @param des, the destination array
-     * @param desPos, the start position of the destination array
-     * @param length, the amount of itmes need copy
-     * @param deep, whether deep copy
-     * 
-     * @see objectCopy(src, des, deep)
+     * See also {@link #arrayCopy}
+     *
+     * @param {Array} src the source array
+     * @param {Number} srcPos, the start position of the source array
+     * @param {Array} des the destination array
+     * @param {Number} desPos the start position of the destination array
+     * @param {Number} length the amount of itmes need copy
+     * @param {Boolean} deep whether deep copy
+     *
+     * @return {Array} the destination array
      */
     this.arrayCopy = function(src, srcPos, des, desPos, length, deep){
         var typeOf = js.lang.Class.typeOf,
             srcIdx = srcPos, desIdx = desPos, item;
-        
+
         des = (des === null || des === undefined) ? [] : des;
 
         for(var i=0; i<length; i++){
@@ -199,11 +297,11 @@ js.lang.System = function (env, vm){
             if(deep === true){
                 switch(typeOf(item)){
                 case "object":
-                    des[desIdx++] = 
+                    des[desIdx++] =
                         this.objectCopy(item, null, deep);
                     break;
                 case "array":
-                    des[desIdx++] = 
+                    des[desIdx++] =
                         this.arrayCopy(item, 0, [], 0, item.length, deep);
                     break;
                 default:
@@ -220,17 +318,17 @@ js.lang.System = function (env, vm){
         return des;
 
     }.$bind(this);
-    
+
     this.gc = function(){
         try{
             CollectGarbage();
         }catch(e){};
     };
-    
+
     var last = 0;
     this.checkThreshold = function(now, newThreshold){
-        if((now - last) > 
-           (newThreshold ? newThreshold : 
+        if((now - last) >
+           (newThreshold ? newThreshold :
             this.getProperty("j$vm_threshold", 45))){
             last = now;
             return true;
@@ -260,10 +358,10 @@ js.lang.System = function (env, vm){
                     this.setProperty("j$vm_classpath", value);
                     break;
                 default:
-                    if(name.indexOf("-d") == 0 || 
+                    if(name.indexOf("-d") == 0 ||
                        name.indexOf("-D") == 0){
                         var tmp = parseInt(value);
-                        value = isNaN(tmp) ? 
+                        value = isNaN(tmp) ?
                             (value === "true" ? true :
                              (value === "false" ? false : value)) : tmp;
 
@@ -272,7 +370,7 @@ js.lang.System = function (env, vm){
                     break;
                 }
             }
-            
+
             vm.uuid(js.lang.Math.uuid());
             vm.id = vm.uuid();
 
@@ -291,12 +389,17 @@ js.lang.System = function (env, vm){
     };
 
     var _checkBrowser = function(){
+        /**
+         * @member J$VM
+         * @property {Properties} supports
+         * Determines the current browser's abilities
+         */
         // Check browser supports
-        var supports = vm.supports 
+        var supports = vm.supports
             = {reliableMarginRight :true, supportCssFloat : true},
         buf = [], doc = document, div = doc.createElement('div'),
         ipt, obj;
-        
+
         buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
         buf.push('<div style="height:20px;width:20px;"></div></div>');
         buf.push('<div style="float:left;"></div>');
@@ -305,35 +408,56 @@ js.lang.System = function (env, vm){
             + "border:5px solid black;padding:5px;"
             + "visibility:hidden;";
         doc.body.appendChild(div);
-        
+
         // Check browser supports for Input, Textarea
         ipt = doc.createElement('input');
         ipt.type = "text";
         ipt.style.cssText = "position:absolute;width:100px;height:100px;"
             + "border:2px solid;visibility:hidden;";
         doc.body.appendChild(ipt);
-        
+
         var view = doc.defaultView, cdiv = div.firstChild, ccdiv = cdiv.firstChild;
-        if(view && view.getComputedStyle 
+        if(view && view.getComputedStyle
            && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
             supports.reliableMarginRight = false;
         }
 
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} supportCssFloat
+         *
+         */
         supports.supportCssFloat = !!div.lastChild.style.cssFloat;
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} borderBox
+         * Whether CSS box model is border-box
+         */
         supports.borderBox = !(div.offsetWidth > 100);
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} borderEdg
+         * Whether CSS box model is border-edge
+         */
         supports.borderEdg = !(cdiv.offsetLeft == 0);
-
-        // Check BorderBox support of Input and Textarea
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} iptBorderBox
+         * Whether BorderBox support of Input and Textarea
+         */
         supports.iptBorderBox = !(ipt.offsetWidth > 100);
-        
-        // Check placeholder support of Input and Textarea
-        supports.placeholder = ("placeholder" in ipt); 
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} placeholder
+         * Whether placeholder support of Input and Textarea
+         */
+        supports.placeholder = ("placeholder" in ipt);
 
         // Check scrollbars' thicknesses
         // Attention:
         // In firefox (win 19.0.2 1024 * 768), if there is no enough space(width, height) to show
         // the scrollbar, the scrollbar won't be display and its thickness is 0. So, the width of
-        // the horizontal scrollbar should be large than (16px (left button) + 16px (right button) 
+        // the horizontal scrollbar should be large than (16px (left button) + 16px (right button)
         // + xpx (minwidth of the slider, maybe 2px)) and the width of div should be large than 51px
         // (include width of virtical scrollbar.)
         // Additionally, when screen resolution ratio (maybe dpi) is special, the scrollbar's thickness
@@ -342,14 +466,37 @@ js.lang.System = function (env, vm){
         div.style.cssText = "position:absolute;left:-550px;top:-550px;"
             + "width:550px;height:550px;overflow:scroll;visibility:hidden;";
         obj = J$VM.DOM.hasScrollbar(div);
+        /**
+         * @member J$VM.supports
+         * @property {Number} hscrollbar
+         * Height of hscrollbar
+         */
         supports.hscrollbar = obj.hbw;
+        /**
+         * @member J$VM.supports
+         * @property {Number} vscrollbar
+         * Width of vscrollbar
+         */
         supports.vscrollbar = obj.vbw;
-        
+
         // For IE, the dom element which has scrollbars should wider than the vscrollbar
         // and higher than the hscrollbar.
+
+        /**
+         * @member J$VM.supports
+         * @property {Number} preHScrollEleH
+         * For IE, the dom element which has scrollbars should wider than the vscrollbar
+         * and higher than the hscrollbar.
+         */
         supports.preHScrollEleH = supports.hscrollbar + (vm.ie ? 1 : 0);
+        /**
+         * @member J$VM.supports
+         * @property {Number} preVScrollEleW
+         * For IE, the dom element which has scrollbars should wider than the vscrollbar
+         * and higher than the hscrollbar.
+         */
         supports.preVScrollEleW = supports.vscrollbar + (vm.ie ? 1 : 0);
-        
+
         // Dectect logical DPI of the browser
         div.innerHTML = "";
         div.style.cssText = "position:absolution;left:0px;top:0px;"
@@ -359,20 +506,43 @@ js.lang.System = function (env, vm){
             vm.supports.logicalXDPI = parseInt(styles["width"]);
             vm.supports.logicalYDPI = parseInt(styles["height"]);
         }else{
+            /**
+             * @member J$VM.supports
+             * @property {Number} logicalXDPI
+             */
             vm.supports.logicalXDPI = window.screen.logicalXDPI;
+            /**
+             * @member J$VM.supports
+             * @property {Number} logicalYDPI
+             */
             vm.supports.logicalYDPI = window.screen.logicalYDPI;
         }
 
         // Check graphics, canvas, svg and vml.
         obj = doc.createElement("CANVAS");
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} canvas
+         * Whether supports Canvas
+         */
         vm.supports.canvas = (typeof obj.getContext === "function");
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} svg
+         * Whether supports SVG
+         */
         vm.supports.svg = (doc.SVGAngle || doc.implementation.hasFeature(
             "http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"));
         div.innerHTML = "<v:shape id='vml_flag1' adj='1' />";
         obj = div.firstChild;
         obj.style.behavior = "url(#default#VML)";
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} vml
+         * Whether supports VML
+         */
         vm.supports.vml = (obj ? typeof obj.adj === "object" : false);
-        
+
         // IE Binary2Array
         if(typeof self.Uint8Array != "function"){
             var script = doc.createElement("script"),
@@ -396,51 +566,49 @@ js.lang.System = function (env, vm){
         doc.body.removeChild(div);
         doc.body.removeChild(ipt);
         div = view = ipt = undefined;
-
-        
     };
-    
+
     var _detectDoctype = function(){
         var reg = /(\"[^\"]+\")/gi,
             publicIDReg=/\s+(X?HTML)\s+([\d\.]+)\s*([^\/]+)*\//gi,
             DOCTYPEFEATURS = ["xhtml", "version", "importance"/*, "systemId"*/],
-            doctype = vm.doctype = {declared: false}, 
+            doctype = vm.doctype = {declared: false},
             dtype, publicId, systemId;
 
         if(document.doctype != null){
             doctype.declared = true;
-            
+
             dtype = document.doctype;
             doctype.name = dtype.name;
-            
+
             publicId = dtype.publicId || "";
             systemId = dtype.systemId || "";
         }else if(typeof document.namespaces != "undefined"){
             var dt = document.all[0];
-            
+
             var value = (dt.nodeType == 8 ? dt.nodeValue : "");
             if(value && (value.toLowerCase().indexOf("doctype") != -1)){
                 doctype.declared = true;
                 doctype.name = dt.scopeName;
-                
+
                 dtype = [];
-                value.replace(reg, 
+                value.replace(reg,
                               function($0){
                                   if($0){
                                       $0 = $0.replace(/"|'/g, "");
                                       dtype.push($0);
                                   }
                               });
-                
+
                 publicId = dtype[0] || "";
                 systemId = dtype[1] || "";
             }
         }
-        
+
         if(doctype.declared){
             doctype.publicId = publicId = publicId.toLowerCase();
             doctype.systemId = systemId.toLowerCase();
-            
+
             try{
                 if(publicId.length > 0 && publicIDReg.test(publicId) && RegExp.$1){
                     doctype["xhtml"] = (RegExp.$1);
@@ -448,7 +616,7 @@ js.lang.System = function (env, vm){
                     doctype["importance"] = RegExp.$3;
                 }
             }catch(e){}
-            
+
             doctype.getEigenStr = function(){
                 var fValues = [], v;
                 if(this.declared){
@@ -458,23 +626,23 @@ js.lang.System = function (env, vm){
                             fValues.push(v);
                         }
                     }
-                    
+
                     v = fValues.length > 0 ? fValues.join("-") : "";
                 }
-                
+
                 return v;
             };
         }
-        
+
         J$VM.System.log.println("Doctype:" + JSON.stringify(doctype));
     };
-    
-    // Initialize JSVM's locale with browser's. 
+
+    // Initialize JSVM's locale with browser's.
     var _initJSVMLocale = function(){
         var lang = (navigator.userLanguage || navigator.language).split("-");
-        vm.locale = new js.util.Locale(lang[0], lang[1]); 
+        vm.locale = new js.util.Locale(lang[0], lang[1]);
     };
-    
+
     var _onload = function(e){
         J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
 
@@ -503,12 +671,12 @@ js.lang.System = function (env, vm){
             if(scope === undefined){
                 scope = vm.runtime[proc.id] = function(){
                     var clazz = js.awt.Desktop;
-                    return clazz ? new (clazz)({id:proc.id},proc.container) : 
+                    return clazz ? new (clazz)({id:proc.id},proc.container) :
                         new js.lang.NoUIRuntime();
                 }();
                 scope.id = proc.id;
             }
-            
+
             proc.fn.call(scope, this);
         }
     };
@@ -516,7 +684,7 @@ js.lang.System = function (env, vm){
     this.forceInit = function(){
         _onload.call(this);
     };
-    
+
     var _onbeforeunload = function(){
 
     };
@@ -541,7 +709,7 @@ js.lang.System = function (env, vm){
         this.gc();
         document.body.innerHTML="";
     };
-    
+
     var bodyW, bodyH;
     var _onresize = function(e){
         this.updateLastAccessTime();
@@ -565,63 +733,73 @@ js.lang.System = function (env, vm){
 
         var msg;
         try{
-            msg = JSON.parse(_e.data);    
+            msg = JSON.parse(_e.data);
         } catch (x) {
         }
-        
+
         if(js.lang.Class.isArray(msg)){
             e.message = msg[1];
-            J$VM.MQ.post(msg[0], e, msg[2], null, msg[4]);    
+            J$VM.MQ.post(msg[0], e, msg[2], null, msg[4]);
         }
     };
 
     var _onkeyevent = function(e){
         this.updateLastAccessTime();
-        J$VM.MQ.post("js.awt.event.KeyEvent", e);        
+        J$VM.MQ.post("js.awt.event.KeyEvent", e);
     };
 
     var _onmouseevent = function(e){
         this.updateLastAccessTime();
     };
 
+    /**
+     * @member J$VM
+     * @method exec
+     *
+     */
     var scopes = [];
     var _exec = function(instName, fn, containerElement){
         if(vm.runtime === undefined){
             vm.runtime = {};
         }
-        
+
         scopes.push({id: instName, fn: fn, container: containerElement});
     }.$bind(this);
-    
+
+    /**
+     * @member J$VM
+     * @method boot
+     *
+     */
     var _boot = function(env){
         var Class = js.lang.Class, mainClass,
             mainClasName = this.getProperty("mainclass"),
             mainFuncName = this.getProperty("mainfunction"),
             desktop = this.getProperty("desktop"),
             rtName = desktop;
-            
+
         if(mainClasName){
             mainClass = Class.forName(mainClasName);
             if(!mainClass) return;
             desktop = desktop ? desktop : mainClasName;
-            J$VM.exec(mainClasName, 
+            J$VM.exec(mainClasName,
                       function(){
                           this.initialize();
                           (new mainClass()).main(this);
                       },desktop);
         }else if(typeof window[mainFuncName] == "function"){
-            J$VM.exec(mainFuncName, 
+            J$VM.exec(mainFuncName,
                       function(){
                           this.initialize();
                           window[mainFuncName].call(this, this);
                       },desktop);
         }else if(rtName){
-            J$VM.exec(rtName, 
+            J$VM.exec(rtName,
                       function(){
                           this.initialize();
                       },desktop);
         }
-        
+
         env = env || {};
         for(var p in env){
             this.setProperty(p, env[p]);
@@ -629,40 +807,97 @@ js.lang.System = function (env, vm){
 
     }.$bind(this);
 
+    /**
+     * @member J$VM
+     * @method endableLogger
+     * Enable J$VM's logger
+     */
     var _enableLogger = function(){
         this.setProperty("j$vm_log", true);
         J$VM.storage.session.setItem("j$vm_log", "true");
         return "J$VM logger is enabled";
     }.$bind(this);
 
+    /**
+     * @member J$VM
+     * @method disableLogger
+     * Disable J$VM's logger
+     */
     var _disableLogger = function(){
         this.setProperty("j$vm_log", false);
         J$VM.storage.session.setItem("j$vm_log", "false");
         return "J$VM logger is disabled";
     }.$bind(this);
-    
+
     var _init = function(env, vm){
         var E = js.util.Event;
         props = new js.util.Properties(env);
 
+        /**
+         * @member J$VM
+         * @property {js.lang.Class} Class
+         */
         vm.Class = js.lang.Class;
+        /**
+         * @member J$VM
+         * @property {js.util.Messenger} MQ
+         */
         vm.MQ = new js.util.Messenger();
-        
+
         if(!vm.env.j$vm_isworker){
             _buildEnv.call(this);
 
             os = self.console ? self.console : null;
+
+            /**
+             * @member J$VM
+             * @property {window} [hwnd=self]
+             *
+             */
             vm.hwnd = self;
+
+            /**
+             * @member J$VM
+             * @property {js.util.Document} DOM
+             */
             vm.DOM = new js.util.Document();
 
+            /**
+             * @member J$VM
+             * @property {Object} storage
+             */
             vm.storage = {
+                /**
+                 * @member J$VM.storage
+                 * @property {js.util.Storage} local the local storage
+                 */
                 local  : js.util.Storage.getStorage("local"),
+                /**
+                 * @member J$VM.storage
+                 * @property {js.util.Storage} session the session storage
+                 */
                 session: js.util.Storage.getStorage("session"),
+                /**
+                 * @member J$VM.storage
+                 * @property {js.util.Storage} memory the memory storage
+                 */
                 memory : js.util.Storage.getStorage("memory"),
+                /**
+                 * @member J$VM.storage
+                 * @property {js.util.Storage} cookie the cookie storage
+                 */
                 cookie : new js.util.CookieStorage()
             };
 
+            /**
+             * @member J$VM.storage
+             * @property {js.util.Storage} cache the general cache
+             */
             vm.storage.cache = new js.util.Cache();
+            /**
+             * @member J$VM.storage
+             * @property {js.util.Storage} images the images cache
+             */
             vm.storage.images= new js.util.MemoryStorage(
                 this.getProperty("j$vm_images_cachesize",256));
 
@@ -693,16 +928,15 @@ js.lang.System = function (env, vm){
                 this.log = function(s){
                     post(E.SYS_MSG_CONSOLELOG, s, [], self, 1);
                 };
-                
+
             }();
 
             _buildWorkerEnv.call(this);
         }
     };
-    
+
     if(env != undefined && vm != undefined){
         _init.apply(this, arguments);
     }
 
 }.$extend(js.lang.Object);
-

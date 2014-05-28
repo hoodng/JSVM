@@ -123,8 +123,10 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
         var ele = arguments.callee.__super__.apply(this, arguments);
 
         if(ele && ele.instanceOf(js.awt.GraphicElement)){
-            var cache = this.getLayer().cachedShapes();
-            delete cache[ele.colorKey().uuid];
+            var layer = this.getLayer(), cache = layer ? layer.cachedShapes() : null;
+            if(cache){
+                delete cache[ele.colorKey().uuid];
+            }
         }
         
         this.fireEvent(new Event(

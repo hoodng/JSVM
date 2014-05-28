@@ -432,7 +432,9 @@ body {
 .dlg_button_0, .dlg_button_2 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
     background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* w3c */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
@@ -1030,6 +1032,11 @@ body {
     white-space: nowrap;
 }
 
+.bvtree_item_16,
+.bvtree_item_17 {
+	display: none;
+}
+
 /* Disable */
 .bvtree_item_1{
     color: gray;
@@ -1430,7 +1437,9 @@ body {
 .button_0, .button_2 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
     background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
@@ -1620,7 +1629,9 @@ body {
 .btnRender_0, .btnRender_2 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
     background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
@@ -1787,7 +1798,9 @@ body {
 .ddListRender_0 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
     background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
-    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #FFFFFF, #ECECEC); /* IE10+ */
+    background: linear-gradient(top, #FFFFFF, #ECECEC); /* W3C */    
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
@@ -3293,7 +3306,9 @@ table {
 .multiValuePicker_btn_0, .multiValuePicker_btn_2 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
     background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+*/
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */    
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
@@ -4236,7 +4251,9 @@ table {
 .enterparam_main_panel_combobox_txtpanel_0 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
     background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
-    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #FFFFFF, #ECECEC); /* IE10+ */
+    background: linear-gradient(top, #FFFFFF, #ECECEC); /* W3C */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
@@ -4635,7 +4652,9 @@ table {
 
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#F6ECC5), to(#F7D576)); /* Webkit */
     background: -moz-linear-gradient(top, #F6ECC5, #F7D576); /* FF */
-    background: -o-linear-gradient(top, #F6ECC5, #F7D576); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #F6ECC5, #F7D576); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #F6ECC5, #F7D576); /* IE10+ */
+    background: linear-gradient(top, #F6ECC5, #F7D576); /* W3C */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#F6ECC5", endColorstr="#F7D576", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#F6ECC5", endColorstr="#F7D576", gradientType="0"); /* IE8 */
@@ -5101,7 +5120,9 @@ table {
 .border_cbo_0 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
     background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
-    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #FFFFFF, #ECECEC); /* IE10+ */
+    background: linear-gradient(top, #FFFFFF, #ECECEC); /* W3C */
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
@@ -5752,7 +5773,9 @@ table {
 .spe_button_0, .spe_button_2 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
     background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10-12.00 */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */    
 
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */

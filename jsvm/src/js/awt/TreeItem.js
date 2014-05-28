@@ -54,7 +54,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	CLASS.__defined__ = true;
 	
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System;
+	System = J$VM.System, Permission = js.util.Permission;
 	
 	thi$.setText = function(text){
 		this.def.text = text;
@@ -130,6 +130,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	}.$override(this.getIconImage);
 	
 	/**
+	 * check permission, visible will' be hide.
+	 */
+	thi$.checkHide = function(){
+		var p = parseInt(this.def.permission, 10);
+		p = isNaN(p) ? 1 : p;
+		this.setVisible(Permission.isVisible(p));
+	};
+	
+	/**
 	 * Insert tree items into specified position
 	 * 
 	 * @param index
@@ -182,6 +191,8 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
 			item.prevSibling(prev);
 			item.nextSibling(next);
+			
+			item.checkHide();
 
 			ibase++;
 		};

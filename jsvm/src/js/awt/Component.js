@@ -534,25 +534,26 @@ js.awt.Component = function (def, Runtime, view){
 	 * Override destroy method of js.lang.Object
 	 */
 	thi$.destroy = function(){
-		this.setShadowy(false);
-		this.setResizable(false);
-		this.setMovable(false);
+        if(this.destroied != true){
+		    this.setShadowy(false);
+		    this.setResizable(false);
+		    this.setMovable(false);
 
-		if(this.controller){
-			this.controller.destroy();
-			delete this.controller;
-		}
+		    if(this.controller){
+			    this.controller.destroy();
+			    delete this.controller;
+		    }
 
-		var container = this.container;
-		if(container && container instanceof js.awt.Container){
-			container.removeComponent(this);
-		}
+		    var container = this.container;
+		    if(container && container instanceof js.awt.Container){
+			    container.removeComponent(this);
+		    }
 
-		delete this.container;		  
-		delete this.peer;
+		    delete this.container;		  
+		    delete this.peer;
 
-		arguments.callee.__super__.apply(this, arguments);
-
+		    arguments.callee.__super__.apply(this, arguments);
+        }
 	}.$override(this.destroy);
 	
 	thi$.getLastResizer = function(){

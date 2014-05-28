@@ -696,15 +696,16 @@ js.awt.Element = function(def, Runtime){
     };
     
     thi$.destroy = function(){
-        delete this.peer;
-        delete this.container;
-        
-        if(this.isTipUserDefined()){
-            this.setTipUserDefined(false);
+        if(this.destroied != true){
+            delete this.peer;
+            delete this.container;
+            
+            if(this.isTipUserDefined()){
+                this.setTipUserDefined(false);
+            }
+            
+            arguments.callee.__super__.apply(this, arguments);
         }
-        
-        arguments.callee.__super__.apply(this, arguments);
-        
     }.$override(this.destroy);
 
     /**

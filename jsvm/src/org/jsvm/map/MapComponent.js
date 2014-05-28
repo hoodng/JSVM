@@ -111,7 +111,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             x = MapMath.lng2pixel(geoCode.lng, size) - rect[3],
             y = MapMath.lat2pixel(geoCode.lat, size) - rect[0];
 
-        shape = shape || {type: "circle", 
+        shape = shape || {type: "circle",
                           r: 7,
                           fillStroke: 2,
                           fillStyle: "#FF0000",
@@ -157,17 +157,18 @@ org.jsvm.map.MapComponent = function(def, Runtime){
     }.$override(this.doLayout);
 
     var _doZoom = function(data){
-        var delta = data.delta, 
+        var delta = data.delta, multiple = 1,
             dp = this.relative(data.xy),
             zoom = this.map.getZoom();
-        if(delta > 0){
+        if(delta > 0 && zoom != this.map.getMaxZoom()){
             // zoom in
             zoom += 1;
-            zoom = Math.min(zoom, this.map.getMaxZoom());
-        }else{
+            multiple = 2;
+            
+        }else if(delta < 0 && zoom != 0){
             // zoom out
             zoom -= 1;
-            zoom = Math.max(zoom, 0);
+            multiple = 0.5;
         }
         this.map.zoom(zoom, dp.x, dp.y);
         
@@ -175,6 +176,11 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             this.showGeoCode(this.geoCode, this.marker.def);            
         }else{
             _showMapinfo.call(this);
+        }
+        
+        if(this._local.drawPolygon){
+            this.zoomPolygon(multiple, [dp.x, dp.y]);
+            this.g2d.drawing();
         }
     };
     
@@ -195,6 +201,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         Event.attachEvent(document, "mousemove", 0, this, _onmousemove);
         Event.attachEvent(document, "mouseup", 0, this, _onmouseup);
         U.inDrag = true;
+        U.dragEle = null;
 
         shape = G.detectShape(rxy.x, rxy.y);
         if(shape == null){
@@ -207,24 +214,48 @@ org.jsvm.map.MapComponent = function(def, Runtime){
                 U.resizeInfo = this.ptInRect(rxy, shape, 12);
                 U.dragEle= this.boundingbox;
                 U.inDrag = false;
+            }else if(U.drawPolygon === "modify"){
+                if(shape.def.type == "circle"){
+                    if(shape.def.isMidpoint){
+                        shape = this.addVertice(shape);
+                        G.draw();
+                        U.moved = true;
+                    }
+                    U.dragEle = shape;
+                    U.inDrag = false;
+                }else if(shape.def.type == "polygon"){
+                    this.selectPolygon(shape.def.group);
+                }
             }
         }
     };
 
     var _onmousedown = function(e){
-        var G = this.g2d, 
+        var U = this._local, G = this.g2d, group,
             xy = e.eventXY(), rxy = G.relative(xy);
         if(e.button == 1){
-            _detectMove.$delay(
-                this, 
-                System.getProperty("j$vm_longpress", 145), e);
+            if(U.drawPolygon){
+                _detectMove.call(this, e);
+            }else{
+                _detectMove.$delay(
+                    this, 
+                    System.getProperty("j$vm_longpress", 145), e);
+            }
+        }else if(e.button == 2){
+            group = this.finishPolygon();
+            if(group){
+                this.selectPolygon(group);
+                U.drawPolygon = "modify";
+                G.draw();
+                this.detachEvent("mousemove", 0, this, _drawTmpLine);
+            }
         }
     };
-
+    
     var _onmousemove = function(e){
         _detectMove.$clearTimer();
         var U = this._local, oxy = U.eventXY, xy = e.eventXY(),
-            dx, dy, moveObj, info, info2;
+            G = this.g2d, dx, dy, moveObj, info, info2, point;
         if(!U.notified){
             MQ.post(Event.SYS_EVT_MOVING,"");
             U.notified = true;
@@ -232,15 +263,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         
         dx = xy.x - oxy.x; dy = xy.y - oxy.y;
         moveObj = U.dragEle;
-        if(moveObj === this.map){
-            moveObj.transform(dx, dy);
-            if(this.marker){
-                this.marker.translate(dx, dy);
-            } 
-            if(this.boundingbox){
-                this.boundingbox.translate(dx,dy);
-            }
-        }else if(moveObj === this.marker){
+        if(moveObj === this.marker){
             moveObj.translate(dx, dy);
         }else if(moveObj === this.boundingbox){
             info = U.resizeInfo;
@@ -250,17 +273,36 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             }else{
                 info2 = this.dragResizeRect(dx, dy, info, moveObj);
                 U.resizeInfo = info2.pointInfo;
+                G.drawing();
+            }
+        }else if(moveObj && moveObj.def.type == "circle"){
+            this.moveVertice(moveObj, dx, dy);
+            G.drawing();
+        }else{
+            this.map.transform(dx, dy);
+            if(this.marker){
+                this.marker.translate(dx, dy);
+            } 
+            if(this.boundingbox){
+                this.boundingbox.translate(dx,dy);
+            }
+            if(this._local.drawPolygon){
+                this.translatePolygon(dx, dy);
                 this.g2d.drawing();
             }
         }
-
         U.eventXY = xy;
+        
+        if(dx != 0 || dy != 0){
+            U.moved = true;
+        }
     };
 
     var _onmouseup = function(e){
-        var U = this._local, M = this.map, 
+        var U = this._local, M = this.map, G = this.g2d,
             mk = this.marker, bbox = this.boundingbox,
-            geoCode = this.geoCode;
+            geoCode = this.geoCode, xy = U.eventXY = e.eventXY(), 
+            rxy = G.relative(xy), shape, group, tmp;
 
         _detectMove.$clearTimer();
         MQ.post(Event.SYS_EVT_MOVED, "");
@@ -283,6 +325,30 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             _boundingBoxChanged.call(this);
         }
         
+        if(!U.moved){
+            shape = G.detectShape(rxy.x, rxy.y);
+            if(U.drawPolygon === "drawing"){
+                tmp = this.getPaintToolData();
+                vertices = tmp.polygons[tmp.drawing].vertices;
+                
+                if(shape && shape === vertices[0]){
+                    group = this.finishPolygon();
+                    if(group){
+                        this.selectPolygon(group);
+                        U.drawPolygon = "modify";
+                        this.detachEvent("mousemove", 0, this, _drawTmpLine);
+                    }
+                }else{
+                    this.drawPolygon([rxy.x, rxy.y]);
+                }
+            }else if(U.drawPolygon === "modify" 
+                    && shape &&  shape.def.isVertice === true){
+                this.rmPtFromPolygon(shape);
+            }
+            G.draw();
+        }
+                
+        U.moved = false;
         U.dragEle = undefined;
     };
 
@@ -296,7 +362,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             _showMapinfo.call(this, {lng: lng, lat:lat});
         }
     };
-
+    
     var _showMapinfo = function(data){
         data = data || this.board.getData();
         if(data.Longitude){
@@ -313,14 +379,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             //"rect[3]" : this.map.mapinfo.mapcoords[3]
         });
     };
-    
-    var _onShapeChanged = function(e){
-        var shape = e.getData();
-        if(shape.id == "boundingbox"){
-            _boundingBoxChanged.call(this);
-        }
-    };
-    
+        
     var _boundingBoxChanged = function(){
         var t, r, b, l, xy1, xy2,x1, x2, 
             U = this._local, M = this.map,
@@ -349,6 +408,98 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         geoCode.boundingbox[3] = parseFloat(MapMath.inverseMercatorX(xy1.x).$format(DBLPATTERN));
         
         this.fireEvent(new Event("geocodechanged", geoCode, this), true);
+    };
+    
+    thi$.startDrawPolygon = function(){
+        this.initDrawPolygon(this.g2d);
+        this._local.drawPolygon = "drawing";
+        this.attachEvent("mousemove", 0, this, _drawTmpLine);
+    };
+    
+    var _drawTmpLine = function(e){
+        var tmpData = this.getPaintToolData(),
+            line = tmpData.tmpLine,
+            points = tmpData.polygons[tmpData.drawing].points, 
+            U = this._local, oxy = U.eventXY, xy = e.eventXY(),
+            G = this.g2d, dx, dy, len;
+            
+        len = points.length;
+        
+        if(line){
+            dx = xy.x - oxy.x; dy = xy.y - oxy.y; 
+            line.def.x0 = points[len-1][0];
+            line.def.y0 = points[len-1][1];
+            line.def.x1 = e.offsetX;
+            line.def.y1 = e.offsetY;
+            G.drawing();
+        }
+        
+    };
+    
+    /**
+     * @param {String} group: the id of a polygon.
+     */
+    thi$.selectPolygon = function(group){
+        var polygons = this.getPaintToolData().polygons,
+            selectGroup = this._local.selectedPolygon;
+        if(selectGroup === group) return false;
+        
+        if(polygons[selectGroup]){
+            this.modifyPolygon(selectGroup, true);
+        }
+        
+        this.modifyPolygon(group);
+        this._local.selectedPolygon = group;
+        
+        this.g2d.draw();
+    };
+    
+    thi$.delSelectedPolygon = function(){
+        this.delPolygon(this._local.selectedPolygon);
+        this.g2d.draw();
+    };
+    
+    /***
+     * 
+     * @param {Object} def: include "strokeStyle", "strokeOpacity",
+     *                              "fillStyle","fillOpacity" and "lineWidth"
+     */
+    thi$.changePolygonDef = function(def){
+        var polygons = this.getPaintToolData().polygons,
+            polygon = polygons[this._local.selectedPolygon];
+            
+        if(!polygon) return false;
+        
+        for(p in def){
+            polygon.polygon.def[p] = def[p];
+        }
+        this.g2d.drawing();
+    };
+    
+    /**
+     * get some data of polygon, like the polygon's longitude and latitude.
+     */
+    thi$.getPolygonData = function(){
+        var obj, xy, points, point, 
+            lng, lat, arr = [], M = this.map,
+            polygons = this.getPaintToolData().polygons;
+        
+        for(p in polygons){
+            obj = {
+                id: p,
+                points: []
+            };
+            points = polygons[p].points;
+            for(var i = 0; i < points.length; i++){
+                xy = M.getMercatorXY({x: points[i][0], y: points[i][1]});
+                lng = parseFloat(MapMath.inverseMercatorX(xy.x).$format(DBLPATTERN));
+                lat = parseFloat(MapMath.inverseMercatorY(xy.y).$format(DBLPATTERN));
+                
+                obj.points.push({lng: lng, lat: lat});
+            }
+            arr.push(obj);
+        }
+        return arr;
     };
 
     var _initDef = function(def){

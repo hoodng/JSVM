@@ -392,10 +392,10 @@ js.awt.Container = function (def, Runtime, view){
      * Override the destroy of js.awt.Component
      */
     thi$.destroy = function(){
-        this.removeAll(true);
-
-        arguments.callee.__super__.apply(this, arguments);
-
+        if(this.destroied !== true){
+            this.removeAll(true);
+            arguments.callee.__super__.apply(this, arguments);
+        }
     }.$override(this.destroy);
 
     /**

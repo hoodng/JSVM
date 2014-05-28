@@ -37,6 +37,18 @@
 
 $package("js.util");
 
+/**
+ * @class js.util.Calendar
+ * @extends js.lang.Object
+ * @constructor 
+ * Creates a new Calendar instance
+ * @param {Number} year
+ * @param {Number} month
+ * @param {Number} dayOfMonth
+ * @param {Number} hourOfDay
+ * @param {Number} minute
+ * @param {Number} second
+ */
 js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
 
     var CLASS = js.util.Calendar, thi$ = CLASS.prototype;
@@ -49,45 +61,46 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     var Class = js.lang.Class, System = J$VM.System;
     
     /**
+     * @property {Number} [ERA=0]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * era, e.g., AD or BC in the Julian calendar. This is a calendar-specific
      * value; see subclass documentation.
      *
-     * @see GregorianCalendar#AD
-     * @see GregorianCalendar#BC
      */
     var ERA = CLASS.ERA = 0;
 
     /**
+     * @property {Number} [YEAR=1]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * year. This is a calendar-specific value; see subclass documentation.
      */
     var YEAR = CLASS.YEAR = 1;
 
     /**
+     * @property {Number} [MONTH=2]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * month. This is a calendar-specific value. The first month of
      * the year in the Gregorian and Julian calendars is
      * <code>JANUARY</code> which is 0; the last depends on the number
      * of months in a year.
      *
-     * @see #JANUARY
-     * @see #FEBRUARY
-     * @see #MARCH
-     * @see #APRIL
-     * @see #MAY
-     * @see #JUNE
-     * @see #JULY
-     * @see #AUGUST
-     * @see #SEPTEMBER
-     * @see #OCTOBER
-     * @see #NOVEMBER
-     * @see #DECEMBER
-     * @see #UNDECIMBER
      */
     var MONTH = CLASS.MONTH = 2;
 
     /**
+     * @property {Number} [WEEK_OF_YEAR=3]
+     * @static
+     * @readonly
+     * 
      * Field number for <code>get</code> and <code>set</code> indicating the
      * week number within the current year.  The first week of the year, as
      * defined by <code>getFirstDayOfWeek()</code> and
@@ -95,12 +108,14 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
      * the value of <code>WEEK_OF_YEAR</code> for days before the first week of
      * the year.
      *
-     * @see #getFirstDayOfWeek
-     * @see #getMinimalDaysInFirstWeek
      */
     var WEEK_OF_YEAR = CLASS.WEEK_OF_YEAR = 3;
 
     /**
+     * @property {Number} [WEEK_OF_MONTH=4]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * week number within the current month.  The first week of the month, as
      * defined by <code>getFirstDayOfWeek()</code> and
@@ -108,52 +123,59 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
      * the value of <code>WEEK_OF_MONTH</code> for days before the first week of
      * the month.
      *
-     * @see #getFirstDayOfWeek
-     * @see #getMinimalDaysInFirstWeek
      */
     var WEEK_OF_MONTH = CLASS.WEEK_OF_MONTH = 4;
 
     /**
+     * @property {Number} [DATE=4]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * day of the month. This is a synonym for <code>DAY_OF_MONTH</code>.
      * The first day of the month has value 1.
-     *
-     * @see #DAY_OF_MONTH
      */
     var DATE = CLASS.DATE = 5;
 
     /**
+     * @property {Number} [DAY_OF_MONTH=5]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * day of the month. This is a synonym for <code>DATE</code>.
      * The first day of the month has value 1.
-     *
-     * @see #DATE
      */
     var DAY_OF_MONTH = CLASS.DAY_OF_MONTH = 5;
 
     /**
+     * @property {Number} [DAY_OF_YEAR=6]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the day
      * number within the current year.  The first day of the year has value 1.
      */
     var DAY_OF_YEAR = CLASS.DAY_OF_YEAR = 6;
 
     /**
+     * @property {Number} [DAY_OF_WEEK=7]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the day
      * of the week.  This field takes values <code>SUNDAY</code>,
      * <code>MONDAY</code>, <code>TUESDAY</code>, <code>WEDNESDAY</code>,
      * <code>THURSDAY</code>, <code>FRIDAY</code>, and <code>SATURDAY</code>.
      *
-     * @see #SUNDAY
-     * @see #MONDAY
-     * @see #TUESDAY
-     * @see #WEDNESDAY
-     * @see #THURSDAY
-     * @see #FRIDAY
-     * @see #SATURDAY
      */
     var DAY_OF_WEEK = CLASS.DAY_OF_WEEK = 7;
 
     /**
+     * @property {Number} [DAY_OF_WEEK_IN_MONTH=8]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * ordinal number of the day of the week within the current month. Together
      * with the <code>DAY_OF_WEEK</code> field, this uniquely specifies a day
@@ -172,44 +194,48 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
      * within the month than positive values.  For example, if a month has 31
      * days, <code>DAY_OF_WEEK_IN_MONTH -1</code> will overlap
      * <code>DAY_OF_WEEK_IN_MONTH 5</code> and the end of <code>4</code>.
-     *
-     * @see #DAY_OF_WEEK
-     * @see #WEEK_OF_MONTH
      */
     var DAY_OF_WEEK_IN_MONTH = CLASS.DAY_OF_WEEK_IN_MONTH = 8;
 
     /**
+     * @property {Number} [AM_PM=9]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating
      * whether the <code>HOUR</code> is before or after noon.
      * E.g., at 10:04:15.250 PM the <code>AM_PM</code> is <code>PM</code>.
-     *
-     * @see #AM
-     * @see #PM
-     * @see #HOUR
      */
     var AM_PM = CLASS.AM_PM = 9;
 
     /**
+     * @property {Number} [HOUR=10]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * hour of the morning or afternoon. <code>HOUR</code> is used for the
      * 12-hour clock (0 - 11). Noon and midnight are represented by 0, not by 12.
      * E.g., at 10:04:15.250 PM the <code>HOUR</code> is 10.
-     *
-     * @see #AM_PM
-     * @see #HOUR_OF_DAY
      */
     var HOUR = CLASS.HOUR = 10;
 
     /**
+     * @property {Number} [HOUR_OF_DAY=11]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * hour of the day. <code>HOUR_OF_DAY</code> is used for the 24-hour clock.
      * E.g., at 10:04:15.250 PM the <code>HOUR_OF_DAY</code> is 22.
-     *
-     * @see #HOUR
      */
     var HOUR_OF_DAY = CLASS.HOUR_OF_DAY = 11;
 
     /**
+     * @property {Number} [MINUTE=12]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * minute within the hour.
      * E.g., at 10:04:15.250 PM the <code>MINUTE</code> is 4.
@@ -217,6 +243,10 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     var MINUTE = CLASS.MINUTE = 12;
 
     /**
+     * @property {Number} [SECOND=13]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * second within the minute.
      * E.g., at 10:04:15.250 PM the <code>SECOND</code> is 15.
@@ -224,6 +254,10 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     var SECOND = CLASS.SECOND = 13;
 
     /**
+     * @property {Number} [MILLISECOND=14]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * millisecond within the second.
      * E.g., at 10:04:15.250 PM the <code>MILLISECOND</code> is 250.
@@ -231,6 +265,10 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     var MILLISECOND = CLASS.MILLISECOND = 14;
 
     /**
+     * @property {Number} [ZONE_OFFSET=15]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code>
      * indicating the raw offset from GMT in milliseconds.
      * <p>
@@ -242,6 +280,10 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     var ZONE_OFFSET = CLASS.ZONE_OFFSET = 15;
 
     /**
+     * @property {Number} [DST_OFFSET=16]
+     * @static
+     * @readonly
+     *
      * Field number for <code>get</code> and <code>set</code> indicating the
      * daylight saving offset in milliseconds.
      * <p>
@@ -253,132 +295,220 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     var DST_OFFSET = CLASS.DST_OFFSET = 16;
 
     /**
+     * @property {Number} [SUNDAY=0]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #DAY_OF_WEEK} field indicating
      * Sunday.
      */
     var SUNDAY = CLASS.SUNDAY = 0;
 
     /**
+     * @property {Number} [MONDAY=1]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #DAY_OF_WEEK} field indicating
      * Monday.
      */
     var MONDAY = CLASS.MONDAY = 1;
 
     /**
+     * @property {Number} [TUESDAY=2]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #DAY_OF_WEEK} field indicating
      * Tuesday.
      */
     var TUESDAY = CLASS.TUESDAY = 2;
 
     /**
+     * @property {Number} [WEDNESDAY=3]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #DAY_OF_WEEK} field indicating
      * Wednesday.
      */
     var WEDNESDAY = CLASS.WEDNESDAY = 3;
 
     /**
+     * @property {Number} [THURSDAY=4]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #DAY_OF_WEEK} field indicating
      * Thursday.
      */
     var THURSDAY = CLASS.THURSDAY = 4;
 
     /**
+     * @property {Number} [FRIDAY=5]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #DAY_OF_WEEK} field indicating
      * Friday.
      */
     var FRIDAY = CLASS.FRIDAY = 5;
 
     /**
+     * @property {Number} [SATURDAY=6]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #DAY_OF_WEEK} field indicating
      * Saturday.
      */
     var SATURDAY = CLASS.SATURDAY = 6;
 
     /**
+     * @property {Number} [JANUARY=0]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * first month of the year in the Gregorian and Julian calendars.
      */
     var JANUARY = CLASS.JANUARY = 0;
 
     /**
+     * @property {Number} [FENRUARY=1]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * second month of the year in the Gregorian and Julian calendars.
      */
     var FEBRUARY = CLASS.FEBRUARY = 1;
 
     /**
+     * @property {Number} [MARCH=2]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * third month of the year in the Gregorian and Julian calendars.
      */
     var MARCH = CLASS.MARCH = 2;
 
     /**
+     * @property {Number} [APRIL=3]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * fourth month of the year in the Gregorian and Julian calendars.
      */
     var APRIL = CLASS.APRIL = 3;
 
     /**
+     * @property {Number} [MAY=4]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * fifth month of the year in the Gregorian and Julian calendars.
      */
     var MAY = CLASS.MAY = 4;
 
     /**
+     * @property {Number} [JUNE=5]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * sixth month of the year in the Gregorian and Julian calendars.
      */
     var JUNE = CLASS.JUNE = 5;
 
     /**
+     * @property {Number} [JULY=6]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * seventh month of the year in the Gregorian and Julian calendars.
      */
     var JULY = CLASS.JULY = 6;
 
     /**
+     * @property {Number} [AUGUST=7]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * eighth month of the year in the Gregorian and Julian calendars.
      */
     var AUGUST = CLASS.AUGUST = 7;
 
     /**
+     * @property {Number} [SEPTEMBER=8]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * ninth month of the year in the Gregorian and Julian calendars.
      */
     var SEPTEMBER = CLASS.SEPTEMBER = 8;
 
     /**
+     * @property {Number} [OCTOBER=9]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * tenth month of the year in the Gregorian and Julian calendars.
      */
     var OCTOBER = CLASS.OCTOBER = 9;
 
     /**
+     * @property {Number} [NOVEMBER=10]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * eleventh month of the year in the Gregorian and Julian calendars.
      */
     var NOVEMBER = CLASS.NOVEMBER = 10;
 
     /**
+     * @property {Number} [DECEMBER=11]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #MONTH} field indicating the
      * twelfth month of the year in the Gregorian and Julian calendars.
      */
     var DECEMBER = CLASS.DECEMBER = 11;
 
     /**
+     * @property {Number} [AM=0]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #AM_PM} field indicating the
      * period of the day from midnight to just before noon.
      */
     var AM = CLASS.AM = 0;
 
     /**
+     * @property {Number} [PM=1]
+     * @static
+     * @readonly
+     *
      * Value of the {@link #AM_PM} field indicating the
      * period of the day from noon to just before midnight.
      */
     var PM = CLASS.PM = 1;
 
     /**
+     * @property {Number} [BC=0]
+     * @static
+     * @readonly
+     *
      * Value of the <code>ERA</code> field indicating
      * the period before the common era (before Christ), also known as BCE.
      * The sequence of years at the transition from <code>BC</code> to <code>AD</code> is
@@ -388,6 +518,10 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     var BC = CLASS.BC = 0;
 
     /**
+     * @property {Number} [AD=1]
+     * @static
+     * @readonly
+     *
      * Value of the <code>ERA</code> field indicating
      * the common era (Anno Domini), also known as CE.
      * The sequence of years at the transition from <code>BC</code> to <code>AD</code> is
@@ -407,10 +541,40 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     // Useful millisecond constants.  Although ONE_DAY and ONE_WEEK can fit
     // into ints, they must be longs in order to prevent arithmetic overflow
     // when performing (bug 4173516).
+    /**
+     * @property {Number} [ONE_SECOND=1000]
+     * @static
+     * @readonly
+     * Milliseconds of one second
+     */
     var ONE_SECOND = CLASS.ONE_SECOND = 1000;
+    /** 
+     * @property {Number} [ONE_MINUTE=60*1000]
+     * @static
+     * @readonly
+     * Milliseconds of one minute
+     */
     var ONE_MINUTE = CLASS.ONE_MINUTE = 60*ONE_SECOND;
+    /** 
+     * @property {Number} [ONE_HOUR=60*60*1000]
+     * @static
+     * @readonly
+     * Milliseconds of one hour
+     */
     var ONE_HOUR   = CLASS.ONE_HOUR   = 60*ONE_MINUTE;
+    /** 
+     * @property {Number} [ONE_DAY=24*60*60*1000]
+     * @static
+     * @readonly
+     * Milliseconds of one day
+     */
     var ONE_DAY    = CLASS.ONE_DAY    = 24*ONE_HOUR;
+    /** 
+     * @property {Number} [ONE_WEEK=7*60*60*1000]
+     * @static
+     * @readonly
+     * Milliseconds of one week
+     */
     var ONE_WEEK   = CLASS.ONE_WEEK   = 7*ONE_DAY;
 
     /*
@@ -454,7 +618,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         0,              // MINUTE
         0,              // SECOND
         0,              // MILLISECOND
-            -13*ONE_HOUR,   // ZONE_OFFSET (UNIX compatibility)
+        -13*ONE_HOUR,   // ZONE_OFFSET (UNIX compatibility)
         0               // DST_OFFSET
     ];
 
@@ -479,24 +643,24 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     ];
 
     /**
-     * Returns a <code>Date</code> object representing this
-     * <code>Calendar</code>'s time value (millisecond offset from the <a
-     * href="#Epoch">Epoch</a>").
+     * @method
+     * Returns a <code>Date</code> object representing this <code>Calendar</code>'s time value.
      *
-     * @return a <code>Date</code> representing the time value.
+     * @return {Date} a <code>Date</code> representing the time value.
      */
     thi$.getDate = function(){
         return this.date;   
     };
 
     /**
+     * @method
      * Sets this Calendar's time with the given <code>Date</code>.
      * <p>
      * Note: Calling <code>setTime()</code> with
      * <code>Date(Long.MAX_VALUE)</code> or <code>Date(Long.MIN_VALUE)</code>
      * may yield incorrect field values from <code>get()</code>.
      *
-     * @param date the given Date.
+     * @param {Date} date the given Date.
      */
     thi$.setDate = function(date){
         this.date = date || new Date();
@@ -504,10 +668,9 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
 
     /**
      * Returns this Calendar's time value in milliseconds.
+     * See also {@link #getDate}, {@link #setTimeInMillis}.
      *
-     * @return the current time as UTC milliseconds from the epoch.
-     * @see #getTime()
-     * @see #setTimeInMillis(long)
+     * @return {Number} the current time as UTC milliseconds from the epoch.
      */
     thi$.getTimeInMillis = function(){
         return this.date.getTime();
@@ -516,26 +679,47 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     /**
      * Sets this Calendar's current time from the given long value.
      *
-     * @param millis the new time in UTC milliseconds from the epoch.
-     * @see #setTime(Date)
-     * @see #getTimeInMillis()
+     * @param {Number} the new time in UTC milliseconds from the epoch.
+     * @link #setDate
+     * @link #getTimeInMillis
      */
     thi$.setTimeInMillis = function(millis){
         this.date.setTime(millis);
     };
 
+    /**
+     * Return the first day of a week
+     * 
+     * @return {Number} 
+     */
     thi$.getFirstDayOfWeek = function(){
         return this.firstDay;
     };
     
+
+    /**
+     * Set the first day of a week.
+     * 
+     * @param {Number} day
+     */
     thi$.setFirstDayOfWeek = function(day){
         this.firstDay = day;
     };
     
+    /**
+     * Return the minimal days in first week
+     * 
+     * @return {Number} 
+     */
     thi$.getMinimalDaysInFirstWeek = function(){
         return this.miniDays1stWeek;
     };
     
+    /**
+     * Return the minimal days in first week
+     * 
+     * @param {Number} days
+     */
     thi$.setMinimalDaysInFirstWeek = function(days){
         this.miniDays1stWeek = days;
     };
@@ -543,7 +727,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     /**
      * Return the first day of current date's year
      * 
-     * @return Date
+     * @return {Date}
      */
     thi$.getFirstDayOfCurrentYear = function(){
         return new Date(this.get(YEAR), JANUARY, 1);
@@ -552,7 +736,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     /**
      * Return the first day of current date's month
      * 
-     * @return Date
+     * @return {Date}
      */
     thi$.getFirstDayOfCurrentMonth = function(){
         return new Date(this.get(YEAR), this.get(MONTH), 1);
@@ -561,7 +745,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     /**
      * Return the first day of current date's quarter
      * 
-     * @return Date
+     * @return {Date}
      */
     thi$.getFirstDayOfCurrentQuarter = function(){
         month= QUATERS[Math.floor(this.get(MONTH)/3)];
@@ -570,6 +754,8 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
 
     /**
      * Return the first day of current date's week
+     * 
+     * @return {Date}
      */
     thi$.getFirstDayOfCurrentWeek = function(){
         var calendar = new CLASS(
@@ -585,10 +771,10 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
 
     /**
      * Returns the value of the given calendar field.
+     * See also {@link #set}
      *
-     * @param field the given calendar field.
-     * @return the value for the given calendar field.
-     * @see #set(int,int)
+     * @param {Number} field the given calendar field.
+     * @return {Number} the value for the given calendar field.
      */
     thi$.get = function(field){
         var date = this.date, val, t0, t1, dayOfWeekT0;
@@ -669,10 +855,10 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     /**
      * Sets the given calendar field to the given value. The value is not
      * interpreted by this method regardless of the leniency mode.
+     * See also {@link #get}
      *
-     * @param field the given calendar field.
-     * @param value the value to be set for the given calendar field.
-     * @see #get(int)
+     * @param {Number} field the given calendar field.
+     * @param {Number} value the value to be set for the given calendar field.
      */
     thi$.set = function(field, value){
         if(!Class.isNumber(value)) return;
@@ -776,18 +962,19 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     /**
      * Sets the values for the fields <code>YEAR</code>, <code>MONTH</code>,
      * <code>DAY_OF_MONTH</code>, <code>HOUR</code>, <code>MINUTE</code>, and
-     * <code>SECOND</code>.
+     * <code>SECOND</code>. 
      * Previous values of other fields are retained.  If this is not desired,
-     * call {@link #clear()} first.
+     * call {@link #clear} first.
+     * See also {@link #set}
      *
-     * @param year the value used to set the <code>YEAR</code> calendar field.
-     * @param month the value used to set the <code>MONTH</code> calendar field.
+     * @param {Number} year the value used to set the <code>YEAR</code> calendar field.
+     * @param {Number} month the value used to set the <code>MONTH</code> calendar field.
      * Month value is 0-based. e.g., 0 for January.
-     * @param date the value used to set the <code>DAY_OF_MONTH</code> calendar field.
-     * @param hour the value used to set the <code>HOUR_OF_DAY</code> calendar field.
-     * @param minute the value used to set the <code>MINUTE</code> calendar field.
-     * @param second the value used to set the <code>SECOND</code> calendar field.
-     * @see #set(int,int)
+     * @param {Number} date the value used to set the <code>DAY_OF_MONTH</code> calendar field.
+     * @param {Number} hour the value used to set the <code>HOUR_OF_DAY</code> calendar field.
+     * @param {Number} minute the value used to set the <code>MINUTE</code> calendar field.
+     * @param {Number} second the value used to set the <code>SECOND</code> calendar field.
+     * @param {Number} mills teh value used to set the <code>MILLISECOND</code> calendar field.
      */
     thi$.setFields = function(year, month, date, hour, minute, second, mills){
         this.set(YEAR, year);
@@ -820,9 +1007,9 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
      * that are not expected to be invariant. The calendar system
      * determines what fields are expected to be invariant.</p>
      *
-     * @param field the calendar field.
-     * @param amount the amount of date or time to be added to the field.
-     * @exception IllegalArgumentException if <code>field</code> is
+     * @param {Number} field the calendar field.
+     * @param {Number} amount the amount of date or time to be added to the field.
+     * @throws {String} IllegalArgumentException if <code>field</code> is
      * <code>ZONE_OFFSET</code>, <code>DST_OFFSET</code>, or unknown,
      * or if any calendar fields have out-of-range values in
      * non-lenient mode.
@@ -968,7 +1155,7 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         
     };
 
-    /**
+    /*
      * After adjustments such as add(MONTH), add(YEAR), we don't want the
      * month to jump around.  E.g., we don't want Jan 31 + 1 month to go to Mar
      * 3, we want it to go to Feb 28.  Adjustments which might run into this
@@ -989,6 +1176,9 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
      * Returns the length (in days) of the specified year. The year
      * must be normalized. If the year was not specified, the internalGet(YEAR)
      * will be provided. 
+     * 
+     * @param {Number} year, the specified year.
+     * @return {Number} Days of the specified year.
      */
     thi$.yearLength = function(year){
         return this.isLeapYear(_reviseYear.call(this, year)) ? 366 : 365;
@@ -998,8 +1188,11 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
      * Returns the length of the specified month in the specified
      * year. The year number must be normalized. If the year was not 
      * specified, the internalGet(YEAR) will be provided. 
+     * @link #isLeapYear
      *
-     * @see #isLeapYear(int)
+     * @param {Number} month
+     * @param {Number} year
+     * @return {Number}
      */
     thi$.monthLength = function(month, year){
         return this.isLeapYear(_reviseYear.call(this, year)) ? 
@@ -1014,12 +1207,24 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         }
         return year;
     };
-
+    
+    
+    /**
+     * Returns whethere the specified year is leap year.
+     * 
+     * @param {Number} year the specified year.
+     * @return {Boolean}
+     */
     thi$.isLeapYear = function(year){
         year = Class.isNumber(year) ? year : this.get(YEAR);
         return (year%4 == 0 || year%400 == 0) && year%100  != 0 && year%1900 !=0;
     };
 
+    /**
+     * Clear the given calendar field
+     *
+     * @param {Number} field
+     */
     thi$.clear = function(field){
         var date = this.date;
         switch(field){
@@ -1074,23 +1279,28 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
     };
     
     /**
-     * 
-     * @param from, the start date
-     * @param to, the end date
-     * @param field, field of YEAR, MONTH, WEEK_OF_YEAR, DAY_OF_YEAR,
+     * @method
+     * @static
+     *
+     * @param {Date} from the start date
+     * @param {Date} to the end date
+     * @param {Number} field field of YEAR, MONTH, WEEK_OF_YEAR, DAY_OF_YEAR,
      * HOUR_OF_DAY, MINUTE, SECOND
-     * @param unit 0.5 means half, 1 means one year, one month and so on.
+     * @param {Number} unit 0.5 means half, 1 means one year, one month and so on.
      * For the MONTH, if unit is 3 that means one quarter
      * 
-     * @return {
-     *     from:
-     *     to:
+     * @return {Object} the object like below:
+     *    
+     *     @example 
+     *     {
+     *         from:
+     *         to:
      * 
-     *     field:
-     *     unit:
+     *         field:
+     *         unit:
      *     
-     *     size:
-     * }
+     *         size:
+     *     }
      */
     CLASS.rangeOf = function(from, to, field, unit){
         var t0 = new CLASS(from), t1 = new CLASS(to),
@@ -1180,6 +1390,14 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         };
     };
 
+    /**
+     * @method
+     * @static 
+     * 
+     * @param {Date} date0
+     * @param {Date} date1
+     * @return 
+     */
     CLASS.compareDate = function(date0, date1){
         var v0 = new Date(date0.getFullYear(), 
                           date0.getMonth(), 
@@ -1191,6 +1409,14 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         return v0 - v1;
     };
 
+    /**
+     * @method
+     * @static 
+     * 
+     * @param {Date} date0
+     * @param {Date} date1
+     * @return 
+     */
     CLASS.compareTime = function(date0, date1){
         var v0 = new Date(1970, 1, 1, 
                           date0.getHours(), 
@@ -1206,6 +1432,14 @@ js.util.Calendar = function(year, month, dayOfMonth, hourOfDay, minute, second){
         return v0 - v1;
     };
 
+    /**
+     * @method
+     * @static 
+     * 
+     * @param {Number} v0
+     * @param {Number} v1
+     * @return 
+     */
     CLASS.compareDateTime = function(v0, v1){
         return v0 - v1;
     };
