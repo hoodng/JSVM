@@ -281,7 +281,11 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	var _onclick = function(e){
 		var el = e.srcElement, uuid = el.uuid, 
 		item = this.cache[uuid];
-
+		
+		if(item.hasNodes()){
+			item.showSubMenu();
+			return;
+		}
 		if(item && item.isEnabled()){
 			if(e.getType() == "click"){
 				if(item.hitCtrl(e)){

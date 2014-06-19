@@ -496,6 +496,25 @@ js.lang.System = function (env, vm){
          * and higher than the hscrollbar.
          */
         supports.preVScrollEleW = supports.vscrollbar + (vm.ie ? 1 : 0);
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} touchEnabled
+         * Whether browser support touch events
+         */
+        supports.touchEnabled = (window.TouchEvent != undefined);
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} pointerEnabled
+         * Whether browser support pointer events
+         */
+        supports.pointerEnabled = (window.PointerEvent != undefined);
+        /**
+         * @member J$VM.supports
+         * @property {Boolean} mouseEnabled
+         * Whether browser support mouse events
+         */
+        supports.mouseEnabled = (window.MouseEvent != undefined);
+
 
         // Dectect logical DPI of the browser
         div.innerHTML = "";
@@ -503,19 +522,19 @@ js.lang.System = function (env, vm){
             +"width:2.54cm;height:2.54cm;visibility:hidden;";
         if(!window.screen.logicalXDPI){
             var styles = doc.defaultView.getComputedStyle(div, null);
-            vm.supports.logicalXDPI = parseInt(styles["width"]);
-            vm.supports.logicalYDPI = parseInt(styles["height"]);
+            supports.logicalXDPI = parseInt(styles["width"]);
+            supports.logicalYDPI = parseInt(styles["height"]);
         }else{
             /**
              * @member J$VM.supports
              * @property {Number} logicalXDPI
              */
-            vm.supports.logicalXDPI = window.screen.logicalXDPI;
+            supports.logicalXDPI = window.screen.logicalXDPI;
             /**
              * @member J$VM.supports
              * @property {Number} logicalYDPI
              */
-            vm.supports.logicalYDPI = window.screen.logicalYDPI;
+            supports.logicalYDPI = window.screen.logicalYDPI;
         }
 
         // Check graphics, canvas, svg and vml.
@@ -525,13 +544,13 @@ js.lang.System = function (env, vm){
          * @property {Boolean} canvas
          * Whether supports Canvas
          */
-        vm.supports.canvas = (typeof obj.getContext === "function");
+        supports.canvas = (typeof obj.getContext === "function");
         /**
          * @member J$VM.supports
          * @property {Boolean} svg
          * Whether supports SVG
          */
-        vm.supports.svg = (doc.SVGAngle || doc.implementation.hasFeature(
+        supports.svg = (doc.SVGAngle || doc.implementation.hasFeature(
             "http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1"));
         div.innerHTML = "<v:shape id='vml_flag1' adj='1' />";
         obj = div.firstChild;
@@ -541,7 +560,7 @@ js.lang.System = function (env, vm){
          * @property {Boolean} vml
          * Whether supports VML
          */
-        vm.supports.vml = (obj ? typeof obj.adj === "object" : false);
+        supports.vml = (obj ? typeof obj.adj === "object" : false);
 
         // IE Binary2Array
         if(typeof self.Uint8Array != "function"){
@@ -658,6 +677,8 @@ js.lang.System = function (env, vm){
         _initJSVMLocale.call(this);
 
         var Event = js.util.Event, dom = vm.hwnd.document;
+        Event.intercept();
+
         Event.attachEvent(vm.hwnd, Event.W3C_EVT_RESIZE, 0, this, _onresize);
         Event.attachEvent(vm.hwnd, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
         Event.attachEvent(dom, "keydown", 0, this, _onkeyevent);

@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -47,28 +47,28 @@ js.awt.SizeObject = function(){
         return;
     }
     CLASS.__defined__ = true;
-    
-    
+
+
     thi$.setSizingPeer = function(peer){
         this.sizingPeer = peer;
     };
-    
+
     thi$.getSizingPeer = function(){
         return this.sizingPeer;
     };
-    
+
     thi$.getSizingData = function(){
         return {};
     };
-    
+
     thi$.getSizingMsgType = function(){
         return "js.awt.event.SizingEvent";
     };
-    
+
     thi$.getSizingMsgRecvs = function(){
         return null;
     };
-    
+
     thi$.releaseSizeObject = function(){
         if(this != this.sizingPeer){
             delete this.sizingPeer;
@@ -81,33 +81,33 @@ js.awt.SizeObject = function(){
 
 /**
  * A <em>Resizable</em> is used to support resizing a component.<p>
- * This function request a <em>resizer</em> definition as below in the def of 
+ * This function request a <em>resizer</em> definition as below in the def of
  * the component.
  * <p>
- * 
- * def.resizer : number 
+ *
+ * def.resizer : number
  *                 8 bits for the 8 directions
- *                 7  6  5  4  3  2  1  0         
+ *                 7  6  5  4  3  2  1  0
  *                 N  NE E  SE S  SW W  NW
- * 
- *                 0 ---- 7 ---- 6 
+ *
+ *                 0 ---- 7 ---- 6
  *                 |             |
  *                 1             5
  *                 |             |
  *                 2 ---- 3 ---- 4
- * 
+ *
  * <p>
- * When the component is resizing, the event "resizing" will be raised. 
+ * When the component is resizing, the event "resizing" will be raised.
  * Other components can attach this event.
  */
 js.awt.Resizable = function(){
-    
+
     var CLASS = js.awt.Resizable, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         return;
     }
     CLASS.__defined__ = true;
-    
+
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System, MQ = J$VM.MQ;
 
@@ -122,7 +122,7 @@ js.awt.Resizable = function(){
         "n-resize"
     ];
 
-    var SpotSize = {lw: 3, l2w: 6, pw: 5, p2w:10 };    
+    var SpotSize = {lw: 3, l2w: 6, pw: 5, p2w:10 };
 
     var ACalc = [
     // 0
@@ -142,7 +142,7 @@ js.awt.Resizable = function(){
     // 2
     function(box, spot){
         return {
-            x: box.offsetX, 
+            x: box.offsetX,
             y: box.offsetY + box.height - spot.pw,
             w: spot.pw, h:spot.pw
         };
@@ -150,7 +150,7 @@ js.awt.Resizable = function(){
     // 3
     function(box, spot){
         return {
-            x:box.offsetX + spot.pw, 
+            x:box.offsetX + spot.pw,
             y:box.offsetY + box.height - spot.lw,
             w:box.width - spot.p2w, h:spot.lw
         };
@@ -209,11 +209,11 @@ js.awt.Resizable = function(){
             return 0;
         }
     };
-    
+
     var miniW = function(w, miniW){
-        return w < miniW ? miniW : w; 
+        return w < miniW ? miniW : w;
     };
-    
+
     var miniH = function(h, miniH){
         return h < miniH ? miniH : h;
     };
@@ -245,19 +245,19 @@ js.awt.Resizable = function(){
     };
 
     var _onmousedown = function(e, i){
-        // Notify popup LayerManager 
+        // Notify popup LayerManager
         e.setEventTarget(this);
         MQ.post("js.awt.event.LayerEvent", e, [this.Runtime().uuid()]);
 
         if(e.button != 1 || !this.isResizable()) return false;
-        
+
         this.showCover(true);
-        
+
         this._local.clickXY = e.eventXY();
-        
+
         Event.attachEvent(document, "mousemove", 0, this, _onmousemove, i);
         Event.attachEvent(document, "mouseup", 0, this, _onmouseup, i);
-        
+
         MQ.register("releaseSizeObject", this, _releaseSizeObject);
 
         //e.cancelBubble();
@@ -267,16 +267,16 @@ js.awt.Resizable = function(){
 
     var _onmousemove = function(e, i){
 
-        if(!J$VM.System.checkThreshold(e.getTimeStamp().getTime(), 
-                                       this.def.mover.threshold)) 
+        if(!J$VM.System.checkThreshold(e.getTimeStamp().getTime(),
+                                       this.def.mover.threshold))
             return e.cancelDefault();
-        
+
         if(!this._local.notified){
         // Notify all IFrames show cover on it self
             MQ.post(Event.SYS_EVT_RESIZING, "");
             this._local.notified = true;
         }
-        
+
         var sizeObj = this.getSizeObject(), grid = this.def.mover.grid,
         box = sizeObj.getBounds(), pox = sizeObj.view.parentNode,
         miniSize = sizeObj.getMinimumSize(),
@@ -285,7 +285,7 @@ js.awt.Resizable = function(){
         var c = SpotSize.p2w, startXY = this._local.clickXY, xy = e.eventXY(),
         dw = diffW(i, xy, startXY), dh = diffH(i, xy, startXY), x, y,
         w = grid*Math.round((box.userW + dw)/grid),
-        h = grid*Math.round((box.userH + dh)/grid), 
+        h = grid*Math.round((box.userH + dh)/grid),
         minW = grid*Math.ceil(miniW(c, miniSize.width)/grid),
         minH = grid*Math.ceil(miniH(c, miniSize.height)/grid),
         maxW = grid*Math.floor(maxiW(i, box, pox, maxiSize.width)/grid),
@@ -293,7 +293,7 @@ js.awt.Resizable = function(){
 
         w = w < minW ? minW : (w > maxW) ? maxW : w;
         h = h < minH ? minH : (h > maxH) ? maxH : h;
-        
+
         switch(i){
         case 0:
             x = box.userX + box.userW - w;
@@ -320,7 +320,7 @@ js.awt.Resizable = function(){
         case 5:
             x = box.userX;
             y = box.userY;
-            h = box.userH; 
+            h = box.userH;
             break;
         case 6:
             x = box.userX;
@@ -336,7 +336,7 @@ js.awt.Resizable = function(){
         // Snap to grid
         x = grid*Math.round(x/grid);
         y = grid*Math.round(y/grid);
-        
+
         if(x != box.offsetX || y != box.offsetY){
             sizeObj.setPosition(x, y);
             sizeObj._moved = true;
@@ -345,7 +345,7 @@ js.awt.Resizable = function(){
             sizeObj.setSize(w, h);
             sizeObj._sized = true;
         }
-        
+
         // Notify all message receivers
         var recvs = sizeObj.getSizingMsgRecvs() || [];
         recvs.unshift(sizeObj.getSizingPeer().uuid());
@@ -361,7 +361,7 @@ js.awt.Resizable = function(){
         // Notify all IFrames remove cover from it self
         MQ.post(Event.SYS_EVT_RESIZED, "");
         this._local.notified = false;
-        
+
         // Notify all message receivers
         var sizeObj = this.getSizeObject(),
         recvs = sizeObj.getSizingMsgRecvs() || [];
@@ -384,7 +384,7 @@ js.awt.Resizable = function(){
 
         return e.cancelDefault();
     };
-    
+
     var _releaseSizeObject = function(){
         if(this.sizeObj){
             this.sizeObj.releaseSizeObject();
@@ -393,26 +393,26 @@ js.awt.Resizable = function(){
 
         MQ.cancel("releaseSizeObject", this, _releaseSizeObject);
     };
-    
+
     var _onsizingevent = function(e){
         // If subclass has own user-defined event handle, invoke it.
         // And if the boolean true was returned, break current handl.
-        if(Class.isFunction(this.onUDFResizing) 
+        if(Class.isFunction(this.onUDFResizing)
             && this.onUDFResizing(e)){
             return;
         }
-        
-        var eType = e.getType(), target = e.getEventTarget(), 
+
+        var target = e.getEventTarget(),
         x, y, w, h;
 
-        if(eType == "mouseup"){
+        if(e.isPointerUp()){
             x = target.getX(); y = target.getY();
             w = target.getWidth(); h = target.getHeight();
-            
+
             if(x != this.getX() || y != this.getY()){
                 this.setPosition(x, y, 0x0F);
             }
-            
+
             if(w != this.getWidth() || h != this.getHeight()){
                 this.setSize(w, h, 0x0F);
             }
@@ -423,7 +423,7 @@ js.awt.Resizable = function(){
         var div, CS = CURSORS,
         resizer = this._local.resizer = new Array(8),
         uuid = this.uuid(), buf = new js.lang.StringBuffer();
-        
+
         for(var i=7; i>=0; i--){
             if((r & (0x01 << i)) != 0){
                 div = resizer[i] = DOM.createElement("DIV");
@@ -447,14 +447,14 @@ js.awt.Resizable = function(){
             }
         }
     };
-    
+
     /**
      * Gets SizeObject from this component.
-     * 
+     *
      * @see js.awt.SizeObject
-     * 
+     *
      * Notes: If need sub class can override this method
-     */    
+     */
     thi$.getSizeObject = function(){
         var sizeObj = this.sizeObj;
         if(!sizeObj){
@@ -477,25 +477,25 @@ js.awt.Resizable = function(){
             sizeObj.insertAfter(this._coverView || this.view);
 
             sizeObj.setSizingPeer(this);
-            
+
             MQ.register(sizeObj.getSizingMsgType(), this, _onsizingevent);
         }
-        
+
         return sizeObj;
     };
-    
+
     /**
      * Tests whether this component is resizable.
      */
     thi$.isResizable = function(){
         return (this.def.resizable || false);
     };
-    
+
     var resizerbounds;
 
     /**
      * Sets whether this component is resizable.
-     * 
+     *
      * @param b, true is resizable, false is unable
      * @param resizer a number 0 to 255 identifies 8 directions
      */
@@ -504,7 +504,7 @@ js.awt.Resizable = function(){
 
         b = b || false;
         resizer = Class.isNumber(resizer) ? (resizer & 0x0FF) : 255;
-        
+
         var M = this.def, U = this._local;
         if(U.resizableSettled && M.resizable === b){
             if(b == false || M.resizer === resizer){
@@ -528,31 +528,31 @@ js.awt.Resizable = function(){
         }else{
             this.removeResizer(true);
         }
-        
+
         resizerbounds = resizerbounds || {
             BBM: J$VM.supports.borderBox,
             MBP: {BW: 0, BH: 0, PW: 0, PH: 0, BPW: 0, BPH: 0}
         };
-        
+
         U.resizableSettled = true;
     };
-    
+
     thi$.resizableSettled = function(){
         return this._local.resizableSettled || false;
     };
-    
+
     thi$.adjustResizer = function(bounds){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         bounds = bounds || this.getBounds();
-        var aCalc = ACalc, spot = this.SpotSize || SpotSize, 
+        var aCalc = ACalc, spot = this.SpotSize || SpotSize,
         div, i, rect;
-        
+
         for(i=0; i<8; i++){
             div = resizer[i];
             if(div == undefined) continue;
-            
+
             rect = aCalc[i](bounds, spot);
             DOM.setBounds(div, rect.x, rect.y, rect.w, rect.h, resizerbounds);
         }
@@ -561,7 +561,7 @@ js.awt.Resizable = function(){
     thi$.addResizer = function(){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         var div, i, isDOM = this.isDOMElement();
         for(i=0; isDOM && i<8; i++){
             div = resizer[i];
@@ -576,7 +576,7 @@ js.awt.Resizable = function(){
     thi$.removeResizer = function(gc){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         var div, i;
         while(resizer.length > 0){
             div = resizer.shift();
@@ -587,11 +587,11 @@ js.awt.Resizable = function(){
 
         delete this._local.resizer;
     };
-    
+
     thi$.setResizerZIndex = function(z){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         var div, i;
         for(i=0; i<8; i++){
             div = resizer[i];
@@ -604,7 +604,7 @@ js.awt.Resizable = function(){
     thi$.setResizerDisplay = function(show){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         var div, i;
         for(i=0; i<8; i++){
             div = resizer[i];
@@ -614,4 +614,3 @@ js.awt.Resizable = function(){
         }
     };
 };
-

@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -40,8 +40,8 @@ $package("js.awt");
 /**
  * @param def :{
  *	   id: ..
- *	   text: 
- *	   markable: true/false, indicates 
+ *	   text:
+ *	   markable: true/false, indicates
  * }
  */
 js.awt.TreeItem = function(def, Runtime, tree, parent, view){
@@ -52,15 +52,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		return;
 	}
 	CLASS.__defined__ = true;
-	
+
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
 	System = J$VM.System, Permission = js.util.Permission;
-	
+
 	thi$.setText = function(text){
 		this.def.text = text;
 		this.label.innerHTML = js.lang.String.encodeHtml(text);
 	};
-	
+
 	thi$.getText = function(){
 		return this.def.text;
 	};
@@ -103,7 +103,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		var nodes = this.nodes;
 		return (nodes && nodes.length > 0) || false;
 	};
-	
+
 	thi$.canDrag = function(){
 		var tree = this.treeContainer();
 		return tree.canDrag(this.def);
@@ -115,9 +115,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	};
 
 	thi$.isExpanded = function(){
-		return this._local.expanded;	
+		return this._local.expanded;
 	};
-	
+
 	thi$.isShowTip = function(){
 		return this._local.showTip;
 	};
@@ -128,7 +128,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	thi$.getIconImage = function(){
 		return this.treeContainer().getIconImage(this.def);
 	}.$override(this.getIconImage);
-	
+
 	/**
 	 * check permission, visible will' be hide.
 	 */
@@ -137,15 +137,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		p = isNaN(p) ? 1 : p;
 		this.setVisible(Permission.isVisible(p));
 	};
-	
+
 	/**
 	 * Insert tree items into specified position
-	 * 
+	 *
 	 * @param index
 	 * @param itemDefs, an array of tree item definition
 	 */
 	thi$.insertNodes = function(index, itemDefs){
-		var nodes = this.nodes, ibase = index, item, prev, next, 
+		var nodes = this.nodes, ibase = index, item, prev, next,
 		itemDef, i, len;
 
 		if(!nodes){
@@ -155,24 +155,24 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		for(i=0, len=itemDefs.length; i<len; i++){
 			itemDef = itemDefs[i];
 			itemDef.level = this.def.level + 1;
-			
+
 			if(this.isShowTip()){
 				itemDef.tip = itemDef.dname;
 				itemDef.showTip = true;
 			}
-			
+
 			if(item && item.canCloneView(itemDef)){
 				item = new js.awt.TreeItem(
-					itemDef, 
-					this.Runtime(), 
-					this.treeContainer(), 
-					this, 
+					itemDef,
+					this.Runtime(),
+					this.treeContainer(),
+					this,
 					item.cloneView());
 			}else{
 				item = new js.awt.TreeItem(
-					itemDef, 
-					this.Runtime(), 
-					this.treeContainer(), 
+					itemDef,
+					this.Runtime(),
+					this.treeContainer(),
 					this);
 			}
 
@@ -191,18 +191,18 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
 			item.prevSibling(prev);
 			item.nextSibling(next);
-			
+
 			item.checkHide();
 
 			ibase++;
 		};
-		
+
 		// Update marker style
 		for(i=0, len=nodes.length; i<len; i++){
 			nodes[i].updateBranchStyle();
 		}
 	};
-	
+
 	/**
 	 * Remove tree items from index to index + length
 	 */
@@ -218,24 +218,24 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	thi$.removeAllNodes = function(){
 		var nodes = this.nodes;
 		if(nodes){
-			this.removeNodes(0, nodes.length);	  
+			this.removeNodes(0, nodes.length);
 		}
 	};
-	
+
 	/**
 	 * Gets nodes of this item
-	 * 
+	 *
 	 * @param from, can be start TreeItem object or start index
-	 * @param to, can be end TreeItem object or end index or null, 
+	 * @param to, can be end TreeItem object or end index or null,
 	 * @param filter, the filter function(itemDef) which return true or false
 	 * @param recursive, true or false
-	 * @param ret, the return array	 
+	 * @param ret, the return array
 	 */
 	thi$.getNodes = function(from, to, filter, recursive, ret){
-		var nodes = this.nodes, 
-		i0 = Class.isNumber(from) ? from : ((from == null) ? 0 : nodes.indexOf(from)), 
-		i1 = Class.isNumber(to) ? to : ((to == null) ? nodes.length-1 : nodes.indexOf(to)), 
-		start = i0 < i1 ? i0:i1, end = i1 > i0 ? i1 : i0, 
+		var nodes = this.nodes,
+		i0 = Class.isNumber(from) ? from : ((from == null) ? 0 : nodes.indexOf(from)),
+		i1 = Class.isNumber(to) ? to : ((to == null) ? nodes.length-1 : nodes.indexOf(to)),
+		start = i0 < i1 ? i0:i1, end = i1 > i0 ? i1 : i0,
 		i, item;
 
 		ret = ret || [];
@@ -247,25 +247,25 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 				ret.push(item);
 			}
 			if(recursive === true && item.hasChildren()){
-				item.getNodes(0, null, filter, true, ret);				  
+				item.getNodes(0, null, filter, true, ret);
 			}
 		}
 		return ret;
 	};
-	
+
 	var _addToDOM = function(item, refNode, isLast){
 		item.updateLeaderStyle();
 		DOM.insertAfter(item.view, refNode);
 		if(item.view.parentNode){
 			item.showDisableCover(!item.isEnabled());
 		}
-		
+
 		if(isLast){
 			//nofity
 			_afterExpand.call(this);
 		}
 	};
-	
+
 	var _afterExpand = function(){
 		var peer = this.getPeerComponent();
 		if(peer && typeof peer.onAfterExpand === "function"){
@@ -273,27 +273,27 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		}
 		//this.dashboard.postMQ("js.awt.event.GadgetChange", "", []);
 	};
-	
+
 	thi$.isExpanding = function(){
 		return this._local.expanding;
 	};
-	
+
 	thi$.setExpanding = function(b){
 		this._local.expanding = b;
 	};
 
 	/**
 	 * Expand or Collapse an item
-	 * 
+	 *
 	 * @param b, true for expanding and false for collapsing
 	 * @param needNotify, false for don't nofity the tree to do AfterExpand,others do.
 	 * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
-	 */	   
+	 */
 	thi$.expand = function(b, needNotify, root){
 		if(!this.isEnabled()){
 			return;
 		}
-		
+
 		this.setExpanding(false);
 		var nodes = this.nodes, tree = this.treeContainer(),
 		className = this.branch.clazz, refNode, i, len, item;
@@ -304,7 +304,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		if(b){
 			this.branch.className = className + "_4";
 			this.setIconImage(4);
-			
+
 			refNode = this.view;
 			if(nodes && nodes.length > 0){
 				for(i=0, len=nodes.length; i<len; i++){
@@ -312,7 +312,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 					_addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
 					refNode = item.view;
 				}
-			}			
+			}
 		}else{
 			len = nodes ? nodes.length : 0;
 			for(i=len-1; i>=0; i--){
@@ -330,18 +330,18 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			}
 		}
 	};
-	
+
 	/**
 	 * Expand or collapse all items
-	 * 
-	 * @param b, true for expanding and false for collapsing	 
+	 *
+	 * @param b, true for expanding and false for collapsing
 	 * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
 	 */
 	thi$.expandAll = function(b, root){
 		if(!this.isEnabled()){
 			return;
 		}
-		
+
 		this.expand(b, false);
 
 		if(b){
@@ -353,23 +353,30 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 						item.expandAll(b, this);
 					}
 				}
-			}			
+			}
 		}
-		
+
 		//notify
 		if(!root){
 			_afterExpand.$delay(this, 1);
 		}
 	};
-	
+
 	thi$.doLayout = function(){
 		if(this.label && this.controller){
 			var ele = this.label, b, left;
 			b = ele.scrollWidth;
 			left = ele.offsetLeft;
-			this.controller.setPosition(b+left);			  
-		}		  
+			this.controller.setPosition(b+left);
+		}
 	}.$override(this.doLayout);
+
+    thi$.adjustCover = function(bounds){
+        arguments.callee.__super__.apply(this, arguments);
+        
+        this._coverView.style.width = "100%";
+        
+    }.$override(this.adjustCover);
 
 	thi$.updateBranchStyle = function(){
 		var ex = this.canExpand(),
@@ -378,20 +385,20 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		b = ((ex ? 4 : 0) | (ps ? 2 : 0) | (ns ? 1 : 0)),
 		bClassName = this.className + "_branch",
 		branch = this.branch;
-		
+
 		if(this.isEnabled()){
 			bClassName = bClassName + b;
-			
+
 			branch.clazz = bClassName;
 			bClassName = bClassName + (this.isTriggered() ? "_4" : "_0");
 		}else{
 			branch.clazz = bClassName;
 			bClassName = bClassName + "_1";
 		}
-		
+
 		branch.className = bClassName;
 	};
-	
+
 	thi$.updateLeaderStyle = function(){
 		var p = this.parentItem(), M = this.def, level = M.level,
 		comps = M.items, comp;
@@ -406,7 +413,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			p = p.parentItem();
 		}
 	};
-	
+
 	/**
 	 * @see js.awt.Item
 	 */
@@ -417,7 +424,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		for(var i=level; i>0; i--){
 			items.unshift("leader"+i);
 		};
-		
+
 		items.push("branch");
 		if(itemDef.markable === true) items.push("marker");
 		items.push("icon");
@@ -426,7 +433,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		return items.length === this.def.items.length;
 
 	}.$override(this.canCloneView);
-	
+
 	var _checkItems = function(def, tree, parent){
 		var level = def.level, items = def.items;
 
@@ -434,7 +441,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		for(var i=level; i>0; i--){
 			items.unshift("leader"+i);
 		};
-		
+
 		items.push("branch");
 		if(def.markable === true) items.push("marker");
 		items.push("icon");
@@ -446,7 +453,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		delete this._local.parent;
 		delete this._local.prev;
 		delete this._local.next;
-		
+
 		this.removeAllNodes();
 		delete this.nodes;
 
@@ -462,7 +469,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		def.classType = def.classType || "js.awt.TreeItem";
 		def.className = tree.className + "_item";
 		def.css = "position:relative;overflow:visible;width:100%;";
-		
+
 		if(view == undefined){
 			def.items = js.util.LinkedList.$decorate([]);
 
@@ -473,9 +480,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		arguments.callee.__super__.apply(this, [def, Runtime, view]);
 
 		_setParentItem.call(this, parent);
-		
+
 		tree.cache[this.uuid()] = this;
-		
+
 		this._local.showTip = def.showTip || false;
 
 		if(def.nodes && def.nodes.length > 0){

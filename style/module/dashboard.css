@@ -301,6 +301,7 @@ body {
 }
 
 .menuDash_item_ctrl,.menuDash_item_ctrl_0,
+.menuGadget_item_ctrl,.menuGadget_item_ctrl_0,
 .simpleDshMenu_item_ctrl,.simpleDshMenu_item_ctrl_0 {
     width: 16px;
     height:16px;
@@ -1055,7 +1056,7 @@ body {
 
 .bvtree_item_16,
 .bvtree_item_17 {
-	display: none;
+    display: none;
 }
 
 /* Disable */
@@ -1306,7 +1307,7 @@ body {
 .menuGadget_0{
     border:1px solid #e6e6e6;
     background-color:#FFFFFF;
-    width:100px;
+    width:120px;
 }
 
 .menuGadget_item,
@@ -6035,7 +6036,7 @@ Slider
     padding: 2px 2px 2px 6px;
 }
 
-.dashboard_flatTree_treeview {
+.dashboard_flatTree_treeshell {
     padding: 0px;
 }
 

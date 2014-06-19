@@ -2699,7 +2699,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     background-color: #FFFFFF;
 }
 
-.vabvtree_treeview {
+.vabvtree_treeshell {
     padding: 0px;
 }
 
@@ -2845,7 +2845,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     padding: 6px; /* 5px 0px 0px 5px;*/ 
 }
 
-.singleLevelTree_treeview {
+.singleLevelTree_treeshell {
     padding: 0px;
 }
 

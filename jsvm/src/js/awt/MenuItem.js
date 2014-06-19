@@ -84,6 +84,11 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			}
 		}
 	};
+	
+	thi$.hasNodes = function(){
+		var nodes = this.def.nodes;
+		return Class.isArray(nodes) && this.def.nodes.length > 0;
+	};
 
 	/**
 	 * Show the current item's submenu, if the submenu hasn't been created,

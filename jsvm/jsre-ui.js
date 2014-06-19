@@ -945,32 +945,32 @@ js.awt.Movable = function (){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -992,28 +992,28 @@ js.awt.SizeObject = function(){
         return;
     }
     CLASS.__defined__ = true;
-    
-    
+
+
     thi$.setSizingPeer = function(peer){
         this.sizingPeer = peer;
     };
-    
+
     thi$.getSizingPeer = function(){
         return this.sizingPeer;
     };
-    
+
     thi$.getSizingData = function(){
         return {};
     };
-    
+
     thi$.getSizingMsgType = function(){
         return "js.awt.event.SizingEvent";
     };
-    
+
     thi$.getSizingMsgRecvs = function(){
         return null;
     };
-    
+
     thi$.releaseSizeObject = function(){
         if(this != this.sizingPeer){
             delete this.sizingPeer;
@@ -1026,33 +1026,33 @@ js.awt.SizeObject = function(){
 
 /**
  * A <em>Resizable</em> is used to support resizing a component.<p>
- * This function request a <em>resizer</em> definition as below in the def of 
+ * This function request a <em>resizer</em> definition as below in the def of
  * the component.
  * <p>
- * 
- * def.resizer : number 
+ *
+ * def.resizer : number
  *                 8 bits for the 8 directions
- *                 7  6  5  4  3  2  1  0         
+ *                 7  6  5  4  3  2  1  0
  *                 N  NE E  SE S  SW W  NW
- * 
- *                 0 ---- 7 ---- 6 
+ *
+ *                 0 ---- 7 ---- 6
  *                 |             |
  *                 1             5
  *                 |             |
  *                 2 ---- 3 ---- 4
- * 
+ *
  * <p>
- * When the component is resizing, the event "resizing" will be raised. 
+ * When the component is resizing, the event "resizing" will be raised.
  * Other components can attach this event.
  */
 js.awt.Resizable = function(){
-    
+
     var CLASS = js.awt.Resizable, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         return;
     }
     CLASS.__defined__ = true;
-    
+
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System, MQ = J$VM.MQ;
 
@@ -1067,7 +1067,7 @@ js.awt.Resizable = function(){
         "n-resize"
     ];
 
-    var SpotSize = {lw: 3, l2w: 6, pw: 5, p2w:10 };    
+    var SpotSize = {lw: 3, l2w: 6, pw: 5, p2w:10 };
 
     var ACalc = [
     // 0
@@ -1087,7 +1087,7 @@ js.awt.Resizable = function(){
     // 2
     function(box, spot){
         return {
-            x: box.offsetX, 
+            x: box.offsetX,
             y: box.offsetY + box.height - spot.pw,
             w: spot.pw, h:spot.pw
         };
@@ -1095,7 +1095,7 @@ js.awt.Resizable = function(){
     // 3
     function(box, spot){
         return {
-            x:box.offsetX + spot.pw, 
+            x:box.offsetX + spot.pw,
             y:box.offsetY + box.height - spot.lw,
             w:box.width - spot.p2w, h:spot.lw
         };
@@ -1154,11 +1154,11 @@ js.awt.Resizable = function(){
             return 0;
         }
     };
-    
+
     var miniW = function(w, miniW){
-        return w < miniW ? miniW : w; 
+        return w < miniW ? miniW : w;
     };
-    
+
     var miniH = function(h, miniH){
         return h < miniH ? miniH : h;
     };
@@ -1190,19 +1190,19 @@ js.awt.Resizable = function(){
     };
 
     var _onmousedown = function(e, i){
-        // Notify popup LayerManager 
+        // Notify popup LayerManager
         e.setEventTarget(this);
         MQ.post("js.awt.event.LayerEvent", e, [this.Runtime().uuid()]);
 
         if(e.button != 1 || !this.isResizable()) return false;
-        
+
         this.showCover(true);
-        
+
         this._local.clickXY = e.eventXY();
-        
+
         Event.attachEvent(document, "mousemove", 0, this, _onmousemove, i);
         Event.attachEvent(document, "mouseup", 0, this, _onmouseup, i);
-        
+
         MQ.register("releaseSizeObject", this, _releaseSizeObject);
 
         //e.cancelBubble();
@@ -1212,16 +1212,16 @@ js.awt.Resizable = function(){
 
     var _onmousemove = function(e, i){
 
-        if(!J$VM.System.checkThreshold(e.getTimeStamp().getTime(), 
-                                       this.def.mover.threshold)) 
+        if(!J$VM.System.checkThreshold(e.getTimeStamp().getTime(),
+                                       this.def.mover.threshold))
             return e.cancelDefault();
-        
+
         if(!this._local.notified){
         // Notify all IFrames show cover on it self
             MQ.post(Event.SYS_EVT_RESIZING, "");
             this._local.notified = true;
         }
-        
+
         var sizeObj = this.getSizeObject(), grid = this.def.mover.grid,
         box = sizeObj.getBounds(), pox = sizeObj.view.parentNode,
         miniSize = sizeObj.getMinimumSize(),
@@ -1230,7 +1230,7 @@ js.awt.Resizable = function(){
         var c = SpotSize.p2w, startXY = this._local.clickXY, xy = e.eventXY(),
         dw = diffW(i, xy, startXY), dh = diffH(i, xy, startXY), x, y,
         w = grid*Math.round((box.userW + dw)/grid),
-        h = grid*Math.round((box.userH + dh)/grid), 
+        h = grid*Math.round((box.userH + dh)/grid),
         minW = grid*Math.ceil(miniW(c, miniSize.width)/grid),
         minH = grid*Math.ceil(miniH(c, miniSize.height)/grid),
         maxW = grid*Math.floor(maxiW(i, box, pox, maxiSize.width)/grid),
@@ -1238,7 +1238,7 @@ js.awt.Resizable = function(){
 
         w = w < minW ? minW : (w > maxW) ? maxW : w;
         h = h < minH ? minH : (h > maxH) ? maxH : h;
-        
+
         switch(i){
         case 0:
             x = box.userX + box.userW - w;
@@ -1265,7 +1265,7 @@ js.awt.Resizable = function(){
         case 5:
             x = box.userX;
             y = box.userY;
-            h = box.userH; 
+            h = box.userH;
             break;
         case 6:
             x = box.userX;
@@ -1281,7 +1281,7 @@ js.awt.Resizable = function(){
         // Snap to grid
         x = grid*Math.round(x/grid);
         y = grid*Math.round(y/grid);
-        
+
         if(x != box.offsetX || y != box.offsetY){
             sizeObj.setPosition(x, y);
             sizeObj._moved = true;
@@ -1290,7 +1290,7 @@ js.awt.Resizable = function(){
             sizeObj.setSize(w, h);
             sizeObj._sized = true;
         }
-        
+
         // Notify all message receivers
         var recvs = sizeObj.getSizingMsgRecvs() || [];
         recvs.unshift(sizeObj.getSizingPeer().uuid());
@@ -1306,7 +1306,7 @@ js.awt.Resizable = function(){
         // Notify all IFrames remove cover from it self
         MQ.post(Event.SYS_EVT_RESIZED, "");
         this._local.notified = false;
-        
+
         // Notify all message receivers
         var sizeObj = this.getSizeObject(),
         recvs = sizeObj.getSizingMsgRecvs() || [];
@@ -1329,7 +1329,7 @@ js.awt.Resizable = function(){
 
         return e.cancelDefault();
     };
-    
+
     var _releaseSizeObject = function(){
         if(this.sizeObj){
             this.sizeObj.releaseSizeObject();
@@ -1338,26 +1338,26 @@ js.awt.Resizable = function(){
 
         MQ.cancel("releaseSizeObject", this, _releaseSizeObject);
     };
-    
+
     var _onsizingevent = function(e){
         // If subclass has own user-defined event handle, invoke it.
         // And if the boolean true was returned, break current handl.
-        if(Class.isFunction(this.onUDFResizing) 
+        if(Class.isFunction(this.onUDFResizing)
             && this.onUDFResizing(e)){
             return;
         }
-        
-        var eType = e.getType(), target = e.getEventTarget(), 
+
+        var target = e.getEventTarget(),
         x, y, w, h;
 
-        if(eType == "mouseup"){
+        if(e.isPointerUp()){
             x = target.getX(); y = target.getY();
             w = target.getWidth(); h = target.getHeight();
-            
+
             if(x != this.getX() || y != this.getY()){
                 this.setPosition(x, y, 0x0F);
             }
-            
+
             if(w != this.getWidth() || h != this.getHeight()){
                 this.setSize(w, h, 0x0F);
             }
@@ -1368,7 +1368,7 @@ js.awt.Resizable = function(){
         var div, CS = CURSORS,
         resizer = this._local.resizer = new Array(8),
         uuid = this.uuid(), buf = new js.lang.StringBuffer();
-        
+
         for(var i=7; i>=0; i--){
             if((r & (0x01 << i)) != 0){
                 div = resizer[i] = DOM.createElement("DIV");
@@ -1392,14 +1392,14 @@ js.awt.Resizable = function(){
             }
         }
     };
-    
+
     /**
      * Gets SizeObject from this component.
-     * 
+     *
      * @see js.awt.SizeObject
-     * 
+     *
      * Notes: If need sub class can override this method
-     */    
+     */
     thi$.getSizeObject = function(){
         var sizeObj = this.sizeObj;
         if(!sizeObj){
@@ -1422,25 +1422,25 @@ js.awt.Resizable = function(){
             sizeObj.insertAfter(this._coverView || this.view);
 
             sizeObj.setSizingPeer(this);
-            
+
             MQ.register(sizeObj.getSizingMsgType(), this, _onsizingevent);
         }
-        
+
         return sizeObj;
     };
-    
+
     /**
      * Tests whether this component is resizable.
      */
     thi$.isResizable = function(){
         return (this.def.resizable || false);
     };
-    
+
     var resizerbounds;
 
     /**
      * Sets whether this component is resizable.
-     * 
+     *
      * @param b, true is resizable, false is unable
      * @param resizer a number 0 to 255 identifies 8 directions
      */
@@ -1449,7 +1449,7 @@ js.awt.Resizable = function(){
 
         b = b || false;
         resizer = Class.isNumber(resizer) ? (resizer & 0x0FF) : 255;
-        
+
         var M = this.def, U = this._local;
         if(U.resizableSettled && M.resizable === b){
             if(b == false || M.resizer === resizer){
@@ -1473,31 +1473,31 @@ js.awt.Resizable = function(){
         }else{
             this.removeResizer(true);
         }
-        
+
         resizerbounds = resizerbounds || {
             BBM: J$VM.supports.borderBox,
             MBP: {BW: 0, BH: 0, PW: 0, PH: 0, BPW: 0, BPH: 0}
         };
-        
+
         U.resizableSettled = true;
     };
-    
+
     thi$.resizableSettled = function(){
         return this._local.resizableSettled || false;
     };
-    
+
     thi$.adjustResizer = function(bounds){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         bounds = bounds || this.getBounds();
-        var aCalc = ACalc, spot = this.SpotSize || SpotSize, 
+        var aCalc = ACalc, spot = this.SpotSize || SpotSize,
         div, i, rect;
-        
+
         for(i=0; i<8; i++){
             div = resizer[i];
             if(div == undefined) continue;
-            
+
             rect = aCalc[i](bounds, spot);
             DOM.setBounds(div, rect.x, rect.y, rect.w, rect.h, resizerbounds);
         }
@@ -1506,7 +1506,7 @@ js.awt.Resizable = function(){
     thi$.addResizer = function(){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         var div, i, isDOM = this.isDOMElement();
         for(i=0; isDOM && i<8; i++){
             div = resizer[i];
@@ -1521,7 +1521,7 @@ js.awt.Resizable = function(){
     thi$.removeResizer = function(gc){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         var div, i;
         while(resizer.length > 0){
             div = resizer.shift();
@@ -1532,11 +1532,11 @@ js.awt.Resizable = function(){
 
         delete this._local.resizer;
     };
-    
+
     thi$.setResizerZIndex = function(z){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         var div, i;
         for(i=0; i<8; i++){
             div = resizer[i];
@@ -1549,7 +1549,7 @@ js.awt.Resizable = function(){
     thi$.setResizerDisplay = function(show){
         var resizer = this._local.resizer;
         if(resizer == undefined) return;
-        
+
         var div, i;
         for(i=0; i<8; i++){
             div = resizer[i];
@@ -1559,7 +1559,6 @@ js.awt.Resizable = function(){
         }
     };
 };
-
 
 /**
 
@@ -8120,6 +8119,11 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			}
 		}
 	};
+	
+	thi$.hasNodes = function(){
+		var nodes = this.def.nodes;
+		return Class.isArray(nodes) && this.def.nodes.length > 0;
+	};
 
 	/**
 	 * Show the current item's submenu, if the submenu hasn't been created,
@@ -8597,7 +8601,11 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	var _onclick = function(e){
 		var el = e.srcElement, uuid = el.uuid, 
 		item = this.cache[uuid];
-
+		
+		if(item.hasNodes()){
+			item.showSubMenu();
+			return;
+		}
 		if(item && item.isEnabled()){
 			if(e.getType() == "click"){
 				if(item.hitCtrl(e)){
@@ -8690,32 +8698,32 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -8730,8 +8738,8 @@ $package("js.awt");
 /**
  * @param def :{
  *	   id: ..
- *	   text: 
- *	   markable: true/false, indicates 
+ *	   text:
+ *	   markable: true/false, indicates
  * }
  */
 js.awt.TreeItem = function(def, Runtime, tree, parent, view){
@@ -8742,15 +8750,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		return;
 	}
 	CLASS.__defined__ = true;
-	
+
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
 	System = J$VM.System, Permission = js.util.Permission;
-	
+
 	thi$.setText = function(text){
 		this.def.text = text;
 		this.label.innerHTML = js.lang.String.encodeHtml(text);
 	};
-	
+
 	thi$.getText = function(){
 		return this.def.text;
 	};
@@ -8793,7 +8801,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		var nodes = this.nodes;
 		return (nodes && nodes.length > 0) || false;
 	};
-	
+
 	thi$.canDrag = function(){
 		var tree = this.treeContainer();
 		return tree.canDrag(this.def);
@@ -8805,9 +8813,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	};
 
 	thi$.isExpanded = function(){
-		return this._local.expanded;	
+		return this._local.expanded;
 	};
-	
+
 	thi$.isShowTip = function(){
 		return this._local.showTip;
 	};
@@ -8818,7 +8826,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	thi$.getIconImage = function(){
 		return this.treeContainer().getIconImage(this.def);
 	}.$override(this.getIconImage);
-	
+
 	/**
 	 * check permission, visible will' be hide.
 	 */
@@ -8827,15 +8835,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		p = isNaN(p) ? 1 : p;
 		this.setVisible(Permission.isVisible(p));
 	};
-	
+
 	/**
 	 * Insert tree items into specified position
-	 * 
+	 *
 	 * @param index
 	 * @param itemDefs, an array of tree item definition
 	 */
 	thi$.insertNodes = function(index, itemDefs){
-		var nodes = this.nodes, ibase = index, item, prev, next, 
+		var nodes = this.nodes, ibase = index, item, prev, next,
 		itemDef, i, len;
 
 		if(!nodes){
@@ -8845,24 +8853,24 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		for(i=0, len=itemDefs.length; i<len; i++){
 			itemDef = itemDefs[i];
 			itemDef.level = this.def.level + 1;
-			
+
 			if(this.isShowTip()){
 				itemDef.tip = itemDef.dname;
 				itemDef.showTip = true;
 			}
-			
+
 			if(item && item.canCloneView(itemDef)){
 				item = new js.awt.TreeItem(
-					itemDef, 
-					this.Runtime(), 
-					this.treeContainer(), 
-					this, 
+					itemDef,
+					this.Runtime(),
+					this.treeContainer(),
+					this,
 					item.cloneView());
 			}else{
 				item = new js.awt.TreeItem(
-					itemDef, 
-					this.Runtime(), 
-					this.treeContainer(), 
+					itemDef,
+					this.Runtime(),
+					this.treeContainer(),
 					this);
 			}
 
@@ -8881,18 +8889,18 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
 			item.prevSibling(prev);
 			item.nextSibling(next);
-			
+
 			item.checkHide();
 
 			ibase++;
 		};
-		
+
 		// Update marker style
 		for(i=0, len=nodes.length; i<len; i++){
 			nodes[i].updateBranchStyle();
 		}
 	};
-	
+
 	/**
 	 * Remove tree items from index to index + length
 	 */
@@ -8908,24 +8916,24 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	thi$.removeAllNodes = function(){
 		var nodes = this.nodes;
 		if(nodes){
-			this.removeNodes(0, nodes.length);	  
+			this.removeNodes(0, nodes.length);
 		}
 	};
-	
+
 	/**
 	 * Gets nodes of this item
-	 * 
+	 *
 	 * @param from, can be start TreeItem object or start index
-	 * @param to, can be end TreeItem object or end index or null, 
+	 * @param to, can be end TreeItem object or end index or null,
 	 * @param filter, the filter function(itemDef) which return true or false
 	 * @param recursive, true or false
-	 * @param ret, the return array	 
+	 * @param ret, the return array
 	 */
 	thi$.getNodes = function(from, to, filter, recursive, ret){
-		var nodes = this.nodes, 
-		i0 = Class.isNumber(from) ? from : ((from == null) ? 0 : nodes.indexOf(from)), 
-		i1 = Class.isNumber(to) ? to : ((to == null) ? nodes.length-1 : nodes.indexOf(to)), 
-		start = i0 < i1 ? i0:i1, end = i1 > i0 ? i1 : i0, 
+		var nodes = this.nodes,
+		i0 = Class.isNumber(from) ? from : ((from == null) ? 0 : nodes.indexOf(from)),
+		i1 = Class.isNumber(to) ? to : ((to == null) ? nodes.length-1 : nodes.indexOf(to)),
+		start = i0 < i1 ? i0:i1, end = i1 > i0 ? i1 : i0,
 		i, item;
 
 		ret = ret || [];
@@ -8937,25 +8945,25 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 				ret.push(item);
 			}
 			if(recursive === true && item.hasChildren()){
-				item.getNodes(0, null, filter, true, ret);				  
+				item.getNodes(0, null, filter, true, ret);
 			}
 		}
 		return ret;
 	};
-	
+
 	var _addToDOM = function(item, refNode, isLast){
 		item.updateLeaderStyle();
 		DOM.insertAfter(item.view, refNode);
 		if(item.view.parentNode){
 			item.showDisableCover(!item.isEnabled());
 		}
-		
+
 		if(isLast){
 			//nofity
 			_afterExpand.call(this);
 		}
 	};
-	
+
 	var _afterExpand = function(){
 		var peer = this.getPeerComponent();
 		if(peer && typeof peer.onAfterExpand === "function"){
@@ -8963,27 +8971,27 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		}
 		//this.dashboard.postMQ("js.awt.event.GadgetChange", "", []);
 	};
-	
+
 	thi$.isExpanding = function(){
 		return this._local.expanding;
 	};
-	
+
 	thi$.setExpanding = function(b){
 		this._local.expanding = b;
 	};
 
 	/**
 	 * Expand or Collapse an item
-	 * 
+	 *
 	 * @param b, true for expanding and false for collapsing
 	 * @param needNotify, false for don't nofity the tree to do AfterExpand,others do.
 	 * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
-	 */	   
+	 */
 	thi$.expand = function(b, needNotify, root){
 		if(!this.isEnabled()){
 			return;
 		}
-		
+
 		this.setExpanding(false);
 		var nodes = this.nodes, tree = this.treeContainer(),
 		className = this.branch.clazz, refNode, i, len, item;
@@ -8994,7 +9002,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		if(b){
 			this.branch.className = className + "_4";
 			this.setIconImage(4);
-			
+
 			refNode = this.view;
 			if(nodes && nodes.length > 0){
 				for(i=0, len=nodes.length; i<len; i++){
@@ -9002,7 +9010,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 					_addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
 					refNode = item.view;
 				}
-			}			
+			}
 		}else{
 			len = nodes ? nodes.length : 0;
 			for(i=len-1; i>=0; i--){
@@ -9020,18 +9028,18 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			}
 		}
 	};
-	
+
 	/**
 	 * Expand or collapse all items
-	 * 
-	 * @param b, true for expanding and false for collapsing	 
+	 *
+	 * @param b, true for expanding and false for collapsing
 	 * @param root, mean it is the outermost layer of recursive,undefined is the outermost layer recursive
 	 */
 	thi$.expandAll = function(b, root){
 		if(!this.isEnabled()){
 			return;
 		}
-		
+
 		this.expand(b, false);
 
 		if(b){
@@ -9043,23 +9051,30 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 						item.expandAll(b, this);
 					}
 				}
-			}			
+			}
 		}
-		
+
 		//notify
 		if(!root){
 			_afterExpand.$delay(this, 1);
 		}
 	};
-	
+
 	thi$.doLayout = function(){
 		if(this.label && this.controller){
 			var ele = this.label, b, left;
 			b = ele.scrollWidth;
 			left = ele.offsetLeft;
-			this.controller.setPosition(b+left);			  
-		}		  
+			this.controller.setPosition(b+left);
+		}
 	}.$override(this.doLayout);
+
+    thi$.adjustCover = function(bounds){
+        arguments.callee.__super__.apply(this, arguments);
+        
+        this._coverView.style.width = "100%";
+        
+    }.$override(this.adjustCover);
 
 	thi$.updateBranchStyle = function(){
 		var ex = this.canExpand(),
@@ -9068,20 +9083,20 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		b = ((ex ? 4 : 0) | (ps ? 2 : 0) | (ns ? 1 : 0)),
 		bClassName = this.className + "_branch",
 		branch = this.branch;
-		
+
 		if(this.isEnabled()){
 			bClassName = bClassName + b;
-			
+
 			branch.clazz = bClassName;
 			bClassName = bClassName + (this.isTriggered() ? "_4" : "_0");
 		}else{
 			branch.clazz = bClassName;
 			bClassName = bClassName + "_1";
 		}
-		
+
 		branch.className = bClassName;
 	};
-	
+
 	thi$.updateLeaderStyle = function(){
 		var p = this.parentItem(), M = this.def, level = M.level,
 		comps = M.items, comp;
@@ -9096,7 +9111,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			p = p.parentItem();
 		}
 	};
-	
+
 	/**
 	 * @see js.awt.Item
 	 */
@@ -9107,7 +9122,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		for(var i=level; i>0; i--){
 			items.unshift("leader"+i);
 		};
-		
+
 		items.push("branch");
 		if(itemDef.markable === true) items.push("marker");
 		items.push("icon");
@@ -9116,7 +9131,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		return items.length === this.def.items.length;
 
 	}.$override(this.canCloneView);
-	
+
 	var _checkItems = function(def, tree, parent){
 		var level = def.level, items = def.items;
 
@@ -9124,7 +9139,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		for(var i=level; i>0; i--){
 			items.unshift("leader"+i);
 		};
-		
+
 		items.push("branch");
 		if(def.markable === true) items.push("marker");
 		items.push("icon");
@@ -9136,7 +9151,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		delete this._local.parent;
 		delete this._local.prev;
 		delete this._local.next;
-		
+
 		this.removeAllNodes();
 		delete this.nodes;
 
@@ -9152,7 +9167,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		def.classType = def.classType || "js.awt.TreeItem";
 		def.className = tree.className + "_item";
 		def.css = "position:relative;overflow:visible;width:100%;";
-		
+
 		if(view == undefined){
 			def.items = js.util.LinkedList.$decorate([]);
 
@@ -9163,9 +9178,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		arguments.callee.__super__.apply(this, [def, Runtime, view]);
 
 		_setParentItem.call(this, parent);
-		
+
 		tree.cache[this.uuid()] = this;
-		
+
 		this._local.showTip = def.showTip || false;
 
 		if(def.nodes && def.nodes.length > 0){
@@ -9226,126 +9241,126 @@ $import("js.awt.TreeItem");
  */
 js.awt.TreeDataProvider = function(){
 
-    var CLASS = js.awt.TreeDataProvider, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.TreeDataProvider, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System;
 
-    /**
-     * Sets expandable map for testing hether an tree item can be expanded.
-     *
-     * @param map, { type: true|false...}
-     */
-    thi$.setExpandableMap = function(map){
-        this.expandMap = map;
-    };
+	/**
+	 * Sets expandable map for testing hether an tree item can be expanded.
+	 *
+	 * @param map, { type: true|false...}
+	 */
+	thi$.setExpandableMap = function(map){
+		this.expandMap = map;
+	};
 
-    /**
-     * Tests whether the specified tree item can be expanded
-     *
-     * @param def, the tree item def
-     * @return true/false
-     *
-     * Notes: Sub class should overrides this method
-     */
-    thi$.canExpand = function(def){
-        var type = def.type, map = this.expandMap,
-        b = map ? map[type] : false;
+	/**
+	 * Tests whether the specified tree item can be expanded
+	 *
+	 * @param def, the tree item def
+	 * @return true/false
+	 *
+	 * Notes: Sub class should overrides this method
+	 */
+	thi$.canExpand = function(def){
+		var type = def.type, map = this.expandMap,
+		b = map ? map[type] : false;
 
-        return b || false;
-    };
+		return b || false;
+	};
 
-    /**
-     * Sets dragable map for testing whether an tree item can be draged.
-     *
-     * @param map, { type: true|false...}
-     */
-    thi$.setDragableMap = function(map){
-        this.dragMap = map;
-    };
+	/**
+	 * Sets dragable map for testing whether an tree item can be draged.
+	 *
+	 * @param map, { type: true|false...}
+	 */
+	thi$.setDragableMap = function(map){
+		this.dragMap = map;
+	};
 
-    /**
-     * Tests whether the specified tree item can be draged
-     *
-     * @param def, the tree item def
-     * @return true/false
-     *
-     * Notes: Sub class should overrides this method
-     */
-    thi$.canDrag = function(def){
-        var type = def.type, map = this.dragMap,
-        b = map ? map[type] : false;
+	/**
+	 * Tests whether the specified tree item can be draged
+	 *
+	 * @param def, the tree item def
+	 * @return true/false
+	 *
+	 * Notes: Sub class should overrides this method
+	 */
+	thi$.canDrag = function(def){
+		var type = def.type, map = this.dragMap,
+		b = map ? map[type] : false;
 
-        return b || false;
-    };
+		return b || false;
+	};
 
-    /**
-     * Sets image map for getting image name according to
-     * the type of a tree item.
-     *
-     * @param map, {type: imagename...}
-     */
-    thi$.setImageMap = function(map){
-        this.imageMap = map;
-    };
+	/**
+	 * Sets image map for getting image name according to
+	 * the type of a tree item.
+	 *
+	 * @param map, {type: imagename...}
+	 */
+	thi$.setImageMap = function(map){
+		this.imageMap = map;
+	};
 
-    /**
-     * Gets image name from image map for the specified tree item.
-     *
-     * @param def, the tree item def
-     * @return image name
-     *
-     * Notes: Sub class should overrides this method.
-     */
-    thi$.getIconImage = function(def){
-        var type = def.type, map = this.imageMap,
-        image = map ? map[type] : "blank.gif";
-        return image;
-    };
+	/**
+	 * Gets image name from image map for the specified tree item.
+	 *
+	 * @param def, the tree item def
+	 * @return image name
+	 *
+	 * Notes: Sub class should overrides this method.
+	 */
+	thi$.getIconImage = function(def){
+		var type = def.type, map = this.imageMap,
+		image = map ? map[type] : "blank.gif";
+		return image;
+	};
 
-    /**
-     * The message type is such a string that identify what kind message
-     * will be posted to message receivers. Generally, message receivers
-     * are drop targets.
-     *
-     * Notes: Sub class should implements this function.
-     */
-    thi$.getDragMsgType = function(){
-        return "js.awt.event.TreeItemDrag";
-    };
+	/**
+	 * The message type is such a string that identify what kind message
+	 * will be posted to message receivers. Generally, message receivers
+	 * are drop targets.
+	 *
+	 * Notes: Sub class should implements this function.
+	 */
+	thi$.getDragMsgType = function(){
+		return "js.awt.event.TreeItemDrag";
+	};
 
-    /**
-     * The mover will invoke this method to determine moving message
-     * should be posted to which receivers.
-     */
-    thi$.getDragMsgRecvs = function(){
-        return null;
-    };
+	/**
+	 * The mover will invoke this method to determine moving message
+	 * should be posted to which receivers.
+	 */
+	thi$.getDragMsgRecvs = function(){
+		return null;
+	};
 
 
-    /**
-     * If a tree node is dynamic load, when it expands, it need
-     * get new data from this provider. When the provider got data,
-     * must invoke callback(data, item) to notify Tree.
-     * The data must be an object like below:
-     * {
-     *     id:...
-     *     type: ...
-     *
-     *     nodes:[
-     *         ...
-     *     ]
-     * }
-     *
-     * Notes: Sub class should overrides this method
-     */
-    thi$.getData = function(itemDef, callback){
-        callback({});
-    };
+	/**
+	 * If a tree node is dynamic load, when it expands, it need
+	 * get new data from this provider. When the provider got data,
+	 * must invoke callback(data, item) to notify Tree.
+	 * The data must be an object like below:
+	 * {
+	 *	   id:...
+	 *	   type: ...
+	 *
+	 *	   nodes:[
+	 *		   ...
+	 *	   ]
+	 * }
+	 *
+	 * Notes: Sub class should overrides this method
+	 */
+	thi$.getData = function(itemDef, callback){
+		callback({});
+	};
 
 };
 
@@ -9354,695 +9369,737 @@ js.awt.TreeDataProvider = function(){
  */
 js.awt.Tree = function(def, Runtime, dataProvider){
 
-    var CLASS = js.awt.Tree, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ,
-
-    permission = Class.forName("js.util.Permission");
-
-    thi$.setDataProvider = function(dataProvider){
-        if(!dataProvider.instanceOf(js.awt.TreeDataProvider))
-            throw "Request a js.awt.TreeDataProvider instance";
-
-        this.dataProvider = dataProvider;
-    };
-
-    thi$.canExpand = function(itemDef){
-        return this.dataProvider.canExpand(itemDef);
-    };
-
-    thi$.canDrag = function(itemDef){
-        return this.dataProvider.canDrag(itemDef);
-    };
-
-    thi$.getIconImage = function(itemDef){
-        return this.dataProvider.getIconImage(itemDef);
-    };
-
-    thi$.showTip = function(showTip){
-        this._local.showTip = showTip;
-    };
-
-    thi$.isShowTip = function(){
-        return this._local.showTip || false;
-    };
-
-    thi$.setItemEnabled = function(item, b){
-        b = (b === true);
-        if(item.isEnabled() === b){
-            return;
-        }
-
-        if(!b && item.canExpand() && item.isExpanded()){
-            this.expandAll(false, item);
-        }
-
-        item.setEnabled(b);
-        item.updateBranchStyle();
-    };
-
-    /**
-     * Insert tree items into specified position
-     *
-     * @param index
-     * @param itemDefs, an array of tree item definition
-     */
-    thi$.insertNodes = function(index, itemDefs){
-        var nodes = this.nodes, ibase = index, item, refNode,
-        itemDef, i, len;
-
-        if(!nodes){
-            nodes = this.nodes = js.util.LinkedList.$decorate([]);
-        }
-
-        item = nodes.get(index);
-        refNode = item ? item.view : undefined;
-
-        for(i=0, len=itemDefs.length; i<len; i++){
-            itemDef = itemDefs[i];
-//            if(itemDef.isVisible == false){
-//                continue;
-//            }
-            itemDef.level = 0;
-            if(this.isShowTip()){
-                itemDef.tip = itemDef.dname;
-                itemDef.showTip = true;
-            }
-            if(i === 0){
-                item = new js.awt.TreeItem(itemDef, this.Runtime(), this);
-            }else{
-                item = new js.awt.TreeItem(
-                    itemDef,
-                    this.Runtime(),
-                    this,
-                    undefined,
-                    item.cloneView());
-            }
-
-            nodes.add(ibase++, item);
-
-            if(refNode){
-                DOM.insertAfter(item.view, refNode);
-            }else{
-                DOM.appendTo(item.view, this._treeView);
-            }
-            
-            item.checkHide();
-
-            refNode = item.view;
-        };
-
-        // Update marker style
-        var marked = this.marked;
-        for(i=0, len=nodes.length; i<len; i++){
-            item = nodes[i];
-            item.updateBranchStyle();
-
-            if(item.isMarked()){
-                marked.push(item);
-            }
-        }
-        this._doSort();
-        delete this._local.maxSize;
-    };
-
-    thi$._doSort = function(){
-        var tree = this;
-        var _func = function(item1, item2){
-            return tree.getNodeIndex(item1) - tree.getNodeIndex(item2);
-        };
-
-        this.marked.sort(_func);
-        this.selected.sort(_func);
-    };
-
-    /**
-     * Remove the specified item from current tree.
-     *
-     * @param item: {js.awt.TreeItem} A tree item to remove.
-     */
-    thi$.removeNode = function(item){
-        if(!item || !(item.instanceOf(js.awt.TreeItem))){
-            return;
-        }
-
-        _keepScroll.call(this);
-
-        var pitem = item.parentItem(),
-        nodes = pitem ? pitem.nodes : null;
-
-        if(Class.isArray(nodes)){
-            js.util.LinkedList.$decorate(nodes);
-            nodes.remove(item);
-        }
-
-        delete this.cache[item.uuid()];
-        
-        this.marked.remove(item);
-        this.selected.remove(item);
-        item.destroy();
-
-        this._doSort();
-        delete this._local.maxSize;
-
-        _setMaxSize.$delay(this, 1);
-        _keepScroll.$delay(this, 1, true);
-    };
-
-    /**
-     * Remove tree items from index to index + length
-     *
-     * @param index: {Integer} index of each item in nodes of current tree to remove.
-     * @param length: {Integer} Indicate how many items to remove.
-     */
-    thi$.removeNodes = function(index, length, isDestroying){
-        var nodes = this.nodes || [], cnt = nodes.length,
-        cache = this.cache, marked = this.marked, 
-        selected = this.selected, item;
-
-        if(!Class.isNumber(index)){
-            index = 0;
-        }else{
-            index = index < 0
-                ? 0 : (index >= cnt ? cnt - 1 : index);
-        }
-
-        if(!Class.isNumber(length)){
-            length = cnt - index;
-        }else{
-            length = length < 0 ? 0
-                : (index + length > cnt ? cnt - index : length);
-        }
-
-        _keepScroll.call(this);
-
-        nodes = nodes.splice(index, length);
-        while(nodes.length > 0){
-            item = nodes.shift();
-            delete cache[item.uuid()];
-            
-            marked.remove(item);
-            selected.remove(item);
-            item.destroy();
-        }
-
-        if(isDestroying === true){
-            return;
-        }
-
-        this._doSort();
-        delete this._local.maxSize;
-
-        _setMaxSize.$delay(this, 1);
-        _keepScroll.$delay(this, 1, true);
-    };
-
-    /**
-     * Remove all tree times
-     */
-    thi$.removeAllNodes = function(isDestroying){
-        var nodes = this.nodes;
-        if(nodes){
-            this.removeNodes(0, nodes.length, isDestroying);
-        }
-    };
-
-    thi$.getTreeNodeByTypes = function(types, index){
-        var nodes = this.nodes || [];
-
-        if(!Class.isArray(types)
-           || types.length == 0){
-            return nodes[0];
-        }
-
-        if(!Class.isFunction(types.indexOf)){
-            js.util.LinkedList.$decorate(types);
-        }
-
-        return _getTreeNodeByTypes.call(this, nodes, types, index);
-    };
-
-    var _getTreeNodeByTypes = function(nodes, types, index){
-        var node, type, tmp;
-        for(var i = 0, len = nodes.length; i < len; i++){
-            node = nodes[i];
-            type = node.def["type"];
-
-            if(types.indexOf(type) !== -1){
-                index--;
-                if(index <= 0){
-                    return node;
-                }else{
-                    tmp = node.nodes;
-                    if(tmp && tmp.length > 0){
-                        return _getTreeNodeByTypes.call(this, tmp, types, index);
-                    }
-                }
-            }else{
-                tmp = node.nodes;
-                if(tmp && tmp.length > 0){
-                    return _getTreeNodeByTypes.call(this, tmp, types, index);
-                }
-            }
-        }
-
-        return node;
-    };
-
-    /**
-     * Move tree item from index1 to index2.
-     */
-    thi$.moveNode = function(index1, index2){
-        var nodes = this.nodes, len = nodes.length;
-        if(!Class.isNumber(index1) || index1 < 0 || index1 >= len
-           || !Class.isNumber(index2) || index2 < 0 || index2 >= len){
-            return;
-        }
-
-        var node1 = nodes[index1], node2 = nodes[index2],
-        view1, view2, treeView = this._treeView;
-
-        nodes[index1] = node2;
-        nodes[index2] = node1;
-
-        view1 = node1.view;
-        view2 = node2.view;
-
-        treeView.removeChild(view1);
-
-        if(index1 < index2){
-            DOM.insertAfter(view1, view2, treeView);
-        } else {
-            DOM.insertBefore(view1, view2, treeView);
-        }
-
-        this._doSort();
-    };
-
-    /**
-     * Expand tree with the specified item
-     *
-     * @param item, with which item
-     * @param needNitify, false for don't nofity the tree to do AfterExpand,others do.
-     */
-    thi$.expand = function(item, needNotify){
-        if(item.def.isRead == false){
-            return;
-        }
-
-        if(item.isExpanding()){
-            return;
-        }
-
-        item.setExpanding(true);
-
-        _keepScroll.call(this);
-
-        if(item.isExpanded()){
-            item.expand(false, needNotify);
-            if(item.def.nodes == undefined){
-                item.removeAllNodes();
-            }
-            _setMaxSize.$delay(this, 1);
-            _keepScroll.$delay(this, 1, true);
-        }else{
-            if(item.def.nodes == undefined){
-                // Ask data from dataProvider
-                this.dataProvider.getData(
-                    item.def,
-                    _onGetData.$bind(this, item, needNotify));
-            }else{
-                // No need get data, so expand item directly
-                item.expand(true, needNotify);
-                _setMaxSize.$delay(this, 1);
-                _keepScroll.$delay(this, 1, true);
-            }
-
-        }
-        delete this._local.maxSize;
-    };
-
-
-    var _checkData = function(data){
-        var p = data.permission;
-        if(p){
-            data.isVisible = permission.isVisible(p);
-            data.isRead = permission.isRead(p);
-            data.isWrite = permission.isWrite(p);
-            data.isExecute = permission.isExecute(p);
-        }
-        if(data.nodes){
-            for(var i = 0,nodes = data.nodes, len = data.nodes.length;i < len; i++){
-                if(nodes[i].nodes){
-                    nodes[i] = _checkData.call(this, nodes[i]);
-                }else{
-                    p = nodes[i].permission;
-                    if(p){
-                        nodes[i].isVisible = permission.isVisible(p);
-                        nodes[i].isRead = permission.isRead(p);
-                        nodes[i].isWrite = permission.isWrite(p);
-                        nodes[i].isExecute = permission.isExecute(p);
-                    }
-                }
-            }
-        }
-        return data;
-    };
-
-    var _onGetData = function(data, item, needNotify){
-
-        data = _checkData.call(this, data);
-
-        if(data && data.nodes){
-            item.insertNodes(0, data.nodes);
-            item.expand(true, needNotify);
-            _setMaxSize.$delay(this, 1);
-            _keepScroll.$delay(this, 1, true);
-        }else{
-            item.branch.className = item.className + "_branch0";
-        }
-    };
-
-    /**
-     * Expand or collapse all items
-     *
-     * @param b, true for expanding and false for collapsing
-     *
-     */
-    thi$.expandAll = function(b, root){
-        var nodes = this.nodes, i, len, item;
-        if(root){
-            nodes = [root];
-        }
-
-        if(nodes && nodes.length>0){
-            for(i=0, len=nodes.length; i<len; i++){
-                item = nodes[i];
-                if(b){
-                    if(item.canExpand() && !item.isExpanded()){
-                        item.expandAll(b, item);
-                    }
-                }else{
-                    if(item.canExpand() && item.isExpanded()){
-                        item.expand(b);
-                    }
-                }
-            }
-        }
-        _setMaxSize.$delay(this, 1);
-        _keepScroll.$delay(this, 1, true);
-
-        this.onAfterExpand.$delay(this,1);
-        delete this._local.maxSize;
-    };
-
-    thi$.onAfterExpand = function(){
-        var cache = this.cache,item;
-        for(var uuid in cache){
-            item = this.cache[uuid];
-            if((!item.isEnabled()) && item.view.parentNode !== null){
-                item._adjust("move");
-            }
-        }
-    };
-
-    /**
-     * Gets all nodes which were accepted by filter
-     *
-     * @param, the filter function(itemDef) which return true or false
-     * @param, recursive
-     */
-    thi$.getNodes = function(filter, recursive){
-        var nodes = this.nodes, i, len, item, ret = [];
-        for(i=0, len=nodes.length; i<len; i++){
-            item = nodes[i];
-            if(typeof filter == "function"){
-                if(filter(item.def)) ret.push(item);
-            }else{
-                ret.push(item);
-            }
-            if(recursive === true && item.hasChildren()){
-                item.getNodes(0, null, filter, true, ret);
-            }
-        }
-        return ret;
-    };
-
-    /**
-     * Returns all node index
-     */
-    thi$.getNodeIndex = function(item){
-        var nodes = this.nodes;
-        for(var i=0; i<nodes.length; i++){
-            if(nodes[i] == item){
-                return i;
-            }
-        }
-        return -1;
-    };
-
-    /**
-     * Returns all items
-     */
-    thi$.getAllNodes = function(){
-        return this.nodes;
-    };
-
-    /**
-     * Returns all selected items
-     */
-    thi$.getAllSelected = function(){
-        return this.selected;
-    };
-
-    /**
-     * Clears all selected items
-     */
-    thi$.clearAllSelected = function(){
-        var selected = this.selected, item;
-        while(selected.length > 0){
-            item = selected.shift();
-            item.setTriggered(false);
-        }
-        this._doSort();
-    };
-
-    /**
-     * Returns all marked items
-     */
-    thi$.getAllMarked = function(){
-        return this.marked;
-    };
-
-    /**
-     * Clears all marked items
-     */
-    thi$.clearAllMarked = function(){
-        var marked = this.marked, item;
-        while(marked.length > 0){
-            item = marked.shift();
-            item.mark(false);
-        }
-        this._doSort();
-    };
-
-    /**
-     * Mark a tree node
-     *
-     * @param item, tree item
-     */
-    thi$.markNode = function(item){
-        if(!item.isMarkable()) return;
-
-        item.mark(!item.isMarked());
-        if(item.isMarked()){
-            this.marked.push(item);
-        }else{
-            this.marked.remove(item);
-        }
-        this._doSort();
-    };
-
-    /**
-     * @see js.awt.Movable
-     */
-    thi$.isMoverSpot = function(el, x, y){
-        var uuid = el.uuid, item = this.cache[uuid];
-
-        if(item){
-            if (this.selected.length > 0){
-                return true;
-            }else{
-                if(item.isMoverSpot(el) && item.canDrag()){
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    };
-
-    thi$.setMultiEnable = function(b){
-        this.def.multiEnable = (b === true);
-    };
-
-    thi$.isMultiEnable = function(){
-        return this.def.multiEnable;
-    };
-
-    thi$.getMoveObjectDef = function(item){
-        return {};
-    };
-
-    /**
-     * @see js.awt.Movable
-     */
-    thi$.getMoveObject = function(e){
-        var moveObj = this.moveObj;
-        if(!moveObj){
-            var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-            mdef, absXY = e.eventXY();
-
-            if(item.def.isExecute == false){
-                return null;
-            }
-
-            if(this.selected.length == 0){
-                var state = new js.awt.State(this.getState());
-                state.setHover(false);
-                state.setTriggered(true);
-                item.setState(state.getState());
-                this.selected.push(item);
-                this._doSort();
-            }
-
-            mdef = this.getMoveObjectDef() || {};
-            moveObj = this.moveObj =
-                new js.awt.TreeMoveObject(mdef, this.Runtime(), this);
-            moveObj.setMovingPeer(this);
-            moveObj.appendTo(document.body);
-
-            /*moveObj.setPosition(absXY.x, absXY.y);*/
-            moveObj.setPosition(absXY.x - 10, absXY.y - 8);
-        }
-
-        return moveObj;
-    };
-
-    /**
-     * Keep and restore scroll bar position
-     *
-     * @param restore, true means restore
-     */
-    var _keepScroll = function(restore){
-        var U = this._local, el = this.view;
-        if(!restore){
-            U.scrollLeft = el.scrollLeft;
-            U.scrollTop  = el.scrollTop;
-        }else{
-            el.scrollLeft = U.scrollLeft;
-            el.scrollTop  = U.scrollTop;
-        }
-    };
-
-    /**
-     * Sets treeView max size
-     */
-    var _setMaxSize = function(){
-        var rect = _getMaxSize.call(this), box = this.getBounds(),
-        cw = box.innerWidth, ch = box.innerHeight, MBP = box.MBP,
-        w = rect.width >= cw ? rect.width : undefined,
-        h = rect.height >= ch ? rect.height : undefined;
-
-        this.view.style.overflow = "hidden";
-
-        // The treeview is relative and position in the inside of padding.
-        // For holding the padding of tree, we will add the right padding
-        // to the content width as treeview's width. And add the bottom
-        // padding to the content height as treeview's height.
-        if(w != undefined){
-            w += MBP.borderRightWidth + MBP.paddingRight;
-        }
-
-        if(h != undefined){
-            h += MBP.borderBottomWidth + MBP.paddingBottom;
-        }
-
-        DOM.setSize(this._treeView, w, h);
-
-        if(w == undefined){
-            this._treeView.style.width = "100%";
-        }
-        if(h == undefined){
-            this._treeView.style.height= "100%";
-        }
-
-        this.view.style.overflow = "auto";
-    };
-
-    /**
-     * Gets treeView max size
-     */
-    var _getMaxSize = function(force){
-        var treeview = this._treeView, ret = this._local.maxSize;
-        if(force !== true && ret){
-            return ret;
-        }
-
-        treeview.style.overflow = "hidden";
-        DOM.setSize(treeview, 0, 0);
-        ret = this._local.maxSize = {
-            width: treeview.scrollWidth,
-            height:treeview.scrollHeight
-        };
-        treeview.style.overflow = "visible";
-        return ret;
-    };
-
-    thi$.doLayout = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            _setMaxSize.call(this);
-            return true;
-        }
-        return false;
-    }.$override(this.doLayout);
-
-    thi$.getOptimalSize = function(){
-        var size = _getMaxSize.call(this),
-        bounds = this.getBounds(),
-        w = size.width, h = size.height;
-
-        w += bounds.MBP.BPW;
-        h += bounds.MBP.BPH;
-        return {width: w, height: h};
-    };
-    
+	var CLASS = js.awt.Tree, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System, MQ = J$VM.MQ,
+
+	permission = Class.forName("js.util.Permission");
+
+	thi$.setDataProvider = function(dataProvider){
+		if(!dataProvider.instanceOf(js.awt.TreeDataProvider))
+			throw "Request a js.awt.TreeDataProvider instance";
+
+		this.dataProvider = dataProvider;
+	};
+
+	thi$.canExpand = function(itemDef){
+		return this.dataProvider.canExpand(itemDef);
+	};
+
+	thi$.canDrag = function(itemDef){
+		return this.dataProvider.canDrag(itemDef);
+	};
+
+	thi$.getIconImage = function(itemDef){
+		return this.dataProvider.getIconImage(itemDef);
+	};
+
+	thi$.showTip = function(showTip){
+		this._local.showTip = showTip;
+	};
+
+	thi$.isShowTip = function(){
+		return this._local.showTip || false;
+	};
+
+	thi$.setItemEnabled = function(item, b){
+		b = (b === true);
+		if(item.isEnabled() === b){
+			return;
+		}
+
+		if(!b && item.canExpand() && item.isExpanded()){
+			this.expandAll(false, item);
+		}
+
+		item.setEnabled(b);
+		item.updateBranchStyle();
+	};
+
+	/**
+	 * Insert tree items into specified position
+	 *
+	 * @param index
+	 * @param itemDefs, an array of tree item definition
+	 */
+	thi$.insertNodes = function(index, itemDefs){
+		var nodes = this.nodes, ibase = index, item, refNode,
+		itemDef, i, len;
+
+		if(!nodes){
+			nodes = this.nodes = js.util.LinkedList.$decorate([]);
+		}
+
+		item = nodes.get(index);
+		refNode = item ? item.view : undefined;
+
+		for(i=0, len=itemDefs.length; i<len; i++){
+			itemDef = itemDefs[i];
+			// if(itemDef.isVisible == false){
+			//	   continue;
+			// }
+
+			itemDef.level = 0;
+			if(this.isShowTip()){
+				itemDef.tip = itemDef.dname;
+				itemDef.showTip = true;
+			}
+			if(i === 0){
+				item = new js.awt.TreeItem(itemDef, this.Runtime(), this);
+			}else{
+				item = new js.awt.TreeItem(
+					itemDef,
+					this.Runtime(),
+					this,
+					undefined,
+					item.cloneView());
+			}
+
+			nodes.add(ibase++, item);
+
+			if(refNode){
+				DOM.insertAfter(item.view, refNode);
+			}else{
+				DOM.appendTo(item.view, this._treeView);
+			}
+
+			item.checkHide();
+
+			refNode = item.view;
+		};
+
+		// Update marker style
+		var marked = this.marked;
+		for(i=0, len=nodes.length; i<len; i++){
+			item = nodes[i];
+			item.updateBranchStyle();
+
+			if(item.isMarked()){
+				marked.push(item);
+			}
+		}
+		this._doSort();
+		delete this._local.maxSize;
+	};
+
+	thi$._doSort = function(){
+		var tree = this;
+		var _func = function(item1, item2){
+			return tree.getNodeIndex(item1) - tree.getNodeIndex(item2);
+		};
+
+		this.marked.sort(_func);
+		this.selected.sort(_func);
+	};
+
+	/**
+	 * Remove the specified item from current tree.
+	 *
+	 * @param item: {js.awt.TreeItem} A tree item to remove.
+	 */
+	thi$.removeNode = function(item){
+		if(!item || !(item.instanceOf(js.awt.TreeItem))){
+			return;
+		}
+
+		_keepScroll.call(this);
+
+		var pitem = item.parentItem(),
+		nodes = pitem ? pitem.nodes : null;
+
+		if(Class.isArray(nodes)){
+			js.util.LinkedList.$decorate(nodes);
+			nodes.remove(item);
+		}
+
+		delete this.cache[item.uuid()];
+
+		this.marked.remove(item);
+		this.selected.remove(item);
+		item.destroy();
+
+		this._doSort();
+		delete this._local.maxSize;
+
+		_setMaxSize.$delay(this, 1);
+		_keepScroll.$delay(this, 1, true);
+	};
+
+	/**
+	 * Remove tree items from index to index + length
+	 *
+	 * @param index: {Integer} index of each item in nodes of current tree to remove.
+	 * @param length: {Integer} Indicate how many items to remove.
+	 */
+	thi$.removeNodes = function(index, length, isDestroying){
+		var nodes = this.nodes || [], cnt = nodes.length,
+		cache = this.cache, marked = this.marked,
+		selected = this.selected, item;
+
+		if(!Class.isNumber(index)){
+			index = 0;
+		}else{
+			index = index < 0
+				? 0 : (index >= cnt ? cnt - 1 : index);
+		}
+
+		if(!Class.isNumber(length)){
+			length = cnt - index;
+		}else{
+			length = length < 0 ? 0
+				: (index + length > cnt ? cnt - index : length);
+		}
+
+		_keepScroll.call(this);
+
+		nodes = nodes.splice(index, length);
+		while(nodes.length > 0){
+			item = nodes.shift();
+			delete cache[item.uuid()];
+
+			marked.remove(item);
+			selected.remove(item);
+			item.destroy();
+		}
+
+		if(isDestroying === true){
+			return;
+		}
+
+		this._doSort();
+		delete this._local.maxSize;
+
+		_setMaxSize.$delay(this, 1);
+		_keepScroll.$delay(this, 1, true);
+	};
+
+	/**
+	 * Remove all tree times
+	 */
+	thi$.removeAllNodes = function(isDestroying){
+		var nodes = this.nodes;
+		if(nodes){
+			this.removeNodes(0, nodes.length, isDestroying);
+		}
+	};
+
+	thi$.getTreeNodeByTypes = function(types, index){
+		var nodes = this.nodes || [];
+
+		if(!Class.isArray(types)
+		   || types.length == 0){
+			return nodes[0];
+		}
+
+		if(!Class.isFunction(types.indexOf)){
+			js.util.LinkedList.$decorate(types);
+		}
+
+		return _getTreeNodeByTypes.call(this, nodes, types, index);
+	};
+
+	var _getTreeNodeByTypes = function(nodes, types, index){
+		var node, type, tmp;
+		for(var i = 0, len = nodes.length; i < len; i++){
+			node = nodes[i];
+			type = node.def["type"];
+
+			if(types.indexOf(type) !== -1){
+				index--;
+				if(index <= 0){
+					return node;
+				}else{
+					tmp = node.nodes;
+					if(tmp && tmp.length > 0){
+						return _getTreeNodeByTypes.call(this, tmp, types, index);
+					}
+				}
+			}else{
+				tmp = node.nodes;
+				if(tmp && tmp.length > 0){
+					return _getTreeNodeByTypes.call(this, tmp, types, index);
+				}
+			}
+		}
+
+		return node;
+	};
+
+	/**
+	 * Move tree item from index1 to index2.
+	 */
+	thi$.moveNode = function(index1, index2){
+		var nodes = this.nodes, len = nodes.length;
+		if(!Class.isNumber(index1) || index1 < 0 || index1 >= len
+		   || !Class.isNumber(index2) || index2 < 0 || index2 >= len){
+			return;
+		}
+
+		var node1 = nodes[index1], node2 = nodes[index2],
+		view1, view2, treeView = this._treeView;
+
+		nodes[index1] = node2;
+		nodes[index2] = node1;
+
+		view1 = node1.view;
+		view2 = node2.view;
+
+		treeView.removeChild(view1);
+
+		if(index1 < index2){
+			DOM.insertAfter(view1, view2, treeView);
+		} else {
+			DOM.insertBefore(view1, view2, treeView);
+		}
+
+		this._doSort();
+	};
+
+	/**
+	 * Expand tree with the specified item
+	 *
+	 * @param item, with which item
+	 * @param needNitify, false for don't nofity the tree to do AfterExpand,others do.
+	 */
+	thi$.expand = function(item, needNotify){
+		if(item.def.isRead == false){
+			return;
+		}
+
+		if(item.isExpanding()){
+			return;
+		}
+
+		item.setExpanding(true);
+
+		_keepScroll.call(this);
+
+		if(item.isExpanded()){
+			item.expand(false, needNotify);
+			if(item.def.nodes == undefined){
+				item.removeAllNodes();
+			}
+			_setMaxSize.$delay(this, 1);
+			_keepScroll.$delay(this, 1, true);
+		}else{
+			if(item.def.nodes == undefined){
+				// Ask data from dataProvider
+				this.dataProvider.getData(
+					item.def,
+					_onGetData.$bind(this, item, needNotify));
+			}else{
+				// No need get data, so expand item directly
+				item.expand(true, needNotify);
+				_setMaxSize.$delay(this, 1);
+				_keepScroll.$delay(this, 1, true);
+			}
+
+		}
+		delete this._local.maxSize;
+	};
+
+
+	var _checkData = function(data){
+		var p = data.permission;
+		if(p){
+			data.isVisible = permission.isVisible(p);
+			data.isRead = permission.isRead(p);
+			data.isWrite = permission.isWrite(p);
+			data.isExecute = permission.isExecute(p);
+		}
+		if(data.nodes){
+			for(var i = 0,nodes = data.nodes, len = data.nodes.length;i < len; i++){
+				if(nodes[i].nodes){
+					nodes[i] = _checkData.call(this, nodes[i]);
+				}else{
+					p = nodes[i].permission;
+					if(p){
+						nodes[i].isVisible = permission.isVisible(p);
+						nodes[i].isRead = permission.isRead(p);
+						nodes[i].isWrite = permission.isWrite(p);
+						nodes[i].isExecute = permission.isExecute(p);
+					}
+				}
+			}
+		}
+		return data;
+	};
+
+	var _onGetData = function(data, item, needNotify){
+
+		data = _checkData.call(this, data);
+
+		if(data && data.nodes){
+			item.insertNodes(0, data.nodes);
+			item.expand(true, needNotify);
+			_setMaxSize.$delay(this, 1);
+			_keepScroll.$delay(this, 1, true);
+		}else{
+			item.branch.className = item.className + "_branch0";
+		}
+	};
+
+	/**
+	 * Expand or collapse all items
+	 *
+	 * @param b, true for expanding and false for collapsing
+	 *
+	 */
+	thi$.expandAll = function(b, root){
+		var nodes = this.nodes, i, len, item;
+		if(root){
+			nodes = [root];
+		}
+
+		if(nodes && nodes.length>0){
+			for(i=0, len=nodes.length; i<len; i++){
+				item = nodes[i];
+				if(b){
+					if(item.canExpand() && !item.isExpanded()){
+						item.expandAll(b, item);
+					}
+				}else{
+					if(item.canExpand() && item.isExpanded()){
+						item.expand(b);
+					}
+				}
+			}
+		}
+		_setMaxSize.$delay(this, 1);
+		_keepScroll.$delay(this, 1, true);
+
+		this.onAfterExpand.$delay(this,1);
+		delete this._local.maxSize;
+	};
+
+	thi$.onAfterExpand = function(){
+		var cache = this.cache,item;
+		for(var uuid in cache){
+			item = this.cache[uuid];
+			if((!item.isEnabled()) && item.view.parentNode !== null){
+				item._adjust("move");
+			}
+		}
+	};
+
+	/**
+	 * Gets all nodes which were accepted by filter
+	 *
+	 * @param, the filter function(itemDef) which return true or false
+	 * @param, recursive
+	 */
+	thi$.getNodes = function(filter, recursive){
+		var nodes = this.nodes, i, len, item, ret = [];
+		for(i=0, len=nodes.length; i<len; i++){
+			item = nodes[i];
+			if(typeof filter == "function"){
+				if(filter(item.def)) ret.push(item);
+			}else{
+				ret.push(item);
+			}
+			if(recursive === true && item.hasChildren()){
+				item.getNodes(0, null, filter, true, ret);
+			}
+		}
+		return ret;
+	};
+
+	/**
+	 * Returns all node index
+	 */
+	thi$.getNodeIndex = function(item){
+		var nodes = this.nodes;
+		for(var i=0; i<nodes.length; i++){
+			if(nodes[i] == item){
+				return i;
+			}
+		}
+		return -1;
+	};
+
+	/**
+	 * Returns all items
+	 */
+	thi$.getAllNodes = function(){
+		return this.nodes;
+	};
+
+	/**
+	 * Returns all selected items
+	 */
+	thi$.getAllSelected = function(){
+		return this.selected;
+	};
+
+	/**
+	 * Clears all selected items
+	 */
+	thi$.clearAllSelected = function(){
+		var selected = this.selected, item;
+		while(selected.length > 0){
+			item = selected.shift();
+			item.setTriggered(false);
+		}
+		this._doSort();
+	};
+
+	/**
+	 * Returns all marked items
+	 */
+	thi$.getAllMarked = function(){
+		return this.marked;
+	};
+
+	/**
+	 * Clears all marked items
+	 */
+	thi$.clearAllMarked = function(){
+		var marked = this.marked, item;
+		while(marked.length > 0){
+			item = marked.shift();
+			item.mark(false);
+		}
+		this._doSort();
+	};
+
+	/**
+	 * Mark a tree node
+	 *
+	 * @param item, tree item
+	 */
+	thi$.markNode = function(item){
+		if(!item.isMarkable()) return;
+
+		item.mark(!item.isMarked());
+		if(item.isMarked()){
+			this.marked.push(item);
+		}else{
+			this.marked.remove(item);
+		}
+		this._doSort();
+	};
+
+	/**
+	 * @see js.awt.Movable
+	 */
+	thi$.isMoverSpot = function(el, x, y){
+		var uuid = el.uuid, item = this.cache[uuid];
+
+		if(item){
+			if (this.selected.length > 0){
+				return true;
+			}else{
+				if(item.isMoverSpot(el) && item.canDrag()){
+					return true;
+				}
+			}
+		}
+
+		return false;
+	};
+
+	thi$.setMultiEnable = function(b){
+		this.def.multiEnable = (b === true);
+	};
+
+	thi$.isMultiEnable = function(){
+		return this.def.multiEnable;
+	};
+
+	thi$.getMoveObjectDef = function(item){
+		return {};
+	};
+
+	/**
+	 * @see js.awt.Movable
+	 */
+	thi$.getMoveObject = function(e){
+		var moveObj = this.moveObj;
+		if(!moveObj){
+			var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
+			mdef, absXY = e.eventXY();
+
+			if(item.def.isExecute == false){
+				return null;
+			}
+
+			if(this.selected.length == 0){
+				var state = new js.awt.State(this.getState());
+				state.setHover(false);
+				state.setTriggered(true);
+				item.setState(state.getState());
+				this.selected.push(item);
+				this._doSort();
+			}
+
+			mdef = this.getMoveObjectDef() || {};
+			moveObj = this.moveObj =
+				new js.awt.TreeMoveObject(mdef, this.Runtime(), this);
+			moveObj.setMovingPeer(this);
+			moveObj.appendTo(document.body);
+
+			/*moveObj.setPosition(absXY.x, absXY.y);*/
+			moveObj.setPosition(absXY.x - 10, absXY.y - 8);
+		}
+
+		return moveObj;
+	};
+
+	/**
+	 * Keep and restore scroll bar position
+	 *
+	 * @param restore, true means restore
+	 */
+	var _keepScroll = function(restore){
+		var U = this._local, el = this.view;
+		if(!restore){
+			U.scrollLeft = el.scrollLeft;
+			U.scrollTop	 = el.scrollTop;
+		}else{
+			el.scrollLeft = U.scrollLeft;
+			el.scrollTop  = U.scrollTop;
+		}
+	};
+
+	var _adjustTreeView = function(){
+		var bounds = DOM.getBounds(this._treeShell),
+		MBP = bounds.MBP;
+		DOM.setSize(this._treeView,
+					bounds.width - MBP.BPW,
+					bounds.height - MBP.BPH);
+	};
+
+	/**
+	 * Sets treeView max size
+	 */
+	var _setMaxSize = function(){
+		var rect = _getMaxSize.call(this), box = this.getBounds(),
+		cw = box.innerWidth, ch = box.innerHeight,
+
+		treeShell = this._treeShell,
+		supports = J$VM.supports,
+
+		w, h, wrest, hrest;
+
+		if(rect.width >= cw){ // Has hscrollbar
+			w = rect.width;
+			wrest = 0;
+		}else{
+			w = cw;
+			wrest = cw - rect.width;
+		}
+
+		if(rect.height >= ch){ // Has vscrollbar
+			h = rect.height;
+			hrest = 0;
+		}else{
+			h = ch;
+			hrest = ch - rect.height;
+		}
+
+		// Only have one scrollbar
+		if(wrest > 0 || hrest > 0){
+			// If the tree will have hscrollbar and the hight has surplus,
+			// to compensate the space of hscrollbar with the rest available
+			// height.
+			if(wrest == 0 && hrest > 0){
+				h -= Math.min(hrest, supports.hscrollbar);
+			}
+
+			// If the tree will have vscrollbar and the width has surplus,
+			// to compensate the space of vscrollbar with the rest available
+			// width.
+			if(hrest == 0 && wrest > 0){
+				w -= Math.min(wrest, supports.vscrollbar);
+			}
+		}
+
+		this.view.style.overflow = "hidden";
+
+		DOM.setSize(treeShell, w, h);
+
+		_adjustTreeView.call(this);
+
+		this.view.style.overflow = "auto";
+	};
+
+	/**
+	 * Gets treeView max size
+	 */
+	var _getMaxSize = function(force){
+		var treeview = this._treeView, ret = this._local.maxSize,
+		bounds;
+		if(force !== true && ret){
+			return ret;
+		}
+
+		treeview.style.overflow = "hidden";
+		DOM.setSize(treeview, 0, 0);
+
+		ret = this._local.maxSize = {
+			width: treeview.scrollWidth,
+			height:treeview.scrollHeight
+		};
+		treeview.style.overflow = "visible";
+
+		bounds = DOM.getBounds(this._treeShell);
+		ret.width += bounds.MBP.BPW;
+		ret.height += bounds.MBP.BPH;
+
+		return ret;
+	};
+
+	thi$.onResized = function(fire){
+		delete this._local.maxSize;
+
+		arguments.callee.__super__.apply(this, arguments);
+
+	}.$override(this.onResized);
+
+	thi$.doLayout = function(){
+		if(arguments.callee.__super__.apply(this, arguments)){
+			_setMaxSize.call(this);
+			return true;
+		}
+		return false;
+	}.$override(this.doLayout);
+
+	thi$.getOptimalSize = function(){
+		var size = _getMaxSize.call(this),
+		bounds = this.getBounds(),
+		w = size.width, h = size.height;
+
+		w += bounds.MBP.BPW;
+		h += bounds.MBP.BPH;
+		return {width: w, height: h};
+	};
+
 	thi$.scrollTo = function(ele){
-		var view = this.view, bounds, MBP, box, x, y, x0, y0, 
+		var view = this.view, bounds, MBP, box, x, y, x0, y0,
 		scrollLeft, scrollTop;
 		if(!ele || !DOM.contains(this._treeView, ele)){
 			return;
 		}
-		
+
 		bounds = this.getBounds();
-        MBP = bounds.MBP;
+		MBP = bounds.MBP;
 		x = bounds.absX; // + MBP.borderLeftWidth + MBP.paddingLeft;
 		y = bounds.absY; // + MBP.borderTopWidth + MBP.paddingTop;
 		x0 = x + (bounds.clientWidth - MBP.BPW);
 		y0 = y + (bounds.clientHeight - MBP.BPH);
 		scrollLeft = view.scrollLeft;
 		scrollTop = view.scrollTop;
-		
+
 		System.log.println("Scroll Position: (" + scrollLeft + ", " + scrollTop + ")");
 
 		box = DOM.getBounds(ele);
-		
+
 		if(box.absX < x){
 			scrollLeft -= x - box.absX;
 		}else{
@@ -10050,7 +10107,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 				scrollLeft += box.absX - x0 + box.width;
 			}
 		}
-		
+
 		if(box.absY < y){
 			scrollTop -= y - box.absY;
 		}else{
@@ -10058,182 +10115,193 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 				scrollTop += box.absY - y0 + box.height;
 			}
 		}
-		
+
 		System.log.println("New Scroll Position: (" + scrollLeft + ", " + scrollTop + ")");
-		
+
 		if(scrollLeft != view.scrollLeft){
 			view.scrollLeft = scrollLeft;
 		}
-		
+
 		if(scrollTop != view.scrollTop){
 			view.scrollTop = scrollTop;
 		}
 	};
-    
-    var _onclick = function(e){
-        var isMulti = this.def.multiEnable, el = e.srcElement, uuid = el.uuid,
-        item = this.cache[uuid], selected = this.selected;
 
-        if(item && item.isEnabled()){
-            if(e.getType() == "click"){
-                if(el === item.branch && item.canExpand()){
-                    this.clearAllSelected();
-                    this.expand(item);
-                    return;
-                }else if(el === item.marker && item.isMarkable()){
-                    this.markNode(item);
-                    e.setType("markchanged");
-                    e.setEventTarget(item);
-                    this.notifyPeer("js.awt.event.TreeItemEvent", e);
-                    return;
-                }else if (item.canDrag()){
-                    if(isMulti && e.ctrlKey === true){
-                        item.setTriggered(!item.isTriggered());
-                        if(item.isTriggered()){
-                            selected.push(item);
-                        }else{
-                            selected.remove(item);
-                        }
-                    }else if(isMulti && e.shiftKey === true){
-                        var first = selected.length > 0 ? selected[0] : undefined;
+	var _onclick = function(e){
+		var isMulti = this.def.multiEnable, el = e.srcElement, uuid = el.uuid,
+		item = this.cache[uuid], selected = this.selected;
 
-                        if(first == undefined){
-                            first = item;
-                            item.setTriggered(true);
-                            selected.push(item);
-                        }
+		if(item && item.isEnabled()){
+			if(e.getType() == "click"){
+				if(el === item.branch && item.canExpand()){
+					this.clearAllSelected();
+					this.expand(item);
+					return;
+				}else if(el === item.marker && item.isMarkable()){
+					this.markNode(item);
+					e.setType("markchanged");
+					e.setEventTarget(item);
+					this.notifyPeer("js.awt.event.TreeItemEvent", e);
+					return;
+				}else if (item.canDrag()){
+					if(isMulti && e.ctrlKey === true){
+						item.setTriggered(!item.isTriggered());
+						if(item.isTriggered()){
+							selected.push(item);
+						}else{
+							selected.remove(item);
+						}
+					}else if(isMulti && e.shiftKey === true){
+						var first = selected.length > 0 ? selected[0] : undefined;
 
-                        if(first && item && first.parentItem() == item.parentItem()){
-                            var nodes = first.parentItem().getNodes(first, item), node;
-                            for(var i=1, len=nodes.length; i<len; i++){
-                                node = nodes[i];
-                                node.setTriggered(true);
-                                selected.push(node);
-                            }
-                        }
-                    }else if(item.isTriggered()){
-                        this.clearAllSelected();
-                    }else{
-                        this.clearAllSelected();
-                        item.setTriggered(true);
-                        selected.push(item);
-                    }
-                }
-                this._doSort();
-                e.setType("selectchanged");
-                e.setData(this.getAllSelected());
-                e.setEventTarget(item);
-                this.notifyPeer("js.awt.event.TreeItemEvent", e);
-                return;
-            }
-        }
+						if(first == undefined){
+							first = item;
+							item.setTriggered(true);
+							selected.push(item);
+						}
 
-        if(this.selected.length){
-            this.clearAllSelected();
-            e.setType("selectchanged");
-            e.setData(this.getAllSelected());
-            this.notifyPeer("js.awt.event.TreeItemEvent", e);
-        }
-    };
+						if(first && item && first.parentItem() == item.parentItem()){
+							var nodes = first.parentItem().getNodes(first, item), node;
+							for(var i=1, len=nodes.length; i<len; i++){
+								node = nodes[i];
+								node.setTriggered(true);
+								selected.push(node);
+							}
+						}
+					}else if(item.isTriggered()){
+						this.clearAllSelected();
+					}else{
+						this.clearAllSelected();
+						item.setTriggered(true);
+						selected.push(item);
+					}
+				}
+				this._doSort();
+				e.setType("selectchanged");
+				e.setData(this.getAllSelected());
+				e.setEventTarget(item);
+				this.notifyPeer("js.awt.event.TreeItemEvent", e);
+				return;
+			}
+		}
 
-    var _onmouseover = function(e){
-        var from = e.fromElement, to = e.toElement,
-        fid = from ? from.uuid : undefined,
-        tid = to ? to.uuid : undefined,
-        fitem, titem, cache = this.cache;
+		if(this.selected.length){
+			this.clearAllSelected();
+			e.setType("selectchanged");
+			e.setData(this.getAllSelected());
+			this.notifyPeer("js.awt.event.TreeItemEvent", e);
+		}
+	};
 
-        if(fid !== tid){
-            fitem = cache[fid];
-            titem = cache[tid];
-            if(fitem && fitem.isHover() && fitem.isEnabled()){
-                fitem.setHover(false);
-            }
-            if(titem && !titem.isHover() && titem.isEnabled()){
-                titem.setHover(true);
-            }
-        }
-    };
+	var _onmouseover = function(e){
+		var from = e.fromElement, to = e.toElement,
+		fid = from ? from.uuid : undefined,
+		tid = to ? to.uuid : undefined,
+		fitem, titem, cache = this.cache;
 
-    // Only bind to treeView to avoid autoscroll when drag an item
-    var _onmousedown = function(e){
-        return e.cancelDefault();
-    };
+		if(fid !== tid){
+			fitem = cache[fid];
+			titem = cache[tid];
+			if(fitem && fitem.isHover() && fitem.isEnabled()){
+				fitem.setHover(false);
+			}
+			if(titem && !titem.isHover() && titem.isEnabled()){
+				titem.setHover(true);
+			}
+		}
+	};
 
-    // Notify tree peer
-    var _ondrag = function(e){
-        this.notifyPeer("js.awt.event.TreeItemEvent", e);
-    };
+	// Only bind to treeView to avoid autoscroll when drag an item
+	var _onmousedown = function(e){
+		return e.cancelDefault();
+	};
 
-    thi$.destroy = function(){
-        this.removeAllNodes(true);
-        delete this.nodes;
-        delete this.cache;
-        delete this.selected;
-        delete this.marked;
-        delete this.dataProvider;
+	// Notify tree peer
+	var _ondrag = function(e){
+		this.notifyPeer("js.awt.event.TreeItemEvent", e);
+	};
 
-        DOM.remove(this._treeView, true);
-        delete this._treeView;
+	thi$.destroy = function(){
+		this.removeAllNodes(true);
+		delete this.nodes;
+		delete this.cache;
+		delete this.selected;
+		delete this.marked;
+		delete this.dataProvider;
 
-        arguments.callee.__super__.apply(this, arguments);
+		var ele = this._treeView;
+		delete this._treeView;
+		DOM.remove(ele, true);
 
-    }.$override(this.destroy);
+		ele = this._treeShell;
+		delete this._treeShell;
+		DOM.remove(ele, true);
 
-    var _onevent = function(e){
 
-    };
+		arguments.callee.__super__.apply(this, arguments);
 
-    thi$._init = function(def, Runtime, dataProvider){
-        if(def == undefined) return;
+	}.$override(this.destroy);
 
-        def.classType = def.classType || "js.awt.Tree";
-        def.className = def.className || "jsvm_tree";
-        def.stateless = true;
+	var _onevent = function(e){
 
-        def.mover = def.mover || {};
-        def.mover.longpress = def.mover.longpress || 250;
-        def.multiEnable = (def.multiEnable === true);
+	};
 
-        // Call base _init
-        arguments.callee.__super__.apply(this, [def, Runtime]);
+	thi$._init = function(def, Runtime, dataProvider){
+		if(def == undefined) return;
 
-        // Cache all tree items
-        this.cache = {};
-        this.selected = js.util.LinkedList.$decorate([]);
-        this.marked = js.util.LinkedList.$decorate([]);
+		def.classType = def.classType || "js.awt.Tree";
+		def.className = def.className || "jsvm_tree";
+		def.stateless = true;
 
-        this.showTip(def.showTip);
+		def.mover = def.mover || {};
+		def.mover.longpress = def.mover.longpress || 250;
+		def.multiEnable = (def.multiEnable === true);
 
-        var treeView = this._treeView = DOM.createElement("DIV");
-        treeView.className = this.className + "_treeview";
-        treeView.style.cssText = "position:relative;width:100%;height:100%;"
-            + "overflow:visible;";
-        DOM.appendTo(treeView, this.view);
+		// Call base _init
+		arguments.callee.__super__.apply(this, [def, Runtime]);
 
-        this.setDataProvider(dataProvider ||
-                             new js.awt.AbstractTreeDataProvider(this.Runtime()));
+		// Cache all tree items
+		this.cache = {};
+		this.selected = js.util.LinkedList.$decorate([]);
+		this.marked = js.util.LinkedList.$decorate([]);
 
-        if(def.nodes && def.nodes.length > 0){
-            this.insertNodes(0, def.nodes);
-        }
+		this.showTip(def.showTip);
 
-        Event.attachEvent(treeView, "mouseover", 0, this, _onmouseover);
-        Event.attachEvent(treeView, "mouseout",  0, this, _onmouseover);
-        Event.attachEvent(treeView, "click",     0, this, _onclick);
-        Event.attachEvent(treeView, "dblclick",  0, this, _onclick);
+		var treeShell = this._treeShell = DOM.createElement("DIV");
+		treeShell.className = this.className + "_treeshell";
+		treeShell.style.cssText = "position:relative;width:100%;height:100%;"
+			+ "overflow:visible;";
+		DOM.appendTo(treeShell, this.view);
 
-        // Avoid autoscroll when drag item.
-        Event.attachEvent(treeView, "mousedown", 1, this, _onmousedown);
+		var treeView = this._treeView = DOM.createElement("DIV");
+		treeView.style.cssText = "position:relative;overflow:visible;"
+			+ "border:0 none;padding:0px;";
+		DOM.appendTo(treeView, treeShell);
 
-        if(this.isMovable()){
-            MQ.register(this.dataProvider.getDragMsgType(), this, _ondrag);
-        }
+		this.setDataProvider(dataProvider ||
+							 new js.awt.AbstractTreeDataProvider(this.Runtime()));
 
-        MQ.register("js.awt.event.TreeItemEvent", this, _onevent);
+		if(def.nodes && def.nodes.length > 0){
+			this.insertNodes(0, def.nodes);
+		}
 
-    }.$override(this._init);
+		Event.attachEvent(treeView, "mouseover", 0, this, _onmouseover);
+		Event.attachEvent(treeView, "mouseout",	 0, this, _onmouseover);
+		Event.attachEvent(treeView, "click",	 0, this, _onclick);
+		Event.attachEvent(treeView, "dblclick",	 0, this, _onclick);
 
-    this._init.apply(this, arguments);
+		// Avoid autoscroll when drag item.
+		Event.attachEvent(treeView, "mousedown", 1, this, _onmousedown);
+
+		if(this.isMovable()){
+			MQ.register(this.dataProvider.getDragMsgType(), this, _ondrag);
+		}
+
+		MQ.register("js.awt.event.TreeItemEvent", this, _onevent);
+
+	}.$override(this._init);
+
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);
 
@@ -10244,39 +10312,39 @@ js.awt.Tree = function(def, Runtime, dataProvider){
  */
 js.awt.AbstractTreeDataProvider = function(Runtime, imageMap, expandMap, dragMap){
 
-    var CLASS = js.awt.AbstractTreeDataProvider, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.AbstractTreeDataProvider, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System;
 
-    thi$.destroy = function(){
-        delete this._local.Runtime;
-        delete this.imageMap;
-        delete this.expandMap;
-        delete this.dragMap;
+	thi$.destroy = function(){
+		delete this._local.Runtime;
+		delete this.imageMap;
+		delete this.expandMap;
+		delete this.dragMap;
 
-        arguments.callee.__super__.apply(this, arguments);
+		arguments.callee.__super__.apply(this, arguments);
 
-    }.$override(this.destroy);
+	}.$override(this.destroy);
 
-    thi$._init = function(Runtime, imageMap, expandMap, dragMap){
-        if(Runtime == undefined) return;
+	thi$._init = function(Runtime, imageMap, expandMap, dragMap){
+		if(Runtime == undefined) return;
 
-        this._local = this._local || {};
+		this._local = this._local || {};
 
-        this._local.Runtime = Runtime;
-        this.setImageMap(imageMap);
-        this.setExpandableMap(expandMap);
-        this.setDragableMap(dragMap);
+		this._local.Runtime = Runtime;
+		this.setImageMap(imageMap);
+		this.setExpandableMap(expandMap);
+		this.setDragableMap(dragMap);
 
-    }.$override(this._init);
+	}.$override(this._init);
 
-    this._init.apply(this, arguments);
+	this._init.apply(this, arguments);
 
 }.$extend(js.lang.Object).$implements(js.awt.TreeDataProvider);
 
@@ -10286,129 +10354,128 @@ js.awt.AbstractTreeDataProvider = function(Runtime, imageMap, expandMap, dragMap
  */
 js.awt.TreeMoveObject = function(def, Runtime, tree){
 
-    var CLASS = js.awt.TreeMoveObject, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.TreeMoveObject, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, dataProvider;
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System, dataProvider;
 
-    /**
-     * @see js.awt.Movable
-     */
-    thi$.getMovingData = function(){
-        return this.movingPeer.selected;
-    };
+	/**
+	 * @see js.awt.Movable
+	 */
+	thi$.getMovingData = function(){
+		return this.movingPeer.selected;
+	};
 
-    /**
-     * @see js.awt.Movable
-     */
-    thi$.getMovingMsgType = function(){
-        return dataProvider.getDragMsgType();
-    };
+	/**
+	 * @see js.awt.Movable
+	 */
+	thi$.getMovingMsgType = function(){
+		return dataProvider.getDragMsgType();
+	};
 
-    /**
-     * @see js.awt.Movable
-     */
-    thi$.getMovingMsgRecvs = function(){
-        return dataProvider.getDragMsgRecvs();
-    };
+	/**
+	 * @see js.awt.Movable
+	 */
+	thi$.getMovingMsgRecvs = function(){
+		return dataProvider.getDragMsgRecvs();
+	};
 
-    /**
-     * @see js.awt.Movable
-     */
-    thi$.releaseMoveObject = function(){
-        var tree = this.movingPeer;
-        tree.clearAllSelected();
+	/**
+	 * @see js.awt.Movable
+	 */
+	thi$.releaseMoveObject = function(){
+		var tree = this.movingPeer;
+		tree.clearAllSelected();
 
-        arguments.callee.__super__.apply(this, arguments);
+		arguments.callee.__super__.apply(this, arguments);
 
-    }.$override(this.releaseMoveObject);
+	}.$override(this.releaseMoveObject);
 
-    thi$.getPreferredSize = function(nocache){
-        var ret = this.def.prefSize, d, w = 0, ch, h = 0;
-        if(nocache === true || !ret){
-            d = this.getBounds();
-            w += d.MBP.BPW;
-            h += d.MBP.BPH;
+	thi$.getPreferredSize = function(nocache){
+		var ret = this.def.prefSize, d, w = 0, ch, h = 0;
+		if(nocache === true || !ret){
+			d = this.getBounds();
+			w += d.MBP.BPW;
+			h += d.MBP.BPH;
 
-            d = DOM.getBounds(this.icon);
-            w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
-            ch = d.height;
+			d = DOM.getBounds(this.icon);
+			w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
+			ch = d.height;
 
-            d = DOM.getBounds(this.label);
-            w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
-            h += Math.max(ch, d.height);
+			d = DOM.getBounds(this.label);
+			w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
+			h += Math.max(ch, d.height);
 
-            this.setPreferredSize(w, h);
-            ret = this.def.prefSize;
-        }
+			this.setPreferredSize(w, h);
+			ret = this.def.prefSize;
+		}
 
-        return ret;
+		return ret;
 
-    }.$override(this.getPreferredSize);
+	}.$override(this.getPreferredSize);
 
-    thi$.repaint = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            var bounds = this.getBounds(), buf = new js.lang.StringBuffer(),
-            left = bounds.MBP.paddingLeft, top = bounds.MBP.paddingTop,
-            width = bounds.innerWidth;
+	thi$.repaint = function(){
+		if(arguments.callee.__super__.apply(this, arguments)){
+			var bounds = this.getBounds(), buf = new js.lang.StringBuffer(),
+			left = bounds.MBP.paddingLeft, top = bounds.MBP.paddingTop,
+			width = bounds.innerWidth;
 
-            buf.append("position:absolute;left:")
-                .append(left).append("px;")
-                .append("top:").append(top).append("px;");
-            this.icon.style.cssText = buf.toString();
+			buf.append("position:absolute;left:")
+				.append(left).append("px;")
+				.append("top:").append(top).append("px;");
+			this.icon.style.cssText = buf.toString();
 
-            bounds = this.icon.bounds;
-            left += bounds.width + bounds.MBP.marginRight;
-            width -= left;
-            buf.clear().append("position:absolute;left:")
-                .append(left).append("px;")
-                .append("top:").append(top).append("px;width:")
-                .append(width).append("px;");
-            this.label.style.cssText = buf.toString();
-        }
-    }.$override(this.repaint);
+			bounds = this.icon.bounds;
+			left += bounds.width + bounds.MBP.marginRight;
+			width -= left;
+			buf.clear().append("position:absolute;left:")
+				.append(left).append("px;")
+				.append("top:").append(top).append("px;width:")
+				.append(width).append("px;");
+			this.label.style.cssText = buf.toString();
+		}
+	}.$override(this.repaint);
 
-    thi$._init = function(def, Runtime, tree){
-        if(def === undefined) return;
+	thi$._init = function(def, Runtime, tree){
+		if(def === undefined) return;
 
-        var selected = tree.selected;
-        def.classType = "js.awt.TreeMoveObject";
-        if(selected.length === 1){
-            def.className = tree.className + "_moveobj0";
-        }else{
-            def.className = tree.className + "_moveobj1";
-        }
+		var selected = tree.selected;
+		def.classType = "js.awt.TreeMoveObject";
+		if(selected.length === 1){
+			def.className = tree.className + "_moveobj0";
+		}else{
+			def.className = tree.className + "_moveobj1";
+		}
 
-        def.css = "position:absolute;";
-        def.stateless = true;
+		def.css = "position:absolute;";
+		def.stateless = true;
 
-        arguments.callee.__super__.apply(this, [def, Runtime]);
+		arguments.callee.__super__.apply(this, [def, Runtime]);
 
-        dataProvider = tree.dataProvider;
+		dataProvider = tree.dataProvider;
 
-        var item = selected[0], G = item.getGeometric(),
-        icon = this.icon = item.icon.cloneNode(true),
-        label = this.label = item.label.cloneNode(true),
-        text = item.getText();
+		var item = selected[0], G = item.getGeometric(),
+		icon = this.icon = item.icon.cloneNode(true),
+		label = this.label = item.label.cloneNode(true),
+		text = item.getText();
 
-        icon.bounds = G.icon;
-        DOM.appendTo(icon, this.view);
+		icon.bounds = G.icon;
+		DOM.appendTo(icon, this.view);
 
-        // Maybe current label has been highlighted  
-        label.innerHTML = js.lang.String.encodeHtml(text || "");
-        DOM.appendTo(label, this.view);
+		// Maybe current label has been highlighted
+		label.innerHTML = js.lang.String.encodeHtml(text || "");
+		DOM.appendTo(label, this.view);
 
-    }.$override(this._init);
+	}.$override(this._init);
 
-    this._init.apply(this, arguments);
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component).$implements(js.awt.MoveObject);
-
 
 /**
 
