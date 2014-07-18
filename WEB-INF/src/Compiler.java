@@ -281,7 +281,9 @@ public class Compiler {
 				}
 			}
 		}
-
+		
+		source += "\r\n";
+		
 		if (file.getAbsolutePath().endsWith("jsvm.js")) {
 			source = source.replaceFirst("\\$\\{build\\}", IDGenerator
 					.getUniqueID().toString());
