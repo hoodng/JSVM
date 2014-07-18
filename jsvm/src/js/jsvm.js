@@ -55,7 +55,8 @@ J$VM = new function (){
         j$vm_ajax_concurrent: 8,
         j$vm_timeslice: 20,
         j$vm_threshold: 45,
-        j$vm_longpress: 90
+        j$vm_longpress: 90,
+        j$vm_touch:[50,250,500]
     };
 
     /**
@@ -143,13 +144,12 @@ J$VM = new function (){
         var proto = this.prototype, superC,
             imps = proto.__imps__ = [].concat(proto.__imps__ || []);
 
-        for(var i=0, len=arguments.length; i<len; i++){
-            superC = arguments[i];
+        (function(superC){
             if(typeof superC == "function"){
                 imps.push(superC);
                 superC.$decorate(proto);
             }
-        }
+        }).$forEach(this, Array.prototype.slice.call(arguments, 0));
 
         return this;
     };
@@ -369,6 +369,7 @@ J$VM = new function (){
      */
     Function.prototype.$forEach = function(thi$, set){
         var fn = this, i, len,
+            hasOwnProperty = Object.prototype.hasOwnProperty,
             $args = Array.prototype.slice.call(arguments, 2);
 
         switch(js.lang.Class.typeOf(set)){
@@ -377,28 +378,22 @@ J$VM = new function (){
                 try{
                     fn.apply(thi$, $args.concat(set[i], i, set));
                 } catch (x) {
-                    if("break" === x){
-                        break;
-                    }else{
-                        throw x;
-                    }
+                    if("break" === x) break;
+                    throw x;
                 }
             }
             break;
             case "object":
             for(i in set){
-                try{
-                    fn.apply(thi$, $args.concat(set[i], i, set));
-                } catch (x) {
-                    if("break" === x){
-                        break;
-                    }else{
+                if (hasOwnProperty.call(set, i)) {
+                    try{
+                        fn.apply(thi$, $args.concat(set[i], i, set));
+                    } catch (x) {
+                        if("break" === x) break;
                         throw x;
                     }
                 }
             }
-            break;
-            default:
             break;
         }
     };
@@ -549,5 +544,4 @@ J$VM = new function (){
             }).$delay(thi$, timeout);
         }
     };
-
 }();

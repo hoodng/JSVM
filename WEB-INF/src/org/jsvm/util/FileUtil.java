@@ -230,4 +230,33 @@ public final class FileUtil {
 		ous.flush();
 		return ret;
 	}
+	
+    /**
+     * Delete a <code>File</code>, if the <code>File</code> is a file then
+     * delete the file, if the <code>File</code> is a directory then delete the
+     * directory.
+     * 
+     * @param file
+     *            <code>File</code>
+     * @see java.io.File
+     * @see #deletePath(String)
+     */
+    public static void deleteFile(File file) {
+        if (!file.exists())
+            return;
+
+        if (file.isFile()) {
+            file.delete();
+        } else {
+            // dir
+            File[] files = file.listFiles();
+            int len = files.length;
+            for (int i = 0; i < len; i++) {
+                deleteFile(files[i]);
+            }
+            file.delete();
+        }
+
+    }
+
 }

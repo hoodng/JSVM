@@ -44,7 +44,6 @@
         despath: "../",
         name: "jsre.js",
 
-        srcpath: "../src/",
         files: [
             "js/jsvm.js",
             "js/lang/Class.js",
@@ -88,8 +87,6 @@
 
         despath: "../lib/",
         name: "jsre-ui.js",
-
-        srcpath: "../src/",
         files: [
             "js/awt/State.js",
             "js/awt/Editable.js",
