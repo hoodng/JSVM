@@ -264,13 +264,14 @@ public class Compiler {
 			properties.put(Decompiler.CASE_GAP_PROP, 0);
 
 			source = Decompiler.decompile(encodedSource, 2, properties);
-
+			source += "\r\n";
 		} else {
 			FileInputStream ins = null;
 			try {
 				ins = new FileInputStream(file);
 				ByteArrayOutputStream ous = new ByteArrayOutputStream();
 				FileUtil.copy(ins, ous);
+				ous.write(new byte[]{0x0d, 0x0a}); // "\r\n"
 				source = ous.toString("UTF-8");
 			} catch (Throwable t) {
 				t.printStackTrace();
@@ -281,8 +282,6 @@ public class Compiler {
 				}
 			}
 		}
-		
-		source += "\r\n";
 		
 		if (file.getAbsolutePath().endsWith("jsvm.js")) {
 			source = source.replaceFirst("\\$\\{build\\}", IDGenerator
