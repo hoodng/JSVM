@@ -1,6 +1,6 @@
 *~
 WEB-INF/classes/**/*
 jsvm/classes/**/*
-jsvm/jsre.js
-jsvm/jsre-ui.js
-jsvm/lib/jsre-ui.js
+jsvm/jsre-core.*
+jsvm/jsre-ui.*
+jsvm/lib/jsre-ui.*

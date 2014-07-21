@@ -36,14 +36,12 @@
  */
 
 /*var tasks = */{
-    list: ["jsre", "jsreui"],
+    list: ["jsrecore", "jsreui"],
 
-    jsre: {
+    jsrecore: {
         compress: true,
-
         despath: "../",
-        name: "jsre.js",
-
+        name: "jsre-core.js",
         files: [
             "js/jsvm.js",
             "js/lang/Class.js",
@@ -84,8 +82,7 @@
 
     jsreui: {
         compress: true,
-
-        despath: "../lib/",
+        despath: "../",
         name: "jsre-ui.js",
         files: [
             "js/awt/State.js",
