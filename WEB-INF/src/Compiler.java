@@ -123,11 +123,11 @@ public class Compiler {
 			System.out.println("Clean...");
 			FileUtil.deleteFile(desRoot);
 		}
-		
+
 		if (!desRoot.exists()) {
 			desRoot.mkdirs();
 		}
-		
+
 		// Compile
 		System.out.println("Compile...");
 		JSONObject classJson = new JSONObject();
@@ -201,7 +201,8 @@ public class Compiler {
 	}
 
 	private static String makeFileName(String className, String suffix) {
-		String tmp = className.replaceAll("\\.", File.separator);
+		String tmp = className.replaceAll("\\.",
+				File.separator.equals("/") ? "/" : "\\\\");
 		return tmp + suffix;
 	}
 
@@ -237,9 +238,9 @@ public class Compiler {
 			if (gzip) {
 				os = new GZIPOutputStream(os);
 			}
-			
+
 			logger.println("compress: " + file.getAbsolutePath());
-			
+
 			compress0(script, file, os, null);
 
 		} catch (Exception e) {
@@ -271,7 +272,7 @@ public class Compiler {
 				ins = new FileInputStream(file);
 				ByteArrayOutputStream ous = new ByteArrayOutputStream();
 				FileUtil.copy(ins, ous);
-				ous.write(new byte[]{0x0d, 0x0a}); // "\r\n"
+				ous.write(new byte[] { 0x0d, 0x0a }); // "\r\n"
 				source = ous.toString("UTF-8");
 			} catch (Throwable t) {
 				t.printStackTrace();
@@ -282,7 +283,7 @@ public class Compiler {
 				}
 			}
 		}
-		
+
 		if (file.getAbsolutePath().endsWith("jsvm.js")) {
 			source = source.replaceFirst("\\$\\{build\\}", IDGenerator
 					.getUniqueID().toString());
