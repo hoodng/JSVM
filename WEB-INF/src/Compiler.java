@@ -73,7 +73,7 @@ public class Compiler {
 
 	static Logger logger;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws Throwable {
 		System.out.println("J$VM compiler 0.9");
 
 		Map<String, String> arguments = parseArgs(args, 0, null, 0,
@@ -101,15 +101,27 @@ public class Compiler {
 
 		logger = new Logger(verbose);
 
-		File srcRoot = null, desRoot = null;
+		File srcRoot = null, desRoot = null, pkgRoot = null;
 		try {
 			srcRoot = new File(new File(src).getCanonicalPath());
 			desRoot = new File(new File(des).getCanonicalPath());
+			pkgRoot = desRoot.getParentFile();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-
+		
+		if (!desRoot.exists()) {
+			desRoot.mkdirs();
+		}
+		
+		// Clean
+		if (clean || !(new File(pkgRoot, "package.json").exists())) {
+			System.out.println("Clean...");
+			FileUtil.deleteFile(desRoot);
+		}
+		
+		// Prepare
 		Table table = new Table(srcRoot, desRoot);
 		Map<String, Boolean> packClasses = new HashMap<String, Boolean>();
 		List<Task> packTasks = makePackTasks(srcRoot, new File(pkgLst), table,
@@ -118,19 +130,9 @@ public class Compiler {
 			packClasses.putAll(task.getPackClasses());
 		}
 
-		// Clean
-		if (clean || !(new File(desRoot, "classes.json").exists())) {
-			System.out.println("Clean...");
-			FileUtil.deleteFile(desRoot);
-		}
-
-		if (!desRoot.exists()) {
-			desRoot.mkdirs();
-		}
-
 		// Compile
 		System.out.println("Compile...");
-		JSONObject classJson = new JSONObject();
+		JSONObject packJson = new JSONObject();
 		Context ctx = Context.enter();
 		ctx.setOptimizationLevel(optLevel);
 		Scriptable scope = ctx.initStandardObjects();
@@ -142,15 +144,30 @@ public class Compiler {
 					compress(rec.script, rec.desFile, gzip);
 				}
 			}
-			classJson.put(rec.className, rec.desFile.lastModified());
+			packJson.put(rec.className, rec.desFile.lastModified());
 		}
 		Context.exit();
 
+		// Packing
+		int rootLen = pkgRoot.getCanonicalPath().length();
+		while (!packTasks.isEmpty()) {
+			Task task = packTasks.remove(0);
+			task.run();
+			packJson.put(task.desFile.getCanonicalPath().substring(rootLen + 1),
+					task.desFile.lastModified());
+			if (task.zipFile != null) {
+				packJson.put(
+						task.zipFile.getCanonicalPath().substring(rootLen + 1),
+						task.zipFile.lastModified());
+			}
+		}
+
+		// Output package.json
 		Writer classesFile = null;
 		try {
 			classesFile = new OutputStreamWriter(new FileOutputStream(new File(
-					desRoot, "classes.json")), "UTF-8");
-			classesFile.write(classJson.toString());
+					pkgRoot, "package.json")), "UTF-8");
+			classesFile.write(packJson.toString());
 		} catch (Throwable t) {
 			t.printStackTrace();
 		} finally {
@@ -159,12 +176,6 @@ public class Compiler {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
-
-		// Packing
-		while (!packTasks.isEmpty()) {
-			Task task = packTasks.remove(0);
-			task.run();
 		}
 
 	}
@@ -431,9 +442,10 @@ public class Compiler {
 	static class Task implements Runnable {
 		private String name;
 		private boolean compress = false;
-		private File srcRoot;
-		private File desRoot;
-		private File desFile;
+		File srcRoot;
+		File desRoot;
+		File desFile;
+		File zipFile;
 		private LinkedHashMap<String, Boolean> classMap;
 		private int srcRootLen;
 		private boolean gzip;
@@ -477,8 +489,8 @@ public class Compiler {
 				if (gzip) {
 					String zipName = this.desFile.getAbsolutePath().replaceAll(
 							"\\.js", ".jz");
-					zout = new GZIPOutputStream(new FileOutputStream(new File(
-							zipName)));
+					zipFile = new File(zipName);
+					zout = new GZIPOutputStream(new FileOutputStream(zipFile));
 				}
 			} catch (Throwable t) {
 				t.printStackTrace();
