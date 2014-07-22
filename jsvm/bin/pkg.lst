@@ -39,7 +39,7 @@
     list: ["jsrecore", "jsreui"],
 
     jsrecore: {
-        compress: true,
+        compress: false,
         despath: "../",
         name: "jsre-core.js",
         files: [
