@@ -346,6 +346,7 @@ js.lang.System = function (env, vm){
                 switch(name){
                 case "src":
                 case "crs":
+                    value = script.src || script.crs;
                     var p = value.lastIndexOf("/");
                     this.setProperty("j$vm_home", value.substring(0,p));
                     params = new js.net.URI(value).params;
@@ -853,6 +854,9 @@ js.lang.System = function (env, vm){
     var _init = function(env, vm){
         var E = js.util.Event;
         props = new js.util.Properties(env);
+
+        vm.pkgversion = self.j$vm_pkgversion;
+        delete self.j$vm_pkgversion;
 
         /**
          * @member J$VM
