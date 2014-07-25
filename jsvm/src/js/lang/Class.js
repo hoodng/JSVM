@@ -130,7 +130,7 @@ js.lang.Class = new function (){
             var storage = J$VM.storage.cache, text, cached,
                 incache = false, key = className || filePath;
 
-            if(key.indexOf(".jz") != -1 || key.indexOf(".js") != -1){
+            if(key.endsWith(".jz") || key.endsWith(".js")){
                 key = key.substring(J$VM.env.j$vm_home.length + 1);
             }
 
@@ -203,7 +203,6 @@ js.lang.Class = new function (){
      */
     this.forName = function(className){
         var clazz = _checkClass(className);
-
         if(clazz === undefined){
             clazz = this.importClass(className);
         }
