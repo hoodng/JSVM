@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns="http://java.sun.com/xml/ns/javaee"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
                       http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-  version="3.0"
-  metadata-complete="true">  
+	version="3.0" metadata-complete="true">
 
-  <display-name>Welcome to J$VM</display-name>
-  <description>
+	<display-name>Welcome to J$VM</display-name>
+	<description>
      Welcome to J$VM
-  </description>
+    </description>
+
+	<filter>
+		<filter-name>JzFileFilter</filter-name>
+		<filter-class>org.jsvm.client.RespHeaderFilter</filter-class>
+		<init-param>
+			<param-name>Content-Type</param-name>
+			<param-value>application/x-javascript</param-value>
+		</init-param>
+		<init-param>
+			<param-name>Content-Encoding</param-name>
+			<param-value>gzip</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>JzFileFilter</filter-name>
+		<url-pattern>*.jz</url-pattern>
+	</filter-mapping>
 
 </web-app>
