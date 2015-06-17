@@ -384,7 +384,7 @@ public class Compiler extends ConsoleApp {
 		JSONObject packJson = new JSONObject();
 		int rootLen = root.getAbsolutePath().length();
 		for (File jz : jzFiles) {
-			String key = jz.getAbsolutePath().substring(rootLen);
+			String key = jz.getAbsolutePath().substring(rootLen+1);
 			packJson.put(key, jz.lastModified());
 		}
 		InputStream ins = null;
