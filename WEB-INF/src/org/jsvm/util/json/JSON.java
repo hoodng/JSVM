@@ -35,7 +35,7 @@
    * Source code availability: http://jzvm.googlecode.com
    */
 
-package org.jsvm.util.javascript;
+package org.jsvm.util.json;
 
 import java.lang.reflect.Array;
 import java.text.ParseException;
@@ -53,8 +53,8 @@ import org.jsvm.util.Converter;
 import org.jsvm.util.Parser;
 import org.jsvm.util.StringUtil;
 import org.jsvm.util.SymbolTable;
-import org.jsvm.util.javascript.JSONObject.JSONObjectable;
-import org.jsvm.util.javascript.JSONObject.Null;
+import org.jsvm.util.json.JSONObject.JSONObjectable;
+import org.jsvm.util.json.JSONObject.Null;
 
 /**
  *

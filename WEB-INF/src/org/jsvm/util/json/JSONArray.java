@@ -34,7 +34,7 @@
    * License: BSD 3-Clause License
    * Source code availability: http://jzvm.googlecode.com
    */
-package org.jsvm.util.javascript;
+package org.jsvm.util.json;
 
 import java.io.Serializable;
 import java.text.ParseException;

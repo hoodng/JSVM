@@ -39,9 +39,8 @@
     list: ["jsrecore", "jsreui"],
 
     jsrecore: {
-        compress: false,
-        despath: "../",
-        name: "jsre-core.js",
+        srcroot: "../src",
+        despath: "../lib/jsre-core.js",
         files: [
             "js/jsvm.js",
             "js/lang/Class.js",
@@ -77,13 +76,13 @@
             "js/text/NumberFormat.js",
             "js/text/SimpleDateFormat.js",
             "js/text/NumberFormat.js"
+            
         ]
     },
 
     jsreui: {
-        compress: true,
-        despath: "../",
-        name: "jsre-ui.js",
+        srcroot: "../src",
+        despath: "../lib/jsre-ui.js",
         files: [
             "js/awt/State.js",
             "js/awt/Editable.js",
