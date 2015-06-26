@@ -57,10 +57,11 @@ var _terminate = function(){
 };
 
 if(isworker){
-    self.importScripts("../../../jsre-core.jz");
+    self.importScripts("../../../lib/jsre-core.jz");
     self.onmessage = _onmessage;
 }else{
     var E = js.util.Event;
     E.attachEvent(window, E.W3C_EVT_MESSAGE, 0, this, _onmessage);
     self.terminate = _terminate;
 }
+

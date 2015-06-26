@@ -39,18 +39,20 @@ js.lang.Class = new function (){
 
     var _modules = {};
 
+    this.packages = [];
+    
     /**
      * Create namespace with specified Java like package name
      *
      * @param packageName
      */
-    this.definePackage = function(packageName){
+    $package = this.definePackage = function(packageName){
         if(_modules[packageName]) return;
 
-        var names = packageName.split(".");
-        var parent= self;
-        for(var i=0, len=names.length; i<len; i++){
-            var name = names[i];
+        var names = packageName.split("."), parent=self, name, i, len;
+        
+        for(i=0, len=names.length; i<len; i++){
+            name = names[i];
             if(parent[name] === undefined){
                 parent[name] = {};
             }
@@ -65,40 +67,32 @@ js.lang.Class = new function (){
      *
      * @param className
      */
-    this.importClass = function(className){
-        var clazz = _checkClass(className);
+    $import = this.importClass = function(className){
+        var clazz = _checkClass(className), filePath;
         if (clazz != undefined) return clazz;
-
-        var buf = [];
-        buf.push(J$VM.env.j$vm_home);
-        buf.push("/classes");
-
-        var names = className.split(".");
-        for(var i=0, len=names.length; i<len; i++){
-            buf.push("/");
-            buf.push(names[i]);
-        }
-        buf.push(".jz");
-
-        var filePath = buf.join('');
+        
         try{
-            _loadClass(filePath, className);
+            filePath = _makeFilePath(className);
+            _loadClass(filePath);
             clazz = _modules[className] = _checkClass(className);
         } catch (ex) {
-            J$VM.System.err.println("Can't load "+className+" from "+filePath);
+            J$VM.System.err.println(
+                "Can't load "+className+" from "+ filePath);
         }
 
         return clazz;
     };
 
     var _checkClass = function(className){
-        var clazz = _modules[className];
+        if(!className) return undefined;
+        
+        var clazz = _modules[className], names, name, i, len;
 
         if(clazz === undefined){
-            var names = className.split(".");
+            names = className.split(".");
             clazz = self;
-            for(var i=0, len=names.length; i<len; i++){
-                var name = names[i];
+            for(i=0, len=names.length; i<len; i++){
+                name = names[i];
                 if(clazz[name] === undefined){
                     clazz = undefined;
                     break;
@@ -109,7 +103,24 @@ js.lang.Class = new function (){
         }
 
         return clazz;
+        
+    }.$bind(this);
 
+    var _makeFilePath = function(className){
+        var buf = [], names, i, len;
+
+        buf.push(J$VM.env.j$vm_home);
+        buf.push("classes");
+
+        names = className.split(".");
+        for(i=0, len=names.length; i<len; i++){
+            buf.push("/");
+            buf.push(names[i]);
+        }
+        buf.push(".jz");
+
+        return buf.join('');
+        
     }.$bind(this);
 
     /**
@@ -117,22 +128,20 @@ js.lang.Class = new function (){
      *
      * @param className
      */
-    this.loadClass = function(filePath){
-        try{
-            _loadClass(filePath);
-        } catch (ex) {
-            J$VM.System.err.println("Can't load class from "+filePath);
+    $load_package = this.loadClass = function(filePath, className){
+        if(className === undefined || _checkClass(className) == undefined){
+            try{
+                _loadClass(filePath);
+            } catch (ex) {
+                J$VM.System.err.println("Can't load class from "+filePath);
+            }
         }
     };
 
-    var _loadClass = function(filePath, className){
+    var _loadClass = function(filePath){
         if(!J$VM.env.j$vm_isworker){
-            var storage = J$VM.storage.cache, text, cached,
-                incache = false, key = className || filePath;
-
-            if(key.endsWith(".jz") || key.endsWith(".js")){
-                key = key.substring(J$VM.env.j$vm_home.length + 1);
-            }
+            var storage = J$VM.storage.cache, text, cached, incache = false,
+                key = filePath.substring(J$VM.env.j$vm_home.length);
 
             cached = storage.getItem(key);
 
@@ -143,8 +152,7 @@ js.lang.Class = new function (){
                 }
             }
 
-            text = text || this.getResource(filePath, !this.isString(text));
-            this.loadScript(filePath, text);
+            text = this.loadScript(!text ? filePath : null, text);
 
             if(!incache){
                 try{
@@ -162,6 +170,7 @@ js.lang.Class = new function (){
     }.$bind(this);
 
     this.loadScript = function(filePath, text){
+        var b = !text;
         text = text || this.getResource(filePath, !this.isString(text));
         var script = document.createElement("script");
         var head = document.getElementsByTagName("head")[0];
@@ -169,8 +178,13 @@ js.lang.Class = new function (){
         script.text = text;
         head.appendChild(script);
         head.removeChild(script);
-
-    }.$bind(this);
+        
+        if(b){
+            this.packages.push(filePath);
+        }
+        
+        return text;
+    };
 
     /**
      * Return the content with the specified url
@@ -179,22 +193,21 @@ js.lang.Class = new function (){
      */
     this.getResource = function(url, nocache){
         // Synchronized request
-        var xhr = J$VM.XHRPool.getXHR(false);
+        var xhr = J$VM.XHRPool.getXHR(false), text, ex;
         xhr.setNoCache(nocache || false);
         xhr.open("GET", url, undefined);
 
         if(xhr.exception == undefined && xhr.readyState() == 4 &&
            (xhr.status() == 200 || xhr.status() == 304)){
-            var text =  xhr.responseText();
+            text =  xhr.responseText();
             xhr.close();
             return text;
         }
 
-        var ex = xhr.exception;
+        ex = xhr.exception;
         xhr.close();
         throw ex;
-
-    }.$bind(this);
+    };
 
     /**
      * Return the class with the specified class name
@@ -209,7 +222,7 @@ js.lang.Class = new function (){
 
         return clazz;
 
-    }.$bind(this);
+    };
 
     this.loadImageFromUrl = function(image, url, callback, proxy){
         var Q;
@@ -312,13 +325,14 @@ js.lang.Class = new function (){
         return (o === null) ? "null" :
             (o === undefined) ? "undefined" :
             this.isHtmlElement(o) ?
-            "html"+o.tagName.toLowerCase()+"element" :
-            this.isBigInt(o) ? "bigint" :
-            (function(){
-                var s = Object.prototype.toString.call(o);
-                return s.substring(8, s.length-1).toLowerCase();
-            })();
-    }.$bind(this);
+            "html" + o.tagName.toLowerCase() + "element" :
+            this.isBigInt(o) ? "bigint" : _typeof(o);
+    };
+    
+    var _typeof = function(o){
+        var s = Object.prototype.toString.call(o);
+        return s.substring(8, s.length-1).toLowerCase();
+    };
 
     /**
      * Test if the specified object is a Date.
@@ -343,9 +357,9 @@ js.lang.Class = new function (){
      * Test if the specified object is an BigInt
      */
     this.isBigInt = function(o){
-        if(!js.text) return false;
-        if(!js.text.BigIntTools) return false;
-        return typeof o == "object" && o instanceof js.text.BigIntTools.BigInt;
+        return js.text && js.text.BigIntTools 
+            && (typeof o == "object") 
+            && (o instanceof js.text.BigIntTools.BigInt);
     };
 
     /**
@@ -374,6 +388,14 @@ js.lang.Class = new function (){
      */
     this.isObject = function(o){
         return this.typeOf(o) == "object";
+    };
+
+    /**
+     * Test if the specified object is a pure object other than a Class object.
+     */
+    this.isPureObject = function(o){
+        return o != undefined && o != null && (typeof o === "object")
+            && (o.constructor === Object);  
     };
 
     /**
@@ -466,6 +488,3 @@ js.lang.Class = new function (){
     };
 
 }();
-
-$package = js.lang.Class.definePackage;
-$import  = js.lang.Class.importClass;

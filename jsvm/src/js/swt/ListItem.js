@@ -127,6 +127,10 @@ js.swt.ListItem = function(def, Runtime, view){
 		this.model.marked = this.isMarked();
 	}.$override(this.mark);
 	
+	thi$.isHoverForSelected = function(){
+		return this.def.hoverForSelected === true;
+	};
+	
 	thi$.setSelected = function (b) {
 		if (this.isMarkable()) {
 			this.mark(b);
@@ -134,8 +138,12 @@ js.swt.ListItem = function(def, Runtime, view){
 			this._local.selected = b;
 			this.model.marked = b;
 			
-			this.setHover(false);
-			this.setTriggered(b);
+			if(this.isHoverForSelected()){
+				this.setHover(b);
+			}else{
+				this.setHover(false);
+				this.setTriggered(b);
+			}
 		}
 	};
 	
@@ -184,20 +192,22 @@ js.swt.ListItem = function(def, Runtime, view){
 		def.classType = def.classType || "js.swt.ListItem";
 		def.className = def.className || "jsvm_listItem";
 		
-		this.def = def;
-		this.model = def.model;
-		
 		var newDef = System.objectCopy(def, {}, true);
+		this.model = newDef.model;
+		
 		newDef = _preInit.call(this, newDef);
 		arguments.callee.__super__.apply(this, [newDef, Runtime, view]);
 		
 		var m = this.model;
-		if(def.showTips && m){
+		if(newDef.showTips && m){
 			var tip = m.tip || m.dname || "";
 			this.setToolTipText(tip);
 		}
 
-		this.setEnabled(def.enable !== false);
+		this.setEnabled(newDef.enable !== false);
+		if(newDef.checked){
+			this.setSelected(true);
+		}
 		
 	}.$override(this._init);
 	

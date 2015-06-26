@@ -37,8 +37,6 @@
 
 $package("js.util");
 
-$import("js.util.LinkedList");
-
 js.util.HashMap = function (map){
 
     var CLASS = js.util.HashMap, thi$ = CLASS.prototype;
@@ -53,71 +51,80 @@ js.util.HashMap = function (map){
     thi$.put = function(key, value){
         if(!Class.isString(key) && !Class.isNumber(key))
             throw "The key must be a string or number";
+
+        if(!this.contains(key)){
+            this._size++;            
+        }
         
         this._vals[key] = value;
-        if(!this._keys.contains(key)){
-            this._keys.addLast(key);
-        }
     };
     
     thi$.size = function(){
-        return this._keys.length;
+        return this._size;
     };
     
     thi$.contains = function(key){
-        return this._keys.contains(key);
+        return this._vals.hasOwnProperty(key);
     };
     
     thi$.get = function(key){
-        return this._vals[key];
+        return this.contains(key) ? this._vals[key] : undefined;
     };
     
     thi$.remove = function(key){
-        var e;
-        this._keys.remove(key);
-        e = this._vals[key];
-        delete this._vals[key];
+        var e = undefined;
+        if(this.contains(key)){
+            e = this._vals[key];
+            delete this._vals[key];
+            this._size--;
+        }
         return e;
     };
     
     thi$.keys = function(){
-        var ret = [], keys = this._keys;
-        for(var i=0, len=keys.length; i<len; i++){
-            ret.push(keys[i]);
+        var ret = [], vals = this._vals;
+        for(var k in vals){
+            if(vals.hasOwnProperty(k)){
+                ret.push(k);
+            }
         }
         return ret;
     };
     
     thi$.values = function(){
-        var ret = [], keys = this._keys, vals = this._vals;
-        for(var i=0, len=keys.length; i<len; i++){
-            ret.push(vals[keys[i]]);
+        var ret = [], vals = this._vals;
+        for(var k in vals){
+            if(vals.hasOwnProperty(k)){
+                ret.push(vals[k]);
+            }
         }
         return ret;
     };
     
     thi$.addAll = function(map){
         for(var p in map){
-            this.put(p, map[p]);
+            if(map.hasOwnProperty(p)){
+                this.put(p, map[p]);
+            }
         }
     };
     
     thi$.clear = function(){
         this._vals = {};
-        this._keys = js.util.LinkedList.newInstance();
+        this._size = 0;
     };
     
     thi$._init = function(map){
         this._vals = map || {};
-        this._keys = js.util.LinkedList.newInstance();
-
-        var _keys = this._keys, _vals = this._vals;
-        for(var p in _vals){
-            if(_vals.hasOwnProperty(p))_keys.push(p);
+        var n = 0, vals = this._vals;
+        for(var k in vals){
+            if(vals.hasOwnProperty(k)){
+                n++;
+            }
         }
+        this._size = n;
     };
 
     this._init.apply(this, arguments);    
 
 }.$extend(js.lang.Object);
-

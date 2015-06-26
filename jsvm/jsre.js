@@ -70,48 +70,77 @@
 
     })();
 
+    var evalJS = function(text){
+        var doc = self.document,
+            script = doc.createElement("script"),
+            header = doc.getElementsByTagName("head")[0];
+        script.type = "text/javascript";
+        script.text = text;
+        header.appendChild(script);
+        header.removeChild(script);
+    };
+    
     var script = document.getElementById("j$vm");
     if(!script) return;
 
-    var j$vm_home = script.src || script.crs, p, xhr, packages, srcpath;
+    var j$vm_home = script.getAttribute("crs") || script.src, 
+        p, xhr, packages, srcpath, corefile = "lib/jsre-core.jz";
+
+    if(j$vm_home.indexOf("http") !==0){
+        // Not absolute path, we need construct j$vm_home with
+        // script.src and script.crs.
+        srcpath = script.src;
+        p = srcpath.lastIndexOf("/");
+        srcpath = srcpath.substring(0, p+1);
+        j$vm_home = srcpath + j$vm_home;
+    }
     p = j$vm_home.lastIndexOf("/");
-    j$vm_home = j$vm_home.substring(0, p);
+    j$vm_home = j$vm_home.substring(0, p+1);
+    
+    // Use A tag to get a canonical path,
+    // here, just for compressing "../" in path. 
+    p = document.createElement("A");
+    p.href = j$vm_home;
+    j$vm_home = p.href;
+    
+    if(self.JSON == undefined){
+        srcpath = j$vm_home+"lib/json2.jz";
+        xhr = createXHR();
+        xhr.open("GET", srcpath, false);
+        xhr.send(null);
+        evalJS(xhr.responseText);
+    }
 
     // Load package.jz
-    srcpath = j$vm_home + "/package.jz";
+    srcpath = j$vm_home + "package.jz";
     xhr = createXHR();
-    xhr.open("GET", srcpath, false);
+    xhr.open("GET", srcpath+"?__="+new Date().getTime(), false);
     xhr.send(null);
     packages = JSON.parse(xhr.responseText);
 
     // Load jsre-core
-    srcpath = j$vm_home+"/jsre-core.jz";
-    var cached = cache.getItem("jsre-core.jz"), text;
+    srcpath = j$vm_home+corefile;
+    var cached = cache.getItem(corefile), text;
     if(cached){
         cached = JSON.parse(cached);
-        if(cached.build === packages["jsre-core.jz"]){
+        if(cached.build === packages[corefile]){
             text = cached.text;
         }
     }
 
     if(text == undefined){
         xhr = createXHR();
-        xhr.open("GET", srcpath, false);
+        xhr.open("GET", srcpath+"?__=0.9."+packages["package.jz"], false);
         xhr.send(null);
         text = xhr.responseText;
-        cache.setItem("jsre-core.jz", JSON.stringify({
-            build: packages["jsre-core.jz"],
+        cache.setItem(corefile, JSON.stringify({
+            build: packages[corefile],
             text: text
         }));
     }
 
     self.j$vm_pkgversion = packages;
 
-    script = document.createElement("script");
-    p = document.getElementsByTagName("head")[0];
-    script.type = "text/javascript";
-    script.text = text;
-    p.appendChild(script);
-    p.removeChild(script);
+    evalJS(text);
 
 })();

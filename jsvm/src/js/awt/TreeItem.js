@@ -54,7 +54,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	CLASS.__defined__ = true;
 
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System, Permission = js.util.Permission;
+	System = J$VM.System;
 
 	thi$.setText = function(text){
 		this.def.text = text;
@@ -122,6 +122,11 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		return this._local.showTip;
 	};
 
+	thi$.alwaysRemoveChild = function(){
+		var tree = this.treeContainer();
+		return tree.alwaysRemoveChild();
+	};
+
 	/**
 	 * @see js.awt.Item
 	 */
@@ -130,12 +135,12 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	}.$override(this.getIconImage);
 
 	/**
-	 * check permission, visible will' be hide.
+	 * @method
+	 * @inheritdoc js.awt.Item#isIconStateless
 	 */
-	thi$.checkHide = function(){
-		var p = parseInt(this.def.permission, 10);
-		p = isNaN(p) ? 1 : p;
-		this.setVisible(Permission.isVisible(p));
+	thi$.isIconStateless = function(){
+		var tree = this.treeContainer();
+		return tree.isIconStateless(this.def);
 	};
 
 	/**
@@ -145,8 +150,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	 * @param itemDefs, an array of tree item definition
 	 */
 	thi$.insertNodes = function(index, itemDefs){
-		var nodes = this.nodes, ibase = index, item, prev, next,
-		itemDef, i, len;
+		var nodes = this.nodes, ibase = index, item, refItem,
+		prev, next, itemDef, cview, clazz, i, len,
+		tree = this.treeContainer(), isVisible;
 
 		if(!nodes){
 			nodes = this.nodes = js.util.LinkedList.$decorate([]);
@@ -156,24 +162,54 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			itemDef = itemDefs[i];
 			itemDef.level = this.def.level + 1;
 
+			isVisible = tree.isNodeVisible(itemDef) && this.isVisible();
+			if(!isVisible){
+				if(!tree.isAlwaysCreate()){ // skip this item
+					continue;
+				}else{ // make item invisible
+					itemDef.state = 16;
+				}
+			}
+
 			if(this.isShowTip()){
 				itemDef.tip = itemDef.dname;
 				itemDef.showTip = true;
 			}
 
+			// Add for support inserting the different structure and different
+			// style nodes. Such as, inserting the fake nodes of the markable
+			// nodes, then each of the fake nodes won't be markable.
+			cview = null;
 			if(item && item.canCloneView(itemDef)){
-				item = new js.awt.TreeItem(
-					itemDef,
-					this.Runtime(),
-					this.treeContainer(),
-					this,
-					item.cloneView());
+				cview = item.cloneView();
 			}else{
+				if(refItem && refItem.canCloneView(itemDef)){
+					cview = refItem.cloneView();
+				}
+			}
+
+			clazz = itemDef.className;
+			if(!clazz){
+				clazz = itemDef.className = tree.className + "_item";
+			}
+
+			refItem = item;
+			if(!cview){
 				item = new js.awt.TreeItem(
 					itemDef,
 					this.Runtime(),
-					this.treeContainer(),
+					tree,
 					this);
+			}else{
+				// Ref: js.awt.BaseComponent#_init
+				cview.clazz = clazz;
+
+				item = new js.awt.TreeItem(
+					itemDef,
+					this.Runtime(),
+					tree,
+					this,
+					cview);
 			}
 
 			prev = ibase > 0 ? nodes.get(ibase - 1) : undefined;
@@ -192,8 +228,6 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			item.prevSibling(prev);
 			item.nextSibling(next);
 
-			item.checkHide();
-
 			ibase++;
 		};
 
@@ -207,10 +241,29 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	 * Remove tree items from index to index + length
 	 */
 	thi$.removeNodes = function(index, length){
-		var nodes = this.nodes, cache = this.treeContainer().cache, item;
+		var nodes = this.nodes || [], cnt = nodes.length,
+		tree = this.treeContainer(), cache = tree.cache, 
+		marked = tree.marked, selected = tree.selected, 
+		item;
+
+		if(!Class.isNumber(index)){
+			index = 0;
+		}else{
+			index = index < 0 ? 0 : (index >= cnt ? cnt - 1 : index);
+		}
+
+		nodes = nodes.splice(index, length);
 		while(nodes.length > 0){
 			item = nodes.shift();
+			item.removeAllNodes();
 			delete cache[item.uuid()];
+
+			item.mark(false);
+			marked.remove(item);
+
+			item.setTriggered(false);
+			selected.remove(item);
+
 			item.destroy();
 		}
 	};
@@ -254,8 +307,13 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	};
 
 	var _addToDOM = function(item, refNode, isLast){
+		if(item.destroied === true){
+			return;
+		}
+		
 		item.updateLeaderStyle();
 		DOM.insertAfter(item.view, refNode);
+		
 		if(item.view.parentNode){
 			item.showDisableCover(!item.isEnabled());
 		}
@@ -295,8 +353,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		}
 
 		this.setExpanding(false);
-		var nodes = this.nodes, tree = this.treeContainer(),
-		className = this.branch.clazz, refNode, i, len, item;
+
+		var tree = this.treeContainer(), className = this.branch.clazz,
+		nodes = this.nodes || [], len = nodes.length, refNode, i, item;
 
 		b = b || false;
 		this._local.expanded = b;
@@ -304,24 +363,38 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		if(b){
 			this.branch.className = className + "_4";
 			this.setIconImage(4);
-
 			refNode = this.view;
-			if(nodes && nodes.length > 0){
-				for(i=0, len=nodes.length; i<len; i++){
-					item = nodes[i];
-					_addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
-					refNode = item.view;
-				}
+
+			for(i = 0; i < len; i++){
+				item = nodes[i];
+				_addToDOM.$delay(this, 1, item, refNode,
+								 ((i == len-1) && (needNotify != false)));
+				refNode = item.view;
 			}
 		}else{
-			len = nodes ? nodes.length : 0;
-			for(i=len-1; i>=0; i--){
+			// If the "alwaysRemoveChild" adjustment return true, that will
+			// indicate all sub-nodes always need be fetch again while an item
+			// is expanding and the sub-items also need be removd while the
+			// parent item is collapsing. So that, the 'nodes' of current item
+			// are always changing. The length of the 'nodes' is decreasing.
+			// Loop from len - 1 will be better.
+			for(i = len - 1; i >= 0; i--){
 				item = nodes[i];
 				if(item.isExpanded()){
 					item.expand(false, undefined, item);
 				}
-				item.removeFrom(item.view.parentNode);
+				if(this.alwaysRemoveChild()){
+					tree.removeNode(item);
+
+				}else{
+					item.removeFrom(item.view.parentNode);
+				}
 			}
+
+			if(this.alwaysRemoveChild()){
+				delete this.def.nodes;
+			}
+
 			this.branch.className = className + "_0";
 			this.setIconImage(0);
 			//notify
@@ -371,12 +444,12 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		}
 	}.$override(this.doLayout);
 
-    thi$.adjustCover = function(bounds){
-        arguments.callee.__super__.apply(this, arguments);
-        
-        this._coverView.style.width = "100%";
-        
-    }.$override(this.adjustCover);
+	thi$.adjustCover = function(bounds){
+		arguments.callee.__super__.apply(this, arguments);
+
+		this._coverView.style.width = "100%";
+
+	}.$override(this.adjustCover);
 
 	thi$.updateBranchStyle = function(){
 		var ex = this.canExpand(),
@@ -426,8 +499,13 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		};
 
 		items.push("branch");
-		if(itemDef.markable === true) items.push("marker");
-		items.push("icon");
+		if(itemDef.markable === true){
+			items.push("marker");
+		}
+
+		if(itemDef.iconic !== false){
+			items.push("icon");
+		}
 		items.push("label");
 
 		return items.length === this.def.items.length;
@@ -443,8 +521,13 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		};
 
 		items.push("branch");
-		if(def.markable === true) items.push("marker");
-		items.push("icon");
+		if(def.markable === true){
+			items.push("marker");
+		}
+
+		if(def.iconic !== false){
+			items.push("icon");
+		}
 		items.push("label");
 
 	};
@@ -467,7 +550,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		_setTreeContainer.call(this, tree);
 
 		def.classType = def.classType || "js.awt.TreeItem";
-		def.className = tree.className + "_item";
+		def.className = def.className || tree.className + "_item";
 		def.css = "position:relative;overflow:visible;width:100%;";
 
 		if(view == undefined){
@@ -495,4 +578,3 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
 
 }.$extend(js.awt.Item);
-

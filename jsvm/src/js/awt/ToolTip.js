@@ -123,7 +123,7 @@ js.awt.ToolTip = function(){
 	 * @param def: {Object} Definition for the tip object.
 	 */ 
 	thi$.setTipObjByDef = function(def){
-		var tipObj = _createTipobjByDef.call(this, def);
+		var tipObj = _createTipObjByDef.call(this, def);
 		this.setTipObj(tipObj, true);
 		
 		return tipObj;

@@ -157,17 +157,17 @@ js.swt.EditableFrame = function(def, Runtime){
 			node = (nodes.item(i)).cloneNode(true);
 			type = node ? node.nodeType : undefined;
 			switch(type){
-				case 1:
-					if(!this.isElement(node, "br") 
-						|| (ignoreBr !== true)){
-						els.push(node);
-					}
+			case 1:
+				if(!this.isElement(node, "br") 
+				   || (ignoreBr !== true)){
+					els.push(node);
+				}
 				break;
 				
-				case 3:
-				   if(node.nodeValue){
+			case 3:
+				if(node.nodeValue){
 					els.push(node);
-				   }
+				}
 				break;
 			}
 		}
@@ -201,28 +201,28 @@ js.swt.EditableFrame = function(def, Runtime){
 			type = node ? node.nodeType : undefined;
 			
 			switch(type){
-				case 1:
-					if(this.isElement(node, "p") 
-						|| this.isElement(node, "div")){
-						if(others.length > 0){
-							els.push(others);
-							others = [];
-						}
-						
-						pnodes = _extractNodes.call(this, node, [node], ignoreBr);
-						els.push(pnodes);
-					}else{
-						if(!this.isElement(node, "br") 
-							|| (ignoreBr !== true)){
-							others.push(node);
-						}
+			case 1:
+				if(this.isElement(node, "p") 
+				   || this.isElement(node, "div")){
+					if(others.length > 0){
+						els.push(others);
+						others = [];
 					}
+					
+					pnodes = _extractNodes.call(this, node, [node], ignoreBr);
+					els.push(pnodes);
+				}else{
+					if(!this.isElement(node, "br") 
+					   || (ignoreBr !== true)){
+						others.push(node);
+					}
+				}
 				break;
 				
-				case 3:
-				   if(node.nodeValue){
+			case 3:
+				if(node.nodeValue){
 					others.push(node);
-				   }
+				}
 				break;
 			}
 		}
@@ -571,7 +571,7 @@ js.swt.EditableFrame = function(def, Runtime){
 				rng.select();
 			} catch (x) {
 				System.err.println("IE failed to select element: " 
-					+ node.tagName + ".");
+								   + node.tagName + ".");
 			}
 		}else if(J$VM.chrome || J$VM.safari){ //webkit
 			sel = this.getSelection();
@@ -625,7 +625,7 @@ js.swt.EditableFrame = function(def, Runtime){
 		var r = range || this.getRange();
 		if (!r)
 			return true;
-			
+		
 		var win = this.getWin(), doc = this.getDoc(),
 		rst = true;
 		if (win.getSelection) { //IE 9, W3C
@@ -681,7 +681,7 @@ js.swt.EditableFrame = function(def, Runtime){
 			
 			// ?? What case?
 			// if(sel && (sel.toString() !== "") && (sel !== undefined)){
-				// hasSel = true;
+			// hasSel = true;
 			// }
 		} else if (doc.selection){ //IE 8, some Opera
 			if(rng.text){
@@ -981,13 +981,19 @@ js.swt.EditableFrame = function(def, Runtime){
 	thi$.setEditable = function(b){
 		b = (b !== false);
 		
-		var M = this.def, doc = this.getDoc();
+		var M = this.def, doc = this.getDoc(), body;
 		if(!doc){
 			return;
 		}
 		
 		M.editable = b;
 		doc.designMode = b ? "on" : "off";
+		
+        // For bug #111046
+		if(J$VM.ie && parseInt(J$VM.ie, 10) >= 11){
+			body = this.getRoot();
+			body.contentEditable = b ? "true" : "false";
+		}
 	};
 	
 	thi$.isEditable = function(){
@@ -1083,20 +1089,20 @@ js.swt.EditableFrame = function(def, Runtime){
 	var _getParagraphTag = function(){
 		return (this.def.userParagraphByDiv == true) 
 			? (!J$VM.firefox ? "DIV" : "BR") 
-			: "P";
+		: "P";
 	};
 	
 	thi$.getInitialParagraph = function(){
 		return (this.def.userParagraphByDiv == true) 
 			? (!J$VM.firefox ? divParagraph : "<br/>") 
-			: pParagraph;
+		: pParagraph;
 	};
 	
 	thi$.reviseContents = function(){
 		var nodes = this.getNodes(), pTag = _getParagraphTag.call(this), 
 		root, r, el;
 		if(!nodes || nodes.length == 0 
-			|| (nodes.length == 1 && !this.isElement(nodes[0], pTag))){
+		   || (nodes.length == 1 && !this.isElement(nodes[0], pTag))){
 			root = this.getRoot();
 			DOM.setHTML(root, this.getInitialParagraph());
 			

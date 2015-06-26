@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -38,12 +38,12 @@
 /**
  * The <code>Thread</code> for easily using Web Worker, and for the
  * IE8/9 use a iframe simulate Web Worker
- * 
+ *
  * Runnable :{
  *     context: xxx,
  *     run : function
  * }
- * 
+ *
  */
 js.lang.Thread = function(Runnable){
 
@@ -54,19 +54,19 @@ js.lang.Thread = function(Runnable){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, 
+    var Class = js.lang.Class, Event = js.util.Event,
         System = J$VM.System, MQ = J$VM.MQ;
 
     var _onmessage = function(e){
         var evt = e.getData(), data;
         if(evt.source == self) return;
-        
+
         try{
             data = JSON.parse(evt.data);
         } catch (x) {
             data = evt.data;
         }
-        
+
         if(Class.isArray(data)){
             // [msgId, msgData, [recvs], null, pri]
 
@@ -98,11 +98,11 @@ js.lang.Thread = function(Runnable){
         if(evt.source == self) return;
         System.err.println(evt.data);
     };
-    
+
     /**
      * Submit new task to the thread
-     * 
-     * @param task It should be a <code>Runnable</code> or a 
+     *
+     * @param task It should be a <code>Runnable</code> or a
      * <code>context</code> in <code>Runnable</code>
      * @param isRunnable indicates whether the first parameter "task"
      * is a <code>Runnable</code>
@@ -110,7 +110,7 @@ js.lang.Thread = function(Runnable){
     thi$.submitTask = function(task, isRunnable){
         if(task == undefined || task == null) return;
         isRunnable = isRunnable || false;
-        
+
         var context, run, worker = this._worker;
         if(isRunnable){
             context = task.context;
@@ -136,14 +136,14 @@ js.lang.Thread = function(Runnable){
         }
 
     };
-    
+
     /**
      * Start the thread
      */
     thi$.start = function(){
         this.submitTask(this._runnable, true);
     };
-    
+
     /**
      * Stop the thread
      */
@@ -157,17 +157,21 @@ js.lang.Thread = function(Runnable){
 
     thi$._init = function(Runnable){
         this._runnable = Runnable || {
-            context:{}, 
-            
+            context:{},
+
             run:function(){
                 J$VM.System.out.println("Web Worker is running");
             }};
-        
-        var path = J$VM.env["j$vm_home"]+"/classes/js/util/",
-            uri = new js.net.URI(path);
-        
-        if(self.Worker && uri.isSameOrigin() ){
-            this._worker = new Worker(path+"Worker.jz");
+
+        var path = J$VM.j$vm_home + "classes/js/util/";
+        if(self.Worker){
+            var code = Class.getResource(path+"Worker.jz?__="+J$VM.__version__),
+                codeBlob = new Blob([""+code],{type:"text/javascript"}),
+                codeUrl = self.URL.createObjectURL(codeBlob);
+            System.err.println(codeUrl);
+            this._worker = new Worker(codeUrl);
+            self.URL.createObjectURL(codeUrl);
+            //this._worker = new Worker(path+"Worker.jz?__="+J$VM.__version__);
             this._realWorker = true;
         }else{
             // iframe ?
@@ -185,14 +189,14 @@ js.lang.Thread = function(Runnable){
             doc.close();
 
             head = doc.getElementsByTagName("head")[0];
-            text = Class.getResource(J$VM.env["j$vm_home"]+"/jsre.js", true);
+            text = Class.getResource(J$VM.j$vm_home+"jsre.js", true);
             script = doc.createElement("script");
             script.type = "text/javascript";
             script.id = "j$vm";
             // Becase we don't use src to load the iframe, but the J$VM will use
             // "src" attribute to indicates j$vm home. So we use a special attribute
-            // name "crs" at here. @see also js.lang.System#_buildEnv 
-            script.setAttribute("crs",J$VM.env["j$vm_home"]+"/jsre.js");
+            // name "crs" at here. @see also js.lang.System#_buildEnv
+            script.setAttribute("crs",J$VM.j$vm_home);
             script.setAttribute("classpath","");
             script.text = text;
             text = Class.getResource(path + "Worker.jz", true);
@@ -210,6 +214,5 @@ js.lang.Thread = function(Runnable){
     };
 
     this._init.apply(this, arguments);
-    
-}.$extend(js.lang.Object);
 
+}.$extend(js.lang.Object);

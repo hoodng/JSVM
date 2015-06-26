@@ -1,32 +1,32 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice, 
+  this list of conditions and the following disclaimer.
+  
+  2. Redistributions in binary form must reproduce the above copyright notice, 
+  this list of conditions and the following disclaimer in the 
+  documentation and/or other materials provided with the distribution.
+  
+  3. Neither the name of the JSVM nor the names of its contributors may be 
+  used to endorse or promote products derived from this software 
+  without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -46,7 +46,7 @@ js.awt.Cover = function (comp){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+        System = J$VM.System;
 
     /**
      * Show loading status in this cover
@@ -79,11 +79,11 @@ js.awt.Cover = function (comp){
         _showCover.call(this, b, this.className + "_movecover");
     };
 
-    thi$.showMaskCover = function(b){
+    thi$.showMaskCover = function(b, styleClass){
         b = b || false;
         if(b && this._coverView) return;
 
-        _showCover.call(this, b, this.className + "_mask");
+        _showCover.call(this, b, styleClass || (this.className + "_mask"));
     };
 
     thi$.showDisableCover = function(b){
@@ -106,27 +106,30 @@ js.awt.Cover = function (comp){
      * @param b, true show the cover and false hide the cover
      */
     var _showCover = function(b, style){
-        var cover = this._coverView;
+        var cover = this._coverView, body = self.document.body;
 
         if(b){
             if(cover == undefined){
                 cover = this._coverView = DOM.createElement("DIV");
                 cover.className = style;
-                cover.style.cssText = "position:absolute;";
-                //cover.uuid = this.uuid();
+                cover.style.cssText = "position:absolute;";             
+
+                var el = (typeof this.getLastResizer == "function") ?
+                    (this.getLastResizer() || this.view) :this.view;
                 
-                var el = this.view;
-                if(typeof this.getLastResizer == "function"){
-                    el = this.getLastResizer() || this.view;
+                if(el !== body){
+                    DOM.insertAfter(cover, el);
+                }else{
+                    body.appendChild(cover);
                 }
-                
-                DOM.insertAfter(cover, el);
-                this.adjustCover();
             }
+
+            this.adjustCover();
+            
         }else{
             if(cover && cover.className == style){
-               cover.style.cursor = "default"; 
-               this.removeCover();
+                cover.style.cursor = "default"; 
+                this.removeCover();
             }
         }
     };
@@ -160,11 +163,11 @@ js.awt.Cover = function (comp){
                           bounds.height+ bounds.MBP.MH);    
         }
     };
-        
+    
     thi$.removeCover = function(){
         if(this._coverView){
             DOM.remove(this._coverView, true);
-            delete this._coverView;
+            this._coverView = undefined;
         }
     };
 

@@ -65,16 +65,16 @@ js.awt.IFrame = function (def, Runtime){
         this.showCover(false);
     };
 
-    var _onload = function(e){
+    thi$.onload = function(e){
         var doc = this.getDocument();
 
         if(doc){
             try{
-                Event.attachEvent(doc, "mousedown", 0, this, _onmousedown);
+                Event.attachEvent(doc, "mousedown", 0, this, this.onmousedown);
             } catch (x) {
                 // Maybe cross-domain
                 var err = e ? e.message : "Can't attach mousedown event to IFrame";
-			    System.err.println(err);
+                System.err.println(err);
             }
         }
         return true;
@@ -85,7 +85,7 @@ js.awt.IFrame = function (def, Runtime){
 
         if(doc){
             try{
-                Event.detachEvent(doc, "mousedown", 0, this, _onmousedown);
+                Event.detachEvent(doc, "mousedown", 0, this, this.onmousedown);
             } catch (x) {
                 // Nothing to do
             }
@@ -93,7 +93,7 @@ js.awt.IFrame = function (def, Runtime){
         return true;
     };
 
-    var _onmousedown = function(e){
+    thi$.onmousedown = function(e){
         var win = this.getWindow();
         if(win && win.parent != win.self){
             MQ.post("js.awt.event.LayerEvent", 
@@ -107,16 +107,19 @@ js.awt.IFrame = function (def, Runtime){
 
         def.classType = def.classType || "js.awt.IFrame";
         def.className = def.className || "jsvm_iframe";
+       
         def.viewType = "IFRAME";
+        def.css = "border:0px none;" + (def.css || "");
 
         arguments.callee.__super__.apply(this, arguments);
+        
         this.setAttribute("frameBorder", "0");
 
         if(def.src){
             this.setSrc(def.src);
         }
 
-        Event.attachEvent(this.view, "load", 0, this, _onload);
+        Event.attachEvent(this.view, "load", 0, this, this.onload);
         Event.attachEvent(this.view, "unload", 0, this, _onunload);
 
         MQ.register(Event.SYS_EVT_MOVING,   this, _showCover);

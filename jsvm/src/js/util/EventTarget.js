@@ -49,9 +49,7 @@ js.util.EventTarget = function (def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, 
-        List = js.util.LinkedList,
-        // Global targets
-        gTargets = {};
+        List = js.util.LinkedList;
 
     var _getListeners = function(eventType){
         var hName = "on"+eventType, listeners = this[hName];
@@ -156,7 +154,7 @@ js.util.EventTarget = function (def, Runtime){
             break;
         }
 
-		// Bubble event
+        // Bubble event
         if(isEventObj && (bubble === true) && 
            (evt._bubble === true)){
             var p = this.getContainer ? this.getContainer() : undefined;
@@ -178,9 +176,11 @@ js.util.EventTarget = function (def, Runtime){
     
     /**
      * Return event target with specified uuid
+     * 
+     * @link js.lang.Object#getObject
      */
     thi$.getEventTarget = function(uuid){
-        return gTargets[uuid];
+        return this.getObject(uuid);
     };
 
     thi$.destroy = function(){
@@ -202,8 +202,6 @@ js.util.EventTarget = function (def, Runtime){
             this.view.__handlers__ = null;          
         }
         
-        delete gTargets[this.uuid()];
-        
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
@@ -212,8 +210,6 @@ js.util.EventTarget = function (def, Runtime){
         if(def === undefined) return;
 
         arguments.callee.__super__.apply(this, arguments);
-
-        gTargets[this.uuid()] = this;
 
     }.$override(this._init);
     

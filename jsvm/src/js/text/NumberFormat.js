@@ -1,32 +1,32 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice, 
+  this list of conditions and the following disclaimer.
+  
+  2. Redistributions in binary form must reproduce the above copyright notice, 
+  this list of conditions and the following disclaimer in the 
+  documentation and/or other materials provided with the distribution.
+  
+  3. Neither the name of the JSVM nor the names of its contributors may be 
+  used to endorse or promote products derived from this software 
+  without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -57,14 +57,14 @@ js.text.NumberFormat = function(pattern, symbols){
      */    
     thi$.setPattern = function(pattern){
         var syb = this.symbols,
-        grouping= syb.getGroupingSeparator(),
-        minus   = syb.getMinusSign(), 
-        decimal = syb.getDecimalSeparator(), 
-        percent = syb.getPercent(),
-        permill = syb.getPerMill(),
-        digit   = syb.getDigit(),
-        zero    = syb.getZeroDigit(),
-        buf     = [];
+            grouping= syb.getGroupingSeparator(),
+            minus   = syb.getMinusSign(), 
+            decimal = syb.getDecimalSeparator(), 
+            percent = syb.getPercent(),
+            permill = syb.getPerMill(),
+            digit   = syb.getDigit(),
+            zero    = syb.getZeroDigit(),
+            buf     = [];
 
         pattern = this.pattern = pattern || function(){
             // "#,###.##"
@@ -81,17 +81,17 @@ js.text.NumberFormat = function(pattern, symbols){
 
         var phase = 0, 
 
-        prefix  = info.prefix = [],
-        surfix  = info.surfix = [],
-        integer = info.integer= [],
-        fraction= info.fraction=[];
+            prefix  = info.prefix = [],
+            surfix  = info.surfix = [],
+            integer = info.integer= [],
+            fraction= info.fraction=[];
         
         for(var i=0, len=pattern.length; i<len; i++){
             var c = pattern.charAt(i);
             switch(c){
-            case digit:
-            case zero:
-            case grouping:
+                case digit:
+                case zero:
+                case grouping:
                 if(phase == 0 || phase == 1){
                     phase = 1;
                     integer.push(c);
@@ -101,28 +101,28 @@ js.text.NumberFormat = function(pattern, symbols){
                     throw "Malformed pattern "+pattern;
                 }
                 break;
-            case decimal:
+                case decimal:
                 if(phase == 1 || phase == 0){
                     phase = 2;
                 }else if(phase == 2){
                     throw "Malformed pattern "+pattern;
                 }
                 break;
-            case percent:
+                case percent:
                 if(phase == 1 || phase == 2){
                     phase = 3;
                     info.percent = c;
                 }
                 surfix.push(c);
                 break;
-            case permill:
+                case permill:
                 if(phase == 1 || phase == 2){
                     phase = 3;
                     info.permill = c;
                 }
                 surfix.push(c);
                 break;
-            default:
+                default:
                 if(phase == 0){
                     prefix.push(c);
                 }else{
@@ -161,22 +161,22 @@ js.text.NumberFormat = function(pattern, symbols){
         if(!Class.isNumber(value)) return "NaN";
 
         var info= CLASS.infos[this.pattern], 
-        syb     = this.symbols,
-        grouping= syb.getGroupingSeparator(),
-        minus   = syb.getMinusSign(), 
-        decimal = syb.getDecimalSeparator(), 
-        percent = syb.getPercent(),
-        permill = syb.getPerMill(),
-        digit   = syb.getDigit(),
-        zero    = syb.getZeroDigit(),
-        intl    = syb.getInternationalCurrencySymbol(),
-        buf     = [],
+            syb     = this.symbols,
+            grouping= syb.getGroupingSeparator(),
+            minus   = syb.getMinusSign(), 
+            decimal = syb.getDecimalSeparator(), 
+            percent = syb.getPercent(),
+            permill = syb.getPerMill(),
+            digit   = syb.getDigit(),
+            zero    = syb.getZeroDigit(),
+            intl    = syb.getInternationalCurrencySymbol(),
+            buf     = [],
 
-        d = _parse.call(this, value.toString()),
-        f0 = d.fraction.length, f1 = info.fraction.length, 
-        i = parseInt(d.integer.join("")), s = i<0 ? -1:1,
-        f = _digits2Number(d.fraction),
-        b = Math.pow(10, f0), c;
+            d = _parse.call(this, value.toString()),
+            f0 = d.fraction.length, f1 = info.fraction.length, 
+            i = parseInt(d.integer.join("")), s = i<0 ? -1:1,
+            f = _digits2Number(d.fraction),
+            b = Math.pow(10, f0), c;
         
         value = (Math.abs(i)*b)+f;
         value = info.percent ? value*100 : info.permill ? value*1000 : value;
@@ -242,27 +242,27 @@ js.text.NumberFormat = function(pattern, symbols){
 
     var _parse = function(str){
         var syb = this.symbols,
-        grouping = syb.getGroupingSeparator(),
-        minus = syb.getMinusSign(), 
-        decimal = syb.getDecimalSeparator(), 
-        percent = syb.getPercent(),
-        permill = syb.getPerMill(),
+            grouping = syb.getGroupingSeparator(),
+            minus = syb.getMinusSign(), 
+            decimal = syb.getDecimalSeparator(), 
+            percent = syb.getPercent(),
+            permill = syb.getPerMill(),
         
-        ret = {
-            isNaN: true,
-            integer: [],
-            fraction: []
-        },
-        integer =  ret.integer, 
-        fraction = ret.fraction,
+            ret = {
+                isNaN: true,
+                integer: [],
+                fraction: []
+            },
+            integer =  ret.integer, 
+            fraction = ret.fraction,
         
-        c, phase = 0;
+            c, phase = 0;
         
         for(var i=0, len=str.length; i<len; i++){
             c = str.charAt(i);
             switch(c){
-            case "+":
-            case minus:
+                case "+":
+                case minus:
                 if(phase == 0){
                     integer.push(c);
                 }else{
@@ -270,8 +270,8 @@ js.text.NumberFormat = function(pattern, symbols){
                     return ret;
                 }
                 break;
-            case "0": case "1": case "2": case "3": case "4": 
-            case "5": case "6": case "7": case "8": case "9":
+                case "0": case "1": case "2": case "3": case "4": 
+                case "5": case "6": case "7": case "8": case "9":
                 if(phase == 0){
                     integer.push(c);
                 }else if(phase == 1){
@@ -280,14 +280,14 @@ js.text.NumberFormat = function(pattern, symbols){
                     return ret;
                 }
                 break;
-            case decimal:
+                case decimal:
                 if(phase == 0){
                     phase = 1;
                 }else{
                     return ret;                    
                 }
                 break;
-            case percent:
+                case percent:
                 if(phase != 2){
                     ret.percent = c;
                     phase = 2;
@@ -295,7 +295,7 @@ js.text.NumberFormat = function(pattern, symbols){
                     return ret;
                 }
                 break;
-            case permill:
+                case permill:
                 if(phase != 2){
                     ret.permill = c;
                     phase = 2;
@@ -303,7 +303,7 @@ js.text.NumberFormat = function(pattern, symbols){
                     return ret;
                 }
                 break;
-            default:
+                default:
                 break;
             }
         }
@@ -333,10 +333,10 @@ js.text.NumberFormat = function(pattern, symbols){
         }
 
         var integerStr = d.integer.join(""), 
-        i = parseInt(integerStr), 
-        s = integerStr.indexOf("-") != -1 ? -1 : 1,
-        f = _digits2Number(d.fraction), 
-        b = Math.pow(10, d.fraction.length);
+            i = parseInt(integerStr), 
+            s = integerStr.indexOf("-") != -1 ? -1 : 1,
+            f = _digits2Number(d.fraction), 
+            b = Math.pow(10, d.fraction.length);
 
         f = s*(Math.abs(i*b)+f)/b;
         
@@ -354,19 +354,3 @@ js.text.NumberFormat = function(pattern, symbols){
     this._init.apply(this, arguments);
 
 }.$extend(js.text.Format);
-
-if(Number.DF === undefined){
-    Number.DF = new js.text.NumberFormat();
-
-    Number.prototype.$format = function(pattern){
-        if(pattern) Number.DF.setPattern(pattern);
-        return Number.DF.format(this);
-    };
-
-    Number.$parse = function(str, pattern, symbols){
-        if(symbols) Number.DF.setSymbols(symbols);
-        if(pattern) Number.DF.setPattern(pattern);
-        return Number.DF.parse(str);
-    };
-}
-

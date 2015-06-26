@@ -44,7 +44,7 @@ J$VM = new function (){
 
     this.__product__ = "J$VM";
 
-    this.__version__ = "0.9.${build}";
+    this.__version__ = "0.9.";
     /**
      * @property {Object}
      */
@@ -55,9 +55,10 @@ J$VM = new function (){
         j$vm_ajax_concurrent: 8,
         j$vm_timeslice: 20,
         j$vm_threshold: 45,
-        j$vm_longpress: 90,
-        j$vm_touch:[50,250,500]
+        j$vm_longpress: 90
     };
+
+    var slice = Array.prototype.slice;
 
     /**
      * @method
@@ -144,12 +145,13 @@ J$VM = new function (){
         var proto = this.prototype, superC,
             imps = proto.__imps__ = [].concat(proto.__imps__ || []);
 
-        (function(superC){
+        for(var i=0, len=arguments.length; i<len; i++){
+            superC = arguments[i];
             if(typeof superC == "function"){
                 imps.push(superC);
                 superC.$decorate(proto);
             }
-        }).$forEach(this, Array.prototype.slice.call(arguments, 0));
+        }
 
         return this;
     };
@@ -194,7 +196,6 @@ J$VM = new function (){
         replaceMap = replaceMap || {};
         for(p in proto){
             if(proto.hasOwnProperty(p) &&
-               "constructor" != p &&
                "__imps__" != p &&
                (!o.hasOwnProperty(p) || replaceMap[p] == true)){
                 o[p] = proto[p];
@@ -212,11 +213,11 @@ J$VM = new function (){
      * @param ... Other parameters need pass to this function
      */
     Function.prototype.$bind = function(thi$){
-        var fn = this, args = Array.prototype.slice.call(arguments, 1);
+        var fn = this, args = slice.call(arguments, 1);
 
         return function(){
             var $args = args.slice(0);
-            $args = Array.prototype.slice.call(arguments, 0).concat($args);
+            $args = slice.call(arguments, 0).concat($args);
             return fn.apply(thi$, $args);
         };
 
@@ -231,7 +232,7 @@ J$VM = new function (){
      * @param ... Other parameters need pass to the listener
      */
     Function.prototype.$listen = function(thi$, eClass){
-        var fn = this, args = Array.prototype.slice.call(arguments, 2);
+        var fn = this, args = slice.call(arguments, 2);
 
         var agent = function(e){
             var $args = args.slice(0);
@@ -263,7 +264,7 @@ J$VM = new function (){
      * @return {Timer} A timer
      */
     Function.prototype.$delay = function(thi$, timeout){
-        var fn = this, args = Array.prototype.slice.call(arguments, 2);
+        var fn = this, args = slice.call(arguments, 2);
 
         fn.__timer__ = fn.__timer__ || [];
 
@@ -368,9 +369,8 @@ J$VM = new function (){
      * @param ... Other arguments need pass to this function
      */
     Function.prototype.$forEach = function(thi$, set){
-        var fn = this, i, len,
-            hasOwnProperty = Object.prototype.hasOwnProperty,
-            $args = Array.prototype.slice.call(arguments, 2);
+        var fn = this, i, len, $args = slice.call(arguments, 2),
+            hasOwnProperty = Object.prototype.hasOwnProperty;
 
         switch(js.lang.Class.typeOf(set)){
             case "array":
@@ -378,22 +378,31 @@ J$VM = new function (){
                 try{
                     fn.apply(thi$, $args.concat(set[i], i, set));
                 } catch (x) {
-                    if("break" === x) break;
-                    throw x;
+                    if("break" === x){
+                        break;
+                    }else{
+                        throw x;
+                    }
                 }
             }
             break;
             case "object":
             for(i in set){
-                if (hasOwnProperty.call(set, i)) {
-                    try{
-                        fn.apply(thi$, $args.concat(set[i], i, set));
-                    } catch (x) {
-                        if("break" === x) break;
+                if(!hasOwnProperty.call(set, i))
+                    continue;
+
+                try{
+                    fn.apply(thi$, $args.concat(set[i], i, set));
+                } catch (x) {
+                    if("break" === x){
+                        break;
+                    }else{
                         throw x;
                     }
                 }
             }
+            break;
+            default:
             break;
         }
     };
@@ -411,7 +420,7 @@ J$VM = new function (){
      */
     Function.prototype.$map = function(thi$, set){
         var fn = this, ret = js.lang.Class.isArray(set) ? [] :{},
-            $args = Array.prototype.slice.call(arguments, 2);
+            $args = slice.call(arguments, 2);
 
         (function(v, i, set){
             ret[i] = fn.apply(thi$, $args.concat(v,i,set));
@@ -435,7 +444,7 @@ J$VM = new function (){
     Function.prototype.$filter = function(thi$, set){
         var fn = this, isArray = js.lang.Class.isArray(set),
             ret = isArray ? [] : {},
-            $args = Array.prototype.slice.call(arguments, 2);
+            $args = slice.call(arguments, 2);
 
         (function(v, i, set){
             if(fn.apply(thi$, $args.concat(v, i, set))){
@@ -460,7 +469,7 @@ J$VM = new function (){
      */
     Function.prototype.$some = function(thi$, set){
         var fn = this, ret = false,
-            $args = Array.prototype.slice.call(arguments, 2);
+            $args = slice.call(arguments, 2);
 
         (function(v, i, set){
             if(fn.apply(thi$, $args.concat(v, i, set))){
@@ -487,7 +496,7 @@ J$VM = new function (){
      */
     Function.prototype.$every = function(thi$, set){
         var fn = this, ret = true,
-            $args = Array.prototype.slice(arguments, 2);
+            $args = slice.call(arguments, 2);
 
         (function(v, i, set){
             if(fn.apply(thi$, $args.concat(v, i, set))){
@@ -544,4 +553,5 @@ J$VM = new function (){
             }).$delay(thi$, timeout);
         }
     };
+
 }();

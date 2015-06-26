@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -39,7 +39,7 @@ $package("js.awt");
 
 $import("js.awt.Container");
 
-js.awt.Desktop = function (def, element){
+js.awt.Desktop = function (Runtime){
 
     var CLASS = js.awt.Desktop, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -47,29 +47,31 @@ js.awt.Desktop = function (def, element){
         return;
     }
     CLASS.__defined__ = true;
-    
+
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
         System = J$VM.System, MQ =J$VM.MQ, Factory = J$VM.Factory;
-    
+
     /**
      * Popup message box
-     * 
+     *
      * @see js.lang.Runtime
      */
-    thi$.message = function(type, subject, content){
+    thi$.message = function(type, subject, content, title, rect, handler){
         var msgbox = {
             className: "msgbox",
             model:{
                 msgType: type,
-                msgSubject: subject || "Subject",
+                title: title || "",
+                msgSubject: subject || "",
                 msgContent: content || " "
             }
         };
 
         this.openDialog(
             "message",
-            {},
-            new js.awt.MessageBox(msgbox, this));
+            rect || {},
+            new js.awt.MessageBox(msgbox, this),
+            handler);
 
     }.$override(this.message);
 
@@ -89,7 +91,7 @@ js.awt.Desktop = function (def, element){
                     constraints: "north",
 
                     items:["labTitle", "btnClose"],
-                    
+
                     labTitle:{
                         classType: "js.awt.Label",
                         className: "win_title_label",
@@ -112,7 +114,7 @@ js.awt.Desktop = function (def, element){
                     css: "overflow:hidden;",
                     layout:{
                         classType: "js.awt.BorderLayout"
-                    }                
+                    }
                 },
 
                 btnpane:{
@@ -120,15 +122,15 @@ js.awt.Desktop = function (def, element){
                     className: "message_btnpane",
                     constraints: "south",
 
-                    items:["btnCancel"],
-                    
-                    btnCancel:{
+                    items:["btnOK"],
+
+                    btnOK:{
                         classType: "js.awt.Button",
                         className: "dlg_button",
                         effect: true,
-                        labelText: this.nlsText("btnClose", "Close")
+                        labelText: this.nlsText("btnOK", "OK")
                     },
-                    
+
                     layout:{
                         gap: 4,
                         align_x : 1.0,
@@ -160,7 +162,7 @@ js.awt.Desktop = function (def, element){
                     constraints: "north",
 
                     items:["labTitle", "btnClose"],
-                    
+
                     labTitle:{
                         classType: "js.awt.Label",
                         className: "win_title_label",
@@ -183,7 +185,7 @@ js.awt.Desktop = function (def, element){
                     css: "overflow:hidden;",
                     layout:{
                         classType: "js.awt.BorderLayout"
-                    }                
+                    }
                 },
 
                 btnpane:{
@@ -197,16 +199,16 @@ js.awt.Desktop = function (def, element){
                         classType: "js.awt.Button",
                         className: "dlg_button",
                         effect: true,
-                        labelText: this.nlsText("btnOK", "Yes")
+                        labelText: this.nlsText("btnOK", "OK")
                     },
-                    
+
                     btnCancel:{
                         classType: "js.awt.Button",
                         className: "dlg_button",
                         effect: true,
-                        labelText: this.nlsText("btnNo", "No")
+                        labelText: this.nlsText("btnCancel", "Cancel")
                     },
-                    
+
                     layout:{
                         gap: 4,
                         align_x : 1.0,
@@ -214,7 +216,7 @@ js.awt.Desktop = function (def, element){
                     }
                 },
 
-                modal: true,                
+                modal: true,
                 width: 330,
                 height:150,
                 miniSize:{width:330, height:150},
@@ -223,210 +225,346 @@ js.awt.Desktop = function (def, element){
         );
     };
 
+    var _registerConfirm2Class = function(){
+        if(Factory.hasClass("jsvmconfirm2")) return;
+
+        Factory.registerClass(
+            {
+                classType : "js.awt.Dialog",
+                className : "jsvmconfirm2",
+
+                items: [ "title", "client", "btnpane"],
+
+                title: {
+                    classType: "js.awt.HBox",
+                    className: "win_title",
+                    constraints: "north",
+
+                    items:["labTitle", "btnClose"],
+
+                    labTitle:{
+                        classType: "js.awt.Label",
+                        className: "win_title_label",
+                        text : "Confirm",
+                        rigid_w: false,
+                        rigid_h: false
+                    },
+
+                    btnClose:{
+                        classType: "js.awt.Button",
+                        className: "win_title_button",
+                        iconImage: "dialog_close.png"
+                    }
+                },
+
+                client:{
+                    classType: "js.awt.Container",
+                    className: "message_client",
+                    constraints: "center",
+                    css: "overflow:hidden;",
+                    layout:{
+                        classType: "js.awt.BorderLayout"
+                    }
+                },
+
+                btnpane:{
+                    classType: "js.awt.HBox",
+                    className: "message_btnpane",
+                    constraints: "south",
+
+                    items:["btnYes", "btnNo", "btnCancel"],
+
+                    btnYes:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnYes", "Yes")
+                    },
+
+                    btnNo:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnNo", "No")
+                    },
+
+                    btnCancel:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnCancel", "Cancel")
+                    },
+
+                    layout:{
+                        gap: 4,
+                        align_x : 1.0,
+                        align_y : 0.0
+                    }
+                },
+
+                modal: true,
+                width: 354,
+                height: 150,
+                miniSize: {width:354, height:150},
+                resizable: true
+            }
+        );
+    };
+
     var _activateComponent = function(target, uuid){
         if(!target) return;
-        
+
         if(target.activateComponent){
             target.activateComponent();
         }
     };
 
     var _notifyLM = function(e){
-        var el = e.srcElement, target = e.getEventTarget(),
-            uuid = el ? el.uuid : undefined;
-        this.LM.cleanLayers(e, this);
-        _activateComponent(target, uuid);
+        if(e){
+            var el = e.srcElement, target = e.getEventTarget(),
+                uuid = el ? el.uuid : undefined;
+            this.LM.cleanLayers(e, this);
+            _activateComponent(target, uuid);
+        }
         return true;
     };
-    
+
     var _notifyComps = function(msgid, e){
         var comps = this.getAllComponents(),
-            len = comps ? comps.length : 0, 
+            len = comps ? comps.length : 0,
             i, comp, recs = [];
-        
+
         for(i = 0; i < len; i++){
             comp = comps[i];
             recs.push(comp.uuid());
         }
-        
+
         if(recs.length > 0){
             MQ.post(msgid, e, recs);
         }
     };
-    
+
+    var bodyW, bodyH;
     var _onresize = function(e){
-        var M = this.def, U = this._local,
-            isSpecified = U.isViewSpecified,
-            d = isSpecified ? this.getBounds() 
-                : DOM.innerSize(document.body),
-            evt;
-        
-        if(U.userW != d.width || U.userH != d.height){
-            evt = new Event(Event.W3C_EVT_RESIZE, 
-                            {owidth: U.userW, oheight: U.userH, 
-                             width: d.width, height: d.height});
-            _notifyComps.call(this, "js.awt.event.WindowResized", evt);
+        System.updateLastAccessTime();
+
+        var bounds = DOM.getBounds(document.body), evt;
+        if(bounds.width != bodyW || bounds.height != bodyH){
+            evt = new Event(Event.W3C_EVT_RESIZE,
+                            {owidth: bodyW, oheight: bodyH,
+                             width: bounds.width, height: bounds.height});
             
+            _notifyComps.call(this, "js.awt.event.WindowResized", evt);
+
             this.LM.clearStack(e);
             
-            if(isSpecified){
-                M.width = U.userW = d.width;
-                M.height= U.userH = d.height;                  
-            }else{
-                this.setSize(d.width, d.height, 4);
-            }
+            bodyW = bounds.width;
+            bodyH = bounds.height;
+        }
+    };
 
-            this.doLayout.$delay(this, 1, true);
+    var _onkeyevent = function(e){
+        System.updateLastAccessTime();
+        J$VM.MQ.post("js.awt.event.KeyEvent", e);
+    };
+
+    var _onmouseevent = function(e){
+        System.updateLastAccessTime();
+        J$VM.MQ.post("js.awt.event.MouseEvent", e);
+        
+        switch(e.getType()){
+            case Event.W3C_EVT_MOUSE_DOWN:
+            case Event.W3C_EVT_MOUSE_WHEEL:
+            return _notifyLM.call(this, e);
+
+            case Event.W3C_EVT_CONTEXTMENU:
+            e.cancelBubble();
+            return e.cancelDefault();
+            
+            default:
+            break;
         }
     };
     
-    var _forbidContextMenu = function(e){
-        e.cancelBubble();
-        return e.cancelDefault();
+    var _onmessage = function(e){
+        var _e = e.getData();
+        if(_e.source == self) return;
+
+        var msg;
+        try{
+            msg = JSON.parse(_e.data);
+        } catch (x) {
+        }
+
+        if(Class.isArray(msg)){
+            e.message = msg[1];
+            J$VM.MQ.post(msg[0], e, msg[2], null, msg[4]);
+        }
     };
 
-    var _getMinZIndex = function(ele){
-        var children = ele.children, zIndex = 0, tmp, e;
+    var apps = {};
+    
+    thi$.getApp = function(id){
+        return apps[id];
+    }
+
+    thi$.createApp = function(classType, entryId){
+        var appClass = Class.forName(classType), app;
+        app = new (appClass)(null, Runtime, entryId);
+        return app;
+    };
+
+    thi$.showCover = function(b, style){
+        arguments.callee.__super__.call(
+            this, b, style || "jsvm_desktop_mask");
+        if(b){
+            this.setCoverZIndex(_getMaxZIndex.call(this)+1);
+        }
+    }.$override(this.showCover);
+
+    
+    var _getMaxZIndex = function(){
+        var children = this.view.children, zIndex = 0, tmp, e;
         for(var i=0, len=children.length; i<len; i++){
             e = children[i];
             tmp = parseInt(DOM.currentStyles(e, true).zIndex);
             tmp = Class.isNumber(tmp) ? tmp : 0;
-            zIndex = Math.min(zIndex, tmp);
+            zIndex = Math.max(zIndex, tmp);
         }
         return zIndex;
     };
+
+    var IMGSREG = /images\//gi;
     
-    // For testing all events bind to self.document
-    var _onevents = function(e){
-        var eType = e.getType(), ele, target;
-        if(eType === "mouseover"){
-            ele = e.toElement;
-        }else if(eType === "mouseout"){
-            ele = e.fromElement;
-        }else{
-            ele = e.srcElement;
-        }
+    thi$.updateThemeCSS = function(theme, file){
+        var stylePath = DOM.makeUrlPath(J$VM.env.j$vm_home, "../style/" + theme + "/"),
+            styleText = Class.getResource(stylePath + file, true);
 
-        target = this.getEventTarget(ele.uuid);
-        if(target && target.fireEvent){
-            target.fireEvent(e, true);
-        }
-
-        switch(eType){
-        case "mousedown":
-            _notifyLM.call(this, e);
-            if(target && target.activateComponent){
-                target.activateComponent();
-            }
-            break;
-        case "mousewheel":
-        case "DOMMouseScroll":
-            _notifyLM.call(this, e);
-            break;
-        case "contextmenu":
-            e.cancelDefault();
-            break;
-        }
-        
-        return e._default;
+        styleText = styleText.replace(IMGSREG, stylePath+"images/");
+        DOM.applyStyleSheet(file, styleText);
     };
-    // End test
 
+    thi$.updateThemeLinks = function(theme, old){
+        var dom = self.document, links, link, src, path;
+        
+        path = DOM.makeUrlPath(J$VM.env.j$vm_home,
+                               "../style/"+ old +"/");
+
+        links = dom.getElementsByTagName("link");
+        for(var i=0, len=links.length; i<len; i++){
+            link = links[i];
+            src = decodeURI(link.href);
+            if (src && src.indexOf(path) != -1){
+                src = src.replace(old, theme);
+                link.href = src;
+            }
+        }
+    };
+
+    thi$.updateThemeImages = function(theme, old){
+        var dom = self.document, links, link, src, path;
+        
+        path = DOM.makeUrlPath(J$VM.env.j$vm_home,
+                               "../style/"+ old +"/images/");
+        
+        links = dom.getElementsByTagName("img");
+        for(var i=0, len=links.length; i<len; i++){
+            link = links[i];
+            src = decodeURI(link.src);
+            if (src && src.indexOf(path) != -1){
+                src = src.replace(old, theme);
+                link.src = src;
+            }
+        }
+    };
+    
     /**
      * @see js.awt.BaseComponent
      */
     thi$.destroy = function(){
+        for(var app in apps){
+            app.closeApp();
+            app.destroy();
+        }
+        apps = null;
+
         this.DM.destroy();
-        delete this.DM;
-        
+        this.DM = null;
+
         this.LM.destroy();
-        delete this.LM;
+        this.LM = null;
 
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
 
-    thi$._init = function(_def, element){
-        var def = {
-            classType: "js.awt.Desktop",
-            className: "jsvm_desktop",
-            css: "position:absolute;",
-            zorder:true,
-            zbase:1,
-            stateless: true,
-            layout:{
-                classType: "js.awt.AbstractLayout"
-            }
-        };
-        def.id = _def.id;
+    thi$._init = function(Runtime){
+        var dom = self.document, body = dom.body,        
+            def = {
+                classType: "js.awt.Desktop",
+                className: body.className,
+                id: body.id,
+                uuid: "desktop",
+                zorder:true,
+                stateless: true,            
+                zbase:1,
+                __contextid__: Runtime.uuid()
+            };
 
-        var ele = element;
-        if(Class.isString(ele)){
-            ele = self.document.getElementById(ele);
-            def.id = element;
-        }
-        
-        arguments.callee.__super__.apply(this, [def, this, ele]);
-        
-        // Indicate whether a specified DOM element will be as the
-        // view of current desktop.
-        this._local.isViewSpecified = !!ele;
+        arguments.callee.__super__.apply(this, [def, Runtime, body]);
 
-        var body = self.document.body;
-        if(!this._local.isViewSpecified){
-            var zIndex = _getMinZIndex.call(this, body),
-                s = DOM.innerSize(body);
-            this.insertBefore(body.firstChild, body);
-            this.setZ(zIndex-1);
-            
-            this.setSize(s.width, s.height);
-        }
+        // Popup Layer manager
+        var LM = this.LM = new js.awt.LayerManager(
+            {classType: "js.awt.LayerManager",
+             className: body.className,
+             id: body.id,
+             zorder:true,
+             stateless: true,
+             zbase: 10000
+            }, Runtime, body);
 
-        this.LM = new js.awt.LayerManager(this);
-
+        // Popup dialog manager
         var DM = this.DM = new js.awt.Container(
-            {classType: "js.awt.Desktop",
-             id: def.id,
+            {classType: "js.awt.Container",
+             className: body.className,
+             id: body.id,
              zorder:true,
              stateless: true,
              zbase: 1000
-            }, this, this.view);
+            }, Runtime, body);
 
         DM.destroy = function(){
             this.removeAll(true);
 
         }.$override(DM.destroy);
+
+        var styleText = Class.getResource(
+            J$VM.env.j$vm_home + "../style/jsvm_reset.css", true);
+        DOM.applyStyleSheet("jsvm_reset.css", styleText);
         
-        this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
+        Event.attachEvent(self, Event.W3C_EVT_RESIZE, 0, this, _onresize);
+        Event.attachEvent(self, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
+
+        Event.attachEvent(dom,  Event.W3C_EVT_KEY_DOWN,   0, this, _onkeyevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_KEY_UP,     0, this, _onkeyevent);
         
-        var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel",
-            doc = self.document;
-        /*
-         Event.attachEvent(doc, "mousedown",  0, this, _onevents);
-         Event.attachEvent(doc, "mouseup",    0, this, _onevents);
-         Event.attachEvent(doc, "mouseover",  0, this, _onevents);
-         Event.attachEvent(doc, "mouseout",   0, this, _onevents);
-         Event.attachEvent(doc, "mousemove",  0, this, _onevents);
-         Event.attachEvent(doc, "contextmenu",0, this, _onevents);
-         Event.attachEvent(doc, mousewheel,   0, this, _onevents);
-         */
-
-        // Bring the component to the front and notify popup LayerManager
-        Event.attachEvent(body, "mousedown",  0, this, _notifyLM);
-
-        // Notify popup LayerManager
-        Event.attachEvent(body, mousewheel,   0, this, _notifyLM);
-
-        Event.attachEvent(body, "contextmenu",0, this, _forbidContextMenu);
-
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmouseevent);       
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _onmouseevent);
+        
         MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
-        
-        _registerMessageClass.call(this);
-        _registerConfirmClass.call(this);
+
+        //_registerMessageClass.call(this);
+        //_registerConfirmClass.call(this);
+
+        // Confirm message box with "Yes", "No" and "Cancel"
+        // Widely used in WebReport Studio for insteading jConfirm2
+        //_registerConfirm2Class.call(this);
 
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Container).$implements(js.lang.Runtime);
+}.$extend(js.awt.Container);
 

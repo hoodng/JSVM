@@ -44,7 +44,8 @@ $package("js.swt");
  * 
  * Attention: 
  *		only when <em>multiEnable</em> is <em>true</em>, the <em>multiByCheck</em> 
- *		can take effect. Otherwise it will be ignored.
+ *		can take effect. Otherwise it will be ignored. In addition, only when <em>
+ *		multiByCheck</em> takes effect, the <em>useMarkerToggle</em> can take effect.
  * 
  * @param def: {
  *	   className: {String} required,
@@ -57,6 +58,10 @@ $package("js.swt");
  *		  if the <em>multiByCheck</em> is false, the "CTRL" and "SHIFT" keys will 
  *		  be validation. Otherwise "CTRL" and "SHIFT" keys will be used and each 
  *		  item cannot be markable. 
+ *	   useMarkerToggle: {Boolean} Default is false, optional. Indicate whether only
+ *		  when the marker of item is clicked, the item can be selected. Other than
+ *		  selecting it by clicking any part of the item. When <em>multiByCheck</em>
+ *		  is false, it will be ignored.
  * 
  *	   distinct: {Boolean} Default is false, required. Indicate whether item of	 
  *		  List is distinct. 
@@ -87,10 +92,20 @@ js.swt.List = function(def, runtime){
 		return;
 	}
 	CLASS.__defined__ = true;
+	
+	CLASS.EVT_READY = "Ready";
+	CLASS.EVT_ACK_ITEMSADDED = "ItemsAdded";
+	CLASS.EVT_ACK_ITEMSREMOVED = "ItemsRemoved";
+	
+	CLASS.EVT_ITEMSELECTED = "ItemSelected";
+	CLASS.EVT_ITEMCLICKED = "ItemClicked";
+	CLASS.EVT_ITEMMOVED = "ItemMoved";
 
 	var Class = js.lang.Class, Event = js.util.Event, 
 	DOM = J$VM.DOM, System = J$VM.System,
-	LinkedList = js.util.LinkedList, ListItem = js.swt.ListItem;
+
+	LinkedList = js.util.LinkedList, 
+	ListItem = js.swt.ListItem;
 	
 	thi$.item = function(uuid){
 		return this._local.cache[uuid];
@@ -130,6 +145,21 @@ js.swt.List = function(def, runtime){
 	 * 
 	 */
 	thi$.addItem = function(item, ack, force){
+		this.insertItem(undefined, item, ack, force);
+	};
+
+	/**
+	 * Insert the specified item to the list at the specified index position.
+	 * 
+	 * @param {Number} index The specified index position to insert.
+	 * @param {js.swt.ListItem} item The specified item to add.
+	 * @param {Boolean} ack Indicate whether all items are added to the list 
+	 *		  and they can ack their follower's interaction required.
+	 * 
+	 * @param {Boolean} force Indicate whether the ack need be done however
+	 *		  the specified item was/wasn't be added literally.
+	 */
+	thi$.insertItem = function(index, item, ack, force){
 		if(!item || !(item instanceof ListItem) 
 		   || (this.distinct && this.contains(item.def))){
 			// Maybe some item has been added before the last one
@@ -139,13 +169,22 @@ js.swt.List = function(def, runtime){
 			
 			return;
 		}
-		
+
+		var U = this._local, items = this._items, len = items.length, 
+		ref, uuid = item.uuid();
+		if(Class.isNumber(index) && index < len){
+			ref = U.cache[items[index]];
+		}
+
 		item.setPeerComponent(this);
-		DOM.appendTo(item.view, this.listView);
-		
-		var uuid = item.uuid();
-		this._items.addLast(uuid);
-		this._local.cache[uuid] = item;
+		DOM.insertBefore(item.view, ref ? ref.view : null, this.listView);
+
+		if(ref){
+			items.add(index, uuid);
+		}else{
+			items.addLast(uuid);
+		}
+		U.cache[uuid] = item;
 		
 		// Rectify the item's selected state
 		_preSelect.call(this, item);
@@ -161,6 +200,7 @@ js.swt.List = function(def, runtime){
 			_sendAck.call(this, "ACK_ADD", true);
 		}
 	};
+
 	
 	var _setItems = function(items, append){
 		// When there is nothing to set, we will remove all old items
@@ -242,7 +282,7 @@ js.swt.List = function(def, runtime){
 			return;
 		}
 		
-		var itemClassName = this.def.itemClassName;
+		var M = this.def, itemClassName = M.itemClassName;
 		if(!itemDef.className && itemClassName){
 			itemDef.className = itemClassName;
 		}
@@ -251,10 +291,12 @@ js.swt.List = function(def, runtime){
 		itemDef.css = "position:relative;overflow:visible;"
 			+ "white-space:nowrap;";
 		
-		if(this.multiEnable && this.multiByCheck){
-			itemDef.markable = true;
-		} else {
+		if(this.multiEnable){
+			itemDef.markable = (this.multiByCheck === true);
+			itemDef.hoverForSelected = false;
+		}else{
 			itemDef.markable = false;
+			itemDef.hoverForSelected = (M.hoverForSelected === true);
 		}
 		
 		var item = new ListItem(itemDef, this.Runtime()),
@@ -523,6 +565,147 @@ js.swt.List = function(def, runtime){
 		
 		_setAck.call(this, signal);
 	};
+
+	/**
+	 * Return the item specified by the given index position.
+	 * 
+	 * @param {Number} index The index of the item to return.
+	 * 
+	 * @return {js.swt.ListItem}
+	 */
+	thi$.getItemAt = function(index){
+		return this._local.cache[this._items[index]];
+	};
+
+	/**
+	 * Return the current index position of the given item.
+	 * 
+	 * @param {js.swt.ListItem} item
+	 * 
+	 * @return {Number}
+	 */
+	thi$.getItemIndex = function(item){
+		return this._items.indexOf(item.uuid());
+	};
+
+	/**
+	 * Judge whether the specified item is the first one.
+	 * 
+	 * @param {js.swt.ListItem} item
+	 * @return {Boolean}
+	 */
+	thi$.isFirstItem = function(item){
+		var items = this._items;
+		return items.indexOf(item.uuid()) === 0;
+	};
+
+	/**
+	 * Judge whether the specified item is the last one.
+	 * 
+	 * @param {js.swt.ListItem} item
+	 * @return {Boolean}
+	 */
+	thi$.isLastItem = function(item){
+		var items = this._items;
+		return items.indexOf(item.uuid()) === (items.length - 1);
+	};
+
+	/**
+	 * Move the specified item from one index to another.
+	 *
+	 * @param {Number} from Current index of a row to move.
+	 * @param {Number} to The target index to move in current view (before move).
+	 */
+	thi$.moveItem = function(from, to){
+		var cache = this._local.cache, items = this._items, 
+		len = items.length, fitem, titem;
+		if(to > len){
+			to = len;
+		}
+
+		if(from == to || from === to - 1){
+			return;
+		}
+
+		fitem = cache[items[from]];
+		titem = cache[items[to]];
+		if(!fitem){
+			return;
+		}
+
+		items.remove0(from);
+		if(from < to){
+			--to;			 
+		}
+
+		if(titem){
+			items.add(to, fitem.uuid());
+			DOM.insertBefore(fitem.view, titem.view, this.listView);
+		}else{
+			items.addLast(fitem.uuid());
+			DOM.appendTo(fitem.view, this.listView);
+		}
+
+		// Notify about the item moving
+		this.fireEvent(new Event(CLASS.EVT_ITEMMOVED, fitem, fitem));
+	};
+
+	/**
+	 * Shift the item specified by the given index up.
+	 *
+	 * @param {Number} index The index of the specified item to shift.
+	 * 
+	 * @link #moveItem
+	 */
+	thi$.shiftUpItemAt = function(index){
+		if(index > 0){
+			this.moveItem(index, index - 1);
+		}
+	};
+
+	/**
+	 * Shift the specified item up.
+	 *
+	 * @param {js.swt.ListItem} item
+	 * 
+	 * @link #getItemIndex
+	 * @link #moveItem
+	 */
+	thi$.shiftUpItem = function(item){
+		var index = this.getItemIndex(item);
+		if(index !== -1){
+			this.shiftUpItemAt(index);
+		}
+	};
+
+	/**
+	 * Shift the item specified by the given index down.
+	 *
+	 * @param {Number} index The index of the specified item to shift.
+	 * 
+	 * @link #moveItem
+	 */
+	thi$.shiftDownItemAt = function(index){
+		var len = this._items.length;
+		if(index < len - 1){
+			this.moveItem(index + 1, index);
+		}
+	};
+
+	/**
+	 * Shift the specified item up.
+	 *
+	 * @param {js.swt.ListItem} item
+	 * 
+	 * @link #getItemIndex
+	 * @link #moveItem
+	 */
+	thi$.shiftDownItem = function(item){
+		var index = this.getItemIndex(item);
+		if(index !== -1){
+			this.shiftDownItemAt(index);
+		}
+	};
 	
 	/**
 	 * Attention: 
@@ -663,7 +846,7 @@ js.swt.List = function(def, runtime){
 		
 		var len = this._items ? this._items.length : 0,
 		rst = LinkedList.$decorate([]), 
-        uuid, item, m, v, idx;
+		uuid, item, m, v, idx;
 		for(var i = 0; i < len; i++){
 			uuid = this._items[i];
 			if(!ids.contains(uuid)){
@@ -1424,6 +1607,10 @@ js.swt.List = function(def, runtime){
 	};
 
 	var _onHover = function(e){
+		if(typeof this.onHovering == "function"){
+			this.onHovering();
+		}
+		
 		var from = e.fromElement, to = e.toElement,
 		fid = from ? from.uuid : "", tid = to ? to.uuid :"",
 		fitem = this._local.cache[fid], titem = this._local.cache[tid];
@@ -1456,7 +1643,9 @@ js.swt.List = function(def, runtime){
 		}
 		
 		if (this.multiByCheck){
-			_selectCheckableItem.call(this, item);
+			if(!this.useMarkerToggle || src === item.marker){
+				_selectCheckableItem.call(this, item);
+			}
 		} else {
 			_select.call(this, item, e.ctrlKey || false, 
 						 e.shiftKey || false);
@@ -1550,6 +1739,8 @@ js.swt.List = function(def, runtime){
 		
 		// Only when multiEnable is true, the item can be markable
 		this.multiByCheck = (this.multiEnable && def.multiByCheck === true);
+		// Only when the marker of item is clicked, the item can be marked
+		this.useMarkerToggle = (this.multiByCheck && def.useMarkerToggle === true);		   
 		
 		_createContents.call(this);
 		
@@ -1577,12 +1768,6 @@ js.swt.List = function(def, runtime){
 	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);
-
-js.swt.List.EVT_READY = "Ready";
-js.swt.List.EVT_ACK_ITEMSADDED = "ItemsAdded";
-js.swt.List.EVT_ACK_ITEMSREMOVED = "ItemsRemoved";
-js.swt.List.EVT_ITEMSELECTED = "ItemSelected";
-js.swt.List.EVT_ITEMCLICKED = "ItemClicked";
 
 js.swt.List.DEFAULTDEF = function(){
 	return {

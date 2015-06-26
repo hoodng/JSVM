@@ -245,6 +245,25 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
 
     /**
+     * @method
+     * 
+     * Override to use the tooltip of current component also as the tooltip
+     * of its disable cover.
+     * 
+     * Ref: http://redmine.jinfonet.com.cn/issues/59362
+     */
+    thi$.showDisableCover = function(b){
+
+        arguments.callee.__super__.apply(this, arguments);        
+
+        var cover = this._coverView, tip = this.getAttribute("title");
+        if(cover && tip){
+            DOM.setAttribute(cover, "title", tip);
+        }
+
+    }.$override(this.showDisableCover);
+
+    /**
      * Test whether this componet view is a DOM element
      */    
     thi$.isDOMElement = function(){
@@ -625,7 +644,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
             def.className = view.clazz || def.className;
         }else{
             this.view = view = DOM.createElement(def.viewType || "DIV");
-            def.className = def.className || "jsvm_comp";
+            def.className = def.className || "jsvm__element";
             view.clazz = view.className = def.className; 
         }
         

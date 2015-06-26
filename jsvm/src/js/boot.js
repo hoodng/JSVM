@@ -89,21 +89,9 @@
             (s = ua.match(/version\/([\d.]+).*safari/)) ? this.safari = s[1] : 0;
     }
 
-    /**
-     * @property {Boolean}
-     *
-     */
-    this.secure = /^https/i.test(location.protocol);
-    /**
-     * @property {Boolean}
-     * The browser is cookie enabled
-     */
-    this.cookieEnabled = navigator.cookieEnabled;
-
     // Support J$VM system properties which are from URL
-    var env = this.env, uri = new js.net.URI(location.href),
+    var env = this.env, uri = env.uri = new js.net.URI(location.href),
         params = uri.params, value, tmp, p;
-    env["uri"] = uri;
     for(p in params){
         if(p.indexOf("j$vm_") == 0){
             value = params[p], tmp = parseInt(value);
@@ -138,23 +126,6 @@
      */
     $sendMessage = J$VM.MQ.send;
 
-    // Global functions
-    // Should be replaced by invoing $postMessage and $sendMessage
-    j$postMessage = function(msg){
-        //below codes added by Lu YuRu, maybe flash slider needs,
-        //but some logic miss in flash code, no one can explain it now.
-        //Now Flash chart not need, so we clear the code.
-
-        //var str = msg[4];
-        //str = js.lang.Class.forName("js.util.Base64").decode(str);
-        //msg[4] = JSON.parse(str);
-
-        J$VM.MQ.post(msg[3], msg[4], msg[2], msg[1], msg[0]);
-    };
-    j$sendMessage = function(msg){
-        J$VM.MQ.send(msg[3], msg[4], msg[2], msg[1], msg[0]);
-    };
-
     /**
      * @member J$VM
      * @method
@@ -176,21 +147,18 @@
     // Defined some speparaters for js code
     this.SPE1 = "RR2kfidRR";
     this.SPE2 = "RR3uiokRR";
-
+    
     // Load the third party library from classpath
     var home = env.j$vm_home, file,
         libs = env.j$vm_classpath ? env.j$vm_classpath.split(";") : [];
     if(self.JSON == undefined){
-        libs.unshift("lib/json2.js");
+        this.Class.loadScript(home+"lib/json2.jz");
     }
+
     (function(file){
         if(file.length === 0) return;
-
-        if("lib/json2.js" == file){
-            this.Class.loadScript(home+ "/" + file);
-        }else{
-            this.Class.loadClass(home + "/" + file);
-        }
+        this.Class.loadClass(home + file);
     }).$forEach(this, libs);
 
 }).call(self.J$VM);
+

@@ -288,8 +288,8 @@ js.awt.Resizable = function(){
         h = grid*Math.round((box.userH + dh)/grid),
         minW = grid*Math.ceil(miniW(c, miniSize.width)/grid),
         minH = grid*Math.ceil(miniH(c, miniSize.height)/grid),
-        maxW = grid*Math.floor(maxiW(i, box, pox, maxiSize.width)/grid),
-        maxH = grid*Math.floor(maxiH(i, box, pox, maxiSize.height)/grid);
+        maxW = grid*Math.floor(maxiW(i, box, pox, maxiSize.width)/grid - 1),
+        maxH = grid*Math.floor(maxiH(i, box, pox, maxiSize.height)/grid - 1);
 
         w = w < minW ? minW : (w > maxW) ? maxW : w;
         h = h < minH ? minH : (h > maxH) ? maxH : h;

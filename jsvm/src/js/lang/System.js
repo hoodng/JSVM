@@ -1,32 +1,32 @@
 /**
 
- Copyright 2010-2011, The JSVM Project.
- All rights reserved.
+  Copyright 2010-2011, The JSVM Project.
+  All rights reserved.
 
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
+  Redistribution and use in source and binary forms, with or without modification,
+  are permitted provided that the following conditions are met:
 
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
+  1. Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
 
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
+  2. Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
 
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
+  3. Neither the name of the JSVM nor the names of its contributors may be
+  used to endorse or promote products derived from this software
+  without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -224,9 +224,9 @@ js.lang.System = function (env, vm){
      *
      */
     this.objectCopy = function(src, des, deep, merge){
-        var typeOf = js.lang.Class.typeOf, t = typeOf(src), item;
-        switch(t){
-        case "object":
+        var Class = js.lang.Class, item;
+        switch(Class.typeOf(src)){
+            case "object":
             des = (des === null || des === undefined) ? {} : des;
 
             for(var p in src){
@@ -238,19 +238,19 @@ js.lang.System = function (env, vm){
                         continue;
                     }
 
-                    switch(typeOf(item)){
-                    case "object":
+                    switch(Class.typeOf(item)){
+                        case "object":
                         if(merge === true){
                             des[p] = this.objectCopy(item, des[p], deep, merge);
                         }else{
                             des[p] = this.objectCopy(item, null, deep);
                         }
                         break;
-                    case "array":
+                        case "array":
                         des[p] =
                             this.arrayCopy(item, 0, [], 0, item.length, deep);
                         break;
-                    default:
+                        default:
                         des[p] = item;
                     }
                 }else{
@@ -258,17 +258,17 @@ js.lang.System = function (env, vm){
                 }
             }
             break;
-        case "array":
+            case "array":
             des = this.arrayCopy(src, 0, des, 0, src.length, deep);
             break;
-        default:
+            default:
             des = src;
             break;
         }
 
         return des;
 
-    }.$bind(this);
+    };
 
     /**
      * Copy the source array to the destination array.
@@ -284,7 +284,7 @@ js.lang.System = function (env, vm){
      * @return {Array} the destination array
      */
     this.arrayCopy = function(src, srcPos, des, desPos, length, deep){
-        var typeOf = js.lang.Class.typeOf,
+        var Class = js.lang.Class,
             srcIdx = srcPos, desIdx = desPos, item;
 
         des = (des === null || des === undefined) ? [] : des;
@@ -295,16 +295,16 @@ js.lang.System = function (env, vm){
             item = src[srcIdx];
 
             if(deep === true){
-                switch(typeOf(item)){
-                case "object":
+                switch(Class.typeOf(item)){
+                    case "object":
                     des[desIdx++] =
                         this.objectCopy(item, null, deep);
                     break;
-                case "array":
+                    case "array":
                     des[desIdx++] =
                         this.arrayCopy(item, 0, [], 0, item.length, deep);
                     break;
-                default:
+                    default:
                     des[desIdx++] = item;
                     break;
                 }
@@ -317,13 +317,8 @@ js.lang.System = function (env, vm){
 
         return des;
 
-    }.$bind(this);
-
-    this.gc = function(){
-        try{
-            CollectGarbage();
-        }catch(e){};
     };
+
 
     var last = 0;
     this.checkThreshold = function(now, newThreshold){
@@ -340,25 +335,44 @@ js.lang.System = function (env, vm){
     var _buildEnv = function(){
         var script = document.getElementById("j$vm");
         if (script) {
-            var attrs = script.attributes, name, value, params;
+            var attrs = script.attributes, uri, name, value, params, p;
             for(var i=0, len=attrs.length; i<len; i++){
-                name = attrs[i].nodeName; value = attrs[i].nodeValue;
+                name = attrs[i].nodeName; value = attrs[i].value;
                 switch(name){
-                case "src":
-                case "crs":
-                    value = script.src || script.crs;
-                    var p = value.lastIndexOf("/");
-                    this.setProperty("j$vm_home", value.substring(0,p));
-                    params = new js.net.URI(value).params;
+                    case "src":
+                    case "crs":
+                    value = script.src || script.getAttribute("crs");
+                    uri = new js.net.URI(value);
+                    this.setProperty("j$vm_uri", uri);
+                    params = uri.params;
                     for(p in params){
                         this.setProperty(p, params[p]);
                     }
+                    
+                    value = script.getAttribute("crs") || script.src;
+                    if(value.indexOf("http") !==0){
+                        // It is not an absolute path, so need construct j$vm_home
+                        // with script.src and this "crs".
+                        var srcpath = script.src;
+                        p = srcpath.lastIndexOf("/");
+                        srcpath = srcpath.substring(0, p+1);
+                        value = srcpath + value;
+                    }
+                    // Use A tag to get a canonical path,
+                    // here, jsut for compressing "../" in path.
+                    p = value.lastIndexOf("/");
+                    uri = document.createElement("A");
+                    uri.href = value.substring(0, p+1);
+                    this.setProperty("j$vm_home", uri.href);
+                    vm.j$vm_home = uri.href;
                     break;
-                case "classpath":
+                    
+                    case "classpath":
                     value = value.replace(/(\s*)/g, "");
                     this.setProperty("j$vm_classpath", value);
                     break;
-                default:
+
+                    default:
                     if(name.indexOf("-d") == 0 ||
                        name.indexOf("-D") == 0){
                         var tmp = parseInt(value);
@@ -372,7 +386,7 @@ js.lang.System = function (env, vm){
                 }
             }
 
-            vm.uuid(js.lang.Math.uuid());
+            vm.uuid("j$vm_"+js.lang.Math.uuid());
             vm.id = vm.uuid();
 
         } else {
@@ -382,11 +396,11 @@ js.lang.System = function (env, vm){
     };
 
     var _buildWorkerEnv = function(){
-        var path = vm.env.uri.path;
-        var p = path.indexOf("/classes/js/util/Worker.jz");
-        p = p == -1 ? path.indexOf("/src/js/util/Worker.js") : p;
-        vm.env.j$vm_home = path.substring(0, p);
-        vm.uuid(js.lang.Math.uuid());
+        var path = vm.env.uri.source,
+            p = path.indexOf("classes/js/util/Worker.jz");
+        vm.env.j$vm_home = vm.j$vm_home = path.substring(0, p);
+        vm.uuid("j$vm_"+js.lang.Math.uuid());
+        vm.id = vm.uuid();
     };
 
     var _checkBrowser = function(){
@@ -397,29 +411,29 @@ js.lang.System = function (env, vm){
          */
         // Check browser supports
         var supports = vm.supports
-            = {reliableMarginRight :true, supportCssFloat : true},
-        buf = [], doc = document, div = doc.createElement('div'),
-        ipt, obj;
+                     = {reliableMarginRight :true, supportCssFloat : true},
+            buf = [], doc = document, div = doc.createElement('div'),
+            ipt, obj;
 
         buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
         buf.push('<div style="height:20px;width:20px;"></div></div>');
         buf.push('<div style="float:left;"></div>');
         div.innerHTML = buf.join("");
         div.style.cssText = "position:absolute;width:100px;height:100px;"
-            + "border:5px solid black;padding:5px;"
-            + "visibility:hidden;";
+                          + "border:5px solid black;padding:5px;"
+                          + "visibility:hidden;";
         doc.body.appendChild(div);
 
         // Check browser supports for Input, Textarea
         ipt = doc.createElement('input');
         ipt.type = "text";
         ipt.style.cssText = "position:absolute;width:100px;height:100px;"
-            + "border:2px solid;visibility:hidden;";
+                          + "border:2px solid;visibility:hidden;";
         doc.body.appendChild(ipt);
 
         var view = doc.defaultView, cdiv = div.firstChild, ccdiv = cdiv.firstChild;
         if(view && view.getComputedStyle
-           && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
+                && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
             supports.reliableMarginRight = false;
         }
 
@@ -465,7 +479,7 @@ js.lang.System = function (env, vm){
         // and button may be more large. So we use a big size for div to check.
         div.innerHTML = "";
         div.style.cssText = "position:absolute;left:-550px;top:-550px;"
-            + "width:550px;height:550px;overflow:scroll;visibility:hidden;";
+                          + "width:550px;height:550px;overflow:scroll;visibility:hidden;";
         obj = J$VM.DOM.hasScrollbar(div);
         /**
          * @member J$VM.supports
@@ -520,7 +534,7 @@ js.lang.System = function (env, vm){
         // Dectect logical DPI of the browser
         div.innerHTML = "";
         div.style.cssText = "position:absolution;left:0px;top:0px;"
-            +"width:2.54cm;height:2.54cm;visibility:hidden;";
+                          +"width:2.54cm;height:2.54cm;visibility:hidden;";
         if(!window.screen.logicalXDPI){
             var styles = doc.defaultView.getComputedStyle(div, null);
             supports.logicalXDPI = parseInt(styles["width"]);
@@ -580,9 +594,12 @@ js.lang.System = function (env, vm){
             head.removeChild(script);
         }
 
-        obj = null;
-
+        if(vm.firefox){
+            js.util.Event.W3C_EVT_MOUSE_WHEEL = "DOMMouseScroll";
+        }
+        
         // Clean
+        obj = null;
         doc.body.removeChild(div);
         doc.body.removeChild(ipt);
         div = view = ipt = undefined;
@@ -662,7 +679,7 @@ js.lang.System = function (env, vm){
         var lang = (navigator.userLanguage || navigator.language).split("-");
         vm.locale = new js.util.Locale(lang[0], lang[1]);
     };
-
+    
     var _onload = function(e){
         J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
 
@@ -677,34 +694,9 @@ js.lang.System = function (env, vm){
         _detectDoctype.call(this);
         _initJSVMLocale.call(this);
 
-        var Event = js.util.Event, dom = vm.hwnd.document;
-        Event.intercept();
-
-        Event.attachEvent(vm.hwnd, Event.W3C_EVT_RESIZE, 0, this, _onresize);
-        Event.attachEvent(vm.hwnd, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
-        Event.attachEvent(dom, "keydown", 0, this, _onkeyevent);
-        Event.attachEvent(dom, "keyup",   0, this, _onkeyevent);
-        Event.attachEvent(dom, Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmouseevent);
-
-        var proc, scope, i, len, body;
-        for(i=0, len=scopes.length; i<len; i++){
-            proc = scopes[i];
-            scope = vm.runtime[proc.id];
-            if(scope === undefined){
-                scope = vm.runtime[proc.id] = function(){
-                    var clazz = js.awt.Desktop;
-                    return clazz ? new (clazz)({id:proc.id},proc.container) :
-                        new js.lang.NoUIRuntime();
-                }();
-                scope.id = proc.id;
-            }
-
-            proc.fn.call(scope, this);
-        }
-    };
-
-    this.forceInit = function(){
-        _onload.call(this);
+        var Runtime = vm.Runtime;
+        Runtime.registerDesktop(new js.awt.Desktop(vm.Runtime));
+        Runtime._execProcs();
     };
 
     var _onbeforeunload = function(){
@@ -713,121 +705,26 @@ js.lang.System = function (env, vm){
 
     var _onunload = function(e){
         J$VM.System.out.println("J$VM unload...");
+        J$VM.Runtime.destroy();
 
-        var Event = js.util.Event, dom = vm.hwnd.document;
-        var scopes = vm.runtime, scopeName, scope;
-        for(scopeName in scopes){
-            scope = scopes[scopeName];
-            if(js.lang.Class.isFunction(scope.beforeUnload)){
-                scope.beforeUnload.call(scope);
-            }
+        var names = ["$import", "$package", "$load_package",
+                     "$postMessage","$sendMessage",
+                     "J$VM","js","com","org"], name;
+
+        for(var i=0, len=names.length; i<len; i++){
+            name = names[i];
+            self[name] = null;
             try{
-                scope.destroy();
-            }catch(e){
+                delete self[name];
+            } catch (x) {
             }
         }
-        delete vm.runtime;
-
-        this.gc();
-        document.body.innerHTML="";
-    };
-
-    var bodyW, bodyH;
-    var _onresize = function(e){
-        this.updateLastAccessTime();
-
-        var DOM = J$VM.DOM,
-            bounds = DOM.getBounds(document.body);
-        if(bounds.width != bodyW || bounds.height != bodyH){
-            bodyW = bounds.width;
-            bodyH = bounds.height;
-            var scopes = vm.runtime, scopeName, scope;
-            for(scopeName in scopes){
-                scope = scopes[scopeName];
-                scope.fireEvent.call(scope, e);
-            }
-        }
-    };
-
-    var _onmessage = function(e){
-        var _e = e.getData();
-        if(_e.source == self) return;
-
-        var msg;
+        
         try{
-            msg = JSON.parse(_e.data);
-        } catch (x) {
-        }
-
-        if(js.lang.Class.isArray(msg)){
-            e.message = msg[1];
-            J$VM.MQ.post(msg[0], e, msg[2], null, msg[4]);
-        }
+            self.document.innerHTML = "";            
+            //CollectGarbage(); // IE
+        }catch(e){};
     };
-
-    var _onkeyevent = function(e){
-        this.updateLastAccessTime();
-        J$VM.MQ.post("js.awt.event.KeyEvent", e);
-    };
-
-    var _onmouseevent = function(e){
-        this.updateLastAccessTime();
-    };
-
-    /**
-     * @member J$VM
-     * @method exec
-     *
-     */
-    var scopes = [];
-    var _exec = function(instName, fn, containerElement){
-        if(vm.runtime === undefined){
-            vm.runtime = {};
-        }
-
-        scopes.push({id: instName, fn: fn, container: containerElement});
-    }.$bind(this);
-
-    /**
-     * @member J$VM
-     * @method boot
-     *
-     */
-    var _boot = function(env){
-        var Class = js.lang.Class, mainClass,
-            mainClasName = this.getProperty("mainclass"),
-            mainFuncName = this.getProperty("mainfunction"),
-            desktop = this.getProperty("desktop"),
-            rtName = desktop;
-
-        if(mainClasName){
-            mainClass = Class.forName(mainClasName);
-            if(!mainClass) return;
-            desktop = desktop ? desktop : mainClasName;
-            J$VM.exec(mainClasName,
-                      function(){
-                          this.initialize();
-                          (new mainClass()).main(this);
-                      },desktop);
-        }else if(typeof window[mainFuncName] == "function"){
-            J$VM.exec(mainFuncName,
-                      function(){
-                          this.initialize();
-                          window[mainFuncName].call(this, this);
-                      },desktop);
-        }else if(rtName){
-            J$VM.exec(rtName,
-                      function(){
-                          this.initialize();
-                      },desktop);
-        }
-
-        env = env || {};
-        for(var p in env){
-            this.setProperty(p, env[p]);
-        }
-
-    }.$bind(this);
 
     /**
      * @member J$VM
@@ -852,11 +749,9 @@ js.lang.System = function (env, vm){
     }.$bind(this);
 
     var _init = function(env, vm){
-        var E = js.util.Event;
+        var Event = js.util.Event;
+        
         props = new js.util.Properties(env);
-
-        vm.pkgversion = self.j$vm_pkgversion;
-        delete self.j$vm_pkgversion;
 
         /**
          * @member J$VM
@@ -869,7 +764,20 @@ js.lang.System = function (env, vm){
          */
         vm.MQ = new js.util.Messenger();
 
+        /**
+         * @member J$VM
+         * @property {js.lang.Runtime} Runtime
+         */
+        vm.Runtime = new js.lang.Runtime();
+        
         if(!vm.env.j$vm_isworker){
+            
+            vm.pkgversion = self.j$vm_pkgversion;
+            try{
+                delete self.j$vm_pkgversion;
+            }catch(e){}
+            vm.__version__ += vm.pkgversion["package.jz"];
+            
             _buildEnv.call(this);
 
             os = self.console ? self.console : null;
@@ -887,6 +795,12 @@ js.lang.System = function (env, vm){
              */
             vm.DOM = new js.util.Document();
 
+            /**
+             * @member J$VM
+             * @property {js.awt.ComponentFactory} Factory
+             */
+            vm.Factory = new js.awt.ComponentFactory(this);
+            
             /**
              * @member J$VM
              * @property {Object} storage
@@ -926,15 +840,11 @@ js.lang.System = function (env, vm){
             vm.storage.images= new js.util.MemoryStorage(
                 this.getProperty("j$vm_images_cachesize",256));
 
-            vm.Factory = new js.awt.ComponentFactory(this);
-
-            vm.exec = _exec;
-            vm.boot = _boot;
             vm.enableLogger = _enableLogger;
             vm.disableLogger = _disableLogger;
 
-            E.attachEvent(vm.hwnd, E.W3C_EVT_LOAD,   0, this, _onload);
-            E.attachEvent(vm.hwnd, E.W3C_EVT_UNLOAD, 0, this, _onunload);
+            Event.attachEvent(vm.hwnd, Event.W3C_EVT_LOAD,   0, this, _onload);
+            Event.attachEvent(vm.hwnd, Event.W3C_EVT_UNLOAD, 0, this, _onunload);
 
         }else{
             // Because Web Worker can not use consle to output, so we can use our MQ
@@ -943,15 +853,15 @@ js.lang.System = function (env, vm){
                 var post = vm.MQ.post;
 
                 this.info = function(s){
-                    post(E.SYS_MSG_CONSOLEINF, s, [], self, 1);
+                    post(Event.SYS_MSG_CONSOLEINF, s, [], self, 1);
                 };
 
                 this.error = function(s){
-                    post(E.SYS_MSG_CONSOLEERR, s, [], self, 1);
+                    post(Event.SYS_MSG_CONSOLEERR, s, [], self, 1);
                 };
 
                 this.log = function(s){
-                    post(E.SYS_MSG_CONSOLELOG, s, [], self, 1);
+                    post(Event.SYS_MSG_CONSOLELOG, s, [], self, 1);
                 };
 
             }();

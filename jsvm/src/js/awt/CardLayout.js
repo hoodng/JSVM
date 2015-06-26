@@ -183,8 +183,9 @@ js.awt.CardLayout = function (def){
                 }else{
                     comp.setVisible(false);
                 }
-            }
+            }            
         }
+        return item;
     };
     
     thi$._init = function(def){

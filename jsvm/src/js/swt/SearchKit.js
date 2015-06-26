@@ -66,13 +66,18 @@ js.swt.SearchKit.buildRegExp = function(keyword, options){
         options = {
             global: true,
             casesensitive: true,
+            matchword: false,
             wholeword: false
         };
     }
     
-    //"wholeword" search options need wait for <Enter> key is pressed
-    if(options["wholdword"] === true){
-        keyword = "\\b" + keyword + "\\b";
+    //"wholeword" and "matchword" search options need wait for <Enter> key is pressed
+    if(options["wholeword"] === true){
+        keyword = "\^" + keyword + "\$";
+    }else{
+        if(options["matchword"] === true){
+            keyword = "\\b" + keyword + "\\b";
+        }
     }
     
     //global search option

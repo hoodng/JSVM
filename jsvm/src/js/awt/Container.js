@@ -374,8 +374,8 @@ js.awt.Container = function (def, Runtime, view){
             var compid = comps[i], compDef = def[compid];
             if(Class.typeOf(compDef) === "object"){
                 compDef.id = compDef.id || compid;
-                compDef.className = compDef.className || 
-                    (this.def.className + "_" + compid);
+                compDef.className = compDef.className ||
+                    DOM.comboCSSClass(this.def.className, compid);
 
                 var comp = new (Class.forName(compDef.classType))(
                     compDef, R);

@@ -1,32 +1,32 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project.
+  All rights reserved.
+
+  Redistribution and use in source and binary forms, with or without modification,
+  are permitted provided that the following conditions are met:
+
+  1. Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
+
+  2. Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+
+  3. Neither the name of the JSVM nor the names of its contributors may be
+  used to endorse or promote products derived from this software
+  without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -40,18 +40,18 @@ $package("js.util");
 js.util.Base64 = new function (){
 
     this.safeB64 = "ABCDEFGHIJKLMNOP" +
-            "QRSTUVWXYZabcdef"+
-            "ghijklmnopqrstuv"+
-            "wxyz0123456789@*"+
-            "-";
+        "QRSTUVWXYZabcdef"+
+        "ghijklmnopqrstuv"+
+        "wxyz0123456789@*"+
+        "-";
 
     this.standardB64 = "ABCDEFGHIJKLMNOP" +
-            "QRSTUVWXYZabcdef"+
-            "ghijklmnopqrstuv"+
-            "wxyz0123456789+/"+
-            "=";
+        "QRSTUVWXYZabcdef"+
+        "ghijklmnopqrstuv"+
+        "wxyz0123456789+/"+
+        "=";
 
-    /** 
+    /**
      * Encodes a utf8 integer array to a ucs2 string.
      * @param s, an integer array
      * @return a string
@@ -84,15 +84,15 @@ js.util.Base64 = new function (){
 
                     tmp = c;
                 }
-            
+
             d.push(String.fromCharCode(tmp));
         }
-        
+
         return d.join("");
     };
 
-    /** 
-     * Encodes a ucs2 string to a utf8 integer array. 
+    /**
+     * Encodes a ucs2 string to a utf8 integer array.
      * @param s, a string
      * @return an integer array
      */
@@ -122,7 +122,7 @@ js.util.Base64 = new function (){
                     d[j++] = (c & 0x3f) | 0x80;
                 }
         }
-        
+
         return d;
     };
 
@@ -132,14 +132,14 @@ js.util.Base64 = new function (){
      * @return a Base64 string
      */
     this.encode = function(s, table){
-        return (!s || s.length == 0) ? s : 
+        return (!s || s.length == 0) ? s :
             this.encodeArray(ucs2_utf8.call(this,s), table);
     };
 
     this.encodeArray = function(array, table){
         var d = [], b = array, len = b.length,
             b0, b1, b2, b3, i = 0, tmp;
-        
+
         table = table || this.safeB64;
 
         while(i < len){
@@ -169,7 +169,7 @@ js.util.Base64 = new function (){
             d.push(table.charAt(b3));
         }
 
-        return d.join("");        
+        return d.join("");
     };
 
     /**
@@ -211,16 +211,16 @@ js.util.Base64 = new function (){
             }
 
             b[j+2] = tmp & 0xff;
-            tmp >>= 8;
+            tmp = (tmp >> 8);
             b[j+1] = tmp & 0xff;
-            tmp >>= 8;
+            tmp = (tmp >> 8);
             b[j+0] = tmp & 0xff;
             j += 3;
-            
+
         }
-        
+
         b.splice(b.length-e, e);
-        
+
         return b;
     };
 

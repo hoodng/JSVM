@@ -694,7 +694,7 @@ js.awt.Element = function(def, Runtime){
             this.setVisible(true);
         }
     };
-    
+
     thi$.destroy = function(){
         if(this.destroied != true){
             delete this.peer;
@@ -707,16 +707,6 @@ js.awt.Element = function(def, Runtime){
             arguments.callee.__super__.apply(this, arguments);
         }
     }.$override(this.destroy);
-
-    /**
-     * Return runtime object
-     * 
-     * @see js.lang.Runtime
-     * @see js.awt.Desktop
-     */
-    thi$.Runtime = function(){
-        return this._local.Runtime;
-    };
 
     thi$.classType = function(){
         return this.def.classType;
@@ -733,7 +723,7 @@ js.awt.Element = function(def, Runtime){
 
         arguments.callee.__super__.apply(this, arguments);
 
-        this._local.Runtime = Runtime;
+        this.__buf__ = new js.lang.StringBuffer();
 
         CLASS.count++;
         

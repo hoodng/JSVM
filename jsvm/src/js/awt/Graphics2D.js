@@ -38,7 +38,6 @@
 $package("js.awt");
 
 $import("js.awt.Drawable");
-$import("js.math.Trig");
 
 /**
  * 

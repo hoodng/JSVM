@@ -16,8 +16,16 @@ js.awt.State = function() {
         return;
     }
     CLASS.__defined__ = true;
+
+    CLASS.D = 0x01 << 0; // Disable/Enable
+    CLASS.H = 0x01 << 1; // MouseOver/MouseOut
+    CLASS.T = 0x01 << 2; // Trigger/Un-trigger
+    CLASS.A = 0x01 << 3; // Actived/Deactived
+    CLASS.V = 0x01 << 4; // Hidden/Visible
+    CLASS.X = 0x01 << 5; // Maximized/Normal
+    CLASS.I = 0x01 << 6; // Iconified/Normal
     
-    var C = js.lang.Class, E = js.util.Event;
+    var Class = js.lang.Class;
     
     thi$.isStateless = function(){
         return this.def.stateless || false;
@@ -30,7 +38,7 @@ js.awt.State = function() {
     thi$.setState = function(state) {
         if(!this.isStateless()) {
             this.def.state = state & 0x7F;
-            if(C.isFunction(this.onStateChanged)) {
+            if(Class.isFunction(this.onStateChanged)) {
                 this.onStateChanged(this.getState());
             }
         }
@@ -45,14 +53,6 @@ js.awt.State = function() {
         this.setState(b ? (state & ~$):(state | $));
     };
     
-    /**
-     * @deprecated
-     */
-    thi$.setEnable = function(b) {
-        J$VM.System.err.println("This method is deprecated, please use setEnabled");
-        return this.setEnabled(b);
-    };
-    
     thi$.isHover = function(){
         return (this.getState() & CLASS.H) != 0;
     };
@@ -62,22 +62,6 @@ js.awt.State = function() {
         this.setState(b ? (state | $):(state & ~$));
     };
     
-    /**
-     * @deprecated
-     */
-    thi$.isMouseOver = function() {
-        J$VM.System.err.println("This method is deprecated, please use isHover");
-        return this.isHover();
-    };
-
-    /**
-     * @deprecated
-     */
-    thi$.setMouseOver = function(b) {
-        J$VM.System.err.println("This method is deprecated, please use setHover");
-        return this.setHover(b);
-    };
-
     thi$.isActivated = function(){
         return (this.getState() & CLASS.A) != 0;
     };
@@ -94,22 +78,6 @@ js.awt.State = function() {
     thi$.setTriggered = function(b){
         var state = this.getState(), $ = CLASS.T;
         this.setState(b ? (state | $):(state & ~$));
-    };
-
-    /**
-     * @deprecated
-     */
-    thi$.isTrigger = function() {
-        J$VM.System.err.println("This method is deprecated, please use isTriggered.");
-        return this.isTriggered();
-    };
-    
-    /**
-     * @deprecated
-     */
-    thi$.setTrigger = function(b) {
-        J$VM.System.err.println("This method is deprecated, please use setTriggered.");
-        return this.setTriggered(b);
     };
 
     thi$.isVisible = function() {
@@ -140,22 +108,12 @@ js.awt.State = function() {
     };
 
     if(this instanceof js.util.EventTarget){
-        this.declareEvent(E.SYS_EVT_STATECHANGED);
+        this.declareEvent(Event.SYS_EVT_STATECHANGED);
     }
-    
+
     thi$._init0 = function(def){
         this.def = def || {};
     };
     
     this._init0.apply(this, arguments);
 };
-
-js.awt.State.D = 0x01 << 0; // Disable/Enable
-js.awt.State.O = 0x01 << 1; // MouseOver/MouseOut
-js.awt.State.T = 0x01 << 2; // Trigger/Un-trigger
-js.awt.State.A = 0x01 << 3; // Actived/Deactived
-js.awt.State.V = 0x01 << 4; // Hidden/Visible
-js.awt.State.X = 0x01 << 5; // Maximized/Normal
-js.awt.State.I = 0x01 << 6; // Iconified/Normal
-
-js.awt.State.H = 0x01 << 1;

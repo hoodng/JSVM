@@ -124,6 +124,12 @@ js.awt.Containable = function(){
         this[id] = ele;
 
         ele.setContainer(this);
+        
+        // @link js.lang.Object#setContextID
+        var eleDef = ele.def;
+        if(!eleDef["__contextid__"]){
+            ele.setContextID(this.uuid());
+        }
 
         if(Class.isHtmlElement(ele.view)){
             if(ref && ref.view){

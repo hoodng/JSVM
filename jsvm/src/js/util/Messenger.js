@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -37,45 +37,49 @@
 
 $package("js.util");
 
+$import("js.util.LinkedList");
+$import("js.util.EventListener");
+
 js.util.Messenger = function (){
-    var Q, running = false;
-    
+    var Class = js.lang.Class, List = js.util.LinkedList,
+        Listener = js.util.EventListener, Q, running = false;
+
     /**
      * Subscribe a message to the receiver
-     * 
+     *
      * @param msgId, the id uniquely identified a message type
      * @param recevier, the message receiver
-     * @param handler, the handler of the receiver to handle the message 
-     * 
+     * @param handler, the handler of the receiver to handle the message
+     *
      * @see cancel(msgId, receiver, handler)
      */
     this.register = function(msgId, receiver, handler){
         var recvs = this.table[msgId];
         if(recvs === undefined){
-            recvs = js.util.LinkedList.newInstance([]);
+            recvs = List.newInstance([]);
             this.table[msgId] = recvs;
         }
-        
-        var recv = new js.util.EventListener(receiver, handler);
+
+        var recv = new Listener(receiver, handler);
         if(!recvs.contains(recv)){
             recvs.push(recv);
         }
     };
-    
+
     /**
      * Cancel a message subscribe
-     * 
+     *
      * @param msgId, the id uniquely identified a message type
      * @param receiver, the message receiver
-     * @param handler, the handler of the receiver to handle the message 
-     * 
+     * @param handler, the handler of the receiver to handle the message
+     *
      * @see register(msgId, receiver, handler)
      */
     this.cancel = function(msgId, receiver, handler){
         var recvs = this.table[msgId];
         if(recvs === undefined) return;
-        
-        var recv = new js.util.EventListener(receiver, handler);
+
+        var recv = new Listener(receiver, handler);
         var p = recvs.indexOf(recv);
         if(p != -1){
             recvs.remove0(p);
@@ -84,14 +88,14 @@ js.util.Messenger = function (){
             }
         }
     };
-    
+
     /**
-     * Remove all subscribes of the specified receiver 
-     * 
+     * Remove all subscribes of the specified receiver
+     *
      * @param receiverId, the id that uniquely identified a recevier
      */
     this.remove = function(receiverId){
-        
+
         var indexOf = function(list, id){
             for(var i=0, len=list.length; i<len; i++){
                 if(list[i].uuid() === id) return i;
@@ -110,12 +114,12 @@ js.util.Messenger = function (){
             }
         }
     };
-    
+
     /**
      * Post a message to Messenger
-     * Call this method, the message will be put in message queue 
+     * Call this method, the message will be put in message queue
      * and return immediately
-     * 
+     *
      * @param msgId, the message id
      * @param msgData, the message content
      * @param recvs, specify who will receive this message
@@ -124,8 +128,8 @@ js.util.Messenger = function (){
      */
     this.post = function(msgId, msgData, recvs, device, priority){
         // We store the message as [msgId, msgData, recvs, device, priority]
-        var msg = [msgId, msgData, 
-                   js.lang.Class.typeOf(recvs) === "array" ? recvs : [],
+        var msg = [msgId, msgData,
+                   Class.typeOf(recvs) === "array" ? recvs : [],
                    device === undefined ? null : device,
                    priority === 0 ? 0 : (priority === 1 ? 1 : 1)];
 
@@ -135,7 +139,7 @@ js.util.Messenger = function (){
             _schedule();
         }
     };
-    
+
     var _schedule = function(){
         if(Q.isEmpty()){
             running = false;
@@ -144,24 +148,24 @@ js.util.Messenger = function (){
             _dispatch.$delay(this, 0);
         }
     }.$bind(this);
-    
+
     var _dispatch = function(){
         var msg = Q.get();
-        if(js.lang.Class.typeOf(msg) != "array"){
+        if(Class.typeOf(msg) != "array"){
             _schedule();
             return;
         }
 
-        var device = msg[3], g, 
+        var device = msg[3], g,
             recvs = this.table[msg[0]], recv;
-        
+
         if(device != null){
             // Forward to other device
             msg[3] = null;
             if(J$VM.env.j$vm_isworker){
                 device.postMessage(JSON.stringify(msg));
             }else{
-                device.postMessage(JSON.stringify(msg), "*");    
+                device.postMessage(JSON.stringify(msg), "*");
             }
 
         }else if(recvs != undefined && recvs.length > 0){
@@ -170,7 +174,7 @@ js.util.Messenger = function (){
                 if(g === undefined) g = {};
                 g[msg[2][i]] = true;
             }
-            
+
             for(i=0, len=recvs.length; i<len; i++){
                 recv = recvs[i];
 
@@ -182,27 +186,27 @@ js.util.Messenger = function (){
                     recv.handleEvent.$delay(recv, 0, msg[1]);
                 }
             }
-            
+
         }
 
         _schedule();
 
     }.$bind(this);
-    
+
     /**
      * Send a message to other subscribers
-     * Call this method will be blocked to all reltated subscribers 
+     * Call this method will be blocked to all reltated subscribers
      * handle the message.
-     * 
+     *
      * @see post(msgId, msgData, recvs, device, priority)
      */
     this.send = function(msgId, msgData, rcvs, device, priority){
         priority = priority === 0 ? 0 : (priority === 1 ? 1 : 1),
         device = device === undefined ? null : device,
-        rcvs = js.lang.Class.typeOf(rcvs) === "array" ? rcvs : [];
-        
+        rcvs = Class.typeOf(rcvs) === "array" ? rcvs : [];
+
         var recvs = this.table[msgId], recv, g;
-        
+
         if(device != null){
             // Forward to other device
             if(J$VM.env.j$vm_isworker){
@@ -210,7 +214,7 @@ js.util.Messenger = function (){
                     [priority, null, rcvs, msgId, msgData]));
             }else{
                 device.postMessage(JSON.stringify(
-                    [priority, null, rcvs, msgId, msgData]), "*");    
+                    [priority, null, rcvs, msgId, msgData]), "*");
             }
 
             // There are some issues at here ! Can not send message cross device
@@ -221,27 +225,27 @@ js.util.Messenger = function (){
                 if(g === undefined) g = {};
                 g[rcvs[i]] = true;
             }
-            
+
             for(i=0, len=recvs.length; i<len; i++){
                 recv = recvs[i];
-                
+
                 if(g != undefined){
                     if(g[recv.uuid()]){
-                        recv.handleEvent(msgData);    
+                        recv.handleEvent(msgData);
                     }
-                    
+
                 }else{
                     recv.handleEvent(msgData);
                 }
             }
         }
     };
-    
+
     var _init = function(){
 
         // Subscribe infomation
         this.table = {};
-        
+
         // Message queue for post
         Q = [[],[]];
         Q.isEmpty = function(){

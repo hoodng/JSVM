@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
 
- Redistribution and use in source and binary forms, with or without modification, 
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
 
- 1. Redistributions of source code must retain the above copyright notice, 
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -40,18 +40,18 @@ $package("js.awt");
 $import("js.awt.MenuItem");
 
 /**
- * 
+ *
  * @param def :{
  *	   className: "jsvm_menu",
  *	   id: "Menu",
- *	   
+ *
  *	   iconImage: "",
  *	   labelText: "Menu",
- * 
+ *
  *	   markable: true / false, indicate whether the menu items are markable
  *	   iconic: true / false, indicate whether the menu items have icons
  *	   nodes:[] // sub menu
- * } 
+ * }
  */
 js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
@@ -68,7 +68,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	thi$.getPeerComponent = function(){
 		var root = this.rootLayer();
 
-		return this == root ? 
+		return this == root ?
 			arguments.callee.__super__.apply(this, arguments) :
 			root.getPeerComponent();
 
@@ -97,15 +97,15 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 	/**
 	 * Insert menu items into specified position
-	 * 
+	 *
 	 * @param index
 	 * @param itemDefs, an array of menu item definition
 	 */
 	thi$.insertNodes = function(index, itemDefs){
-		var M = this.def, nodes = this.nodes, 
+		var M = this.def, nodes = this.nodes,
 		isMarkableSetten = Class.isBoolean(M.markable),
 		isIconicSetten = Class.isBoolean(M.iconic),
-		ibase = index, item, refNode, itemDef, 
+		ibase = index, item, refNode, itemDef,
 		clazz, i, len;
 
 		if(!nodes){
@@ -128,7 +128,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 			clazz = itemDef.classType ||
 				("-" === itemDef.type ? "js.awt.MenuSeparator" : "js.awt.MenuItem");
-			item = new (Class.forName(clazz))(itemDef, this.Runtime(), this);	 
+			item = new (Class.forName(clazz))(itemDef, this.Runtime(), this);
 
 			this[item.id] = item;
 
@@ -137,7 +137,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			if(refNode){
 				DOM.insertAfter(item.view, refNode);
 			}else{
-				DOM.appendTo(item.view, this.view);
+				DOM.appendTo(item.view, this._menuView);
 			}
 
 			refNode = item.view;
@@ -164,7 +164,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	thi$.removeAllNodes = function(){
 		var nodes = this.nodes;
 		if(nodes){
-			this.removeNodes(0, nodes.length);	  
+			this.removeNodes(0, nodes.length);
 		}
 	};
 
@@ -177,8 +177,9 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		case "blur":
 			return this.rootLayer().isHideOnBlur();
 		case "mousedown":
+		case "mousewheel":
+		case "DOMMouseScroll":
 			var el = e.srcElement;
-
 			if(el && this.contains(el, true)){
 				return false;
 			}
@@ -187,7 +188,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 		return arguments.callee.__super__.apply(this, arguments);
 
-	}.$override(this.canHide);	  
+	}.$override(this.canHide);
 
 	/**
 	 * @see js.awt.PopupLayer
@@ -203,16 +204,30 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	}.$override(this.hide);
 
 	/**
-	 * @see js.awt.BaseComponent 
+	 * @see js.awt.BaseComponent
 	 * @see js.awt.Component
 	 */
 	thi$.repaint = function(){
 		if(!this._local.repaint){
-			var M = this.def, bounds = this.getBounds();
+			var M = this.def, bounds = this.getBounds(),
+            nodes = this.nodes, node;
+
+            var clientH = document.documentElement.clientHeight,
+            height = this.def.height ? this.def.height : bounds.height;
+
+            if(height > clientH){
+                this.setY(0);
+                this.view.style.height = "100%";
+                this.applyStyles({overflow: "auto"});
+            }
 
 			M.width = bounds.width;
 			M.width -= bounds.BBM ? 0 : bounds.MBP.BPW;
 
+            var scrollbar = this.hasScrollbar();
+            if(scrollbar.vscroll){
+                M.width = M.width - scrollbar.vbw;
+            }
 			M.height = bounds.height;
 			M.height-= bounds.BBM ? 0 : bounds.MBP.BPH;
 
@@ -225,7 +240,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 			// For floating layer
 			if(M.isfloating === true && !this.floatingSettled()){
-				this.setFloating(true);	   
+				this.setFloating(true);
 			}
 
 			var nodes = this.nodes, node, i, len;
@@ -253,13 +268,13 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 	var _notify = function(e, item){
 		/* After click a menu item, a process block may occur so that the menu
-		 * cann't be hide. Maybe that is reasonable to hide it first. However, 
-		 * if we hide it before notifying its peer component to do something, 
-		 * the menu may be destoried. Meanwhile, the data carried by that menu 
+		 * cann't be hide. Maybe that is reasonable to hide it first. However,
+		 * if we hide it before notifying its peer component to do something,
+		 * the menu may be destoried. Meanwhile, the data carried by that menu
 		 * item may be destoried, too.
-		 * So we copy the def of menu item and build an object as the event 
-		 * target in order to avoid much change. Then we can hide menu first. 
-		 * 
+		 * So we copy the def of menu item and build an object as the event
+		 * target in order to avoid much change. Then we can hide menu first.
+		 *
 		 * P.S.
 		 * The menu of dashboard and gadget has menu item to do something like
 		 * mark. So we also need use the menu item as the event target. However,
@@ -271,7 +286,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 		// Here, we will invoke the hide() to hide the menu rather than trigger
 		// it by the message post. Because the message execution is asynchronously.
-		// In some case, it may be block, too.		
+		// In some case, it may be block, too.
 		//MQ.post("hideMenuRoot","", [this.rootLayer().uuid()]);
 		this.rootLayer().hide();
 
@@ -279,10 +294,10 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	};
 
 	var _onclick = function(e){
-		var el = e.srcElement, uuid = el.uuid, 
+		var el = e.srcElement, uuid = el.uuid,
 		item = this.cache[uuid];
-		
-		if(item.hasNodes()){
+
+		if(item && item.hasNodes()){
 			item.showSubMenu();
 			return;
 		}
@@ -305,12 +320,12 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	};
 
 	var _onhideMenuRoot = function(){
-		this.hide();	
+		this.hide();
 	};
 
 	var _onmouseover = function(e){
-		var from = e.fromElement, to = e.toElement, 
-		fid = from ? from.uuid : undefined, 
+		var from = e.fromElement, to = e.toElement,
+		fid = from ? from.uuid : undefined,
 		tid = to ? to.uuid : undefined,
 		fitem, titem, cache = this.cache;
 
@@ -337,6 +352,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 		delete this._local.root;
 		delete this._local.parent;
+        delete this._local.menuView;
 		delete this.cache;
 
 		arguments.callee.__super__.apply(this, arguments);
@@ -357,12 +373,18 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		_setParentMenu.call(this, parentMenu);
 		_setRootMenu.call(this, rootMenu);
 
+        var menuView = this._menuView = DOM.createElement("DIV");
+		menuView.className = this.className + "_menuview";
+		menuView.style.cssText = "position:relative;width:100%;height:100%;";
+        DOM.appendTo(menuView, this.view);
+
 		this.cache = {};
 
 		if(def.nodes && def.nodes.length > 0){
 			this.insertNodes(0, def.nodes);
 		}
 
+		this.setAttribute("touchcapture", "true");
 		Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
 		Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
 		Event.attachEvent(this.view, "click",	  0, this, _onclick);
@@ -374,4 +396,3 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);
-

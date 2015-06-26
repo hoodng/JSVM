@@ -103,3 +103,40 @@ js.text.Format = function(pattern, symbols){
 
 }.$extend(js.lang.Object);
 
+(function(){
+
+    js.text.DefaultNumberSymbols = new js.text.NumberFormatSymbols();
+
+    if(Number.DF === undefined){
+        Number.DF = new js.text.NumberFormat();
+
+        Number.prototype.$format = function(pattern){
+            if(pattern) Number.DF.setPattern(pattern);
+            return Number.DF.format(this);
+        };
+
+        Number.$parse = function(str, pattern, symbols){
+            if(symbols) Number.DF.setSymbols(symbols);
+            if(pattern) Number.DF.setPattern(pattern);
+            return Number.DF.parse(str);
+        };
+    }
+
+    js.text.DefaultDateSymbols = new js.text.DateFormatSymbols();
+    
+    if(Date.SF === undefined){
+	    Date.SF = new js.text.SimpleDateFormat();
+
+	    Date.prototype.$format = function(pattern, isUTC){
+		    if(pattern) Date.SF.setPattern(pattern);
+		    return Date.SF.format(this, isUTC);
+	    };
+
+	    Date.$parse = function(datestr, pattern, symbols, isUTC){
+		    if(pattern) Date.SF.setPattern(pattern);
+		    if(symbols) Date.SF.setSymbols(symbols);
+		    return Date.SF.parse(datestr, isUTC);
+	    };
+    }
+    
+}).$delay(this, 0);

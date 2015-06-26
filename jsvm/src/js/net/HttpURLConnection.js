@@ -51,12 +51,12 @@ js.net.XHRPool = new function(){
     J$VM.XHRPool = this;
     this.pool = [];
     
-    var Q = [], running = false;
+    var Class =js.lang.Class, Q = [], running = false;
 
     this.getXHR = function(isAsync){
-        var xhr, i, len, pool = this.pool, 
-            max = J$VM.System.getProperty("j$vm_ajax_concurrent", 8),
-            ie = (J$VM.ie !== undefined);
+        var xhr, i, len, pool = this.pool, ie = (J$VM.ie !== undefined),
+            Connection = Class.forName("js.net.HttpURLConnection"),
+            max = J$VM.System.getProperty("j$vm_ajax_concurrent", 8);
         
         for(i=0, len=pool.length; i<len; i++){
             xhr = pool[i];
@@ -70,18 +70,15 @@ js.net.XHRPool = new function(){
         if(!xhr){
             // Can not found available xhr, then create a new instance.
             if(!isAsync || max < 0 || this.pool.length < max){
-                xhr = new js.net.HttpURLConnection(isAsync);
+                xhr = new Connection(isAsync);
                 if(!ie){
                     pool.push(xhr);
                 }
             }else{
-                xhr = (J$VM.ie === undefined) ? 
-                    new js.net.HttpURLConnection(isAsync, true) :
-                    new js.net.HttpURLConnection(isAsync);
+                xhr = (!ie) ? new Connection(isAsync, true) : new Connection(isAsync);
             }
         }
 
-        //xhr = new js.net.HttpURLConnection(isAsync);
         xhr.setAsync(isAsync);
         xhr.occupy();
 
@@ -121,7 +118,7 @@ js.net.XHRPool = new function(){
         req._blocking = false;
         req.xhr = xhr;
         data = req.data;
-        req.open(data.method, data.url, data.params, data.withCookie);
+        req.open(data.method, data.url, data.params, data.withOutCookie);
         _schedule(100);
 
     }.$bind(this);
@@ -166,13 +163,6 @@ js.net.HttpURLConnection = function (isAsync, blocking){
 
     thi$.setNoCache = function(isNoCache){
         this._nocache = isNoCache || false; 
-        var date;
-        if(this._nocache){
-            date = "Thu, 01 Jan 1970 00:00:00 GMT"; 
-        }else{
-            date = "Fri, 01 Jan 2900 00:00:00 GMT";
-        }
-        //this.setRequestHeader("If-Modified-Since", date);
     };
 
     thi$.setRequestHeader = function(key, value){
@@ -263,7 +253,7 @@ js.net.HttpURLConnection = function (isAsync, blocking){
     /**
      * Open url by method and with params
      */
-    thi$.open = function(method, url, params, withCookie){
+    thi$.open = function(method, url, params, withOutCookie){
         J$VM.System.updateLastAccessTime();
 
         if(this.isBlocking()){
@@ -271,7 +261,7 @@ js.net.HttpURLConnection = function (isAsync, blocking){
                 method: method,
                 url: url,
                 params: params,
-                withCookie: withCookie
+                withOutCookie: withOutCookie
             };
             J$VM.XHRPool.post(this);
             return;
@@ -336,10 +326,20 @@ js.net.HttpURLConnection = function (isAsync, blocking){
 
         xhr.open(method, _url, async);
         _setRequestHeader.call(this, xhr, this._headers);
-        if(withCookie == true){
-            xhr.withCredentials = true;
+
+        if(async){
+            if(withOutCookie !== true){
+                try{
+                    xhr.withCredentials = true;                
+                } catch (x) {
+                }
+            }
+            
+            xhr.send.$delay(xhr, 0, query);    
+        }else{
+            xhr.send(query);
         }
-        xhr.send(query);
+        
     };
     
     /**
@@ -390,11 +390,14 @@ js.net.HttpURLConnection = function (isAsync, blocking){
     var _makeQueryString = function(params){
         if(params === null || 
            params === undefined || 
-           typeof params != "object") return null;
+           typeof params != "object") params={};
         
         var buf = new js.lang.StringBuffer();
         for(var p in params){
             buf.append(p).append("=").append(params[p]).append("&");
+        }
+        if(this.isNoCache()){
+            buf.append("__=").append(J$VM.__version__);            
         }
 
         return buf.toString();
@@ -453,6 +456,7 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         this._usecount = 0;
         this.setTimeout(J$VM.System.getProperty("j$vm_ajax_timeout", 6000000));
         this.declareEvent(Event.SYS_EVT_TIMEOUT);
+        
     }.$override(this._init);
 
     this._init(isAsync, blocking);

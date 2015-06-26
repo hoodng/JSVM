@@ -91,11 +91,11 @@ js.awt.Window = function (def, Runtime, view){
             switch(bstyle){
             case 0:
             case 2:
-                _showtitlebutton.call(this, true);
+                this.showtitlebutton(true);
                 break;
             case 1:
             case 3:
-                _showtitlebutton.call(this, false);
+                this.showtitlebutton(false);
                 break;
             }
         }
@@ -401,9 +401,9 @@ js.awt.Window = function (def, Runtime, view){
 
                 if(style.bstyle === 3){
                     if(title.contains(ele, true)){
-                        _showtitlebutton.call(this, true);
+                        this.showtitlebutton(true);
                     }else{
-                        _showtitlebutton.call(this, false);
+                        this.showtitlebutton(false);
                     }
                 }
             }
@@ -417,7 +417,7 @@ js.awt.Window = function (def, Runtime, view){
                 }
 
                 if(style.bstyle === 3){
-                    _showtitlebutton.call(this, false);
+                    this.showtitlebutton(false);
                 }
             }
             this.setHover(false);
@@ -425,7 +425,7 @@ js.awt.Window = function (def, Runtime, view){
         }
     };
 
-    var _showtitlebutton = function(b){
+    thi$.showtitlebutton = function(b){
         var title = this.title, items = title.items0(), item;
         for(var i=0, len=items.length; i<len; i++){
             item = title[items[i]];
@@ -447,11 +447,15 @@ js.awt.Window = function (def, Runtime, view){
         case "mouseup":
         case "message":
             var target = e.getEventTarget(),
-                func = "on"+target.id;
+                func = "on" + target.id;
             if(typeof this[func] == "function"){
                 this[func](target);
             }else{
-                throw "Can not found function of button "+ target.id;
+                if(typeof this["onbtnDispatcher"] == "function"){
+                    this["onbtnDispatcher"](target);
+                }else{
+                    throw "Can not found function of button "+ target.id;
+                }
             }
 
             break;

@@ -390,7 +390,7 @@ js.awt.CanvasRenderer = function(config){
         this.setContext(ctx, style, hit, transform, clip);
 
         var x = geom.dx, y = geom.dy, w = geom.dw, h = geom.dh, a, b, 
-            e = geom.rotate, o = e + PI/2, dx, dy;
+            e = geom.rotate, o = e + PI/2, dx, dy,fix = this.fix;
 
         a = w/2; b = h/2;
         dx = x + a; dy = y + b;
@@ -407,7 +407,7 @@ js.awt.CanvasRenderer = function(config){
             ctx.drawImage(geom.image, geom.sx,geom.sy, 
                           geom.sw,geom.sh, x, y, w, h);
         }else{
-            ctx.rect(x, y, w, h);
+            ctx.rect(fix(x), fix(y), w, h);
         }
         
         this.draw(ctx, style, hit);
@@ -470,10 +470,10 @@ js.awt.CanvasRenderer = function(config){
         for(i=0, len=points.length; i<len; i++){
             p = points[i];
             x = fix(p[1]); y = fix(p[2]);
-            r = p[3];
-            color = p[4];
-            if(r && Class.isNumber(r) && r > 0){
+            if(p.length > 3){
                 mode = MODE2;
+                r = p[3];
+                color = p[4];                
             }else{                
                 mode = MODE1;
             }
@@ -530,8 +530,8 @@ js.awt.CanvasRenderer = function(config){
                 break;
             }
             if(flag){
-                this.draw(ctx, style, hit);            
-            }        
+                this.draw(ctx, style, hit);
+            }
         }
     };
 
@@ -541,7 +541,7 @@ js.awt.CanvasRenderer = function(config){
         
         ctx.beginPath();
         ctx.rect(this.fix(geom.x), this.fix(geom.y), geom.width, geom.height);
-        
+
         this.draw(ctx, style, hit);
     };
 

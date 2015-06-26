@@ -230,7 +230,7 @@ js.awt.FileInput = function(def, Runtime){
 		this.setFormEncoding("multipart/form-data");
 		this.setFilter(def.types);
 		
-		this.formPane.btnBrowse.text = Runtime.nlsText("iidBtnBrowse", "Browse...");
+		this.formPane.btnBrowse.setText(Runtime.nlsText("iidBtnBrowse", "Browse..."));
 		
 		var filePane = this.filePane = DOM.createElement("DIV");
 		filePane.style.cssText = "position:absolute;float:right;top:0px;right:0px;width:100%;height:100%";

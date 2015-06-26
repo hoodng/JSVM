@@ -101,7 +101,7 @@ js.awt.Event = function(e){
      */
     thi$.isPointerDown = function(){
         var type = this.getType();
-        return type == "pointerdown" || "mousedown";
+        return type == "pointerdown" || type == "mousedown";
     };
 
     /**
@@ -109,7 +109,7 @@ js.awt.Event = function(e){
      */
     thi$.isPointerMove = function(){
         var type = this.getType();
-        return type == "pointermove" || "mousemove";
+        return type == "pointermove" || type == "mousemove";
     };
 
     /**
@@ -117,7 +117,7 @@ js.awt.Event = function(e){
      */
     thi$.isPointerUp = function(){
         var type = this.getType();
-        return type == "pointerup" || "mouseup";
+        return type == "pointerup" || type == "mouseup";
     };
 
     /**
@@ -125,7 +125,7 @@ js.awt.Event = function(e){
      */
     thi$.isPointerOver = function(){
         var type = this.getType();
-        return type == "pointerover" || "mouseover";
+        return type == "pointerover" || type == "mouseover";
     };
 
     /**
@@ -133,7 +133,7 @@ js.awt.Event = function(e){
      */
     thi$.isPointerOut = function(){
         var type = this.getType();
-        return type == "pointerout" || "mouseout";
+        return type == "pointerout" || type == "mouseout";
     };
 
     /**
@@ -188,6 +188,10 @@ js.awt.Event = function(e){
             this.button = _e.button;
             break;
         }
+
+        this.pointerId = _e.pointerId || 0;
+        this.pointerType = _e.pointerType ||
+            (_e.type.startsWith("touch") ? "touch" : "mouse");
 
         this.pageX = _e.pageX;
         this.pageY = _e.pageY;

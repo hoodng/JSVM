@@ -229,3 +229,33 @@ js.awt.Font.FFCANVASFONTWEIGHTS = {
     "800": "bold",
     "900": "bold"
 };
+
+/**
+ * convert from FontDef.java
+ */
+js.awt.Font.STYLE_BOLD = 1 << 0;
+js.awt.Font.STYLE_ITALIC = 1 << 1;
+
+js.awt.Font.isFontBold = function(fontStyle){
+    return (fontStyle & js.awt.Font.STYLE_BOLD) != 0;
+};
+
+js.awt.Font.isFontItalic = function(fontStyle){
+    return (fontStyle & js.awt.Font.STYLE_ITALIC) != 0;
+};
+
+js.awt.Font.getFontStyle = function(isBold,isItalic){
+    var fontStyle = 0;
+    var Font = js.awt.Font;
+    if (isBold) {
+        fontStyle |= Font.STYLE_BOLD;
+    } else {
+        fontStyle &= ~Font.STYLE_BOLD;
+    }
+    if (isItalic) {
+        fontStyle |= Font.STYLE_ITALIC;
+    } else {
+        fontStyle &= ~Font.STYLE_ITALIC;
+    }
+    return fontStyle;
+};

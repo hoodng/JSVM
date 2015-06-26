@@ -1,31 +1,31 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -40,7 +40,7 @@ $package("js.awt");
 $import("js.awt.Window");
 
 /**
- * The DialogObject is the interface between dialog entity and 
+ * The DialogObject is the interface between dialog entity and
  * dialog frame.
  */
 js.awt.DialogObject = function (){
@@ -52,10 +52,10 @@ js.awt.DialogObject = function (){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM;
-    
+
     /**
      * The data feedback to dialog opener.
-     * 
+     *
      * Notes: Sub class should implements this function.
      */
     thi$.getDialogData = function(){
@@ -64,7 +64,7 @@ js.awt.DialogObject = function (){
 
     /**
      * Validate dialog data
-     * 
+     *
      * @param okFunc
      */
     thi$.validateData = function(okFunc){
@@ -72,11 +72,11 @@ js.awt.DialogObject = function (){
             okFunc();
         }
     };
-    
+
     /**
      * The message type is a such a string that identify what message
      * will be posted to dialog opener.
-     * 
+     *
      * Notes: Sub class should implements this function.
      */
     thi$.getDialogMsgType = function(){
@@ -88,15 +88,15 @@ js.awt.DialogObject = function (){
     };
 
     /**
-     * 
+     *
      */
     thi$.getHelpID = function(){
-        return "";        
+        return "";
     };
 
     /**
      * Set Dialog window title
-     */    
+     */
     thi$.setTitle = function(text){
         var dialog = this.getPeerComponent();
         if(dialog instanceof js.awt.Dialog){
@@ -113,7 +113,7 @@ js.awt.DialogObject = function (){
 };
 
 /**
- * The Dialog is dialog frame, it can holds any DialogObj. 
+ * The Dialog is dialog frame, it can holds any DialogObj.
  */
 js.awt.Dialog = function (def, Runtime){
 
@@ -154,7 +154,7 @@ js.awt.Dialog = function (def, Runtime){
         var dialogObj = this.client.dialogObj;
         return dialogObj ? dialogObj.getDialogData() : null;
     };
-    
+
     var _showMaskCover = function(b){
         var peer = this.getPeerComponent();
         if(this.def.modal === true){
@@ -162,48 +162,49 @@ js.awt.Dialog = function (def, Runtime){
                 peer.showMaskCover(b);
             }
         }else{
-            var event = _buildDialogEvent.call(
-                this, b ? "open" : "close", false);
+            var event = this.buildDialogEvent(b ? "show" : "hide", false);
             this.notifyPeer(event.msgId, event);
         }
     };
 
     thi$.show = function(){
         _showMaskCover.call(this, true);
+
+        var x = this.def.x, y = this.def.y, DM = this.Runtime().DM,
+        pox = DM.getBounds();
         
-        var x = this.def.x, y = this.def.y, DM = this.Runtime().DM;
-
-        if(x == undefined || y == undefined){
-            var pox = DM.getBounds();
-            x = (pox.width - this.def.width)*0.5,
+        if(x == undefined){
+            x = (pox.width - this.def.width)*0.5;
+            x = x < 0 ? 0:x; 
+        }
+        
+        if(y == undefined){
             y = (pox.height- this.def.height)*0.5;
-
-            x = x < 0 ? 0:x;
             y = y < 0 ? 0:y;
         }
 
         DM.addComponent(this);
         this.getDialogObject().initialize();
         if(this.btnpane){
-            // Maybe dialogObject modified btnpane, 
-            // so need doLayout 
+            // Maybe dialogObject modified btnpane,
+            // so need doLayout
             this.btnpane.doLayout(true);
         }
         this.setPosition(x, y);
     };
-    
+
     /**
      * @see js.awt.Cover
      */
     thi$.showLoading = function(b){
-        
+
         arguments.callee.__super__.apply(this, arguments);
         this.btnpane.showLoading(b);
 
     }.$override(this.showLoading);
 
     thi$.onbtnHelp = function(button){
-        MQ.post("js.awt.event.ShowHelpEvent", 
+        MQ.post("js.awt.event.ShowHelpEvent",
                 new Event("helpid", this.getDialogObject().getHelpID()));
     };
 
@@ -232,9 +233,30 @@ js.awt.Dialog = function (def, Runtime){
         this.close();
     };
 
+    /**
+     * Handler for buttons except "btnOK", "btnCancel", "btnApply",
+     * "btnClose", "btnHelp".
+     * 
+     * Subclass and the dialog instance ojbect can override it if
+     * need.
+     */
+    thi$.onbtnDispatcher = function(button){
+        var btnId = button.id || "", idx = btnId.indexOf("btn"),
+        cmd, event;
+
+        if(idx >= 0){
+            cmd = btnId.substr(idx + 3);
+            cmd = cmd.toLowerCase();
+        }
+
+        event = this.buildDialogEvent(cmd || btnId, true);
+        this.notifyPeer(event.msgId, event, true);
+        this.close();
+    };
+
     thi$.buildDialogEvent = function(type, hasData){
         var dialogObj = this.client.dialogObj,
-        msgId = dialogObj.getDialogMsgType(), 
+        msgId = dialogObj.getDialogMsgType(),
         data, event;
 
         if(hasData !== false){
@@ -245,14 +267,14 @@ js.awt.Dialog = function (def, Runtime){
 
         return event;
     };
-    
+
     thi$.onbtnClose = function(button){
-        
+
         var event = this.buildDialogEvent("close", false);
         this.notifyPeer(event.msgId, event, true);
-        
+
         arguments.callee.__super__.apply(this, arguments);
-        
+
     }.$override(this.onbtnClose);
 
     thi$.close = function(){
@@ -261,7 +283,7 @@ js.awt.Dialog = function (def, Runtime){
          if(peer){
          peer.getDialogs().remove(this);
          }*/
-        
+
         var handler = this._local.handler;
         if(typeof handler == "function"){
             MQ.cancel(this.getDialogMsgType(), peer, handler);
@@ -283,9 +305,9 @@ js.awt.Dialog = function (def, Runtime){
         delete this.opener;
 
         arguments.callee.__super__.apply(this, arguments);
-        
+
     }.$override(this.destroy);
-    
+
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
 
@@ -317,7 +339,7 @@ js.awt.Dialog = function (def, Runtime){
         }
 
         restricted.push(this.client);
-        
+
     }.$override(this._init);
 
     this._init.apply(this, arguments);
@@ -338,7 +360,7 @@ js.awt.AbstractDialogObject = function(def, Runtime){
     /**
      * The message type is a such a string that identify what message
      * will be posted to dialog opener.
-     * 
+     *
      * Notes: Sub class should implements this function.
      */
     thi$.getDialogMsgType = function(){
@@ -351,7 +373,7 @@ js.awt.AbstractDialogObject = function(def, Runtime){
     }.$override(this.getDialogMsgType);
 
     this._init.apply(this, arguments);
-    
+
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 
 js.awt.Dialog.DEFAULTDEF = function(){
@@ -366,7 +388,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
             constraints: "north",
 
             items:["labTitle", "btnHelp", "btnClose"],
-            
+
             labTitle:{
                 classType: "js.awt.Label",
                 text : "Dialog",
@@ -379,7 +401,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
                 className: "jsvm_title_button",
                 iconImage: "dialog_help.png"
             },
-            
+
             btnClose:{
                 classType: "js.awt.Button",
                 className: "jsvm_title_button",
@@ -405,21 +427,24 @@ js.awt.Dialog.DEFAULTDEF = function(){
             btnApply:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: "Apply",
+                labelText: (J$VM.env && J$VM.env['dict'])
+                                ? J$VM.env['dict'].btnApply : "Apply",
                 effect: true
             },
 
             btnOK:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: "OK",
+                labelText: (J$VM.env && J$VM.env['dict'])
+                                ? J$VM.env['dict'].btnOK : "OK",
                 effect: true
             },
-            
+
             btnCancel:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: "Cancel",
+                labelText: (J$VM.env && J$VM.env['dict'])
+                                ? J$VM.env['dict'].btnCancel : "Cancel",
                 effect: true
             },
 
@@ -448,7 +473,7 @@ js.awt.Dialog.MSGDIALOGDEF = function(){
             constraints: "north",
 
             items:["labTitle"],
-            
+
             labTitle:{
                 classType: "js.awt.Label",
                 text : "Dialog"
@@ -474,10 +499,11 @@ js.awt.Dialog.MSGDIALOGDEF = function(){
             btnOK:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: "Close",
+                labelText:  (J$VM.env && J$VM.env['dict'])
+                                ? J$VM.env['dict'].btnOK : "OK",
                 effect: true
             },
-            
+
             layout:{
                 gap: 4,
                 align_x : 1.0,
