@@ -396,9 +396,14 @@ js.lang.System = function (env, vm){
     };
 
     var _buildWorkerEnv = function(){
-        var path = vm.env.uri.source,
+        var path = self.j$vm_home, p;
+        if(path.startsWith("../")){
+            path = vm.env.uri.source;
             p = path.indexOf("classes/js/util/Worker.jz");
-        vm.env.j$vm_home = vm.j$vm_home = path.substring(0, p);
+            path = path.substring(0, p);
+        }
+
+        vm.env.j$vm_home = vm.j$vm_home = path;
         vm.uuid("j$vm_"+js.lang.Math.uuid());
         vm.id = vm.uuid();
     };

@@ -16,8 +16,16 @@ js.awt.State = function() {
         return;
     }
     CLASS.__defined__ = true;
+
+    CLASS.D = 0x01 << 0; // Disable/Enable
+    CLASS.H = 0x01 << 1; // MouseOver/MouseOut
+    CLASS.T = 0x01 << 2; // Trigger/Un-trigger
+    CLASS.A = 0x01 << 3; // Actived/Deactived
+    CLASS.V = 0x01 << 4; // Hidden/Visible
+    CLASS.X = 0x01 << 5; // Maximized/Normal
+    CLASS.I = 0x01 << 6; // Iconified/Normal
     
-    var C = js.lang.Class, E = js.util.Event;
+    var Class = js.lang.Class;
     
     thi$.isStateless = function(){
         return this.def.stateless || false;
@@ -30,7 +38,7 @@ js.awt.State = function() {
     thi$.setState = function(state) {
         if(!this.isStateless()) {
             this.def.state = state & 0x7F;
-            if(C.isFunction(this.onStateChanged)) {
+            if(Class.isFunction(this.onStateChanged)) {
                 this.onStateChanged(this.getState());
             }
         }
@@ -45,14 +53,6 @@ js.awt.State = function() {
         this.setState(b ? (state & ~$):(state | $));
     };
     
-    /**
-     * @deprecated
-     */
-    thi$.setEnable = function(b) {
-        J$VM.System.err.println("This method is deprecated, please use setEnabled");
-        return this.setEnabled(b);
-    };
-    
     thi$.isHover = function(){
         return (this.getState() & CLASS.H) != 0;
     };
@@ -62,22 +62,6 @@ js.awt.State = function() {
         this.setState(b ? (state | $):(state & ~$));
     };
     
-    /**
-     * @deprecated
-     */
-    thi$.isMouseOver = function() {
-        J$VM.System.err.println("This method is deprecated, please use isHover");
-        return this.isHover();
-    };
-
-    /**
-     * @deprecated
-     */
-    thi$.setMouseOver = function(b) {
-        J$VM.System.err.println("This method is deprecated, please use setHover");
-        return this.setHover(b);
-    };
-
     thi$.isActivated = function(){
         return (this.getState() & CLASS.A) != 0;
     };
@@ -94,22 +78,6 @@ js.awt.State = function() {
     thi$.setTriggered = function(b){
         var state = this.getState(), $ = CLASS.T;
         this.setState(b ? (state | $):(state & ~$));
-    };
-
-    /**
-     * @deprecated
-     */
-    thi$.isTrigger = function() {
-        J$VM.System.err.println("This method is deprecated, please use isTriggered.");
-        return this.isTriggered();
-    };
-    
-    /**
-     * @deprecated
-     */
-    thi$.setTrigger = function(b) {
-        J$VM.System.err.println("This method is deprecated, please use setTriggered.");
-        return this.setTriggered(b);
     };
 
     thi$.isVisible = function() {
@@ -140,25 +108,15 @@ js.awt.State = function() {
     };
 
     if(this instanceof js.util.EventTarget){
-        this.declareEvent(E.SYS_EVT_STATECHANGED);
+        this.declareEvent(Event.SYS_EVT_STATECHANGED);
     }
-    
+
     thi$._init0 = function(def){
         this.def = def || {};
     };
     
     this._init0.apply(this, arguments);
 };
-
-js.awt.State.D = 0x01 << 0; // Disable/Enable
-js.awt.State.O = 0x01 << 1; // MouseOver/MouseOut
-js.awt.State.T = 0x01 << 2; // Trigger/Un-trigger
-js.awt.State.A = 0x01 << 3; // Actived/Deactived
-js.awt.State.V = 0x01 << 4; // Hidden/Visible
-js.awt.State.X = 0x01 << 5; // Maximized/Normal
-js.awt.State.I = 0x01 << 6; // Iconified/Normal
-
-js.awt.State.H = 0x01 << 1;
 
 /**
 
@@ -219,33 +177,33 @@ js.awt.Editable = function(){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice, 
+  this list of conditions and the following disclaimer.
+  
+  2. Redistributions in binary form must reproduce the above copyright notice, 
+  this list of conditions and the following disclaimer in the 
+  documentation and/or other materials provided with the distribution.
+  
+  3. Neither the name of the JSVM nor the names of its contributors may be 
+  used to endorse or promote products derived from this software 
+  without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -265,7 +223,7 @@ js.awt.Cover = function (comp){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+        System = J$VM.System;
 
     /**
      * Show loading status in this cover
@@ -298,11 +256,11 @@ js.awt.Cover = function (comp){
         _showCover.call(this, b, this.className + "_movecover");
     };
 
-    thi$.showMaskCover = function(b){
+    thi$.showMaskCover = function(b, styleClass){
         b = b || false;
         if(b && this._coverView) return;
 
-        _showCover.call(this, b, this.className + "_mask");
+        _showCover.call(this, b, styleClass || (this.className + "_mask"));
     };
 
     thi$.showDisableCover = function(b){
@@ -325,27 +283,30 @@ js.awt.Cover = function (comp){
      * @param b, true show the cover and false hide the cover
      */
     var _showCover = function(b, style){
-        var cover = this._coverView;
+        var cover = this._coverView, body = self.document.body;
 
         if(b){
             if(cover == undefined){
                 cover = this._coverView = DOM.createElement("DIV");
                 cover.className = style;
-                cover.style.cssText = "position:absolute;";
-                //cover.uuid = this.uuid();
+                cover.style.cssText = "position:absolute;";             
+
+                var el = (typeof this.getLastResizer == "function") ?
+                    (this.getLastResizer() || this.view) :this.view;
                 
-                var el = this.view;
-                if(typeof this.getLastResizer == "function"){
-                    el = this.getLastResizer() || this.view;
+                if(el !== body){
+                    DOM.insertAfter(cover, el);
+                }else{
+                    body.appendChild(cover);
                 }
-                
-                DOM.insertAfter(cover, el);
-                this.adjustCover();
             }
+
+            this.adjustCover();
+            
         }else{
             if(cover && cover.className == style){
-               cover.style.cursor = "default"; 
-               this.removeCover();
+                cover.style.cursor = "default"; 
+                this.removeCover();
             }
         }
     };
@@ -379,11 +340,11 @@ js.awt.Cover = function (comp){
                           bounds.height+ bounds.MBP.MH);    
         }
     };
-        
+    
     thi$.removeCover = function(){
         if(this._coverView){
             DOM.remove(this._coverView, true);
-            delete this._coverView;
+            this._coverView = undefined;
         }
     };
 
@@ -1233,8 +1194,8 @@ js.awt.Resizable = function(){
         h = grid*Math.round((box.userH + dh)/grid),
         minW = grid*Math.ceil(miniW(c, miniSize.width)/grid),
         minH = grid*Math.ceil(miniH(c, miniSize.height)/grid),
-        maxW = grid*Math.floor(maxiW(i, box, pox, maxiSize.width)/grid),
-        maxH = grid*Math.floor(maxiH(i, box, pox, maxiSize.height)/grid);
+        maxW = grid*Math.floor(maxiW(i, box, pox, maxiSize.width)/grid - 1),
+        maxH = grid*Math.floor(maxiH(i, box, pox, maxiSize.height)/grid - 1);
 
         w = w < minW ? minW : (w > maxW) ? maxW : w;
         h = h < minH ? minH : (h > maxH) ? maxH : h;
@@ -3017,8 +2978,9 @@ js.awt.CardLayout = function (def){
                 }else{
                     comp.setVisible(false);
                 }
-            }
+            }            
         }
+        return item;
     };
     
     thi$._init = function(def){
@@ -3664,6 +3626,25 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
 
     /**
+     * @method
+     * 
+     * Override to use the tooltip of current component also as the tooltip
+     * of its disable cover.
+     * 
+     * Ref: http://redmine.jinfonet.com.cn/issues/59362
+     */
+    thi$.showDisableCover = function(b){
+
+        arguments.callee.__super__.apply(this, arguments);        
+
+        var cover = this._coverView, tip = this.getAttribute("title");
+        if(cover && tip){
+            DOM.setAttribute(cover, "title", tip);
+        }
+
+    }.$override(this.showDisableCover);
+
+    /**
      * Test whether this componet view is a DOM element
      */    
     thi$.isDOMElement = function(){
@@ -4044,7 +4025,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
             def.className = view.clazz || def.className;
         }else{
             this.view = view = DOM.createElement(def.viewType || "DIV");
-            def.className = def.className || "jsvm_comp";
+            def.className = def.className || "jsvm__element";
             view.clazz = view.className = def.className; 
         }
         
@@ -4136,581 +4117,581 @@ $import("js.util.Observer");
  * 
  * The <em>model</em> of a <em>component</em> as below:<p>
  *@param def : {
- *	   classType : class type of this component
- *	   id : string to identify a component
- *	   
+ *     classType : class type of this component
+ *     id : string to identify a component
+ *     
  * 
- *	   x : position left,
- *	   y : position top,
- *	   width : outer width of the componet,
- *	   height: outer height of the component,
- *	   miniSize: {width, height},
- *	   maxiSize: {width, height},
- *	   prefSize: {width, height},
- *	   rigid_w: true|false
- *	   rigid_h: true|false	
- *	   align_x: 0.0|0.5|1.0
- *	   align_y: 0.0|0.5|1.0
- *	   
- *	   className : style class
- *	   css: css text
+ *     x : position left,
+ *     y : position top,
+ *     width : outer width of the componet,
+ *     height: outer height of the component,
+ *     miniSize: {width, height},
+ *     maxiSize: {width, height},
+ *     prefSize: {width, height},
+ *     rigid_w: true|false
+ *     rigid_h: true|false  
+ *     align_x: 0.0|0.5|1.0
+ *     align_y: 0.0|0.5|1.0
+ *     
+ *     className : style class
+ *     css: css text
  * 
- *	   state : number, see also <code>js.util.State</code>
- *	   
- *	   mover : {delay, bound ...}, see also <code>js.awt.Movable</code>
- *	   movable : true/false,
- *	   
- *	   resizer : 8 bits number to define 8 directions resize, see also 
- *				 <code>js.awt.Resizable</code>,
- *	   resizable : true/false
+ *     state : number, see also <code>js.util.State</code>
+ *     
+ *     mover : {delay, bound ...}, see also <code>js.awt.Movable</code>
+ *     movable : true/false,
+ *     
+ *     resizer : 8 bits number to define 8 directions resize, see also 
+ *               <code>js.awt.Resizable</code>,
+ *     resizable : true/false
  * 
- *	   alwaysOnTop: true/false
+ *     alwaysOnTop: true/false
  * }<p>
  * 
  * The <em>Runtime</em> is runtime context, it may includes:
  * @param Runtime :{
- *	   imgPath : The image path,
- *	   ...
+ *     imgPath : The image path,
+ *     ...
  * }<p>
  * 
  * When new a <em>component</em> will create a DIV element as the <em>View</em>
  * of this component. But you also can use an existing view to instead of the
  * view.
- * @param view,	 a document element	 
+ * @param view,  a document element  
  */
 js.awt.Component = function (def, Runtime, view){
 
-	var CLASS = js.awt.Component, thi$ = CLASS.prototype;
-	if(CLASS.__defined__){
-		this._init.apply(this, arguments);
-		return;
-	}
-	CLASS.__defined__ = true;
-	
-	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System, MQ = J$VM.MQ;
+    var CLASS = js.awt.Component, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+    System = J$VM.System, MQ = J$VM.MQ;
 
-	/**
-	 * Set position of the component.<p>
-	 * 
-	 * @param x, the position left
-	 * @param y, the position top
-	 * @param fire		 1: raise <em>moved</em>  event
-	 *					 2: doLayout
-	 *					 4: set this position as original position
-	 */
-	thi$.setPosition = function(x, y, fire){
-		var M = this.def, U = this._local;
+    /**
+     * Set position of the component.<p>
+     * 
+     * @param x, the position left
+     * @param y, the position top
+     * @param fire       1: raise <em>moved</em>  event
+     *                   2: doLayout
+     *                   4: set this position as original position
+     */
+    thi$.setPosition = function(x, y, fire){
+        var M = this.def, U = this._local;
 
-		arguments.callee.__super__.apply(this, arguments);
+        arguments.callee.__super__.apply(this, arguments);
 
-		fire = !Class.isNumber(fire) ? 0 : fire;
+        fire = !Class.isNumber(fire) ? 0 : fire;
 
-		if((fire & 0x04) != 0){
-			U.userX = M.x;
-			U.userY = M.y;
-		}
-
-		if((fire & 0x01) != 0){
-			this.onMoved(fire);			   
-		}
-
-	}.$override(this.setPosition);
-	
-	/**
-	 * Set css z-index of the component.<p>
-	 * 
-	 * @param z
-	 * @param fire
-	 */
-	thi$.setZ = function(z, fire){
-		var M = this.def, U = this._local;
-		
-		arguments.callee.__super__.apply(this, arguments);
-
-		fire = !Class.isNumber(fire) ? 0 : fire;
-
-		if((fire & 0x04) != 0){
-			U.userZ = M.z;
-		}
-
-		if((fire & 0x01) != 0){
-			this.onZOrderChanged(fire);
-		}
-	}.$override(this.setZ);
-
-	/**
-	 * Set outer size of the component.<p>
-	 * 
-	 * @param w, width
-	 * @param h, height
-	 * @param fire		 1: raise <em>resized</em>	event
-	 *					 2: doLayout
-	 *					 4: set this size as original size
-	 */
-	thi$.setSize = function(w, h, fire){
-		var M = this.def, U = this._local;
-
-		arguments.callee.__super__.apply(this, arguments);
-
-		fire = !Class.isNumber(fire) ? 0 : fire;
-
-		if((fire & 0x04) != 0){
-			U.userW = M.width;
-			U.userH = M.height;
-		}
-
-		if((fire & 0x01) != 0){
-			this.onResized(fire);
-		}
-		
-	}.$override(this.setSize);
-	
-
-	thi$.setBounds = function(x, y, w, h, fire){
-		var M = this.def, U = this._local;
-
-		arguments.callee.__super__.apply(this, arguments);
-
-		fire = Class.isNumber(fire) ? fire : 0;
-
-		if((fire & 0x04) != 0){
-			U.userX = M.x;
-			U.userY = M.y;
-
-			U.userW = M.width;
-			U.userH = M.height;
-		}
-
-		if((fire & 0x01) != 0){
-			this.onGeomChanged(fire);
-		}
-
-	}.$override(this.setBounds);
-	
-	thi$._adjust = function(cmd, show){
-		switch(cmd){
-		case "move":
-		case "resize":
-			var bounds = this.getBounds();
-			this.adjustCover(bounds);
-			this.adjustResizer(bounds);
-			this.adjustShadow(bounds);
-			break;
-		case "zorder":
-			var z = this.getZ();
-			this.setCoverZIndex(z);
-			this.setResizerZIndex(z);
-			this.setShadowZIndex(z);
-			break;
-		case "display":
-			this.setCoverDisplay(show);
-			this.setResizerDisplay(show);
-			this.setShadowDisplay(show);
-			break;
-		case "remove":
-			this.removeCover();
-			this.removeResizer();			 
-			this.removeShadow();
-			break;
-		}
-
-	}.$override(this._adjust);
-	
-	/**
-	 * Tests whether this component has scroll bar
-	 * 
-	 * @return {
-	 *	 hscroll: true/false, 
-	 *	 vscroll: true/false
-	 * }
-	 */
-	thi$.hasScrollbar = function(){
-		return DOM.hasScrollbar(this.view);
-	};
-
-	/**
-	 * Apply a style set to the component.<p>
-	 * 
-	 * @param styles, an object with key are style name and value are style value. 
-	 */
-	thi$.applyStyles = function(styles){
-
-		if(arguments.callee.__super__.apply(this, arguments)){
-			this.onGeomChanged(0x02);			 
-		}
-
-	}.$override(this.applyStyles);
-	
-	thi$.setController = function(ctrl){
-		this.controller = ctrl;
-		this.controller.setContainer(this);
-	};
-	
-	thi$.delController = function(){
-		var ctrl = this.controller;
-		if(ctrl){
-			ctrl.removeFrom(this.view);
-			delete ctrl.container;
-			delete this.controller;
-		}
-		return ctrl;
-	};
-	
-	/**
-	 * Sets container of this component
-	 */
-	thi$.setContainer = function(container){
-		arguments.callee.__super__.apply(this, arguments);
-
-		if(container && this.isMovable() && 
-		   container instanceof js.awt.Container && 
-		   container.isAutoFit()){
-			var moveObj = this.getMoveObject(),
-			msgType = moveObj.getMovingMsgType();
-			MQ.register(msgType, this, _onMovingEvent);
-			moveObj.releaseMoveObject();
-			delete this.moveObj;
-		}
-
-	}.$override(this.setContainer);
-
-	/**
-	 * When the position and size of the component has changed, we need
-	 * to adjust its container's size to handle the scroll bars.
-	 */
-	thi$.autoResizeContainer = function(){
-		var container = this.getContainer();
-		if(container && (container instanceof js.awt.Container)){
-			container.autoResize();
-		}
-	};
-	
-	/**
-	 * Handler of the component which is moving in an 
-	 * auto fit container 
-	 */
-	var _onMovingEvent = function(e){
-		var container = this.getContainer();
-		if (container && container._local
-			&& container._local.autoArrange == undefined) {
-			container._local.autoArrange = container.def.autoArrange;
-			container.def.autoArrange = false;
-		}
-
-		this.autoResizeContainer();
-	};
-
-	/**
-	 * Activate this component
-	 * 
-	 */	   
-	thi$.activateComponent = function(){
-		var container = this.getContainer();
-		if(container){
-			container.activateComponent(this);
-		}
-	};
-	
-	/**
-	 * Open a dialog with specified dialog class and dialog object
-	 * 
-	 * @param className, the definition of dialog
-	 * @param rect, x, y, width and height
-	 * @param dialogObj, the DialogObj instance 
-	 * @param handler
-	 */
-	thi$.openDialog = function(className, rect, dialogObj, handler){
-		var dialog = J$VM.Factory.createComponent(
-			className, rect, this.Runtime());
-
-		dialog.setPeerComponent(this);
-		dialog.setDialogObject(dialogObj, handler);
-
-		dialog.show();
-		return dialog;
-	};
-	
-	/**
-	 * Open confirm dialog
-	 * 
-	 * @param className, the definition of dialog
-	 * @param rect, x, y, width and height
-	 * @param def, ,an object like:{
-	 *	   className: "",
-	 *	   model: {
-	 *		   msgSubject: "",
-	 *		   msgContent: ""
-	 *	   }
-	 * } 
-	 * @param handler
-	 */
-	thi$.openConfirm = function(className, rect, def, handler){
-		def = def || {};
-		def.className = def.className || "msgbox";
-		def.stateless = true;
-		def.model = def.model || {};
-		def.model.msgType = def.model.msgType || "confirm";
-		return this.openDialog(
-			className,
-			rect, 
-			new js.awt.MessageBox(def, this.Runtime()),
-			handler);
-	};
-
-	/**
-	 * When this component was add to DOM tree, then invokes
-	 * this method. 
-	 * 
-	 * @return Must return true if did repaint.
-	 * 
-	 * Notes: Sub class should override this method
-	 */
-	thi$.repaint = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
-			var M = this.def;
-
-			// Create mover for moving if need
-			if(M.movable === true && !this.movableSettled()){
-				this.setMovable(true);
-			}
-			
-			// Create resizer for resizing if need
-			if(M.resizable === true && !this.resizableSettled()){
-				this.setResizable(true, M.resizer);
-			}
-			
-			// For shadow
-			if(M.shadow === true && !this.shadowSettled()){
-				this.setShadowy(true);
-			}
-			
-			// For floating layer
-			if(M.isfloating === true && !this.floatingSettled()){
-				this.setFloating(true);
-			}
-
-			if(this.resizableSettled()){
-				this.addResizer();
-				this.adjustResizer();
-			}
-			
-			if(this.shadowSettled()){
-				this.addShadow();
-				this.adjustShadow();
-			}
-			
-			this.showDisableCover(!this.isEnabled());
-
-			return true;
-		}
-
-		return false;
-
-	}.$override(this.repaint);
-	
-	/**
-	 * @see js.awt.BaseComponent
-	 */
-	thi$.doLayout = function(force){
-		if(arguments.callee.__super__.apply(this, arguments)){
-			var ctrl = this.controller;
-			if(ctrl){
-				ctrl.appendTo(this.view); // Keep controller alwasy on top
-				var bounds = this.getBounds(), cbounds = ctrl.getBounds(),
-				x, y, w, h;
-				w = ctrl.isRigidWidth() ? cbounds.width : bounds.innerWidth;
-				h = ctrl.isRigidHeight()? cbounds.height: bounds.innerHeight;
-				x = bounds.MBP.paddingLeft + (bounds.innerWidth - w)*ctrl.getAlignmentX();
-				y = bounds.MBP.paddingTop  + (bounds.innerHeight- h)*ctrl.getAlignmentY();
-
-				ctrl.setBounds(x, y, w, h, 7);
-			}
-			return true;
-		}
-
-		return false;
-
-	}.$override(this.doLayout);
-	
-	/**
-	 * When this component was moved to a new position will 
-	 * invoke this method,
-	 * 
-	 * 
-	 * Notes: Sub class maybe should override this method
-	 */
-	thi$.onMoved = function(fire){
-		var container = this.getContainer();
-		if (container && container._local
-			&& container._local.autoArrange != undefined) {
-			container.def.autoArrange = container._local.autoArrange;
-			delete container._local.autoArrange;
-		}
-		this.autoResizeContainer();
-	};
-
-	/**
-	 * When this component was resized will invoke this method.
-	 * 
-	 * @param doLayout, true then invoke doLayout of this component
-	 * 
-	 * Notes: Sub class maybe should override this method
-	 */
-	thi$.onResized = function(fire){
-		if((fire & 0x02) != 0){
-			this.doLayout(true);
-		}
-		var container = this.getContainer();
-		if (container && container._local
-			&& container._local.autoArrange != undefined) {
-			container.def.autoArrange = container._local.autoArrange;
-			delete container._local.autoArrange;
-		}
-		// Adjust the container's size to handle the scrollbars
-		this.autoResizeContainer();
-	};
-
-	/**
-	 * When this component ZOrder.
-	 * 
-	 * Notes: Sub class maybe should override this method
-	 */
-	thi$.onZOrderChanged = function(fire){
-
-	};
-	
-	/**
-	 * When geometric (includes position and size) was changed 
-	 * of this compoent will invoke this method.
-	 * 
-	 * Notes: Sub class maybe should override this method
-	 */
-	thi$.onGeomChanged = function(fire){
-		if((fire & 0x02) != 0){
-			this.doLayout(true);
-		}
-	};
-	
-	/**
-	 * Indicate whether the state can affect the style
-	 * of current Component.
-	 */ 
-	thi$.isStyleByState = function(){
-		return !this.isStateless() 
-			&& (this.def.styleByState !== false);
-	};
-
-	thi$.onStateChanged = function(e){
-		if(this.isStyleByState()){
-			var buf = this.__buf__.clear();
-			buf.append(this.def.className).append("_")
-				.append(this.getState());
-			this.view.className = buf.toString();
-		}		 
-		
-		if(this.view.parentNode){
-			this.showDisableCover(!this.isEnabled());
-		}
-	};
-
-	/**
-	 * Override destroy method of js.lang.Object
-	 */
-	thi$.destroy = function(){
-        if(this.destroied != true){
-		    this.setShadowy(false);
-		    this.setResizable(false);
-		    this.setMovable(false);
-
-		    if(this.controller){
-			    this.controller.destroy();
-			    delete this.controller;
-		    }
-
-		    var container = this.container;
-		    if(container && container instanceof js.awt.Container){
-			    container.removeComponent(this);
-		    }
-
-		    delete this.container;		  
-		    delete this.peer;
-
-		    arguments.callee.__super__.apply(this, arguments);
+        if((fire & 0x04) != 0){
+            U.userX = M.x;
+            U.userY = M.y;
         }
-	}.$override(this.destroy);
-	
-	thi$.getLastResizer = function(){
-		var resizer = this._local.resizer, 
-		len = resizer ? resizer.length : 0,
-		el;
-		
-		for(var i = 0; i < len; i++){
-			el = resizer[i];
-			if(el){
-				return el;
-			}
-		}
-		
-		return undefined;
-	};
 
-	/**
-	 * When some propery of component was changed, it may cause the layout of parent component change,
-	 * So we must find the parent component which take charge of the change and redo layout.
-	 */
-	thi$.invalidParentLayout = function() {
-		var target = this.getContainer();
-		while(target && !target.handleLayoutInvalid) {
-			if (target.getContainer && target.getContainer()) {
-				target = target.getContainer();
-			} else {
-				break;
-			}
-		}
-		if (target && target.handleLayoutInvalid) {
-			target.handleLayoutInvalid();
-		}
-	};
+        if((fire & 0x01) != 0){
+            this.onMoved(fire);            
+        }
 
-	thi$._init = function(def, Runtime, view){
-		if(def == undefined) return;
+    }.$override(this.setPosition);
+    
+    /**
+     * Set css z-index of the component.<p>
+     * 
+     * @param z
+     * @param fire
+     */
+    thi$.setZ = function(z, fire){
+        var M = this.def, U = this._local;
+        
+        arguments.callee.__super__.apply(this, arguments);
 
-		def.classType = def.classType || "js.awt.Component";
-		
-		arguments.callee.__super__.apply(this, arguments);
-		view = this.view;
+        fire = !Class.isNumber(fire) ? 0 : fire;
 
-		var buf = this.__buf__ = new js.lang.StringBuffer();
-		
-		if(!this.isStateless()){
-			def.state = def.state || 0;
-			
-			if(this.isStyleByState()){
-				view.className = buf.append(def.className).append("_")
-					.append(this.getState()).toString();
-			}
-		}
+        if((fire & 0x04) != 0){
+            U.userZ = M.z;
+        }
 
-		if(def.prefSize){
-			this.isPreferredSizeSet = true;
-		}
-		if(def.miniSize){
-			this.isMinimumSizeSet = true;
-		}
-		if(def.maxiSize){
-			this.isMaximumSizeSet = true;
-		}
+        if((fire & 0x01) != 0){
+            this.onZOrderChanged(fire);
+        }
+    }.$override(this.setZ);
 
-	}.$override(this._init);
+    /**
+     * Set outer size of the component.<p>
+     * 
+     * @param w, width
+     * @param h, height
+     * @param fire       1: raise <em>resized</em>  event
+     *                   2: doLayout
+     *                   4: set this size as original size
+     */
+    thi$.setSize = function(w, h, fire){
+        var M = this.def, U = this._local;
 
-	this._init.apply(this, arguments);
-	
+        arguments.callee.__super__.apply(this, arguments);
+
+        fire = !Class.isNumber(fire) ? 0 : fire;
+
+        if((fire & 0x04) != 0){
+            U.userW = M.width;
+            U.userH = M.height;
+        }
+
+        if((fire & 0x01) != 0){
+            this.onResized(fire);
+        }
+        
+    }.$override(this.setSize);
+    
+
+    thi$.setBounds = function(x, y, w, h, fire){
+        var M = this.def, U = this._local;
+
+        arguments.callee.__super__.apply(this, arguments);
+
+        fire = Class.isNumber(fire) ? fire : 0;
+
+        if((fire & 0x04) != 0){
+            U.userX = M.x;
+            U.userY = M.y;
+
+            U.userW = M.width;
+            U.userH = M.height;
+        }
+
+        if((fire & 0x01) != 0){
+            this.onGeomChanged(fire);
+        }
+
+    }.$override(this.setBounds);
+    
+    thi$._adjust = function(cmd, show){
+        switch(cmd){
+        case "move":
+        case "resize":
+            var bounds = this.getBounds();
+            this.adjustCover(bounds);
+            this.adjustResizer(bounds);
+            this.adjustShadow(bounds);
+            break;
+        case "zorder":
+            var z = this.getZ();
+            this.setCoverZIndex(z);
+            this.setResizerZIndex(z);
+            this.setShadowZIndex(z);
+            break;
+        case "display":
+            this.setCoverDisplay(show);
+            this.setResizerDisplay(show);
+            this.setShadowDisplay(show);
+            break;
+        case "remove":
+            this.removeCover();
+            this.removeResizer();            
+            this.removeShadow();
+            break;
+        }
+
+    }.$override(this._adjust);
+    
+    /**
+     * Tests whether this component has scroll bar
+     * 
+     * @return {
+     *   hscroll: true/false, 
+     *   vscroll: true/false
+     * }
+     */
+    thi$.hasScrollbar = function(){
+        return DOM.hasScrollbar(this.view);
+    };
+
+    /**
+     * Apply a style set to the component.<p>
+     * 
+     * @param styles, an object with key are style name and value are style value. 
+     */
+    thi$.applyStyles = function(styles){
+
+        if(arguments.callee.__super__.apply(this, arguments)){
+            this.onGeomChanged(0x02);            
+        }
+
+    }.$override(this.applyStyles);
+    
+    thi$.setController = function(ctrl){
+        this.controller = ctrl;
+        this.controller.setContainer(this);
+    };
+    
+    thi$.delController = function(){
+        var ctrl = this.controller;
+        if(ctrl){
+            ctrl.removeFrom(this.view);
+            delete ctrl.container;
+            delete this.controller;
+        }
+        return ctrl;
+    };
+    
+    /**
+     * Sets container of this component
+     */
+    thi$.setContainer = function(container){
+        arguments.callee.__super__.apply(this, arguments);
+
+        if(container && this.isMovable() && 
+           container instanceof js.awt.Container && 
+           container.isAutoFit()){
+            var moveObj = this.getMoveObject(),
+            msgType = moveObj.getMovingMsgType();
+            MQ.register(msgType, this, _onMovingEvent);
+            moveObj.releaseMoveObject();
+            delete this.moveObj;
+        }
+
+    }.$override(this.setContainer);
+
+    /**
+     * When the position and size of the component has changed, we need
+     * to adjust its container's size to handle the scroll bars.
+     */
+    thi$.autoResizeContainer = function(){
+        var container = this.getContainer();
+        if(container && (container instanceof js.awt.Container)){
+            container.autoResize();
+        }
+    };
+    
+    /**
+     * Handler of the component which is moving in an 
+     * auto fit container 
+     */
+    var _onMovingEvent = function(e){
+        var container = this.getContainer();
+        if (container && container._local
+            && container._local.autoArrange == undefined) {
+            container._local.autoArrange = container.def.autoArrange;
+            container.def.autoArrange = false;
+        }
+
+        this.autoResizeContainer();
+    };
+
+    /**
+     * Activate this component
+     * 
+     */    
+    thi$.activateComponent = function(){
+        var container = this.getContainer();
+        if(container){
+            container.activateComponent(this);
+        }
+    };
+    
+    /**
+     * Open a dialog with specified dialog class and dialog object
+     * 
+     * @param className, the definition of dialog
+     * @param rect, x, y, width and height
+     * @param dialogObj, the DialogObj instance 
+     * @param handler
+     */
+    thi$.openDialog = function(className, rect, dialogObj, handler){
+        var dialog = J$VM.Factory.createComponent(
+            className, rect, this.Runtime());
+
+        dialog.setPeerComponent(this);        
+        dialog.setDialogObject(dialogObj, handler);
+       
+        //@link js.lang.Object#setContextID
+        if(!dialogObj.def["__contextid__"]){
+            dialogObj.setContextID(this.uuid());
+        }
+
+        dialog.show();
+        return dialog;
+    };
+    
+    /**
+     * Open confirm dialog
+     * 
+     * @param className, the definition of dialog
+     * @param rect, x, y, width and height
+     * @param def, ,an object like:{
+     *     className: "",
+     *     model: {
+     *         msgSubject: "",
+     *         msgContent: ""
+     *     }
+     * } 
+     * @param handler
+     */
+    thi$.openConfirm = function(className, rect, def, handler){
+        def = def || {};
+        def.className = def.className || "msgbox";
+        def.stateless = true;
+        def.model = def.model || {};
+        def.model.msgType = def.model.msgType || "confirm";
+        return this.openDialog(
+            className,
+            rect, 
+            new js.awt.MessageBox(def, this.Runtime()),
+            handler);
+    };
+
+    /**
+     * When this component was add to DOM tree, then invokes
+     * this method. 
+     * 
+     * @return Must return true if did repaint.
+     * 
+     * Notes: Sub class should override this method
+     */
+    thi$.repaint = function(){
+        if(arguments.callee.__super__.apply(this, arguments)){
+            var M = this.def;
+
+            // Create mover for moving if need
+            if(M.movable === true && !this.movableSettled()){
+                this.setMovable(true);
+            }
+            
+            // Create resizer for resizing if need
+            if(M.resizable === true && !this.resizableSettled()){
+                this.setResizable(true, M.resizer);
+            }
+            
+            // For shadow
+            if(M.shadow === true && !this.shadowSettled()){
+                this.setShadowy(true);
+            }
+            
+            // For floating layer
+            if(M.isfloating === true && !this.floatingSettled()){
+                this.setFloating(true);
+            }
+
+            if(this.resizableSettled()){
+                this.addResizer();
+                this.adjustResizer();
+            }
+            
+            if(this.shadowSettled()){
+                this.addShadow();
+                this.adjustShadow();
+            }
+            
+            this.showDisableCover(!this.isEnabled());
+
+            return true;
+        }
+
+        return false;
+
+    }.$override(this.repaint);
+    
+    /**
+     * @see js.awt.BaseComponent
+     */
+    thi$.doLayout = function(force){
+        if(arguments.callee.__super__.apply(this, arguments)){
+            var ctrl = this.controller;
+            if(ctrl){
+                ctrl.appendTo(this.view); // Keep controller alwasy on top
+                var bounds = this.getBounds(), cbounds = ctrl.getBounds(),
+                x, y, w, h;
+                w = ctrl.isRigidWidth() ? cbounds.width : bounds.innerWidth;
+                h = ctrl.isRigidHeight()? cbounds.height: bounds.innerHeight;
+                x = bounds.MBP.paddingLeft + (bounds.innerWidth - w)*ctrl.getAlignmentX();
+                y = bounds.MBP.paddingTop  + (bounds.innerHeight- h)*ctrl.getAlignmentY();
+
+                ctrl.setBounds(x, y, w, h, 7);
+            }
+            return true;
+        }
+
+        return false;
+
+    }.$override(this.doLayout);
+    
+    /**
+     * When this component was moved to a new position will 
+     * invoke this method,
+     * 
+     * 
+     * Notes: Sub class maybe should override this method
+     */
+    thi$.onMoved = function(fire){
+        var container = this.getContainer();
+        if (container && container._local
+            && container._local.autoArrange != undefined) {
+            container.def.autoArrange = container._local.autoArrange;
+            delete container._local.autoArrange;
+        }
+        this.autoResizeContainer();
+    };
+
+    /**
+     * When this component was resized will invoke this method.
+     * 
+     * @param doLayout, true then invoke doLayout of this component
+     * 
+     * Notes: Sub class maybe should override this method
+     */
+    thi$.onResized = function(fire){
+        if((fire & 0x02) != 0){
+            this.doLayout(true);
+        }
+        var container = this.getContainer();
+        if (container && container._local
+            && container._local.autoArrange != undefined) {
+            container.def.autoArrange = container._local.autoArrange;
+            delete container._local.autoArrange;
+        }
+        // Adjust the container's size to handle the scrollbars
+        this.autoResizeContainer();
+    };
+
+    /**
+     * When this component ZOrder.
+     * 
+     * Notes: Sub class maybe should override this method
+     */
+    thi$.onZOrderChanged = function(fire){
+
+    };
+    
+    /**
+     * When geometric (includes position and size) was changed 
+     * of this compoent will invoke this method.
+     * 
+     * Notes: Sub class maybe should override this method
+     */
+    thi$.onGeomChanged = function(fire){
+        if((fire & 0x02) != 0){
+            this.doLayout(true);
+        }
+    };
+    
+    /**
+     * Indicate whether the state can affect the style
+     * of current Component.
+     */ 
+    thi$.isStyleByState = function(){
+        return !this.isStateless() 
+            && (this.def.styleByState !== false);
+    };
+
+    thi$.onStateChanged = function(e){
+        if(this.isStyleByState()){
+            this.view.className = DOM.stateCSSClass(
+                this.def.className, this.getState());
+        }        
+        
+        if(this.view.parentNode){
+            this.showDisableCover(!this.isEnabled());
+        }
+    };
+
+    /**
+     * Override destroy method of js.lang.Object
+     */
+    thi$.destroy = function(){
+        if(this.destroied != true){
+            this.setShadowy(false);
+            this.setResizable(false);
+            this.setMovable(false);
+
+            if(this.controller){
+                this.controller.destroy();
+                delete this.controller;
+            }
+
+            var container = this.container;
+            if(container && container instanceof js.awt.Container){
+                container.removeComponent(this);
+            }
+
+            delete this.container;        
+            delete this.peer;
+
+            arguments.callee.__super__.apply(this, arguments);
+        }
+    }.$override(this.destroy);
+    
+    thi$.getLastResizer = function(){
+        var resizer = this._local.resizer, 
+        len = resizer ? resizer.length : 0,
+        el;
+        
+        for(var i = 0; i < len; i++){
+            el = resizer[i];
+            if(el){
+                return el;
+            }
+        }
+        
+        return undefined;
+    };
+
+    /**
+     * When some propery of component was changed, it may cause the layout of parent component change,
+     * So we must find the parent component which take charge of the change and redo layout.
+     */
+    thi$.invalidParentLayout = function() {
+        var target = this.getContainer();
+        while(target && !target.handleLayoutInvalid) {
+            if (target.getContainer && target.getContainer()) {
+                target = target.getContainer();
+            } else {
+                break;
+            }
+        }
+        if (target && target.handleLayoutInvalid) {
+            target.handleLayoutInvalid();
+        }
+    };
+
+    thi$._init = function(def, Runtime, view){
+        if(def == undefined) return;
+
+        def.classType = def.classType || "js.awt.Component";
+        
+        arguments.callee.__super__.apply(this, arguments);
+        view = this.view;
+
+        if(!this.isStateless()){
+            def.state = def.state || 0;
+            
+            if(this.isStyleByState()){
+                view.className = DOM.stateCSSClass(def.className, this.getState());
+            }
+        }
+
+        if(def.prefSize){
+            this.isPreferredSizeSet = true;
+        }
+        if(def.miniSize){
+            this.isMinimumSizeSet = true;
+        }
+        if(def.maxiSize){
+            this.isMaximumSizeSet = true;
+        }
+
+    }.$override(this._init);
+
+    this._init.apply(this, arguments);
+    
 }.$extend(js.awt.BaseComponent).$implements(
-	js.util.Observer, js.awt.Shadow, 
-	js.awt.Movable, js.awt.MoveObject, 
-	js.awt.Resizable, js.awt.SizeObject, 
-	js.awt.Editable, js.awt.PopupLayer);
+    js.util.Observer, js.awt.Shadow, 
+    js.awt.Movable, js.awt.MoveObject, 
+    js.awt.Resizable, js.awt.SizeObject, 
+    js.awt.Editable, js.awt.PopupLayer);
 
 
 /**
@@ -5089,8 +5070,8 @@ js.awt.Container = function (def, Runtime, view){
             var compid = comps[i], compDef = def[compid];
             if(Class.typeOf(compDef) === "object"){
                 compDef.id = compDef.id || compid;
-                compDef.className = compDef.className || 
-                    (this.def.className + "_" + compid);
+                compDef.className = compDef.className ||
+                    DOM.comboCSSClass(this.def.className, compid);
 
                 var comp = new (Class.forName(compDef.classType))(
                     compDef, R);
@@ -6126,32 +6107,32 @@ js.awt.TabPane.DEFAULTDEF = function(){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -6163,541 +6144,556 @@ js.awt.TabPane.DEFAULTDEF = function(){
 
 $package("js.awt");
 
-$import("js.awt.Highlighter");
+//$import("js.awt.Highlighter");
 
 /**
  * @param def :{
- *	   
- *	   markable: true/false. If true will create a marker element.
- *	   iconImage: icon image name
- *	   labelText: label text
- *	   inputText: input value
- *	   controlled : true/false. If true will create a control element.
- * 
+ *
+ *     markable: true/false. If true will create a marker element.
+ *     iconImage: icon image name
+ *     labelText: label text
+ *     inputText: input value
+ *     controlled : true/false. If true will create a control element.
+ *
  * }
  */
 js.awt.Item = function(def, Runtime, view){
 
-	var CLASS = js.awt.Item, thi$ = CLASS.prototype;
-	if(CLASS.__defined__){
-		this._init.apply(this, arguments);
-		return;
-	}
-	CLASS.__defined__ = true;
-	
-	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System, MQ = J$VM.MQ;
-	
-	/**
-	 * @see js.awt.BaseComponent
-	 */
-	thi$.getPreferredSize = function(){
-		if(this.def.prefSize == undefined){
-			var G = this.getGeometric(), nodes = this.view.childNodes,
-			ele1 = nodes[nodes.length-2], ele0 = nodes[nodes.length -1],
-			width;
-			
-			if(ele0.tagName == "SPAN"){
-				/*
-				 ele0.style.width = "0px";
-				 width = ele0.offsetLeft + ele0.scrollWidth;
-				 */
-				width = ele0.offsetLeft + DOM.getTextSize(ele0).width;
-			}else{
-				if(ele1.tagName == "SPAN"){
-					/*
-					 ele1.style.width = "0px";
-					 width = ele1.offsetLeft + ele1.scrollWidth;
-					 */
-					width = ele1.offsetLeft + DOM.getTextSize(ele1).width;
-				}else{
-					width = ele1.offsetLeft + ele1.scrollWidth;					   
-				}
+    var CLASS = js.awt.Item, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
 
-				width += G.ctrl.MBP.marginLeft + G.ctrl.width;
-			}
-			width += G.bounds.MBP.BPW;
+    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+    System = J$VM.System, MQ = J$VM.MQ;
 
-			this.setPreferredSize(
-				width, 
-				G.bounds.height - (G.bounds.BBM ? 0 : G.bounds.MBP.BPH));
-		}
+    /**
+     * @see js.awt.BaseComponent
+     */
+    thi$.getPreferredSize = function(){
+        if(this.def.prefSize == undefined){
+            var G = this.getGeometric(), nodes = this.view.childNodes,
+            ele1 = nodes[nodes.length-2], ele0 = nodes[nodes.length -1],
+            width;
 
-		return this.def.prefSize;
-	};
-	
-	thi$.getIconImage = function(){
-		return this.def.iconImage || "blank.gif";
-	};
-	
-	thi$.setIconImage = function(state){
-		var buf = this.__buf__.clear();
-		buf.append(this.Runtime().imagePath())
-			.append(state & 0x0F).append("-")
-			.append(this.getIconImage());
+            if(ele0.tagName == "SPAN"){
+                /*
+                 ele0.style.width = "0px";
+                 width = ele0.offsetLeft + ele0.scrollWidth;
+                 */
+                width = ele0.offsetLeft + DOM.getTextSize(ele0).width;
+            }else{
+                if(ele1.tagName == "SPAN"){
+                    /*
+                     ele1.style.width = "0px";
+                     width = ele1.offsetLeft + ele1.scrollWidth;
+                     */
+                    width = ele1.offsetLeft + DOM.getTextSize(ele1).width;
+                }else{
+                    width = ele1.offsetLeft + ele1.scrollWidth;
+                }
 
-		this.icon.src = buf.toString();
-	};
+                width += G.ctrl.MBP.marginLeft + G.ctrl.width;
+            }
+            width += G.bounds.MBP.BPW;
 
-	thi$.setText = function(text, edit){
-		if(this.label){
-			this.def.labelText = text;
-			this.label.innerHTML = js.lang.String.encodeHtml(text);	   
-		}else if(this.input){
-			this.def.inputText = text;
-			this.input.value = text;
-		}
+            this.setPreferredSize(
+                width,
+                G.bounds.height - (G.bounds.BBM ? 0 : G.bounds.MBP.BPH));
+        }
 
-		if(edit){
-			this.notifyContainer(
-				"js.awt.event.ItemTextEvent", new Event(edit, {}, this));
-		}
-	};
-	
-	thi$.getText = function(){
-		if(this.label){
-			return this.def.labelText;
-		}else if(this.input){
-			return this.def.inputText;
-		}
-		return undefined;
-	};
+        return this.def.prefSize;
+    };
 
-	thi$.isMarkable = function(){
-		return this.def.markable === true;		  
-	};
-	
-	thi$.isControlled = function(){
-		return this.def.controlled === true;
-	};
-	
-	thi$.isMarked = function(){
-		return this._local.marked === true;
-	};
-	
-	thi$.mark = function(b){
-		var marker = this.marker;
-		if(!marker) return;
+    thi$.getIconImage = function(){
+        return this.def.iconImage || "blank.gif";
+    };
 
-		b = b || false;		   
-		this._local.marked = b;
+    thi$.isIconStateless = function(){
+        var M = this.def;
+        return M.stateless === true
+            || M.iconStateless === true;
+    };
 
-		if(this.isMarked()){
-			marker.className = this.className + "_marker_4";
-		}else{
-			marker.className = this.className + "_marker_0";
-		}
-	};
-	
-	thi$.hoverCtrl = function(b){
-		var ctrl = this.ctrl;
-		if(!ctrl) return;
-		
-		if(b){
-			ctrl.className = this.className + "_ctrl_2";
-		}else{
-			ctrl.className = this.className + "_ctrl_0";
-		}
-	};
-	
-	thi$.triggerCtrl = function(b){
-		var ctrl = this.ctrl;
-		if(!ctrl) return;
-		
-		if(b){
-			ctrl.className = this.className + "_ctrl_4";
-		}else{
-			ctrl.className = this.className + "_ctrl_0";
-		}
-	};
-	
-	/**
-	 * @see js.awt.BaseComponent#setToolTipText
-	 * 
-	 * @param text
-	 * @param elid, can be branch, marker label and ctrl
-	 */
-	thi$.setToolTipText = function(text, elid){
-		if(elid){
-			DOM.setAttribute(this[elid], "title", text);
-		}else{
-			arguments.callee.__super__.apply(this, [text]);
-		}
-	}.$override(this.setToolTipText);
-	
-	/**
-	 * @see js.awt.Movable
-	 */	   
-	thi$.isMoverSpot = function(el, x, y){
-		return (el != this.branch && 
-				el != this.marker && 
-				el !== this.ctrl);
-	};
-	
-	/**
-	 * @see js.awt.BaseComponent
-	 */
-	thi$.doLayout = function(){
-		var ele = this.label || this.input,
-		maxWidth = this.ctrl ? this.ctrl.offsetLeft : 
-			this.getBounds().innerWidth,
-		width = maxWidth - ele.offsetLeft;
-		width = width < 0 ? 0 : width;
+    thi$.setIconImage = function(state){
+        if(!this.icon){
+            return;
+        }
 
-		if(this.input){
-			DOM.setSize(ele, width, undefined);
-		}else{
-			ele.style.width = width + "px";
-		}
+        var buf = this.__buf__.clear();
+        buf.append(this.Runtime().imagePath());
 
-	}.$override(this.doLayout);
-	
-	/**
-	 * @see js.awt.BaseComponent
-	 */
-	thi$.repaint = function(){
-		// Nothing to do
-	}.$override(this.repaint);
-	
-	thi$.destroy = function(){
-		if(this.input){
-			Event.detachEvent(this.input, "focus", 1,  this, _onFocus);
-		}
-		
-		arguments.callee.__super__.apply(this, arguments);
-		
-	}.$override(this.destroy);
-	
-	thi$.isEditable = function(){
-		return this.label && this.def.editable || false;
-	};
+        if(!this.isIconStateless()){
+            buf.append(state & 0x0F).append("-");
+        }
 
-	thi$.editLabel = function(){
-		if(!this.isEditable()) return;
-		
-		var editor = 
-			new (Class.forName("js.awt.LabelEditor"))(this.label, this);
+        buf.append(this.getIconImage());
 
-		MQ.register("js.awt.event.LabelEditorEvent", this, _onedit);
+        this.icon.src = buf.toString();
+    };
 
-		editor.doEdit();
-	};
-	
-	var _onedit = function(e){
-		var data = e.getData(); 
-		this.setText(data.text, "edit");
-		
-		e.getEventTarget().destroy();
-		MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
-	};
-	
-	thi$.canCloneView = function(itemDef){
-		var items = [];
-		if(itemDef.markable === true){
-			items.push("marker");
-		}
-		
-		if(itemDef.iconImage){
-			items.push("icon");
-		}
-		
-		if(Class.isValid(itemDef.labelText)){
-			items.push("label");
-		}else{
-			if(Class.isValid(itemDef.inputText)){
-				items.push("input");
-			}
-		}
-		
-		if(itemDef.controlled === true){
-			items.push("ctrl");
-		}
+    thi$.setText = function(text, edit){
+        if(this.label){
+            this.def.labelText = text;
+            this.label.innerHTML = js.lang.String.encodeHtml(text);
+        }else if(this.input){
+            this.def.inputText = text;
+            this.input.value = text;
+        }
 
-		return items.length === this.def.items.length;
-	};
-	
-	thi$.onSubmit = function(e){
-		var v = this.input.value;
-		this.setText(v, "input");
-	};
-	
-	thi$.validate = function(e){
-		// The keycode of mouse event for a password input box is very
-		// different with a text input box
-		var iptType = this.input.type || "";
-		if(iptType.toLowerCase() !== "text"){
-			return true;
-		}
-		
-		var M = this.def, 
-		kcode = e.keyCode, 
-		isShift = (e.shiftKey === true),
-		dataType = M.dataType || "", 
-		allowMinus = (M.allowMinus === true), 
-		value = this.input.value || "", 
-		valid = false;
-		
-		/**
-		 * 8: Backspace
-		 * 46: Delete
-		 * 37: <--
-		 * 39: -->
-		 * 13: Enter
-		 * 110: .
-		 * 190: .
-		 * 189: -
-		 * 109: - (Num Key)
-		 * 48-57: 0 - 9
-		 * 16: Shift (Left & Right)
-		 * 20: Caps Lock
-		 * 65-70: a-f / A - F
-		 * 96-105: 0-9 (Num Key)
-		 */		   
-		if(kcode == 8 || kcode == 46 || kcode == 37 || kcode == 39 || kcode == 13){
-			return true;
-		}
-		
-		switch(dataType.toLowerCase()){
-		case "hex":
-			if((!isShift && kcode >= 48 && kcode <= 57) 
-				|| (kcode >= 65 && kcode <= 70) || (kcode >= 96 && kcode <= 105)){
-				valid = true;
-			}else{
-				valid = false;
-			}
-			break;
-		case "integer":
-			if(allowMinus && ((!isShift && kcode == 189) || kcode == 109) 
-			   && value.length == 0){
-				valid = true;
-			}else if((kcode >= 96 && kcode < 106) 
-					 || (!isShift && kcode > 47 && kcode < 60)){
-				valid = true;
-			}else{
-				valid = false;
-			}
-			
-			break;
-		case "float":
-			if(allowMinus && ((!isShift && kcode == 189) || kcode == 109) 
-			   && value.length == 0){
-				valid = true;
-			}else if((kcode >= 96 && kcode < 106) 
-					 || (!isShift && kcode > 47 && kcode < 60)
-					 || ((kcode == 110 || (!isShift && kcode == 190)) 
-						 && value.indexOf(".") == -1)){
-				valid = true;
-			}else{
-				valid = false;
-			}
-			break;
-		default:
-			valid = true;
-			break;
-		}
-		
-		return valid;
-	};
-	
-	var _onKeyDown = function(e){
-		if(!this.validate(e)){
-			return false;
-		}
+        if(edit){
+            this.notifyContainer(
+                "js.awt.event.ItemTextEvent", new Event(edit, {}, this));
+        }
+    };
 
-		if(e.keyCode === 13){
-			Event.detachEvent(this.input, "blur", 1, this, _onBlur);
-			this.onSubmit(e);
-		}
+    thi$.getText = function(){
+        if(this.label){
+            return this.def.labelText;
+        }else if(this.input){
+            return this.def.inputText;
+        }
+        return undefined;
+    };
 
-		return true;
-	};
+    thi$.isMarkable = function(){
+        return this.def.markable === true;
+    };
 
-	var _onFocus = function(e){
-		if(!this._local.eventAttached){
-			Event.attachEvent(this.input, 'keydown', 0, this, _onKeyDown);
-			Event.attachEvent(this.input, "blur", 1, this, _onBlur);
-			
-			this._local.eventAttached = true;
-		}
-	};
-	
-	var _onBlur = function(e) {
-		if(this._local.eventAttached){
-			Event.detachEvent(this.input, 'keydown', 0, this, _onKeyDown);
-			Event.detachEvent(this.input, "blur", 1, this, _onBlur);
-			
-			this._local.eventAttached = false;
-		}
+    thi$.isControlled = function(){
+        return this.def.controlled === true;
+    };
 
-		this.onSubmit(e);
-	};
-	
-	var _createElements = function(){
-		var G = this.getGeometric(), M = this.def, 
-		xbase = G.bounds.MBP.paddingLeft, ybase = G.bounds.MBP.paddingTop,
-		height = G.bounds.BBM ? 
-			G.bounds.height : G.bounds.height - G.bounds.MBP.BPH,
-		innerHeight = height - G.bounds.MBP.BPH,
-		className = this.className, body = document.body,
-		items = M.items, ele, id, iid, viewType, i, len, D, 
-		left = xbase, top, buf = this.__buf__;
-		
-		this.view.style.height = G.bounds.BBM ?
-			(height + "px") : (innerHeight+"px");
+    thi$.isMarked = function(){
+        return this._local.marked === true;
+    };
 
-		for(i=0, len=items.length; i<len; i++){
-			id = items[i];
-			iid = id.split(/\d+/g)[0];
-			switch(iid){
-			case "icon":
-				viewType = "IMG";
-				break;
-			case "label":
-				viewType = "SPAN";
-				break;
-			case "input":
-				viewType = "INPUT";
-				break;
-			default:
-				viewType = "DIV";
-				break;
-			}
+    thi$.mark = function(b){
+        var marker = this.marker;
+        if(!marker) return;
 
-			ele = DOM.createElement(viewType);
-			ele.id = id;
-			ele.className = className + "_" + id;
-			ele.iid = iid;
+        b = b || false;
+        this._local.marked = b;
+        this.def.checked = b;
 
-			if(!G[iid]){
-				ele.style.cssText = 
-					"position:absolute;white-space:nowrap;visibility:hidden;";
-				DOM.appendTo(ele, body);
-				G[iid] = DOM.getBounds(ele);
-				DOM.removeFrom(ele);
-				ele.style.cssText = "";
-			}else{
-				ele.bounds = G[iid];
-			}
-			
-			D = G[iid];
+        if(this.isMarked()){
+            marker.className = this.className + "_marker_4";
+        }else{
+            marker.className = this.className + "_marker_0";
+        }
+    };
 
-			buf.clear();
-			buf.append("position:absolute;");
-			top = ybase + (innerHeight - D.height)*0.5;
-			buf.append("top:").append(top).append("px;");
-			if(iid !== "ctrl"){
-				buf.append("left:").append(left).append("px;");
-				left += D.MBP.marginLeft + D.width + D.MBP.marginRight;				
-			}else{
-				buf.append("right:")
-					.append(G.bounds.MBP.paddingRight).append("px;");
-			}
-			
-			if(iid == "label"){
-				buf.append("white-space:nowrap;");
-			}
-			
-			ele.style.cssText = buf.toString();
+    thi$.hoverCtrl = function(b){
+        var ctrl = this.ctrl;
+        if(!ctrl) return;
 
-			DOM.appendTo(ele, this.view);
-		}
-	};
-	
-	var _checkItems = function(){
-		var M = this.def, items = M.items;
-		if(items.length == 0){
-			if(this.isMarkable()){
-				items.push("marker");
-			}
-			
-			if(M.iconImage){
-				items.push("icon");
-			}
+        if(b){
+            ctrl.className = this.className + "_ctrl_2";
+        }else{
+            ctrl.className = this.className + "_ctrl_0";
+        }
+    };
 
-			if(Class.isValid(M.labelText)){
-				items.push("label");
-			}else{
-				if(Class.isValid(M.inputText)){
-					items.push("input");
-				}
-			}
-			
-			if(this.isControlled()){
-				items.push("ctrl");
-			}
-		}
-	};
+    thi$.triggerCtrl = function(b){
+        var ctrl = this.ctrl;
+        if(!ctrl) return;
 
-	thi$._init = function(def, Runtime, view){
-		if(def == undefined) return;
+        if(b){
+            ctrl.className = this.className + "_ctrl_4";
+        }else{
+            ctrl.className = this.className + "_ctrl_0";
+        }
+    };
 
-		def.classType = def.classType || "js.awt.Item";
-		def.className = def.className || "jsvm_item";
+    /**
+     * @see js.awt.BaseComponent#setToolTipText
+     *
+     * @param text
+     * @param elid, can be branch, marker label and ctrl
+     */
+    thi$.setToolTipText = function(text, elid){
+        if(elid){
+            DOM.setAttribute(this[elid], "title", text);
+        }else{
+            arguments.callee.__super__.apply(this, [text]);
+        }
+    }.$override(this.setToolTipText);
 
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
-		
-		def.items = def.items || [];
+    /**
+     * @see js.awt.Movable
+     */
+    thi$.isMoverSpot = function(el, x, y){
+        return (el != this.branch &&
+                el != this.marker &&
+                el !== this.ctrl);
+    };
 
-		// Create inner elements
-		if(view == undefined){
-			_checkItems.call(this);
-			_createElements.call(this);
-		}
-		
-		if(!def.items.clear){
-			js.util.LinkedList.$decorate(def.items);	
-		}
-		def.items.clear();
-		
-		var uuid = this.uuid(), nodes = this.view.childNodes, 
-		id, i, len, node, text, ipt, placeholder;
-		for(i=0, len=nodes.length; i<len; i++){
-			node = nodes[i]; id = node.id;
-			node.uuid = uuid;
-			node.iid = (node.iid || id.split(/\d+/g)[0]);
-			def.items.push(id);
-			this[id] = node;
-		}
+    /**
+     * @see js.awt.BaseComponent
+     */
+    thi$.doLayout = function(){
+        var ele = this.label || this.input,
+        maxWidth = this.ctrl ? this.ctrl.offsetLeft :
+            this.getBounds().innerWidth,
+        width = maxWidth - ele.offsetLeft;
+        width = width < 0 ? 0 : width;
 
-		if(this.icon){
-			this.setIconImage(this.isTriggered() ? 4 : 0);
-			//DOM.forbidSelect(this.icon);
-		}
-		
-		ipt = this.input;
-		if(this.label || ipt){
-			if(Class.isValid(def.labelText)){
-				text = def.labelText;
-			}else if(Class.isValid(def.inputText)){
-				text = def.inputText;				 
-			}else{
-				text = def.text || def.name || def.dname || "Item";
-			}
-			
-			this.setText(text);
-		}
-		
-		if(ipt){
-			placeholder = def.placeholder;
-			if(J$VM.supports.placeholder && Class.isString(placeholder) 
-			   && placeholder.length > 0){
-				ipt.placeholder = placeholder;
-			}
-			
-			Event.attachEvent(ipt, "focus", 1, this, _onFocus);
-		}
+        if(this.input){
+            DOM.setSize(ele, width, undefined);
+        }else{
+            ele.style.width = width + "px";
+        }
 
-		if(this.isMarkable()){
-			this.mark(def.checked === true);
-		}
+    }.$override(this.doLayout);
 
-	}.$override(this._init);
+    /**
+     * @see js.awt.BaseComponent
+     */
+    thi$.repaint = function(){
+        // Nothing to do
+    }.$override(this.repaint);
 
-	this._init.apply(this, arguments);
+    thi$.destroy = function(){
+        if(this.input){
+            Event.detachEvent(this.input, "focus", 1,  this, _onFocus);
+        }
 
-}.$extend(js.awt.Component)
-	.$implements(js.awt.Highlighter);
+        arguments.callee.__super__.apply(this, arguments);
 
+    }.$override(this.destroy);
+
+    thi$.isEditable = function(){
+        return this.label && this.def.editable || false;
+    };
+
+    thi$.editLabel = function(){
+        if(!this.isEditable()) return;
+
+        var editor =
+            new (Class.forName("js.awt.LabelEditor"))(this.label, this);
+
+        MQ.register("js.awt.event.LabelEditorEvent", this, _onedit);
+
+        editor.doEdit();
+    };
+
+    var _onedit = function(e){
+        var data = e.getData();
+        this.setText(data.text, "edit");
+
+        e.getEventTarget().destroy();
+        MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
+    };
+
+    thi$.canCloneView = function(itemDef){
+        var items = [];
+        if(itemDef.markable === true){
+            items.push("marker");
+        }
+
+        if(itemDef.iconImage){
+            items.push("icon");
+        }
+
+        if(Class.isValid(itemDef.labelText)){
+            items.push("label");
+        }else{
+            if(Class.isValid(itemDef.inputText)){
+                items.push("input");
+            }
+        }
+
+        if(itemDef.controlled === true){
+            items.push("ctrl");
+        }
+
+        return items.length === this.def.items.length;
+    };
+
+    thi$.onSubmit = function(e){
+        var v = this.input.value;
+        this.setText(v, "input");
+    };
+
+    thi$.validate = function(e){
+        // The keycode of mouse event for a password input box is very
+        // different with a text input box
+        var iptType = this.input.type || "";
+        if(iptType.toLowerCase() !== "text"){
+            return true;
+        }
+
+        var M = this.def,
+        kcode = e.keyCode,
+        isShift = (e.shiftKey === true),
+        dataType = M.dataType || "",
+        allowMinus = (M.allowMinus === true),
+        value = this.input.value || "",
+        valid = false;
+
+        /**
+         * 8: Backspace
+         * 46: Delete
+         * 37: <--
+         * 39: -->
+         * 13: Enter
+         * 110: .
+         * 190: .
+         * 189: -
+         * 109: - (Num Key)
+         * 48-57: 0 - 9
+         * 16: Shift (Left & Right)
+         * 20: Caps Lock
+         * 65-70: a-f / A - F
+         * 96-105: 0-9 (Num Key)
+         */
+        if(kcode == 8 || kcode == 46 || kcode == 37 || kcode == 39 || kcode == 13){
+            return true;
+        }
+
+        switch(dataType.toLowerCase()){
+        case "hex":
+            if((!isShift && kcode >= 48 && kcode <= 57)
+                || (kcode >= 65 && kcode <= 70) || (kcode >= 96 && kcode <= 105)){
+                valid = true;
+            }else{
+                valid = false;
+            }
+            break;
+        case "integer":
+            if(allowMinus && ((!isShift && kcode == 189) || kcode == 109)
+               && value.length == 0){
+                valid = true;
+            }else if((kcode >= 96 && kcode < 106)
+                     || (!isShift && kcode > 47 && kcode < 60)){
+                valid = true;
+            }else{
+                valid = false;
+            }
+
+            break;
+        case "float":
+            if(allowMinus && ((!isShift && kcode == 189) || kcode == 109)
+               && value.length == 0){
+                valid = true;
+            }else if((kcode >= 96 && kcode < 106)
+                     || (!isShift && kcode > 47 && kcode < 60)
+                     || ((kcode == 110 || (!isShift && kcode == 190))
+                         && value.indexOf(".") == -1)){
+                valid = true;
+            }else{
+                valid = false;
+            }
+            break;
+        default:
+            valid = true;
+            break;
+        }
+
+        return valid;
+    };
+
+    var _onKeyDown = function(e){
+        if(!this.validate(e)){
+            return false;
+        }
+
+        if(e.keyCode === 13){
+            Event.detachEvent(this.input, "blur", 1, this, _onBlur);
+            this.onSubmit(e);
+        }
+
+        return true;
+    };
+
+    var _onFocus = function(e){
+        if(!this._local.eventAttached){
+            Event.attachEvent(this.input, 'keydown', 0, this, _onKeyDown);
+            Event.attachEvent(this.input, "blur", 1, this, _onBlur);
+
+            this._local.eventAttached = true;
+        }
+    };
+
+    var _onBlur = function(e) {
+        if(this._local.eventAttached){
+            Event.detachEvent(this.input, 'keydown', 0, this, _onKeyDown);
+            Event.detachEvent(this.input, "blur", 1, this, _onBlur);
+
+            this._local.eventAttached = false;
+        }
+
+        this.onSubmit(e);
+    };
+
+    var _createElements = function(){
+        var G = this.getGeometric(), M = this.def,
+        xbase = G.bounds.MBP.paddingLeft, ybase = G.bounds.MBP.paddingTop,
+        height = G.bounds.BBM ?
+            G.bounds.height : G.bounds.height - G.bounds.MBP.BPH,
+        innerHeight = height - G.bounds.MBP.BPH,
+        className = this.className, body = document.body,
+        items = M.items, ele, id, iid, viewType, i, len, D,
+        left = xbase, top, buf = this.__buf__;
+
+        this.view.style.height = G.bounds.BBM ?
+            (height + "px") : (innerHeight+"px");
+
+        for(i=0, len=items.length; i<len; i++){
+            id = items[i];
+            iid = id.split(/\d+/g)[0];
+            switch(iid){
+            case "icon":
+                viewType = "IMG";
+                break;
+            case "label":
+                viewType = "SPAN";
+                break;
+            case "input":
+                viewType = "INPUT";
+                break;
+            default:
+                viewType = "DIV";
+                break;
+            }
+
+            ele = DOM.createElement(viewType);
+            ele.id = id;
+            ele.className = className + "_" + id;
+            ele.iid = iid;
+
+            if(!G[iid]){
+                ele.style.cssText =
+                    "position:absolute;white-space:nowrap;visibility:hidden;";
+                DOM.appendTo(ele, body);
+                G[iid] = DOM.getBounds(ele);
+                DOM.removeFrom(ele);
+                ele.style.cssText = "";
+            }else{
+                ele.bounds = G[iid];
+            }
+
+            D = G[iid];
+
+            buf.clear();
+            buf.append("position:absolute;");
+            top = ybase + (innerHeight - D.height)*0.5;
+            buf.append("top:").append(top).append("px;");
+            if(iid !== "ctrl"){
+                buf.append("left:").append(left).append("px;");
+                left += D.MBP.marginLeft + D.width + D.MBP.marginRight;
+            }else{
+                buf.append("right:")
+                    .append(G.bounds.MBP.paddingRight).append("px;");
+            }
+
+            if(iid == "label"){
+                buf.append("white-space:nowrap;");
+            }
+
+            ele.style.cssText = buf.toString();
+
+            DOM.appendTo(ele, this.view);
+        }
+    };
+
+    var _checkItems = function(){
+        var M = this.def, items = M.items;
+        if(items.length == 0){
+            if(this.isMarkable()){
+                items.push("marker");
+            }
+
+            if(M.iconImage){
+                items.push("icon");
+            }
+
+            if(Class.isValid(M.labelText)){
+                items.push("label");
+            }else{
+                if(Class.isValid(M.inputText)){
+                    items.push("input");
+                }
+            }
+
+            if(this.isControlled()){
+                items.push("ctrl");
+            }
+        }
+    };
+
+    thi$._init = function(def, Runtime, view){
+        if(def == undefined) return;
+
+        def.classType = def.classType || "js.awt.Item";
+        def.className = def.className || "jsvm_item";
+
+        arguments.callee.__super__.apply(this, [def, Runtime, view]);
+
+        def.items = def.items || [];
+
+        // Create inner elements
+        if(view == undefined){
+            _checkItems.call(this);
+            _createElements.call(this);
+        }
+
+        if(!def.items.clear){
+            js.util.LinkedList.$decorate(def.items);
+        }
+        def.items.clear();
+
+        var uuid = this.uuid(), nodes = this.view.childNodes,
+        id, i, len, node, text, ipt, placeholder;
+        for(i=0, len=nodes.length; i<len; i++){
+            node = nodes[i]; id = node.id;
+            node.uuid = uuid;
+            node.iid = (node.iid || id.split(/\d+/g)[0]);
+            node.className = this.className + "_" + id;
+            def.items.push(id);
+            this[id] = node;
+        }
+
+        if(this.icon){
+            this.setIconImage(this.isTriggered() ? 4 : 0);
+            //DOM.forbidSelect(this.icon);
+        }
+
+        ipt = this.input;
+        if(this.label || ipt){
+            if(Class.isValid(def.labelText)){
+                text = def.labelText;
+            }else if(Class.isValid(def.inputText)){
+                text = def.inputText;
+            }else{
+                text = def.text || def.name || def.dname || "Item";
+            }
+
+            this.setText(text);
+        }
+
+        if(ipt){
+            placeholder = def.placeholder;
+            if(J$VM.supports.placeholder && Class.isString(placeholder)
+               && placeholder.length > 0){
+                ipt.placeholder = placeholder;
+            }
+
+            Event.attachEvent(ipt, "focus", 1, this, _onFocus);
+        }
+
+        if(this.isMarkable()){
+            this.mark(def.checked === true);
+        }
+
+    }.$override(this._init);
+
+    this._init.apply(this, arguments);
+
+}.$extend(js.awt.Component);
+//    .$implements(js.awt.Highlighter);
 
 /**
 
@@ -7202,32 +7198,32 @@ js.awt.Icon.DEFAULTDEF = function(){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -7241,19 +7237,19 @@ $package("js.awt");
 
 /**
  * Define Button component
- * 
+ *
  * @param def:{
  *   className: string, required
- * 
+ *
  *   id: request,
- *   
+ *
  *   iconImage: "",
- *   iconAlign: "left"|"right"|"top"|"bottom" 
- *   labelText: "Button",   
- * 
+ *   iconAlign: "left"|"right"|"top"|"bottom"
+ *   labelText: "Button",
+ *
  *   state:optional,
  *   toggle:boolean, required
- * 
+ *
  * }
  */
 js.awt.Button = function(def, Runtime){
@@ -7267,7 +7263,7 @@ js.awt.Button = function(def, Runtime){
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System;
-    
+
     thi$.getMsgType = function(){
         return "js.awt.event.ButtonEvent";
     };
@@ -7284,14 +7280,14 @@ js.awt.Button = function(def, Runtime){
     thi$.getIconImage = function(){
         return this.def.iconImage || "blank.gif";
     };
-    
+
     thi$.setText = function(text){
         if(this.label){
             this.def.labelText = text;
-            this.label.innerHTML = js.lang.String.encodeHtml(text);    
+            this.label.innerHTML = js.lang.String.encodeHtml(text);
         }
     };
-    
+
     thi$.getText = function(){
         if(this.label){
             return this.def.labelText;
@@ -7301,18 +7297,18 @@ js.awt.Button = function(def, Runtime){
     };
 
     thi$.isMarkable = function(){
-        return this.def.markable === true;        
+        return this.def.markable === true;
     };
 
     thi$.isMarked = function(){
         return this.def.marked === true;
     };
-    
+
     thi$.mark = function(b){
         var marker = this.marker;
         if(!marker) return;
 
-        b = b || false;        
+        b = b || false;
         this.def.marked = b;
 
         if(this.isMarked()){
@@ -7321,11 +7317,11 @@ js.awt.Button = function(def, Runtime){
             marker.className = this.className + "_marker_0";
         }
     };
-    
+
     thi$.isOnMousedown = function(){
         return this._local.mousedown === true;
     };
-    
+
     thi$.setToolTipText = function(s){
         arguments.callee.__super__.apply(this, arguments);
 
@@ -7352,8 +7348,8 @@ js.awt.Button = function(def, Runtime){
      */
     thi$.doLayout = function(force){
         if(arguments.callee.__super__.apply(this, arguments)){
-            var G0 = this.getGeometric(), B = this.getBounds(), 
-            BBM = B.BBM, MBP = B.MBP, 
+            var G0 = this.getGeometric(), B = this.getBounds(),
+            BBM = B.BBM, MBP = B.MBP,
             innerWidth = B.innerWidth, innerHeight= B.innerHeight,
             xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
             align_x = this.def.layout.align_x,
@@ -7367,12 +7363,12 @@ js.awt.Button = function(def, Runtime){
                 if(ele.iid == "label"){
                     cwidth += ele.scrollWidth;
                 }else{
-                    cwidth += ele.offsetWidth + D.MBP.marginRight;    
+                    cwidth += ele.offsetWidth + D.MBP.marginRight;
                 }
             }
-            
+
             cwidth = cwidth > innerWidth ? innerWidth : cwidth;
-            
+
             left = xbase + (innerWidth - cwidth)*align_x;
             for(i=0, len=items.length; i<len; i++){
                 ele = this[items[i]];
@@ -7389,8 +7385,8 @@ js.awt.Button = function(def, Runtime){
                 }
 
                 ele.style.cssText = buf.toString();
-                
-                uwidth = D.width + D.MBP.marginRight; 
+
+                uwidth = D.width + D.MBP.marginRight;
                 left   += uwidth;
                 cwidth -= uwidth;
             }
@@ -7398,7 +7394,7 @@ js.awt.Button = function(def, Runtime){
             _adjustEffectLayer.call(this);
             return true;
         }
-        
+
         return false;
 
     }.$override(this.doLayout);
@@ -7407,33 +7403,33 @@ js.awt.Button = function(def, Runtime){
      * @see js.awt.State
      * @see js.awt.Component
      */
-    thi$.onStateChanged = function(){ 
+    thi$.onStateChanged = function(){
         arguments.callee.__super__.apply(this, arguments);
-        
+
         if(this.icon){
             this.setIconImage(this.getState());
         }
     }.$override(this.onStateChanged);
-    
+
     thi$.setEnabled = function(b){
         if(!b){
             _showEffectLayer.call(this, "normal");
         }
-        
+
         arguments.callee.__super__.apply(this, arguments);
-        
+
     }.$override(this.setEnabled);
-    
+
     var _showEffectLayer = function(style){
         if(!this._effectLayer || !this.isEnabled()){
             return;
         }
-        
+
         var className = this.__buf__.clear()
             .append(this._local.effectClass)
             .append("_").append(style).toString();
         this._effectLayer.className = className;
-        
+
         if(this.isStyleByState()){
             var state;
             switch(style){
@@ -7446,7 +7442,7 @@ js.awt.Button = function(def, Runtime){
             default:
                 break;
             }
-            
+
             if(!isNaN(state) && state !== this.getState()){
                 this.view.className = this.__buf__.clear()
                     .append(this.className).append("_")
@@ -7454,7 +7450,7 @@ js.awt.Button = function(def, Runtime){
             }
         }
     };
-    
+
     var _createEffectLayer = function(){
         var layer = this._effectLayer = DOM.createElement("DIV");
         layer.uuid = this.uuid();
@@ -7464,21 +7460,21 @@ js.awt.Button = function(def, Runtime){
         layer.style.cssText = "position:absolute;left:0px;top:0px;";
         DOM.appendTo(layer, this.view);
     };
-    
+
     var _adjustEffectLayer = function(){
         if(this._effectLayer){
             // The effect layer has border
-            DOM.setSize(this._effectLayer, 
+            DOM.setSize(this._effectLayer,
                         this.view.clientWidth, this.view.clientHeight);
         }
     };
 
     var _onmousedown = function(e){
         _showEffectLayer.call(this, "trigger");
-        
+
         this._local.mousedown = true;
         this.onHover(false, e.getType());
-        
+
         e.setEventTarget(this);
         this.notifyPeer(this.getMsgType(), e);
     };
@@ -7488,49 +7484,49 @@ js.awt.Button = function(def, Runtime){
             delete this._local.mousedown;
 
             _showEffectLayer.call(
-                this,  
+                this,
                 this.isHover() ? "hover" : "normal");
-            
+
             if(this.def.toggle === true){
                 this.setTriggered(!this.isTriggered());
             }
-            
+
             e.setEventTarget(this);
             this.notifyPeer(this.getMsgType(), e);
         }
     };
-    
+
     thi$.onHover = function(b, eType){
-        // Do something if need.        
+        // Do something if need.
     };
 
     var _onmouseover = function(e){
-        if(this.contains(e.toElement, true) 
+        if(this.contains(e.toElement, true)
            && !this.isHover()){
             this.setHover(true);
             _showEffectLayer.call(this, "hover");
-            
+
             this.onHover(true, e.getType());
         }
     };
 
     var _onmouseout = function(e){
-        if(!this.contains(e.toElement, true) 
+        if(!this.contains(e.toElement, true)
            && this.isHover()){
             delete this._local.mousedown;
-            
+
             this.setHover(false);
             _showEffectLayer.call(
-                this, 
+                this,
                 !this.isTriggered() ? "normal" : "trigger");
-            
+
             this.onHover(false, e.getType());
         }
     };
 
     var _createElements = function(){
         var G = this.getGeometric(), className = this.className,
-        body = document.body, items = this.def.items, 
+        body = document.body, items = this.def.items,
         ele, id, iid, viewType, i, len;
 
         for(i=0, len=items.length; i<len; i++){
@@ -7552,16 +7548,16 @@ js.awt.Button = function(def, Runtime){
             ele.id = id;
             ele.className = className + "_" + id;
             ele.iid = iid;
-            
+
             if(!G[iid]){
-                ele.style.cssText = 
+                ele.style.cssText =
                     "position:absolute;white-space:nowrap;visibility:hidden;";
                 DOM.appendTo(ele, body);
                 G[iid] = DOM.getBounds(ele);
                 DOM.removeFrom(ele);
                 ele.style.cssText = "";
             }
-            
+
             ele.style.cssText ="position:absolute;";
             DOM.appendTo(ele, this.view);
         }
@@ -7579,41 +7575,41 @@ js.awt.Button = function(def, Runtime){
     thi$.destroy = function(){
         DOM.remove(this._effectLayer, true);
         delete this._effectLayer;
-        
+
         this.detachEvent("mouseover", 0, this, _onmouseover);
         this.detachEvent("mouseout",  0, this, _onmouseout);
         this.detachEvent("mousedown", 0, this, _onmousedown);
         this.detachEvent("mouseup",   0, this, _onmouseup);
-        
+
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
-    
+
     thi$._init = function(def, Runtime, view){
         if(typeof def !== "object") return;
-        
+
         def.classType = def.classType || "js.awt.Button";
         def.className = def.className || "jsvm_button";
-       
+
         arguments.callee.__super__.apply(this, [def, Runtime, view]);
-        
+
         var layout = def.layout = def.layout || {};
         layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.5;
         layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
 
         def.items = def.items || [];
-        
+
         // Create inner elements
         if(view == undefined){
             _checkItems.call(this);
             _createElements.call(this);
         }
-        
+
         if(!def.items.clear){
             js.util.LinkedList.$decorate(def.items);
         }
         def.items.clear();
-        var uuid = this.uuid(), nodes = this.view.childNodes, 
+        var uuid = this.uuid(), nodes = this.view.childNodes,
         id, i, len, node;
         for(i=0, len=nodes.length; i<len; i++){
             node = nodes[i]; id = node.id;
@@ -7624,25 +7620,26 @@ js.awt.Button = function(def, Runtime){
         }
 
         if(this.icon){
-            this.setIconImage(this.isTriggered() ? 4:0);
+            this.setIconImage(this.isTriggered() ? 4 : (this.isEnabled() ? 0 : 1));
             //DOM.forbidSelect(this.icon);
         }
-        
+
         if(this.label){
-            this.setText(def.labelText || def.text || def.name || "Button"); 
+            this.setText(def.labelText || def.text || def.name || "Button");
         }
 
         if(def.effect === true){
             this._local.effectClass = def.effectClass || "jsvm_btnEffect";
             _createEffectLayer.call(this);
         }
-        
+
         // Set Tip
         var tip = def.tip;
         if(Class.isString(tip) && tip.length > 0) {
             this.setToolTipText(tip);
         }
 
+        this.setAttribute("touchcapture", "true");
         this.attachEvent("mouseover", 0, this, _onmouseover);
         this.attachEvent("mouseout",  0, this, _onmouseout);
         this.attachEvent("mousedown", 0, this, _onmousedown);
@@ -7651,9 +7648,8 @@ js.awt.Button = function(def, Runtime){
     }.$override(this._init);
 
     this._init.apply(this, arguments);
-    
-}.$extend(js.awt.Component);
 
+}.$extend(js.awt.Component);
 
 /**
 
@@ -8227,32 +8223,32 @@ js.awt.MenuSeparator = function(def, Runtime, menu){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
 
- Redistribution and use in source and binary forms, with or without modification, 
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
 
- 1. Redistributions of source code must retain the above copyright notice, 
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -8267,18 +8263,18 @@ $package("js.awt");
 $import("js.awt.MenuItem");
 
 /**
- * 
+ *
  * @param def :{
  *	   className: "jsvm_menu",
  *	   id: "Menu",
- *	   
+ *
  *	   iconImage: "",
  *	   labelText: "Menu",
- * 
+ *
  *	   markable: true / false, indicate whether the menu items are markable
  *	   iconic: true / false, indicate whether the menu items have icons
  *	   nodes:[] // sub menu
- * } 
+ * }
  */
 js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
@@ -8295,7 +8291,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	thi$.getPeerComponent = function(){
 		var root = this.rootLayer();
 
-		return this == root ? 
+		return this == root ?
 			arguments.callee.__super__.apply(this, arguments) :
 			root.getPeerComponent();
 
@@ -8324,15 +8320,15 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 	/**
 	 * Insert menu items into specified position
-	 * 
+	 *
 	 * @param index
 	 * @param itemDefs, an array of menu item definition
 	 */
 	thi$.insertNodes = function(index, itemDefs){
-		var M = this.def, nodes = this.nodes, 
+		var M = this.def, nodes = this.nodes,
 		isMarkableSetten = Class.isBoolean(M.markable),
 		isIconicSetten = Class.isBoolean(M.iconic),
-		ibase = index, item, refNode, itemDef, 
+		ibase = index, item, refNode, itemDef,
 		clazz, i, len;
 
 		if(!nodes){
@@ -8355,7 +8351,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 			clazz = itemDef.classType ||
 				("-" === itemDef.type ? "js.awt.MenuSeparator" : "js.awt.MenuItem");
-			item = new (Class.forName(clazz))(itemDef, this.Runtime(), this);	 
+			item = new (Class.forName(clazz))(itemDef, this.Runtime(), this);
 
 			this[item.id] = item;
 
@@ -8364,7 +8360,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			if(refNode){
 				DOM.insertAfter(item.view, refNode);
 			}else{
-				DOM.appendTo(item.view, this.view);
+				DOM.appendTo(item.view, this._menuView);
 			}
 
 			refNode = item.view;
@@ -8391,7 +8387,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	thi$.removeAllNodes = function(){
 		var nodes = this.nodes;
 		if(nodes){
-			this.removeNodes(0, nodes.length);	  
+			this.removeNodes(0, nodes.length);
 		}
 	};
 
@@ -8404,8 +8400,9 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		case "blur":
 			return this.rootLayer().isHideOnBlur();
 		case "mousedown":
+		case "mousewheel":
+		case "DOMMouseScroll":
 			var el = e.srcElement;
-
 			if(el && this.contains(el, true)){
 				return false;
 			}
@@ -8414,7 +8411,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 		return arguments.callee.__super__.apply(this, arguments);
 
-	}.$override(this.canHide);	  
+	}.$override(this.canHide);
 
 	/**
 	 * @see js.awt.PopupLayer
@@ -8430,16 +8427,30 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	}.$override(this.hide);
 
 	/**
-	 * @see js.awt.BaseComponent 
+	 * @see js.awt.BaseComponent
 	 * @see js.awt.Component
 	 */
 	thi$.repaint = function(){
 		if(!this._local.repaint){
-			var M = this.def, bounds = this.getBounds();
+			var M = this.def, bounds = this.getBounds(),
+            nodes = this.nodes, node;
+
+            var clientH = document.documentElement.clientHeight,
+            height = this.def.height ? this.def.height : bounds.height;
+
+            if(height > clientH){
+                this.setY(0);
+                this.view.style.height = "100%";
+                this.applyStyles({overflow: "auto"});
+            }
 
 			M.width = bounds.width;
 			M.width -= bounds.BBM ? 0 : bounds.MBP.BPW;
 
+            var scrollbar = this.hasScrollbar();
+            if(scrollbar.vscroll){
+                M.width = M.width - scrollbar.vbw;
+            }
 			M.height = bounds.height;
 			M.height-= bounds.BBM ? 0 : bounds.MBP.BPH;
 
@@ -8452,7 +8463,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 			// For floating layer
 			if(M.isfloating === true && !this.floatingSettled()){
-				this.setFloating(true);	   
+				this.setFloating(true);
 			}
 
 			var nodes = this.nodes, node, i, len;
@@ -8480,13 +8491,13 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 	var _notify = function(e, item){
 		/* After click a menu item, a process block may occur so that the menu
-		 * cann't be hide. Maybe that is reasonable to hide it first. However, 
-		 * if we hide it before notifying its peer component to do something, 
-		 * the menu may be destoried. Meanwhile, the data carried by that menu 
+		 * cann't be hide. Maybe that is reasonable to hide it first. However,
+		 * if we hide it before notifying its peer component to do something,
+		 * the menu may be destoried. Meanwhile, the data carried by that menu
 		 * item may be destoried, too.
-		 * So we copy the def of menu item and build an object as the event 
-		 * target in order to avoid much change. Then we can hide menu first. 
-		 * 
+		 * So we copy the def of menu item and build an object as the event
+		 * target in order to avoid much change. Then we can hide menu first.
+		 *
 		 * P.S.
 		 * The menu of dashboard and gadget has menu item to do something like
 		 * mark. So we also need use the menu item as the event target. However,
@@ -8498,7 +8509,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 		// Here, we will invoke the hide() to hide the menu rather than trigger
 		// it by the message post. Because the message execution is asynchronously.
-		// In some case, it may be block, too.		
+		// In some case, it may be block, too.
 		//MQ.post("hideMenuRoot","", [this.rootLayer().uuid()]);
 		this.rootLayer().hide();
 
@@ -8506,10 +8517,10 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	};
 
 	var _onclick = function(e){
-		var el = e.srcElement, uuid = el.uuid, 
+		var el = e.srcElement, uuid = el.uuid,
 		item = this.cache[uuid];
-		
-		if(item.hasNodes()){
+
+		if(item && item.hasNodes()){
 			item.showSubMenu();
 			return;
 		}
@@ -8532,12 +8543,12 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	};
 
 	var _onhideMenuRoot = function(){
-		this.hide();	
+		this.hide();
 	};
 
 	var _onmouseover = function(e){
-		var from = e.fromElement, to = e.toElement, 
-		fid = from ? from.uuid : undefined, 
+		var from = e.fromElement, to = e.toElement,
+		fid = from ? from.uuid : undefined,
 		tid = to ? to.uuid : undefined,
 		fitem, titem, cache = this.cache;
 
@@ -8564,6 +8575,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 		delete this._local.root;
 		delete this._local.parent;
+        delete this._local.menuView;
 		delete this.cache;
 
 		arguments.callee.__super__.apply(this, arguments);
@@ -8584,12 +8596,18 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		_setParentMenu.call(this, parentMenu);
 		_setRootMenu.call(this, rootMenu);
 
+        var menuView = this._menuView = DOM.createElement("DIV");
+		menuView.className = this.className + "_menuview";
+		menuView.style.cssText = "position:relative;width:100%;height:100%;";
+        DOM.appendTo(menuView, this.view);
+
 		this.cache = {};
 
 		if(def.nodes && def.nodes.length > 0){
 			this.insertNodes(0, def.nodes);
 		}
 
+		this.setAttribute("touchcapture", "true");
 		Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
 		Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
 		Event.attachEvent(this.view, "click",	  0, this, _onclick);
@@ -8601,7 +8619,6 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);
-
 
 /**
 
@@ -8659,7 +8676,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	CLASS.__defined__ = true;
 
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System, Permission = js.util.Permission;
+	System = J$VM.System;
 
 	thi$.setText = function(text){
 		this.def.text = text;
@@ -8727,6 +8744,11 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		return this._local.showTip;
 	};
 
+	thi$.alwaysRemoveChild = function(){
+		var tree = this.treeContainer();
+		return tree.alwaysRemoveChild();
+	};
+
 	/**
 	 * @see js.awt.Item
 	 */
@@ -8735,12 +8757,12 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	}.$override(this.getIconImage);
 
 	/**
-	 * check permission, visible will' be hide.
+	 * @method
+	 * @inheritdoc js.awt.Item#isIconStateless
 	 */
-	thi$.checkHide = function(){
-		var p = parseInt(this.def.permission, 10);
-		p = isNaN(p) ? 1 : p;
-		this.setVisible(Permission.isVisible(p));
+	thi$.isIconStateless = function(){
+		var tree = this.treeContainer();
+		return tree.isIconStateless(this.def);
 	};
 
 	/**
@@ -8750,8 +8772,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	 * @param itemDefs, an array of tree item definition
 	 */
 	thi$.insertNodes = function(index, itemDefs){
-		var nodes = this.nodes, ibase = index, item, prev, next,
-		itemDef, i, len;
+		var nodes = this.nodes, ibase = index, item, refItem,
+		prev, next, itemDef, cview, clazz, i, len,
+		tree = this.treeContainer(), isVisible;
 
 		if(!nodes){
 			nodes = this.nodes = js.util.LinkedList.$decorate([]);
@@ -8761,24 +8784,54 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			itemDef = itemDefs[i];
 			itemDef.level = this.def.level + 1;
 
+			isVisible = tree.isNodeVisible(itemDef) && this.isVisible();
+			if(!isVisible){
+				if(!tree.isAlwaysCreate()){ // skip this item
+					continue;
+				}else{ // make item invisible
+					itemDef.state = 16;
+				}
+			}
+
 			if(this.isShowTip()){
 				itemDef.tip = itemDef.dname;
 				itemDef.showTip = true;
 			}
 
+			// Add for support inserting the different structure and different
+			// style nodes. Such as, inserting the fake nodes of the markable
+			// nodes, then each of the fake nodes won't be markable.
+			cview = null;
 			if(item && item.canCloneView(itemDef)){
-				item = new js.awt.TreeItem(
-					itemDef,
-					this.Runtime(),
-					this.treeContainer(),
-					this,
-					item.cloneView());
+				cview = item.cloneView();
 			}else{
+				if(refItem && refItem.canCloneView(itemDef)){
+					cview = refItem.cloneView();
+				}
+			}
+
+			clazz = itemDef.className;
+			if(!clazz){
+				clazz = itemDef.className = tree.className + "_item";
+			}
+
+			refItem = item;
+			if(!cview){
 				item = new js.awt.TreeItem(
 					itemDef,
 					this.Runtime(),
-					this.treeContainer(),
+					tree,
 					this);
+			}else{
+				// Ref: js.awt.BaseComponent#_init
+				cview.clazz = clazz;
+
+				item = new js.awt.TreeItem(
+					itemDef,
+					this.Runtime(),
+					tree,
+					this,
+					cview);
 			}
 
 			prev = ibase > 0 ? nodes.get(ibase - 1) : undefined;
@@ -8797,8 +8850,6 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			item.prevSibling(prev);
 			item.nextSibling(next);
 
-			item.checkHide();
-
 			ibase++;
 		};
 
@@ -8812,10 +8863,29 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	 * Remove tree items from index to index + length
 	 */
 	thi$.removeNodes = function(index, length){
-		var nodes = this.nodes, cache = this.treeContainer().cache, item;
+		var nodes = this.nodes || [], cnt = nodes.length,
+		tree = this.treeContainer(), cache = tree.cache, 
+		marked = tree.marked, selected = tree.selected, 
+		item;
+
+		if(!Class.isNumber(index)){
+			index = 0;
+		}else{
+			index = index < 0 ? 0 : (index >= cnt ? cnt - 1 : index);
+		}
+
+		nodes = nodes.splice(index, length);
 		while(nodes.length > 0){
 			item = nodes.shift();
+			item.removeAllNodes();
 			delete cache[item.uuid()];
+
+			item.mark(false);
+			marked.remove(item);
+
+			item.setTriggered(false);
+			selected.remove(item);
+
 			item.destroy();
 		}
 	};
@@ -8859,8 +8929,13 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	};
 
 	var _addToDOM = function(item, refNode, isLast){
+		if(item.destroied === true){
+			return;
+		}
+		
 		item.updateLeaderStyle();
 		DOM.insertAfter(item.view, refNode);
+		
 		if(item.view.parentNode){
 			item.showDisableCover(!item.isEnabled());
 		}
@@ -8900,8 +8975,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		}
 
 		this.setExpanding(false);
-		var nodes = this.nodes, tree = this.treeContainer(),
-		className = this.branch.clazz, refNode, i, len, item;
+
+		var tree = this.treeContainer(), className = this.branch.clazz,
+		nodes = this.nodes || [], len = nodes.length, refNode, i, item;
 
 		b = b || false;
 		this._local.expanded = b;
@@ -8909,24 +8985,38 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		if(b){
 			this.branch.className = className + "_4";
 			this.setIconImage(4);
-
 			refNode = this.view;
-			if(nodes && nodes.length > 0){
-				for(i=0, len=nodes.length; i<len; i++){
-					item = nodes[i];
-					_addToDOM.$delay(this, 1, item, refNode, ((i == len-1) && (needNotify != false)));
-					refNode = item.view;
-				}
+
+			for(i = 0; i < len; i++){
+				item = nodes[i];
+				_addToDOM.$delay(this, 1, item, refNode,
+								 ((i == len-1) && (needNotify != false)));
+				refNode = item.view;
 			}
 		}else{
-			len = nodes ? nodes.length : 0;
-			for(i=len-1; i>=0; i--){
+			// If the "alwaysRemoveChild" adjustment return true, that will
+			// indicate all sub-nodes always need be fetch again while an item
+			// is expanding and the sub-items also need be removd while the
+			// parent item is collapsing. So that, the 'nodes' of current item
+			// are always changing. The length of the 'nodes' is decreasing.
+			// Loop from len - 1 will be better.
+			for(i = len - 1; i >= 0; i--){
 				item = nodes[i];
 				if(item.isExpanded()){
 					item.expand(false, undefined, item);
 				}
-				item.removeFrom(item.view.parentNode);
+				if(this.alwaysRemoveChild()){
+					tree.removeNode(item);
+
+				}else{
+					item.removeFrom(item.view.parentNode);
+				}
 			}
+
+			if(this.alwaysRemoveChild()){
+				delete this.def.nodes;
+			}
+
 			this.branch.className = className + "_0";
 			this.setIconImage(0);
 			//notify
@@ -8976,12 +9066,12 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		}
 	}.$override(this.doLayout);
 
-    thi$.adjustCover = function(bounds){
-        arguments.callee.__super__.apply(this, arguments);
-        
-        this._coverView.style.width = "100%";
-        
-    }.$override(this.adjustCover);
+	thi$.adjustCover = function(bounds){
+		arguments.callee.__super__.apply(this, arguments);
+
+		this._coverView.style.width = "100%";
+
+	}.$override(this.adjustCover);
 
 	thi$.updateBranchStyle = function(){
 		var ex = this.canExpand(),
@@ -9031,8 +9121,13 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		};
 
 		items.push("branch");
-		if(itemDef.markable === true) items.push("marker");
-		items.push("icon");
+		if(itemDef.markable === true){
+			items.push("marker");
+		}
+
+		if(itemDef.iconic !== false){
+			items.push("icon");
+		}
 		items.push("label");
 
 		return items.length === this.def.items.length;
@@ -9048,8 +9143,13 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		};
 
 		items.push("branch");
-		if(def.markable === true) items.push("marker");
-		items.push("icon");
+		if(def.markable === true){
+			items.push("marker");
+		}
+
+		if(def.iconic !== false){
+			items.push("icon");
+		}
 		items.push("label");
 
 	};
@@ -9072,7 +9172,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		_setTreeContainer.call(this, tree);
 
 		def.classType = def.classType || "js.awt.TreeItem";
-		def.className = tree.className + "_item";
+		def.className = def.className || tree.className + "_item";
 		def.css = "position:relative;overflow:visible;width:100%;";
 
 		if(view == undefined){
@@ -9100,7 +9200,6 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
 
 }.$extend(js.awt.Item);
-
 
 /**
 
@@ -9142,6 +9241,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 $package("js.awt");
 
 $import("js.awt.TreeItem");
+
 
 /**
  *
@@ -9288,6 +9388,54 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
 	permission = Class.forName("js.util.Permission");
 
+	/**
+	 * Find and return the previous same-level sibling of the specified 
+	 * tree item.
+	 * 
+	 * @param {js.awt.TreeItem} item
+	 * 
+	 * @return {js.awt.TreeItem}
+	 */
+	thi$.getPrevSiblingItem = function(item){
+		var prevItem = item.prevSibling(), ele;
+		if(!prevItem){
+			ele = item.view.previousSibling;
+			if(ele && ele.uuid){
+				prevItem = this.cache[ele.uuid];
+			}
+
+			if(prevItem && prevItem.def.level !== item.def.level){
+				prevItem = null;
+			}
+		}
+
+		return prevItem;
+	};
+
+	/**
+	 * Find and return the next same-level sibling of the specified 
+	 * tree item.
+	 * 
+	 * @param {js.awt.TreeItem} item
+	 * 
+	 * @return {js.awt.TreeItem}
+	 */
+	thi$.getNextSiblingItem = function(item){
+		var nextItem = item.nextSibling(), ele;
+		if(!nextItem){
+			ele = item.view.nextSibling;
+			if(ele && ele.uuid){
+				nextItem = this.cache[ele.uuid];
+			}
+
+			if(nextItem && nextItem.def.level !== item.def.level){
+				nextItem = null;
+			}
+		}
+
+		return nextItem;
+	};
+	
 	thi$.setDataProvider = function(dataProvider){
 		if(!dataProvider.instanceOf(js.awt.TreeDataProvider))
 			throw "Request a js.awt.TreeDataProvider instance";
@@ -9305,6 +9453,36 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
 	thi$.getIconImage = function(itemDef){
 		return this.dataProvider.getIconImage(itemDef);
+	};
+	
+	thi$.setAlwaysRemoveChild = function(bool){
+		this._local.alwaysRemoveChild = bool;
+	};
+	
+	thi$.alwaysRemoveChild = function(){
+		return this._local.alwaysRemoveChild;
+	};
+	
+	/**
+	 * If the specified item is stateless, its icon must be stateless.
+	 * If the "iconStateless" of the item is specified by definition,
+	 * the value of which will be used. Otherwise, if the "iconStateless"
+	 * of the tree is specified, the value will be used.
+	 * 
+	 * In other words, item's stateless > item's iconStateless > tree's 
+	 * iconStateless.
+	 */
+	thi$.isIconStateless = function(itemDef){
+		var stateless = (itemDef.stateless === true);
+		if(!stateless){
+			if(itemDef.hasOwnProperty("iconStateless")){
+				stateless = (itemDef.iconStateless === true);
+			}else{
+				stateless = (this.def.iconStateless === true);
+			}
+		}
+		
+		return stateless;
 	};
 
 	thi$.showTip = function(showTip){
@@ -9330,14 +9508,27 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 	};
 
 	/**
+	 * Check node's permission, judge whether the specified node
+	 * will be visible.
+	 */ 
+	thi$.isNodeVisible = function(nodeDef){
+		var p = parseInt(nodeDef.permission, 10);
+		return permission.isVisible(isNaN(p) ? 1 : p);
+	};
+	
+	thi$.isAlwaysCreate = function(){
+		return this.def.alwaysCreate !== false;
+	};
+
+	/**
 	 * Insert tree items into specified position
 	 *
 	 * @param index
 	 * @param itemDefs, an array of tree item definition
 	 */
 	thi$.insertNodes = function(index, itemDefs){
-		var nodes = this.nodes, ibase = index, item, refNode,
-		itemDef, i, len;
+		var nodes = this.nodes, ibase = index, item, refItem, cview, refNode,
+		itemDef, clazz, i, len, isVisible;
 
 		if(!nodes){
 			nodes = this.nodes = js.util.LinkedList.$decorate([]);
@@ -9357,15 +9548,46 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 				itemDef.tip = itemDef.dname;
 				itemDef.showTip = true;
 			}
-			if(i === 0){
+
+			isVisible = this.isNodeVisible(itemDef);
+			if(!isVisible){
+				if(!this.isAlwaysCreate()){ // skip this item
+					continue;
+				}else{ // make item invisible
+					itemDef.state = 16;
+				}
+			}
+
+			// Add for support inserting the different structure and different
+			// style nodes. Such as, inserting the fake nodes of the markable 
+			// nodes, then each of the fake nodes won't be markable.
+			cview = null;
+			if(item && item.canCloneView(itemDef)){
+				cview = item.cloneView();
+			}else{
+				if(refItem && refItem.canCloneView(itemDef)){
+					cview = refItem.cloneView();
+				}
+			}
+
+			clazz = itemDef.className;
+			if(!clazz){
+				clazz = itemDef.className = this.className + "_item";
+			}
+
+			refItem = item;
+			if(!cview){
 				item = new js.awt.TreeItem(itemDef, this.Runtime(), this);
 			}else{
+				// Ref: js.awt.BaseComponent#_init
+				cview.clazz = clazz;
+
 				item = new js.awt.TreeItem(
 					itemDef,
 					this.Runtime(),
 					this,
 					undefined,
-					item.cloneView());
+					cview);
 			}
 
 			nodes.add(ibase++, item);
@@ -9376,7 +9598,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 				DOM.appendTo(item.view, this._treeView);
 			}
 
-			item.checkHide();
+			//item.checkHide();
 
 			refNode = item.view;
 		};
@@ -9425,6 +9647,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			nodes.remove(item);
 		}
 
+        item.removeAllNodes();
 		delete this.cache[item.uuid()];
 
 		this.marked.remove(item);
@@ -9468,10 +9691,15 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		nodes = nodes.splice(index, length);
 		while(nodes.length > 0){
 			item = nodes.shift();
+            item.removeAllNodes();
 			delete cache[item.uuid()];
 
+            item.mark(false);
 			marked.remove(item);
+
+            item.setTriggered(false);
 			selected.remove(item);
+
 			item.destroy();
 		}
 
@@ -9490,6 +9718,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 	 * Remove all tree times
 	 */
 	thi$.removeAllNodes = function(isDestroying){
+        this.marked.clear();
+        this.selected.clear();
+
 		var nodes = this.nodes;
 		if(nodes){
 			this.removeNodes(0, nodes.length, isDestroying);
@@ -9575,7 +9806,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 	 * @param needNitify, false for don't nofity the tree to do AfterExpand,others do.
 	 */
 	thi$.expand = function(item, needNotify){
-		if(item.def.isRead == false){
+		if(!item || item.def.isRead == false){
 			return;
 		}
 
@@ -9613,33 +9844,36 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
 
 	var _checkData = function(data){
-		var p = data.permission;
+		if(!data) return undefined;
+		var p = data.permission, nodes, node, len;
 		if(p){
 			data.isVisible = permission.isVisible(p);
 			data.isRead = permission.isRead(p);
 			data.isWrite = permission.isWrite(p);
 			data.isExecute = permission.isExecute(p);
 		}
-		if(data.nodes){
-			for(var i = 0,nodes = data.nodes, len = data.nodes.length;i < len; i++){
-				if(nodes[i].nodes){
-					nodes[i] = _checkData.call(this, nodes[i]);
-				}else{
-					p = nodes[i].permission;
-					if(p){
-						nodes[i].isVisible = permission.isVisible(p);
-						nodes[i].isRead = permission.isRead(p);
-						nodes[i].isWrite = permission.isWrite(p);
-						nodes[i].isExecute = permission.isExecute(p);
-					}
+		
+		nodes = data.nodes;
+		len = Class.isArray(nodes) ? nodes.length : 0;
+		for(var i = 0; i < len; i++){
+			node = nodes[i];
+			if(node.nodes){
+				nodes[i] = _checkData.call(this, node);
+			}else{
+				p = node.permission;
+				if(p){
+					node.isVisible = permission.isVisible(p);
+					node.isRead = permission.isRead(p);
+					node.isWrite = permission.isWrite(p);
+					node.isExecute = permission.isExecute(p);
 				}
 			}
 		}
+
 		return data;
 	};
 
-	var _onGetData = function(data, item, needNotify){
-
+	var _onGetData = function(data, item, needNotify){		
 		data = _checkData.call(this, data);
 
 		if(data && data.nodes){
@@ -9766,13 +10000,16 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 	/**
 	 * Clears all marked items
 	 */
-	thi$.clearAllMarked = function(){
+	thi$.clearAllMarked = function(doSort){
 		var marked = this.marked, item;
 		while(marked.length > 0){
 			item = marked.shift();
 			item.mark(false);
 		}
-		this._doSort();
+		
+		if(doSort !== false){
+			this._doSort();
+		}
 	};
 
 	/**
@@ -9830,9 +10067,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		var moveObj = this.moveObj;
 		if(!moveObj){
 			var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-			mdef, absXY = e.eventXY();
+			iidef = item.def, mdef, mClz, absXY = e.eventXY();
 
-			if(item.def.isExecute == false){
+			if(iidef.isExecute == false){
 				return null;
 			}
 
@@ -9845,9 +10082,13 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 				this._doSort();
 			}
 
-			mdef = this.getMoveObjectDef() || {};
-			moveObj = this.moveObj =
-				new js.awt.TreeMoveObject(mdef, this.Runtime(), this);
+			mdef = this.getMoveObjectDef(item) || {};
+			mClz = mdef.classType;
+			if(Class.isString(mClz) && mClz.length > 0){
+				mClz = Class.forName(mClz);
+			}
+			mClz = mClz || js.awt.TreeMoveObject;
+			moveObj = this.moveObj = new mClz(mdef, this.Runtime(), this);
 			moveObj.setMovingPeer(this);
 			moveObj.appendTo(document.body);
 
@@ -10033,70 +10274,110 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			view.scrollTop = scrollTop;
 		}
 	};
+	
+	/**
+	 * Select the specified tree item.
+	 * 
+	 * @param {js.awt.TreeItem} item The specified tree item to select.
+	 * @param {js.awt.Event} e The event whcich trigger the selecting operation.
+	 */
+	thi$.selectItem = function(item, e){
+		/*
+		 * While the external application is selecting a tree item by invoking
+		 * this API manually, the e argument may not exist. For supporting to
+		 * handle the "selectchanged" msg with the consistent codes, we fake
+		 * the event object for it.	  
+		 */
+		if(!e){
+			e = new Event("selectchanged", {}, this);
+			e.srcElement = item ? item.view : this._treeView;
+		}
+
+		var isMulti = this.def.multiEnable, selected = this.selected, tmp;
+		if(item && item.isEnabled()){
+			if (item.canDrag()){
+				if(isMulti && e.ctrlKey === true){
+					item.setTriggered(!item.isTriggered());
+					if(item.isTriggered()){
+						selected.push(item);
+					}else{
+						selected.remove(item);
+					}
+				}else if(isMulti && e.shiftKey === true){
+					// Accoding to the multiple select logic of OS file explorer,
+					// use the last one of the latest selection as the start
+					// of current slection.
+					var first = selected.length > 0 
+						? selected[selected.length - 1] : undefined;
+
+					if(first == undefined){
+						item.setTriggered(true);
+						selected.push(item);
+					}else{
+						this.clearAllSelected(false);
+					}
+
+					if(first && item){
+						if(first.parentItem() == item.parentItem()){
+							var nodes = first.parentItem().getNodes(first, item), node;
+							for(var i=0, len=nodes.length; i<len; i++){
+								node = nodes[i];
+								node.setTriggered(true);
+								selected.push(node);
+							}
+						}else{
+							item.setTriggered(true);
+							selected.push(item);
+						}
+					}
+				}else if(item.isTriggered()){
+					this.clearAllSelected(false);
+				}else{
+					this.clearAllSelected(false);
+
+					item.setTriggered(true);
+					selected.push(item);
+				}
+			}
+			
+			this._doSort();
+
+			e.setType("selectchanged");
+			e.setData(this.getAllSelected());
+			e.setEventTarget(item);
+			this.notifyPeer("js.awt.event.TreeItemEvent", e);
+		}else{
+			if(selected.length > 0){
+				this.clearAllSelected();
+
+				e.setType("selectchanged");
+				e.setData(this.getAllSelected());
+				this.notifyPeer("js.awt.event.TreeItemEvent", e);
+			}
+		}
+	};
+	
+	var _doSelect = function(e){
+		var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid];
+		this.selectItem(item, e);
+	};
 
 	var _onclick = function(e){
-		var isMulti = this.def.multiEnable, el = e.srcElement, uuid = el.uuid,
-		item = this.cache[uuid], selected = this.selected;
+		var el = e.srcElement, uuid = el.uuid,
+		item = this.cache[uuid];
 
 		if(item && item.isEnabled()){
 			if(e.getType() == "click"){
 				if(el === item.branch && item.canExpand()){
 					this.clearAllSelected();
 					this.expand(item);
-					return;
 				}else if(el === item.marker && item.isMarkable()){
 					this.markNode(item);
 					e.setType("markchanged");
 					e.setEventTarget(item);
 					this.notifyPeer("js.awt.event.TreeItemEvent", e);
-					return;
-				}else if (item.canDrag()){
-					if(isMulti && e.ctrlKey === true){
-						item.setTriggered(!item.isTriggered());
-						if(item.isTriggered()){
-							selected.push(item);
-						}else{
-							selected.remove(item);
-						}
-					}else if(isMulti && e.shiftKey === true){
-						var first = selected.length > 0 ? selected[0] : undefined;
-
-						if(first == undefined){
-							first = item;
-							item.setTriggered(true);
-							selected.push(item);
-						}
-
-						if(first && item && first.parentItem() == item.parentItem()){
-							var nodes = first.parentItem().getNodes(first, item), node;
-							for(var i=1, len=nodes.length; i<len; i++){
-								node = nodes[i];
-								node.setTriggered(true);
-								selected.push(node);
-							}
-						}
-					}else if(item.isTriggered()){
-						this.clearAllSelected();
-					}else{
-						this.clearAllSelected();
-						item.setTriggered(true);
-						selected.push(item);
-					}
 				}
-				this._doSort();
-				e.setType("selectchanged");
-				e.setData(this.getAllSelected());
-				e.setEventTarget(item);
-				this.notifyPeer("js.awt.event.TreeItemEvent", e);
-				return;
 			}
-		}
-
-		if(this.selected.length){
-			this.clearAllSelected();
-			e.setType("selectchanged");
-			e.setData(this.getAllSelected());
-			this.notifyPeer("js.awt.event.TreeItemEvent", e);
 		}
 	};
 
@@ -10120,18 +10401,21 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
 	// Only bind to treeView to avoid autoscroll when drag an item
 	var _onmousedown = function(e){
-		/*
-		 * add by Chen Chao
-		 * when trigger one treeitem, then drag another one, the moveobj is not correct.
-		 */
-		 if(this.selected.length){
-			this.clearAllSelected();
-			e.setType("selectchanged");
-			e.setData(this.getAllSelected());
-			this.notifyPeer("js.awt.event.TreeItemEvent", e);
+		// Extract the item selecting login from _onclick by Chen Chao & Pan Mingfa
+		// in 2014-06-18.
+		// 
+		// For the old logic, the item only can be selected while it is clicked.
+		// So that when we start to drag an item directly by mousedown, the current
+		// "selected" will be from the latest selection except the current trigger
+		// one and the moving data of the moveObject will be wrong.
+		var el = e.srcElement, uuid = el.uuid,
+		item = this.cache[uuid];
+		if(item && el === item.branch){
+			return e.cancelDefault();
 		}
-		
-		return e.cancelDefault();
+		_doSelect.call(this, e);
+
+		return e.cancelDefault();		  
 	};
 
 	// Notify tree peer
@@ -10160,10 +10444,6 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
 	}.$override(this.destroy);
 
-	var _onevent = function(e){
-
-	};
-
 	thi$._init = function(def, Runtime, dataProvider){
 		if(def == undefined) return;
 
@@ -10177,6 +10457,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
 		// Call base _init
 		arguments.callee.__super__.apply(this, [def, Runtime]);
+		
+		this._local.alwaysRemoveChild = def.alwaysRemoveChild;
 
 		// Cache all tree items
 		this.cache = {};
@@ -10215,13 +10497,11 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			MQ.register(this.dataProvider.getDragMsgType(), this, _ondrag);
 		}
 
-		MQ.register("js.awt.event.TreeItemEvent", this, _onevent);
-
 	}.$override(this._init);
 
 	this._init.apply(this, arguments);
 
-}.$extend(js.awt.Component);
+}.$extend(js.awt.Component).$implements(js.awt.TreeDataFilter);
 
 /**
  * This is a default TreeDataProvider
@@ -10241,7 +10521,6 @@ js.awt.AbstractTreeDataProvider = function(Runtime, imageMap, expandMap, dragMap
 	System = J$VM.System;
 
 	thi$.destroy = function(){
-		delete this._local.Runtime;
 		delete this.imageMap;
 		delete this.expandMap;
 		delete this.dragMap;
@@ -10255,7 +10534,6 @@ js.awt.AbstractTreeDataProvider = function(Runtime, imageMap, expandMap, dragMap
 
 		this._local = this._local || {};
 
-		this._local.Runtime = Runtime;
 		this.setImageMap(imageMap);
 		this.setExpandableMap(expandMap);
 		this.setDragableMap(dragMap);
@@ -10341,22 +10619,26 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 		if(arguments.callee.__super__.apply(this, arguments)){
 			var bounds = this.getBounds(), buf = new js.lang.StringBuffer(),
 			left = bounds.MBP.paddingLeft, top = bounds.MBP.paddingTop,
-			width = bounds.innerWidth;
+			width = bounds.innerWidth, icon = this.icon;
+			
+			if(icon){
+				buf.append("position:absolute;left:")
+					.append(left).append("px;")
+					.append("top:").append(top).append("px;");
+				this.icon.style.cssText = buf.toString();
 
-			buf.append("position:absolute;left:")
-				.append(left).append("px;")
-				.append("top:").append(top).append("px;");
-			this.icon.style.cssText = buf.toString();
+				bounds = this.icon.bounds;
+				left += bounds.width + bounds.MBP.marginRight;
+				width -= left;
+			}
 
-			bounds = this.icon.bounds;
-			left += bounds.width + bounds.MBP.marginRight;
-			width -= left;
 			buf.clear().append("position:absolute;left:")
-				.append(left).append("px;")
-				.append("top:").append(top).append("px;width:")
+				.append(left).append("px;").append("top:")
+				.append(top).append("px;").append("width:")
 				.append(width).append("px;");
 			this.label.style.cssText = buf.toString();
 		}
+
 	}.$override(this.repaint);
 
 	thi$._init = function(def, Runtime, tree){
@@ -10378,14 +10660,17 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 		dataProvider = tree.dataProvider;
 
 		var item = selected[0], G = item.getGeometric(),
-		icon = this.icon = item.icon.cloneNode(true),
-		label = this.label = item.label.cloneNode(true),
-		text = item.getText();
+		icon, label, text = item.getText();
+		
+		if(item.icon){
+			icon = this.icon = item.icon.cloneNode(true);
 
-		icon.bounds = G.icon;
-		DOM.appendTo(icon, this.view);
+			icon.bounds = G.icon;
+			DOM.appendTo(icon, this.view);
+		}
 
 		// Maybe current label has been highlighted
+		label = this.label = item.label.cloneNode(true);
 		label.innerHTML = js.lang.String.encodeHtml(text || "");
 		DOM.appendTo(label, this.view);
 
@@ -10397,33 +10682,33 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice, 
+  this list of conditions and the following disclaimer.
+  
+  2. Redistributions in binary form must reproduce the above copyright notice, 
+  this list of conditions and the following disclaimer in the 
+  documentation and/or other materials provided with the distribution.
+  
+  3. Neither the name of the JSVM nor the names of its contributors may be 
+  used to endorse or promote products derived from this software 
+  without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -10538,14 +10823,14 @@ js.awt.ScriptScope = function(host){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ;
     
     thi$.exec = function(script){
         var host = this.host;
 
         (function(s){
-             eval(s);
-         }).$delay(this, 1, script);
+            eval(s);
+        }).$delay(this, 1, script);
     };
     
     thi$.clear = function(){
@@ -10634,16 +10919,16 @@ js.awt.IFrame = function (def, Runtime){
         this.showCover(false);
     };
 
-    var _onload = function(e){
+    thi$.onload = function(e){
         var doc = this.getDocument();
 
         if(doc){
             try{
-                Event.attachEvent(doc, "mousedown", 0, this, _onmousedown);
+                Event.attachEvent(doc, "mousedown", 0, this, this.onmousedown);
             } catch (x) {
                 // Maybe cross-domain
                 var err = e ? e.message : "Can't attach mousedown event to IFrame";
-			    System.err.println(err);
+                System.err.println(err);
             }
         }
         return true;
@@ -10654,7 +10939,7 @@ js.awt.IFrame = function (def, Runtime){
 
         if(doc){
             try{
-                Event.detachEvent(doc, "mousedown", 0, this, _onmousedown);
+                Event.detachEvent(doc, "mousedown", 0, this, this.onmousedown);
             } catch (x) {
                 // Nothing to do
             }
@@ -10662,7 +10947,7 @@ js.awt.IFrame = function (def, Runtime){
         return true;
     };
 
-    var _onmousedown = function(e){
+    thi$.onmousedown = function(e){
         var win = this.getWindow();
         if(win && win.parent != win.self){
             MQ.post("js.awt.event.LayerEvent", 
@@ -10676,16 +10961,19 @@ js.awt.IFrame = function (def, Runtime){
 
         def.classType = def.classType || "js.awt.IFrame";
         def.className = def.className || "jsvm_iframe";
+       
         def.viewType = "IFRAME";
+        def.css = "border:0px none;" + (def.css || "");
 
         arguments.callee.__super__.apply(this, arguments);
+        
         this.setAttribute("frameBorder", "0");
 
         if(def.src){
             this.setSrc(def.src);
         }
 
-        Event.attachEvent(this.view, "load", 0, this, _onload);
+        Event.attachEvent(this.view, "load", 0, this, this.onload);
         Event.attachEvent(this.view, "unload", 0, this, _onunload);
 
         MQ.register(Event.SYS_EVT_MOVING,   this, _showCover);
@@ -10864,33 +11152,33 @@ js.awt.VFrame = function(def, Runtime){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice, 
+  this list of conditions and the following disclaimer.
+  
+  2. Redistributions in binary form must reproduce the above copyright notice, 
+  this list of conditions and the following disclaimer in the 
+  documentation and/or other materials provided with the distribution.
+  
+  3. Neither the name of the JSVM nor the names of its contributors may be 
+  used to endorse or promote products derived from this software 
+  without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Pan mingfa
@@ -10902,508 +11190,500 @@ $package("js.awt");
 
 /**
  * Coordinate of nofly area:
- *	 B			   C			 
- *	 |-------------|
- *	 |			   |
- *	 |-------------|
- *	 A			   D
+ *   B             C             
+ *   |-------------|
+ *   |             |
+ *   |-------------|
+ *   A             D
  */
-js.awt.LayerManager = function(Runtime){
-	
-	var CLASS = js.awt.LayerManager, thi$ = CLASS.prototype;
-	if(CLASS.__defined__){
-		this._init.apply(this, arguments);
-		return;
-	}
-	CLASS.__defined__ = true;
-	
-	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System, MQ = J$VM.MQ;
-	
-	thi$.removeComponent = function(comp){
-		comp = arguments.callee.__super__.apply(this, arguments);
-		this.stack.remove(comp); 
-	}.$override(this.removeComponent);
-	
-	thi$.removeAll = function(){
-		this.stack.clear();
-		arguments.callee.__super__.apply(this, arguments);
-	}.$override(this.removeAll);
-	
-	thi$.cleanLayers = function(e){
-		if(window.parent != window.self){
-			MQ.post("js.awt.event.LayerEvent", "", [], window.parent);
-		}
+js.awt.LayerManager = function(def, Runtime, view){
+    
+    var CLASS = js.awt.LayerManager, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+        System = J$VM.System, MQ = J$VM.MQ;
+    
+    thi$.removeComponent = function(comp){
+        comp = arguments.callee.__super__.apply(this, arguments);
+        this.stack.remove(comp); 
+    }.$override(this.removeComponent);
+    
+    thi$.removeAll = function(){
+        this.stack.clear();
+        arguments.callee.__super__.apply(this, arguments);
+    }.$override(this.removeAll);
+    
+    thi$.cleanLayers = function(e){
+        if(window.parent != window.self){
+            MQ.post("js.awt.event.LayerEvent", "", [], window.parent);
+        }
 
-		return this.onHide(e);
-	};
-	
-	thi$.indexOf = function (layer) {
-		return this.stack.indexOf(layer);
-	};
-	
-	var _calHRect = function (rect, w, h) {
-		var bodySize = this._bodySize, hRect = {x : 0, y : 0},
-		x, y, avWidth, avHeight, 
-		area/* Area: The rectangle of an area in which the current layer is lying*/;
-		
-		// A
-		x = rect.x;
-		y = rect.y + rect.height;
-		avWidth = bodySize.width - x;
-		avHeight = bodySize.height - y;
-		area = {AID : "A", x : x, y : y, width : avWidth, height : avHeight};
-		
-		if (avHeight >= h && avWidth >= w) {
-			hRect.x = x;
-			hRect.y = y;
-			hRect.area = area;
-			
-			return hRect;
-		}
-		
-		var bAvRect = {
-			x : x, /* Optimal horizontal offset */
-			y : y, /* Optimal virtical offset */
-			width : avWidth, /* Available width */
-			height : avHeight, /* Available height */
+        return this.onHide(e);
+    };
+    
+    thi$.indexOf = function (layer) {
+        return this.stack.indexOf(layer);
+    };
+    
+    var _calHRect = function (rect, w, h) {
+        var bodySize = this._bodySize, hRect = {x : 0, y : 0},
+            x, y, avWidth, avHeight, 
+            area/* Area: The rectangle of an area in which the current layer is lying*/;
+        
+        // A
+        x = rect.x;
+        y = rect.y + rect.height;
+        avWidth = bodySize.width - x;
+        avHeight = bodySize.height - y;
+        area = {AID : "A", x : x, y : y, width : avWidth, height : avHeight};
+        
+        if (avHeight >= h && avWidth >= w) {
+            hRect.x = x;
+            hRect.y = y;
+            hRect.area = area;
+            
+            return hRect;
+        }
+        
+        var bAvRect = {
+            x : x, /* Optimal horizontal offset */
+            y : y, /* Optimal virtical offset */
+            width : avWidth, /* Available width */
+            height : avHeight, /* Available height */
 
-			// If we are permitted to adjust the floating layer's position to show most
-			//	contents, the following position will be optimum.
-			x1 : avWidth >= w ? x : (x + avWidth - w), /* Optimum horizontal offset */
-			y1 : avHeight >= h ? y : (y + avHeight - h), /* Optimum virtical offset */
-			
-			area : area
-		};
-		
-		// D: available height is same as area A
-		x = rect.x + rect.width;
-		avWidth = x;
-		area = {AID : "D", x : 0, y : y, width : avWidth, height : avHeight};
+            // If we are permitted to adjust the floating layer's position to show most
+            //  contents, the following position will be optimum.
+            x1 : avWidth >= w ? x : (x + avWidth - w), /* Optimum horizontal offset */
+            y1 : avHeight >= h ? y : (y + avHeight - h), /* Optimum virtical offset */
+            
+            area : area
+        };
+        
+        // D: available height is same as area A
+        x = rect.x + rect.width;
+        avWidth = x;
+        area = {AID : "D", x : 0, y : y, width : avWidth, height : avHeight};
 
-		if (avHeight >= h && avWidth >= w) {
-			hRect.x = x - w;
-			hRect.y = y;
-			hRect.area = area;
-			
-			return hRect;
-		}
-		
-		if(avWidth >= bAvRect.width){
-			bAvRect.x = x - w;
-			bAvRect.y = y;
-			bAvRect.width = avWidth;
+        if (avHeight >= h && avWidth >= w) {
+            hRect.x = x - w;
+            hRect.y = y;
+            hRect.area = area;
+            
+            return hRect;
+        }
+        
+        if(avWidth >= bAvRect.width){
+            bAvRect.x = x - w;
+            bAvRect.y = y;
+            bAvRect.width = avWidth;
 
-			bAvRect.x1 = bAvRect.x;
-			bAvRect.area = area;
-		}
-		
-		// B
-		x = rect.x;
-		y = rect.y;
-		avWidth = bodySize.width - x;
-		avHeight = y;
-		area = {AID : "B", x : x, y : 0, width : avWidth, height : avHeight};
-		
-		if (avHeight >= h && avWidth >= w) {
-			hRect.x = x;
-			hRect.y = y - h;
-			hRect.area = area;
-			
-			return hRect;
-		}
-		
-		var tAvRect = {
-			x : x,
-			y : y - h,
-			width : avWidth,
-			height : avHeight,
+            bAvRect.x1 = bAvRect.x;
+            bAvRect.area = area;
+        }
+        
+        // B
+        x = rect.x;
+        y = rect.y;
+        avWidth = bodySize.width - x;
+        avHeight = y;
+        area = {AID : "B", x : x, y : 0, width : avWidth, height : avHeight};
+        
+        if (avHeight >= h && avWidth >= w) {
+            hRect.x = x;
+            hRect.y = y - h;
+            hRect.area = area;
+            
+            return hRect;
+        }
+        
+        var tAvRect = {
+            x : x,
+            y : y - h,
+            width : avWidth,
+            height : avHeight,
 
-			x1 : avWidth >= w ? x : (x + avWidth - w),
-			y1 : y - h,
-			
-			area : area
-		};
-		
-		// C: available height is same as area B
-		x = rect.x + rect.width;
-		avWidth = x; 
-		area = {AID : "C", x : 0, y : 0, width : avWidth, height : avHeight};
-		
-		if (avHeight >= h && avWidth >= w) {
-			hRect.x = x - w;
-			hRect.y = y - h;
-			hRect.area = area;
-			
-			return hRect;
-		}
-		
-		if(avWidth >= tAvRect.width){
-			tAvRect.x = x - w;
-			tAvRect.y = y - h;
-			tAvRect.width = avWidth;
+            x1 : avWidth >= w ? x : (x + avWidth - w),
+            y1 : y - h,
+            
+            area : area
+        };
+        
+        // C: available height is same as area B
+        x = rect.x + rect.width;
+        avWidth = x; 
+        area = {AID : "C", x : 0, y : 0, width : avWidth, height : avHeight};
+        
+        if (avHeight >= h && avWidth >= w) {
+            hRect.x = x - w;
+            hRect.y = y - h;
+            hRect.area = area;
+            
+            return hRect;
+        }
+        
+        if(avWidth >= tAvRect.width){
+            tAvRect.x = x - w;
+            tAvRect.y = y - h;
+            tAvRect.width = avWidth;
 
-			tAvRect.x1 = tAvRect.x;
-			tAvRect.area = area;
-		}
+            tAvRect.x1 = tAvRect.x;
+            tAvRect.area = area;
+        }
 
-		var avRect = undefined;
-		if(bAvRect.height >= h && tAvRect.height >= h){
-			avRect = bAvRect.width >= tAvRect.width ? bAvRect : tAvRect;
-		}else{
-			var bArea = Math.min(bAvRect.width, w) * Math.min(bAvRect.height, h);
-			var tArea = Math.min(tAvRect.width, w) * Math.min(tAvRect.height, h);
-			avRect = bArea >= tArea ? bAvRect : tAvRect;
-		}
-		
-		avRect.narrow = true;
-		return avRect;
-	};
-	
-	var _calVRect = function (rect, w, h) {
-		var bodySize = this._bodySize, vRect = {x : 0, y : 0},
-		x, y, avWidth, avHeight, 
-		area/* Area: The rectangle of an area in which the current layer is lying*/;
-		
-		// C
-		x = rect.x + rect.width;
-		y = rect.y;
-		avWidth = bodySize.width - x;
-		avHeight = bodySize.height - y;
-		area = {AID : "C", x : x, y : y, width : avWidth, height : avHeight};
-		
-		if (avWidth >= w && avHeight >= h) {
-			vRect.x = x;
-			vRect.y = y;
-			vRect.area = area;
-			
-			return vRect;
-		}
-		
-		var rightAvRect = {
-			x : x, /* Optimal horizontal offset */
-			y : y, /* Optimal virtical offset */
-			width : avWidth, /* Available width */
-			height : avHeight, /* Available height */
+        var avRect = undefined;
+        if(bAvRect.height >= h && tAvRect.height >= h){
+            avRect = bAvRect.width >= tAvRect.width ? bAvRect : tAvRect;
+        }else{
+            var bArea = Math.min(bAvRect.width, w) * Math.min(bAvRect.height, h);
+            var tArea = Math.min(tAvRect.width, w) * Math.min(tAvRect.height, h);
+            avRect = bArea >= tArea ? bAvRect : tAvRect;
+        }
+        
+        avRect.narrow = true;
+        return avRect;
+    };
+    
+    var _calVRect = function (rect, w, h) {
+        var bodySize = this._bodySize, vRect = {x : 0, y : 0},
+            x, y, avWidth, avHeight, 
+            area/* Area: The rectangle of an area in which the current layer is lying*/;
+        
+        // C
+        x = rect.x + rect.width;
+        y = rect.y;
+        avWidth = bodySize.width - x;
+        avHeight = bodySize.height - y;
+        area = {AID : "C", x : x, y : y, width : avWidth, height : avHeight};
+        
+        if (avWidth >= w && avHeight >= h) {
+            vRect.x = x;
+            vRect.y = y;
+            vRect.area = area;
+            
+            return vRect;
+        }
+        
+        var rightAvRect = {
+            x : x, /* Optimal horizontal offset */
+            y : y, /* Optimal virtical offset */
+            width : avWidth, /* Available width */
+            height : avHeight, /* Available height */
 
-			// If we are permitted to adjust the floating layer's position to show most
-			//	contents, the following position will be optimum.
-			x1 : avWidth >= w ? x : (x + avWidth - w), /* Optimum horizontal offset */
-			y1 : avHeight >= h ? y : (y + avHeight - h), /* Optimum virtical offset */
-			
-			area : area
-		};
-		
-		// D: available width is same as area C
-		y = rect.y + rect.height;
-		avHeight = y;
-		area = {AID : "D", x : x, y : 0, width : avWidth, height : avHeight};
-		
-		if (avWidth >= w && avHeight >= h) {
-			vRect.x = x;
-			vRect.y = y - h;
-			vRect.area = area;
-			
-			return vRect;
-		}
-		
-		if(avHeight > rightAvRect.height){
-			rightAvRect.x = x;
-			rightAvRect.y = y - h;
-			rightAvRect.height = avHeight;
+            // If we are permitted to adjust the floating layer's position to show most
+            //  contents, the following position will be optimum.
+            x1 : avWidth >= w ? x : (x + avWidth - w), /* Optimum horizontal offset */
+            y1 : avHeight >= h ? y : (y + avHeight - h), /* Optimum virtical offset */
+            
+            area : area
+        };
+        
+        // D: available width is same as area C
+        y = rect.y + rect.height;
+        avHeight = y;
+        area = {AID : "D", x : x, y : 0, width : avWidth, height : avHeight};
+        
+        if (avWidth >= w && avHeight >= h) {
+            vRect.x = x;
+            vRect.y = y - h;
+            vRect.area = area;
+            
+            return vRect;
+        }
+        
+        if(avHeight > rightAvRect.height){
+            rightAvRect.x = x;
+            rightAvRect.y = y - h;
+            rightAvRect.height = avHeight;
 
-			rightAvRect.y1 = rightAvRect.y;
-			rightAvRect.area = area;
-		}
-		
-		// B
-		x = rect.x;
-		y = rect.y;
-		avWidth = x;
-		avHeight = bodySize.height - y;
-		area = {AID : "B", x : 0, y : y, width : avWidth, height : avHeight};
-		
-		if (avWidth >= w && avHeight >= h) {
-			vRect.x = x - w;
-			vRect.y = y;
-			vRect.area = area;
-			
-			return vRect;
-		}
-		
-		var leftAvRect = {
-			x : x - w,
-			y : y,
-			width : avWidth,
-			height : avHeight,
+            rightAvRect.y1 = rightAvRect.y;
+            rightAvRect.area = area;
+        }
+        
+        // B
+        x = rect.x;
+        y = rect.y;
+        avWidth = x;
+        avHeight = bodySize.height - y;
+        area = {AID : "B", x : 0, y : y, width : avWidth, height : avHeight};
+        
+        if (avWidth >= w && avHeight >= h) {
+            vRect.x = x - w;
+            vRect.y = y;
+            vRect.area = area;
+            
+            return vRect;
+        }
+        
+        var leftAvRect = {
+            x : x - w,
+            y : y,
+            width : avWidth,
+            height : avHeight,
 
-			x1 : x - w,
-			y1 : avHeight >= h ? y : (y + avHeight - h),
-			
-			area : area
-		};
-		
-		// A: available width is same as area B
-		y = rect.y + rect.height;
-		avHeight = y;
-		area = {AID : "A", x : 0, y : 0, width : avWidth, height : avHeight};
-		
-		if (avWidth >= w && avHeight >= h) {
-			vRect.x = x - w;
-			vRect.y = y - h;
-			vRect.area = area;
-			
-			return vRect;
-		}
-		
-		if (avHeight > leftAvRect.height) {
-			leftAvRect.x = x - w;
-			leftAvRect.y = y - h;
-			leftAvRect.height = avHeight;
-			
-			leftAvRect.y1 = leftAvRect.y;
-			leftAvRect.area = area;
-		}
-		
-		var avRect = undefined;
-		if(leftAvRect.width >= w && rightAvRect.width >= w){
-			avRect = leftAvRect.height > rightAvRect.height ? leftAvRect : rightAvRect;
-		}else{
-			var leftArea = Math.min(leftAvRect.width, w) * Math.min(leftAvRect.height, h);
-			var rightArea = Math.min(rightAvRect.width, w) * Math.min(rightAvRect.height, h);
-			avRect = leftArea > rightArea ? leftAvRect : rightAvRect;
-		}
-		
-		avRect.narrow = true;
-		return avRect;
-	};
-	
-	var _calAvaiRect = function (rect, w, h) {
-		if (rect.isVertical) {
-			return _calVRect.call(this, rect, w, h);
-		} else {
-			return _calHRect.call(this, rect, w, h);
-		}
-	};
-	
-	var _show = function (layer, rect) {
-		System.log.println((new Date()).toString() + " : show " 
-                           + layer.uuid() + "-" + layer.className);
-		
-		// When we append an DOM element to body, if we didn't set any "position"
-		// or set the position as "absolute" but "top" and "left" that element also
-		// be place at the bottom of body other than the (0, 0) position. Then it
-		// may extend the body's size and trigger window's "resize" event.
-		var styles = {
-			visibility: "hidden", 
-			position: "absolute", 
-			left: "-10000px", 
-			top: "-10000px"
-		};
-		layer.applyStyles(styles);
-		
-		if(this.indexOf(layer) < 0){
-			this.addComponent(layer);
-			this.stack.push(layer);
-		}
-		
-		var size = layer.getPreferredSize() /*DOM.outerSize(layer.view)*/, 
-		w = size.width, h = size.height,
-		avaiRect = _calAvaiRect.call(this, rect, w, h);
-		System.log.println("Available Rectangle: " + JSON.stringify(avaiRect));
-		
-		var x, y, bounds;
-		if(avaiRect.narrow == true){
-			var b = layer.isAdjustPosToFit();
-			x = (!b) ? avaiRect.x : avaiRect.x1;
-			y = (!b) ? avaiRect.y : avaiRect.y1;
-			x = x <= 0 ? 0 : x;
-			y = y <= 0 ? 0 : y;
-			layer.setPosition(x, y, 1);
-			
-			w = Math.min(avaiRect.width, w);
-			h = Math.min(avaiRect.height, h);
-		}else{
-			x = avaiRect.x <= 0 ? 0 : avaiRect.x;
-			y = avaiRect.y <= 0 ? 0 : avaiRect.y;
-			layer.setPosition(x, y, 1);
-		}
-		
-		bounds = {x : x, y : y, width : w, height : h};
-		layer.setCallback(bounds, avaiRect.area, rect);
-		layer.applyStyles({visibility: "visible"});
-		
-		if (layer.focusBox != undefined
-			&& (layer.getPMFlag() & js.awt.PopupLayer.F_FOCUSBOXBLUR) != 0) {
-			layer.focusItem = layer.focusBox;
-			layer.focusBox.focus();
-		}
-		
-		layer.setAutoHide(true);
-		layer.startTimeout();
-	};
-	
-	thi$.showAt = function (layer, x, y, v, m) {
-		this._bodySize = DOM.outerSize(this.view);
-		v = (v === true);
-		
-		var nofly = {
-			x : x, 
-			y : y, 
-			width : ((v && !isNaN(m)) ? m : 0), 
-			height : ((!v && !isNaN(m)) ? m : 0),
-			isVertical : v
-		};
-		_show.call(this, layer, nofly);
-	};
+            x1 : x - w,
+            y1 : avHeight >= h ? y : (y + avHeight - h),
+            
+            area : area
+        };
+        
+        // A: available width is same as area B
+        y = rect.y + rect.height;
+        avHeight = y;
+        area = {AID : "A", x : 0, y : 0, width : avWidth, height : avHeight};
+        
+        if (avWidth >= w && avHeight >= h) {
+            vRect.x = x - w;
+            vRect.y = y - h;
+            vRect.area = area;
+            
+            return vRect;
+        }
+        
+        if (avHeight > leftAvRect.height) {
+            leftAvRect.x = x - w;
+            leftAvRect.y = y - h;
+            leftAvRect.height = avHeight;
+            
+            leftAvRect.y1 = leftAvRect.y;
+            leftAvRect.area = area;
+        }
+        
+        var avRect = undefined;
+        if(leftAvRect.width >= w && rightAvRect.width >= w){
+            avRect = leftAvRect.height > rightAvRect.height ? leftAvRect : rightAvRect;
+        }else{
+            var leftArea = Math.min(leftAvRect.width, w) * Math.min(leftAvRect.height, h);
+            var rightArea = Math.min(rightAvRect.width, w) * Math.min(rightAvRect.height, h);
+            avRect = leftArea > rightArea ? leftAvRect : rightAvRect;
+        }
+        
+        avRect.narrow = true;
+        return avRect;
+    };
+    
+    var _calAvaiRect = function (rect, w, h) {
+        if (rect.isVertical) {
+            return _calVRect.call(this, rect, w, h);
+        } else {
+            return _calHRect.call(this, rect, w, h);
+        }
+    };
+    
+    var _show = function (layer, rect) {
+        System.log.println((new Date()).toString() + " : show " 
+                          + layer.uuid() + "-" + layer.className);
+        
+        // When we append an DOM element to body, if we didn't set any "position"
+        // or set the position as "absolute" but "top" and "left" that element also
+        // be place at the bottom of body other than the (0, 0) position. Then it
+        // may extend the body's size and trigger window's "resize" event.
+        var styles = {
+            visibility: "hidden", 
+            position: "absolute", 
+            left: "-10000px", 
+            top: "-10000px"
+        };
+        layer.applyStyles(styles);
+        
+        if(this.indexOf(layer) < 0){
+            this.addComponent(layer);
+            this.stack.push(layer);
+        }
+        
+        var size = layer.getPreferredSize() /*DOM.outerSize(layer.view)*/, 
+            w = size.width, h = size.height,
+            avaiRect = _calAvaiRect.call(this, rect, w, h);
+        System.log.println("Available Rectangle: " + JSON.stringify(avaiRect));
+        
+        var x, y, bounds;
+        if(avaiRect.narrow == true){
+            var b = layer.isAdjustPosToFit();
+            x = (!b) ? avaiRect.x : avaiRect.x1;
+            y = (!b) ? avaiRect.y : avaiRect.y1;
+            x = x <= 0 ? 0 : x;
+            y = y <= 0 ? 0 : y;
+            layer.setPosition(x, y, 1);
+            
+            w = Math.min(avaiRect.width, w);
+            h = Math.min(avaiRect.height, h);
+        }else{
+            x = avaiRect.x <= 0 ? 0 : avaiRect.x;
+            y = avaiRect.y <= 0 ? 0 : avaiRect.y;
+            layer.setPosition(x, y, 1);
+        }
+        
+        bounds = {x : x, y : y, width : w, height : h};
+        layer.setCallback(bounds, avaiRect.area, rect);
+        layer.applyStyles({visibility: "visible"});
+        
+        if (layer.focusBox != undefined
+          && (layer.getPMFlag() & js.awt.PopupLayer.F_FOCUSBOXBLUR) != 0) {
+            layer.focusItem = layer.focusBox;
+            layer.focusBox.focus();
+        }
+        
+        layer.setAutoHide(true);
+        layer.startTimeout();
+    };
+    
+    thi$.showAt = function (layer, x, y, v, m) {
+        this._bodySize = DOM.outerSize(this.view);
+        v = (v === true);
+        
+        var nofly = {
+            x : x, 
+            y : y, 
+            width : ((v && !isNaN(m)) ? m : 0), 
+            height : ((!v && !isNaN(m)) ? m : 0),
+            isVertical : v
+        };
+        _show.call(this, layer, nofly);
+    };
 
-	var _calNofly = function(rect, v, m){
-		if(isNaN(m) || m <= 0)
-			return rect;
+    var _calNofly = function(rect, v, m){
+        if(isNaN(m) || m <= 0)
+            return rect;
 
-		var bodySize = this._bodySize;
-		if (v) {
-			/* 
-			 * If no-fly zone include by, we think the by element is in the middle/center of 
-			 * no-fly zone. Otherwise, we can't calculater the no-fly rectangle.
-			 * If that is not satisfying, please invoke the showAt() instead. 
-			 */ 
-			if ((m - rect.width) >= 2) {
-				rect.x = Math.max(0, rect.x - (m - rect.width)/2);
-				rect.width = m;
+        var bodySize = this._bodySize;
+        if (v) {
+            /* 
+             * If no-fly zone include by, we think the by element is in the middle/center of 
+             * no-fly zone. Otherwise, we can't calculater the no-fly rectangle.
+             * If that is not satisfying, please invoke the showAt() instead. 
+             */ 
+            if ((m - rect.width) >= 2) {
+                rect.x = Math.max(0, rect.x - (m - rect.width)/2);
+                rect.width = m;
 
-				/* 
-				 * If the by element include no-fly zone, we think the no-fly zone is in the 
-				 * middle/center of the by element. Otherwise, we can't calculater the no-fly 
-				 * rectangle.
-				 * If that is not satisfying, please invoke the showAt() instead. 
-				 */ 
-			} else if ((rect.width - m) >= 2) {
-				rect.x = Math.min(bodySize.width, rect.x + (rect.width - m)/2);
-				rect.width = m;
-			}
-		} else {
-			if ((m - rect.height) >= 2){
-				rect.y = Math.max(0, rect.y - (m - rect.height)/2);
-				rect.height = m;
-			} else if ((rect.height - m) >= 2) {
-				rect.y = Math.max(bodySize.height, rect.y + (rect.height - m)/2);
-				rect.height = m;
-			}
-		}
-		
-		return rect;
-	};
-	
-	thi$.showBy = function (layer, by, v, m) {
-		this._bodySize = DOM.outerSize(this.view);
-		v = (v === true);
-		
-		var rect = DOM.outerSize(by);
-		rect.x = rect.left;
-		rect.y = rect.top;
-		rect.isVertical = v;
+                /* 
+                 * If the by element include no-fly zone, we think the no-fly zone is in the 
+                 * middle/center of the by element. Otherwise, we can't calculater the no-fly 
+                 * rectangle.
+                 * If that is not satisfying, please invoke the showAt() instead. 
+                 */ 
+            } else if ((rect.width - m) >= 2) {
+                rect.x = Math.min(bodySize.width, rect.x + (rect.width - m)/2);
+                rect.width = m;
+            }
+        } else {
+            if ((m - rect.height) >= 2){
+                rect.y = Math.max(0, rect.y - (m - rect.height)/2);
+                rect.height = m;
+            } else if ((rect.height - m) >= 2) {
+                rect.y = Math.max(bodySize.height, rect.y + (rect.height - m)/2);
+                rect.height = m;
+            }
+        }
+        
+        return rect;
+    };
+    
+    thi$.showBy = function (layer, by, v, m) {
+        this._bodySize = DOM.outerSize(this.view);
+        v = (v === true);
+        
+        var rect = DOM.outerSize(by);
+        rect.x = rect.left;
+        rect.y = rect.top;
+        rect.isVertical = v;
 
-		var nofly = _calNofly.call(this, rect, v, m);
-		_show.call(this, layer, nofly);
-	};
-	
-	thi$.onHide = function (e) {
-		var POPUP = js.awt.PopupLayer, pop, root = this.stack[0];		
-		while (this.stack.length > 0) {
-			pop = this.stack[this.stack.length - 1];
-			if (pop.canHide(e)) {
-				pop = this.stack.pop();
-				System.log.println((new Date()).toString() + " : hide " + pop.uuid() 
-								   + "-" + pop.className + " on \"" + e.getType() 
-								   + "\" - Flag: " + (pop.getPMFlag()).toString(2));
-				if (pop != root) {
-					root.focusItem = root.focusBox;
-					if(root.focusBox) {
-						root.focusBox.focus();
-					}
-				}
+        var nofly = _calNofly.call(this, rect, v, m);
+        _show.call(this, layer, nofly);
+    };
+    
+    thi$.onHide = function (e) {
+        var POPUP = js.awt.PopupLayer, pop, root = this.stack[0];       
+        while (this.stack.length > 0) {
+            pop = this.stack[this.stack.length - 1];
+            if (pop.canHide(e)) {
+                pop = this.stack.pop();
+                System.log.println((new Date()).toString() + " : hide " + pop.uuid() 
+                                  + "-" + pop.className + " on \"" + e.getType() 
+                                  + "\" - Flag: " + (pop.getPMFlag()).toString(2));
+                if (pop != root) {
+                    root.focusItem = root.focusBox;
+                    if(root.focusBox) {
+                        root.focusBox.focus();
+                    }
+                }
 
-				pop.beforeRemoveLayer(e);
-				this.removeComponent(pop);
-				pop.afterRemoveLayer(e);
-			} else {
-				return;
-			}
-		}
-	};
+                pop.beforeRemoveLayer(e);
+                this.removeComponent(pop);
+                pop.afterRemoveLayer(e);
+            } else {
+                return;
+            }
+        }
+    };
 
-	/**
-	 * One stack should have one root floating layer. When one floating layer is in stack and
-	 * there is no any event or method to cause hiding it. Now if we will push another one 
-	 * layer to it, we should invoke this method in our own initiative.
-	 */
-	thi$.clearStack = function(e){
-		System.log.println((new Date()).toString() + " : clearStack " 
-						   + " on \"" + (e ? e.getType() : "unknown") + "\" event.");
-		
-		var pop;
-		while (this.stack.length > 0) {
-			pop = this.stack.pop();
-			
-			pop.beforeRemoveLayer(e);
-			this.removeComponent(pop);
-			pop.afterRemoveLayer(e);
-		}
-	};
+    /**
+     * One stack should have one root floating layer. When one floating layer is in stack and
+     * there is no any event or method to cause hiding it. Now if we will push another one 
+     * layer to it, we should invoke this method in our own initiative.
+     */
+    thi$.clearStack = function(e){
+        System.log.println((new Date()).toString() + " : clearStack " 
+                          + " on \"" + (e ? e.getType() : "unknown") + "\" event.");
+        
+        var pop;
+        while (this.stack.length > 0) {
+            pop = this.stack.pop();
+            
+            pop.beforeRemoveLayer(e);
+            this.removeComponent(pop);
+            pop.afterRemoveLayer(e);
+        }
+    };
 
-	thi$.destroy = function(){
-		this.removeAll(true);
-	}.$override(this.destroy);
+    thi$.destroy = function(){
+        this.removeAll(true);
+    }.$override(this.destroy);
 
-	thi$._init = function(Runtime){
-		var def = {
-			zorder:true,
-			stateless: true,
-			zbase:10000
-		};
-		
-		arguments.callee.__super__.apply(
-			this, [def, Runtime, document.body]);
-		
-		this.stack = js.util.LinkedList.$decorate([]);
-
-	}.$override(this._init);
-	
-	this._init.apply(this, arguments);
-	
+    thi$._init = function(def, Runtime, view){
+        
+        arguments.callee.__super__.apply(this, arguments);
+        
+        this.stack = js.util.LinkedList.$decorate([]);
+        
+    }.$override(this._init);
+    
+    this._init.apply(this, arguments);
+    
 }.$extend(js.awt.Container);
-
-
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -11417,7 +11697,7 @@ $package("js.awt");
 
 $import("js.awt.Container");
 
-js.awt.Desktop = function (def, element){
+js.awt.Desktop = function (Runtime){
 
     var CLASS = js.awt.Desktop, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -11425,29 +11705,31 @@ js.awt.Desktop = function (def, element){
         return;
     }
     CLASS.__defined__ = true;
-    
+
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
         System = J$VM.System, MQ =J$VM.MQ, Factory = J$VM.Factory;
-    
+
     /**
      * Popup message box
-     * 
+     *
      * @see js.lang.Runtime
      */
-    thi$.message = function(type, subject, content){
+    thi$.message = function(type, subject, content, title, rect, handler){
         var msgbox = {
             className: "msgbox",
             model:{
                 msgType: type,
-                msgSubject: subject || "Subject",
+                title: title || "",
+                msgSubject: subject || "",
                 msgContent: content || " "
             }
         };
 
         this.openDialog(
             "message",
-            {},
-            new js.awt.MessageBox(msgbox, this));
+            rect || {},
+            new js.awt.MessageBox(msgbox, this),
+            handler);
 
     }.$override(this.message);
 
@@ -11467,7 +11749,7 @@ js.awt.Desktop = function (def, element){
                     constraints: "north",
 
                     items:["labTitle", "btnClose"],
-                    
+
                     labTitle:{
                         classType: "js.awt.Label",
                         className: "win_title_label",
@@ -11490,7 +11772,7 @@ js.awt.Desktop = function (def, element){
                     css: "overflow:hidden;",
                     layout:{
                         classType: "js.awt.BorderLayout"
-                    }                
+                    }
                 },
 
                 btnpane:{
@@ -11498,15 +11780,15 @@ js.awt.Desktop = function (def, element){
                     className: "message_btnpane",
                     constraints: "south",
 
-                    items:["btnCancel"],
-                    
-                    btnCancel:{
+                    items:["btnOK"],
+
+                    btnOK:{
                         classType: "js.awt.Button",
                         className: "dlg_button",
                         effect: true,
-                        labelText: this.nlsText("btnClose", "Close")
+                        labelText: this.nlsText("btnOK", "OK")
                     },
-                    
+
                     layout:{
                         gap: 4,
                         align_x : 1.0,
@@ -11538,7 +11820,7 @@ js.awt.Desktop = function (def, element){
                     constraints: "north",
 
                     items:["labTitle", "btnClose"],
-                    
+
                     labTitle:{
                         classType: "js.awt.Label",
                         className: "win_title_label",
@@ -11561,7 +11843,7 @@ js.awt.Desktop = function (def, element){
                     css: "overflow:hidden;",
                     layout:{
                         classType: "js.awt.BorderLayout"
-                    }                
+                    }
                 },
 
                 btnpane:{
@@ -11575,16 +11857,16 @@ js.awt.Desktop = function (def, element){
                         classType: "js.awt.Button",
                         className: "dlg_button",
                         effect: true,
-                        labelText: this.nlsText("btnOK", "Yes")
+                        labelText: this.nlsText("btnOK", "OK")
                     },
-                    
+
                     btnCancel:{
                         classType: "js.awt.Button",
                         className: "dlg_button",
                         effect: true,
-                        labelText: this.nlsText("btnNo", "No")
+                        labelText: this.nlsText("btnCancel", "Cancel")
                     },
-                    
+
                     layout:{
                         gap: 4,
                         align_x : 1.0,
@@ -11592,7 +11874,7 @@ js.awt.Desktop = function (def, element){
                     }
                 },
 
-                modal: true,                
+                modal: true,
                 width: 330,
                 height:150,
                 miniSize:{width:330, height:150},
@@ -11601,212 +11883,348 @@ js.awt.Desktop = function (def, element){
         );
     };
 
+    var _registerConfirm2Class = function(){
+        if(Factory.hasClass("jsvmconfirm2")) return;
+
+        Factory.registerClass(
+            {
+                classType : "js.awt.Dialog",
+                className : "jsvmconfirm2",
+
+                items: [ "title", "client", "btnpane"],
+
+                title: {
+                    classType: "js.awt.HBox",
+                    className: "win_title",
+                    constraints: "north",
+
+                    items:["labTitle", "btnClose"],
+
+                    labTitle:{
+                        classType: "js.awt.Label",
+                        className: "win_title_label",
+                        text : "Confirm",
+                        rigid_w: false,
+                        rigid_h: false
+                    },
+
+                    btnClose:{
+                        classType: "js.awt.Button",
+                        className: "win_title_button",
+                        iconImage: "dialog_close.png"
+                    }
+                },
+
+                client:{
+                    classType: "js.awt.Container",
+                    className: "message_client",
+                    constraints: "center",
+                    css: "overflow:hidden;",
+                    layout:{
+                        classType: "js.awt.BorderLayout"
+                    }
+                },
+
+                btnpane:{
+                    classType: "js.awt.HBox",
+                    className: "message_btnpane",
+                    constraints: "south",
+
+                    items:["btnYes", "btnNo", "btnCancel"],
+
+                    btnYes:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnYes", "Yes")
+                    },
+
+                    btnNo:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnNo", "No")
+                    },
+
+                    btnCancel:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnCancel", "Cancel")
+                    },
+
+                    layout:{
+                        gap: 4,
+                        align_x : 1.0,
+                        align_y : 0.0
+                    }
+                },
+
+                modal: true,
+                width: 354,
+                height: 150,
+                miniSize: {width:354, height:150},
+                resizable: true
+            }
+        );
+    };
+
     var _activateComponent = function(target, uuid){
         if(!target) return;
-        
+
         if(target.activateComponent){
             target.activateComponent();
         }
     };
 
     var _notifyLM = function(e){
-        var el = e.srcElement, target = e.getEventTarget(),
-            uuid = el ? el.uuid : undefined;
-        this.LM.cleanLayers(e, this);
-        _activateComponent(target, uuid);
+        if(e){
+            var el = e.srcElement, target = e.getEventTarget(),
+                uuid = el ? el.uuid : undefined;
+            this.LM.cleanLayers(e, this);
+            _activateComponent(target, uuid);
+        }
         return true;
     };
-    
+
     var _notifyComps = function(msgid, e){
         var comps = this.getAllComponents(),
-            len = comps ? comps.length : 0, 
+            len = comps ? comps.length : 0,
             i, comp, recs = [];
-        
+
         for(i = 0; i < len; i++){
             comp = comps[i];
             recs.push(comp.uuid());
         }
-        
+
         if(recs.length > 0){
             MQ.post(msgid, e, recs);
         }
     };
-    
+
+    var bodyW, bodyH;
     var _onresize = function(e){
-        var M = this.def, U = this._local,
-            isSpecified = U.isViewSpecified,
-            d = isSpecified ? this.getBounds() 
-                : DOM.innerSize(document.body),
-            evt;
-        
-        if(U.userW != d.width || U.userH != d.height){
-            evt = new Event(Event.W3C_EVT_RESIZE, 
-                            {owidth: U.userW, oheight: U.userH, 
-                             width: d.width, height: d.height});
-            _notifyComps.call(this, "js.awt.event.WindowResized", evt);
+        System.updateLastAccessTime();
+
+        var bounds = DOM.getBounds(document.body), evt;
+        if(bounds.width != bodyW || bounds.height != bodyH){
+            evt = new Event(Event.W3C_EVT_RESIZE,
+                            {owidth: bodyW, oheight: bodyH,
+                             width: bounds.width, height: bounds.height});
             
+            _notifyComps.call(this, "js.awt.event.WindowResized", evt);
+
             this.LM.clearStack(e);
             
-            if(isSpecified){
-                M.width = U.userW = d.width;
-                M.height= U.userH = d.height;                  
-            }else{
-                this.setSize(d.width, d.height, 4);
-            }
+            bodyW = bounds.width;
+            bodyH = bounds.height;
+        }
+    };
 
-            this.doLayout.$delay(this, 1, true);
+    var _onkeyevent = function(e){
+        System.updateLastAccessTime();
+        J$VM.MQ.post("js.awt.event.KeyEvent", e);
+    };
+
+    var _onmouseevent = function(e){
+        System.updateLastAccessTime();
+        J$VM.MQ.post("js.awt.event.MouseEvent", e);
+        
+        switch(e.getType()){
+            case Event.W3C_EVT_MOUSE_DOWN:
+            case Event.W3C_EVT_MOUSE_WHEEL:
+            return _notifyLM.call(this, e);
+
+            case Event.W3C_EVT_CONTEXTMENU:
+            e.cancelBubble();
+            return e.cancelDefault();
+            
+            default:
+            break;
         }
     };
     
-    var _forbidContextMenu = function(e){
-        e.cancelBubble();
-        return e.cancelDefault();
+    var _onmessage = function(e){
+        var _e = e.getData();
+        if(_e.source == self) return;
+
+        var msg;
+        try{
+            msg = JSON.parse(_e.data);
+        } catch (x) {
+        }
+
+        if(Class.isArray(msg)){
+            e.message = msg[1];
+            J$VM.MQ.post(msg[0], e, msg[2], null, msg[4]);
+        }
     };
 
-    var _getMinZIndex = function(ele){
-        var children = ele.children, zIndex = 0, tmp, e;
+    var apps = {};
+    
+    thi$.getApp = function(id){
+        return apps[id];
+    }
+
+    thi$.createApp = function(classType, entryId){
+        var appClass = Class.forName(classType), app;
+        app = new (appClass)(null, Runtime, entryId);
+        return app;
+    };
+
+    thi$.showCover = function(b, style){
+        arguments.callee.__super__.call(
+            this, b, style || "jsvm_desktop_mask");
+        if(b){
+            this.setCoverZIndex(_getMaxZIndex.call(this)+1);
+        }
+    }.$override(this.showCover);
+
+    
+    var _getMaxZIndex = function(){
+        var children = this.view.children, zIndex = 0, tmp, e;
         for(var i=0, len=children.length; i<len; i++){
             e = children[i];
             tmp = parseInt(DOM.currentStyles(e, true).zIndex);
             tmp = Class.isNumber(tmp) ? tmp : 0;
-            zIndex = Math.min(zIndex, tmp);
+            zIndex = Math.max(zIndex, tmp);
         }
         return zIndex;
     };
+
+    var IMGSREG = /images\//gi;
     
-    // For testing all events bind to self.document
-    var _onevents = function(e){
-        var eType = e.getType(), ele, target;
-        if(eType === "mouseover"){
-            ele = e.toElement;
-        }else if(eType === "mouseout"){
-            ele = e.fromElement;
-        }else{
-            ele = e.srcElement;
-        }
+    thi$.updateThemeCSS = function(theme, file){
+        var stylePath = DOM.makeUrlPath(J$VM.env.j$vm_home, "../style/" + theme + "/"),
+            styleText = Class.getResource(stylePath + file, true);
 
-        target = this.getEventTarget(ele.uuid);
-        if(target && target.fireEvent){
-            target.fireEvent(e, true);
-        }
-
-        switch(eType){
-        case "mousedown":
-            _notifyLM.call(this, e);
-            if(target && target.activateComponent){
-                target.activateComponent();
-            }
-            break;
-        case "mousewheel":
-        case "DOMMouseScroll":
-            _notifyLM.call(this, e);
-            break;
-        case "contextmenu":
-            e.cancelDefault();
-            break;
-        }
-        
-        return e._default;
+        styleText = styleText.replace(IMGSREG, stylePath+"images/");
+        DOM.applyStyleSheet(file, styleText);
     };
-    // End test
 
+    thi$.updateThemeLinks = function(theme, old){
+        var dom = self.document, links, link, src, path;
+        
+        path = DOM.makeUrlPath(J$VM.env.j$vm_home,
+                               "../style/"+ old +"/");
+
+        links = dom.getElementsByTagName("link");
+        for(var i=0, len=links.length; i<len; i++){
+            link = links[i];
+            src = decodeURI(link.href);
+            if (src && src.indexOf(path) != -1){
+                src = src.replace(old, theme);
+                link.href = src;
+            }
+        }
+    };
+
+    thi$.updateThemeImages = function(theme, old){
+        var dom = self.document, links, link, src, path;
+        
+        path = DOM.makeUrlPath(J$VM.env.j$vm_home,
+                               "../style/"+ old +"/images/");
+        
+        links = dom.getElementsByTagName("img");
+        for(var i=0, len=links.length; i<len; i++){
+            link = links[i];
+            src = decodeURI(link.src);
+            if (src && src.indexOf(path) != -1){
+                src = src.replace(old, theme);
+                link.src = src;
+            }
+        }
+    };
+    
     /**
      * @see js.awt.BaseComponent
      */
     thi$.destroy = function(){
+        for(var app in apps){
+            app.closeApp();
+            app.destroy();
+        }
+        apps = null;
+
         this.DM.destroy();
-        delete this.DM;
-        
+        this.DM = null;
+
         this.LM.destroy();
-        delete this.LM;
+        this.LM = null;
 
         arguments.callee.__super__.apply(this, arguments);
 
     }.$override(this.destroy);
 
-    thi$._init = function(_def, element){
-        var def = {
-            classType: "js.awt.Desktop",
-            className: "jsvm_desktop",
-            css: "position:absolute;",
-            zorder:true,
-            zbase:1,
-            stateless: true,
-            layout:{
-                classType: "js.awt.AbstractLayout"
-            }
-        };
-        def.id = _def.id;
+    thi$._init = function(Runtime){
+        var dom = self.document, body = dom.body,        
+            def = {
+                classType: "js.awt.Desktop",
+                className: body.className,
+                id: body.id,
+                uuid: "desktop",
+                zorder:true,
+                stateless: true,            
+                zbase:1,
+                __contextid__: Runtime.uuid()
+            };
 
-        var ele = element;
-        if(Class.isString(ele)){
-            ele = self.document.getElementById(ele);
-            def.id = element;
-        }
-        
-        arguments.callee.__super__.apply(this, [def, this, ele]);
-        
-        // Indicate whether a specified DOM element will be as the
-        // view of current desktop.
-        this._local.isViewSpecified = !!ele;
+        arguments.callee.__super__.apply(this, [def, Runtime, body]);
 
-        var body = self.document.body;
-        if(!this._local.isViewSpecified){
-            var zIndex = _getMinZIndex.call(this, body),
-                s = DOM.innerSize(body);
-            this.insertBefore(body.firstChild, body);
-            this.setZ(zIndex-1);
-            
-            this.setSize(s.width, s.height);
-        }
+        // Popup Layer manager
+        var LM = this.LM = new js.awt.LayerManager(
+            {classType: "js.awt.LayerManager",
+             className: body.className,
+             id: body.id,
+             zorder:true,
+             stateless: true,
+             zbase: 10000
+            }, Runtime, body);
 
-        this.LM = new js.awt.LayerManager(this);
-
+        // Popup dialog manager
         var DM = this.DM = new js.awt.Container(
-            {classType: "js.awt.Desktop",
-             id: def.id,
+            {classType: "js.awt.Container",
+             className: body.className,
+             id: body.id,
              zorder:true,
              stateless: true,
              zbase: 1000
-            }, this, this.view);
+            }, Runtime, body);
 
         DM.destroy = function(){
             this.removeAll(true);
 
         }.$override(DM.destroy);
+
+        var styleText = Class.getResource(
+            J$VM.env.j$vm_home + "../style/jsvm_reset.css", true);
+        DOM.applyStyleSheet("jsvm_reset.css", styleText);
         
-        this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
+        Event.attachEvent(self, Event.W3C_EVT_RESIZE, 0, this, _onresize);
+        Event.attachEvent(self, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
+
+        Event.attachEvent(dom,  Event.W3C_EVT_KEY_DOWN,   0, this, _onkeyevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_KEY_UP,     0, this, _onkeyevent);
         
-        var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel",
-            doc = self.document;
-        /*
-         Event.attachEvent(doc, "mousedown",  0, this, _onevents);
-         Event.attachEvent(doc, "mouseup",    0, this, _onevents);
-         Event.attachEvent(doc, "mouseover",  0, this, _onevents);
-         Event.attachEvent(doc, "mouseout",   0, this, _onevents);
-         Event.attachEvent(doc, "mousemove",  0, this, _onevents);
-         Event.attachEvent(doc, "contextmenu",0, this, _onevents);
-         Event.attachEvent(doc, mousewheel,   0, this, _onevents);
-         */
-
-        // Bring the component to the front and notify popup LayerManager
-        Event.attachEvent(body, "mousedown",  0, this, _notifyLM);
-
-        // Notify popup LayerManager
-        Event.attachEvent(body, mousewheel,   0, this, _notifyLM);
-
-        Event.attachEvent(body, "contextmenu",0, this, _forbidContextMenu);
-
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmouseevent);       
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _onmouseevent);
+        
         MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
-        
-        _registerMessageClass.call(this);
-        _registerConfirmClass.call(this);
+
+        //_registerMessageClass.call(this);
+        //_registerConfirmClass.call(this);
+
+        // Confirm message box with "Yes", "No" and "Cancel"
+        // Widely used in WebReport Studio for insteading jConfirm2
+        //_registerConfirm2Class.call(this);
 
     }.$override(this._init);
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Container).$implements(js.lang.Runtime);
+}.$extend(js.awt.Container);
 
 
 /**
@@ -11902,11 +12320,11 @@ js.awt.Window = function (def, Runtime, view){
             switch(bstyle){
             case 0:
             case 2:
-                _showtitlebutton.call(this, true);
+                this.showtitlebutton(true);
                 break;
             case 1:
             case 3:
-                _showtitlebutton.call(this, false);
+                this.showtitlebutton(false);
                 break;
             }
         }
@@ -12212,9 +12630,9 @@ js.awt.Window = function (def, Runtime, view){
 
                 if(style.bstyle === 3){
                     if(title.contains(ele, true)){
-                        _showtitlebutton.call(this, true);
+                        this.showtitlebutton(true);
                     }else{
-                        _showtitlebutton.call(this, false);
+                        this.showtitlebutton(false);
                     }
                 }
             }
@@ -12228,7 +12646,7 @@ js.awt.Window = function (def, Runtime, view){
                 }
 
                 if(style.bstyle === 3){
-                    _showtitlebutton.call(this, false);
+                    this.showtitlebutton(false);
                 }
             }
             this.setHover(false);
@@ -12236,7 +12654,7 @@ js.awt.Window = function (def, Runtime, view){
         }
     };
 
-    var _showtitlebutton = function(b){
+    thi$.showtitlebutton = function(b){
         var title = this.title, items = title.items0(), item;
         for(var i=0, len=items.length; i<len; i++){
             item = title[items[i]];
@@ -12258,11 +12676,15 @@ js.awt.Window = function (def, Runtime, view){
         case "mouseup":
         case "message":
             var target = e.getEventTarget(),
-                func = "on"+target.id;
+                func = "on" + target.id;
             if(typeof this[func] == "function"){
                 this[func](target);
             }else{
-                throw "Can not found function of button "+ target.id;
+                if(typeof this["onbtnDispatcher"] == "function"){
+                    this["onbtnDispatcher"](target);
+                }else{
+                    throw "Can not found function of button "+ target.id;
+                }
             }
 
             break;
@@ -12419,32 +12841,32 @@ J$VM.Factory.registerClass(js.awt.Window.DEFAULTDEF());
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2010-2011, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
+
+ Redistribution and use in source and binary forms, with or without modification,
  are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
+
+ 1. Redistributions of source code must retain the above copyright notice,
  this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
  documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
  without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
@@ -12459,7 +12881,7 @@ $package("js.awt");
 $import("js.awt.Window");
 
 /**
- * The DialogObject is the interface between dialog entity and 
+ * The DialogObject is the interface between dialog entity and
  * dialog frame.
  */
 js.awt.DialogObject = function (){
@@ -12471,10 +12893,10 @@ js.awt.DialogObject = function (){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM;
-    
+
     /**
      * The data feedback to dialog opener.
-     * 
+     *
      * Notes: Sub class should implements this function.
      */
     thi$.getDialogData = function(){
@@ -12483,7 +12905,7 @@ js.awt.DialogObject = function (){
 
     /**
      * Validate dialog data
-     * 
+     *
      * @param okFunc
      */
     thi$.validateData = function(okFunc){
@@ -12491,11 +12913,11 @@ js.awt.DialogObject = function (){
             okFunc();
         }
     };
-    
+
     /**
      * The message type is a such a string that identify what message
      * will be posted to dialog opener.
-     * 
+     *
      * Notes: Sub class should implements this function.
      */
     thi$.getDialogMsgType = function(){
@@ -12507,15 +12929,15 @@ js.awt.DialogObject = function (){
     };
 
     /**
-     * 
+     *
      */
     thi$.getHelpID = function(){
-        return "";        
+        return "";
     };
 
     /**
      * Set Dialog window title
-     */    
+     */
     thi$.setTitle = function(text){
         var dialog = this.getPeerComponent();
         if(dialog instanceof js.awt.Dialog){
@@ -12532,7 +12954,7 @@ js.awt.DialogObject = function (){
 };
 
 /**
- * The Dialog is dialog frame, it can holds any DialogObj. 
+ * The Dialog is dialog frame, it can holds any DialogObj.
  */
 js.awt.Dialog = function (def, Runtime){
 
@@ -12573,7 +12995,7 @@ js.awt.Dialog = function (def, Runtime){
         var dialogObj = this.client.dialogObj;
         return dialogObj ? dialogObj.getDialogData() : null;
     };
-    
+
     var _showMaskCover = function(b){
         var peer = this.getPeerComponent();
         if(this.def.modal === true){
@@ -12581,48 +13003,49 @@ js.awt.Dialog = function (def, Runtime){
                 peer.showMaskCover(b);
             }
         }else{
-            var event = _buildDialogEvent.call(
-                this, b ? "open" : "close", false);
+            var event = this.buildDialogEvent(b ? "show" : "hide", false);
             this.notifyPeer(event.msgId, event);
         }
     };
 
     thi$.show = function(){
         _showMaskCover.call(this, true);
+
+        var x = this.def.x, y = this.def.y, DM = this.Runtime().DM,
+        pox = DM.getBounds();
         
-        var x = this.def.x, y = this.def.y, DM = this.Runtime().DM;
-
-        if(x == undefined || y == undefined){
-            var pox = DM.getBounds();
-            x = (pox.width - this.def.width)*0.5,
+        if(x == undefined){
+            x = (pox.width - this.def.width)*0.5;
+            x = x < 0 ? 0:x; 
+        }
+        
+        if(y == undefined){
             y = (pox.height- this.def.height)*0.5;
-
-            x = x < 0 ? 0:x;
             y = y < 0 ? 0:y;
         }
 
         DM.addComponent(this);
         this.getDialogObject().initialize();
         if(this.btnpane){
-            // Maybe dialogObject modified btnpane, 
-            // so need doLayout 
+            // Maybe dialogObject modified btnpane,
+            // so need doLayout
             this.btnpane.doLayout(true);
         }
         this.setPosition(x, y);
     };
-    
+
     /**
      * @see js.awt.Cover
      */
     thi$.showLoading = function(b){
-        
+
         arguments.callee.__super__.apply(this, arguments);
         this.btnpane.showLoading(b);
 
     }.$override(this.showLoading);
 
     thi$.onbtnHelp = function(button){
-        MQ.post("js.awt.event.ShowHelpEvent", 
+        MQ.post("js.awt.event.ShowHelpEvent",
                 new Event("helpid", this.getDialogObject().getHelpID()));
     };
 
@@ -12651,9 +13074,30 @@ js.awt.Dialog = function (def, Runtime){
         this.close();
     };
 
+    /**
+     * Handler for buttons except "btnOK", "btnCancel", "btnApply",
+     * "btnClose", "btnHelp".
+     * 
+     * Subclass and the dialog instance ojbect can override it if
+     * need.
+     */
+    thi$.onbtnDispatcher = function(button){
+        var btnId = button.id || "", idx = btnId.indexOf("btn"),
+        cmd, event;
+
+        if(idx >= 0){
+            cmd = btnId.substr(idx + 3);
+            cmd = cmd.toLowerCase();
+        }
+
+        event = this.buildDialogEvent(cmd || btnId, true);
+        this.notifyPeer(event.msgId, event, true);
+        this.close();
+    };
+
     thi$.buildDialogEvent = function(type, hasData){
         var dialogObj = this.client.dialogObj,
-        msgId = dialogObj.getDialogMsgType(), 
+        msgId = dialogObj.getDialogMsgType(),
         data, event;
 
         if(hasData !== false){
@@ -12664,14 +13108,14 @@ js.awt.Dialog = function (def, Runtime){
 
         return event;
     };
-    
+
     thi$.onbtnClose = function(button){
-        
+
         var event = this.buildDialogEvent("close", false);
         this.notifyPeer(event.msgId, event, true);
-        
+
         arguments.callee.__super__.apply(this, arguments);
-        
+
     }.$override(this.onbtnClose);
 
     thi$.close = function(){
@@ -12680,7 +13124,7 @@ js.awt.Dialog = function (def, Runtime){
          if(peer){
          peer.getDialogs().remove(this);
          }*/
-        
+
         var handler = this._local.handler;
         if(typeof handler == "function"){
             MQ.cancel(this.getDialogMsgType(), peer, handler);
@@ -12702,9 +13146,9 @@ js.awt.Dialog = function (def, Runtime){
         delete this.opener;
 
         arguments.callee.__super__.apply(this, arguments);
-        
+
     }.$override(this.destroy);
-    
+
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
 
@@ -12736,7 +13180,7 @@ js.awt.Dialog = function (def, Runtime){
         }
 
         restricted.push(this.client);
-        
+
     }.$override(this._init);
 
     this._init.apply(this, arguments);
@@ -12757,7 +13201,7 @@ js.awt.AbstractDialogObject = function(def, Runtime){
     /**
      * The message type is a such a string that identify what message
      * will be posted to dialog opener.
-     * 
+     *
      * Notes: Sub class should implements this function.
      */
     thi$.getDialogMsgType = function(){
@@ -12770,7 +13214,7 @@ js.awt.AbstractDialogObject = function(def, Runtime){
     }.$override(this.getDialogMsgType);
 
     this._init.apply(this, arguments);
-    
+
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 
 js.awt.Dialog.DEFAULTDEF = function(){
@@ -12785,7 +13229,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
             constraints: "north",
 
             items:["labTitle", "btnHelp", "btnClose"],
-            
+
             labTitle:{
                 classType: "js.awt.Label",
                 text : "Dialog",
@@ -12798,7 +13242,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
                 className: "jsvm_title_button",
                 iconImage: "dialog_help.png"
             },
-            
+
             btnClose:{
                 classType: "js.awt.Button",
                 className: "jsvm_title_button",
@@ -12824,21 +13268,24 @@ js.awt.Dialog.DEFAULTDEF = function(){
             btnApply:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: "Apply",
+                labelText: (J$VM.env && J$VM.env['dict'])
+                                ? J$VM.env['dict'].btnApply : "Apply",
                 effect: true
             },
 
             btnOK:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: "OK",
+                labelText: (J$VM.env && J$VM.env['dict'])
+                                ? J$VM.env['dict'].btnOK : "OK",
                 effect: true
             },
-            
+
             btnCancel:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: "Cancel",
+                labelText: (J$VM.env && J$VM.env['dict'])
+                                ? J$VM.env['dict'].btnCancel : "Cancel",
                 effect: true
             },
 
@@ -12867,7 +13314,7 @@ js.awt.Dialog.MSGDIALOGDEF = function(){
             constraints: "north",
 
             items:["labTitle"],
-            
+
             labTitle:{
                 classType: "js.awt.Label",
                 text : "Dialog"
@@ -12893,10 +13340,11 @@ js.awt.Dialog.MSGDIALOGDEF = function(){
             btnOK:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: "Close",
+                labelText:  (J$VM.env && J$VM.env['dict'])
+                                ? J$VM.env['dict'].btnOK : "OK",
                 effect: true
             },
-            
+
             layout:{
                 gap: 4,
                 align_x : 1.0,
@@ -12959,123 +13407,133 @@ $import("js.awt.Dialog");
 /**
  * def :{
  * 
- *     model:{
- *        msgType:    info|warn|error|confirm
- *        msgSubject: Any string
- *        msgContent: Any string
- *     }
+ *	   model:{
+ *		  msgType:	  info|warn|error|confirm
+ *		  msgSubject: Any string
+ *		  msgContent: Any string
+ *	   }
  * }
  */
 js.awt.MessageBox = function(def, Runtime){
 
-    var CLASS = js.awt.MessageBox, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.MessageBox, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ, Str = js.lang.String,
-    icons = {
-        info : "info.gif",
-        warn : "alert.gif",
-        error : "error.gif",
-        confirm : "confirm.gif"
-    };
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System, MQ = J$VM.MQ, Str = js.lang.String,
+	icons = {
+		info : "info.gif",
+		warn : "alert.gif",
+		error : "error.gif",
+		confirm : "confirm.gif"
+	};
 
-    /**
-     * The data feedback to dialog opener.
-     * 
-     * Notes: Sub class should implements this function.
-     */
-    thi$.getDialogData = function(){
-        return this.def.model;
-    }.$override(this.getDialogData);
+	/**
+	 * The data feedback to dialog opener.
+	 * 
+	 * Notes: Sub class should implements this function.
+	 */
+	thi$.getDialogData = function(){
+		return this.def.model;
+	}.$override(this.getDialogData);
 
-    /**
-     * @see js.awt.Component
-     */
-    thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            var bounds = this.getBounds(), icon = this.icon, 
-            label = this.label, text = this.text, h;
-            
-            DOM.setSize(label,
-                        bounds.innerWidth - label.offsetLeft);
-            h = icon.offsetHeight - label.offsetHeight;
-            h = icon.offsetTop + (h > 0 ? h/2 : 0);
-            DOM.setPosition(label, undefined, h);
+	/**
+	 * @see js.awt.Component
+	 */
+	thi$.doLayout = function(force){
+		if(arguments.callee.__super__.apply(this, arguments)){
+			var bounds = this.getBounds(), icon = this.icon, 
+			label = this.label, text = this.text, h, top;
+			
+			if(label){
+				DOM.setSize(label,
+							bounds.innerWidth - label.offsetLeft);
+				h = icon.offsetHeight - label.offsetHeight;
+				h = icon.offsetTop + (h > 0 ? h/2 : 0);
+				DOM.setPosition(label, undefined, h);
+			}else{
+				h = icon.offsetHeight > text.offsetHeight; 
+				top = icon.offsetTop + (h > 0 ? h / 2 : 0);
+				DOM.setPosition(text, undefined, top);
+			}
 
-            DOM.setSize(text,
-                        bounds.innerWidth - text.offsetLeft, 
-                        bounds.innerHeight  - text.offsetTop);
+			DOM.setSize(text,
+						bounds.innerWidth - text.offsetLeft, 
+						bounds.innerHeight	- text.offsetTop);
 
-            return true;
-        }
+			return true;
+		}
 
-        return false;
+		return false;
 
-    }.$override(this.doLayout);
+	}.$override(this.doLayout);
 
-    thi$.initialize = function(){
-        var title = "", R = this.Runtime();
-        switch(this.def.model.msgType){
-        case "info":
-            title = R.nlsText("msgDlgInfoTitle", "Information");
-            break;
-        case "warn":
-            title = R.nlsText("msgDlgWarnTitle", "Warning");
-            break;
-        case "error":
-            title = R.nlsText("msgDlgErrTitle", "Error");
-            break;
-        case "confirm":
-            title = R.nlsText("msgDlgConfirmTitle", "Confirm");
-            break;
-        }
-        this.setTitle(title);
+	thi$.initialize = function(){
+		var m = this.def.model, title = m.title, R = this.Runtime();
+		if(!title){
+			switch(m.msgType){
+			case "info":
+				title = R.nlsText("msgDlgInfoTitle", "Information");
+				break;
+			case "warn":
+				title = R.nlsText("msgDlgWarnTitle", "Warning");
+				break;
+			case "error":
+				title = R.nlsText("msgDlgErrTitle", "Error");
+				break;
+			case "confirm":
+				title = R.nlsText("msgDlgConfirmTitle", "Confirm");
+				break;
+			}
+		}
+		this.setTitle(title || "");
 
-    }.$override(this.initialize);
+	}.$override(this.initialize);
 
-    var _createElements = function(model){
-        var icon, label, text, R = this.Runtime();
+	var _createElements = function(model){
+		var icon, label, text, R = this.Runtime();
 
-        icon = this.icon = DOM.createElement("IMG");
-        icon.className = "msg_icon";
-        icon.src = R.imagePath() + icons[model.msgType];
-        this.view.appendChild(icon);
+		icon = this.icon = DOM.createElement("IMG");
+		icon.className = "msg_icon";
+		icon.src = R.imagePath() + icons[model.msgType];
+		this.view.appendChild(icon);
 
-        label = this.label = DOM.createElement("SPAN");
-        label.className = "msg_subject";
-        label.innerHTML = model.msgSubject;
-        this.view.appendChild(label);
+		if(model.msgSubject){
+			label = this.label = DOM.createElement("SPAN");
+			label.className = "msg_subject";
+			label.innerHTML = model.msgSubject;
+			this.view.appendChild(label);
+		}
 
-        text = this.text = DOM.createElement("TEXTAREA");
-        text.className = "msg_content";
-        text.readOnly = "true";
-        text.innerHTML = model.msgContent;
-        this.view.appendChild(text);
-    };
+		text = this.text = DOM.createElement("TEXTAREA");
+		text.className = "msg_content";
+		text.readOnly = "true";
+		text.innerHTML = model.msgContent || "";
+		this.view.appendChild(text);
+	};
 
-    thi$._init = function(def, Runtime){
+	thi$._init = function(def, Runtime){
 
-        def.classType = def.classType || "js.awt.MessageBox";
-        def.className = def.className || "jsvm_msg";
+		def.classType = def.classType || "js.awt.MessageBox";
+		def.className = def.className || "jsvm_msg";
 
-        arguments.callee.__super__.apply(this, arguments);
+		arguments.callee.__super__.apply(this, arguments);
 
-        var model = this.def.model || {
-            msgType:    "info",
-            msgSubject: "Info subject",
-            msgContent: "Info content"
-        };
+		var model = this.def.model || {
+			msgType:	"info",
+			msgSubject: "Info subject",
+			msgContent: "Info content"
+		};
 
-        _createElements.call(this, model);
-        
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
+		_createElements.call(this, model);
+		
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 

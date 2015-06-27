@@ -35,6 +35,8 @@
  * Source code availability: https://github.com/jsvm/JSVM
  */
 
+var j$vm_home = "../../../";
+
 var isworker = function(){
     try{return (window) ? false : true;} catch (x) {return true;}
 }();
@@ -57,7 +59,7 @@ var _terminate = function(){
 };
 
 if(isworker){
-    self.importScripts("../../../lib/jsre-core.jz");
+    self.importScripts(j$vm_home+"lib/jsre-core.jz");
     self.onmessage = _onmessage;
 }else{
     var E = js.util.Event;

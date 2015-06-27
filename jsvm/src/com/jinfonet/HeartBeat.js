@@ -79,10 +79,11 @@ com.jinfonet.HeartBeat = function(Runtime){
     HBT.onHeartbeatPause = function(){
         var count = this.pauseCount;
 
-        count = Class.isNumber(count) ? count++ : 0;
+        count = Class.isNumber(count) ? count+1 : 0;
 
         if(count > 3){
             this.onHeartbeatStop();
+            return;
         }
 
         this.pauseCount = count;

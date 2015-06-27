@@ -1,11 +1,12 @@
 <!DOCTYPE HTML>
 <html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/jsre-ui.js" ></script>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
 <style>
 
 .panel_0 {
@@ -80,18 +81,21 @@
 
 </body>
 
-
+<!--
 <script type="text/javascript">
 
-J$VM.exec("Demo",function(System){
+J$VM.Runtime.exec(function(System){
 
     this.prefer({theme: "default"});
     
     var s1 = "<pre id='', class=''>{'a':1, 'b':true}</pre>";
 
-    System.err.println(s1.fetchJSON());
-    System.err.println(String.fetchJSON("pre", s1));
+    J$VM.System.err.println(s1.fetchJSON());
+    J$VM.System.err.println(String.fetchJSON("pre", s1));
 
 });
 </script>
+
+-->
+
 </html>

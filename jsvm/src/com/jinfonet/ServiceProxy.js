@@ -132,13 +132,11 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
 
 
     thi$.destroy = function(){
-        
-        arguments.callee.__super__.apply(this, arguments);
-        
         this.heartbeat.stop();
         this.heartbeat = null;
-        Runtime.Service = null;
-        
+
+        arguments.callee.__super__.apply(this, arguments);
+
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){

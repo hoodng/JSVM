@@ -162,17 +162,22 @@ js.lang.Thread = function(Runnable){
             run:function(){
                 J$VM.System.out.println("Web Worker is running");
             }};
-
-        var path = J$VM.j$vm_home + "classes/js/util/";
+              
+        var path = J$VM.j$vm_home + "classes/js/util/",
+            worker_url = path + "Worker.jz?__="+J$VM.__version__; 
         if(self.Worker){
-            var code = Class.getResource(path+"Worker.jz?__="+J$VM.__version__),
-                codeBlob = new Blob([""+code],{type:"text/javascript"}),
-                codeUrl = self.URL.createObjectURL(codeBlob);
-            System.err.println(codeUrl);
-            this._worker = new Worker(codeUrl);
-            self.URL.createObjectURL(codeUrl);
-            //this._worker = new Worker(path+"Worker.jz?__="+J$VM.__version__);
-            this._realWorker = true;
+            try {
+                this._worker = new Worker(worker_url);
+                this._realWorker = true;
+            }catch(ex){
+                var code = Class.getResource(worker_url), codeBlob, codeUrl;
+                code = code.replace("../../../", J$VM.j$vm_home);
+                codeBlob = new Blob([code], {type:"text/javascript"});
+                codeUrl  = self.URL.createObjectURL(codeBlob);
+                this._worker = new Worker(codeUrl);
+                self.URL.revokeObjectURL(codeUrl);
+                this._realWorker = true;
+            }
         }else{
             // iframe ?
             var iframe = document.createElement("iframe");
