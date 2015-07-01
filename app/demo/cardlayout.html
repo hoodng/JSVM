@@ -1,11 +1,13 @@
 <!DOCTYPE HTML>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/../jsre-ui.js" ></script>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+</head>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+</body>
 
 <style>
 
@@ -28,10 +30,14 @@
 
 <script type="text/javascript">
 
-J$VM.exec("Demo",function(System){
+J$VM.Runtime.exec(function(entry){
+  var R = this;
 
-    this.prefer({theme: "default"});
-    this.setZ(0);
+  var app = this.getDesktop().createApp("js.awt.Application", {
+    className: "jsvm-demo",
+    stateless: true
+  }, "demo");
+  app.run(function(){
 
     var Panel = new js.awt.Container({
         className: "panel",
@@ -43,25 +49,25 @@ J$VM.exec("Demo",function(System){
         mover:{}, movable:true,
         resizer:0xFF, resizable: true
 
-    },this);
+    },R);
 
     Panel.addComponent(new js.awt.Component({
         className: "card1",
         id:"card1",
         css:"background-color:green;"
-    },this));
+    },R));
 
     Panel.addComponent(new js.awt.Component({
         className: "card2",
         id:"card2",
         css:"background-color:blue;"
-    },this));
+    },R));
 
     Panel.addComponent(new js.awt.Component({
         className: "card3",
         id:"card3",
         css:"background-color:yellow;"
-    },this));
+    },R));
 
     this.addComponent(Panel);
     
@@ -69,25 +75,25 @@ J$VM.exec("Demo",function(System){
         id: "btFirst",
         labelText:"First",
         x: 10, y: 10
-    }, this));
+    }, R));
 
     this.addComponent(new js.awt.Button({
         id: "btNext",
         labelText:"Next",
         x: 100, y: 10
-    }, this));
+    }, R));
 
     this.addComponent(new js.awt.Button({
         id: "btPrev",
         labelText:"Prev",
         x: 190, y: 10
-    }, this));
+    }, R));
 
     this.addComponent(new js.awt.Button({
         id: "btLast",
         labelText:"Last",
         x: 280, y: 10
-    }, this));
+    }, R));
 
     var _first = function(){
         this.panel.layout.first(this.panel);
@@ -106,7 +112,8 @@ J$VM.exec("Demo",function(System){
     this.btNext.attachEvent("click", 0, this, _next);
     this.btPrev.attachEvent("click", 0, this, _prev);
     this.btLast.attachEvent("click", 0, this, _last);
+    });
 
-});
+},"demo");
 </script>
 </html>
