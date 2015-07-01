@@ -62,15 +62,30 @@ js.awt.LayoutManager = function (def){
         return this.def;        
     };
 
-    thi$.layoutContainer = function(container, force){
-        var comps = container.getLayoutComponents(), i, len, comp;
-        for(i=0, len=comps.length; i<len; i++){
-            comp = container[comps[i]];
-            if(comp && comp.needLayout(force)){
-                comp.doLayout(force);
-            }
+    thi$.getLayoutComponents = function(container){
+        var ret = [];
+
+        _filter.$forEach(
+            this, container.getLayoutComponents(), container, ret);
+        return ret;
+    };
+
+    var _filter = function(container, array, id){
+        var comp = container.getComponent(id);
+        if(comp && comp.isVisible()){
+            array.push(comp);
         }
     };
+
+    thi$.layoutContainer = function(container, force){
+        _doLayout.$forEach(
+            this, this.getLayoutComponents(container), force);
+    };
+
+    var _doLayout = function(force, comp){
+        comp.doLayout(force);
+    };
+
     
     /**
      * Invalidates the layout, indicating that if the layout manager
@@ -85,25 +100,24 @@ js.awt.LayoutManager = function (def){
      * Notes: Every layout should override this method
      */
     thi$.getLayoutSize = function(container, fn, nocache){
-        var comps = container.items0(),
-        comp, bounds = container.getBounds(), d,
-        w = 0, h = 0, i, len;
-        
-        for(i=0, len=comps.length; i<len; i++){
-            comp = container[comps[i]];
+        var bounds = container.getBounds(),
+            ret ={width:0, height:0};
 
-            if(!comp.isVisible()) continue;
-            
-            d = comp[fn](nocache);
-            w = Math.max(w, (comp.getX() + d.width));
-            h = Math.max(h, (comp.getY() + d.height));
-        }
+        _calcSize.$forEach(
+            this, this.getLayoutComponents(container), fn, nocache, ret);
 
-        w += bounds.MBP.BW;
-        h += bounds.MBP.BH;
+        ret.width += bounds.MBP.BW;
+        ret.height+= bounds.MBP.BH;
         
-        return {width:w, height:h};
+        return ret;
     };
+
+    var _calcSize = function(fn, nocache, max, comp){
+        var d = comp[fn](nocache);
+        max.width = Math.max(max.width, (comp.getX() + d.width));
+        max.height= Math.max(max.height,(comp.getY() + d.height));
+    };
+
 
     /**
      * Calculates the preferred size dimensions for the specified 
@@ -160,10 +174,8 @@ js.awt.LayoutManager = function (def){
     };
     
     thi$.destroy = function(){
-        delete this.def;
-
+        this.def = null;
         arguments.callee.__super__.apply(this, arguments);
-        
     }.$override(this.destroy);
     
     

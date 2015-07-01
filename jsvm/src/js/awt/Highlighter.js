@@ -85,7 +85,7 @@ js.awt.Highlighter = function(){
 	var _setText = function(text, encode) {
 		if(this.label){
 			this.label.innerHTML = (encode === false) 
-				? text : js.lang.String.encodeHtml(text);
+				? text : String.encodeHtml(text);
 		}
 	};
 	

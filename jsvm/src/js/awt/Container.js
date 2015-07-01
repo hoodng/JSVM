@@ -56,7 +56,7 @@ $import("js.awt.ZOrderManager");
  * @param view, see also js.awt.Component
  */
 js.awt.Container = function (def, Runtime, view){
-
+    
     var CLASS = js.awt.Container, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -81,15 +81,21 @@ js.awt.Container = function (def, Runtime, view){
      * 
      * @param index: {Number} An integer number to indicate the insert position
      * @param comp: {Component} The component to insert
-     * @constraints: {Object} The constraints of the inserting component
+     * @constraints: {Object | String} The layout constraints of the inserting component
      */
     thi$.insertComponent = function(index, comp, constraints){
         var items = this.items0(), ref;
 
+        comp.def.constraints = constraints;
+
         if(!isNaN(index) && index >= 0 && index < items.length){
             ref = this.getElementById(items[index]);
         }
-        
+
+        if(this.layout instanceof js.awt.AbsoluteLayout){
+            comp.view.style.position = "absolute";
+        }
+      
         if(ref){
             this.insertChildBefore(comp, ref);
         }else{
@@ -360,14 +366,15 @@ js.awt.Container = function (def, Runtime, view){
      */
     thi$._addComps = function(def){
         var comps = def.items, R = this.Runtime(),
-        oriComps = this._local.items;
+            oriComps = this._local.items,
+            absLayout = this.layout instanceof js.awt.AbsoluteLayout;
         
         def.items = [];
         List.$decorate(def.items);
 
         for(var i=0, len=comps.length; i<len; i++){
             var compid = comps[i], compDef = def[compid];
-            if(Class.typeOf(compDef) === "object"){
+            if(Class.isObject(compDef)){
                 compDef.id = compDef.id || compid;
                 compDef.className = compDef.className ||
                     DOM.comboCSSClass(this.def.className, compid);
@@ -375,6 +382,10 @@ js.awt.Container = function (def, Runtime, view){
                 var comp = new (Class.forName(compDef.classType))(
                     compDef, R);
                 
+                if(absLayout){
+                    comp.view.style.position = "absolute";
+                }
+
                 this.appendChild(comp);
             }
         }
@@ -401,10 +412,10 @@ js.awt.Container = function (def, Runtime, view){
 
         arguments.callee.__super__.apply(this, arguments);
         
-        def.layout = def.layout || {};
-        def.layout.classType = def.layout.classType || "js.awt.LayoutManager";
+        var layout = def.layout = (def.layout || {});
+        layout.classType = layout.classType || "js.awt.AbsoluteLayout";
         this.setLayoutManager(
-            new (Class.forName(def.layout.classType))(def.layout));
+            new (Class.forName(layout.classType))(layout));
         def.activateman = Class.isBoolean(def.activateman) ? def.activateman : false;
 
         // Keep original order

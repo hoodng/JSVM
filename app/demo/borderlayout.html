@@ -1,14 +1,15 @@
 <!DOCTYPE HTML>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/../jsre-ui.js" ></script>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+</head>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+</body>
 
 <style>
-
 .panel,
 .panel_0 {
     position: absolute;
@@ -52,79 +53,79 @@
 .card5_0 {
     border: 2px solid red; 
 }
-
-
 </style>
-</head>
-
-<body></body>
 
 <script type="text/javascript">
 
-J$VM.exec("Demo",function(System){
+J$VM.Runtime.exec(function(){
+  var R = this;
 
-    this.prefer({theme: "default"});
+  var app = this.getDesktop().createApp("js.awt.Application", {
+    className: "jsvm-demo",
+    stateless: true
+  }, "demo");
+  app.run(function(){
+  
+  var Panel = new js.awt.Container({
+    className: "panel",
+    id: "panel",
+    layout:{
+      classType: "js.awt.BorderLayout",
+      mode: 0,
+      hgap: 3,
+      vgap: 3
+    },
+    mover:{}, movable:true,
+    resizer:0xFF, resizable: true
 
-    this.setZ(0);
+  }, R);
 
-    var Panel = new js.awt.Container({
-        className: "panel",
-        id: "panel",
-        layout:{
-            classType: "js.awt.BorderLayout",
-            mode: 0,
-            hgap: 3,
-            vgap: 3
-        },
-        mover:{}, movable:true,
-        resizer:0xFF, resizable: true
+  Panel.addComponent(new js.awt.Component({
+    className: "card1",
+    id:"card1"
+  }, R), "north");
 
-    },this);
+  Panel.addComponent(new js.awt.Component({
+    className: "card2",
+    id:"card2"
+  },R), "south");
 
-    Panel.addComponent(new js.awt.Component({
-        className: "card1",
-        id:"card1"
-    },this), "north");
+  Panel.addComponent(new js.awt.Component({
+    className: "card3",
+    id:"card3"
+  },R),"west");
 
-    Panel.addComponent(new js.awt.Component({
-        className: "card2",
-        id:"card2"
-    },this), "south");
+  Panel.addComponent(new js.awt.Component({
+    className: "card4",
+    id:"card4"
+  },R), "east");
 
-    Panel.addComponent(new js.awt.Component({
-        className: "card3",
-        id:"card3"
-    },this),"west");
+  Panel.addComponent(new js.awt.Component({
+    className: "card5",
+    id:"card5"
+  },R), "center");
 
-    Panel.addComponent(new js.awt.Component({
-        className: "card4",
-        id:"card4"
-    },this), "east");
+  this.addComponent(Panel);
+  
+  this.addComponent(new js.awt.Button({
+    id: "btFirst",
+    items:["label"],
+    labelText:"M 0",
+    x: 10, y: 10
+  }, R));
 
-    Panel.addComponent(new js.awt.Component({
-        className: "card5",
-        id:"card5"
-    },this), "center");
+  var _first = function(){
+    var mode = this.panel.layout.def.mode;
+    mode = mode == 0 ? 1 :0;
+    this.panel.layout.def.mode = mode;
+    this.btFirst.setText("M "+app.panel.layout.def.mode);
+    this.panel.layoutComponents();
+  };
 
-    this.addComponent(Panel);
-    
-    this.addComponent(new js.awt.Button({
-        id: "btFirst",
-        items:["label"],
-        labelText:"M 0",
-        x: 10, y: 10
-    }, this));
+  this.btFirst.attachEvent("click", 0, this, _first);
+  });
 
-    var _first = function(){
-        var mode = this.panel.layout.def.mode;
-        mode = mode == 0 ? 1 :0;
-        this.panel.layout.def.mode = mode;
-        this.btFirst.setText("M "+this.panel.layout.def.mode);
-        this.panel.layoutComponents();
-    };
+}, "demo");
 
-    this.btFirst.attachEvent("click", 0, this, _first);
-
-});
 </script>
 </html>

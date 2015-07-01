@@ -118,7 +118,7 @@ js.awt.GridLayout = function (def){
             }
         }
 
-    }.$override(this.layoutContainer);
+    };
 
     thi$._init = function(def){
         def = def || {};
@@ -132,5 +132,5 @@ js.awt.GridLayout = function (def){
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
 

@@ -44,8 +44,8 @@ $package("js.awt");
  * 
  * @param def :{
  *     classType : the layout class
- *     setting : {axis: [0(horizontally)|1(vertically)], gap:0 }
- *     status : an object to store the result of layout
+ *     axis: 0(horizontally)|1(vertically), 
+ *     gap: 0 
  * } 
  */
 js.awt.BoxLayout = function (def){
@@ -57,8 +57,7 @@ js.awt.BoxLayout = function (def){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+    var Class = js.lang.Class;
 
     thi$.layoutContainer = function(container){
 
@@ -67,13 +66,11 @@ js.awt.BoxLayout = function (def){
         space = (axis == 0) ? bounds.innerWidth : bounds.innerHeight,
         xbase = bounds.MBP.paddingLeft, left = 0,
         ybase = bounds.MBP.paddingTop,  top = 0,
-        comps = container.items0(), comp,
+        comps = this.getLayoutComponents(container), comp,
         rects = [], d, r, c = 0;
 
         for(var i=0, len=comps.length; i<len; i++){
-            comp = container[comps[i]]; 
-
-            if(!comp.isVisible()) continue;
+            comp = comps[i];
 
             d = comp.getPreferredSize();
             r = {};
@@ -148,7 +145,7 @@ js.awt.BoxLayout = function (def){
             }
         }
 
-    }.$override(this.layoutContainer);
+    };
     
     thi$._init = function(def){
         def = def || {};
@@ -163,5 +160,5 @@ js.awt.BoxLayout = function (def){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
 

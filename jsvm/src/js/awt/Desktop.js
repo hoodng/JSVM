@@ -416,9 +416,9 @@ js.awt.Desktop = function (Runtime){
         return apps[id];
     }
 
-    thi$.createApp = function(classType, entryId){
+    thi$.createApp = function(classType, def, entryId){
         var appClass = Class.forName(classType), app;
-        app = new (appClass)(null, Runtime, entryId);
+        app = new (appClass)(def, Runtime, entryId);
         apps[app.getAppID()] = app;
         return app;
     };

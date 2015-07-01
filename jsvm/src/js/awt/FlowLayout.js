@@ -237,5 +237,7 @@ js.awt.FlowLayout = function (def){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
+
+
 

@@ -972,7 +972,8 @@ js.awt.SizeObject = function(){
     };
 
     thi$.getSizingMsgRecvs = function(){
-        return null;
+        var peer = this.getSizingPeer();
+        return peer ? peer.getSizingMsgRecvs() : null;
     };
 
     thi$.releaseSizeObject = function(){
@@ -1268,16 +1269,9 @@ js.awt.Resizable = function(){
         MQ.post(Event.SYS_EVT_RESIZED, "");
         this._local.notified = false;
 
-        // Notify all message receivers
         var sizeObj = this.getSizeObject(),
-        recvs = sizeObj.getSizingMsgRecvs() || [];
-        recvs.unshift(sizeObj.getSizingPeer().uuid());
-        e.setEventTarget(sizeObj);
-        MQ.post(sizeObj.getSizingMsgType(), e, recvs);
-
-        // Release SizeObject
-        MQ.post("releaseSizeObject", "", [this.uuid()]);
-
+            recvs = sizeObj.getSizingMsgRecvs() || [];
+        
         this.showCover(false);
         if(sizeObj._sized){
             sizeObj.setSize(sizeObj.getWidth(), sizeObj.getHeight(), 0x0F);
@@ -1287,6 +1281,14 @@ js.awt.Resizable = function(){
             sizeObj.setPosition(sizeObj.getX(), sizeObj.getY(), 0x0F);
             delete sizeObj._moved;
         }
+        
+        // Notify all message receivers
+        recvs.unshift(sizeObj.getSizingPeer().uuid());
+        e.setEventTarget(sizeObj);
+        MQ.post(sizeObj.getSizingMsgType(), e, recvs);
+
+        // Release SizeObject
+        MQ.post("releaseSizeObject", "", [this.uuid()]);
 
         return e.cancelDefault();
     };
@@ -1368,7 +1370,7 @@ js.awt.Resizable = function(){
             sizeObj = this.sizeObj = /*this;*/
 
             new js.awt.Component(
-                    {className: "jsvm_resize_cover",
+                    {className: "jsvm_resize_cover "+this.className+"--resize-cover",
                      css: "position:absolute;",
                      x : bounds.offsetX,
                      y : bounds.offsetY,
@@ -1552,6 +1554,252 @@ js.awt.Resizable = function(){
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
+ * Author: Hu Dong
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.awt");
+
+/**
+ * 
+ */
+js.awt.Containable = function(){
+
+    var CLASS = js.awt.Containable, thi$ = CLASS.prototype;
+    
+    if(CLASS.__defined__){
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class, Event = js.util.Event, 
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ,
+        List= js.util.LinkedList;
+
+    var _check = function(){
+        var M = this.def, U = this._local;
+        
+        M.items = M.items || [];
+        if(!M.items.remove0){
+            List.$decorate(M.items);
+        }
+
+        U.items = U.items || [];
+        if(!U.items.remove0){
+            List.$decorate(U.items);
+        }
+    };
+
+    thi$.appendChild = function(ele){
+        _check.call(this);
+
+        var M = this.def, U = this._local,
+            id = ele.id, 
+            index = M.items.length, 
+            index0 = U.items.length;
+
+        return this._insert(M, U, index, index0, id, ele, null);
+
+    };
+
+    thi$.insertChildBefore = function(ele, ref){
+        _check.call(this);
+        
+        var M = this.def, U = this._local,
+            id = ele.id, rid = this.getID(ref),
+            index = M.items.indexOf(rid),
+            index0= U.items.indexOf(rid);
+
+        ref = this[rid];
+
+        index = index > 0 ? index  : 0;
+        index0= index0> 0 ? index0 : 0;
+
+        return this._insert(M, U, index, index0, id, ele, ref);
+
+    };
+
+    thi$.insertChildAfter = function(ele, ref){
+        _check.call(this);
+        
+        var M = this.def, U = this._local,
+            id = ele.id, rid = this.getID(ref),
+            index = M.items.indexOf(rid),
+            index0= U.items.indexOf(rid);
+
+        ref = this[M.items[index + 1]]; // ref = this[rid];
+        if(ref && ref.isAlwaysOnTop() && index === M.items.length-1){
+            throw "Reference child ["+rid+"] is always on top";
+        }
+        
+        index = index > 0 ? (index + 1) : M.items.length;
+        index0= index0> 0 ? (index0+ 1) : U.items.length;
+
+        return this._insert(M, U, index, index0, id, ele, ref);
+
+    };
+
+    thi$._insert = function(M, U, index, index0, id, ele, ref){
+        M.items.add(index, id);
+        M[id] = ele.def;
+        
+        U.items.add(index0, id);
+        this[id] = ele;
+
+        ele.setContainer(this);
+        
+        // @link js.lang.Object#setContextID
+        var eleDef = ele.def;
+        if(!eleDef["__contextid__"]){
+            ele.setContextID(this.uuid());
+        }
+
+        if(Class.isHtmlElement(ele.view)){
+            if(ref && ref.view){
+                ele.insertBefore(ref.view, this.view);
+            }else{
+                ele.appendTo(this.view);
+            }
+        }
+
+        return ele;
+    };
+
+    thi$.removeChild = function(ele){
+        _check.call(this);
+        
+        var M = this.def, U = this._local,
+            id = this.getID(ele); 
+        
+        ele = this[id];
+        if(ele === undefined) return undefined;
+
+        M.items.remove(id);
+        delete M[id];
+
+        U.items.remove(id);
+        delete this[id];
+
+        delete ele.container;
+
+        if(Class.isHtmlElement(ele.view)){
+            ele.removeFrom(this.view);
+        }
+        
+        return ele;
+    };
+
+    thi$.getElementById = function(id){
+        return this[id];
+    };
+
+    thi$.getElements = function(filter){
+        filter = filter || function(ele){
+            return true;
+        };
+
+        var ret = [], items = this.items0(), ele;
+        for(var i=0, len=items.length; i<len; i++){
+            ele = this[items[i]];
+            if(filter(ele)){
+                ret.push(ele);
+            }
+        }
+        return ret;
+    };
+
+    thi$.getElementsCount = function(){
+        return this.def.items.length;
+    };
+
+    /**
+     * Gets the component id list in current order
+     */
+    thi$.items = function(){
+        return this.def.items || [];
+    };
+
+    /**
+     * Gets the component id list in original order
+     */
+    thi$.items0 = function(){
+        return this._local.items || [];
+    };
+
+    thi$.indexOf = function(ele){
+        var id = this.getID(ele);
+        return this.items().indexOf(id);
+    };
+
+    /**
+     * Remove all elements in this container
+     * 
+     * @param gc, whether do gc
+     */
+    thi$.removeAll = function(gc){
+        _check.call(this);
+
+        var M = this.def, U = this._local,
+            items = this.items0(), id, ele;
+        
+        while(items.length > 0){
+            id = items[0];
+            ele = this[id];
+            
+            if(ele){
+                this.removeChild(ele);
+                if(gc == true){
+                    ele.destroy();
+                }
+            }
+            
+            // TODO:
+            // For Component, in its destroy method, it can be removed from
+            // its container. Meanwhile, clean the cached id. 
+            // But for GraphicContainer, it doesn't do that. So we do following
+            // thing to keep it work right.
+            items.remove(id);
+            delete this[id];
+        }
+
+        M.items.clear();
+    };
+
+};
+
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
  * Author: Pan mingfa
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
@@ -1652,7 +1900,7 @@ js.awt.PopupLayer = function () {
     thi$.onFocusBoxBlur = function(e){
         if(((this._local.LMFlag & CLASS.F_AUTO) !== 0)
             && this.focusBox == this.focusItem){
-            this.Runtime().LM.onHide(e);
+            this.LM().onHide(e);
         }
     };
     
@@ -1783,7 +2031,7 @@ js.awt.PopupLayer = function () {
     };
     
     thi$.isShown = function () {
-        return this.Runtime().LM.indexOf(this) !== -1;
+        return this.LM().indexOf(this) !== -1;
     };
     
     /**
@@ -1794,7 +2042,7 @@ js.awt.PopupLayer = function () {
      * @param m: {Number} The specified thickness of nofly area.
      */
     thi$.showAt = function (x, y, v, m) {
-        this.Runtime().LM.showAt(this, x, y, v, m);
+        this.LM().showAt(this, x, y, v, m);
     };
 
     /**
@@ -1805,7 +2053,7 @@ js.awt.PopupLayer = function () {
      * @param m: {Number} The specified thickness of nofly area.
      */
     thi$.showBy = function (by, v, m) {
-        this.Runtime().LM.showBy(this, by, v, m);
+        this.LM().showBy(this, by, v, m);
     };
     
     thi$.hide = function (type) {
@@ -1813,13 +2061,13 @@ js.awt.PopupLayer = function () {
         
         var arg = arguments ? arguments[1] : undefined,
         evt = new Event(type || "hide", arg, this);
-        this.Runtime().LM.onHide(evt);
+        this.LM().onHide(evt);
     };
 
     thi$.hideOthers = function (type) {
         var arg = arguments ? arguments[1] : undefined,
         evt = new Event(type || "hide", arg, this);
-        this.Runtime().LM.clearStack(evt);
+        this.LM().clearStack(evt);
     };
     
     var _createFocusBox = function () {
@@ -1832,7 +2080,7 @@ js.awt.PopupLayer = function () {
     };
     
     thi$.startTimeout = function () {
-        var LM = this.Runtime().LM;
+        var LM = this.LM();
 
         if ((this._local.LMFlag & CLASS.F_TIMEOUT) != 0) {
             this.lmtimer = 
@@ -1854,12 +2102,15 @@ js.awt.PopupLayer = function () {
         if (!DOM.contains(this.view, e.toElement, true))
             return;
 
-        var LM = this.Runtime().LM;
+        var LM = this.LM();
         if(LM.onHide.$clearTimer(this.lmtimer)){
             System.log.println("Delete timer: " + this.lmtimer);
             delete this.lmtimer;    
         }
-        
+    };
+
+    thi$.LM = function(){
+        return J$VM.Runtime.getDesktop().LM;
     };
 };
 
@@ -2139,30 +2390,31 @@ js.awt.LayoutManager = function (def){
         return this.def;        
     };
 
-    thi$.layoutContainer = function(container, force){
-        var comps = container.items0(), i, len, comp;
-        for(i=0, len=comps.length; i<len; i++){
-            comp = container[comps[i]];
-            if(comp && comp.needLayout(force)){
-                comp.doLayout(force);
-            }
-        }
-    };
-    
-    /**
-     * Adds the specified component to the layout, using the specified
-     * constraint object.
-     * @param comp the component to be added
-     * @param constraints  where/how the component is added to the layout.
-     */
-    thi$.addLayoutComponent = function(comp, constraints){
-        // Should override by sub class
-    };
-    
-    thi$.removeLayoutComponent = function(comp){
-        // Implements by sub class
+    thi$.getLayoutComponents = function(container){
+        var ret = [];
+
+        _filter.$forEach(
+            this, container.getLayoutComponents(), container, ret);
+        return ret;
     };
 
+    var _filter = function(container, array, id){
+        var comp = container.getComponent(id);
+        if(comp && comp.isVisible()){
+            array.push(comp);
+        }
+    };
+
+    thi$.layoutContainer = function(container, force){
+        _doLayout.$forEach(
+            this, this.getLayoutComponents(container), force);
+    };
+
+    var _doLayout = function(force, comp){
+        comp.doLayout(force);
+    };
+
+    
     /**
      * Invalidates the layout, indicating that if the layout manager
      * has cached information it should be discarded.
@@ -2176,25 +2428,24 @@ js.awt.LayoutManager = function (def){
      * Notes: Every layout should override this method
      */
     thi$.getLayoutSize = function(container, fn, nocache){
-        var comps = container.items0(),
-        comp, bounds = container.getBounds(), d,
-        w = 0, h = 0, i, len;
-        
-        for(i=0, len=comps.length; i<len; i++){
-            comp = container[comps[i]];
+        var bounds = container.getBounds(),
+            ret ={width:0, height:0};
 
-            if(!comp.isVisible()) continue;
-            
-            d = comp[fn](nocache);
-            w = Math.max(w, (comp.getX() + d.width));
-            h = Math.max(h, (comp.getY() + d.height));
-        }
+        _calcSize.$forEach(
+            this, this.getLayoutComponents(container), fn, nocache, ret);
 
-        w += bounds.MBP.BW;
-        h += bounds.MBP.BH;
+        ret.width += bounds.MBP.BW;
+        ret.height+= bounds.MBP.BH;
         
-        return {width:w, height:h};
+        return ret;
     };
+
+    var _calcSize = function(fn, nocache, max, comp){
+        var d = comp[fn](nocache);
+        max.width = Math.max(max.width, (comp.getX() + d.width));
+        max.height= Math.max(max.height,(comp.getY() + d.height));
+    };
+
 
     /**
      * Calculates the preferred size dimensions for the specified 
@@ -2251,10 +2502,8 @@ js.awt.LayoutManager = function (def){
     };
     
     thi$.destroy = function(){
-        delete this.def;
-
+        this.def = null;
         arguments.callee.__super__.apply(this, arguments);
-        
     }.$override(this.destroy);
     
     
@@ -2315,12 +2564,11 @@ $import("js.awt.LayoutManager");
  * @param def :{
  *     classType : the layout class
  *     ...
- *     status : optional, an object to store the result of layout
  * }
  */
-js.awt.AbstractLayout = function (def){
+js.awt.AbsoluteLayout = function (def){
 
-    var CLASS = js.awt.AbstractLayout, thi$ = CLASS.prototype;
+    var CLASS = js.awt.AbsoluteLayout, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
@@ -2329,38 +2577,19 @@ js.awt.AbstractLayout = function (def){
 
     var Class = js.lang.Class, Event = js.util.Event,  DOM = J$VM.DOM;
 
-    /**
-     * Adds the specified component to the layout, using the specified
-     * constraint object.
-     * @param comp the component to be added
-     * @param constraints  where/how the component is added to the layout.
-     */
-    thi$.addLayoutComponent = function(comp, constraints){
-        var ele = comp.view;
-        if(ele && ele.style){
-            ele.style.position = "absolute";
-        }
-    }.$override(this.addLayoutComponent);
-
-    
-    thi$.destroy = function(){
-        this.def = null;
-
-        arguments.callee.__super__.apply(this, arguments);
-        
-    }.$override(this.destroy);
-
     thi$._init = function(def){
         this.def = def || {};
 
         this.def.classType =  
-            this.def.classType || "js.awt.AbstractLayout";
+            this.def.classType || "js.awt.AbsoluteLayout";
 
     }.$override(this._init);
     
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.LayoutManager);
+
+
 
 
 /**
@@ -2413,7 +2642,6 @@ $package("js.awt");
  *     vgap: 0,
  *     hgap: 0,
  *     mode: 0|1
- *     status : an object to store the result of layout
  * } 
  */
 js.awt.BorderLayout = function (def){
@@ -2428,73 +2656,19 @@ js.awt.BorderLayout = function (def){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System;
     
-    /**
-     * Adds the specified component to the layout, using the specified constraint object. 
-     * For border layouts, the constraint must be one of the following constants: 
-     * NORTH, SOUTH, EAST, WEST, or CENTER.
-     */
-    thi$.addLayoutComponent = function(comp, constraints){
-        var name = constraints || CLASS.CENTER;
-        var status = this.def.status, id = comp.id;
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        switch(name){
-        case "center":
-            status.center = id;
-            break;
-        case "north":
-            status.north = id;
-            break;
-        case "south":
-            status.south = id;
-            break;
-        case "east":
-            status.east = id;
-            break;
-        case "west":
-            status.west = id;
-            break;
-        default:
-            //throw "Cannot add to layout: unknown constraint: " + name;
-        }
-
-    }.$override(this.addLayoutComponent);
-    
-    thi$.removeLayoutComponent = function(comp){
-        var status = this.def.status, id = comp.id;
-        if(id == status.center){
-            status.center = null;
-        }else if(id == status.north){
-            status.north = null;
-        }else if(id == status.south){
-            status.south = null;
-        }else if(id == status.east){
-            status.east = null;
-        }else if(id == status.west){
-            status.west = null;
-        }
-
-    }.$override(this.removeLayoutComponent);
-    
-    thi$.invalidateLayout = function(container){
-        var status = this.def.status;
-        status.north = null;
-        status.south = null;
-        status.east  = null;
-        status.west  = null;
-        status.center= null;
-
-    }.$override(this.invalidateLayout);
-
     thi$.layoutContainer = function(container, force){
-
+        var items = this.getLayoutComponents(container), comps = {}, comp;
+        for(var i=0, len=items.length; i<len; i++){
+            comp = items[i];
+            comps[comp.def.constraints] = comp;
+        }
+        
         switch(this.def.mode){
         case 0:
-            _mode0Layout.call(this, container, force);
+            _mode0Layout.call(this, container, comps, force);
             break;
         case 1:
-            _mode1Layout.call(this, container, force);
+            _mode1Layout.call(this, container, comps, force);
             break;
         default:
             throw "Unsupport layout mode "+this.def.mode;
@@ -2502,7 +2676,7 @@ js.awt.BorderLayout = function (def){
         }
     }.$override(this.layoutContainer);
 
-    var _mode0Layout = function(container, force){
+    var _mode0Layout = function(container, comps, force){
         var setting = this.def, bounds = container.getBounds(),
         vgap = setting.vgap || 0, hgap = setting.hgap || 0,
         xbase = bounds.MBP.paddingLeft, left = 0,
@@ -2510,42 +2684,42 @@ js.awt.BorderLayout = function (def){
         right = bounds.innerWidth, bottom= bounds.innerHeight,
         d, comp;
         
-        if((comp = _getComp.call(this, "north", container)) != null){
+        if((comp = comps["north"])){
             comp.setWidth(bounds.innerWidth, 3);
             d = comp.getBounds();
             comp.setPosition(xbase+left, ybase+top, 3);
             top += d.height + vgap;
         }
 
-        if((comp = _getComp.call(this, "south", container)) != null){
+        if((comp = comps["south"])){
             comp.setWidth(bounds.innerWidth, 3);
             d = comp.getBounds();
             comp.setPosition(xbase+left, ybase + bounds.innerHeight - d.height, 3);
             bottom -= d.height + vgap;
         }
 
-        if((comp = _getComp.call(this, "east", container)) != null){
+        if((comp = comps["east"])){
             comp.setHeight(bottom - top, 3);
             d = comp.getBounds();
             comp.setPosition(xbase+right - d.width, ybase+top, 3);
             right -= d.width + hgap;
         }
 
-        if((comp = _getComp.call(this, "west", container)) != null){
+        if((comp = comps["west"])){
             comp.setHeight(bottom - top, 3);
             d = comp.getBounds();
             comp.setPosition(xbase+left, ybase+top, 3);
             left += d.width + hgap;
         }
 
-        if((comp = _getComp.call(this, "center", container)) != null){
+        if((comp = comps["center"])){
             var fire = force === true ? 0x0F : 0x07;
             comp.setSize(right-left, bottom-top, fire);
             comp.setPosition(xbase+left, ybase+top, fire);
         }
     };
 
-    var _mode1Layout = function(container, force){
+    var _mode1Layout = function(container, comps, force){
         var setting = this.def, bounds = container.getBounds(),
         vgap = setting.vgap || 0, hgap = setting.hgap || 0,
         xbase = bounds.MBP.paddingLeft, left = 0,
@@ -2553,46 +2727,39 @@ js.awt.BorderLayout = function (def){
         right = bounds.innerWidth, bottom= bounds.innerHeight,
         d, comp;
         
-        if((comp = _getComp.call(this, "west", container)) != null){
+        if((comp = comps["west"])){
             comp.setHeight(bounds.innerHeight, 3);
             d = comp.getBounds();
             comp.setPosition(xbase+left, ybase+top, 3);
             left += d.width + hgap;
         }
 
-        if((comp = _getComp.call(this, "east", container)) != null){
+        if((comp = comps["east"])){
             comp.setHeight(bounds.innerHeight, 3);
             d = comp.getBounds();
             comp.setPosition(xbase+bounds.innerWidth - d.width, ybase+top, 3);
             right -= d.width + hgap;
         }
 
-        if((comp = _getComp.call(this, "south", container)) != null){
+        if((comp = comps["south"])){
             comp.setWidth(right - left, 3);
             d = comp.getBounds();
             comp.setPosition(xbase+left, ybase+bounds.innerHeight-d.height, 3);
             bottom -= d.height + vgap;
         }
 
-        if((comp = _getComp.call(this, "north", container)) != null){
+        if((comp = comps["north"])){
             comp.setWidth(right - left, 3);
             d = comp.getBounds();
             comp.setPosition(xbase+left, ybase+top, 3);
             top += d.height + vgap;
         }
 
-        if((comp = _getComp.call(this, "center", container)) != null){
+        if((comp = comps["center"])){
             var fire = force === true ? 0x0F : 0x07;
             comp.setSize(right-left, bottom-top, fire);
             comp.setPosition(xbase+left, ybase+top, fire);
         }
-    };
-    
-    var _getComp = function(name, container){
-        var id = this.def.status[name], 
-        comp = id ? container.getComponent(id) : null;
-
-        return (comp && comp.isVisible()) ? comp : null;
     };
     
     thi$._init = function(def){
@@ -2602,13 +2769,6 @@ js.awt.BorderLayout = function (def){
         def.mode = def.mode || 0;
         def.hgap = def.hgap || 0;
         def.vgap = def.vgap || 0;
-        def.status = def.status || {
-            north: null,
-            south: null,
-            east : null,
-            west : null,
-            center: null
-        };
 
         arguments.callee.__super__.apply(this, arguments);        
 
@@ -2616,13 +2776,18 @@ js.awt.BorderLayout = function (def){
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
 
-js.awt.BorderLayout.NORTH = "north";
-js.awt.BorderLayout.SOUTH = "south";
-js.awt.BorderLayout.EAST  = "east";
-js.awt.BorderLayout.WEST  = "west";
-js.awt.BorderLayout.CENTER= "center";
+(function(){
+    var CLASS = js.awt.BorderLayout;
+    
+    CLASS.NORTH = "north";
+    CLASS.SOUTH = "south";
+    CLASS.EAST  = "east";
+    CLASS.WEST  = "west";
+    CLASS.CENTER= "center";
+    
+})();
 
 
 /**
@@ -2671,8 +2836,8 @@ $package("js.awt");
  * 
  * @param def :{
  *     classType : the layout class
- *     setting : {axis: [0(horizontally)|1(vertically)], gap:0 }
- *     status : an object to store the result of layout
+ *     axis: 0(horizontally)|1(vertically), 
+ *     gap: 0 
  * } 
  */
 js.awt.BoxLayout = function (def){
@@ -2684,8 +2849,7 @@ js.awt.BoxLayout = function (def){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+    var Class = js.lang.Class;
 
     thi$.layoutContainer = function(container){
 
@@ -2694,13 +2858,11 @@ js.awt.BoxLayout = function (def){
         space = (axis == 0) ? bounds.innerWidth : bounds.innerHeight,
         xbase = bounds.MBP.paddingLeft, left = 0,
         ybase = bounds.MBP.paddingTop,  top = 0,
-        comps = container.items0(), comp,
+        comps = this.getLayoutComponents(container), comp,
         rects = [], d, r, c = 0;
 
         for(var i=0, len=comps.length; i<len; i++){
-            comp = container[comps[i]]; 
-
-            if(!comp.isVisible()) continue;
+            comp = comps[i];
 
             d = comp.getPreferredSize();
             r = {};
@@ -2775,7 +2937,7 @@ js.awt.BoxLayout = function (def){
             }
         }
 
-    }.$override(this.layoutContainer);
+    };
     
     thi$._init = function(def){
         def = def || {};
@@ -2790,7 +2952,7 @@ js.awt.BoxLayout = function (def){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
 
 
 /**
@@ -2853,33 +3015,12 @@ js.awt.CardLayout = function (def){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System;
 
-    /**
-     * Adds the specified component to the layout, using the specified
-     * constraint object.
-     * @param comp the component to be added
-     * @param constraints  where/how the component is added to the layout.
-     */
-    thi$.addLayoutComponent = function(comp, constraints){
-        arguments.callee.__super__.apply(this, arguments);
-
-        var container = comp.getContainer(), bounds;
-        if(container.isDOMElement()){
-            bounds = container.getBounds();
-            comp.setBounds(bounds.MBP.paddingLeft, 
-                           bounds.MBP.paddingTop, 
-                           bounds.innerWidth, 
-                           bounds.innerHeight);
-        }
-    }.$override(this.addLayoutComponent);
-
     thi$.layoutContainer = function(container){
-
         var comps = container.items(), bounds = container.getBounds(),
         MBP = bounds.MBP, comp, i, len;
         
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
-
             comp.setBounds(MBP.paddingLeft, MBP.paddingTop, 
                            bounds.innerWidth, bounds.innerHeight, 3);
         }
@@ -2892,8 +3033,8 @@ js.awt.CardLayout = function (def){
             this._hasDisp = true;
         }
 
-    }.$override(this.layoutContainer);
-    
+    };
+
     /**
      * Flips to the first card of the container.
      */
@@ -2951,10 +3092,10 @@ js.awt.CardLayout = function (def){
      * @param index
      */
     thi$.show = function(container, index){
-        if(!Class.isNumber(index)) return;
+        if(!Class.isNumber(index)) return null;
 
         var items = container.items0(), compid = items[index], 
-        item, comp;
+            item, comp;
 
         this.def.status.index = index;
         
@@ -2980,9 +3121,10 @@ js.awt.CardLayout = function (def){
                 }
             }            
         }
+
         return item;
     };
-    
+
     thi$._init = function(def){
         def = def || {};
         
@@ -2997,7 +3139,7 @@ js.awt.CardLayout = function (def){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
 
 
 /**
@@ -3239,7 +3381,9 @@ js.awt.FlowLayout = function (def){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
+
+
 
 
 /**
@@ -3362,7 +3506,7 @@ js.awt.GridLayout = function (def){
             }
         }
 
-    }.$override(this.layoutContainer);
+    };
 
     thi$._init = function(def){
         def = def || {};
@@ -3376,7 +3520,1130 @@ js.awt.GridLayout = function (def){
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
+
+
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * File: ToolTip.js
+ * Create: 2014/02/20 06:41:25
+ * Author: Pan Mingfa
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.awt");
+
+/**
+ * An interface for showing user-defined tooltips.
+ * 
+ * Attention:
+ * 
+ * If the user-defined tooltips will be shown for GraphicElement, its "Graphic2D" 
+ * ancestor object must invoke the "checkAttachEvent" method to make the "mouseover",
+ * "mouseout", "mousemove" can be fired and listened, as follow:
+ *	   this.checkAttachEvent("mouseover", "mouseout", "mousemove");
+ */
+js.awt.ToolTip = function(){
+	var CLASS = js.awt.ToolTip, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	CLASS.DEFAULTTOOLTIPID =  "__J$VMTOOLTIP__";
+	
+	var Class = js.lang.Class, Event = js.util.Event, 
+	System = J$VM.System, MQ = J$VM.MQ;
+	
+	thi$.layerDef = function(def){
+		var U = this._local, cdef = U.layerDef;
+		if(Class.isObject(def)){
+			cdef = U.layerDef = System.objectCopy(def, {}, true);			 
+		}
+		
+		return cdef || {shadow: true};
+	};
+	
+	/**
+	 * Set the tip object for tip layer. The tip object is the real content
+	 * component for showing user-defined tips. It can be any "Component", 
+	 * "Container" instance object.
+	 * 
+	 * @param tipObj: {Component} A Component or Container instance object.
+	 * @param gc: {Boolean} Indicate whether gc the old useless tipObj.
+	 */
+	thi$.setTipObj = function(tipObj, gc){
+		var tipLayer = this.tipLayer, oTipObj;
+		if(tipLayer){
+			delete this._local.tipObj;
+			oTipObj = tipLayer.setTipObj(tipObj, gc);
+			
+			if(gc === true && oTipObj && !oTipObj.destroied 
+			   && Class.isFunction(oTipObj.destroy)){
+				oTipObj.destroy();
+			}
+		}else{
+			this._local.tipObj = tipObj;
+		}
+	};
+	
+	thi$.getTipObj = function(){
+		var tipLayer = this.tipLayer, U = this._local,
+		tipObj = tipLayer ? tipLayer.tipObj : null;
+		return tipObj || U.tipObj;
+	};
+	
+	var _createTipObjByDef = function(def){
+		var classType = def ? def.classType : null,
+		tipClz = Class.isString(classType) 
+			? Class.forName(def.classType) : null,
+		tipObj;	  
+		if(!tipClz){
+			return tipObj;
+		}
+		
+		def.stateless = true;
+		def.NUCG = true;
+		def.className = def.className || "jsvm_tipObj";
+		
+		tipObj = new (tipClz)(def, this.Runtime());
+		return tipObj;
+	};
+	
+	/**
+	 * Set the tip object by the specified definition. The real tip object
+	 * will be created with the given definition.
+	 * 
+	 * @param def: {Object} Definition for the tip object.
+	 */ 
+	thi$.setTipObjByDef = function(def){
+		var tipObj = _createTipObjByDef.call(this, def);
+		this.setTipObj(tipObj, true);
+		
+		return tipObj;
+	};
+
+	/**
+	 * Set the text for the label tip. If the label tip object is not
+	 * existed, create it first.
+	 * 
+	 * @param labelText: {String} Text for the label tip.
+	 * @param styles: {Object} Optional. Some extra styles for the label 
+	 *		  tip to apply.
+	 * @param extDef: {Object} Optional. Some extra definition.
+	 */
+	thi$.setTipLabel = function(labelText, styles, extDef){
+		// Creat it when show
+		this._local.tipLabelArgs 
+			= Array.prototype.slice.call(arguments, 0);
+	};
+	
+	/**
+	 * Maybe, sometimes we need to adjust the tip contents accordint to the 
+	 * runtime event position. Then we can use it.
+	 */
+	thi$.adjustTipObj = function(e){
+		return false;  
+	};
+	
+	var _initTipLabel = function(labelText, styles, extDef){
+		var LabelClz = js.awt.Label, tipLabel = this.getTipObj(), tdef;
+		if(!tipLabel || !(tipLabel instanceof LabelClz)){
+			tdef = {
+				id: "tipObj",
+				classType: "js.awt.Label",
+				className: "jsvm_tipObj",
+
+				NUCG: true,
+				stateless: true		   
+			};
+			
+			if(extDef && Class.isObject(extDef)){
+				System.objectCopy(extDef, tdef);
+			}
+			
+			tdef.classType = "js.awt.Label";
+			tipLabel = _createTipObjByDef.call(this, tdef);
+			tipLabel.doLayout = function(){
+				return;
+			};
+		}
+		
+		if(styles && Class.isObject(styles)){
+			tipLabel.applyStyles(styles);
+		}
+		
+		tipLabel.setText(labelText);
+		
+		return tipLabel;
+	};
+	
+	var _initTipObj = function(){
+		var U = this._local, tipObj = this.getTipObj(),
+		args = U.tipLabelArgs;
+		
+		// Destroy cache
+		//delete U.tipLabelArgs;
+		
+		if(Class.isArray(args) && args.length > 0){
+			tipObj = _initTipLabel.apply(this, args);
+		}
+		
+		return tipObj;
+	};
+	
+	var _getTipLayer = function(){
+		var M = this.def, tipLayer = this.tipLayer, 
+		tipLayers, tipId, tdef;
+		if(tipLayer){
+			return tipLayer;
+		}
+		
+		tipLayers = CLASS.TIPLAYERS;
+		if(!tipLayers){
+			tipLayers = CLASS.TIPLAYERS = {cnt: 0};
+		}
+		
+		tipId = M.tipId;
+		if(!tipId){
+			tipId = M.tipId = this.hasOwnTip() 
+				? this.uuid() + "_tip" : CLASS.DEFAULTTOOLTIPID;
+		}
+		
+		tipLayer = tipLayers[tipId];
+		if(tipLayer){
+			tipLayer["__refCnt__"] += 1;
+			return tipLayer;
+		}
+		
+		tdef = this.layerDef();
+		tdef.id = tipId;
+		tipLayer = this.tipLayer 
+			= new (Class.forName("js.awt.TipLayer"))(tdef, this.Runtime());
+		tipLayer["__refCnt__"] = 1;
+		
+		tipLayers.cnt += 1;
+		tipLayers[tipLayer.id] = tipLayer;
+		return tipLayer;
+	};
+
+	
+	thi$.showTipLayer = function(b, e){
+		var U = this._local, tipLayer = this.tipLayer, tipObj, xy;
+		if(b){
+			if(!tipLayer){
+				tipLayer = this.tipLayer = _getTipLayer.call(this);
+			}
+
+			tipObj = _initTipObj.call(this);
+			if(tipObj){
+				tipLayer.setTipObj(tipObj, true);
+			}
+			
+			if(this.adjustTipObj(e) 
+			   && tipLayer.isDOMElement()){
+				tipLayer.doLayout(true); 
+			}
+
+			xy = e.eventXY();
+			tipLayer.showAt(xy.x - 2, xy.y + 18, true);
+		}else{
+			if(tipLayer){
+				tipLayer.hide(e);
+			}
+		}
+	};
+	
+	var _onhover = function(e){
+		if(e.getType() === "mouseover"){
+			this.showTipLayer(true, e);
+		}else{
+			this.showTipLayer(false);
+		}
+	};
+	
+	var _onmousemv = function(e){
+		var tipLayer = this.tipLayer, xy;
+		if(tipLayer && tipLayer.isShown()){
+			this.showTipLayer(true, e);
+		}
+	};
+	
+	thi$.gcTipLayer = function(){
+		var M = this.def, tipLayer = this.tipLayer, 
+		tipLayers = CLASS.TIPLAYERS, tipId, tipObj;
+		
+		delete this.tipLayer;
+		if(!tipLayer){
+			return;
+		}
+		
+		tipId = M.tipId;
+		tipLayer["__refCnt__"] -= 1;
+
+		if(tipLayer["__refCnt__"] == 0){
+			delete tipLayers[tipId];
+			tipLayers.cnt -= 1;
+			
+			tipObj = tipLayer.removeTipObj();
+			if(tipObj && !tipObj.destroied 
+			   && Class.isFunction(tipObj.destroy)){
+				tipObj.destroy();
+			}
+			
+			
+			tipLayer.destroy();
+		}
+		
+		if(tipLayers.cnt == 0){
+			delete CLASS.TIPLAYERS;
+		}
+	};
+	
+	/**
+	 * Init the user-defined tip usage environment and prepare to listen
+	 * the mouseover, mouseout and mousemove event.
+	 * 
+	 * Here, two branch logics are existed. For the GraphicElement, the 
+	 * user event will be attached with the flag 4. And for Component, 
+	 * the DOM event will be attached with the flag 0.
+	 */
+	thi$.setTipUserDefined = function(b){
+		b = (b === true);
+		
+		this.def = this.def || {};
+		this._local = this._local || {};
+		
+		var M = this.def, U = this._local, flag = this.view ? 0 : 4, 
+		tip, tipLayer;
+
+		M.useUserDefinedTip = b;
+		if(b){
+			tip = U.nativeTip = M.tip;
+			if(Class.isString(tip) && tip.length > 0
+			   && Class.isFunction(this.delToolTipText)){
+				this.delToolTipText();				  
+			}
+			
+			if(U.attachedFlag !== flag){
+				if(!isNaN(U.attachedFlag)){
+					this.detachEvent("mouseover", U.attachedFlag, this, _onhover);
+					this.detachEvent("mouseout", U.attachedFlag, this, _onhover);				  
+					this.detachEvent("mousemove", U.attachedFlag, this, _onmousemv);
+				}
+				
+				this.attachEvent("mouseover", flag, this, _onhover);
+				this.attachEvent("mouseout", flag, this, _onhover);
+				this.attachEvent("mousemove", flag, this, _onmousemv);
+				
+				U.attachedFlag = flag;
+			}
+		}else{
+			delete U.layerDef;
+			delete U.tipLabelArgs;
+			
+			tipLayer = this.tipLayer;
+			if(tipLayer){
+				tipLayer.hide();
+				this.gcTipLayer();
+			}
+
+			tip = U.nativeTip;
+			if(Class.isString(tip) && tip.length > 0 
+			   && Class.isFunction(this.setToolTipText)){
+				this.setToolTipText(tip);
+			}
+			
+			if(!isNaN(U.attachedFlag)){
+				this.detachEvent("mouseover", U.attachedFlag, this, _onhover);
+				this.detachEvent("mouseout", U.attachedFlag, this, _onhover);				  
+				this.detachEvent("mousemove", U.attachedFlag, this, _onmousemv);
+
+				delete U.attachedEventFlag;
+			}
+		}
+	};
+	
+	thi$.isTipUserDefined = function(){
+		return this.def.useUserDefinedTip;
+	};
+	
+	thi$.hasOwnTip = function(){
+		return this.def.hasOwnTip === true;
+	};
+};
+
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * Author: Hu Dong
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.awt");
+
+$import("js.awt.State");
+$import("js.awt.ToolTip");
+$import("js.util.EventTarget");
+
+/**
+ * Define general element
+ */
+js.awt.Element = function(def, Runtime){
+
+    var CLASS = js.awt.Element, thi$ = CLASS.prototype;
+    
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class, Event = js.util.Event, 
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ, 
+        Z4 = [0,0,0,0];
+    
+    /**
+     * Return the position left of the component.<p>
+     * This value also is css left value.
+     */
+    thi$.getX = function(){
+        var r = this.def.x;
+        return Class.isNumber(r) ? r : 0;
+    };
+    
+    /**
+     * Set the position left of the component.<p>
+     * 
+     * @param x
+     * 
+     * @see setPosition(x, y)
+     */
+    thi$.setX = function(x, fire){
+        this.setPosition(x, undefined, fire);
+    };
+    
+    /**
+     * Return the position top of the component.<p>
+     * This value also is css top value.
+     */
+    thi$.getY = function(){
+        var r = this.def.y;
+        return Class.isNumber(r) ? r : 0;
+    };
+    
+    /**
+     * Set the position top of the component.<p>
+     * 
+     * @param y
+     * 
+     * @see setPosition(x, y)
+     */
+    thi$.setY = function(y, fire){
+        this.setPosition(undefined, y, fire);
+    };
+    
+    /**
+     * Return position of the componet<p>
+     * 
+     * @return an object with below infomation,
+     * {x, y}
+     */
+    thi$.getPosition = function(){
+        return {
+            x: this.getX(), y: this.getY()
+        };
+    };
+    
+    /**
+     * Set position of the component.<p>
+     * 
+     * @param x, the position left
+     * @param y, the position top
+     */
+    thi$.setPosition = function(x, y, fire){
+        var M = this.def;
+        M.x = Class.isNumber(x) ? x : this.getX();
+        M.y = Class.isNumber(y) ? y : this.getY();
+    };
+
+
+    /**
+     * Return z-index of the component.<p>
+     * It also is the css zIndex value.
+     */
+    thi$.getZ = function(){
+        var r = this.def.z;
+        return Class.isNumber(r) ? r : 0;
+    };
+    
+    /**
+     * Set css z-index of the component.<p>
+     * 
+     * @param z
+     */
+    thi$.setZ = function(z, fire){
+        this.def.z = Class.isNumber(z) ? z : this.getZ();
+    };
+    
+    /**
+     * Return the outer (outer border) width of the component.<p>
+     * This value maybe large then css value
+     */
+    thi$.getWidth = function(){
+        var r = this.def.width;
+        return Class.isNumber(r) ? r : 0;
+    };
+    
+    /**
+     * Set the outer (outer border) width of the component.<p>
+     * 
+     * @param w
+     * 
+     * @see setSize(w, h)
+     */
+    thi$.setWidth = function(w, fire){
+        this.setSize(w, undefined, fire);
+    };
+    
+    /**
+     * Return the outer (outer border) heigth of the component.<p>
+     * This value maybe large then css value
+     */
+    thi$.getHeight = function(){
+        var r = this.def.height;
+        return Class.isNumber(r) ? r : 0;
+    };
+
+    /**
+     * Set the outer (outer border) width of the component.<p>
+     * 
+     * @param h
+     * 
+     * @see setSize(w, h)
+     */
+    thi$.setHeight = function(h, fire){
+        this.setSize(undefined, h, fire);
+    };
+    
+    /**
+     * Return outer size of the component.<p>
+     * 
+     * @return an object with {width, height}
+     */
+    thi$.getSize = function(){
+        return {
+            width: this.getWidth(), height: this.getHeight()
+        };
+    };
+    
+    /**
+     * Set outer size of the component.<p>
+     * 
+     * @param w, width
+     * @param h, height
+     */
+    thi$.setSize = function(w, h, fire){
+        var M = this.def;
+        M.width = Class.isNumber(w) ? w : this.getWidth();
+        M.height= Class.isNumber(h) ? h : this.getHeight();
+    };
+
+    thi$.absXY = function(){
+        return {x: 0, y:0};
+    };
+    
+    thi$.getBounds = function(){
+        var M = this.def, U = this._local, el = this.view, abs,
+            bounds, pounds, position, margin, border, padding;
+
+        if(DOM.isDOMElement(el)){
+            bounds = DOM.getBounds(el);
+            position = this.getStyle("position");
+            position = position ? position.toLowerCase() : undefined;
+            bounds.offsetX = el.offsetLeft;
+            bounds.offsetY = el.offsetTop;
+
+            if(J$VM.supports.borderEdg && position !== "relative"){
+                pounds = DOM.getBounds(el.parentNode);
+                bounds.offsetX -= pounds.MBP.borderLeftWidth;
+                bounds.offsetY -= pounds.MBP.borderTopWidth;
+            }
+
+            bounds.x = bounds.offsetX - bounds.MBP.marginLeft;
+            bounds.y = bounds.offsetY - bounds.MBP.marginTop;
+            if(position == "relative"){
+                pounds = pounds || DOM.getBounds(el.parentNode);
+                bounds.x -= pounds.MBP.paddingLeft;
+                bounds.y -= pounds.MBP.paddingTop;
+            }
+
+            bounds.clientWidth = el.clientWidth;
+            bounds.clientHeight= el.clientHeight;
+            
+            bounds.scrollWidth = el.scrollWidth;
+            bounds.scrollHeight= el.scrollHeight;
+            bounds.scrollLeft  = el.scrollLeft;
+            bounds.scrollTop   = el.scrollTop;
+            
+        }else{
+            margin = M.margin  || Z4;
+            border = M.border  || Z4;
+            padding= M.padding || Z4;
+            abs = this.absXY();
+
+            bounds = {
+                x: this.getX(),
+                y: this.getY(),
+                width:  this.getWidth(),
+                height: this.getHeight(),
+
+                MBP:{
+                    marginTop: margin[0],
+                    marginRight: margin[1],
+                    marginBottom: margin[2],
+                    marginLeft: margin[3],
+
+                    borderTopWidth: border[0],
+                    borderRightWidth: border[1],
+                    borderBottomWidth: border[2],
+                    borderLeftWidth: border[3],
+
+                    paddingTop: padding[0],
+                    paddingRight: padding[1],
+                    paddingBottom: padding[2],
+                    paddingLeft: padding[3],
+
+                    BPW: border[3]+padding[3]+padding[1]+border[1],
+                    BPH: border[0]+padding[0]+padding[2]+border[2]
+                },
+
+                absX : abs.X,
+                absY : abs.Y
+            };
+            
+            bounds.offsetX = bounds.x;
+            bounds.offsetY = bounds.y;
+
+            bounds.clienWidth   = bounds.width - bounds.MBP.BPW;
+            bounds.clientHeight = bounds.height- bounds.MBP.BPH;
+        }
+
+        bounds.innerWidth = bounds.width - bounds.MBP.BPW;
+        bounds.innerHeight= bounds.height- bounds.MBP.BPH;
+
+        if(U){
+            bounds.userX = U.userX;
+            bounds.userY = U.userY;
+            bounds.userW = U.userW;
+            bounds.userH = U.userH;
+        }
+        
+        return bounds;
+    };
+
+    thi$.setBounds = function(x, y, w, h, fire){
+        var M = this.def;
+
+        M.x = Class.isNumber(x) ? x : this.getX();
+        M.y = Class.isNumber(y) ? y : this.getY();
+        M.width = Class.isNumber(w) ? w : this.getWidth();
+        M.height= Class.isNumber(h) ? h : this.getHeight();
+    };
+
+    thi$.getPreferredSize = function(nocache){
+        var d, ret = this.def.prefSize;
+        if(nocache === true || !ret){
+            d = this.getBounds();
+            this.setPreferredSize(d.width, d.height);
+            ret = this.def.prefSize;
+        }
+        return ret;
+    };
+    
+    thi$.setPreferredSize = function(w, h){
+        this.def.prefSize = {
+            width: w > 0 ? w : 0, 
+            height:h > 0 ? h : 0
+        };
+    };
+    
+    thi$.getMinimumSize = function(nocache){
+        var d, ret = this.def.miniSize;
+        if(nocache === true || !ret){
+            d = this.getBounds();
+            this.setMinimumSize(
+                this.isRigidWidth() ? d.width : d.MBP.BPW, 
+                this.isRigidHeight()? d.height: d.MBP.BPH);
+            ret = this.def.miniSize;
+        }
+        return ret;
+    };
+    
+    thi$.setMinimumSize = function(w, h){
+        this.def.miniSize = {
+            width: w, height:h
+        };
+    };
+    
+    thi$.getMaximumSize = function(nocache){
+        var d, ret = this.def.maxiSize;
+        if(nocache === true || !ret){
+            d = this.getBounds();
+            this.setMaximumSize(Number.MAX_VALUE, Number.MAX_VALUE);
+            ret = this.def.maxiSize;
+        }
+        return ret;
+    };
+    
+    thi$.setMaximumSize = function(w, h){
+        this.def.maxiSize = {
+            width: w, height:h
+        };
+    };
+
+    /**
+     * Return the computed style with the specified style name
+     */
+    thi$.getStyle = function(sp){
+        var ret;
+        if(this.view){
+            sp = DOM.camelName(sp);
+            ret = DOM.currentStyles(this.view)[sp];
+        }
+        return ret;
+    };
+    
+    thi$.getAttr = function(key){
+        return this.def[key];
+    };
+
+    thi$.setAttr = function(key, val){
+        this.def[key] = val;
+    };
+
+    thi$.delAttr = function(key){
+        delete this.def[key];
+    };
+
+    thi$.getAttrs = function(){
+        return this.def;
+    };
+
+    thi$.getID = function(ele){
+        var id;
+        switch(Class.typeOf(ele)){
+        case "string":
+            id = ele;
+            break;
+        case "object":
+            id = ele.id;
+            break;
+        default:
+            id = this.id;
+        }
+        return id;
+    };
+
+    thi$.getOBJ = function(ele){
+        var obj;
+        switch(Class.typeOf(ele)){
+        case "string":
+            obj = this[ele];
+            break;
+        case "object":
+            obj = ele;
+            break;
+        default:
+            obj = this;
+        }
+        return obj;
+    };
+
+    /**
+     * Append this element to the specified parent node.
+     * 
+     * @param parent, the specified parent
+     */
+    thi$.appendTo = function(parent){
+        if(this.view && Class.isHtmlElement(parent)){
+            DOM.appendTo(this.view, parent);
+        }else if (parent.appendChild){
+            parent.appendChild(this);
+        } 
+    };
+
+    /**
+     * Remove this element from the specified parent node.
+     * 
+     * @param parent, the specified parent
+     */
+    thi$.removeFrom = function(parent){
+        if(this.view && Class.isHtmlElement(parent)){
+            DOM.removeFrom(this.view, parent);
+        }else if (parent.removeChild){
+            parent.removeChild(this);
+        } 
+    };
+
+    /**
+     * Insert this element before the specified node.
+     *
+     * @param ref, the specified node
+     */
+    thi$.insertBefore = function(ref, parent){
+        if(this.view && (ref || Class.isHtmlElement(parent))){
+            DOM.insertBefore(this.view, ref, parent);
+        }else if (ref.getContainer()){
+            ref.getContainer().insertChildBefore(this, ref);
+        } 
+    };
+
+    /**
+     * Insert this element after the specified node.
+     * 
+     * @param ref, the specified node
+     */
+    thi$.insertAfter = function(ref){
+        if(this.view && ref){
+            this.insertBefore(ref.nextSibling, ref.parentNode);
+        }else if (ref.getContainer()){
+            ref.getContainer().insertChildAfter(this, ref);
+        } 
+    };
+
+    /**
+     * Test whether contains a child node in this component
+     * 
+     * @param ele
+     * @param containSelf, a boolean indicates whether includes the scenario 
+     * of the parent === child.
+     */
+    thi$.contains = function(ele, containSelf){
+        var id = this.getID(ele), obj = this.getOBJ(ele), o = this[id];
+        return o === obj || (containSelf ? this === obj : false);
+    };
+
+    /**
+     * Test if the specified (x, y) is in area of the component 
+     */
+    thi$.inside = function(x, y){
+        var d = this.getBounds(), 
+            minX = d.absX + d.MBP.borderLeftWidth, maxX = minX + d.clientWidth,
+            minY = d.absY + d.MBP.borderTopWidth,  maxY = minY + d.clientHeight;
+        return (x > minX && x < maxX && y > minY && y < maxY);
+    };
+
+    /**
+     * Map a absolute XY to this component
+     * 
+     * @param point: {x, y}
+     * @return {x, y}
+     */
+    thi$.relative = function(point){
+        var bounds = this.getBounds();
+        return {
+            x: point.x - bounds.absX - bounds.MBP.borderLeftWidth,
+            y: point.y - bounds.absY - bounds.MBP.borderTopWidth
+        };
+    };
+
+    /**
+     * Returns whether the component width is rigid or flexible.
+     * 
+     * @see isRigidHeight
+     */
+    thi$.isRigidWidth = function(){
+        var v = this.def.rigid_w;
+        return v === false ? false : true;
+    };
+
+    /**
+     * Returns whether the component height is rigid or flexible.
+     * 
+     * @see isRigidWidth
+     */
+    thi$.isRigidHeight = function(){
+        var v = this.def.rigid_h;
+        return v === false ? false : true;
+    };
+
+    /**
+     * Returns the alignment along the x axis.  This specifies how
+     * the component would like to be aligned relative to other
+     * components.  The value should be a number between 0 and 1
+     * where 0 represents alignment along the origin, 1 is aligned
+     * the furthest away from the origin, 0.5 is centered, etc.
+     */
+    thi$.getAlignmentX = function(){
+        var v = this.def.align_x;
+        return Class.isNumber(v) ? v : 0.0;
+    };
+    
+    /**
+     * Returns the alignment along the y axis.  This specifies how
+     * the component would like to be aligned relative to other
+     * components.  The value should be a number between 0 and 1
+     * where 0 represents alignment along the origin, 1 is aligned
+     * the furthest away from the origin, 0.5 is centered, etc.
+     */
+    thi$.getAlignmentY = function(){
+        var v = this.def.align_y;
+        return Class.isNumber(v) ? v : 0.0;
+    };
+
+    /**
+     * Return whether this component is always on top.
+     */
+    thi$.isAlwaysOnTop = function(){
+        return this.def.alwaysOnTop || false;
+    };
+    
+    /**
+     * Set this component to always on top
+     * 
+     * @param b, boolean value indicate whether is always on top
+     */
+    thi$.setAlwaysOnTop = function(b){
+        b = b || false;
+        var ZM = this.getContainer();
+        if(ZM) ZM.setCompAlwaysOnTop(this, b);
+    };
+    
+    /**
+     * Moves the component up, or forward, one position in the order
+     */
+    thi$.bringForward = function(){
+        var ZM = this.getContainer();
+        if(ZM) ZM.bringCompForward(this);
+    };
+    
+    /**
+     * Moves the component to the first position in the order
+     */
+    thi$.bringToFront = function(){
+        var ZM = this.getContainer();
+        if(ZM) ZM.bringCompToFront(this);        
+    };
+    
+    /**
+     * Moves the component down, or back, one position in the order
+     */
+    thi$.sendBackward = function(){
+        var ZM = this.getContainer();
+        if(ZM) ZM.sendCompBackward(this);        
+    };
+    
+    /**
+     * Moves the component to the last position in the order
+     */
+    thi$.sendToBack = function(){
+        var ZM = this.getContainer();
+        if(ZM) ZM.sendCompToBack(this);        
+    };
+
+    /**
+     * The peer component is the action object of this component. 
+     * For example, window and its title, the window is title's 
+     * peer component. If there are some buttons in title area,
+     * then the window object also are peer component of those 
+     * buttons.
+     */
+    thi$.setPeerComponent = function(peer){
+        this.peer = peer;
+    };
+    
+    /**
+     * Return peer component of this component.
+     * 
+     * @see setPeerComponent(peer)
+     */
+    thi$.getPeerComponent = function(){
+        return this.peer;        
+    };
+
+    /**
+     * Notifies peer component with special message id and 
+     * event.
+     * 
+     * @param msgId, a string identify the event
+     * @param event, a js.util.Event object
+     */
+    thi$.notifyPeer = function(msgId, event, sync){
+        var peer = this.getPeerComponent();
+        if(peer){
+            _notify.call(this, peer, msgId, event, sync);
+        }
+    };
+
+    /**
+     * Sets container of this component
+     */
+    thi$.setContainer = function(container){
+        this.container = container;
+    };
+
+    /**
+     * Gets container of this component
+     */
+    thi$.getContainer = function(){
+        return this.container;
+    };
+
+    /**
+     * Notifies container component with special message id and 
+     * event.
+     * 
+     * @param msgId, a string identify the event
+     * @param event, a js.util.Event object
+     */
+    thi$.notifyContainer = function(msgId, event, sync){
+        var comp = this.getContainer();
+        if(comp){
+            _notify.call(this, comp, msgId, event, sync);
+        }
+    };
+
+    var _notify = function(comp, msgId, event, sync){
+        sync = (sync == undefined) ? this.def.sync : sync;
+
+        if(sync == true){
+            MQ.send(msgId, event, [comp.uuid()]);    
+        }else{
+            MQ.post(msgId, event, [comp.uuid()]);
+        }
+    };
+    
+    /**
+     * Sets notify peer (container) is synchronized or not
+     * 
+     * @param b, true/false
+     */
+    thi$.setSynchronizedNotify = function(b){
+        this.def.sync = b || false;
+    };
+
+    /**
+     * Returns whether current notify mode is synchronized or not
+     * 
+     * @return true/false
+     */
+    thi$.isSynchronizedNotify = function(){
+        return this.def.sync || false;
+    };
+
+    thi$.display = function(show){
+        if(show === false){
+            this.setVisible(false);
+        }else{
+            this.setVisible(true);
+        }
+    };
+
+    thi$.destroy = function(){
+        if(this.destroied != true){
+            delete this.peer;
+            delete this.container;
+            
+            if(this.isTipUserDefined()){
+                this.setTipUserDefined(false);
+            }
+            
+            arguments.callee.__super__.apply(this, arguments);
+        }
+    }.$override(this.destroy);
+
+    thi$.classType = function(){
+        return this.def.classType;
+    };
+
+    thi$._init = function(def, Runtime){
+        if(def === undefined) return;
+        
+        this.def = def;
+        this.uuid(def.uuid);
+        this.id = def.id || this.uuid();
+        
+        def.classType = def.classType || "js.awt.Element";
+
+        arguments.callee.__super__.apply(this, arguments);
+
+        this.__buf__ = new js.lang.StringBuffer();
+
+        CLASS.count++;
+        
+        if(def.useUserDefinedTip === true){
+            this.setTipUserDefined(true);
+        }
+        
+    }.$override(this._init);
+    
+    this._init.apply(this, arguments);
+
+}.$extend(js.util.EventTarget).$implements(js.awt.State, js.awt.ToolTip);
+
+js.awt.Element.count = 0;
 
 
 /**
@@ -4752,7 +6019,7 @@ $import("js.awt.ZOrderManager");
  * @param view, see also js.awt.Component
  */
 js.awt.Container = function (def, Runtime, view){
-
+    
     var CLASS = js.awt.Container, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -4777,22 +6044,27 @@ js.awt.Container = function (def, Runtime, view){
      * 
      * @param index: {Number} An integer number to indicate the insert position
      * @param comp: {Component} The component to insert
-     * @constraints: {Object} The constraints of the inserting component
+     * @constraints: {Object | String} The layout constraints of the inserting component
      */
     thi$.insertComponent = function(index, comp, constraints){
         var items = this.items0(), ref;
 
+        comp.def.constraints = constraints;
+
         if(!isNaN(index) && index >= 0 && index < items.length){
             ref = this.getElementById(items[index]);
         }
-        
+
+        if(this.layout instanceof js.awt.AbsoluteLayout){
+            comp.view.style.position = "absolute";
+        }
+      
         if(ref){
             this.insertChildBefore(comp, ref);
         }else{
             this.appendChild(comp);
         }
 
-        this._addComp(comp, constraints);         
         this.zOrderAdjust();
 
         return comp;
@@ -4820,9 +6092,6 @@ js.awt.Container = function (def, Runtime, view){
     thi$.removeComponent = function(comp){
         comp = this.removeChild(comp);
 
-        if(this.layout){
-            this.layout.removeLayoutComponent(comp);
-        }
         if(this._local.active === comp){
             this._local.active = undefined;
         }
@@ -4907,6 +6176,13 @@ js.awt.Container = function (def, Runtime, view){
         if(this.layout.instanceOf(js.awt.LayoutManager)){
             this.layout.layoutContainer(this, force);
         }
+    };
+
+    /**
+     * Return all need layout components id
+     */
+    thi$.getLayoutComponents = function(){
+        return this.items0();
     };
     
     /**
@@ -5045,14 +6321,6 @@ js.awt.Container = function (def, Runtime, view){
         return false;
     }.$override(this.doLayout);
     
-    thi$._addComp = function(comp, constraints, refComp){
-        constraints = constraints || comp.def.constraints;
-
-        if(this.layout){
-            this.layout.addLayoutComponent(comp, constraints);
-        }
-    };
-    
     /**
      * def:{
      *     items:[compid],
@@ -5061,14 +6329,15 @@ js.awt.Container = function (def, Runtime, view){
      */
     thi$._addComps = function(def){
         var comps = def.items, R = this.Runtime(),
-        oriComps = this._local.items;
+            oriComps = this._local.items,
+            absLayout = this.layout instanceof js.awt.AbsoluteLayout;
         
         def.items = [];
         List.$decorate(def.items);
 
         for(var i=0, len=comps.length; i<len; i++){
             var compid = comps[i], compDef = def[compid];
-            if(Class.typeOf(compDef) === "object"){
+            if(Class.isObject(compDef)){
                 compDef.id = compDef.id || compid;
                 compDef.className = compDef.className ||
                     DOM.comboCSSClass(this.def.className, compid);
@@ -5076,10 +6345,11 @@ js.awt.Container = function (def, Runtime, view){
                 var comp = new (Class.forName(compDef.classType))(
                     compDef, R);
                 
+                if(absLayout){
+                    comp.view.style.position = "absolute";
+                }
+
                 this.appendChild(comp);
-
-                this._addComp(comp, compDef.constraints);
-
             }
         }
     };
@@ -5105,10 +6375,10 @@ js.awt.Container = function (def, Runtime, view){
 
         arguments.callee.__super__.apply(this, arguments);
         
-        def.layout = def.layout || {};
-        def.layout.classType = def.layout.classType || "js.awt.LayoutManager";
+        var layout = def.layout = (def.layout || {});
+        layout.classType = layout.classType || "js.awt.AbsoluteLayout";
         this.setLayoutManager(
-            new (Class.forName(def.layout.classType))(def.layout));
+            new (Class.forName(layout.classType))(layout));
         def.activateman = Class.isBoolean(def.activateman) ? def.activateman : false;
 
         // Keep original order
@@ -6107,6 +7377,528 @@ js.awt.TabPane.DEFAULTDEF = function(){
 
 /**
 
+ Copyright 2010-2013, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ * 
+ * File: SearchKit.js
+ * Create: 2011-09-30
+ * Author: Pan Mingfa
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.swt");
+
+/**
+ * <em>SearchKit</em> is an utility class for text searching.
+ */
+
+js.swt.SearchKit = function(){
+};
+
+/**
+ * An useful method to help us build the regular expression with the
+ * given <em>keyword</em> and match <em>options</em>.
+ */
+js.swt.SearchKit.buildRegExp = function(keyword, options){
+    if(!keyword || keyword.length == 0)
+        return null;
+    
+    // Escape regular expression's meta-characters.
+    //J$VM.System.out.println("Before escaping: " + keyword);
+    keyword = "".escapeRegExp(keyword);
+    //J$VM.System.out.println("After escaping: " + keyword);
+
+    // var unescaped = (js.lang.Class.forName("js.lang.String")).unescapeRegExp(keyword);
+    // J$VM.System.out.println("Unescaped: " + unescaped);
+    
+    if(typeof options !== "object"){
+        options = {
+            global: true,
+            casesensitive: true,
+            matchword: false,
+            wholeword: false
+        };
+    }
+    
+    //"wholeword" and "matchword" search options need wait for <Enter> key is pressed
+    if(options["wholeword"] === true){
+        keyword = "\^" + keyword + "\$";
+    }else{
+        if(options["matchword"] === true){
+            keyword = "\\b" + keyword + "\\b";
+        }
+    }
+    
+    //global search option
+    var reopts = "";
+    if(options["global"] !== false){
+        reopts += "g";
+    }
+    
+    //case insensitive option
+    if(options["insensitive"] !== false){
+        reopts += "i";
+    }
+    
+    var regExp = new RegExp(keyword, reopts);
+    return regExp;
+};
+
+/**
+ * Search and return all text matches in a text collection by the
+ * given <em>pattern</em>.
+ *
+ * @param textSet: a string collection.
+ * @param pattern: a <em>RegExp</em> object. If it is not a valid RegExp
+ *                 object, an error will be thrown.
+ *  
+ * @return an object: {
+ *     pattern: a <em>RegExp</em> object which is the current matched 
+ *              regular expression,
+ *     matches: a <em>js.util.HashMap</em> object. In it, the key is 
+ *              the <em>index</em> of a text with matched string in the 
+ *              <em>textSet</em>. Each <em>value</em> is an array of all 
+ *              matches' start index and length in the text indicated by 
+ *              the <em>key</em>. 
+ *    }
+ *    
+ *    Its structure is as follow:
+ *    {
+ *        pattern: {RegExp},
+ *        matches: {
+ *           0 : [{start: x, lenght: x}, ..., {start: x, length: x}],
+ *           ......
+ *           n : [{start: x, length: x}, ..., {start: x, length: x}] 
+ *        }
+ *    }
+ */
+js.swt.SearchKit.search = function(textSet, keyword, options){
+    var SKit = js.swt.SearchKit,
+    pattern = SKit.buildRegExp(keyword, options);
+    
+    return SKit.searchByPattern(textSet, pattern);
+};
+
+/**
+ * Search and return all text matches in a text collection by the
+ * given <em>pattern</em>.
+ *
+ * @param textSet: a string collection.
+ * @param pattern: a <em>RegExp</em> object. If it is not a valid RegExp
+ *                 object, an error will be thrown.
+ *  
+ * @return an object: {
+ *     pattern: a <em>RegExp</em> object which is the current matched 
+ *              regular expression,
+ *     matches: a <em>js.util.HashMap</em> object. In it, the key is 
+ *              the <em>index</em> of a text with matched string in the 
+ *              <em>textSet</em>. Each <em>value</em> is an array of all 
+ *              matches' start index and length in the text indicated by 
+ *              the <em>key</em>. 
+ *    }
+ *    
+ *    Its structure is as follow:
+ *    {
+ *        pattern: {RegExp},
+ *        matches: {
+ *           0 : [{start: x, lenght: x}, ..., {start: x, length: x}],
+ *           ......
+ *           n : [{start: x, length: x}, ..., {start: x, length: x}] 
+ *        }
+ *    }
+ */
+js.swt.SearchKit.searchByPattern = function(textSet, pattern){
+    var SKit = js.swt.SearchKit,
+    len = textSet ? textSet.length : 0,
+    matches, text, textMatches;
+    
+    if(len == 0)
+        return null;
+    
+    matches = new js.util.HashMap();
+    for(var i = 0; i < len; i++){
+        text = textSet[i];
+        textMatches = SKit.searchInTextByPattern(text, pattern);
+        
+        if(textMatches && textMatches.length > 0){
+            matches.put(i, textMatches);
+        }
+    }
+    
+    return {pattern: pattern, matches: matches};
+};
+
+/**
+ * Search all matches and return each match's index and length in 
+ * <em>text</em> with the given searching <em>options</em>.
+ *
+ * The searching <em>options</em> as below:<p>
+ * @param options: "global|ignore|wholeword". Detains as below: <br>
+ *          <em>global</em>: match all <br>
+ *          <em>ignore</em>: case insensitive <br>
+ *          <em>wholeword</em>: match the whole word, need wait for 
+ *                              <Enter> key is pressed <p>
+ * 
+ * @return <em>Array</em>, each element in it is a object maintained 
+ *         each match's start index and its length. Its structure is as fo
+ *         -llow:
+ *         [
+ *          {start: m, length: x},
+ *          ...
+ *          {start: n, length: x}     
+ *         ]
+ */ 
+js.swt.SearchKit.searchInText = function(text, keyword, options){
+    var SKit = js.swt.SearchKit,
+    pattern = SKit.buildRegExp(keyword, options);
+    
+    return SKit.searchInTextByPattern(text, pattern);
+};
+
+
+/**
+ * Return all matchces' index and its length of <em>text</em> with the 
+ * given <em>pattern</em>.
+ * 
+ * @param text: a text string.
+ * @param pattern: a <em>RegExp</em> object. If it is not a valid RegExp
+ *                 object, an error will be thrown.
+ * @return <em>Array</em>, each element in it is a object maintained each 
+ *         match's start index and its length. Its structure is as follow:
+ *         [
+ *          {start: m, length: x},
+ *          ...
+ *          {start: n, length: x}     
+ *         ]
+ */
+js.swt.SearchKit.searchInTextByPattern = function(text, pattern){
+    if(!text || (text.length == 0) || !pattern)
+        return null;
+    
+    if(!(pattern instanceof RegExp)){
+        throw new Error("The pattern is not a valid RegExp.");    
+    }
+    
+    /*
+     * Comment by mingfa.pan to void an issue as follow:
+     * In IE/FF/Chrome and so on, if I have following items: 
+     *      "item1", "item2", "item3", "item4", "item5", "item6" 
+     * And a pattern line (/i/ig) or (/e/ig) for all items.
+     * Then when we use the test() method to test each item above,
+     * "item2", "item4", "item6" will make a "false" be returned.
+     * 
+     * P.S. at 2011-10-24 14:00
+     * For this issue, we need to reset the pattern's lastIndex 
+     * property to 0. Because this property returns an integer that 
+     * specifies the character position immediately after the last 
+     * match found by exec( ) or test( ) methods.
+     * 
+     * If someone found in the last match, the lastIndex will be set
+     * to an integer value. It may affect the following match. However,
+     * exec( ) and test( ) will reset lastIndex to 0 if they do not get
+     * a match.
+     */
+    // var isMatched = pattern.test(text);
+    // if(isMatched){
+    var matches = [];
+    text.replace(pattern, function(m, i){
+                     matches.push({start: i, length: m.length});
+                 });
+    
+    return matches;
+    // } else {
+    // return null;
+    // }
+};
+
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * File: Highlighter.js
+ * Create: 2014/01/20 08:07:00
+ * Author: Pan Mingfa
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.awt");
+
+/**
+ * An utility to help the component that with the label in to highlight
+ * its text contents.
+ */
+js.awt.Highlighter = function(){
+	var CLASS = js.awt.Highlighter,
+	thi$ = CLASS.prototype;
+	
+	if(CLASS.__defined__){
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class, String = js.lang.String,
+	Math = js.lang.Math, StringBuffer = js.lang.StringBuffer,
+	System = J$VM.System,
+	
+	SKit = Class.forName("js.swt.SearchKit");
+	
+	thi$.setKeepNative = function(b){
+		this.def.keepNative = (b === true);	 
+	};
+	
+	thi$.isKeepNative = function(){
+		return (this.def.keepNative === true);	
+	};
+
+	thi$.getContent = function(){
+		if(!this.label){
+			return null;
+		}
+		
+		if(typeof this.getText === "function"){
+			return this.getText();
+		}
+		
+		return "";
+	};
+	
+	/*
+	 * If <em>label</em> is created, use the given text as its
+	 * display text.
+	 */
+	var _setText = function(text, encode) {
+		if(this.label){
+			this.label.innerHTML = (encode === false) 
+				? text : String.encodeHtml(text);
+		}
+	};
+	
+	/**
+	 * @param keyword: {String} The keyword of the <em>RegExp</em> object which is 
+	 *		  used to matched.
+	 * @param options: {Object} Include global, insensitive and whole word setting.
+	 * @param highlightClass: {String} The specified style 
+	 *		  className for highlight.
+	 * 
+	 * @return {Array} All highlighted span elements.
+	 */
+	thi$.highlight = function (keyword, options, highlightClass) {
+		if (!this.label || !keyword || !options){
+			return null;
+		}
+		
+		var pattern = SKit.buildRegExp(keyword, options);
+		return this.highlightByPattern(pattern, highlightClass);
+	};
+	
+	var _getHighlightElements = function(ids){
+		var len = Class.isArray(ids) ? ids.length : 0,
+		pele = this.view, uuid = this.uuid(), 
+		doms = [], id, ele;
+		
+		for(var i = 0; i < len; i++){
+			id = ids[i];
+			
+			if(pele.querySelector){
+				ele = pele.querySelector("#" + id);
+			}else{
+				ele = document.getElementById(id);
+			}
+			
+			if(ele){
+				ele.uuid = uuid;
+				doms.push(ele);
+			}
+		}
+		
+		return doms;
+	};
+	
+	/**
+	 * Highlight all matches with the specified style class
+	 * according to the given regular expression.
+	 * 
+	 * @param pattern: {RegExp} Regular expression to match.
+	 * @param highlightClass: {String} The specified style 
+	 *		  className for highlight.
+	 * 
+	 * @return {Array} All highlighted span elements.
+	 */
+	thi$.highlightByPattern = function(pattern, highlightClass){
+		var text = this.getContent(), styleClass, ids = [],
+		newText, hid, tmp;
+		if(!text || !(pattern instanceof RegExp)){
+			return null;
+		}
+		
+		text = String.encodeHtml(text);
+		//System.err.println("Text: " + text);
+		
+		styleClass = highlightClass;
+		if(!Class.isString(styleClass) || styleClass.length == 0){
+			styleClass = this.__buf__.clear().append(this.def.className)
+				.append("_").append("highlight").toString();
+		}
+		
+		newText = text.replace(
+			pattern,
+			function(m){
+				hid = Math.uuid();
+				ids.push(hid);
+				
+				return '<span id=\"' + hid + '\" class=\"' + styleClass + '\">' + m + '</span>';
+			}
+		);
+		
+		_setText.call(this, newText, false);
+		
+		hid = null;
+		newText = null;
+		
+		return _getHighlightElements.call(this, ids);
+	};
+	
+	/**
+	 * Highlight all matches according to the given match result.
+	 * 
+	 * @param matches: {Array} Each element in it is a object maintained the
+	 *		  match's start index and its length. Its structure is as follow:
+	 *		  [
+	 *			{start: m, length: x},
+	 *			...
+	 *			{start: n, length: x}
+	 *		  ]
+	 * @param highlightClass: {String} The specified style 
+	 *		  className for highlight.
+	 * 
+	 * @return {Array} All highlighted span elements.
+	 */
+	thi$.highlightByMatches = function (matches, highlightClass) {
+		var mCnt = Class.isArray(matches) ? matches.length : 0,
+		text = this.getContent(), styleClass, rpSeg, subStr, 
+		aMatches, vernier, hid, ids;
+		
+		if(mCnt == 0 || !Class.isString(text)){
+			return null;
+		}
+		
+		styleClass = highlightClass;
+		if(!Class.isString(styleClass) || styleClass.length == 0){
+			styleClass = this.__buf__.clear().append(this.def.className)
+				.append("_").append("highlight").toString();
+		}
+		
+		ids = [];
+		vernier = 0;
+		rpSeg = new StringBuffer();
+		
+		for(var i = 0; i < mCnt; i++){
+			aMatches = matches[i];
+			if(aMatches.start > vernier){
+				subStr = text.substring(vernier, aMatches.start);
+				subStr = String.encodeHtml(subStr);
+				rpSeg.append(subStr);
+				
+				subStr = text.substr(aMatches.start, aMatches.length);
+				vernier = aMatches.start + aMatches.length;
+				
+			}else if(aMatches.start == vernier){
+				subStr = text.substr(aMatches.start, aMatches.length);
+				vernier = aMatches.start + aMatches.length;
+			}else{
+				subStr = null;
+			}
+			
+			if(subStr){
+				hid = Math.uuid();
+				ids.push(hid);
+				
+				subStr = String.encodeHtml(subStr);
+				subStr = '<span id=\"' + hid + '\" class=\"' + styleClass + '\">' + subStr + '</span>';
+				rpSeg.append(subStr);
+			}
+		}
+		
+		if(vernier <= text.length){
+			subStr = text.substr(vernier);
+			subStr = String.encodeHtml(subStr);
+			rpSeg.append(subStr);
+		}
+		
+		_setText.call(this, rpSeg.toString(), false);
+		rpSeg = null;
+		
+		return _getHighlightElements.call(this, ids);
+	};
+	
+	thi$.clearHighlight = function(highlightClass) {
+		if(!this.label){
+			return;
+		}
+		
+		_setText.call(this, this.getContent(), !this.isKeepNative());
+	};
+};
+
+/**
+
  Copyright 2010-2011, The JSVM Project.
  All rights reserved.
 
@@ -6144,7 +7936,7 @@ js.awt.TabPane.DEFAULTDEF = function(){
 
 $package("js.awt");
 
-//$import("js.awt.Highlighter");
+$import("js.awt.Highlighter");
 
 /**
  * @param def :{
@@ -6692,8 +8484,8 @@ js.awt.Item = function(def, Runtime, view){
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Component);
-//    .$implements(js.awt.Highlighter);
+}.$extend(js.awt.Component)
+    .$implements(js.awt.Highlighter);
 
 /**
 
@@ -7621,7 +9413,6 @@ js.awt.Button = function(def, Runtime){
 
         if(this.icon){
             this.setIconImage(this.isTriggered() ? 4 : (this.isEnabled() ? 0 : 1));
-            //DOM.forbidSelect(this.icon);
         }
 
         if(this.label){
@@ -7651,6 +9442,30 @@ js.awt.Button = function(def, Runtime){
 
 }.$extend(js.awt.Component);
 
+js.awt.Button.eventDispatcher = function(e){
+    var Class = js.lang.Class, System = J$VM.System,
+        target, func;
+    
+    switch(e.getType()){
+        case "mousedown":
+        if(Class.isFunction(this.activateComponent)){
+            this.activateComponent();            
+        }
+        break;
+        case "mouseup":
+        case "message":
+        target = e.getEventTarget();
+        func = this["on" + target.id];
+        if(Class.isFunction(func)){
+            func.call(this, target);
+        }else{
+            System.err.println("Can not found function for button "+ target.id);
+        }
+        break;
+        default:
+        break;
+    }
+};
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -7935,6 +9750,468 @@ js.awt.RadioButton = function(def, Runtime) {
 
 }.$extend(js.awt.Button);
 
+
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * Author:	Pan Mingfa
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.awt");
+
+/**
+ * @param def: {Object} Definition of current item, include:
+ *	   id: {String} 
+ *	   iconImage: {String} Optional. Image filename for the icon.
+ *	   labelText: {String} Optional. Textual content for current item. 
+ *	   
+ *	   markable: {Boolean} Default is true.
+ *	   iconic: {Boolean} Indicate whether an icon existed for current item.
+ *	   custom: {Object} Specify a component as current item's main contents. It's prior.
+ *			   If the custom is specified, the given textual content will be ignored.
+ *			   Otherwise an input or label will be created.
+ */
+js.awt.FlexibleItem = function(def, Runtime){
+	var CLASS = js.awt.FlexibleItem,
+	thi$ = CLASS.prototype;
+	
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class, Event = js.util.Event,
+	DOM = J$VM.DOM, System = J$VM.System;
+	
+	thi$.isCustomized = function(){
+		return this._local.customized;	
+	};
+	
+	/**
+	 * @see js.awt.Item #getPreferredSize
+	 */
+	thi$.getPreferredSize = function(){
+		if(this.def.prefSize == undefined){
+			var customComp = this.getCustomComponent(),
+			G = this.getGeometric(), nodes = this.view.childNodes,
+			leftmostCtrl = this._local.leftmostCtrl || this.ctrl,
+			len = nodes.length, overline = false, width = 0, preEle, ele, s;
+			
+			for(var i = 0; i < len; i++){
+				ele = nodes[i];
+				if(leftmostCtrl && ele == leftmostCtrl){
+					break;
+				}
+				
+				if(customComp && customComp.view == ele){
+					if(!overline){
+						overline = true;
+						width += ele.offsetLeft;
+					}
+					s = customComp.getPreferredSize();
+					width += s.width;
+				}else{
+					if(ele.tagName == "SPAN" || ele.tagName == "INPUT"){
+						if(!overline){
+							overline = true;
+							width += ele.offsetLeft;
+						}
+						
+						if(ele.tagName == "SPAN"){
+							width += DOM.getTextSize(ele).width;   
+						}else{
+							width += ele.scrollWidth;
+						}
+					}
+				}
+			}
+			
+			var w = this._local.ctrlsWidth, D = G.ctrl;
+			if(!isNaN(s)){
+				width += s;
+			}
+			
+			if(D){
+				width += D.MBP.marginLeft + D.width + D.MBP.marginRight;
+			}
+			
+			width += G.bounds.MBP.BPW;
+			this.setPreferredSize(width, G.bounds.height);
+		}
+		
+		return this.def.prefSize;
+		
+	}.$override(this.getPreferredSize);
+	
+	/**
+	 * @see js.awt.Item #isMoverSpot
+	 */
+	thi$.isMoverSpot = function(el, x, y){
+		if(arguments.callee.__super__.apply(this, arguments)){
+			var extraCtrls = this._local.extraCtrls,
+			ids = extraCtrls ? extraCtrls.keys() : [], ctrl;
+			for(var i = 0, len = ids; i < len; i++){
+				ctrl = this[ids[i]];
+				if(el === ctrl){
+					return false;
+				}
+			}
+			
+			if(this.customComponent 
+			   && this.customComponent.contains(el, true)){
+				return false;
+			}
+		}
+		
+		return true;
+		
+	}.$override(this.isMoverSpot);
+	
+	/**
+	 * @see js.awt.Item #doLayout
+	 */
+	thi$.doLayout = function(force){
+		if(!this.isDOMElement() || !this.needLayout(force)){
+			return false;
+		}
+		
+		var customComp = this.getCustomComponent(), 
+		leftmostCtrl = this._local.leftmostCtrl,
+		ele = (customComp && customComp.view) 
+			? customComp.view : (this.input || this.label),
+		leftEle, rightEle, w, width, D;
+
+		if(ele){
+			leftEle = ele.previousSibling;
+			rightEle = leftmostCtrl || this.ctrl;
+			w = rightEle 
+				? rightEle.offsetLeft : this.getBounds().innerWidth;
+			
+			if(customComp && customComp.view){
+				var G = this.getGeometric(), MBP = G.bounds.MBP,
+				ybase = MBP.paddingTop,
+				h = G.bounds.BBM ? 
+					G.bounds.height : G.bounds.height - MBP.BPH,
+				innerHeight = h - MBP.BPH, x, y;
+
+				if(leftEle){
+					D = G[leftEle.id] || DOM.getBounds(leftEle);
+					x = leftEle.offsetLeft + D.width + D.MBP.marginRight;
+				}else{
+					x = MBP.borderLeftWidth + MBP.paddingRight;
+				}
+
+				D = customComp.getBounds();
+				y = ybase + (innerHeight - D.height)*0.5;
+
+				width = Math.max(w - x, 0);
+				customComp.setBounds(x, y, width, undefined);
+
+				// Trigger custom component's doLayou
+				customComp.doLayout(true);
+			}else{
+				width = Math.max(w - ele.offsetLeft, 0);
+
+				if(this.input){
+					DOM.setSize(ele, width, undefined);
+				}else{
+					ele.style.width = width + "px";
+				}
+			}
+		}
+		
+		return true;
+		
+	}.$override(this.doLayout);
+
+	thi$.destroy = function(){
+		delete this._local.leftmostCtrl;
+		delete this._local.extraCtrls;
+		
+		arguments.callee.__super__.apply(this, arguments);
+		
+	}.$override(this.destroy);
+	
+	/**
+	 * Specify a component as current item's customized contents.
+	 * 
+	 * @param comp: {Object} A custom component must be an object of the BaseComponent
+	 *		  or BaseComponent's derived class. And it must implement an getValue method
+	 *		  to return the item's value.
+	 */
+	thi$.setCustomComponent = function(comp){
+		if(!comp || !comp.view 
+		   || !Class.isFunction(comp.getValue)){
+			return;
+		}
+		
+		var customComponent = this._local.customComponent,
+		ctrl = this._local.leftmostCtrl || this.ctrl, peer;
+		if(customComponent){
+			DOM.remove(customComponent.view, true);
+		}else{
+			this._local.customComponent = comp;
+		}
+		
+		comp.applyStyles({position: "absolute"});
+		DOM.insertBefore(comp.view, ctrl, this.view);
+		comp.setContainer(this);
+		
+		var uuid = this.uuid(), items = this.def.items,
+		nodes = comp.view.childNodes || [], node, id, 
+		i = 0, len = nodes.length;
+		while(i <= len){
+			if(i == len){
+				node = comp.view;
+				
+				id = node.id = "custom";
+				items.push(id);
+				this[id] = node;
+			}else{
+				node = nodes[i];
+				id = node.id;
+			}
+			
+			node.uuid = uuid;
+			node.iid = (node.iid || id.split(/\d+/g)[0]);
+			
+			++i;
+		}
+		
+		if(DOM.isDOMElement(comp.view)){
+			this.doLayout(true);
+		}
+	};
+	
+	/**
+	 * Return the customized component of current item.
+	 */
+	thi$.getCustomComponent = function(){
+		return this._local.customComponent;	 
+	};
+	
+	/**
+	 * Judge whethe the current event hit some extra ctrl.
+	 * 
+	 * @param e: {js.awt.Event}
+	 */	   
+	thi$.hitCtrl = function(e){
+		var src = e.srcElement, extraCtrls = this._local.extraCtrls, 
+		ids = extraCtrls ? extraCtrls.keys() : undefined, id, ele, ctrl;
+		if(!src || !ids || ids.length == 0) {
+			return false;
+		}
+		
+		for(var i = 0, len = ids.length; i < len; i++){
+			id = ids[i];
+			ele = this[id];
+			
+			if(ele && DOM.contains(ele, src, true)){
+				// ctrl = extraCtrls.get(id);
+				return true;
+			}
+		}
+		
+		return false;
+	};
+
+	var _createExtraCtrls = function(){
+		var M = this.def, buf = this.__buf__,
+		ctrls = M.ctrls, len = ctrls.length;
+		if(len == 0){
+			return;
+		}
+
+		var G = this.getGeometric(), ybase = G.bounds.MBP.paddingTop,
+		height = G.bounds.BBM ? 
+			G.bounds.height : G.bounds.height - G.bounds.MBP.BPH,
+		innerHeight = height - G.bounds.MBP.BPH, anchor = this.ctrl,
+		ctrlsWidth = 0, align = 0.5, top = 0, right = 0, 
+		el, iid, D, styleW, styleH;
+		
+		if(this.ctrl){
+			right = G.bounds.MBP.paddingRight 
+				+ G.ctrl.MBP.marginLeft + G.ctrl.width + G.ctrl.MBP.marginRight; 
+		}
+		
+		var extraCtrls = this._local.extraCtrls = new js.util.HashMap(),
+		ctrl, ctrlId, uuid = this.uuid(), items = M.items;
+		for(var i = len - 1; i >= 0; i--){
+			ctrl = ctrls[i];
+			ctrlId = ctrl.id || ("ctrl" + i);
+			iid = ctrlId.split(/\d+/g)[0];
+
+			if(ctrlId !== "ctrl"){
+				extraCtrls.put(ctrlId, ctrl);
+				
+				el = DOM.createElement("DIV");
+				el.id = ctrlId;
+				el.iid = iid;
+				el.uuid = uuid;
+				el.className = ctrl.className || (this.className + "_extra");
+				
+				buf.clear();
+				buf.append("position:absolute;");
+				
+				if(ctrl.image){
+					buf.append("background-image: url(")
+						.append(this.Runtime().imagePath() + ctrl.image).append(");")
+						.append("background-repeat:no-repeat;background-position:center;");
+				}
+				
+				if(ctrl.css){
+					buf.append(css);
+				}				 
+				el.style.cssText = buf.toString();
+				
+				DOM.appendTo(el, document.body);
+				DOM.setSize(el, ctrl.width, ctrl.height);
+				D = G[ctrlId] = DOM.getBounds(el);
+				styleW = DOM.getStyle(el, "width");
+				styleH = DOM.getStyle(el, "height");
+				DOM.removeFrom(el);
+				
+				if(styleW){
+					buf.append("width:").append(styleW).append(";");
+				}
+				
+				if(styleH){
+					buf.append("height:").append(styleH).append(";");
+				}
+				
+				align = (ctrl.align && !isNaN(ctrl.align)) ? ctrl.align : align; 
+				top = ybase + (innerHeight - D.height) * align;
+				buf.append("top:").append(top).append("px;");
+				buf.append("right:").append(right).append("px;");
+				el.style.cssText = buf.toString();
+				
+				DOM.insertBefore(el, anchor, this.view);
+				anchor = el;
+				
+				// The leftmost ctrl which will be used to calculate the lable 
+				// or input width in doLayout
+				this._local.leftmostCtrl = el;
+
+				items.push(ctrlId);
+				this[ctrlId] = el;
+				
+				ctrlsWidth = D.MBP.marginLeft + D.width + D.MBP.marginRight;
+				right += ctrlsWidth;
+			}else{
+				System.err.println("The \"ctrl\" has been reserved for special purpose.");
+			}
+			
+			// Cache this value for calculate the prefered size
+			this._local.ctrlsWidth = ctrlsWidth;
+		}
+	};
+	
+	var _createCustomComponent = function(){
+		var M = this.def, custom = M.custom,
+		comp = new (Class.forName(custom.classType))(custom, this.Runtime());
+
+		this.setCustomComponent(comp);
+	};
+	
+	var _checkItems = function(def){
+		var items = def.items, custom = def.custom,
+		customized = false;
+		
+		if(Class.isObject(custom) 
+		   && Class.isString(custom.classType)){
+			customized = this._local.customized = true;
+		}
+		
+		if(items.length > 0){
+			return def;
+		}
+		
+		if(def.markable === true){
+			items.push("marker");
+		}
+		
+		if(def.iconic !== false){
+			items.push("icon");
+		}
+		
+		if(!customized){
+			if(Class.isValid(def.inputText)){
+				items.push("input");
+			}else{
+				items.push("label");
+			}
+		}
+		
+		if(def.controlled === true){
+			items.push("ctrl");
+		}
+		
+		return def;
+	};
+	
+	thi$._init = function(def, Runtime, view){
+		if(typeof def !== "object") return;
+		
+		this._local = this._local || {};
+		def.classType = def.classType || "js.awt.FlexibleItem";
+		def.markable = Class.isBoolean(def.markable) ? def.markable : true;
+		
+		if(view == undefined){
+			def.items = js.util.LinkedList.$decorate([]);
+			_checkItems.call(this, def);
+		}
+		
+		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		
+		if(this.isCustomized()){
+			_createCustomComponent.call(this);
+		}
+		
+		if(Class.isArray(def.ctrls)){
+			_createExtraCtrls.call(this);
+		}
+		
+		if(this.isMarkable()){
+			this.mark(def.checked);
+		}
+		
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
+	
+}.$extend(js.awt.Item);
 
 /**
 
@@ -12018,6 +14295,10 @@ js.awt.Desktop = function (Runtime){
             
             bodyW = bounds.width;
             bodyH = bounds.height;
+
+            for(var appid in apps){
+                this.getApp(appid).doLayout(true);
+            }
         }
     };
 
@@ -12061,17 +14342,30 @@ js.awt.Desktop = function (Runtime){
     };
 
     var apps = {};
+
+    thi$.getApps = function(){
+        return apps;
+    };
     
     thi$.getApp = function(id){
         return apps[id];
     }
 
-    thi$.createApp = function(classType, entryId){
+    thi$.createApp = function(classType, def, entryId){
         var appClass = Class.forName(classType), app;
-        app = new (appClass)(null, Runtime, entryId);
+        app = new (appClass)(def, Runtime, entryId);
+        apps[app.getAppID()] = app;
         return app;
     };
 
+    thi$.registerApp = function(id, app){
+        apps[id] = app;
+    };
+
+    thi$.closeApp = function(id){
+        delete apps[id];
+    };
+    
     thi$.showCover = function(b, style){
         arguments.callee.__super__.call(
             this, b, style || "jsvm_desktop_mask");
@@ -12092,20 +14386,40 @@ js.awt.Desktop = function (Runtime){
         return zIndex;
     };
 
+    var styles = ["jsvm.css"];
+    /**
+     * @param files {Array} Array of style file names
+     */
+    thi$.registerStyleFiles = function(files){
+        if(Class.isArray(files)){
+            for(var i=0, len=files.length; i<len; i++){
+                styles.push(files[i]);
+            }
+        }
+    };
+
+    thi$.updateTheme = function(theme, old){
+        for(var i=0, len=styles.length; i<len; i++){
+            this.updateThemeCSS(theme, styles[i]);
+        }
+        DOM.applyStyleSheet("__apply__", "", true);
+        this.updateThemeImages(theme, old);
+    };
+
     var IMGSREG = /images\//gi;
     
     thi$.updateThemeCSS = function(theme, file){
-        var stylePath = DOM.makeUrlPath(J$VM.env.j$vm_home, "../style/" + theme + "/"),
+        var stylePath = DOM.makeUrlPath(J$VM.j$vm_home, "../style/" + theme + "/"),
             styleText = Class.getResource(stylePath + file, true);
 
         styleText = styleText.replace(IMGSREG, stylePath+"images/");
         DOM.applyStyleSheet(file, styleText);
     };
 
-    thi$.updateThemeLinks = function(theme, old){
-        var dom = self.document, links, link, src, path;
+    thi$.updateThemeLinks = function(theme, old, file){
+        var dom = self.document, links, link, src, path, found;
         
-        path = DOM.makeUrlPath(J$VM.env.j$vm_home,
+        path = DOM.makeUrlPath(J$VM.j$vm_home,
                                "../style/"+ old +"/");
 
         links = dom.getElementsByTagName("link");
@@ -12115,14 +14429,23 @@ js.awt.Desktop = function (Runtime){
             if (src && src.indexOf(path) != -1){
                 src = src.replace(old, theme);
                 link.href = src;
+                found = true;
             }
+        }
+
+        if(!found){
+            link = dom.createElement("link");
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            link.href = DOM.makeUrlPath(J$VM.j$vm_home, "../style/"+theme+"/"+file);
+            DOM.insertBefore(link, dom.getElementById("j$vm"));
         }
     };
 
     thi$.updateThemeImages = function(theme, old){
         var dom = self.document, links, link, src, path;
         
-        path = DOM.makeUrlPath(J$VM.env.j$vm_home,
+        path = DOM.makeUrlPath(J$VM.j$vm_home,
                                "../style/"+ old +"/images/");
         
         links = dom.getElementsByTagName("img");
@@ -12197,7 +14520,7 @@ js.awt.Desktop = function (Runtime){
         }.$override(DM.destroy);
 
         var styleText = Class.getResource(
-            J$VM.env.j$vm_home + "../style/jsvm_reset.css", true);
+            J$VM.j$vm_home + "../style/jsvm_reset.css", true);
         DOM.applyStyleSheet("jsvm_reset.css", styleText);
         
         Event.attachEvent(self, Event.W3C_EVT_RESIZE, 0, this, _onresize);
@@ -12668,31 +14991,6 @@ js.awt.Window = function (def, Runtime, view){
         }
     };
 
-    var _cmdDispatcher = function(e){
-        switch(e.getType()){
-        case "mousedown":
-            this.activateComponent();
-            break;
-        case "mouseup":
-        case "message":
-            var target = e.getEventTarget(),
-                func = "on" + target.id;
-            if(typeof this[func] == "function"){
-                this[func](target);
-            }else{
-                if(typeof this["onbtnDispatcher"] == "function"){
-                    this["onbtnDispatcher"](target);
-                }else{
-                    throw "Can not found function of button "+ target.id;
-                }
-            }
-
-            break;
-        default:
-            break;
-        }
-    };
-
     thi$.destroy = function(){
         delete this._local.restricted;
         arguments.callee.__super__.apply(this,arguments);
@@ -12759,7 +15057,8 @@ js.awt.Window = function (def, Runtime, view){
         Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
         Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
 
-        MQ.register("js.awt.event.ButtonEvent", this, _cmdDispatcher);
+        MQ.register("js.awt.event.ButtonEvent",
+                    this, js.awt.Button.eventDispatcher);
         
     }.$override(this._init);
 

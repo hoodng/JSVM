@@ -45,12 +45,11 @@ $import("js.awt.LayoutManager");
  * @param def :{
  *     classType : the layout class
  *     ...
- *     status : optional, an object to store the result of layout
  * }
  */
-js.awt.AbstractLayout = function (def){
+js.awt.AbsoluteLayout = function (def){
 
-    var CLASS = js.awt.AbstractLayout, thi$ = CLASS.prototype;
+    var CLASS = js.awt.AbsoluteLayout, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
@@ -59,22 +58,17 @@ js.awt.AbstractLayout = function (def){
 
     var Class = js.lang.Class, Event = js.util.Event,  DOM = J$VM.DOM;
 
-    thi$.destroy = function(){
-        this.def = null;
-
-        arguments.callee.__super__.apply(this, arguments);
-        
-    }.$override(this.destroy);
-
     thi$._init = function(def){
         this.def = def || {};
 
         this.def.classType =  
-            this.def.classType || "js.awt.AbstractLayout";
+            this.def.classType || "js.awt.AbsoluteLayout";
 
     }.$override(this._init);
     
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.LayoutManager);
+
+
 

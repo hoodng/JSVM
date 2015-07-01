@@ -29,7 +29,7 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * Author: Hu dong
+ * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
  * Source code availability: https://github.com/jsvm/JSVM
@@ -38,76 +38,76 @@
 $package("js.awt");
 
 /**
- * 
+ * @param def:{
+ *     rowNum: m,
+ *     colNum: n,
+ *     rows:[{idx, rigid, measure, visible},{}...],
+ *     cols:[{idx, rigid, measure, visible},{}...],
+ *     cells:[
+ *       {rowIdx, colIdx, rowSpan, colSpan, paddingTop...},
+ *       ...
+ *     ],
+ *     cellpadding: [t, r, b, l]
+ * }
  */
-js.awt.Application = function(def, Runtime, entryId){
+js.awt.GridEx = function(def){
 
-    var CLASS = js.awt.Application, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
+    var CLASS = js.awt.GridEx, thi$ = CLASS.prototype;
+    if (CLASS.__defined__) {
         this._init.apply(this, arguments);
         return;
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
-
-    thi$.getAppID = function(){
-        return this.uuid();
-    };
-
-    thi$.startApp = function(){
-        this.appendTo(this._local.entry);
-    };
-
-    thi$.closeApp = function(){
-        this.removeFrom(this._local.entry);
-    };
-
-    thi$.run = function(fn){
-        if(Class.isFunction(fn)){
-            fn.call(this);
-        }
-        this.startApp();
-    };
-
-    thi$.changeTheme = function(theme, old){
-        J$VM.Runtime.getDesktop().updateTheme(theme, old);
-    };
-
-
-    var _onresized = function(e){
-        
-    };
-
-    thi$.destroy = function(){
-
-        arguments.callee.__super__.apply(this, arguments);
-        
-    }.$override(this.destroy);
+    var Class = js.lang.Class;
     
-    thi$._init = function(def, Runtime, entryId){
+    thi$.rowNum = function(){
+        return this.rows.length;
+    };
+    
+    thi$.colNum = function(){
+        return this.cols.length;
+    };
+    
+    thi$.row = function(index){
+        return this.rows[index];
+    };
+    
+    thi$.column = function(index){
+        return this.cols[index];
+    };
+    
+    thi$.cell = function(rowIndex, colIndex){
+        return this.acells[rowIndex][colIndex];
+    };
+    
+
+    thi$._init = function(def){
         if(def == undefined) return;
         
-        def.id = def.uuid = entryId;
-        def.__contextid__ = Runtime.getDesktop().uuid();
-        arguments.callee.__super__.call(this, def, Runtime);
-
-        var entry = this._local.entry =
-            self.document.querySelector("[jsvm_entry='"+entryId+"']");
-        this.putContextAttr("appid", this.getAppID());
-        this.putContextAttr("app", this);
-
-        this.view.className = "jsvm__entry "+this.view.className;
-
-        MQ.register("js.awt.event.ButtonEvent",
-                    this, js.awt.Button.eventDispatcher);
+        var m, n;
         
-        MQ.register("js.awt.event.WindowResized", this, _onresized);
+        this.cellpadding = def.cellpadding || [0,0,0,0];
+
+        // Init rows
+        m = def.rowNum;
+        m = Class.isNumber(m) ? (m > 0 ? m : 1) : 1;
+        this.rows = new Array(m);
+        _initDims.call(this, this.rows, def.rows);
         
-    }.$override(this._init);
+        // Init columns
+        n = def.colNum;
+        n = Class.isNumber(n) ? (n > 0 ? n : 1) : 1;
+        this.cols = new Array(n);
+        _initDims.call(this, this.cols, def.cols);
+        
+        // Init cells
+        this.acells = new Array(m);
+        for(var i=0; i<m; i++) this.acells[i] = new Array(n);
+        _initCells.call(this, this.acells, def.cells);
+
+    };
     
     this._init.apply(this, arguments);
-
-}.$extend(js.awt.Container);
-
+    
+}.$extend(js.lang.Object);
