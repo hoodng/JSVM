@@ -423,7 +423,6 @@ js.awt.Button = function(def, Runtime){
 
         if(this.icon){
             this.setIconImage(this.isTriggered() ? 4 : (this.isEnabled() ? 0 : 1));
-            //DOM.forbidSelect(this.icon);
         }
 
         if(this.label){
@@ -452,3 +451,28 @@ js.awt.Button = function(def, Runtime){
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);
+
+js.awt.Button.eventDispatcher = function(e){
+    var Class = js.lang.Class, System = J$VM.System,
+        target, func;
+    
+    switch(e.getType()){
+        case "mousedown":
+        if(Class.isFunction(this.activateComponent)){
+            this.activateComponent();            
+        }
+        break;
+        case "mouseup":
+        case "message":
+        target = e.getEventTarget();
+        func = this["on" + target.id];
+        if(Class.isFunction(func)){
+            func.call(this, target);
+        }else{
+            System.err.println("Can not found function for button "+ target.id);
+        }
+        break;
+        default:
+        break;
+    }
+};

@@ -8,7 +8,7 @@
 
 $package("com.jinfonet");
 
-$import("com.jinfonet.HeartBeat");
+$import("com.jinfonet.JConstant");
 $import("com.jinfonet.CrossWinInteractive");
 
 /**
@@ -17,7 +17,8 @@ $import("com.jinfonet.CrossWinInteractive");
  * in System.js, the application can't listen messages from the 
  * current application itself.
  */
-com.jinfonet.Application = function(def, Runtime, entry){
+com.jinfonet.Application = function(def, Runtime, entryId){
+
 	var CLASS = com.jinfonet.Application, thi$ = CLASS.prototype;
 	if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -35,8 +36,7 @@ com.jinfonet.Application = function(def, Runtime, entry){
 	
 	var Class = js.lang.Class, Event = js.util.Event, 
 	System = J$VM.System, MQ = J$VM.MQ,
-	
-	JConstant = Class.forName("com.jinfonet.JConstant");
+		JConstant = Class.forName("com.jinfonet.JConstant");
 	
 	thi$.getProduct = function(){
 		return "jreport";		 
@@ -84,14 +84,6 @@ com.jinfonet.Application = function(def, Runtime, entry){
 		return this._local.isEmbedded === true;
 	};
 	
-	/**
-	 * Expect to close current application. Subclass should implements 
-	 * it to do the right things.
-	 */
-	thi$.closeApp = function(msg){
-		// Implement by subclass if need
-	};
-
 	/**
 	 * Expect to refresh current open reports. Subclass should implements 
 	 * it to do the right things.
@@ -155,11 +147,9 @@ com.jinfonet.Application = function(def, Runtime, entry){
 	 * Startup the current application to prepare context and start listening
 	 * the cross-window message.
 	 */
-	thi$.startup = function(doLoadedNotify){
-		if(doLoadedNotify === true){
-			this.doOnAppLoaded();
-		}
-		
+	thi$.startApp = function(doLoadedNotify){
+        arguments.callee.__super__.apply(this, arguments);
+        		
 		MQ.register(JConstant.CROSS_WIN_MSG, this, this.onCrossWinMsg);
 		MQ.register(JConstant.CWMSG_HANDSHAKE, this, this.onHandshake);
 		
@@ -178,12 +168,17 @@ com.jinfonet.Application = function(def, Runtime, entry){
 		
 		// Post from every dialog, to update help 
 		MQ.register("js.awt.event.ShowHelpEvent", this, this.onShowHelp);
-	};
+
+		if(doLoadedNotify === true){
+			this.doOnAppLoaded();
+		}
+        
+	}.$override(this.startApp);
 
 	/**
 	 * Close down current application to clean the context env.
 	 */ 
-	thi$.closedown = function(){
+	thi$.closeApp = function(){
 		MQ.cancel(JConstant.CROSS_WIN_MSG, this, this.onCrossWinMsg);
 		MQ.cancel(JConstant.CWMSG_HANDSHAKE, this, this.onHandshake);
 		
@@ -191,7 +186,10 @@ com.jinfonet.Application = function(def, Runtime, entry){
 		MQ.cancel(JConstant.CWMSG_REFRESHAPP, this, _onRefreshAppMsg);
 		
 		MQ.cancel("js.awt.event.ShowHelpEvent", this, this.onShowHelp);
-	};
+
+        arguments.callee.__super__.apply(this, arguments);
+        
+	}.$override(this.closeApp);
 
 	/**
 	 * Reserve the interface to help the subsequent developer to do what
@@ -204,44 +202,6 @@ com.jinfonet.Application = function(def, Runtime, entry){
 	thi$.onConnectionException = function(flag, e){
         System.log.println("Connection Exception: " + flag);
 		this.postMsgToPwin(JConstant.CWMSG_CONNECTION_EXCEPTION, {flag: flag});	 
-	};
-
-	thi$.onHeartbeat = function(result){
-		// Implement by subclass if need
-	};
-
-	var _haveSamePID = function(){
-		// var pwin = self.opener || self.parent;
-		var pwin = self.parent, pjsvm, penv;
-		if(pwin && self !== pwin){
-			try{
-				pjsvm = pwin.J$VM;
-				penv = pjsvm ? pjsvm.env : null;
-			} catch (x) {}
-		}
-
-		return penv && (penv["j$vm_pid"] === J$VM.env["j$vm_pid"]);
-	};
-
-	thi$.initHeartBeat = function(app){
-		if(_haveSamePID.call(this)){
-			System.log.println("The current application has the same PID (" 
-							   + J$VM.env["j$vm_pid"] 
-							   + ") with its opener or parent.");
-			return;
-		}
-		(Class.forName("com.jinfonet.HeartBeat")).call(this, app);
-	};
-
-	thi$.echoBrowserInfo = function(){
-		this.doSyncAction("ClientInfo",
-						  {jrd_objdef:{
-							   platform: navigator.platform,
-							   userAgent: navigator.userAgent,
-							   logicalXDPI: J$VM.supports.logicalXDPI,
-							   logicalYDPI: J$VM.supports.logicalYDPI 
-						   }},
-						  "webos");
 	};
 
 	/**
@@ -417,7 +377,7 @@ com.jinfonet.Application = function(def, Runtime, entry){
 									  window.self, arguments[5]);
 	};
 
+    
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Application);
-//.$implement(com.jinfonet.CrossWinInteractive);
+}.$extend(js.awt.Application).$implements(com.jinfonet.CrossWinInteractive);

@@ -360,6 +360,10 @@ js.awt.Desktop = function (Runtime){
             
             bodyW = bounds.width;
             bodyH = bounds.height;
+
+            for(var appid in apps){
+                this.getApp(appid).doLayout(true);
+            }
         }
     };
 
@@ -403,6 +407,10 @@ js.awt.Desktop = function (Runtime){
     };
 
     var apps = {};
+
+    thi$.getApps = function(){
+        return apps;
+    };
     
     thi$.getApp = function(id){
         return apps[id];
@@ -411,9 +419,18 @@ js.awt.Desktop = function (Runtime){
     thi$.createApp = function(classType, entryId){
         var appClass = Class.forName(classType), app;
         app = new (appClass)(null, Runtime, entryId);
+        apps[app.getAppID()] = app;
         return app;
     };
 
+    thi$.registerApp = function(id, app){
+        apps[id] = app;
+    };
+
+    thi$.closeApp = function(id){
+        delete apps[id];
+    };
+    
     thi$.showCover = function(b, style){
         arguments.callee.__super__.call(
             this, b, style || "jsvm_desktop_mask");
@@ -434,20 +451,40 @@ js.awt.Desktop = function (Runtime){
         return zIndex;
     };
 
+    var styles = ["jsvm.css"];
+    /**
+     * @param files {Array} Array of style file names
+     */
+    thi$.registerStyleFiles = function(files){
+        if(Class.isArray(files)){
+            for(var i=0, len=files.length; i<len; i++){
+                styles.push(files[i]);
+            }
+        }
+    };
+
+    thi$.updateTheme = function(theme, old){
+        for(var i=0, len=styles.length; i<len; i++){
+            this.updateThemeCSS(theme, styles[i]);
+        }
+        DOM.applyStyleSheet("__apply__", "", true);
+        this.updateThemeImages(theme, old);
+    };
+
     var IMGSREG = /images\//gi;
     
     thi$.updateThemeCSS = function(theme, file){
-        var stylePath = DOM.makeUrlPath(J$VM.env.j$vm_home, "../style/" + theme + "/"),
+        var stylePath = DOM.makeUrlPath(J$VM.j$vm_home, "../style/" + theme + "/"),
             styleText = Class.getResource(stylePath + file, true);
 
         styleText = styleText.replace(IMGSREG, stylePath+"images/");
         DOM.applyStyleSheet(file, styleText);
     };
 
-    thi$.updateThemeLinks = function(theme, old){
-        var dom = self.document, links, link, src, path;
+    thi$.updateThemeLinks = function(theme, old, file){
+        var dom = self.document, links, link, src, path, found;
         
-        path = DOM.makeUrlPath(J$VM.env.j$vm_home,
+        path = DOM.makeUrlPath(J$VM.j$vm_home,
                                "../style/"+ old +"/");
 
         links = dom.getElementsByTagName("link");
@@ -457,14 +494,23 @@ js.awt.Desktop = function (Runtime){
             if (src && src.indexOf(path) != -1){
                 src = src.replace(old, theme);
                 link.href = src;
+                found = true;
             }
+        }
+
+        if(!found){
+            link = dom.createElement("link");
+            link.type = "text/css";
+            link.rel = "stylesheet";
+            link.href = DOM.makeUrlPath(J$VM.j$vm_home, "../style/"+theme+"/"+file);
+            DOM.insertBefore(link, dom.getElementById("j$vm"));
         }
     };
 
     thi$.updateThemeImages = function(theme, old){
         var dom = self.document, links, link, src, path;
         
-        path = DOM.makeUrlPath(J$VM.env.j$vm_home,
+        path = DOM.makeUrlPath(J$VM.j$vm_home,
                                "../style/"+ old +"/images/");
         
         links = dom.getElementsByTagName("img");
@@ -539,7 +585,7 @@ js.awt.Desktop = function (Runtime){
         }.$override(DM.destroy);
 
         var styleText = Class.getResource(
-            J$VM.env.j$vm_home + "../style/jsvm_reset.css", true);
+            J$VM.j$vm_home + "../style/jsvm_reset.css", true);
         DOM.applyStyleSheet("jsvm_reset.css", styleText);
         
         Event.attachEvent(self, Event.W3C_EVT_RESIZE, 0, this, _onresize);

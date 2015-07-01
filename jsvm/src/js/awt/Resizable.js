@@ -66,7 +66,8 @@ js.awt.SizeObject = function(){
     };
 
     thi$.getSizingMsgRecvs = function(){
-        return null;
+        var peer = this.getSizingPeer();
+        return peer ? peer.getSizingMsgRecvs() : null;
     };
 
     thi$.releaseSizeObject = function(){
@@ -362,16 +363,9 @@ js.awt.Resizable = function(){
         MQ.post(Event.SYS_EVT_RESIZED, "");
         this._local.notified = false;
 
-        // Notify all message receivers
         var sizeObj = this.getSizeObject(),
-        recvs = sizeObj.getSizingMsgRecvs() || [];
-        recvs.unshift(sizeObj.getSizingPeer().uuid());
-        e.setEventTarget(sizeObj);
-        MQ.post(sizeObj.getSizingMsgType(), e, recvs);
-
-        // Release SizeObject
-        MQ.post("releaseSizeObject", "", [this.uuid()]);
-
+            recvs = sizeObj.getSizingMsgRecvs() || [];
+        
         this.showCover(false);
         if(sizeObj._sized){
             sizeObj.setSize(sizeObj.getWidth(), sizeObj.getHeight(), 0x0F);
@@ -381,6 +375,14 @@ js.awt.Resizable = function(){
             sizeObj.setPosition(sizeObj.getX(), sizeObj.getY(), 0x0F);
             delete sizeObj._moved;
         }
+        
+        // Notify all message receivers
+        recvs.unshift(sizeObj.getSizingPeer().uuid());
+        e.setEventTarget(sizeObj);
+        MQ.post(sizeObj.getSizingMsgType(), e, recvs);
+
+        // Release SizeObject
+        MQ.post("releaseSizeObject", "", [this.uuid()]);
 
         return e.cancelDefault();
     };
@@ -462,7 +464,7 @@ js.awt.Resizable = function(){
             sizeObj = this.sizeObj = /*this;*/
 
             new js.awt.Component(
-                    {className: "jsvm_resize_cover",
+                    {className: "jsvm_resize_cover "+this.className+"--resize-cover",
                      css: "position:absolute;",
                      x : bounds.offsetX,
                      y : bounds.offsetY,

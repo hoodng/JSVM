@@ -700,7 +700,9 @@ js.lang.System = function (env, vm){
         _initJSVMLocale.call(this);
 
         var Runtime = vm.Runtime;
-        Runtime.registerDesktop(new js.awt.Desktop(vm.Runtime));
+        if(js.awt.Desktop){
+            Runtime.registerDesktop(new js.awt.Desktop(vm.Runtime));
+        }
         Runtime._execProcs();
     };
 

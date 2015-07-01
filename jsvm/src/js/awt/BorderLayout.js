@@ -63,67 +63,7 @@ js.awt.BorderLayout = function (def){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System;
     
-    /**
-     * Adds the specified component to the layout, using the specified constraint object. 
-     * For border layouts, the constraint must be one of the following constants: 
-     * NORTH, SOUTH, EAST, WEST, or CENTER.
-     */
-    thi$.addLayoutComponent = function(comp, constraints){
-        var name = constraints || CLASS.CENTER;
-        var status = this.def.status, id = comp.id;
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        switch(name){
-        case "center":
-            status.center = id;
-            break;
-        case "north":
-            status.north = id;
-            break;
-        case "south":
-            status.south = id;
-            break;
-        case "east":
-            status.east = id;
-            break;
-        case "west":
-            status.west = id;
-            break;
-        default:
-            //throw "Cannot add to layout: unknown constraint: " + name;
-        }
-
-    }.$override(this.addLayoutComponent);
-    
-    thi$.removeLayoutComponent = function(comp){
-        var status = this.def.status, id = comp.id;
-        if(id == status.center){
-            status.center = null;
-        }else if(id == status.north){
-            status.north = null;
-        }else if(id == status.south){
-            status.south = null;
-        }else if(id == status.east){
-            status.east = null;
-        }else if(id == status.west){
-            status.west = null;
-        }
-
-    }.$override(this.removeLayoutComponent);
-    
-    thi$.invalidateLayout = function(container){
-        var status = this.def.status;
-        status.north = null;
-        status.south = null;
-        status.east  = null;
-        status.west  = null;
-        status.center= null;
-
-    }.$override(this.invalidateLayout);
-
     thi$.layoutContainer = function(container, force){
-
         switch(this.def.mode){
         case 0:
             _mode0Layout.call(this, container, force);
@@ -237,13 +177,6 @@ js.awt.BorderLayout = function (def){
         def.mode = def.mode || 0;
         def.hgap = def.hgap || 0;
         def.vgap = def.vgap || 0;
-        def.status = def.status || {
-            north: null,
-            south: null,
-            east : null,
-            west : null,
-            center: null
-        };
 
         arguments.callee.__super__.apply(this, arguments);        
 
@@ -253,9 +186,14 @@ js.awt.BorderLayout = function (def){
 
 }.$extend(js.awt.AbstractLayout);
 
-js.awt.BorderLayout.NORTH = "north";
-js.awt.BorderLayout.SOUTH = "south";
-js.awt.BorderLayout.EAST  = "east";
-js.awt.BorderLayout.WEST  = "west";
-js.awt.BorderLayout.CENTER= "center";
+(function(){
+    var CLASS = js.awt.BorderLayout;
+    
+    CLASS.NORTH = "north";
+    CLASS.SOUTH = "south";
+    CLASS.EAST  = "east";
+    CLASS.WEST  = "west";
+    CLASS.CENTER= "center";
+    
+})();
 

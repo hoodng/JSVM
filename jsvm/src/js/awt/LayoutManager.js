@@ -63,7 +63,7 @@ js.awt.LayoutManager = function (def){
     };
 
     thi$.layoutContainer = function(container, force){
-        var comps = container.items0(), i, len, comp;
+        var comps = container.getLayoutComponents(), i, len, comp;
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
             if(comp && comp.needLayout(force)){
@@ -72,20 +72,6 @@ js.awt.LayoutManager = function (def){
         }
     };
     
-    /**
-     * Adds the specified component to the layout, using the specified
-     * constraint object.
-     * @param comp the component to be added
-     * @param constraints  where/how the component is added to the layout.
-     */
-    thi$.addLayoutComponent = function(comp, constraints){
-        // Should override by sub class
-    };
-    
-    thi$.removeLayoutComponent = function(comp){
-        // Implements by sub class
-    };
-
     /**
      * Invalidates the layout, indicating that if the layout manager
      * has cached information it should be discarded.

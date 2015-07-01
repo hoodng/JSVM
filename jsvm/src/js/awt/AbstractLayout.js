@@ -59,20 +59,6 @@ js.awt.AbstractLayout = function (def){
 
     var Class = js.lang.Class, Event = js.util.Event,  DOM = J$VM.DOM;
 
-    /**
-     * Adds the specified component to the layout, using the specified
-     * constraint object.
-     * @param comp the component to be added
-     * @param constraints  where/how the component is added to the layout.
-     */
-    thi$.addLayoutComponent = function(comp, constraints){
-        var ele = comp.view;
-        if(ele && ele.style){
-            ele.style.position = "absolute";
-        }
-    }.$override(this.addLayoutComponent);
-
-    
     thi$.destroy = function(){
         this.def = null;
 

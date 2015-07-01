@@ -40,7 +40,7 @@ $package("js.awt");
 /**
  * 
  */
-js.awt.Application = function(def, Runtime, entry){
+js.awt.Application = function(def, Runtime, entryId){
 
     var CLASS = js.awt.Application, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -58,14 +58,16 @@ js.awt.Application = function(def, Runtime, entry){
 
     thi$.startApp = function(){
         this.appendTo(this._local.entry);
-        if(Class.isFunction(this.doLayout)){
-            //this.doLayout(true);            
-        }
     };
 
     thi$.closeApp = function(){
         this.removeFrom(this._local.entry);
     };
+
+    thi$.changeTheme = function(theme, old){
+        J$VM.Runtime.getDesktop().updateTheme(theme, old);
+    };
+
 
     var _onresized = function(e){
         
@@ -77,15 +79,22 @@ js.awt.Application = function(def, Runtime, entry){
         
     }.$override(this.destroy);
     
-    thi$._init = function(def, Runtime, entry){
+    thi$._init = function(def, Runtime, entryId){
         if(def == undefined) return;
-
+        
+        def.id = def.uuid = entryId;
         def.__contextid__ = Runtime.getDesktop().uuid();
         arguments.callee.__super__.call(this, def, Runtime);
 
-        this._local.entry = entry;
+        var entry = this._local.entry =
+            self.document.querySelector("[jsvm_app='"+entryId+"']");
         this.putContextAttr("appid", this.getAppID());
         this.putContextAttr("app", this);
+
+        this.view.className = "jsvm__entry "+this.view.className;
+
+        MQ.register("js.awt.event.ButtonEvent",
+                    this, js.awt.Button.eventDispatcher);
         
         MQ.register("js.awt.event.WindowResized", this, _onresized);
         
@@ -94,7 +103,4 @@ js.awt.Application = function(def, Runtime, entry){
     this._init.apply(this, arguments);
 
 }.$extend(js.awt.Container);
-
-
-
 

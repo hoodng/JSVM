@@ -37,7 +37,7 @@
 
 $package("js.awt");
 
-//$import("js.awt.Highlighter");
+$import("js.awt.Highlighter");
 
 /**
  * @param def :{
@@ -585,5 +585,5 @@ js.awt.Item = function(def, Runtime, view){
 
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Component);
-//    .$implements(js.awt.Highlighter);
+}.$extend(js.awt.Component)
+    .$implements(js.awt.Highlighter);

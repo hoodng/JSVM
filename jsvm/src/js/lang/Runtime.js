@@ -82,9 +82,23 @@ js.lang.Runtime = function(){
         }
     };
 
+    /**
+     * Test if this J$VM is embedded in a iframe 
+     */
     thi$.isEmbedded = function(){
         return self != self.parent;
     };
+
+    /**
+     * Test whether current J$VM has same PID with parent J$VM
+     */
+    thi$.isSamePID = function(){
+        if(this.isEmbedded()){
+            var pJ$VM = self.parent.J$VM;
+            return pJ$VM && (pJ$VM.Runtime.PID() == this.PID());
+        }
+        return false;
+    }
 
     thi$.getProperty = function(key, defValue){
         return J$VM.System.getProperty(key, defValue);
@@ -180,8 +194,9 @@ js.lang.Runtime = function(){
             this.imagePath(env.imagePath);
         }
 
-        this.getDesktop().updateThemeCSS(this.theme(), "jsvm.css");
-        
+        if(this._desktop){
+            this._desktop.updateTheme(this.theme());
+        }
     };
     
     thi$.destroy = function(){

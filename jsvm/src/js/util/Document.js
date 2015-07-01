@@ -1324,16 +1324,21 @@ js.util.Document = function (){
      * 
      * @param id {String} id of the style tag
      * @param css {String} CSS code
+     * @param doApply {Boolean} true will apply changed
      */
-    thi$.applyStyleSheet = function(id, css){
+    thi$.applyStyleSheet = function(id, css, doApply){
         var dom = self.document, entry="j$vm_css",
             style = dom.getElementById(entry),
             sheets = this.styleSheets,
             set = this.styleSheetSet;
 
-        sheets.push(id);
+        if(set[id] === undefined){
+            sheets.push(id);
+        }
         set[id] = css;
 
+        if(doApply !== true) return;
+        
         if(!style){
             style = dom.createElement("style");
             style.id = entry;

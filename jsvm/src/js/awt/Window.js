@@ -439,31 +439,6 @@ js.awt.Window = function (def, Runtime, view){
         }
     };
 
-    var _cmdDispatcher = function(e){
-        switch(e.getType()){
-        case "mousedown":
-            this.activateComponent();
-            break;
-        case "mouseup":
-        case "message":
-            var target = e.getEventTarget(),
-                func = "on" + target.id;
-            if(typeof this[func] == "function"){
-                this[func](target);
-            }else{
-                if(typeof this["onbtnDispatcher"] == "function"){
-                    this["onbtnDispatcher"](target);
-                }else{
-                    throw "Can not found function of button "+ target.id;
-                }
-            }
-
-            break;
-        default:
-            break;
-        }
-    };
-
     thi$.destroy = function(){
         delete this._local.restricted;
         arguments.callee.__super__.apply(this,arguments);
@@ -530,7 +505,8 @@ js.awt.Window = function (def, Runtime, view){
         Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
         Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
 
-        MQ.register("js.awt.event.ButtonEvent", this, _cmdDispatcher);
+        MQ.register("js.awt.event.ButtonEvent",
+                    this, js.awt.Button.eventDispatcher);
         
     }.$override(this._init);
 

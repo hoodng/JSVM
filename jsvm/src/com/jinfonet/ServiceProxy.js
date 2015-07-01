@@ -126,17 +126,22 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
 	};
 
     var _onheartbeat = function(e){
-        // TODO: 
-        System.out.println(e);
+        var apps = J$VM.Runtime.getDesktop().getApps(), app, fn;
+        for(var appid in apps){
+            app = apps[appid];
+            fn = app.onHeartbeat;
+            if(Class.isFunction(fn)){
+                fn.$delay(app, 0, e);
+            }
+        }
     };
-
 
     thi$.destroy = function(){
         this.heartbeat.stop();
         this.heartbeat = null;
 
         arguments.callee.__super__.apply(this, arguments);
-
+        
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
@@ -150,13 +155,11 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
         (Class.forName("com.jinfonet.HeartBeat")).call(this, Runtime);
         System.out.println("Heartbeat established.");
 
-        J$VM.MQ.register(this.MSG_HEARTBEAT, this, _onheartbeat);        
+        MQ.register(this.MSG_HEARTBEAT, this, _onheartbeat);        
 
     }.$override(this._init);
 
 	this._init.apply(this, arguments);
     
 }.$extend(js.lang.Service);
-
-
 

@@ -129,7 +129,7 @@ js.awt.PopupLayer = function () {
     thi$.onFocusBoxBlur = function(e){
         if(((this._local.LMFlag & CLASS.F_AUTO) !== 0)
             && this.focusBox == this.focusItem){
-            this.Runtime().LM.onHide(e);
+            this.LM().onHide(e);
         }
     };
     
@@ -260,7 +260,7 @@ js.awt.PopupLayer = function () {
     };
     
     thi$.isShown = function () {
-        return this.Runtime().LM.indexOf(this) !== -1;
+        return this.LM().indexOf(this) !== -1;
     };
     
     /**
@@ -271,7 +271,7 @@ js.awt.PopupLayer = function () {
      * @param m: {Number} The specified thickness of nofly area.
      */
     thi$.showAt = function (x, y, v, m) {
-        this.Runtime().LM.showAt(this, x, y, v, m);
+        this.LM().showAt(this, x, y, v, m);
     };
 
     /**
@@ -282,7 +282,7 @@ js.awt.PopupLayer = function () {
      * @param m: {Number} The specified thickness of nofly area.
      */
     thi$.showBy = function (by, v, m) {
-        this.Runtime().LM.showBy(this, by, v, m);
+        this.LM().showBy(this, by, v, m);
     };
     
     thi$.hide = function (type) {
@@ -290,13 +290,13 @@ js.awt.PopupLayer = function () {
         
         var arg = arguments ? arguments[1] : undefined,
         evt = new Event(type || "hide", arg, this);
-        this.Runtime().LM.onHide(evt);
+        this.LM().onHide(evt);
     };
 
     thi$.hideOthers = function (type) {
         var arg = arguments ? arguments[1] : undefined,
         evt = new Event(type || "hide", arg, this);
-        this.Runtime().LM.clearStack(evt);
+        this.LM().clearStack(evt);
     };
     
     var _createFocusBox = function () {
@@ -309,7 +309,7 @@ js.awt.PopupLayer = function () {
     };
     
     thi$.startTimeout = function () {
-        var LM = this.Runtime().LM;
+        var LM = this.LM();
 
         if ((this._local.LMFlag & CLASS.F_TIMEOUT) != 0) {
             this.lmtimer = 
@@ -331,12 +331,15 @@ js.awt.PopupLayer = function () {
         if (!DOM.contains(this.view, e.toElement, true))
             return;
 
-        var LM = this.Runtime().LM;
+        var LM = this.LM();
         if(LM.onHide.$clearTimer(this.lmtimer)){
             System.log.println("Delete timer: " + this.lmtimer);
             delete this.lmtimer;    
         }
-        
+    };
+
+    thi$.LM = function(){
+        return J$VM.Runtime.getDesktop().LM;
     };
 };
 

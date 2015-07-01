@@ -96,7 +96,6 @@ js.awt.Container = function (def, Runtime, view){
             this.appendChild(comp);
         }
 
-        this._addComp(comp, constraints);         
         this.zOrderAdjust();
 
         return comp;
@@ -124,9 +123,6 @@ js.awt.Container = function (def, Runtime, view){
     thi$.removeComponent = function(comp){
         comp = this.removeChild(comp);
 
-        if(this.layout){
-            this.layout.removeLayoutComponent(comp);
-        }
         if(this._local.active === comp){
             this._local.active = undefined;
         }
@@ -211,6 +207,13 @@ js.awt.Container = function (def, Runtime, view){
         if(this.layout.instanceOf(js.awt.LayoutManager)){
             this.layout.layoutContainer(this, force);
         }
+    };
+
+    /**
+     * Return all need layout components id
+     */
+    thi$.getLayoutComponents = function(){
+        return this.items0();
     };
     
     /**
@@ -349,14 +352,6 @@ js.awt.Container = function (def, Runtime, view){
         return false;
     }.$override(this.doLayout);
     
-    thi$._addComp = function(comp, constraints, refComp){
-        constraints = constraints || comp.def.constraints;
-
-        if(this.layout){
-            this.layout.addLayoutComponent(comp, constraints);
-        }
-    };
-    
     /**
      * def:{
      *     items:[compid],
@@ -381,9 +376,6 @@ js.awt.Container = function (def, Runtime, view){
                     compDef, R);
                 
                 this.appendChild(comp);
-
-                this._addComp(comp, compDef.constraints);
-
             }
         }
     };
