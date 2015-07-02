@@ -170,7 +170,8 @@ js.awt.Dialog = function (def, Runtime){
     thi$.show = function(){
         _showMaskCover.call(this, true);
 
-        var x = this.def.x, y = this.def.y, DM = J$VM.Runtime.getDesktop().DM,
+        var x = this.def.x, y = this.def.y,
+            DM = this.Runtime().getDesktop().DM,
             pox = DM.getBounds();
         
         if(x == undefined){
@@ -269,7 +270,6 @@ js.awt.Dialog = function (def, Runtime){
     };
 
     thi$.onbtnClose = function(button){
-
         var event = this.buildDialogEvent("close", false);
         this.notifyPeer(event.msgId, event, true);
 
@@ -278,13 +278,9 @@ js.awt.Dialog = function (def, Runtime){
     }.$override(this.onbtnClose);
 
     thi$.close = function(){
-        var peer = this.getPeerComponent();
-        /*
-if(peer){
-peer.getDialogs().remove(this);
-}*/
+        var peer = this.getPeerComponent(),
+            handler = this._local.handler;
 
-        var handler = this._local.handler;
         if(typeof handler == "function"){
             MQ.cancel(this.getDialogMsgType(), peer, handler);
             delete this._local.handler;
@@ -377,6 +373,7 @@ js.awt.AbstractDialogObject = function(def, Runtime){
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 
 js.awt.Dialog.DEFAULTDEF = function(){
+    var R = J$VM.Runtime;
     return {
         classType : "js.awt.Dialog",
         className : "jsvm_dlg",
@@ -427,24 +424,21 @@ js.awt.Dialog.DEFAULTDEF = function(){
             btnApply:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: (J$VM.env && J$VM.env['dict'])
-                         ? J$VM.env['dict'].btnApply : "Apply",
+                labelText: R.nlsText("btnApply", "Apply"),
                 effect: true
             },
 
             btnOK:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: (J$VM.env && J$VM.env['dict'])
-                         ? J$VM.env['dict'].btnOK : "OK",
+                labelText: R.nlsText("btnOK", "OK"),
                 effect: true
             },
 
             btnCancel:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: (J$VM.env && J$VM.env['dict'])
-                         ? J$VM.env['dict'].btnCancel : "Cancel",
+                labelText: R.nlsText("btnCancel", "Cancel"),
                 effect: true
             },
 
@@ -462,6 +456,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
 J$VM.Factory.registerClass(js.awt.Dialog.DEFAULTDEF());
 
 js.awt.Dialog.MSGDIALOGDEF = function(){
+    var R = J$VM.Runtime;
     return{
         classType : "js.awt.Dialog",
         className : "jsvm_msg",
@@ -499,8 +494,7 @@ js.awt.Dialog.MSGDIALOGDEF = function(){
             btnOK:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText:  (J$VM.env && J$VM.env['dict'])
-                         ? J$VM.env['dict'].btnOK : "OK",
+                labelText: R.nlsText("btnOK", "OK"),
                 effect: true
             },
 

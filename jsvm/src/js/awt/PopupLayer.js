@@ -339,13 +339,19 @@ js.awt.PopupLayer = function () {
     };
 
     thi$.LM = function(){
-        return J$VM.Runtime.getDesktop().LM;
+        return this.Runtime().getDesktop().LM;
     };
 };
 
-js.awt.PopupLayer.F_BODYMOUSEDOWN = 0x01 << 0;
-js.awt.PopupLayer.F_BODYCLICK = 0x01 << 1;
-js.awt.PopupLayer.F_BODYMOUSEWHEEL = 0x01 << 2;
-js.awt.PopupLayer.F_FOCUSBOXBLUR = 0x01 << 3;
-js.awt.PopupLayer.F_TIMEOUT = 0x01 << 4;
-js.awt.PopupLayer.F_AUTO = 0x01 << 5;
+(function(){
+    var CLASS = js.awt.PopupLayer;
+    CLASS.F_BODYMOUSEDOWN = 0x01 << 0;
+    CLASS.F_BODYCLICK = 0x01 << 1;
+    CLASS.F_BODYMOUSEWHEEL = 0x01 << 2;
+    CLASS.F_FOCUSBOXBLUR = 0x01 << 3;
+    CLASS.F_TIMEOUT = 0x01 << 4;
+    CLASS.F_AUTO = 0x01 << 5;
+})();
+
+
+

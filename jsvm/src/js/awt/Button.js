@@ -466,6 +466,7 @@ js.awt.Button.eventDispatcher = function(e){
         case "message":
         target = e.getEventTarget();
         func = this["on" + target.id];
+        func = Class.isFunction(func) ? func : this.onbtnDispatcher;
         if(Class.isFunction(func)){
             func.call(this, target);
         }else{
