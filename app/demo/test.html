@@ -1,25 +1,27 @@
 <!DOCTYPE HTML>
 <html class="jsvm--full-h">
-  <head>
+<head>
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
             classpath="lib/jsre-ui.jz;"></script>
-<style>
-
-</style>
 </head>
-<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_app="test">
-     <span style="display:block;white-space:nowrap;text-align:center;width:50px;background-color:red;overflow:hidden;">This is a test!!!This is a test!!!This is a test!!!This is a test!!!</span>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm--font jsvm__body"
+      jsvm_entry="demo">
+  
+     <span>This is a test!</span>
 
 </body>
 
 <script type="text/javascript">
 
-J$VM.Runtime.exec(function(entryId){
+J$VM.exec("demo",function(entryId){
 
+this.createApp().run(function(){
+    debugger;
+});
 
-},"test");
+});
 </script>
 
 

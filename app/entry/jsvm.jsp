@@ -15,14 +15,11 @@
   };
 
 
-  J$VM.Runtime.exec(function(){
-    var Class = js.lang.Class, System = J$VM.System;
+  J$VM.exec(null, function(){
+    var Class = js.lang.Class;
 
-    Class.forName("com.jinfonet.Runtime").call(this);
-    this.initialize(env);
-
-    this.registerService(
-      new (Class.forName("com.jinfonet.ServiceProxy"))({}, this));
+    Class.forName("com.jinfonet.RuntimeProxy").call(J$VM.Runtime, env);
+    Class.forName("com.jinfonet.ServiceProxy").call(J$VM.Runtime.getService());
 
   });
 

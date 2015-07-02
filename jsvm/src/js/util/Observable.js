@@ -85,9 +85,13 @@ js.util.Observable = function (def, Runtime){
         this._local.changed = false;
     };
 
+    thi$.Runtime = function(){
+        return this._local.Runtime;
+    };
+
     thi$.destroy = function(){
-        delete this.__observers__;
-        delete this._local;
+        this.__observers__ = null;
+        this._local = null;
 
         arguments.callee.__super__.apply(this, arguments);
         
@@ -98,6 +102,7 @@ js.util.Observable = function (def, Runtime){
 
         this.__observers__ = List.$decorate([]);
         var U = this._local = this._local || {};
+        U.Runtime = Runtime;
         U.changed = false;
         
         // Cache current object

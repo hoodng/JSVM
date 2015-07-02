@@ -6,7 +6,8 @@
     <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
             classpath="lib/jsre-ui.jz;"></script>
 </head>
-<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm--font jsvm__body"
+      jsvm_entry="demo">
 </body>
 
 <style>
@@ -57,15 +58,11 @@
 
 <script type="text/javascript">
 
-J$VM.Runtime.exec(function(){
-  var R = this;
+J$VM.exec("demo", function(){
 
-  var app = this.getDesktop().createApp("js.awt.Application", {
-    className: "jsvm-demo",
-    stateless: true
-  }, "demo");
-  app.run(function(){
-  
+  this.createApp().run(function(){
+  var R = this.Runtime();
+
   var Panel = new js.awt.Container({
     className: "panel",
     id: "panel",
@@ -118,7 +115,7 @@ J$VM.Runtime.exec(function(){
     var mode = this.panel.layout.def.mode;
     mode = mode == 0 ? 1 :0;
     this.panel.layout.def.mode = mode;
-    this.btFirst.setText("M "+app.panel.layout.def.mode);
+    this.btFirst.setText("M "+this.panel.layout.def.mode);
     this.panel.layoutComponents();
   };
 

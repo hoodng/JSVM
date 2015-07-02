@@ -50,7 +50,7 @@ js.awt.Application = function(def, Runtime, entryId){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ, Desktop;
 
     thi$.getAppID = function(){
         return this.uuid();
@@ -62,6 +62,7 @@ js.awt.Application = function(def, Runtime, entryId){
 
     thi$.closeApp = function(){
         this.removeFrom(this._local.entry);
+        Desktop.unregisterApp(this.getAppID());
     };
 
     thi$.run = function(fn){
@@ -72,7 +73,7 @@ js.awt.Application = function(def, Runtime, entryId){
     };
 
     thi$.changeTheme = function(theme, old){
-        J$VM.Runtime.getDesktop().updateTheme(theme, old);
+        Desktop.updateTheme(theme, old);
     };
 
     thi$.destroy = function(){
@@ -82,9 +83,12 @@ js.awt.Application = function(def, Runtime, entryId){
     
     thi$._init = function(def, Runtime, entryId){
         if(def == undefined) return;
-        
+
+        def.classType = def.classType || "js.awt.Application";
+        def.className = def.className || "jsvm_app";
+        def.className = "jsvm__entry " + def.className;
         def.id = def.uuid = entryId;
-        def.__contextid__ = Runtime.getDesktop().uuid();
+        def.__contextid__ = Runtime.uuid();
         arguments.callee.__super__.call(this, def, Runtime);
 
         var entry = this._local.entry =
@@ -92,10 +96,10 @@ js.awt.Application = function(def, Runtime, entryId){
         this.putContextAttr("appid", this.getAppID());
         this.putContextAttr("app", this);
 
-        this.view.className = "jsvm__entry "+this.view.className;
-
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);
+
+        Desktop = Runtime.getDesktop();
         
     }.$override(this._init);
     

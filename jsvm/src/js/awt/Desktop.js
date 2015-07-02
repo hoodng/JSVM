@@ -157,18 +157,11 @@ js.awt.Desktop = function (Runtime){
         return apps[id];
     }
 
-    thi$.createApp = function(classType, def, entryId){
-        var appClass = Class.forName(classType), app;
-        app = new (appClass)(def, R, entryId);
-        apps[app.getAppID()] = app;
-        return app;
-    };
-
     thi$.registerApp = function(id, app){
         apps[id] = app;
     };
 
-    thi$.closeApp = function(id){
+    thi$.unregisterApp = function(id){
         delete apps[id];
     };
     
@@ -269,7 +262,9 @@ js.awt.Desktop = function (Runtime){
      * @see js.awt.BaseComponent
      */
     thi$.destroy = function(){
-        for(var app in apps){
+        var id, app;
+        for(id in apps){
+            app = apps[id];
             app.closeApp();
             app.destroy();
         }

@@ -17,7 +17,7 @@ com.jinfonet.HeartBeat = function(Runtime){
 
     var MSGID = this.MSG_HEARTBEAT = "j$vm.heartbeat";
     
-    var runnable = function(servlet, period){
+    var Runnable = function(servlet, period){
         this.context = {
             servlet : servlet,
             period : period
@@ -58,7 +58,7 @@ com.jinfonet.HeartBeat = function(Runtime){
     };
 
     var proxy = this, HBT = this.heartbeat = new js.lang.Thread(
-        new runnable(this.postEntry(), Runtime.getProperty("heartbeat")));
+        new Runnable(Runtime.postEntry(), Runtime.getProperty("heartbeat")));
 
     HBT.onHeartbeatResume = function(result){
         this.pauseCount = 0;
@@ -95,6 +95,7 @@ com.jinfonet.HeartBeat = function(Runtime){
 
     HBT.onHeartbeatStop = function(){
         this.stop();
+
         if(!Runtime.isEmbedded()){
             J$VM.MQ.post(MSGID, new Event("stop", null), [uuid]);
         }

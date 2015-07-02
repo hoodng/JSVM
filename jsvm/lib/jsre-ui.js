@@ -5293,7 +5293,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         }else{
             this.view = view = DOM.createElement(def.viewType || "DIV");
             def.className = def.className || "jsvm__element";
-            view.clazz = view.className = def.className; 
+            view.clazz = view.className = (view.className + " " + def.className); 
         }
         
         view = this.view;
@@ -6049,7 +6049,9 @@ js.awt.Container = function (def, Runtime, view){
     thi$.insertComponent = function(index, comp, constraints){
         var items = this.items0(), ref;
 
-        comp.def.constraints = constraints;
+        if(constraints){
+            comp.def.constraints = constraints;            
+        }
 
         if(!isNaN(index) && index >= 0 && index < items.length){
             ref = this.getElementById(items[index]);
@@ -6315,6 +6317,9 @@ js.awt.Container = function (def, Runtime, view){
     thi$.doLayout = function(force){
         if(arguments.callee.__super__.apply(this, arguments)){
             this.layoutComponents(force);
+            if(this.isCovering()){
+                this.adjustCover(this.getBounds());
+            }
             return true;
         }
 
@@ -6376,7 +6381,7 @@ js.awt.Container = function (def, Runtime, view){
         arguments.callee.__super__.apply(this, arguments);
         
         var layout = def.layout = (def.layout || {});
-        layout.classType = layout.classType || "js.awt.AbsoluteLayout";
+        layout.classType = layout.classType || "js.awt.LayoutManager";
         this.setLayoutManager(
             new (Class.forName(layout.classType))(layout));
         def.activateman = Class.isBoolean(def.activateman) ? def.activateman : false;
@@ -13984,267 +13989,8 @@ js.awt.Desktop = function (Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ =J$VM.MQ, Factory = J$VM.Factory;
+        System = J$VM.System, MQ =J$VM.MQ, R;
 
-    /**
-     * Popup message box
-     *
-     * @see js.lang.Runtime
-     */
-    thi$.message = function(type, subject, content, title, rect, handler){
-        var msgbox = {
-            className: "msgbox",
-            model:{
-                msgType: type,
-                title: title || "",
-                msgSubject: subject || "",
-                msgContent: content || " "
-            }
-        };
-
-        this.openDialog(
-            "message",
-            rect || {},
-            new js.awt.MessageBox(msgbox, this),
-            handler);
-
-    }.$override(this.message);
-
-    var _registerMessageClass = function(){
-        if(Factory.hasClass("message")) return;
-
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "message",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        className: "win_title_label",
-                        text : "Dialog",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        className: "win_title_button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnOK"],
-
-                    btnOK:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnOK", "OK")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                width: 330,
-                height:150,
-                miniSize:{width:330, height:150},
-                resizable: true
-            }
-        );
-    };
-
-    var _registerConfirmClass = function(){
-        if(Factory.hasClass("jsvmconfirm")) return;
-
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "jsvmconfirm",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        className: "win_title_label",
-                        text : "Confirm",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        className: "win_title_button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnOK", "btnCancel"],
-
-                    btnOK:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnOK", "OK")
-                    },
-
-                    btnCancel:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnCancel", "Cancel")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                modal: true,
-                width: 330,
-                height:150,
-                miniSize:{width:330, height:150},
-                resizable: true
-            }
-        );
-    };
-
-    var _registerConfirm2Class = function(){
-        if(Factory.hasClass("jsvmconfirm2")) return;
-
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "jsvmconfirm2",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        className: "win_title_label",
-                        text : "Confirm",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        className: "win_title_button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnYes", "btnNo", "btnCancel"],
-
-                    btnYes:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnYes", "Yes")
-                    },
-
-                    btnNo:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnNo", "No")
-                    },
-
-                    btnCancel:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnCancel", "Cancel")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                modal: true,
-                width: 354,
-                height: 150,
-                miniSize: {width:354, height:150},
-                resizable: true
-            }
-        );
-    };
 
     var _activateComponent = function(target, uuid){
         if(!target) return;
@@ -14292,7 +14038,7 @@ js.awt.Desktop = function (Runtime){
             _notifyComps.call(this, "js.awt.event.WindowResized", evt);
 
             this.LM.clearStack(e);
-            
+
             bodyW = bounds.width;
             bodyH = bounds.height;
 
@@ -14304,12 +14050,12 @@ js.awt.Desktop = function (Runtime){
 
     var _onkeyevent = function(e){
         System.updateLastAccessTime();
-        J$VM.MQ.post("js.awt.event.KeyEvent", e);
+        MQ.post("js.awt.event.KeyEvent", e);
     };
 
     var _onmouseevent = function(e){
         System.updateLastAccessTime();
-        J$VM.MQ.post("js.awt.event.MouseEvent", e);
+        MQ.post("js.awt.event.MouseEvent", e);
         
         switch(e.getType()){
             case Event.W3C_EVT_MOUSE_DOWN:
@@ -14337,7 +14083,7 @@ js.awt.Desktop = function (Runtime){
 
         if(Class.isArray(msg)){
             e.message = msg[1];
-            J$VM.MQ.post(msg[0], e, msg[2], null, msg[4]);
+            MQ.post(msg[0], e, msg[2], null, msg[4]);
         }
     };
 
@@ -14351,18 +14097,11 @@ js.awt.Desktop = function (Runtime){
         return apps[id];
     }
 
-    thi$.createApp = function(classType, def, entryId){
-        var appClass = Class.forName(classType), app;
-        app = new (appClass)(def, Runtime, entryId);
-        apps[app.getAppID()] = app;
-        return app;
-    };
-
     thi$.registerApp = function(id, app){
         apps[id] = app;
     };
 
-    thi$.closeApp = function(id){
+    thi$.unregisterApp = function(id){
         delete apps[id];
     };
     
@@ -14463,7 +14202,9 @@ js.awt.Desktop = function (Runtime){
      * @see js.awt.BaseComponent
      */
     thi$.destroy = function(){
-        for(var app in apps){
+        var id, app;
+        for(id in apps){
+            app = apps[id];
             app.closeApp();
             app.destroy();
         }
@@ -14536,12 +14277,7 @@ js.awt.Desktop = function (Runtime){
         
         MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
 
-        //_registerMessageClass.call(this);
-        //_registerConfirmClass.call(this);
-
-        // Confirm message box with "Yes", "No" and "Cancel"
-        // Widely used in WebReport Studio for insteading jConfirm2
-        //_registerConfirm2Class.call(this);
+        R = Runtime;
 
     }.$override(this._init);
 
@@ -15140,33 +14876,33 @@ J$VM.Factory.registerClass(js.awt.Window.DEFAULTDEF());
 
 /**
 
- Copyright 2010-2011, The JSVM Project.
- All rights reserved.
+  Copyright 2010-2011, The JSVM Project.
+  All rights reserved.
 
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
+  Redistribution and use in source and binary forms, with or without modification,
+  are permitted provided that the following conditions are met:
 
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
+  1. Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
 
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
+  2. Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
 
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
+  3. Neither the name of the JSVM nor the names of its contributors may be
+  used to endorse or promote products derived from this software
+  without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -15265,7 +15001,7 @@ js.awt.Dialog = function (def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ;
 
     thi$.setDialogObject = function(dialogObj, handler){
         if(!dialogObj || !dialogObj.instanceOf(js.awt.DialogObject))
@@ -15273,7 +15009,7 @@ js.awt.Dialog = function (def, Runtime){
 
         dialogObj.id = "dialogObj";
         dialogObj.setPeerComponent(this);
-        this.client.addComponent(dialogObj);
+        this.client.addComponent(dialogObj,"center");
 
         if(handler){
             this._local.handler = handler;
@@ -15310,8 +15046,8 @@ js.awt.Dialog = function (def, Runtime){
     thi$.show = function(){
         _showMaskCover.call(this, true);
 
-        var x = this.def.x, y = this.def.y, DM = this.Runtime().DM,
-        pox = DM.getBounds();
+        var x = this.def.x, y = this.def.y, DM = J$VM.Runtime.getDesktop().DM,
+            pox = DM.getBounds();
         
         if(x == undefined){
             x = (pox.width - this.def.width)*0.5;
@@ -15382,7 +15118,7 @@ js.awt.Dialog = function (def, Runtime){
      */
     thi$.onbtnDispatcher = function(button){
         var btnId = button.id || "", idx = btnId.indexOf("btn"),
-        cmd, event;
+            cmd, event;
 
         if(idx >= 0){
             cmd = btnId.substr(idx + 3);
@@ -15396,8 +15132,8 @@ js.awt.Dialog = function (def, Runtime){
 
     thi$.buildDialogEvent = function(type, hasData){
         var dialogObj = this.client.dialogObj,
-        msgId = dialogObj.getDialogMsgType(),
-        data, event;
+            msgId = dialogObj.getDialogMsgType(),
+            data, event;
 
         if(hasData !== false){
             data = dialogObj.getDialogData();
@@ -15420,9 +15156,9 @@ js.awt.Dialog = function (def, Runtime){
     thi$.close = function(){
         var peer = this.getPeerComponent();
         /*
-         if(peer){
-         peer.getDialogs().remove(this);
-         }*/
+if(peer){
+peer.getDialogs().remove(this);
+}*/
 
         var handler = this._local.handler;
         if(typeof handler == "function"){
@@ -15456,11 +15192,11 @@ js.awt.Dialog = function (def, Runtime){
         var btnpaneDef = newDef.btnpane, item;
         btnpaneDef.className = btnpaneDef.className || newDef.className + "_btnpane";
         (function(name){
-             if(name.indexOf("btn") == 0){
-                 item = btnpaneDef[name];
-                 item.className = item.className || btnpaneDef.className + "_button";
-             }
-         }).$forEach(this, btnpaneDef.items);
+            if(name.indexOf("btn") == 0){
+                item = btnpaneDef[name];
+                item.className = item.className || btnpaneDef.className + "_button";
+            }
+        }).$forEach(this, btnpaneDef.items);
 
         System.objectCopy(newDef, def, true, true);
         arguments.callee.__super__.apply(this, arguments);
@@ -15470,12 +15206,12 @@ js.awt.Dialog = function (def, Runtime){
 
         if(this.btnpane){
             (function(name){
-                 if(name.indexOf("btn") == 0){
-                     item = this.btnpane[name];
-                     item.setPeerComponent(this);
-                     restricted.push(item);
-                 }
-             }).$forEach(this, this.btnpane.def.items);
+                if(name.indexOf("btn") == 0){
+                    item = this.btnpane[name];
+                    item.setPeerComponent(this);
+                    restricted.push(item);
+                }
+            }).$forEach(this, this.btnpane.def.items);
         }
 
         restricted.push(this.client);
@@ -15568,7 +15304,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
                 classType: "js.awt.Button",
                 className: "jsvm_button",
                 labelText: (J$VM.env && J$VM.env['dict'])
-                                ? J$VM.env['dict'].btnApply : "Apply",
+                         ? J$VM.env['dict'].btnApply : "Apply",
                 effect: true
             },
 
@@ -15576,7 +15312,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
                 classType: "js.awt.Button",
                 className: "jsvm_button",
                 labelText: (J$VM.env && J$VM.env['dict'])
-                                ? J$VM.env['dict'].btnOK : "OK",
+                         ? J$VM.env['dict'].btnOK : "OK",
                 effect: true
             },
 
@@ -15584,7 +15320,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
                 classType: "js.awt.Button",
                 className: "jsvm_button",
                 labelText: (J$VM.env && J$VM.env['dict'])
-                                ? J$VM.env['dict'].btnCancel : "Cancel",
+                         ? J$VM.env['dict'].btnCancel : "Cancel",
                 effect: true
             },
 
@@ -15640,7 +15376,7 @@ js.awt.Dialog.MSGDIALOGDEF = function(){
                 classType: "js.awt.Button",
                 className: "jsvm_button",
                 labelText:  (J$VM.env && J$VM.env['dict'])
-                                ? J$VM.env['dict'].btnOK : "OK",
+                         ? J$VM.env['dict'].btnOK : "OK",
                 effect: true
             },
 
@@ -15775,19 +15511,19 @@ js.awt.MessageBox = function(def, Runtime){
 		var m = this.def.model, title = m.title, R = this.Runtime();
 		if(!title){
 			switch(m.msgType){
-			case "info":
+			    case CLASS.INFO:
 				title = R.nlsText("msgDlgInfoTitle", "Information");
 				break;
-			case "warn":
+			    case CLASS.WARN:
 				title = R.nlsText("msgDlgWarnTitle", "Warning");
 				break;
-			case "error":
+			    case CLASS.ERROR:
 				title = R.nlsText("msgDlgErrTitle", "Error");
 				break;
-			case "confirm":
-				title = R.nlsText("msgDlgConfirmTitle", "Confirm");
-				break;
-			}
+			    case CLASS.CONFIRM:
+                title = R.nlsText("msgDlgConfirmTitle", "Confirm");
+                break;
+            }
 		}
 		this.setTitle(title || "");
 
@@ -15803,13 +15539,13 @@ js.awt.MessageBox = function(def, Runtime){
 
 		if(model.msgSubject){
 			label = this.label = DOM.createElement("SPAN");
-			label.className = "msg_subject";
+			label.className = label.className + " msg_subject";
 			label.innerHTML = model.msgSubject;
 			this.view.appendChild(label);
 		}
 
 		text = this.text = DOM.createElement("TEXTAREA");
-		text.className = "msg_content";
+		text.className = text.className + " msg_content";
 		text.readOnly = "true";
 		text.innerHTML = model.msgContent || "";
 		this.view.appendChild(text);
@@ -15836,9 +15572,12 @@ js.awt.MessageBox = function(def, Runtime){
 
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 
-js.awt.MessageBox.INFO = "info";
-js.awt.MessageBox.WARN = "warn";
-js.awt.MessageBox.ERROR= "error";
-js.awt.MessageBox.CONFIRM = "confirm";
+(function(){
+    var CLASS = js.awt.MessageBox;
+    CLASS.INFO = "info";
+    CLASS.WARN = "warn";
+    CLASS.ERROR= "error";
+    CLASS.CONFIRM = "confirm";
+})();
 
 

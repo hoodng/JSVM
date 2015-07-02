@@ -11,24 +11,13 @@ $package("com.jinfonet");
 $import("com.jinfonet.Action");
 $import("com.jinfonet.HeartBeat");
 
-/**
- * Attention:
- * According to the implementation of the "_onmessage()" function 
- * in System.js, the application can't listen messages from the 
- * current application itself.
- */
-com.jinfonet.ServiceProxy = function(def, Runtime){
-	var CLASS = com.jinfonet.ServiceProxy, thi$ = CLASS.prototype;
-	
-	if(CLASS.__defined__){
-        this._init.apply(this, arguments);        
-		return;
-	}
-	CLASS.__defined__ = true;
+
+com.jinfonet.ServiceProxy = function(Runtime){
+
+	var CLASS = com.jinfonet.ServiceProxy, thi$ = this;
 	
 	var Class = js.lang.Class, Event = js.util.Event, 
-	    System = J$VM.System, MQ = J$VM.MQ, R,
-        msg_httpAccessDeny, msg_httpTimeout;
+	    System = J$VM.System, MQ = J$VM.MQ, R;
 
 	/**
 	 * Returns a new Action object
@@ -38,7 +27,7 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
         action = action.endsWith("Action") ? action : action+"Action";
 
 		return new (Class.forName("com.jinfonet.Action"))(
-			this.postEntry(), module, action);
+			R.postEntry(), module, action);
 	};
 
     var _log = function(module, action, params){
@@ -53,7 +42,6 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
 	 * Runtime doSyncAction entry
 	 */
 	thi$.doSyncAction = function(func, params, module) {
-
 		var action = this.getAction(module, func), http, ret,
             ctx = {
                 module: action.module,
@@ -162,7 +150,7 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
 	};
 
     var _onheartbeat = function(e){
-        var apps = J$VM.Runtime.getDesktop().getApps(), app, fn;
+        var apps = R.getDesktop().getApps(), app, fn;
         for(var appid in apps){
             app = apps[appid];
             fn = app.onHeartbeat;
@@ -180,11 +168,7 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
         
     }.$override(this.destroy);
 
-    thi$._init = function(def, Runtime){
-        def = def || {}
-        
-        arguments.callee.__super__.apply(this, arguments);
-
+    (function(Runtime){
         R = Runtime;
         
         // Report browser infomation
@@ -195,14 +179,12 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
 
         MQ.register(this.MSG_HEARTBEAT, this, _onheartbeat);        
 
-    }.$override(this._init);
-
-	this._init.apply(this, arguments);
-    
-}.$extend(js.lang.Service);
+    }).call(this, this.Runtime());
+};
 
 (function(){
     var CLASS = com.jinfonet.ServiceProxy;
     CLASS.HTTPERR = "B0000001"; // http error
     CLASS.TIMEOUT = "B0000002"; // http timeout
 })();
+

@@ -246,15 +246,5 @@ js.lang.Object = function (o){
         delete obj[attr];
     };
 
-    /**
-     * Return runtime object
-     * 
-     * @see js.lang.Runtime
-     * @see js.awt.Desktop
-     */
-    thi$.Runtime = function(){
-        return J$VM.Runtime;
-    };
-    
 }.$extend(Object);
 

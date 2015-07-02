@@ -37,273 +37,11 @@
 
 $package("com.jinfonet");
 
-com.jinfonet.Runtime = function(){
+com.jinfonet.RuntimeProxy = function(env){
 
-    var CLASS = com.jinfonet.Runtime, thi$ = this;
+    var CLASS = com.jinfonet.RuntimeProxy, thi$ = this;
 
-    var Class = js.lang.Class, Event = js.util.Event,
-        System = J$VM.System, Factory = J$VM.Factory;
-
-    /**
-     * Popup message box
-     *
-     * @see js.lang.Runtime
-     */
-    thi$.message = function(type, subject, content, title, rect, handler){
-        var msgbox = {
-            className: "msgbox",
-            model:{
-                msgType: type,
-                title: title || "",
-                msgSubject: subject || "",
-                msgContent: content || " "
-            }
-        };
-
-        this.getDesktop().openDialog(
-            "message",
-            rect || {},
-            new js.awt.MessageBox(msgbox, this),
-            handler);
-
-    };
-    
-
-    var _registerMessageClass = function(){
-        if(Factory.hasClass("message")) return;
-
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "message",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        className: "win_title_label",
-                        text : "Dialog",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        className: "win_title_button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnOK"],
-
-                    btnOK:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnOK", "OK")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                width: 330,
-                height:150,
-                miniSize:{width:330, height:150},
-                resizable: true
-            }
-        );
-    };
-
-    var _registerConfirmClass = function(){
-        if(Factory.hasClass("jsvmconfirm")) return;
-
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "jsvmconfirm",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        className: "win_title_label",
-                        text : "Confirm",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        className: "win_title_button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnOK", "btnCancel"],
-
-                    btnOK:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnOK", "OK")
-                    },
-
-                    btnCancel:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnCancel", "Cancel")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                modal: true,
-                width: 330,
-                height:150,
-                miniSize:{width:330, height:150},
-                resizable: true
-            }
-        );
-    };
-
-    var _registerConfirm2Class = function(){
-        if(Factory.hasClass("jsvmconfirm2")) return;
-
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "jsvmconfirm2",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        className: "win_title_label",
-                        text : "Confirm",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        className: "win_title_button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnYes", "btnNo", "btnCancel"],
-
-                    btnYes:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnYes", "Yes")
-                    },
-
-                    btnNo:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnNo", "No")
-                    },
-
-                    btnCancel:{
-                        classType: "js.awt.Button",
-                        className: "dlg_button",
-                        effect: true,
-                        labelText: this.nlsText("btnCancel", "Cancel")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                modal: true,
-                width: 354,
-                height: 150,
-                miniSize: {width:354, height:150},
-                resizable: true
-            }
-        );
-    };
+    var Class = js.lang.Class, System = J$VM.System;
 
     var _invalidateProperty = function(key){
         if(!key) return;
@@ -564,7 +302,7 @@ com.jinfonet.Runtime = function(){
     thi$.nlsText = function(key, defaultText){
         var dict = this.getDict(), v = dict[key];
         return v ? (Class.isString(v) ? v : v.text) : (defaultText || key);
-    };
+    }.$override(this.nlsText);
     
 
     thi$.datePattern = function(){
@@ -629,21 +367,10 @@ com.jinfonet.Runtime = function(){
         return locale;
     };
     
-    thi$.Runtime = function(){
-        return this;
-    };
-
     thi$.initialize = function(env){
         _initLocale.call(this);
-        
         arguments.callee.__super__.apply(this, arguments);
-
-        _registerMessageClass.call(this);
-        _registerConfirmClass.call(this);
-
-        // Confirm message box with "Yes", "No" and "Cancel"
-        // Widely used in WebReport Studio for insteading jConfirm2
-        _registerConfirm2Class.call(this);
-        
     }.$override(this.initialize);
+
+    this.initialize(env);
 };

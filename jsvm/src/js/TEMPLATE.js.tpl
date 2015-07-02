@@ -64,4 +64,3 @@ $package("(>>>package<<<)");
 };
 >>>TEMPLATE-DEFINITION-SECTION<<<
 ("package" "Class Package: ")
-

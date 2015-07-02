@@ -851,8 +851,23 @@ js.lang.System = function (env, vm){
             vm.storage.images= new js.util.MemoryStorage(
                 this.getProperty("j$vm_images_cachesize",256));
 
+            /**
+             * @member J$VM
+             * @function enableLogger
+             */
             vm.enableLogger = _enableLogger;
-            vm.disableLogger = _disableLogger;
+
+            /**
+             * @member J$VM
+             * @function disableLogger
+             */
+            vm.disableLogger = _disableLogger
+
+            /**
+             * @member J$VM.Runtime
+             * @function exec
+             */
+            vm.exec = vm.Runtime.exec;
 
             Event.attachEvent(vm.hwnd, Event.W3C_EVT_LOAD,   0, this, _onload);
             Event.attachEvent(vm.hwnd, Event.W3C_EVT_UNLOAD, 0, this, _onunload);

@@ -49,9 +49,13 @@ js.lang.Runtime = function(){
     thi$.registerService = function(service){
         this._service = service;
     };
-    
+
     thi$.getService = function(){
-        return this._service || new js.lang.Service({}, this);
+        var service = this._service;
+        if(!service){
+            service = this._service = new js.lang.Service({}, this);
+        }
+        return service;
     };
 
     thi$.registerDesktop = function(desktop){
@@ -63,23 +67,57 @@ js.lang.Runtime = function(){
     };
 
     var procs = [];
-    thi$.exec = function(fn, params){
-        var args = Array.prototype.slice.call(arguments, 1);
-        if(Class.isFunction(fn)){
-            procs.push({fn: fn, args:args});
-        }else if(Class.isString(fn) && Class.isFunction(self[fn])){
-            procs.push({fn: self[fn], args:args});
+    thi$.exec = function(entryId, fn){
+        procs.push({entry:entryId, fn:fn});
+    };
+
+    var scopes = {};
+    thi$._execProcs = function(){
+        var proc, scope, entry;
+        while(procs.length > 0){
+            proc = procs.shift();
+            entry = proc.entry;
+            if(entry){
+                scope = scopes[entry] =
+                    (scopes[entry] || _newScope.call(this, entry));
+            }else{
+                scope = this;
+            }
+
+            (function(scope, proc){
+                proc.fn.call(scope, proc.entry);                
+            }).$delay(this, 0, scope, proc);
         }
     };
 
-    thi$._execProcs = function(){
-        var proc;
-        while(procs.length > 0){
-            proc = procs.shift();
-            (function(proc){
-                proc.fn.apply(this, proc.args);                
-            }).$delay(this, 0, proc);
-        }
+    var _newScope = function(entry){
+        var runtimeScope = function(){
+
+            this.getEntryID = function(){
+                return entry;
+            };
+
+            this.createApp = function(def){
+                def = def || {};
+                def.classType = def.classType || "js.awt.Application";
+                def.className = def.className || "jsvm_app";
+                var appClass = Class.forName(def.classType), app;
+                app = new (appClass)(def, this, entry);
+                this.getDesktop().registerApp(entry, app);
+                return app;
+            };
+
+            this.getApplication = function(){
+                return this.getDesktop().getApp(entry);
+            };
+        };
+
+        runtimeScope.prototype = this;
+        runtimeScope = js.lang.Object.$decorate(new runtimeScope());
+        runtimeScope.uuid(this.uuid()+"_"+entry);
+        runtimeScope.setContextID(this.uuid());
+        runtimeScope.putContextAttr("runtime", runtimeScope);
+        return runtimeScope;
     };
 
     /**
@@ -179,6 +217,271 @@ js.lang.Runtime = function(){
             J$VM.env.j$vm_home, "../../vt"));
     };
 
+    thi$.nlsText = function(text, defVal){
+        return defVal;
+    };
+
+    /**
+     * Popup message box
+     *
+     */
+    thi$.message = function(type, subject, content, title, rect, handler){
+        var msgbox = {
+            className: "msgbox",
+            model:{
+                msgType: type,
+                title: title || "",
+                msgSubject: subject || "",
+                msgContent: content || " "
+            }
+        };
+
+        this.getDesktop().openDialog(
+            "message",
+            rect || {},
+            new js.awt.MessageBox(msgbox, this),
+            handler);
+    };
+
+    var _registerMessageClass = function(){
+        var Factory = J$VM.Factory;
+
+        if(Factory.hasClass("message")) return;
+        Factory.registerClass(
+            {
+                classType : "js.awt.Dialog",
+                className : "message",
+
+                items: [ "title", "client", "btnpane"],
+
+                title: {
+                    classType: "js.awt.HBox",
+                    className: "win_title",
+                    constraints: "north",
+
+                    items:["labTitle", "btnClose"],
+
+                    labTitle:{
+                        classType: "js.awt.Label",
+                        className: "win_title_label",
+                        text : "Dialog",
+                        rigid_w: false,
+                        rigid_h: false
+                    },
+
+                    btnClose:{
+                        classType: "js.awt.Button",
+                        className: "win_title_button",
+                        iconImage: "dialog_close.png"
+                    }
+                },
+
+                client:{
+                    classType: "js.awt.Container",
+                    className: "message_client",
+                    constraints: "center",
+                    css: "overflow:hidden;",
+                    layout:{
+                        classType: "js.awt.BorderLayout"
+                    }
+                },
+
+                btnpane:{
+                    classType: "js.awt.HBox",
+                    className: "message_btnpane",
+                    constraints: "south",
+
+                    items:["btnOK"],
+
+                    btnOK:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnOK", "OK")
+                    },
+
+                    layout:{
+                        gap: 4,
+                        align_x : 1.0,
+                        align_y : 0.0
+                    }
+                },
+
+                width: 330,
+                height:150,
+                miniSize:{width:330, height:150},
+                resizable: true
+            }
+        );
+    };
+
+    var _registerConfirmClass = function(){
+        var Factory = J$VM.Factory;
+
+        if(Factory.hasClass("jsvmconfirm")) return;
+        Factory.registerClass(
+            {
+                classType : "js.awt.Dialog",
+                className : "jsvmconfirm",
+
+                items: [ "title", "client", "btnpane"],
+
+                title: {
+                    classType: "js.awt.HBox",
+                    className: "win_title",
+                    constraints: "north",
+
+                    items:["labTitle", "btnClose"],
+
+                    labTitle:{
+                        classType: "js.awt.Label",
+                        className: "win_title_label",
+                        text : "Confirm",
+                        rigid_w: false,
+                        rigid_h: false
+                    },
+
+                    btnClose:{
+                        classType: "js.awt.Button",
+                        className: "win_title_button",
+                        iconImage: "dialog_close.png"
+                    }
+                },
+
+                client:{
+                    classType: "js.awt.Container",
+                    className: "message_client",
+                    constraints: "center",
+                    css: "overflow:hidden;",
+                    layout:{
+                        classType: "js.awt.BorderLayout"
+                    }
+                },
+
+                btnpane:{
+                    classType: "js.awt.HBox",
+                    className: "message_btnpane",
+                    constraints: "south",
+
+                    items:["btnOK", "btnCancel"],
+
+                    btnOK:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnOK", "OK")
+                    },
+
+                    btnCancel:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnCancel", "Cancel")
+                    },
+
+                    layout:{
+                        gap: 4,
+                        align_x : 1.0,
+                        align_y : 0.0
+                    }
+                },
+
+                modal: true,
+                width: 330,
+                height:150,
+                miniSize:{width:330, height:150},
+                resizable: true
+            }
+        );
+    };
+
+    var _registerConfirm2Class = function(){
+        var Factory = J$VM.Factory;
+
+        if(Factory.hasClass("jsvmconfirm2")) return;
+        Factory.registerClass(
+            {
+                classType : "js.awt.Dialog",
+                className : "jsvmconfirm2",
+
+                items: [ "title", "client", "btnpane"],
+
+                title: {
+                    classType: "js.awt.HBox",
+                    className: "win_title",
+                    constraints: "north",
+
+                    items:["labTitle", "btnClose"],
+
+                    labTitle:{
+                        classType: "js.awt.Label",
+                        className: "win_title_label",
+                        text : "Confirm",
+                        rigid_w: false,
+                        rigid_h: false
+                    },
+
+                    btnClose:{
+                        classType: "js.awt.Button",
+                        className: "win_title_button",
+                        iconImage: "dialog_close.png"
+                    }
+                },
+
+                client:{
+                    classType: "js.awt.Container",
+                    className: "message_client",
+                    constraints: "center",
+                    css: "overflow:hidden;",
+                    layout:{
+                        classType: "js.awt.BorderLayout"
+                    }
+                },
+
+                btnpane:{
+                    classType: "js.awt.HBox",
+                    className: "message_btnpane",
+                    constraints: "south",
+
+                    items:["btnYes", "btnNo", "btnCancel"],
+
+                    btnYes:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnYes", "Yes")
+                    },
+
+                    btnNo:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnNo", "No")
+                    },
+
+                    btnCancel:{
+                        classType: "js.awt.Button",
+                        className: "dlg_button",
+                        effect: true,
+                        labelText: this.nlsText("btnCancel", "Cancel")
+                    },
+
+                    layout:{
+                        gap: 4,
+                        align_x : 1.0,
+                        align_y : 0.0
+                    }
+                },
+
+                modal: true,
+                width: 350,
+                height: 150,
+                miniSize: {width:354, height:150},
+                resizable: true
+            }
+        );
+    };
+
     thi$.initialize = function(env){
         J$VM.System.getProperties().addAll(env || {});
 
@@ -197,6 +500,12 @@ js.lang.Runtime = function(){
         if(this._desktop){
             this._desktop.updateTheme(this.theme());
         }
+        
+        _registerMessageClass.call(this);
+        _registerConfirmClass.call(this);
+        // Confirm message box with "Yes", "No" and "Cancel"
+        _registerConfirm2Class.call(this);
+
     };
     
     thi$.destroy = function(){
@@ -209,6 +518,9 @@ js.lang.Runtime = function(){
             this._desktop.destroy();
             this._desktop = null;
         }
+
+        procs = null;
+        scopes= null;
         
         arguments.callee.__super__.apply(this, arguments);
         

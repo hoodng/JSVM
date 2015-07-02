@@ -46,26 +46,9 @@ js.lang.Service = function(def, Runtime){
 
     var Class = js.lang.Class, Event = js.util.Event;
 
-    thi$.PID = function(){
-        return J$VM.Runtime.PID();
-    };
-    
-    thi$.postEntry = function(){
-        return J$VM.Runtime.postEntry();
-    };
-
-    thi$.getsEntry = function(){
-        return J$VM.Runtime.getsEntry();
-    };
-
-    thi$.doAction = function(){
-        
-    };
 
     thi$.destroy = function(){
-
         arguments.callee.__super__.apply(this, arguments);
-        
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
@@ -81,4 +64,7 @@ js.lang.Service = function(def, Runtime){
     this._init.apply(this, arguments);
 
 }.$extend(js.util.EventTarget);
+
+
+
 
