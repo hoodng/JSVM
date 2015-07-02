@@ -75,13 +75,7 @@ js.awt.Application = function(def, Runtime, entryId){
         J$VM.Runtime.getDesktop().updateTheme(theme, old);
     };
 
-
-    var _onresized = function(e){
-        
-    };
-
     thi$.destroy = function(){
-
         arguments.callee.__super__.apply(this, arguments);
         
     }.$override(this.destroy);
@@ -102,8 +96,6 @@ js.awt.Application = function(def, Runtime, entryId){
 
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);
-        
-        MQ.register("js.awt.event.WindowResized", this, _onresized);
         
     }.$override(this._init);
     

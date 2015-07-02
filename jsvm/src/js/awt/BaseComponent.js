@@ -645,7 +645,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         }else{
             this.view = view = DOM.createElement(def.viewType || "DIV");
             def.className = def.className || "jsvm__element";
-            view.clazz = view.className = def.className; 
+            view.clazz = view.className = (view.className + " " + def.className); 
         }
         
         view = this.view;

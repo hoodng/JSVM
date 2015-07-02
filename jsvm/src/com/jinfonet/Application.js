@@ -35,7 +35,7 @@ com.jinfonet.Application = function(def, Runtime, entryId){
 	CLASS.ACTION_RST_FLAG_HTTPTIMEOUT = -2; 
 	
 	var Class = js.lang.Class, Event = js.util.Event, 
-	System = J$VM.System, MQ = J$VM.MQ,
+	    System = J$VM.System, MQ = J$VM.MQ, Service,
 		JConstant = Class.forName("com.jinfonet.JConstant");
 	
 	thi$.getProduct = function(){
@@ -119,7 +119,7 @@ com.jinfonet.Application = function(def, Runtime, entryId){
 	 * current application is embedded.
 	 */
 	thi$.onHandshake = function(e){
-		J$VM.System.log.println("From parent window: " 
+		System.log.println("From parent window: " 
 								+ JSON.stringify(e.message || {}));
 		
 		this.setEmbedded(true);
@@ -218,82 +218,34 @@ com.jinfonet.Application = function(def, Runtime, entryId){
 	 * Application doAction entry
 	 */
 	thi$.doAction = function(func, params, module, callback) {
-		var Rt = this.Runtime(), actionName = func + "Action",
-		action = this.getAction(module || "dashboard", actionName),
-		funcName = "on" + func, result, fn, rstFlag;
+        params = params || {};
+        params["j$vm_app"] = this.getAppID();
 
-		System.log.println("Do action " + actionName + " with " + JSON.stringify(params));		  
-
-		action.doAction(
-			params, 
-			this, 
-			function(http){
-				// success
-				result = http.responseJSON();
-				if(result.err == 0) {
-					rstFlag = CLASS.ACTION_RST_FLAG_SUCCESS;					   
-
-					if(typeof callback == "function"){
-						(function(v){
-							 callback(v);
-						 }).$delay(this, 1, result.obj || {});
-					}else{
-						fn = this[funcName];
-						if(typeof fn === "function") {
-							fn.$delay(this, 0, result.obj);
-						}
-					}
-				}else {
-					rstFlag = CLASS.ACTION_RST_FLAG_ERROR;
-					Rt.message("error", result.err, result.msg);
-				}
-				http.close();
-				
-				// Do something others, e.g. to hide loading
-				this.doAfterAction(actionName, rstFlag);
-
-			}, function(http){
-				// HTTP error
-				if(http.status()<100||http.status()>=600){
-					Rt.message("warn", "HTTP " + http.status(),
-							   Rt.nlsText("httpAccessDeny", 
-										  "The required server resources cannot be accessed."));
-				}else{
-					Rt.message("warn", "HTTP " + http.status(), http.statusText());
-				}
-				http.close();
-				
-				// Do something others, e.g. to hide loading
-				this.doAfterAction(actionName, CLASS.ACTION_RST_FLAG_HTTPERROR);				 
-
-			}, function(http){
-				// timeout
-				Rt.message("warn", Rt.nlsText("httpTimeout", "HTTP timeout"), "");
-				http.close();
-				
-				// Do something others, e.g. to hide loading
-				this.doAfterAction(actionName, CLASS.ACTION_RST_FLAG_HTTPTIMEOUT);				   
-			});
+        if(!Class.isFunction(callback)){
+            var fn = this["on"+func];
+            if(Class.isFunction(fn)){
+                callback = fn.$bind(this);
+            }
+        }
+        
+        Service.doAction(func, params, module, callback);
 	};
 
 	/**
 	 * Application doSyncAction entry
 	 */
 	thi$.doSyncAction = function(func, params, module) {
-		var action = this.getAction(module || "dashboard", func + "Action"),
-		http, ret;
-		http = action.doSyncAction(params);
-		ret = http.responseJSON();
-		http.close();
-		return ret;
+        params = params || {};
+        params["j$vm_app"] = this.getAppID();
+
+        return Service.doSyncAction(func, params, module);
 	};
 	
 	/**
 	 * Returns a new Action object
 	 */
 	thi$.getAction = function(module, action){
-		return new (Class.forName("com.jinfonet.Action"))(
-			this.Runtime().postEntry(), module, action);
+        return Service.getAction(module, action);
 	};
 	
 	/**
@@ -377,6 +329,14 @@ com.jinfonet.Application = function(def, Runtime, entryId){
 									  window.self, arguments[5]);
 	};
 
+    thi$._init = function(def, Runtime, entryId){
+        if(def == undefined) return;
+
+        arguments.callee.__super__.apply(this, arguments);
+
+        Service = Runtime.getService();
+        
+    }.$override(this._init);
     
     this._init.apply(this, arguments);
 

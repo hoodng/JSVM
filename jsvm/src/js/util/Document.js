@@ -115,10 +115,12 @@ js.util.Document = function (){
 			//this.forbidSelect(el);            
             break;
             case "INPUT":
+            el.className = "jsvm--font "
             this.setStyle(el, userselect, "text");
             this.applyStyles(el, {resize: "none", outline: "none"});
             break;
             case "TEXTAREA":
+            el.className = "jsvm--font ";
             this.setStyle(el, userselect, "text");
             this.applyStyles(el, {resize: "none", outline: "none", overflow: "auto"});
             break;
@@ -589,9 +591,17 @@ js.util.Document = function (){
 
 	thi$.getBoundRect = function(el, isEle){
 		isEle = isEle === undefined ? this.isDOMElement(el) : isEle;
-
-		return isEle ? el.getBoundingClientRect() :
-			{ left: 0, top: 0, bottom: 0, right: 0 };
+        var d;
+        if(isEle){
+            d = el.getBoundingClientRect();
+            d.left = Math.ceil(d.left);
+            d.top = Math.ceil(d.top);
+            d.bottom = Math.ceil(d.bottom);
+            d.right = Math.ceil(d.right);
+        }else{
+            d = { left: 0, top: 0, bottom: 0, right: 0 };
+        }
+		return d;
 	};
 
 	var _computeByBody = function(){

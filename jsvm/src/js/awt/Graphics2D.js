@@ -478,7 +478,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         def.className = def.className || "jsvm_graphic";
 
         def.layout = def.layout || {
-            classType: "js.awt.AbstractLayout"
+            classType: "js.awt.AbsoluteLayout"
         };
 
         arguments.callee.__super__.apply(this, arguments);

@@ -18,6 +18,8 @@ com.jinfonet.Action = function(entry, module, action){
 	}
 	CLASS.__defined = true;
 
+    var Class = js.lang.Class;
+
 	var _encodeParams = function(params){
 		var p = J$VM.System.arrayCopy(
 			this.params, 0, [], 0, this.params.length, true),s;
@@ -33,21 +35,23 @@ com.jinfonet.Action = function(entry, module, action){
 		return http;
 	};
 
-	var _actionhandle = function(e, fn){
+	var _handler = function(e, fn){
 		fn.call(this, e.getData());
 	};
 
 	thi$.doAction = function(params, thisObj, success, error, timeout, withOutCookie){
 		var http = new com.jinfonet.ActionConnection(true);
 
-		if(typeof success == "function"){
-			http.onsuccess = _actionhandle.$bind(thisObj, success);
+		if(Class.isFunction(success)){
+			http.onsuccess = _handler.$bind(thisObj, success);
 		}
-		if(typeof error == "function"){
-			http.onhttperr = _actionhandle.$bind(thisObj, error);
+        
+		if(Class.isFunction(error)){
+			http.onhttperr = _handler.$bind(thisObj, error);
 		}
-		if(typeof timeout == "function"){
-			http.ontimeout = _actionhandle.$bind(thisObj, timeout);
+        
+		if(Class.isFunction(timeout)){
+			http.ontimeout = _handler.$bind(thisObj, timeout);
 		}
 		
 		return this._send(http, params, withOutCookie);

@@ -27,7 +27,8 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
 	CLASS.__defined__ = true;
 	
 	var Class = js.lang.Class, Event = js.util.Event, 
-	    System = J$VM.System, MQ = J$VM.MQ;
+	    System = J$VM.System, MQ = J$VM.MQ, R,
+        msg_httpAccessDeny, msg_httpTimeout;
 
 	/**
 	 * Returns a new Action object
@@ -40,17 +41,114 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
 			this.postEntry(), module, action);
 	};
 
+    var _log = function(module, action, params){
+        var buf = ["Do"];
+        buf.push(module+"."+action);
+        buf.push("with");
+        buf.push(JSON.stringify(params));
+        System.log.println(buf.join(" "));
+    }
+
 	/**
 	 * Runtime doSyncAction entry
 	 */
 	thi$.doSyncAction = function(func, params, module) {
-		var action = this.getAction(module, func), http, ret;
+
+		var action = this.getAction(module, func), http, ret,
+            ctx = {
+                module: action.module,
+                action: action.action,
+                params: System.objectCopy(params, {})
+            }
+        
+        if(System.isLogEnabled()){
+            _log(ctx.module, ctx.action, ctx.params);            
+        }
+        
 		http = action.doSyncAction(params);
 		ret = http.responseJSON();
 		http.close();
 		return ret;
 	};
 
+	/**
+	 * Runtime doAction entry
+	 */
+	thi$.doAction = function(func, params, module, callback) {
+        var action = this.getAction(module, func),
+            ctx = {
+                module: action.module,
+                action: action.action,
+                params: System.objectCopy(params, {})
+            }
+
+        if(System.isLogEnabled()){
+            _log(ctx.module, ctx.action, ctx.params);            
+        }
+
+        action.doAction(params, this,
+                        _success.$bind(this, callback, ctx),
+                        _httperr.$bind(this, callback, ctx),
+                        _timeout.$bind(this, callback, ctx));
+	};
+
+    
+    var _success = function(http, callback, ctx){
+        var result = http.responseJSON();
+        
+        if(Class.isFunction(callback)){
+            (function(result){
+                callback(result.obj||{}, result.err, result.msg, ctx);
+            }).$delay(this, 0, result);
+        }
+        
+        if(result.err != 0){
+            R.message("error", result.err, result.msg);
+        }
+        http.close();
+    };
+
+    var _httperr = function(http, callback, ctx){
+        var status = http.status(),
+        result = {
+            err: CLASS.HTTPERR,
+            msg: "HTTP "+status+": "
+        };
+
+		if(status<100 || status>=600){
+            result.msg = result.msg +
+				R.nlsText("httpAccessDeny", 
+						  "The required server resources cannot be accessed.");
+		}else{
+            result.msg = result.msg + http.statusText();
+		}
+
+        if(Class.isFunction(callback)){
+            (function(result){
+                callback(result.obj||{}, result.err, result.msg, ctx);
+            }).$delay(this, 0, result);
+        }
+        
+        R.message("warn", result.err, result.msg);
+		http.close();
+    };
+
+    var _timeout = function(http, callback, ctx){
+        var result = {
+            err: CLASS.TIMEOUT,
+            msg: R.nlsText("httpTimeout", "HTTP timeout")
+        };
+
+        if(Class.isFunction(callback)){
+            (function(result){
+                callback(result.obj||{}, result.err, result.msg, ctx);
+            }).$delay(this, 0, result);
+        }
+        
+        R.message("warn", result.err, result.msg);
+		http.close();
+    };
+    
 	var _browserInfo = function(){
 		this.doSyncAction(
             "ClientInfoAction",
@@ -63,75 +161,13 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
 			"webos");
 	};
 
-	/**
-	 * Runtime doAction entry
-	 */
-	thi$.doAction = function(func, params, module, callback) {
-		var Rt = this.Runtime(), actionName = func + "Action",
-		action = this.getAction(module, actionName),
-		funcName = "on" + func, result, fn, rstFlag;
-
-		System.log.println("Do action " + actionName + " with " + JSON.stringify(params));		  
-
-		action.doAction(
-			params, 
-			this, 
-			function(http){
-				// success
-				result = http.responseJSON();
-				if(result.err == 0) {
-					rstFlag = CLASS.ACTION_RST_FLAG_SUCCESS;					   
-
-					if(typeof callback == "function"){
-						(function(v){
-							 callback(v);
-						 }).$delay(this, 1, result.obj || {});
-					}else{
-						fn = this[funcName];
-						if(typeof fn === "function") {
-							fn.$delay(this, 0, result.obj);
-						}
-					}
-				}else {
-					rstFlag = CLASS.ACTION_RST_FLAG_ERROR;
-					Rt.message("error", result.err, result.msg);
-				}
-				http.close();
-				
-				// Do something others, e.g. to hide loading
-				this.doAfterAction(actionName, rstFlag);
-
-			}, function(http){
-				// HTTP error
-				if(http.status()<100||http.status()>=600){
-					Rt.message("warn", "HTTP " + http.status(),
-							   Rt.nlsText("httpAccessDeny", 
-										  "The required server resources cannot be accessed."));
-				}else{
-					Rt.message("warn", "HTTP " + http.status(), http.statusText());
-				}
-				http.close();
-				
-				// Do something others, e.g. to hide loading
-				this.doAfterAction(actionName, CLASS.ACTION_RST_FLAG_HTTPERROR);				 
-
-			}, function(http){
-				// timeout
-				Rt.message("warn", Rt.nlsText("httpTimeout", "HTTP timeout"), "");
-				http.close();
-				
-				// Do something others, e.g. to hide loading
-				this.doAfterAction(actionName, CLASS.ACTION_RST_FLAG_HTTPTIMEOUT);				   
-			});
-	};
-
     var _onheartbeat = function(e){
         var apps = J$VM.Runtime.getDesktop().getApps(), app, fn;
         for(var appid in apps){
             app = apps[appid];
             fn = app.onHeartbeat;
             if(Class.isFunction(fn)){
-                fn.$delay(app, 0, e);
+                fn.$delay(app, 0, e.getData());
             }
         }
     };
@@ -149,6 +185,8 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
         
         arguments.callee.__super__.apply(this, arguments);
 
+        R = Runtime;
+        
         // Report browser infomation
         _browserInfo.call(this);
         
@@ -163,3 +201,8 @@ com.jinfonet.ServiceProxy = function(def, Runtime){
     
 }.$extend(js.lang.Service);
 
+(function(){
+    var CLASS = com.jinfonet.ServiceProxy;
+    CLASS.HTTPERR = "B0000001"; // http error
+    CLASS.TIMEOUT = "B0000002"; // http timeout
+})();

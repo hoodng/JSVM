@@ -112,19 +112,19 @@ js.awt.MessageBox = function(def, Runtime){
 		var m = this.def.model, title = m.title, R = this.Runtime();
 		if(!title){
 			switch(m.msgType){
-			case "info":
+			    case CLASS.INFO:
 				title = R.nlsText("msgDlgInfoTitle", "Information");
 				break;
-			case "warn":
+			    case CLASS.WARN:
 				title = R.nlsText("msgDlgWarnTitle", "Warning");
 				break;
-			case "error":
+			    case CLASS.ERROR:
 				title = R.nlsText("msgDlgErrTitle", "Error");
 				break;
-			case "confirm":
-				title = R.nlsText("msgDlgConfirmTitle", "Confirm");
-				break;
-			}
+			    case CLASS.CONFIRM:
+                title = R.nlsText("msgDlgConfirmTitle", "Confirm");
+                break;
+            }
 		}
 		this.setTitle(title || "");
 
@@ -140,13 +140,13 @@ js.awt.MessageBox = function(def, Runtime){
 
 		if(model.msgSubject){
 			label = this.label = DOM.createElement("SPAN");
-			label.className = "msg_subject";
+			label.className = label.className + " msg_subject";
 			label.innerHTML = model.msgSubject;
 			this.view.appendChild(label);
 		}
 
 		text = this.text = DOM.createElement("TEXTAREA");
-		text.className = "msg_content";
+		text.className = text.className + " msg_content";
 		text.readOnly = "true";
 		text.innerHTML = model.msgContent || "";
 		this.view.appendChild(text);
@@ -173,8 +173,11 @@ js.awt.MessageBox = function(def, Runtime){
 
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 
-js.awt.MessageBox.INFO = "info";
-js.awt.MessageBox.WARN = "warn";
-js.awt.MessageBox.ERROR= "error";
-js.awt.MessageBox.CONFIRM = "confirm";
+(function(){
+    var CLASS = js.awt.MessageBox;
+    CLASS.INFO = "info";
+    CLASS.WARN = "warn";
+    CLASS.ERROR= "error";
+    CLASS.CONFIRM = "confirm";
+})();
 

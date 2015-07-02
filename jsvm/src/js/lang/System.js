@@ -755,6 +755,10 @@ js.lang.System = function (env, vm){
         return "J$VM logger is disabled";
     }.$bind(this);
 
+    this.isLogEnabled = function(){
+        return this.getProperty("j$vm_log") == true;
+    };
+
     var _init = function(env, vm){
         var Event = js.util.Event;
         

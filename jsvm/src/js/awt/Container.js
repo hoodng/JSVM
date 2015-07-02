@@ -86,7 +86,9 @@ js.awt.Container = function (def, Runtime, view){
     thi$.insertComponent = function(index, comp, constraints){
         var items = this.items0(), ref;
 
-        comp.def.constraints = constraints;
+        if(constraints){
+            comp.def.constraints = constraints;            
+        }
 
         if(!isNaN(index) && index >= 0 && index < items.length){
             ref = this.getElementById(items[index]);
@@ -352,6 +354,9 @@ js.awt.Container = function (def, Runtime, view){
     thi$.doLayout = function(force){
         if(arguments.callee.__super__.apply(this, arguments)){
             this.layoutComponents(force);
+            if(this.isCovering()){
+                this.adjustCover(this.getBounds());
+            }
             return true;
         }
 
@@ -413,7 +418,7 @@ js.awt.Container = function (def, Runtime, view){
         arguments.callee.__super__.apply(this, arguments);
         
         var layout = def.layout = (def.layout || {});
-        layout.classType = layout.classType || "js.awt.AbsoluteLayout";
+        layout.classType = layout.classType || "js.awt.LayoutManager";
         this.setLayoutManager(
             new (Class.forName(layout.classType))(layout));
         def.activateman = Class.isBoolean(def.activateman) ? def.activateman : false;

@@ -1,32 +1,32 @@
 /**
 
- Copyright 2010-2011, The JSVM Project.
- All rights reserved.
+  Copyright 2010-2011, The JSVM Project.
+  All rights reserved.
 
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
+  Redistribution and use in source and binary forms, with or without modification,
+  are permitted provided that the following conditions are met:
 
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
+  1. Redistributions of source code must retain the above copyright notice,
+  this list of conditions and the following disclaimer.
 
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
+  2. Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
 
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
+  3. Neither the name of the JSVM nor the names of its contributors may be
+  used to endorse or promote products derived from this software
+  without specific prior written permission.
 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -125,7 +125,7 @@ js.awt.Dialog = function (def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ;
 
     thi$.setDialogObject = function(dialogObj, handler){
         if(!dialogObj || !dialogObj.instanceOf(js.awt.DialogObject))
@@ -133,7 +133,7 @@ js.awt.Dialog = function (def, Runtime){
 
         dialogObj.id = "dialogObj";
         dialogObj.setPeerComponent(this);
-        this.client.addComponent(dialogObj);
+        this.client.addComponent(dialogObj,"center");
 
         if(handler){
             this._local.handler = handler;
@@ -170,8 +170,8 @@ js.awt.Dialog = function (def, Runtime){
     thi$.show = function(){
         _showMaskCover.call(this, true);
 
-        var x = this.def.x, y = this.def.y, DM = this.Runtime().DM,
-        pox = DM.getBounds();
+        var x = this.def.x, y = this.def.y, DM = J$VM.Runtime.getDesktop().DM,
+            pox = DM.getBounds();
         
         if(x == undefined){
             x = (pox.width - this.def.width)*0.5;
@@ -242,7 +242,7 @@ js.awt.Dialog = function (def, Runtime){
      */
     thi$.onbtnDispatcher = function(button){
         var btnId = button.id || "", idx = btnId.indexOf("btn"),
-        cmd, event;
+            cmd, event;
 
         if(idx >= 0){
             cmd = btnId.substr(idx + 3);
@@ -256,8 +256,8 @@ js.awt.Dialog = function (def, Runtime){
 
     thi$.buildDialogEvent = function(type, hasData){
         var dialogObj = this.client.dialogObj,
-        msgId = dialogObj.getDialogMsgType(),
-        data, event;
+            msgId = dialogObj.getDialogMsgType(),
+            data, event;
 
         if(hasData !== false){
             data = dialogObj.getDialogData();
@@ -280,9 +280,9 @@ js.awt.Dialog = function (def, Runtime){
     thi$.close = function(){
         var peer = this.getPeerComponent();
         /*
-         if(peer){
-         peer.getDialogs().remove(this);
-         }*/
+if(peer){
+peer.getDialogs().remove(this);
+}*/
 
         var handler = this._local.handler;
         if(typeof handler == "function"){
@@ -316,11 +316,11 @@ js.awt.Dialog = function (def, Runtime){
         var btnpaneDef = newDef.btnpane, item;
         btnpaneDef.className = btnpaneDef.className || newDef.className + "_btnpane";
         (function(name){
-             if(name.indexOf("btn") == 0){
-                 item = btnpaneDef[name];
-                 item.className = item.className || btnpaneDef.className + "_button";
-             }
-         }).$forEach(this, btnpaneDef.items);
+            if(name.indexOf("btn") == 0){
+                item = btnpaneDef[name];
+                item.className = item.className || btnpaneDef.className + "_button";
+            }
+        }).$forEach(this, btnpaneDef.items);
 
         System.objectCopy(newDef, def, true, true);
         arguments.callee.__super__.apply(this, arguments);
@@ -330,12 +330,12 @@ js.awt.Dialog = function (def, Runtime){
 
         if(this.btnpane){
             (function(name){
-                 if(name.indexOf("btn") == 0){
-                     item = this.btnpane[name];
-                     item.setPeerComponent(this);
-                     restricted.push(item);
-                 }
-             }).$forEach(this, this.btnpane.def.items);
+                if(name.indexOf("btn") == 0){
+                    item = this.btnpane[name];
+                    item.setPeerComponent(this);
+                    restricted.push(item);
+                }
+            }).$forEach(this, this.btnpane.def.items);
         }
 
         restricted.push(this.client);
@@ -428,7 +428,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
                 classType: "js.awt.Button",
                 className: "jsvm_button",
                 labelText: (J$VM.env && J$VM.env['dict'])
-                                ? J$VM.env['dict'].btnApply : "Apply",
+                         ? J$VM.env['dict'].btnApply : "Apply",
                 effect: true
             },
 
@@ -436,7 +436,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
                 classType: "js.awt.Button",
                 className: "jsvm_button",
                 labelText: (J$VM.env && J$VM.env['dict'])
-                                ? J$VM.env['dict'].btnOK : "OK",
+                         ? J$VM.env['dict'].btnOK : "OK",
                 effect: true
             },
 
@@ -444,7 +444,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
                 classType: "js.awt.Button",
                 className: "jsvm_button",
                 labelText: (J$VM.env && J$VM.env['dict'])
-                                ? J$VM.env['dict'].btnCancel : "Cancel",
+                         ? J$VM.env['dict'].btnCancel : "Cancel",
                 effect: true
             },
 
@@ -500,7 +500,7 @@ js.awt.Dialog.MSGDIALOGDEF = function(){
                 classType: "js.awt.Button",
                 className: "jsvm_button",
                 labelText:  (J$VM.env && J$VM.env['dict'])
-                                ? J$VM.env['dict'].btnOK : "OK",
+                         ? J$VM.env['dict'].btnOK : "OK",
                 effect: true
             },
 
