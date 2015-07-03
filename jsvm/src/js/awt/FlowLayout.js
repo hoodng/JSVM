@@ -1,32 +1,32 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice, 
+  this list of conditions and the following disclaimer.
+  
+  2. Redistributions in binary form must reproduce the above copyright notice, 
+  this list of conditions and the following disclaimer in the 
+  documentation and/or other materials provided with the distribution.
+  
+  3. Neither the name of the JSVM nor the names of its contributors may be 
+  used to endorse or promote products derived from this software 
+  without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -62,24 +62,24 @@ js.awt.FlowLayout = function (def){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+        System = J$VM.System;
 
     thi$.layoutContainer = function(container){
         var setting = this.def;
         switch(setting.axis){
-        case 0:
+            case 0:
             _axis0Layout.call(this, container);
             break;
-        case 1:
+            case 1:
             _axis1Layout.call(this, container);
             break;
-        case 2:
+            case 2:
             _axis2Layout.call(this, container);
             break;
-        case 3:
+            case 3:
             _axis3Layout.call(this, container);
             break;
-        default:
+            default:
             throw "Unsupport axis "+setting.axis;
             break;
         }
@@ -87,13 +87,14 @@ js.awt.FlowLayout = function (def){
 
     var _axis0Layout = function(container){
         var setting = this.def, bounds = container.getBounds(),
-        gap = setting.hgap, comps = container.items0(),
-        xbase = bounds.MBP.paddingLeft, left = 0,
-        ybase = bounds.MBP.paddingTop,  top = 0,
-        rigid = container.isRigidWidth(), comp, i, len,
-        d = _axis0Size.call(
-            this, container, bounds, "getPreferredSize");
-        left = xbase + (rigid ? (bounds.innerWidth - d.width) * this.getLayoutAlignmentX():0);
+            gap = setting.hgap, comps = container.items0(),
+            xbase = bounds.MBP.paddingLeft, left = 0,
+            ybase = bounds.MBP.paddingTop,  top = 0,
+            rigid = container.isRigidWidth(), comp, i, len,
+            d = _axis0Size.call(
+                this, container, bounds, "getPreferredSize");
+        left = xbase + (rigid ?
+                        (bounds.innerWidth - d.width) * this.getLayoutAlignmentX():0);
 
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
@@ -110,13 +111,14 @@ js.awt.FlowLayout = function (def){
 
     var _axis1Layout = function(container){
         var setting = this.def, bounds = container.getBounds(),
-        gap = setting.vgap, comps = container.items0(),
-        xbase = bounds.MBP.paddingLeft, left = 0,
-        ybase = bounds.MBP.paddingTop,  top = 0,
-        rigid = container.isRigidHeight(), comp, i, len,
-        d = _axis1Size.call(
-            this, container, bounds, "getPreferredSize");
-        top = ybase + (rigid ? (bounds.innerHeight - d.height) * this.getLayoutAlignmentY():0);
+            gap = setting.vgap, comps = container.items0(),
+            xbase = bounds.MBP.paddingLeft, left = 0,
+            ybase = bounds.MBP.paddingTop,  top = 0,
+            rigid = container.isRigidHeight(), comp, i, len,
+            d = _axis1Size.call(
+                this, container, bounds, "getPreferredSize");
+        top = ybase + (rigid ?
+                       (bounds.innerHeight - d.height) * this.getLayoutAlignmentY():0);
 
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
@@ -157,8 +159,8 @@ js.awt.FlowLayout = function (def){
     
     var _axis0Size = function(container, bounds, fn){
         var setting = this.def, gap = setting.hgap,
-        comps = container.items0(),
-        d, w = 0, h = 0, n= 0, comp, i, len;
+            comps = container.items0(),
+            d, w = 0, h = 0, n= 0, comp, i, len;
         
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
@@ -181,8 +183,8 @@ js.awt.FlowLayout = function (def){
 
     var _axis1Size = function(container, bounds, fn){
         var setting = this.def, gap = setting.vgap,
-        comps = container.items0(),
-        d, w = 0, h = 0, n = 0, comp, i, len;
+            comps = container.items0(),
+            d, w = 0, h = 0, n = 0, comp, i, len;
         
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];

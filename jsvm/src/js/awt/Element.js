@@ -695,6 +695,10 @@ js.awt.Element = function(def, Runtime){
         }
     };
 
+    thi$.doLayout = function(){
+
+    };
+
     thi$.destroy = function(){
         if(this.destroied != true){
             delete this.peer;

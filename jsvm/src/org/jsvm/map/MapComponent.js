@@ -147,6 +147,10 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         
         this.boundingbox = G.drawRect(shape);
     };
+
+    thi$.getLayoutComponents = function(){
+        return [];
+    }.$override(this.getLayoutComponents);
     
     thi$.doLayout = function(){
         if(arguments.callee.__super__.apply(this, arguments)){
@@ -313,7 +317,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         U.inDrag = false;
         
         if(U.dragEle && U.dragEle === mk){
-            var def = mk.def, TR = mk.getTransform(), xy;
+            var def = mk.def, TR = mk.getTransform();
             def.cx += TR.dx;
             def.cy += TR.dy;
             mk.setTransform(1,0,0,1,0,0);
@@ -329,7 +333,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             shape = G.detectShape(rxy.x, rxy.y);
             if(U.drawPolygon === "drawing"){
                 tmp = this.getPaintToolData();
-                vertices = tmp.polygons[tmp.drawing].vertices;
+                var vertices = tmp.polygons[tmp.drawing].vertices;
                 
                 if(shape && shape === vertices[0]){
                     group = this.finishPolygon();
@@ -402,10 +406,14 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         
         xy1 = M.getMercatorXY({x: def.x, y: def.y});
         xy2 = M.getMercatorXY({x: def.x+def.width, y: def.y+def.height});
-        geoCode.boundingbox[0] = parseFloat(MapMath.inverseMercatorY(xy1.y).$format(DBLPATTERN));
-        geoCode.boundingbox[1] = parseFloat(MapMath.inverseMercatorX(xy2.x).$format(DBLPATTERN));
-        geoCode.boundingbox[2] = parseFloat(MapMath.inverseMercatorY(xy2.y).$format(DBLPATTERN));
-        geoCode.boundingbox[3] = parseFloat(MapMath.inverseMercatorX(xy1.x).$format(DBLPATTERN));
+        geoCode.boundingbox[0] = parseFloat(
+            MapMath.inverseMercatorY(xy1.y).$format(DBLPATTERN));
+        geoCode.boundingbox[1] = parseFloat(
+            MapMath.inverseMercatorX(xy2.x).$format(DBLPATTERN));
+        geoCode.boundingbox[2] = parseFloat(
+            MapMath.inverseMercatorY(xy2.y).$format(DBLPATTERN));
+        geoCode.boundingbox[3] = parseFloat(
+            MapMath.inverseMercatorX(xy1.x).$format(DBLPATTERN));
         
         this.fireEvent(new Event("geocodechanged", geoCode, this), true);
     };
@@ -442,7 +450,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
     thi$.selectPolygon = function(group){
         var polygons = this.getPaintToolData().polygons,
             selectGroup = this._local.selectedPolygon;
-        if(selectGroup === group) return false;
+        if(selectGroup === group) return;
         
         if(polygons[selectGroup]){
             this.modifyPolygon(selectGroup, true);
@@ -468,9 +476,9 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         var polygons = this.getPaintToolData().polygons,
             polygon = polygons[this._local.selectedPolygon];
             
-        if(!polygon) return false;
+        if(!polygon) return;
         
-        for(p in def){
+        for(var p in def){
             polygon.polygon.def[p] = def[p];
         }
         this.g2d.drawing();
@@ -484,7 +492,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             lng, lat, arr = [], M = this.map,
             polygons = this.getPaintToolData().polygons;
         
-        for(p in polygons){
+        for(var p in polygons){
             obj = {
                 id: p,
                 points: []
@@ -520,8 +528,9 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             stateless: true,
             css: "position:absolute;left:5px;",
             data:{
-                Longitude: "000.000000",
-                Latitude: "000.000000"
+                Longitude: "0",
+                Latitude: "0",
+                "Zoom level": "2"
             }
         };
     };
@@ -538,6 +547,9 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         this.attachEvent("mousedown",0, this, _onmousedown);
         this.attachEvent("mousemove", 0, this, _onMapMousemove);
 
+        this.board.setData.$delay(this.board, 0, this.board.def.data);
+
+        
     }.$override(this._init);
     
     this._init.apply(this, arguments);

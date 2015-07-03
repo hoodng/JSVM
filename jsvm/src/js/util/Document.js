@@ -591,17 +591,16 @@ js.util.Document = function (){
 
 	thi$.getBoundRect = function(el, isEle){
 		isEle = isEle === undefined ? this.isDOMElement(el) : isEle;
-        var d;
+        var d, ret = { left: 0, top: 0, bottom: 0, right: 0 };
+        
         if(isEle){
             d = el.getBoundingClientRect();
-            d.left = Math.ceil(d.left);
-            d.top = Math.ceil(d.top);
-            d.bottom = Math.ceil(d.bottom);
-            d.right = Math.ceil(d.right);
-        }else{
-            d = { left: 0, top: 0, bottom: 0, right: 0 };
+            ret.left = Math.ceil(d.left);
+            ret.top = Math.ceil(d.top);
+            ret.bottom = Math.ceil(d.bottom);
+            ret.right = Math.ceil(d.right);
         }
-		return d;
+		return ret;
 	};
 
 	var _computeByBody = function(){

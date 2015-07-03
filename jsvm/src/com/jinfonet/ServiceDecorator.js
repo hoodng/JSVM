@@ -12,23 +12,23 @@ $import("com.jinfonet.Action");
 $import("com.jinfonet.HeartBeat");
 
 
-com.jinfonet.ServiceProxy = function(Runtime){
+com.jinfonet.ServiceDecorator = function(){
 
-	var CLASS = com.jinfonet.ServiceProxy, thi$ = this;
-	
-	var Class = js.lang.Class, Event = js.util.Event, 
-	    System = J$VM.System, MQ = J$VM.MQ, R;
+    var CLASS = com.jinfonet.ServiceDecorator, thi$ = this;
+    
+    var Class = js.lang.Class, Event = js.util.Event, 
+        System = J$VM.System, MQ = J$VM.MQ, R;
 
-	/**
-	 * Returns a new Action object
-	 */
-	thi$.getAction = function(module, action){
+    /**
+     * Returns a new Action object
+     */
+    thi$.getAction = function(module, action){
         module = module || "webos";
         action = action.endsWith("Action") ? action : action+"Action";
 
-		return new (Class.forName("com.jinfonet.Action"))(
-			R.postEntry(), module, action);
-	};
+        return new (Class.forName("com.jinfonet.Action"))(
+            R.postEntry(), module, action);
+    };
 
     var _log = function(module, action, params){
         var buf = ["Do"];
@@ -38,11 +38,11 @@ com.jinfonet.ServiceProxy = function(Runtime){
         System.log.println(buf.join(" "));
     }
 
-	/**
-	 * Runtime doSyncAction entry
-	 */
-	thi$.doSyncAction = function(func, params, module) {
-		var action = this.getAction(module, func), http, ret,
+    /**
+     * Runtime doSyncAction entry
+     */
+    thi$.doSyncAction = function(func, params, module) {
+        var action = this.getAction(module, func), http, ret,
             ctx = {
                 module: action.module,
                 action: action.action,
@@ -53,16 +53,21 @@ com.jinfonet.ServiceProxy = function(Runtime){
             _log(ctx.module, ctx.action, ctx.params);            
         }
         
-		http = action.doSyncAction(params);
-		ret = http.responseJSON();
-		http.close();
-		return ret;
-	};
+        http = action.doSyncAction(params);
+        try{
+            ret = http.responseJSON();            
+        } catch (x) {
 
-	/**
-	 * Runtime doAction entry
-	 */
-	thi$.doAction = function(func, params, module, callback) {
+        }finally{
+            http.close();            
+        }
+        return ret;
+    };
+
+    /**
+     * Runtime doAction entry
+     */
+    thi$.doAction = function(func, params, module, callback) {
         var action = this.getAction(module, func),
             ctx = {
                 module: action.module,
@@ -78,7 +83,7 @@ com.jinfonet.ServiceProxy = function(Runtime){
                         _success.$bind(this, callback, ctx),
                         _httperr.$bind(this, callback, ctx),
                         _timeout.$bind(this, callback, ctx));
-	};
+    };
 
     
     var _success = function(http, callback, ctx){
@@ -98,18 +103,18 @@ com.jinfonet.ServiceProxy = function(Runtime){
 
     var _httperr = function(http, callback, ctx){
         var status = http.status(),
-        result = {
-            err: CLASS.HTTPERR,
-            msg: "HTTP "+status+": "
-        };
+            result = {
+                err: CLASS.HTTPERR,
+                msg: "HTTP "+status+": "
+            };
 
-		if(status<100 || status>=600){
+        if(status<100 || status>=600){
             result.msg = result.msg +
-				R.nlsText("httpAccessDeny", 
-						  "The required server resources cannot be accessed.");
-		}else{
+                R.nlsText("httpAccessDeny", 
+                          "The required server resources cannot be accessed.");
+        }else{
             result.msg = result.msg + http.statusText();
-		}
+        }
 
         if(Class.isFunction(callback)){
             (function(result){
@@ -118,7 +123,7 @@ com.jinfonet.ServiceProxy = function(Runtime){
         }
         
         R.message("warn", result.err, result.msg);
-		http.close();
+        http.close();
     };
 
     var _timeout = function(http, callback, ctx){
@@ -134,20 +139,20 @@ com.jinfonet.ServiceProxy = function(Runtime){
         }
         
         R.message("warn", result.err, result.msg);
-		http.close();
+        http.close();
     };
-    
-	var _browserInfo = function(){
-		this.doSyncAction(
+
+    var _browserInfo = function(){
+        this.doSyncAction(
             "ClientInfoAction",
-			{jrd_objdef:{
-				platform: navigator.platform,
-				userAgent: navigator.userAgent,
-				logicalXDPI: J$VM.supports.logicalXDPI,
-				logicalYDPI: J$VM.supports.logicalYDPI 
-			}},
-			"webos");
-	};
+            {jrd_objdef:{
+                platform: navigator.platform,
+                userAgent: navigator.userAgent,
+                logicalXDPI: J$VM.supports.logicalXDPI,
+                logicalYDPI: J$VM.supports.logicalYDPI 
+            }},
+            "webos");
+    };
 
     var _onheartbeat = function(e){
         var apps = R.getDesktop().getApps(), app, fn;
@@ -168,22 +173,22 @@ com.jinfonet.ServiceProxy = function(Runtime){
         
     }.$override(this.destroy);
 
-    (function(Runtime){
-        R = Runtime;
+    (function(){
+        R = this.Runtime();
         
         // Report browser infomation
         _browserInfo.call(this);
         
-        (Class.forName("com.jinfonet.HeartBeat")).call(this, Runtime);
+        (Class.forName("com.jinfonet.HeartBeat")).call(this, R);
         System.out.println("Heartbeat established.");
 
         MQ.register(this.MSG_HEARTBEAT, this, _onheartbeat);        
 
-    }).call(this, this.Runtime());
+    }).call(this);
 };
 
 (function(){
-    var CLASS = com.jinfonet.ServiceProxy;
+    var CLASS = com.jinfonet.ServiceDecorator;
     CLASS.HTTPERR = "B0000001"; // http error
     CLASS.TIMEOUT = "B0000002"; // http timeout
 })();

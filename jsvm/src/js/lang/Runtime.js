@@ -102,13 +102,13 @@ js.lang.Runtime = function(){
                 def.classType = def.classType || "js.awt.Application";
                 def.className = def.className || "jsvm_app";
                 var appClass = Class.forName(def.classType), app;
-                app = new (appClass)(def, this, entry);
+                app = this.Application = new (appClass)(def, this, entry);
                 this.getDesktop().registerApp(entry, app);
                 return app;
             };
 
-            this.getApplication = function(){
-                return this.getDesktop().getApp(entry);
+            this.getApp = function(){
+                return this.Application;
             };
         };
 

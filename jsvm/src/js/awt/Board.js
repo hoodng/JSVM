@@ -108,8 +108,6 @@ js.awt.Board = function(def, Runtime){
 			row.comps[0] = comp;
 			this.addComponent(comp);
 			
-			
-			
 			ext = {
 				className: this.className + "_field",
 				text: v,
@@ -173,7 +171,7 @@ js.awt.Board = function(def, Runtime){
 	var _calCol = function(cols, index, prefer){
 		var col = cols[index], oprefer;
 		if(!col){
-			col = cols[j] = {
+			col = cols[index] = {
 				index: index,
 				rigid: true,
 				measure: prefer,
