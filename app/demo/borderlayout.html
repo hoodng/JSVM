@@ -57,15 +57,11 @@
 
 <script type="text/javascript">
 
-J$VM.Runtime.exec(function(){
+J$VM.exec("demo", function(entry){
   var R = this;
 
-  var app = this.getDesktop().createApp("js.awt.Application", {
-    className: "jsvm-demo",
-    stateless: true
-  }, "demo");
-  app.run(function(){
-  
+  this.createApp().run(function(){
+
   var Panel = new js.awt.Container({
     className: "panel",
     id: "panel",
@@ -125,7 +121,7 @@ J$VM.Runtime.exec(function(){
   this.btFirst.attachEvent("click", 0, this, _first);
   });
 
-}, "demo");
+});
 
 </script>
 </html>
