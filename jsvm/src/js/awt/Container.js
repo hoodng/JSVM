@@ -155,7 +155,7 @@ js.awt.Container = function (def, Runtime, view){
     thi$.activateComponent = function(e){
         if(e == undefined){
             arguments.callee.__super__.call(this);
-            return;
+            return undefined;
         }
 
         var id, comp;
@@ -169,7 +169,9 @@ js.awt.Container = function (def, Runtime, view){
 
         comp = this[id];
 
-        if(comp === undefined) return;
+        if(comp === undefined){
+             return undefined;
+        }
 
         if(this.isZOrder()){
             this.bringCompToFront(comp, 0x07);
@@ -181,12 +183,15 @@ js.awt.Container = function (def, Runtime, view){
         if(this.def.activateman == true){
             comp.setActivated(true);
             this._local.active = comp;
+            
             (function(compid){
                  if(compid != id){
                      this.getComponent(compid).setActivated(false);
                  }
              }).$forEach(this, this.def.items);
         }
+        
+        return id;
 
     }.$override(this.activateComponent);
     
@@ -230,7 +235,7 @@ js.awt.Container = function (def, Runtime, view){
     thi$.getComponentCount = function(){
         return this.getElementsCount();
     };
-    
+
     /**
      * Test if contains the component
      */
@@ -284,8 +289,7 @@ js.awt.Container = function (def, Runtime, view){
     }.$override(this.getPreferredSize);
 
     /**
-
-     *      * @see js.awt.BaseComponent
+     *  @see js.awt.BaseComponent
      */
     thi$.getMinimumSize = function(nocache){
         return nocache === true ? 
@@ -382,7 +386,7 @@ js.awt.Container = function (def, Runtime, view){
             if(Class.isObject(compDef)){
                 compDef.id = compDef.id || compid;
                 compDef.className = compDef.className ||
-                    DOM.comboCSSClass(this.def.className, compid);
+                    DOM.combineClassName(this.def.className, compid);
 
                 var comp = new (Class.forName(compDef.classType))(
                     compDef, R);

@@ -731,6 +731,18 @@ js.awt.Element = function(def, Runtime){
 
         CLASS.count++;
         
+        if(def.prefSize){
+            this.isPreferredSizeSet = true;
+        }
+        
+        if(def.miniSize){
+            this.isMinimumSizeSet = true;
+        }
+        
+        if(def.maxiSize){
+            this.isMaximumSizeSet = true;
+        }        
+        
         if(def.useUserDefinedTip === true){
             this.setTipUserDefined(true);
         }

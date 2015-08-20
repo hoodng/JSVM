@@ -1,42 +1,17 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: http://github.com/jsvm
+ * Source code availability:  https://github.com/hoodng/JSVM
  */
 
 /*var tasks = */{
-    list: ["jsrecore", "jsreui"],
+    list: ["jsrecore", "jsreui", "graphic"],
 
     jsrecore: {
         srcroot: "../src",
@@ -57,6 +32,7 @@
             "js/util/EventListener.js",
             "js/util/EventTarget.js",
             "js/util/Messenger.js",
+            "js/util/StyleSheet.js",
             "js/util/Document.js",
             "js/util/MemoryStorage.js",
             "js/util/Storage.js",
@@ -72,14 +48,19 @@
             "js/lang/Runtime.js",
             "js/lang/System.js",
             "js/lang/Thread.js",
-            "js/boot.js",
-            "js/text/NumberFormatSymbols.js",
+            "js/sql/Types.js",
+            "js/math/Traveller.js",
+            "js/text/BigIntTools.js",
             "js/text/DateFormatSymbols.js",
+            "js/text/NumberFormatSymbols.js",
             "js/text/Format.js",
-            "js/text/NumberFormat.js",
+            "js/text/YearFormat.js",
+            "js/text/MonthFormat.js",
+            "js/text/HourFormat.js",
+            "js/text/MinuteFormat.js",
             "js/text/SimpleDateFormat.js",
-            "js/text/NumberFormat.js"
-            
+            "js/text/NumberFormat.js",
+            "js/boot.js"
         ]
     },
 
@@ -93,8 +74,8 @@
             "js/awt/Shadow.js",
             "js/awt/Movable.js",
             "js/awt/Resizable.js",
-            "js/awt/Containable.js",
             "js/awt/PopupLayer.js",
+            "js/awt/ToolTip.js",
             "js/awt/ZOrderManager.js",
             "js/awt/LayoutManager.js",
             "js/awt/AbsoluteLayout.js",
@@ -103,24 +84,25 @@
             "js/awt/CardLayout.js",
             "js/awt/FlowLayout.js",
             "js/awt/GridLayout.js",
-            "js/awt/ToolTip.js",
             "js/awt/Element.js",
             "js/awt/BaseComponent.js",
             "js/awt/Component.js",
+            "js/awt/Containable.js",
             "js/awt/Container.js",
             "js/awt/HBox.js",
             "js/awt/VBox.js",
+            "js/awt/FieldSet.js",
             "js/awt/ScrollPane.js",
             "js/awt/TabPane.js",
             "js/swt/SearchKit.js",
             "js/awt/Highlighter.js",
             "js/awt/Item.js",
+            "js/awt/FlexibleItem.js",
             "js/awt/Label.js",
             "js/awt/Icon.js",
             "js/awt/Button.js",
             "js/awt/CheckBox.js",
             "js/awt/RadioButton.js",
-            "js/awt/FlexibleItem.js",
             "js/awt/MenuItem.js",
             "js/awt/Menu.js",
             "js/awt/TreeItem.js",
@@ -131,9 +113,73 @@
             "js/awt/LayerManager.js",
             "js/awt/Desktop.js",
             "js/awt/Window.js",
+            "js/awt/Application.js",
             "js/awt/Dialog.js",
-            "js/awt/MessageBox.js"
+            "js/awt/MessageBox.js",
+            "js/awt/Color.js",
+            "js/awt/Font.js",
+            "js/awt/Grid.js",
+            "js/awt/Bidirectional.js",
+            "js/awt/Slider.js",
+            "js/awt/Scrollbar.js",
+            "js/swt/TextField.js",
+            "js/swt/ListItem.js",
+            "js/swt/HItem.js",
+            "js/swt/List.js",
+            "js/swt/DropdownList.js",
+            "js/swt/ComboBox.js",
+            "js/swt/ScrollPane.js"
         ]        
+    },
+
+    graphic:{
+        srcroot: "../src",
+        despath: "../lib/jsre-gks.js",
+        files:[
+        "js/math/Matrix.js",
+        "js/math/Trig.js",
+        "js/awt/Graphic.js",
+        "js/awt/SVGGraphic.js",
+        "js/awt/Drawable.js",
+        "js/awt/Graphics2D.js",
+
+        "js/awt/GraphicElement.js",
+        "js/awt/GraphicContainer.js",
+        "js/awt/GraphicGroup.js",
+        "js/awt/GraphicLayer.js",
+        "js/awt/GraphicShape.js",
+        "js/awt/Renderer.js",
+
+        "js/awt/CanvasGroup.js",
+        "js/awt/CanvasLayer.js",
+        "js/awt/CanvasRenderer.js",
+        "js/awt/CanvasLabel.js",
+
+        "js/awt/SvgGroup.js",
+        "js/awt/SvgLayer.js",
+        "js/awt/SvgRenderer.js",
+
+        "js/awt/VmlGroup.js",
+        "js/awt/VmlLayer.js",
+        "js/awt/VmlRenderer.js",
+
+        "js/awt/shape/Arc.js",
+        "js/awt/shape/Circle.js",
+        "js/awt/shape/Ellipse.js",
+        "js/awt/shape/Image.js",
+        "js/awt/shape/Line.js",
+        "js/awt/shape/Polygon.js",
+        "js/awt/shape/Polyline.js",
+        "js/awt/shape/Rect.js",
+        "js/awt/shape/RPolygon.js",
+        "js/awt/shape/Pentagon.js",
+        "js/awt/shape/Sector.js",
+        "js/awt/shape/Square.js",
+        "js/awt/shape/Star.js",
+        "js/awt/shape/Text.js",
+        "js/awt/shape/Triangle.js",
+        "js/swt/NewItem.js"
+        ]
     }
     
 }/*;*/

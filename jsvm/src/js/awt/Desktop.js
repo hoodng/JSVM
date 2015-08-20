@@ -103,7 +103,7 @@ js.awt.Desktop = function (Runtime){
             bodyH = bounds.height;
 
             for(var appid in apps){
-                this.getApp(appid).doLayout(true);
+                this.getApp(appid).fireEvent(e);
             }
         }
     };
@@ -194,6 +194,8 @@ js.awt.Desktop = function (Runtime){
             for(var i=0, len=files.length; i<len; i++){
                 styles.push(files[i]);
             }
+
+            this.updateTheme(R.theme());
         }
     };
 
@@ -201,7 +203,7 @@ js.awt.Desktop = function (Runtime){
         for(var i=0, len=styles.length; i<len; i++){
             this.updateThemeCSS(theme, styles[i]);
         }
-        DOM.applyStyleSheet("__apply__", "", true);
+        this.applyCSS();
         this.updateThemeImages(theme, old);
     };
 
@@ -212,7 +214,7 @@ js.awt.Desktop = function (Runtime){
             styleText = Class.getResource(stylePath + file, true);
 
         styleText = styleText.replace(IMGSREG, stylePath+"images/");
-        DOM.applyStyleSheet(file, styleText);
+        this.applyCSSCode(file, styleText);
     };
 
     thi$.updateThemeLinks = function(theme, old, file){
@@ -256,6 +258,38 @@ js.awt.Desktop = function (Runtime){
                 link.src = src;
             }
         }
+    };
+
+    thi$.cssIds = [];
+    thi$.cssCodes = {};
+    /**
+     * Apply a stylesheet with id and css code
+     * 
+     * @param id {String} id of the style tag
+     * @param css {String} CSS code
+     */
+    thi$.applyCSSCode = function(id, css){
+        var sheets = this.cssIds, set = this.cssCodes;
+
+        if(set[id] === undefined){
+            sheets.push(id);
+        }
+        set[id] = css;
+    };
+
+    thi$.applyCSS = function(){
+        var styleSheet, sheets=this.cssIds,
+            set = this.cssCodes, buf, css;
+        
+        styleSheet = DOM.getStyleSheetBy("j$vm-css");
+
+        buf = [];
+        for(var i=0, len=sheets.length; i<len; i++){
+            buf.push(set[sheets[i]]);
+        }
+        css = buf.join("\r\n");
+
+        styleSheet.applyCSS(css);
     };
     
     /**
@@ -322,7 +356,7 @@ js.awt.Desktop = function (Runtime){
 
         var styleText = Class.getResource(
             J$VM.j$vm_home + "../style/jsvm_reset.css", true);
-        DOM.applyStyleSheet("jsvm_reset.css", styleText);
+        this.applyCSSCode("jsvm_reset.css", styleText);
         
         Event.attachEvent(self, Event.W3C_EVT_RESIZE, 0, this, _onresize);
         Event.attachEvent(self, Event.W3C_EVT_MESSAGE,0, this, _onmessage);

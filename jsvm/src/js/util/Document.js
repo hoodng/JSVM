@@ -87,44 +87,44 @@ js.util.Document = function (){
 		"html-4.01-transitional": {bodysize: true}
 	};
 
-    var _prefix_ = thi$.CSSPrefix = function(){
-        if(J$VM.ie){
-            return "-ms-";
-        }else if(J$VM.chrome || J$VM.safari){
-            return "-webkit-";
-        }else if(J$VM.firefox){
-            return "-moz-";
-        }
-        return "";
-    }();
+	var _prefix_ = thi$.CSSPrefix = function(){
+		if(J$VM.ie){
+			return "-ms-";
+		}else if(J$VM.chrome || J$VM.safari){
+			return "-webkit-";
+		}else if(J$VM.firefox){
+			return "-moz-";
+		}
+		return "";
+	}();
 
-    var userselect = _prefix_+"user-select",
-        userdrag = _prefix_+"user-drag";
-    
+	var userselect = _prefix_+"user-select",
+	userdrag = _prefix_+"user-drag";
+	
 	/**
 	 * Create a DOM element
 	 *
 	 */
 	thi$.createElement = function(type){
 		var el = document.createElement(type);
-        this.setStyle(el, userselect, "none");
-        this.setStyle(el, userdrag, "none");
+		this.setStyle(el, userselect, "none");
+		this.setStyle(el, userdrag, "none");
 
-        switch(el.tagName){
-            case "IMG":
-			//this.forbidSelect(el);            
-            break;
-            case "INPUT":
-            el.className = "jsvm--font "
-            this.setStyle(el, userselect, "text");
-            this.applyStyles(el, {resize: "none", outline: "none"});
-            break;
-            case "TEXTAREA":
-            el.className = "jsvm--font ";
-            this.setStyle(el, userselect, "text");
-            this.applyStyles(el, {resize: "none", outline: "none", overflow: "auto"});
-            break;
-        }
+		switch(el.tagName){
+		case "IMG":
+			//this.forbidSelect(el);			
+			break;
+		case "INPUT":
+			el.className = "jsvm--font ";
+			this.setStyle(el, userselect, "text");
+			this.applyStyles(el, {resize: "none", outline: "none"});
+			break;
+		case "TEXTAREA":
+			el.className = "jsvm--font ";
+			this.setStyle(el, userselect, "text");
+			this.applyStyles(el, {resize: "none", outline: "none", overflow: "auto"});
+			break;
+		}
 		return el;
 	};
 
@@ -591,15 +591,15 @@ js.util.Document = function (){
 
 	thi$.getBoundRect = function(el, isEle){
 		isEle = isEle === undefined ? this.isDOMElement(el) : isEle;
-        var d, ret = { left: 0, top: 0, bottom: 0, right: 0 };
-        
-        if(isEle){
-            d = el.getBoundingClientRect();
-            ret.left = Math.ceil(d.left);
-            ret.top = Math.ceil(d.top);
-            ret.bottom = Math.ceil(d.bottom);
-            ret.right = Math.ceil(d.right);
-        }
+		var d, ret = { left: 0, top: 0, bottom: 0, right: 0 };
+		
+		if(isEle){
+			d = el.getBoundingClientRect();
+			ret.left = Math.ceil(d.left);
+			ret.top = Math.ceil(d.top);
+			ret.bottom = Math.ceil(d.bottom);
+			ret.right = Math.ceil(d.right);
+		}
 		return ret;
 	};
 
@@ -701,8 +701,8 @@ js.util.Document = function (){
 	 * @param bounds @see getBounds(el)
 	 */
 	thi$.setSize = function(el, w, h, bounds){
-
 		bounds = bounds || this.getBounds(el);
+
 		var BBM = bounds.BBM, styleW, styleH,
 		isCanvas = (el.tagName === "CANVAS");
 
@@ -958,6 +958,24 @@ js.util.Document = function (){
 	};
 
 	/**
+	 * Remove all child nodes from the DOM.
+	 */
+	thi$.empty = function(el){
+		if(!el) return;
+
+		// Remove any remaining nodes
+		while (el.firstChild) {
+			this.remove(el.firstChild, true);
+		}
+
+		// If this is a select, ensure that it displays empty
+		// Support: IE<9
+		if(el.options && el.tagName === "SELECT"){
+			el.options.length = 0;
+		}
+	};
+
+	/**
 	 * Append the element to the parent node
 	 */
 	thi$.appendTo = function(el, parentNode){
@@ -1061,22 +1079,17 @@ js.util.Document = function (){
 	 * @param styles: {Object} key/value pairs of styles.
 	 */
 	thi$.toCssText = function(styles){
-		if(typeof styles !== "object"){
-			return "";
-		}
+		if(!Class.isObject(styles)) return "";
 
-		var buf = new js.lang.StringBuffer(), p, v;
+		var p, v, ret=[];
 		for(p in styles){
-			v = styles[p];
-
-			if(v !== null && v !== undefined){
+			if(styles.hasOwnProperty(p)){
+				v = styles[p];
 				p = this.hyphenName(p);
-
-				buf.append(p).append(":").append(v).append(";");
+				ret.push(p, ":", v,";");
 			}
 		}
-
-		return buf.toString();
+		return ret.join("");
 	};
 
 	/**
@@ -1280,6 +1293,23 @@ js.util.Document = function (){
 	};
 
 	/**
+	 * Fetch the absolute url of the given relative url.
+	 * 
+	 * @param {String} url The relative url.
+	 * @return {String} The absolute url.
+	 */
+	thi$.getAbsoluteUrl = function() {
+		var a;
+		
+		return function(url) {
+			if(!a) a = document.createElement('a');
+			a.href = url;
+
+			return a.href;
+		};
+	}();
+
+	/**
 	 * Add styles specified the given CSS codes to current document or
 	 * the specified document at runtime.
 	 * If only one argument is given, which should be the CSS codes. If
@@ -1306,6 +1336,8 @@ js.util.Document = function (){
 				tmpEl.setAttribute("type", "text/css");
 				head.appendChild(tmpEl);
 			}
+
+			styleElements = head.getElementsByTagName("style");
 		}
 
 		styleElement = styleElements[0];
@@ -1323,108 +1355,240 @@ js.util.Document = function (){
 		}
 	};
 
-    
-    thi$.styleSheets = [];
-    
-    thi$.styleSheetSet = {};
-    
-    /**
-     * Apply a stylesheet with id and css code
-     * 
-     * @param id {String} id of the style tag
-     * @param css {String} CSS code
-     * @param doApply {Boolean} true will apply changed
-     */
-    thi$.applyStyleSheet = function(id, css, doApply){
-        var dom = self.document, entry="j$vm_css",
-            style = dom.getElementById(entry),
-            sheets = this.styleSheets,
-            set = this.styleSheetSet;
+	//////////////////	J$VM StyleSheet	 //////////////////////////////////
+	
+	thi$.styleSheets = {};
+	
+	thi$.getStyleSheetBy = function(id, href){
+		id = id || null; href = href || null;
+		
+		var key = id+":"+href, styleEle, dom = self.document,
+		styleSheet = this.styleSheets[key];
 
-        if(set[id] === undefined){
-            sheets.push(id);
-        }
-        set[id] = css;
+		if(styleSheet){
+			return styleSheet._syncUpdate();
+		}
+		
+		styleSheet = this._findNativeStyleSheet(id, href);
+		if(!styleSheet){
+			if(href){
+				styleEle = dom.createElement("link");
+				styleEle.href = href;
+				styleEle.rel = "stylesheet";
+				styleEle.type = "text/css";
+			}else{
+				styleEle = dom.createElement("style");
+				if(id){
+					styleEle.id = id;						 
+				}
+				styleEle.type = "text/css";					   
+			}
+			this.insertBefore(styleEle, dom.getElementById("j$vm"));
+			styleSheet = this._findNativeStyleSheet(id, href);
+		}
 
-        if(doApply !== true) return;
-        
-        if(!style){
-            style = dom.createElement("style");
-            style.id = entry;
-            style.title = entry;
-            style.type = "text/css";
-            this.insertBefore(style, dom.getElementById("j$vm"));
-        }
+		styleSheet = this.styleSheets[key] =
+			new (Class.forName("js.util.StyleSheet"))(styleSheet);
 
-        var buf = [];
-        for(var i=0, len=sheets.length; i<len; i++){
-            buf.push(set[sheets[i]]);
-        }
-        css = buf.join("\r\n");
+		return styleSheet;
+	};
 
-        if(style.styleSheet){
-            // IE
-            try{
-                style.styleSheet.cssText = css;
-            } catch (x) {
+	thi$.rmvStyleSheetBy = function(id, href){
+		id = id || null; href = href || null;
+		
+		var key = id+":"+href, styleEle, dom = self.document,
+		styleSheet = this.styleSheets[key];
 
+		if(styleSheet){
+			this.removeFrom(styleSheet.nativeSheet.ownerNode);
+			styleSheet.destroy();
+			delete this.styleSheets[key];
+		}else{
+			styleSheet = this._findNativeStyleSheet(id, href);
+			this.removeFrom(styleSheet.ownerNode);
+		}
+	};
+	
+	thi$._findNativeStyleSheet = function(id, href){
+		id = id || null; href = href || null;
+
+		var styleSheets = self.document.styleSheets, styleSheet, ret=[];
+		
+		for(var i=0, len=styleSheets.length; i<len; i++){
+			styleSheet = styleSheets[i];
+			if(styleSheet.ownerNode && styleSheet.ownerNode.id === id &&
+			   styleSheet.href === href){
+				ret.push(styleSheet);
+			}
+		}
+
+		return ret.length > 0 ? ret[ret.length-1] : null;
+	};
+
+
+	var STATEREG = /(\w+)(_\d{1,4})$/;
+
+	thi$.splitCSSClass = function(className){
+		className.trim();
+
+		var names = className.split(" "), last = names.pop();
+		if(STATEREG.test(last)){
+			last = RegExp.$1;
+			if(names.length > 0){
+				if(last != names[names.length-1]){
+					names.push(last);
+				}
+			}else{
+				names.push(last);
+			}
+		}else{
+			names.push(last);
+		}
+		
+		return names;
+	};
+
+	var _combineClassName = function(className, ext, separator){
+		if(!Class.isString(separator)){
+			separator = "_";
+		}
+
+		var names = this.splitCSSClass(className), rst = [], name;
+		for(var i = 0, len = names.length; i < len; i++){
+			name = names[i];
+
+            // Skip the decorating className, e.g. restree--nombp, btn--square.
+            // Rule: all decorating className only for the current component
+            if(!name || name.indexOf("--") !== -1){
+                continue;
             }
-        }else{
-            // W3C
-            style.innerHTML = css;
-        }
-    };
 
-    var STATEREG = /(\w+)(_\d{1,4})$/;
+			for(var j = 0, jlen = ext.length; j < jlen; j++){
+				rst.push(name + separator + ext[j]);
+			}
+		}
+		
+		return rst.join(" ");
+	};
 
-    thi$.splitCSSClass = function(className){
-        var names = className.split(" "), last = names.pop();
-        if(STATEREG.test(last)){
-            last = RegExp.$1;
-            if(names.length > 0){
-                if(last != names[names.length-1]){
-                    names.push(last);
+	var STATESEGREG = /\s+\$(\S+)/g;
+
+	/**
+	 * "A B" + "xx" ==> "A_xx B_xx"
+	 * "A B $A $B" + "xx" ==> "A_xx B_xx $A_xx $B_xx"
+	 * "A B" + [x, y] ==> "A_x A_y B_x By"
+	 * "A B $A $B" + [x, y] ==> "A_x A_y B_x B_y $A_x $A_y $B_x $B_y"
+     * 
+     * "A B B--nombp" + [x, y] ==> "A_x A_y B_x B_y"
+     * 
+     * Also, skip the decorating className, e.g. restree--nombp, btn--square.
+     * Rule: all decorating className only for the current component.
+	 * 
+	 * @param {String} className Like "A B", "A B $A $B".
+	 * @param {String / Array} ext The specified string / strings to combine.
+	 * @param {String} separator Like "", "_".
+	 */	   
+	thi$.combineClassName = function(className, ext, separator){
+		if(!Class.isArray(ext)){
+            if(Class.isValid(ext)){
+                ext = "" + ext;
+            }
+
+			if(ext){
+				ext = [ext];
+			}else{
+				ext = [];
+			}
+		}
+
+		if(className && ext.length > 0){
+			className = _combineClassName.apply(this, arguments);  
+		}
+
+		return className;
+	};
+
+	/**
+	 * "A B" + 4 ==> "A B B_4"
+	 * "A B $A" + 2 ==> "A B A_2"
+	 * "A B $A $B" + 16 ==> "A B A_16 B_16"
+     * "A A--nombp" + 1 ==> "A A--nombp A_1"
+     * 
+     * Also, skip the decorating className, e.g. restree--nombp, btn--square.
+     * Rule: all decorating className only for the current component.
+	 * 
+	 * @param {String} className Like "A B", "A B $A $B".
+	 * @param {Number} state
+	 */
+	thi$.stateClassName = function(className, state){
+		var names = [], stateNames = [], sname,
+		str = className.replace(STATESEGREG,
+								function(match, name){
+									if(name){
+										stateNames.push(name);
+									}
+
+									return "";
+								});
+
+		names = this.splitCSSClass(str);
+		if(stateNames.length === 0){
+            // Skip the decorating className, e.g. restree--nombp, btn--square.
+            for(var i = names.length - 1; i >= 0; i--){
+                sname = names[i];
+                if(!sname || sname.indexOf("--") !== -1){
+                    continue;
+                }else{
+                    stateNames.push(sname);
+                    break;
                 }
-            }else{
-                names.push(last);
             }
-        }else{
-            names.push(last);
-        }
-        
-        return names;
-    }
-    
-    /**
-     * 
-     * @param className {String}
-     * @param ele {String} 
-     */
-    thi$.comboCSSClass = function(className, ele){
-        var names = this.splitCSSClass(className);
-        for(var i=0, len=names.length; i<len; i++){
-            names[i] = names[i]+"_"+ele;
-        }
-        return names.join(" ");
-    }
+		}
 
-    /**
-     * 
-     * @param className {String}
-     * @param state {Number}
-     */
-    thi$.stateCSSClass = function(className, state){
-        var names = this.splitCSSClass(className);
-        if(state != 0){
-            names.push(names[names.length-1]+"_"+state);
-        }
-        return names.join(" ");        
-    };
+		if(state != 0){
+			for(var i = 0, len = stateNames.length; i < len; i++){
+				names.push(stateNames[i] + "_" + state);
+			}
+		}
 
-    thi$.makeUrlPath = function(parent, file){
-        var A = self.document.createElement("A");
-        A.href = parent + file;
-        return A.href;
-    }
+		return names.join(" ");
+	};
+
+	/**
+	 * Clear the special "State ClassName" segments, such as "$abc", 
+	 * and return the clean className for the DOM element.
+	 * 
+	 * "A B $A $B" ==> "A B"
+	 * 
+	 * @param {String} className Link "A B $A $B"
+	 * @return {String}
+	 */
+	thi$.extractDOMClassName = function(className){
+		return className ? className.replace(STATESEGREG, "") : "";
+	};
+
+	thi$.makeUrlPath = function(parent, file){
+		var A = self.document.createElement("A");
+		A.href = parent + file;
+		return A.href;
+	};
+
+	thi$.getEntryID = function(ele){
+		var entries = self.document.querySelectorAll("[jsvm_entry]"),
+		entry, ret;
+		if(!ele){
+			ret = (entries && entries.length > 0) ?
+				entries[0].getAttribute("jsvm_entry") : ret;
+		}else{
+			for(var i=0, len=entries.length; i<len; i++){
+				entry = entries[i];
+				if(this.contains(entry, ele, true)){
+					ret = entry.getAttribute("jsvm_entry");
+					break;
+				}
+			}
+		}
+		return ret;
+	};
 
 }.$extend(js.lang.Object);

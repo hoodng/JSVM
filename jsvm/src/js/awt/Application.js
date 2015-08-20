@@ -57,11 +57,15 @@ js.awt.Application = function(def, Runtime, entryId){
     };
 
     thi$.startApp = function(){
-        this.appendTo(this._local.entry);
+        if(this.view != this._local.entry){
+            this.appendTo(this._local.entry);            
+        }
     };
 
     thi$.closeApp = function(){
-        this.removeFrom(this._local.entry);
+        if(this.view != this._local.entry){
+            this.removeFrom(this._local.entry);
+        }
         Desktop.unregisterApp(this.getAppID());
     };
 
@@ -76,7 +80,18 @@ js.awt.Application = function(def, Runtime, entryId){
         Desktop.updateTheme(theme, old);
     };
 
+    var _onresize = function(e){
+        if(Class.isFunction(this.onresize)){
+            this.onresize(e);
+        }else{
+            this.doLayout(true);
+        }
+        return e.cancelBubble();
+    };
+
     thi$.destroy = function(){
+        this.closeApp();
+        
         arguments.callee.__super__.apply(this, arguments);
         
     }.$override(this.destroy);
@@ -89,13 +104,21 @@ js.awt.Application = function(def, Runtime, entryId){
         def.className = "jsvm__entry " + def.className;
         def.id = def.uuid = entryId;
         def.__contextid__ = Runtime.uuid();
-        arguments.callee.__super__.call(this, def, Runtime);
 
-        var entry = this._local.entry =
-            self.document.querySelector("[jsvm_entry='"+entryId+"']");
+        var entry = self.document.querySelector("[jsvm_entry='"+entryId+"']");
+        
+        if(entry.getAttribute("jsvm_asapp")){
+            arguments.callee.__super__.call(this, def, Runtime, entry);
+        }else{
+            arguments.callee.__super__.call(this, def, Runtime);            
+        }
+
+        this._local.entry = entry;
+
         this.putContextAttr("appid", this.getAppID());
         this.putContextAttr("app", this);
-
+        
+        this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);
 

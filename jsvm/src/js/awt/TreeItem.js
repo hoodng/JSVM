@@ -190,7 +190,8 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 
 			clazz = itemDef.className;
 			if(!clazz){
-				clazz = itemDef.className = tree.className + "_item";
+				clazz = tree.def.className || tree.className;
+				clazz = itemDef.className = DOM.combineClassName(clazz, "item");
 			}
 
 			refItem = item;
@@ -361,7 +362,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		this._local.expanded = b;
 
 		if(b){
-			this.branch.className = className + "_4";
+			this.branch.className = DOM.combineClassName(className, "4");
 			this.setIconImage(4);
 			refNode = this.view;
 
@@ -395,7 +396,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 				delete this.def.nodes;
 			}
 
-			this.branch.className = className + "_0";
+			this.branch.className = DOM.combineClassName(className, "0");
 			this.setIconImage(0);
 			//notify
 			if(needNotify != false && root == undefined){
@@ -447,7 +448,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	thi$.adjustCover = function(bounds){
 		arguments.callee.__super__.apply(this, arguments);
 
-		this._coverView.style.width = "100%";
+		if(this._coverView){
+			this._coverView.style.width = "100%";
+		}
 
 	}.$override(this.adjustCover);
 
@@ -456,17 +459,18 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		ps = this.prevSibling() != undefined,
 		ns = this.nextSibling() != undefined,
 		b = ((ex ? 4 : 0) | (ps ? 2 : 0) | (ns ? 1 : 0)),
-		bClassName = this.className + "_branch",
+		bClassName = DOM.combineClassName(this.className, "branch"),
 		branch = this.branch;
 
 		if(this.isEnabled()){
-			bClassName = bClassName + b;
+			bClassName = DOM.combineClassName(bClassName, b, "");
 
 			branch.clazz = bClassName;
-			bClassName = bClassName + (this.isTriggered() ? "_4" : "_0");
+			bClassName = DOM.combineClassName(bClassName, 
+											  (this.isTriggered() ? "4" : "0"));
 		}else{
 			branch.clazz = bClassName;
-			bClassName = bClassName + "_1";
+			bClassName = DOM.combineClassName(bClassName, "1");
 		}
 
 		branch.className = bClassName;
@@ -479,9 +483,9 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		for(var i=level-1; i>=0; i--){
 			comp = this[comps[i]];
 			if(p.hasSibling()){
-				comp.className = def.className + "_leader1";
+				comp.className = DOM.combineClassName(this.className, "leader1");
 			}else{
-				comp.className = def.className + "_leader0";
+				comp.className = DOM.combineClassName(this.className, "leader0");
 			}
 			p = p.parentItem();
 		}
@@ -491,7 +495,14 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	 * @see js.awt.Item
 	 */
 	thi$.canCloneView = function(itemDef){
-		var items = [], level = itemDef.level;
+		var items = [], indent = itemDef.indent, level = itemDef.level;
+
+		// Indent in the same level
+		if(indent > 0){
+			for(var i = indent; i > 0; i--){
+				items.unshift("leader");
+			}
+		}
 
 		// Leaders
 		for(var i=level; i>0; i--){
@@ -513,7 +524,14 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	}.$override(this.canCloneView);
 
 	var _checkItems = function(def, tree, parent){
-		var level = def.level, items = def.items;
+		var indent = def.indent, level = def.level, items = def.items;
+
+		// Indent in the same level
+		if(indent > 0){
+			for(var i = indent; i > 0; i--){
+				items.unshift("leader");
+			}
+		}
 
 		// Leaders
 		for(var i=level; i>0; i--){
@@ -550,7 +568,8 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		_setTreeContainer.call(this, tree);
 
 		def.classType = def.classType || "js.awt.TreeItem";
-		def.className = def.className || tree.className + "_item";
+		def.className = def.className 
+			|| DOM.combineClassName(tree.def.className || tree.className, "item");
 		def.css = "position:relative;overflow:visible;width:100%;";
 
 		if(view == undefined){

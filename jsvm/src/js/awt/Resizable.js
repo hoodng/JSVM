@@ -269,8 +269,9 @@ js.awt.Resizable = function(){
     var _onmousemove = function(e, i){
 
         if(!J$VM.System.checkThreshold(e.getTimeStamp().getTime(),
-                                       this.def.mover.threshold))
+                                       this.def.mover.threshold)){
             return e.cancelDefault();
+        }
 
         if(!this._local.notified){
         // Notify all IFrames show cover on it self
@@ -418,6 +419,15 @@ js.awt.Resizable = function(){
             if(w != this.getWidth() || h != this.getHeight()){
                 this.setSize(w, h, 0x0F);
             }
+
+            /**
+             * After moving / resizing, if the sizing peer is itself,
+             * the new position / size will be used directly. Here, 
+             * we provide the simple way to do some right things.
+             */
+            if(Class.isFunction(this.onUDFResized)){
+                this.onUDFResized(e);
+            }
         }
     };
 
@@ -458,24 +468,31 @@ js.awt.Resizable = function(){
      * Notes: If need sub class can override this method
      */
     thi$.getSizeObject = function(){
-        var sizeObj = this.sizeObj;
+        var sizeObj = this.sizeObj, bounds, tdef;
         if(!sizeObj){
-            var bounds = this.getBounds();
-            sizeObj = this.sizeObj = /*this;*/
+            bounds = this.getBounds();
+            tdef = {
+                classType: "js.awt.Component",
+                className: "jsvm_resize_cover " 
+                    + DOM.combineClassName(this.className, "--resize-cover", ""),
+                css: "position:absolute;",
+                stateless: true,
 
-            new js.awt.Component(
-                    {className: "jsvm_resize_cover "+this.className+"--resize-cover",
-                     css: "position:absolute;",
-                     x : bounds.offsetX,
-                     y : bounds.offsetY,
-                     z : this.getZ(),
-                     width: bounds.width,
-                     height:bounds.height,
-                     prefSize : this.getPreferredSize(),
-                     miniSize : this.getMinimumSize(),
-                     maxiSize : this.getMaximumSize(),
-                     stateless: true
-                    },this.Runtime());
+                x : bounds.offsetX,
+                y : bounds.offsetY,
+                z : this.getZ(),
+                width: bounds.width,
+                height:bounds.height,
+
+                prefSize : this.getPreferredSize(),
+                miniSize : this.getMinimumSize(),
+                maxiSize : this.getMaximumSize()
+            };
+            
+            sizeObj = this.sizeObj = /*this;*/
+            
+            new js.awt.Component(tdef, this.Runtime());
+
             sizeObj.insertAfter(this._coverView || this.view);
 
             sizeObj.setSizingPeer(this);

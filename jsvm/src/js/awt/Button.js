@@ -114,9 +114,9 @@ js.awt.Button = function(def, Runtime){
         this.def.marked = b;
 
         if(this.isMarked()){
-            marker.className = this.className + "_marker_4";
+            marker.className = DOM.combineClassName(this.className, "_marker_4", "");
         }else{
-            marker.className = this.className + "_marker_0";
+            marker.className = DOM.combineClassName(this.className, "_marker_0", "");
         }
     };
 
@@ -171,7 +171,7 @@ js.awt.Button = function(def, Runtime){
 
             cwidth = cwidth > innerWidth ? innerWidth : cwidth;
 
-            left = xbase + (innerWidth - cwidth)*align_x;
+            left = xbase + (innerWidth - cwidth) * align_x;
             for(i=0, len=items.length; i<len; i++){
                 ele = this[items[i]];
                 D = G0[ele.iid];
@@ -348,7 +348,7 @@ js.awt.Button = function(def, Runtime){
 
             ele = DOM.createElement(viewType);
             ele.id = id;
-            ele.className = className + "_" + id;
+            ele.className = DOM.combineClassName(className, id);
             ele.iid = iid;
 
             if(!G[iid]){
@@ -457,23 +457,23 @@ js.awt.Button.eventDispatcher = function(e){
         target, func;
     
     switch(e.getType()){
-        case "mousedown":
+    case "mousedown":
         if(Class.isFunction(this.activateComponent)){
             this.activateComponent();            
         }
         break;
-        case "mouseup":
-        case "message":
+    case "mouseup":
+    case "message":
         target = e.getEventTarget();
         func = this["on" + target.id];
         func = Class.isFunction(func) ? func : this.onbtnDispatcher;
         if(Class.isFunction(func)){
-            func.call(this, target);
+            func.call(this, target, e);
         }else{
             System.err.println("Can not found function for button "+ target.id);
         }
         break;
-        default:
+    default:
         break;
     }
 };

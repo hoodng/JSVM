@@ -681,8 +681,7 @@ js.lang.System = function (env, vm){
 
     // Initialize JSVM's locale with browser's.
     var _initJSVMLocale = function(){
-        var lang = (navigator.userLanguage || navigator.language).split("-");
-        vm.locale = new js.util.Locale(lang[0], lang[1]);
+        vm.locale = new js.util.Locale();
     };
     
     var _onload = function(e){
@@ -861,7 +860,7 @@ js.lang.System = function (env, vm){
              * @member J$VM
              * @function disableLogger
              */
-            vm.disableLogger = _disableLogger
+            vm.disableLogger = _disableLogger;
 
             /**
              * @member J$VM.Runtime

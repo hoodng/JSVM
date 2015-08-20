@@ -20,7 +20,7 @@
 
     Class.forName("com.jinfonet.RuntimeProxy").call(J$VM.Runtime, env);
     Class.forName("com.jinfonet.ServiceProxy").call(J$VM.Runtime.getService());
-
+    this.getDesktop().updateTheme(this.theme());
   });
 
 })();

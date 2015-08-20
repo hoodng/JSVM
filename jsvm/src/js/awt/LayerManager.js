@@ -341,7 +341,10 @@ js.awt.LayerManager = function(def, Runtime, view){
         if(this.indexOf(layer) < 0){
             this.addComponent(layer);
             this.stack.push(layer);
-        }
+
+			// Do somthing while the layer is appended
+			layer.onLayerAppended();
+		}
         
         var size = layer.getPreferredSize() /*DOM.outerSize(layer.view)*/, 
             w = size.width, h = size.height,

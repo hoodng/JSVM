@@ -52,15 +52,22 @@ js.awt.FieldSet = function (def, Runtime){
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System;
-    
+	
+	thi$.setLegendText = function(legendText){
+		this.legend.innerHTML = String.encodeHtml(legendText);
+	};
+	
     thi$._init = function(def, Runtime){
         if(def == undefined) return;
-        def.viewType = "FIELDSET";
-        def.stateless = true;
-        arguments.callee.__super__.apply(this, arguments);
-       
-        var legend = this.legend = DOM.createElement("LEGEND");
-        
+		def.classType = def.classType || "js.awt.FieldSet";
+		def.className = def.className || "jsvm_fieldset";
+		def.stateless = (def.stateless !== false);
+		def.viewType = "FIELDSET";
+		arguments.callee.__super__.apply(this, arguments);
+		
+		var legend = this.legend = DOM.createElement("LEGEND");
+		legend.className = this.className + "_legend";
+		
         // There is a bug of IE8. In IE8, that is very strange for the legned.
         // If I didn't set following style for the legend, it will overlap 
         // fieldset's first line contents.
@@ -75,11 +82,7 @@ js.awt.FieldSet = function (def, Runtime){
     }.$override(this._init);
     
     this._init.apply(this, arguments);
-    
-    thi$.setLegendText = function(legendText){
-        this.legend.innerHTML = String.encodeHtml(legendText);
-    };
-
+	
 }.$extend(js.awt.Container);
 
 js.awt.FieldSet.DEFAULTDEF = function(){

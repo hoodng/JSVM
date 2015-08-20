@@ -60,7 +60,7 @@ js.lang.Runtime = function(){
 
     thi$.registerDesktop = function(desktop){
         this._desktop = desktop;
-    }
+    };
     
     thi$.getDesktop = function(){
         return this._desktop;
@@ -71,7 +71,7 @@ js.lang.Runtime = function(){
         procs.push({entry:entryId, fn:fn});
     };
 
-    var scopes = {};
+    var scopes = J$VM.runtime = {};
     thi$._execProcs = function(){
         var proc, scope, entry;
         while(procs.length > 0){
@@ -90,11 +90,11 @@ js.lang.Runtime = function(){
         }
     };
 
-    var _newScope = function(entry){
+    var _newScope = function(entryId){
         var runtimeScope = function(){
 
             this.getEntryID = function(){
-                return entry;
+                return entryId;
             };
 
             this.createApp = function(def){
@@ -102,8 +102,8 @@ js.lang.Runtime = function(){
                 def.classType = def.classType || "js.awt.Application";
                 def.className = def.className || "jsvm_app";
                 var appClass = Class.forName(def.classType), app;
-                app = this.Application = new (appClass)(def, this, entry);
-                this.getDesktop().registerApp(entry, app);
+                app = this.Application = new (appClass)(def, this, entryId);
+                this.getDesktop().registerApp(entryId, app);
                 return app;
             };
 
@@ -114,7 +114,7 @@ js.lang.Runtime = function(){
 
         runtimeScope.prototype = this;
         runtimeScope = js.lang.Object.$decorate(new runtimeScope());
-        runtimeScope.uuid(this.uuid()+"_"+entry);
+        runtimeScope.uuid(this.uuid()+"_"+entryId);
         runtimeScope.setContextID(this.uuid());
         runtimeScope.putContextAttr("runtime", runtimeScope);
         return runtimeScope;
@@ -136,7 +136,7 @@ js.lang.Runtime = function(){
             return pJ$VM && (pJ$VM.Runtime.PID() == this.PID());
         }
         return false;
-    }
+    };
 
     thi$.getProperty = function(key, defValue){
         return J$VM.System.getProperty(key, defValue);
@@ -202,7 +202,7 @@ js.lang.Runtime = function(){
         }
         
         return this.getProperty("postEntry", J$VM.DOM.makeUrlPath(
-            J$VM.env.j$vm_home, "../../"+this.PID()+".vt"));
+            J$VM.env.j$vm_home, +this.PID()+".vt"));
     };
 
     thi$.getsEntry = function(entry){
@@ -497,10 +497,6 @@ js.lang.Runtime = function(){
             this.imagePath(env.imagePath);
         }
 
-        if(this._desktop){
-            this._desktop.updateTheme(this.theme());
-        }
-        
         _registerMessageClass.call(this);
         _registerConfirmClass.call(this);
         // Confirm message box with "Yes", "No" and "Cancel"

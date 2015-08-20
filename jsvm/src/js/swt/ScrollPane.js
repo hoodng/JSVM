@@ -40,8 +40,8 @@
 $package("js.swt");
 
 /**
- * A ScrollPane is a container that allows multiple components to be laid out horizontally.
- * The components will not wrap so.
+ * A ScrollPane is a container that allows multiple components to be laid out 
+ * horizontally. The components will not wrap so.
  */
 js.swt.ScrollPane = function(def, Runtime){
     var CLASS = js.swt.ScrollPane,
@@ -505,18 +505,21 @@ js.swt.ScrollPane = function(def, Runtime){
     
     var _onclick = function(e){
         var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-        eType;
+        eType, evt;
 
         if(item){
             eType = e.getType();
 
-            if(eType == "click" && el === item.ctrl){
+            if(eType == "click"){
                 e.setEventTarget(item);
-                this.notifyPeer(
-                    "js.awt.event.ItemEvent", new Event("ctrlclick", "", item));
-
+                
+                evt = new Event(el === item.ctrl 
+                    ? "ctrlclick" : "itemclick", "", item);
+                this.notifyPeer("js.awt.event.ItemEvent", evt);
+                
             }else if(eType == "dblclick"){
                 e.cancelBubble();
+                
                 if(item.isEditable && item.isEditable()) {
                     item.editLabel();
                 }

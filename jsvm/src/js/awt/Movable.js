@@ -138,7 +138,7 @@ js.awt.Movable = function (){
         ceil = Math.ceil, floor = Math.floor, round = Math.round;
     
     var _doSelect = function(e){
-        
+
         MQ.register("releaseMoveObject", this, _releaseMoveObject);
 
         Event.attachEvent(document, "mousemove", 0, this, _onmousemove);
@@ -163,38 +163,45 @@ js.awt.Movable = function (){
             vscroll = (overflowY === "auto" || overflowY === "scroll");
         }
 
-        var bounds = moveObj.getBounds(), maxX, maxY,
-        mW = bounds.width, mH = bounds.height, 
-        marginLf = bounds.MBP.marginLeft,
-        marginTp = bounds.MBP.marginTop,
-        mover = this.def.mover, grid = mover.grid, bound = mover.bound,
-        bt = max(mover.bt*mH, bound),
-        br = max(mover.br*mW, bound),
-        bb = max(mover.bb*mH, bound),
-        bl = max(mover.bl*mW, bound),
-        pview = DOM.offsetParent(moveObj.view),
-        cview = isAutoFit ? DOM.offsetParent(pview) : pview,
-        pbounds = DOM.getBounds(pview);
+        var pview = DOM.offsetParent(moveObj.view), 
+            cview = isAutoFit ? DOM.offsetParent(pview) : pview,
+            pbounds = DOM.getBounds(pview),
+            mover = this.def.mover, grid = mover.grid, bound=mover.bound;
 
-        moveObj.minX = grid*ceil((0 - marginLf - mW + bl)/grid);
-        moveObj.minY = grid*ceil((0 - marginTp - mH + bt)/grid);
-        
-        maxX = (!isAutoFit || rigidW) ? 
-            (!hscroll ? pbounds.width - pbounds.MBP.BW - marginLf - br:
-             max(pview.scrollWidth, pbounds.width) - marginLf - br) :
-        max(cview.scrollWidth, cview.offsetWidth) - marginLf - br;
-        //moveObj.maxX = grid*Math.floor(maxX/grid);
-        moveObj.maxX = maxX;
-
-        maxY = (!isAutoFit || rigidH) ?
-            (!vscroll ? pbounds.height-pbounds.MBP.BH - marginTp - bb:
-             max(pview.scrollHeight, pbounds.height) - marginTp - bb) :
-        max(cview.scrollHeight, cview.offsetHeight) - marginTp - bb;
-        //moveObj.maxY = grid*Math.floor(maxY/grid);
-        moveObj.maxY = maxY;
-
-        moveObj.showMoveCover(true);
         moveObj.cview = cview;
+        if(moveObj.getMoveRange){
+            var range = moveObj.getMoveRange();
+            moveObj.minX = grid*ceil( (range[0]+bound)/grid);
+            moveObj.minY = grid*ceil( (range[1]+bound)/grid);
+            moveObj.maxX = grid*floor((range[2]-bound)/grid);
+            moveObj.maxY = grid*floor((range[3]-bound)/grid);
+        }else{
+            var bounds = moveObj.getBounds(), maxX, maxY,
+                mW = bounds.width, mH = bounds.height, 
+                marginLf = bounds.MBP.marginLeft,
+                marginTp = bounds.MBP.marginTop,
+                bt = max(mover.bt*mH, bound),
+                br = max(mover.br*mW, bound),
+                bb = max(mover.bb*mH, bound),
+                bl = max(mover.bl*mW, bound);
+
+            moveObj.minX = grid*ceil((0 - marginLf - mW + bl)/grid);
+            moveObj.minY = grid*ceil((0 - marginTp - mH + bt)/grid);
+            
+            maxX = (!isAutoFit || rigidW) ? 
+                (!hscroll ? pbounds.width - pbounds.MBP.BW - marginLf - br:
+                 max(pview.scrollWidth, pbounds.width) - marginLf - br) :
+            max(cview.scrollWidth, cview.offsetWidth) - marginLf - br;
+            moveObj.maxX = maxX;
+
+            maxY = (!isAutoFit || rigidH) ?
+                (!vscroll ? pbounds.height-pbounds.MBP.BH - marginTp - bb:
+                 max(pview.scrollHeight, pbounds.height) - marginTp - bb) :
+            max(cview.scrollHeight, cview.offsetHeight) - marginTp - bb;
+            moveObj.maxY = maxY;
+        }
+        
+        moveObj.showMoveCover(true);
 
         U.clickXY.x += (cview.scrollLeft- moveObj.getX());
         U.clickXY.y += (cview.scrollTop - moveObj.getY());
@@ -205,7 +212,8 @@ js.awt.Movable = function (){
         this.fireEvent(e);
         // Notify popup LayerManager 
         e.setEventTarget(this);
-        MQ.post("js.awt.event.LayerEvent", e, [this.Runtime().uuid()]);
+        MQ.post("js.awt.event.LayerEvent", e,
+                [this.Runtime().getDesktop().uuid()]);
 
         var targ = e.srcElement;
         if(targ.nodeType == 3){

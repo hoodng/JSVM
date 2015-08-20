@@ -56,7 +56,7 @@ js.swt.SearchKit.buildRegExp = function(keyword, options){
     
     // Escape regular expression's meta-characters.
     //J$VM.System.out.println("Before escaping: " + keyword);
-    keyword = "".escapeRegExp(keyword);
+    keyword = (js.lang.Class.forName("js.lang.String")).escapeRegExp(keyword);
     //J$VM.System.out.println("After escaping: " + keyword);
 
     // var unescaped = (js.lang.Class.forName("js.lang.String")).unescapeRegExp(keyword);

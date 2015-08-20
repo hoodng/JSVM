@@ -172,21 +172,14 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	 * @see js.awt.PopupLayer
 	 */
 	thi$.canHide = function(e){
-		var	 type = e.getType();
-		switch(type){
-		case "blur":
-			return this.rootLayer().isHideOnBlur();
-		case "mousedown":
-		case "mousewheel":
-		case "DOMMouseScroll":
-			var el = e.srcElement;
-			if(el && this.contains(el, true)){
-				return false;
-			}
-			break;
+		var b = true;
+		if(e.getType() === "blur"){
+			b = this.rootLayer().isHideOnBlur();
+		}else{
+			b = arguments.callee.__super__.apply(this, arguments);
 		}
 
-		return arguments.callee.__super__.apply(this, arguments);
+		return b;
 
 	}.$override(this.canHide);
 
@@ -210,24 +203,24 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	thi$.repaint = function(){
 		if(!this._local.repaint){
 			var M = this.def, bounds = this.getBounds(),
-            nodes = this.nodes, node;
+			nodes = this.nodes, node;
 
-            var clientH = document.documentElement.clientHeight,
-            height = this.def.height ? this.def.height : bounds.height;
+			var clientH = document.documentElement.clientHeight,
+			height = this.def.height ? this.def.height : bounds.height;
 
-            if(height > clientH){
-                this.setY(0);
-                this.view.style.height = "100%";
-                this.applyStyles({overflow: "auto"});
-            }
+			if(height > clientH){
+				this.setY(0);
+				this.view.style.height = "100%";
+				this.applyStyles({overflow: "auto"});
+			}
 
 			M.width = bounds.width;
 			M.width -= bounds.BBM ? 0 : bounds.MBP.BPW;
 
-            var scrollbar = this.hasScrollbar();
-            if(scrollbar.vscroll){
-                M.width = M.width - scrollbar.vbw;
-            }
+			var scrollbar = this.hasScrollbar();
+			if(scrollbar.vscroll){
+				M.width = M.width - scrollbar.vbw;
+			}
 			M.height = bounds.height;
 			M.height-= bounds.BBM ? 0 : bounds.MBP.BPH;
 
@@ -352,7 +345,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 		delete this._local.root;
 		delete this._local.parent;
-        delete this._local.menuView;
+		delete this._local.menuView;
 		delete this.cache;
 
 		arguments.callee.__super__.apply(this, arguments);
@@ -373,10 +366,10 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		_setParentMenu.call(this, parentMenu);
 		_setRootMenu.call(this, rootMenu);
 
-        var menuView = this._menuView = DOM.createElement("DIV");
+		var menuView = this._menuView = DOM.createElement("DIV");
 		menuView.className = this.className + "_menuview";
 		menuView.style.cssText = "position:relative;width:100%;height:100%;";
-        DOM.appendTo(menuView, this.view);
+		DOM.appendTo(menuView, this.view);
 
 		this.cache = {};
 

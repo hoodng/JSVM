@@ -1,34 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-<script id="j$vm" 
-        src="../../jsvm/jsvm.jsp"
-        classpath="lib/../jsre-ui.js"
-        -DmainClass="org.jsvm.App"></script>
-
-<script src="../../jsvm/src/js/util/Calendar.js"></script>
-
-<style>
-
-</style>
+<!DOCTYPE HTML>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+	<script src="../../jsvm/src/js/util/Calendar.js"></script>
 </head>
-<body>
-
-
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
 </body>
-
 
 <script type="text/javascript">
 
-J$VM.exec("org.jsvm.App",function(System){
+J$VM.exec("demo",function(){
+    var System = J$VM.System, Class = js.lang.Class, R = this, 
+        Calendar = Class.forName("js.util.Calendar");
     
-    this.initialize();
-
-    var Class = js.lang.Class, 
-    Calendar = Class.forName("js.util.Calendar");
-
+this.createApp().run(function(){
+    /*
     var calendar = new (Class.forName("com.jinfonet.common.Calendar"))(
                           {
                               x: 20, y: 20,
@@ -41,10 +30,10 @@ J$VM.exec("org.jsvm.App",function(System){
                               },
                               locale: new (Class.forName("js.util.Locale"))("ko","KR") 
 
-                          }, this);
+                          }, R);
 
     this.addComponent(calendar);
-    
+    */
     var calendar = new (Class.forName("com.jinfonet.common.Calendar"))(
                       {
                           x: 620, y: 20,
@@ -57,13 +46,14 @@ J$VM.exec("org.jsvm.App",function(System){
                           },
                           locale: new (Class.forName("js.util.Locale"))("zh","CN") 
 
-                      }, this);
+                      }, R);
 
     this.addComponent(calendar);
+});
 
     var pattern = "yyyy'년' M'월' d'일' '(\'EE\')'",
     locale = new (Class.forName("js.util.Locale"))("ko", "KR"), 
-    symbols = new(Class.forName("js.text.DateFormatSymbols"))(this.getDateSymbolsByLocale(locale)), 
+    symbols = new(Class.forName("js.text.DateFormatSymbols"))(R.getDateSymbolsByLocale(locale)), 
     DF = new (Class.forName("js.text.SimpleDateFormat"))(pattern, symbols), 
     d, dateStr;
     
@@ -83,7 +73,7 @@ J$VM.exec("org.jsvm.App",function(System){
     
     var pattern = "yyyy'年'M'月'd'日'",
     locale = new (Class.forName("js.util.Locale"))("zh", "CN"), 
-    symbols = new(Class.forName("js.text.DateFormatSymbols"))(this.getDateSymbolsByLocale(locale)), 
+    symbols = new(Class.forName("js.text.DateFormatSymbols"))(R.getDateSymbolsByLocale(locale)), 
     DF = new (Class.forName("js.text.SimpleDateFormat"))(pattern, symbols), 
     d, dateStr;
     
@@ -100,7 +90,7 @@ J$VM.exec("org.jsvm.App",function(System){
     System.err.println("Parsed: " + d);
     
     System.out.println("===========================\n\n");
-    
+
 });
 </script>
 </html>

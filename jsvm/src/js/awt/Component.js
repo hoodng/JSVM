@@ -524,8 +524,8 @@ js.awt.Component = function (def, Runtime, view){
 
     thi$.onStateChanged = function(e){
         if(this.isStyleByState()){
-            this.view.className = DOM.stateCSSClass(
-                this.def.className, this.getState());
+            this.view.className = DOM.stateClassName(
+                this.def.className || this.className, this.getState());
         }        
         
         if(this.view.parentNode){
@@ -604,20 +604,9 @@ js.awt.Component = function (def, Runtime, view){
             def.state = def.state || 0;
             
             if(this.isStyleByState()){
-                view.className = DOM.stateCSSClass(def.className, this.getState());
+                view.className = DOM.stateClassName(def.className, this.getState());
             }
         }
-
-        if(def.prefSize){
-            this.isPreferredSizeSet = true;
-        }
-        if(def.miniSize){
-            this.isMinimumSizeSet = true;
-        }
-        if(def.maxiSize){
-            this.isMaximumSizeSet = true;
-        }
-
     }.$override(this._init);
 
     this._init.apply(this, arguments);

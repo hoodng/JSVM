@@ -449,21 +449,27 @@ js.awt.Window = function (def, Runtime, view){
         
         var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
         newDef.css = def.css || "";
-        var titleDef = newDef.title;
-        titleDef.className = titleDef.className || newDef.className + "_title";
-        (function(name){
-            var item = titleDef[name];
-            if(name.indexOf("lab") == 0){
-                item.className = item.className || titleDef.className + "_label";
-                item.css = (item.css || "") + "white-space:nowrap;"
-                    + "test-overflow:ellipsis;"
-                    + "overflow:hidden;cursor:default;";
-            }else if(name.indexOf("btn") == 0){
-                item.className = item.className || titleDef.className + "_button"; 
-            }
-        }).$forEach(this, titleDef.items);
 
-        newDef.client.className = newDef.client.className || newDef.className + "_client";
+        var titleDef = newDef.title;
+        titleDef.className = titleDef.className 
+            || DOM.combineClassName(newDef.className, "title");
+
+        (function(name){
+             var item = titleDef[name];
+             if(name.indexOf("lab") == 0){
+                 item.className = item.className 
+                     || DOM.combineClassName(titleDef.className, "label");
+                 item.css = (item.css || "") + "white-space:nowrap;"
+                     + "test-overflow:ellipsis;"
+                     + "overflow:hidden;cursor:default;";
+             }else if(name.indexOf("btn") == 0){
+                 item.className = item.className 
+                     || DOM.combineClassName(titleDef.className, "button"); 
+             }
+         }).$forEach(this, titleDef.items);
+
+        newDef.client.className = newDef.client.className 
+            || DOM.combineClassName(newDef.className, "client");
 
         System.objectCopy(newDef, def, true, true);
         arguments.callee.__super__.apply(this, arguments);
@@ -471,24 +477,24 @@ js.awt.Window = function (def, Runtime, view){
         view.style.position = "absolute";
         view.style.overflow = "hidden";
 
-        var uuid = this.uuid();
         // For MoverSpot testing
         var restricted = this._local.restricted = js.util.LinkedList.$decorate([]);
-        
+
+        var uuid = this.uuid();
         var title = this.title;
         if(title){
             title.setPeerComponent(this);
             title.view.uuid = uuid;
             (function(name){
-                var item = this.title[name];
-                item.setPeerComponent(this);
-                item.view.uuid = uuid;
-                if(name.indexOf("btn") == 0){
-                    this.addMoverRestricted(item);
-                    item.icon.uuid = uuid;
-                }
+                 var item = this.title[name];
+                 item.setPeerComponent(this);
+                 item.view.uuid = uuid;
+                 if(name.indexOf("btn") == 0){
+                     this.addMoverRestricted(item);
+                     item.icon.uuid = uuid;
+                 }
 
-            }).$forEach(this, title.def.items);
+             }).$forEach(this, title.def.items);
             
             var tstyle = title.def.tstyle, bstyle = title.def.bstyle;
 

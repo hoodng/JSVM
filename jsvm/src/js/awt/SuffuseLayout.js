@@ -53,32 +53,13 @@ js.awt.SuffuseLayout = function (def){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
         System = J$VM.System;
 
-    /**
-     * Adds the specified component to the layout, using the specified
-     * constraint object.
-     * @param comp the component to be added
-     * @param constraints  where/how the component is added to the layout.
-     */
-    thi$.addLayoutComponent = function(comp, constraints){
-        arguments.callee.__super__.apply(this, arguments);
-
-        var container = comp.getContainer(), bounds;
-        if(container.isDOMElement()){
-            bounds = container.getBounds();
-            comp.setBounds(bounds.MBP.paddingLeft, 
-                           bounds.MBP.paddingTop, 
-                           bounds.innerWidth, 
-                           bounds.innerHeight);
-        }
-    }.$override(this.addLayoutComponent);
-
     thi$.layoutContainer = function(container){
-        var comps = container.items(), bounds = container.getBounds(),
-            MBP = bounds.MBP, comp, i, len;
+        var comps = this.getLayoutComponents(container), comp,
+            bounds = container.getBounds(), MBP = bounds.MBP, 
+            i, len;
         
         for(i=0, len=comps.length; i<len; i++){
-            comp = container[comps[i]];
-
+            comp = comps[i];
             comp.setBounds(MBP.paddingLeft, MBP.paddingTop, 
                            bounds.innerWidth, bounds.innerHeight, 3);
         }
@@ -95,5 +76,5 @@ js.awt.SuffuseLayout = function (def){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.AbstractLayout);
+}.$extend(js.awt.AbsoluteLayout);
 

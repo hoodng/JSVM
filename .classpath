@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="src" path="WEB-INF/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/home/hoo/workspace/JSVM/jsvm/bin/js.jar"/>
-	<classpathentry kind="lib" path="/home/hoo/tomcat/lib/servlet-api.jar"/>
+	<classpathentry kind="lib" path="/home/hudong/workspace/Mywork/JSVM/jsvm/bin/js.jar"/>
+	<classpathentry kind="lib" path="/home/hudong/workspace/apache-tomcat-8.0.18/lib/servlet-api.jar"/>
 	<classpathentry kind="output" path="WEB-INF/classes"/>
 </classpath>

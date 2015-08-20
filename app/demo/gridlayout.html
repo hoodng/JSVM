@@ -1,37 +1,59 @@
 <!DOCTYPE HTML>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/../jsre-ui.js" ></script>
-<script src="../../jsvm/src/js/awt/Grid.js" ></script>
-<style>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+	<script src="../../jsvm/src/js/awt/Gridding.js"></script>
+</head>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+</body>
 
+<style>
 .panel {
     width: 350px;
     height:350px;
     border: 1px solid red;
-    padding: 5px;
+    padding: 10px;
 }
 
 .block {
-    border-width: 5px;
+    border-width: 1px;
     border-style: solid;
 }
 
-</style>
-</head>
+.jsvm_grid_hline, .jsvm_grid_vline{
+    position: absolute;
+    z-index: 10;
+    border: 1px solid transparent;
+    background-color: gray;
+}
 
-<body></body>
+.jsvm_grid_hmove {
+    cursor: ns-resize;
+}
+
+.jsvm_grid_vmove {
+    cursor: ew-resize;
+}
+
+.jsvm_grid_hmoving {
+    background-color: red;
+}
+
+.jsvm_grid_vmoving {
+    background-color: red;
+}
+
+</style>
 
 <script type="text/javascript">
 
-J$VM.exec("Demo",function(System){
+J$VM.exec("demo",function(entry){
 
-    this.prefer({theme: "default"});
-    this.setZ(0);
+this.createApp().run(function(){
+var R = this.Runtime();
 
     var panel =  new js.awt.Container({
         className: "panel",
@@ -55,11 +77,14 @@ J$VM.exec("Demo",function(System){
                 {rowIndex:2, colIndex:0, colSpan:2}
             ]
         },
-        movable: true,
         resizable: true
         
-    },this);
+    },R);
 
+js.awt.Gridding.$decorate(panel);
+
+/*
+    //1
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
@@ -67,8 +92,10 @@ J$VM.exec("Demo",function(System){
         rigid_h: false,
         css: "border-color:blue;",
         constraints:{rowIndex: 0, colIndex: 0}   
-    },this));
+    },R));
 
+
+    // 2
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
@@ -76,8 +103,9 @@ J$VM.exec("Demo",function(System){
         rigid_h: false,
         css: "border-color:green;",
         constraints:{rowIndex: 0, colIndex: 1}   
-    },this));
+    },R));
 
+    // 3
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
@@ -85,8 +113,9 @@ J$VM.exec("Demo",function(System){
         rigid_h: false,
         css: "border-color:gray;",
         constraints:{rowIndex: 0, colIndex: 2}   
-    },this));
+    },R));
 
+    // 4
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
@@ -94,20 +123,22 @@ J$VM.exec("Demo",function(System){
         rigid_h: false,
         css: "border-color:gray;",
         constraints:{rowIndex: 1, colIndex: 0}   
-    },this));
+    },R));
 
+    // 5
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
         width: 50, height:50,
-        rigid_w: true,
-        rigid_h: true,
+        rigid_w: false,
+        rigid_h: false,
         align_x: 1.0,
         align_y: 1.0,
         css: "border-color:blue;",
         constraints:{rowIndex: 1, colIndex: 1}   
-    },this));
+    },R));
 
+    // 6
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
@@ -115,8 +146,9 @@ J$VM.exec("Demo",function(System){
         rigid_h: false,
         css: "border-color:green;",
         constraints:{rowIndex: 1, colIndex: 2}   
-    },this));
+    },R));
 
+    // 7
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
@@ -124,8 +156,9 @@ J$VM.exec("Demo",function(System){
         rigid_h: false,
         css: "border-color:blue;",
         constraints:{rowIndex: 2, colIndex: 0}   
-    },this));
+    },R));
 
+    // 8
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
@@ -133,8 +166,9 @@ J$VM.exec("Demo",function(System){
         rigid_h: false,
         css: "border-color:green;",
         constraints:{rowIndex: 2, colIndex: 1}   
-    },this));
+    },R));
 
+    // 9
     panel.addComponent(new js.awt.Component({
         className: "block",
         stateless: true,
@@ -142,9 +176,16 @@ J$VM.exec("Demo",function(System){
         rigid_h: false,
         css: "border-color:gray;",
         constraints:{rowIndex: 2, colIndex: 2}   
-    },this));
+    },R));
+*/
 
-    this.addComponent(panel);
+this.addComponent(panel);
+
+panel.initGridding(panel.layout.grid, {close:true});
+
+G = panel.layout.grid;
+
+});// End run
 
 });
 </script>
