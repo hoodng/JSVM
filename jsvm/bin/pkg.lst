@@ -11,7 +11,7 @@
  */
 
 /*var tasks = */{
-    list: ["jsrecore", "jsreui", "graphic"],
+    list: ["jsrecore", "jsreui", "graphic", "service"],
 
     jsrecore: {
         srcroot: "../src",
@@ -180,7 +180,22 @@
         "js/awt/shape/Triangle.js",
         "js/swt/NewItem.js"
         ]
+    },
+
+    service:{
+        srcroot: "../src",
+        despath: "../lib/service.js",
+        files:[
+        "org/jsvm/BlockingAction.js",
+        "org/jsvm/ActionConnection.js",
+        "org/jsvm/Action.js",
+        "org/jsvm/HeartBeat.js",
+        "org/jsvm/ServiceDecorator.js",
+        "org/jsvm/RuntimeDecorator.js",
+        "org/jsvm/Application.js"
+        ]
     }
+
     
 }/*;*/
 

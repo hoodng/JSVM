@@ -12,7 +12,7 @@
 $package("org.jsvm");
 
 $import("org.jsvm.Action");
-$import("org.jsvm..HeartBeat");
+$import("org.jsvm.HeartBeat");
 
 
 org.jsvm.ServiceDecorator = function(){
@@ -39,7 +39,7 @@ org.jsvm.ServiceDecorator = function(){
             var msg = [dir, id, " ",
                 (new Date()).$format(TIMEFORMAT), module, ".", action].join("");
             System.log.println(msg);
-            System.out.prinltn(params);
+            System.log.println(params);
         }
     }
 
@@ -155,7 +155,7 @@ org.jsvm.ServiceDecorator = function(){
     var _browserInfo = function(){
         this.doSyncAction(
             "ClientInfoAction",
-            {jrd_objdef:{
+            {objdef:{
                 platform: navigator.platform,
                 userAgent: navigator.userAgent,
                 logicalXDPI: J$VM.supports.logicalXDPI,
@@ -188,7 +188,7 @@ org.jsvm.ServiceDecorator = function(){
         
         // Report browser infomation
         _browserInfo.call(this);
-        
+
         (Class.forName("org.jsvm.HeartBeat")).call(this, R);
         System.out.println("Heartbeat established.");
 

@@ -52,7 +52,7 @@ org.jsvm.HeartBeat = function(Runtime){
 
                 var action = new org.jsvm.Action(
                     this.context.servlet, "webos", "HeartBeatAction");
-
+                action.uuid("heartbeat");
                 action.doAction({}, this, success,error,timeout);
             };
 

@@ -4,8 +4,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
-            classpath="lib/jsre-ui.jz;"></script>
-	<script src="../../jsvm/src/js/awt/Gridding.js"></script>
+            classpath="lib/jsre-ui.jz;lib/jsre-gks.jz;lib/service.jz;"></script>
 </head>
 <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
 </body>
@@ -49,7 +48,7 @@
 </style>
 
 <script type="text/javascript">
-
+$import("js.awt.Gridding");
 J$VM.exec("demo",function(entry){
 
 this.createApp().run(function(){
