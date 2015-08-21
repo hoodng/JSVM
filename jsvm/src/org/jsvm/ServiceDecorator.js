@@ -37,7 +37,7 @@ org.jsvm.ServiceDecorator = function(){
     var _log = function(dir, id, module, action, params){
         if(System.isLogEnabled()){
             var msg = [dir, id, " ",
-                (new Date()).$format(TIMEFORMAT), module, ".", action].join("");
+                (new Date()).$format(TIMEFORMAT), " ",module, ".", action].join("");
             System.log.println(msg);
             System.log.println(params);
         }
