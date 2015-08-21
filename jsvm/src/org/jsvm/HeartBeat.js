@@ -1,21 +1,25 @@
 /**
- * Copyright (c) Jinfonet Inc. 2000-2012, All rights reserved.
+ Copyright 2007-2015, The JSVM Project.
+ All rights reserved.
+
  *
- * @File: HeartBeat.js
- * @Create: 2013/12/03 07:24:14
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
-$package("com.jinfonet");
+$package("org.jsvm");
 
 /**
  *
  */
-com.jinfonet.HeartBeat = function(Runtime){
+org.jsvm.HeartBeat = function(Runtime){
 
     var Class = js.lang.Class, System = J$VM.System, Event = js.util.Event,
-        pid = Runtime.PID(), uuid = this.uuid();
-
-    var MSGID = this.MSG_HEARTBEAT = "j$vm.heartbeat";
+        pid = Runtime.PID(), uuid = this.uuid(),
+        TIMEFORMAT = "yyyy-MM-dd HH:mm:ss.SSSZ",
+        MSGID = this.MSG_HEARTBEAT = "j$vm.heartbeat";
     
     var Runnable = function(servlet, period){
         this.context = {
@@ -24,7 +28,7 @@ com.jinfonet.HeartBeat = function(Runtime){
         };
 
         this.run = function(){
-            $import("com.jinfonet.Action");
+            $import("org.jsvm.Action");
 
             this.doAction = function(){
                 var success = function(http){
@@ -46,7 +50,7 @@ com.jinfonet.HeartBeat = function(Runtime){
                 };
                 error=timeout;
 
-                var action = new com.jinfonet.Action(
+                var action = new org.jsvm.Action(
                     this.context.servlet, "webos", "HeartBeatAction");
 
                 action.doAction({}, this, success,error,timeout);
@@ -60,12 +64,20 @@ com.jinfonet.HeartBeat = function(Runtime){
     var proxy = this, HBT = this.heartbeat = new js.lang.Thread(
         new Runnable(Runtime.postEntry(), Runtime.getProperty("heartbeat")));
 
+    var _log = function(msg, pid, err){
+        if(err){
+            System.err.println([msg, pid, " on ",
+                (new Date()).$format(TIMEFORMAT)].join(""));
+        }else if(System.isLogEnabled()){
+            System.log.println([msg, pid, " on ",
+                (new Date()).$format(TIMEFORMAT)].join(""));
+        }
+    };
+
     HBT.onHeartbeatResume = function(result){
         this.pauseCount = 0;
 
-        System.log.println(
-            "J$VM heartbeat resume for " +
-                pid + " on " + (new Date()).toString());
+        _log("J$VM heartbeat resume for ", pid);
 
         var interval = System.getMaxInactiveInterval();
         if(interval > 0 &&
@@ -87,10 +99,8 @@ com.jinfonet.HeartBeat = function(Runtime){
         }
 
         this.pauseCount = count;
-        
-        System.err.println(
-            "J$VM heartbeat pause for " +
-                pid + " on " + (new Date()).toString());
+
+        _log("J$VM heartbeat pause for ", pid, true);
     };
 
     HBT.onHeartbeatStop = function(){
@@ -99,10 +109,8 @@ com.jinfonet.HeartBeat = function(Runtime){
         if(!Runtime.isEmbedded()){
             J$VM.MQ.post(MSGID, new Event("stop", null), [uuid]);
         }
-        
-        System.err.println(
-            "J$VM heartbeat stop for " +
-                pid + " on " + (new Date()).toString());
+
+        _log("J$VM heartbeat stop for ", pid, true);
     };
 
     HBT.start();

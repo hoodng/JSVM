@@ -1,23 +1,27 @@
 /**
- * Copyright (c) Jinfonet Inc. 2000-2012, All rights reserved.
- * 
- * @File: Application.js
- * @Create: 2014/01/20
- * @Author: dong.hu@china.jinfonet.com
+ Copyright 2007-2015, The JSVM Project.
+ All rights reserved.
+
+ *
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
-$package("com.jinfonet");
+$package("org.jsvm");
 
-$import("com.jinfonet.Action");
-$import("com.jinfonet.HeartBeat");
+$import("org.jsvm.Action");
+$import("org.jsvm..HeartBeat");
 
 
-com.jinfonet.ServiceDecorator = function(){
+org.jsvm.ServiceDecorator = function(){
 
-    var CLASS = com.jinfonet.ServiceDecorator, thi$ = this;
+    var CLASS = org.jsvm.ServiceDecorator, thi$ = this;
     
     var Class = js.lang.Class, Event = js.util.Event, 
-        System = J$VM.System, MQ = J$VM.MQ, R;
+        System = J$VM.System, MQ = J$VM.MQ, R,
+        TIMEFORMAT="yyyy-MM-dd HH:mm:ss.SSSZ";
 
     /**
      * Returns a new Action object
@@ -26,16 +30,17 @@ com.jinfonet.ServiceDecorator = function(){
         module = module || "webos";
         action = action.endsWith("Action") ? action : action+"Action";
 
-        return new (Class.forName("com.jinfonet.Action"))(
+        return new (Class.forName("org.jsvm.Action"))(
             R.postEntry(), module, action);
     };
 
-    var _log = function(module, action, params){
-        var buf = ["Do"];
-        buf.push(module+"."+action);
-        buf.push("with");
-        buf.push(JSON.stringify(params));
-        System.log.println(buf.join(" "));
+    var _log = function(dir, id, module, action, params){
+        if(System.isLogEnabled()){
+            var msg = [dir, id, " ",
+                (new Date()).$format(TIMEFORMAT), module, ".", action].join("");
+            System.log.println(msg);
+            System.out.prinltn(params);
+        }
     }
 
     /**
@@ -44,22 +49,22 @@ com.jinfonet.ServiceDecorator = function(){
     thi$.doSyncAction = function(func, params, module) {
         var action = this.getAction(module, func), http, ret,
             ctx = {
+                id: action.uuid(),
                 module: action.module,
                 action: action.action,
                 params: System.objectCopy(params, {})
             }
         
-        if(System.isLogEnabled()){
-            _log(ctx.module, ctx.action, ctx.params);            
-        }
+        _log("SYNC:", ctx.id, ctx.module, ctx.action, ctx.params);
         
         http = action.doSyncAction(params);
         try{
             ret = http.responseJSON();            
         } catch (x) {
-
+            ret = {err: http.status(), msg:http.statusText()}
         }finally{
-            http.close();            
+            http.close();
+            _log("RECV:", ctx.id, ctx.module, ctx.action, ret);
         }
         return ret;
     };
@@ -70,14 +75,13 @@ com.jinfonet.ServiceDecorator = function(){
     thi$.doAction = function(func, params, module, callback) {
         var action = this.getAction(module, func),
             ctx = {
+                id: action.uuid(),
                 module: action.module,
                 action: action.action,
                 params: System.objectCopy(params, {})
             }
 
-        if(System.isLogEnabled()){
-            _log(ctx.module, ctx.action, ctx.params);            
-        }
+        _log("ASYN:", ctx.id, ctx.module, ctx.action, ctx.params);
 
         action.doAction(params, this,
                         _success.$bind(this, callback, ctx),
@@ -88,7 +92,9 @@ com.jinfonet.ServiceDecorator = function(){
     
     var _success = function(http, callback, ctx){
         var result = http.responseJSON();
-        
+
+        _log("RECV:", ctx.id, ctx.module, ctx.action, result);
+
         if(Class.isFunction(callback)){
             (function(result){
                 callback(result.obj||{}, result.err, result.msg, ctx);
@@ -107,6 +113,8 @@ com.jinfonet.ServiceDecorator = function(){
                 err: CLASS.HTTPERR,
                 msg: "HTTP "+status+": "
             };
+
+        _log("RECV:", ctx.id, ctx.module, ctx.action, result);
 
         if(status<100 || status>=600){
             result.msg = result.msg +
@@ -131,6 +139,8 @@ com.jinfonet.ServiceDecorator = function(){
             err: CLASS.TIMEOUT,
             msg: R.nlsText("httpTimeout", "HTTP timeout")
         };
+
+        _log("RECV:", ctx.id, ctx.module, ctx.action, result);
 
         if(Class.isFunction(callback)){
             (function(result){
@@ -179,7 +189,7 @@ com.jinfonet.ServiceDecorator = function(){
         // Report browser infomation
         _browserInfo.call(this);
         
-        (Class.forName("com.jinfonet.HeartBeat")).call(this, R);
+        (Class.forName("org.jsvm.HeartBeat")).call(this, R);
         System.out.println("Heartbeat established.");
 
         MQ.register(this.MSG_HEARTBEAT, this, _onheartbeat);        
@@ -188,7 +198,7 @@ com.jinfonet.ServiceDecorator = function(){
 };
 
 (function(){
-    var CLASS = com.jinfonet.ServiceDecorator;
+    var CLASS = org.jsvm.ServiceDecorator;
     CLASS.HTTPERR = "B0000001"; // http error
     CLASS.TIMEOUT = "B0000002"; // http timeout
 })();

@@ -3703,7 +3703,8 @@ js.awt.GridLayout = function (def){
     thi$.layoutContainer = function(container){
         var bounds = container.getBounds(), MBP = bounds.MBP, 
         grid = this.grid, items = container.items0(), comp, 
-        constraints, rIdx, cIdx, cell, x, y, w, h, compz;
+            constraints, rIdx, cIdx, cell, x, y, w, h, compz,
+            padding = [0,0,0,0], innerW, innerH;
         
         grid.layout(MBP.paddingLeft, MBP.paddingTop, 
                     bounds.innerWidth, bounds.innerHeight);
@@ -3716,21 +3717,23 @@ js.awt.GridLayout = function (def){
             cell = grid.cell(constraints.rowIndex, constraints.colIndex);
             if(cell && cell.visible){
                 compz = comp.getPreferredSize();
-                x = cell.x + cell.paddingLeft;
-                y = cell.y + cell.paddingTop;
+                x = cell.x + padding[3];
+                y = cell.y + padding[0];
 
+                innerW = cell.width - padding[1] - padding[3];
                 if(comp.isRigidWidth()){
-                    x += (cell.innerWidth - compz.width)*comp.getAlignmentX();
+                    x += (innerW - compz.width)*comp.getAlignmentX();
                     w = compz.width;
                 }else{
-                    w = cell.innerWidth;
+                    w = innerW;
                 }
 
+                innerH = cell.height- padding[0] - padding[2];
                 if(comp.isRigidHeight()){
-                    y += (cell.innerHeight- compz.height)*comp.getAlignmentY();
+                    y += (innerH- compz.height)*comp.getAlignmentY();
                     h = compz.height;
                 }else{
-                    h = cell.innerHeight;
+                    h = innerH;
                 }
                 
                 comp.setBounds(x, y, w, h, 3);
@@ -3747,7 +3750,7 @@ js.awt.GridLayout = function (def){
         def.classType = "js.awt.GridLayout";
         arguments.callee.__super__.apply(this, arguments);
         
-        this.grid = new (Class.forName("js.awt.Grid"))(def);
+        this.grid = new (Class.forName("js.awt.GridEx"))(def);
 
     }.$override(this._init);
 

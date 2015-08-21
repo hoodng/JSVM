@@ -1,27 +1,32 @@
 /**
- * Copyright (c) Jinfonet Inc. 2000-2011, All rights reserved.
- * 
- * @File: Action.js
- * @Create: Mar 29, 2011
+ Copyright 2007-2015, The JSVM Project.
+ All rights reserved.
+
+ *
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
-$package("com.jinfonet");
+$package("org.jsvm");
 
-$import("com.jinfonet.ActionConnection");
+$import("org.jsvm.ActionConnection");
 
-com.jinfonet.Action = function(entry, module, action){
+org.jsvm.Action = function(entry, module, action){
 	
-	var CLASS = com.jinfonet.Action, thi$ = CLASS.prototype;
+	var CLASS = org.jsvm.Action, thi$ = CLASS.prototype;
 	if(CLASS.__defined){
 		this._init.apply(this, arguments);
 		return;
 	}
 	CLASS.__defined = true;
 
-    var Class = js.lang.Class;
+    var Class = js.lang.Class, System = J$VM.System,
+        ActionConnection = Class.forName("org.jsvm.ActionConnection");
 
 	var _encodeParams = function(params){
-		var p = J$VM.System.arrayCopy(
+		var p = System.arrayCopy(
 			this.params, 0, [], 0, this.params.length, true),s;
 		p.push(params); s = JSON.stringify(p);
 		return s;
@@ -29,9 +34,9 @@ com.jinfonet.Action = function(entry, module, action){
 
 	thi$._send = function(http, params, withOutCookie){
 		http.open("POST", 
-				  this.entry,
-				  {jrd_input:_encodeParams.call(this, params)}, 
-				  withOutCookie);
+			[this.entry, "?__acid__=", this.uuid()].join(""),
+			{$:_encodeParams.call(this, params)}, 
+			withOutCookie);
 		return http;
 	};
 
@@ -39,8 +44,9 @@ com.jinfonet.Action = function(entry, module, action){
 		fn.call(this, e.getData());
 	};
 
-	thi$.doAction = function(params, thisObj, success, error, timeout, withOutCookie){
-		var http = new com.jinfonet.ActionConnection(true);
+	thi$.doAction = function(params, thisObj,
+        success, error, timeout, withOutCookie){
+		var http = new (ActionConnection)(true);
 
 		if(Class.isFunction(success)){
 			http.onsuccess = _handler.$bind(thisObj, success);
@@ -58,7 +64,7 @@ com.jinfonet.Action = function(entry, module, action){
 	};
 
 	thi$.doSyncAction = function(params, withOutCookie){
-		var http =	new com.jinfonet.ActionConnection(false);
+		var http =	new (ActionConnection)(false);
 		return this._send(http, params, withOutCookie);
 	};
 
@@ -74,4 +80,6 @@ com.jinfonet.Action = function(entry, module, action){
 
 	this._init.apply(this, arguments);
 
-};
+}.$extend(js.lang.Object);
+
+

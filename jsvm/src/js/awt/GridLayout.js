@@ -1,40 +1,12 @@
 /**
-
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * Author: Lv xianhao
- * Contact: jsvm.prj@gmail.com
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
- * 
- * Jul 1, 2012: Rewrote layout algorithm by Hu Dong by introduce js.awt.Grid class 
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -82,7 +54,8 @@ js.awt.GridLayout = function (def){
     thi$.layoutContainer = function(container){
         var bounds = container.getBounds(), MBP = bounds.MBP, 
         grid = this.grid, items = container.items0(), comp, 
-        constraints, rIdx, cIdx, cell, x, y, w, h, compz;
+            constraints, rIdx, cIdx, cell, x, y, w, h, compz,
+            padding = [0,0,0,0], innerW, innerH;
         
         grid.layout(MBP.paddingLeft, MBP.paddingTop, 
                     bounds.innerWidth, bounds.innerHeight);
@@ -95,21 +68,23 @@ js.awt.GridLayout = function (def){
             cell = grid.cell(constraints.rowIndex, constraints.colIndex);
             if(cell && cell.visible){
                 compz = comp.getPreferredSize();
-                x = cell.x + cell.paddingLeft;
-                y = cell.y + cell.paddingTop;
+                x = cell.x + padding[3];
+                y = cell.y + padding[0];
 
+                innerW = cell.width - padding[1] - padding[3];
                 if(comp.isRigidWidth()){
-                    x += (cell.innerWidth - compz.width)*comp.getAlignmentX();
+                    x += (innerW - compz.width)*comp.getAlignmentX();
                     w = compz.width;
                 }else{
-                    w = cell.innerWidth;
+                    w = innerW;
                 }
 
+                innerH = cell.height- padding[0] - padding[2];
                 if(comp.isRigidHeight()){
-                    y += (cell.innerHeight- compz.height)*comp.getAlignmentY();
+                    y += (innerH- compz.height)*comp.getAlignmentY();
                     h = compz.height;
                 }else{
-                    h = cell.innerHeight;
+                    h = innerH;
                 }
                 
                 comp.setBounds(x, y, w, h, 3);
@@ -126,7 +101,7 @@ js.awt.GridLayout = function (def){
         def.classType = "js.awt.GridLayout";
         arguments.callee.__super__.apply(this, arguments);
         
-        this.grid = new (Class.forName("js.awt.Grid"))(def);
+        this.grid = new (Class.forName("js.awt.GridEx"))(def);
 
     }.$override(this._init);
 
