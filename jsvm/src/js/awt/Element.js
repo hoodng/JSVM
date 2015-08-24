@@ -483,10 +483,7 @@ js.awt.Element = function(def, Runtime){
      * Test if the specified (x, y) is in area of the component 
      */
     thi$.inside = function(x, y){
-        var d = this.getBounds(), 
-            minX = d.absX + d.MBP.borderLeftWidth, maxX = minX + d.clientWidth,
-            minY = d.absY + d.MBP.borderTopWidth,  maxY = minY + d.clientHeight;
-        return (x > minX && x < maxX && y > minY && y < maxY);
+        return DOM.inside(x, y, this.getBounds());
     };
 
     /**
@@ -496,11 +493,7 @@ js.awt.Element = function(def, Runtime){
      * @return {x, y}
      */
     thi$.relative = function(point){
-        var bounds = this.getBounds();
-        return {
-            x: point.x - bounds.absX - bounds.MBP.borderLeftWidth,
-            y: point.y - bounds.absY - bounds.MBP.borderTopWidth
-        };
+        return DOM.offset(point.x, point.y, this.getBounds());
     };
 
     /**
@@ -699,6 +692,14 @@ js.awt.Element = function(def, Runtime){
 
     };
 
+    thi$.getCursor = function(ele, xy, dragObj){
+        var cursor = null, bounds, idx;
+        bounds = this.getBounds();
+        idx = DOM.offsetIndex(xy.x, xy.y, bounds, this.isMovable());
+        cursor = DOM.getCursor(idx);
+        return cursor;
+    };
+
     thi$.destroy = function(){
         if(this.destroied != true){
             delete this.peer;
@@ -751,7 +752,11 @@ js.awt.Element = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.util.EventTarget).$implements(js.awt.State, js.awt.ToolTip);
+}.$extend(js.util.EventTarget).$implements(
+    js.awt.State, js.awt.Shadow, js.awt.Cover,
+    js.awt.Movable, js.awt.MoveObject,
+    js.awt.Resizable, js.awt.SizeObject,
+    js.awt.ToolTip);
 
 js.awt.Element.count = 0;
 

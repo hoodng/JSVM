@@ -123,7 +123,7 @@
     var cached = cache.getItem(corefile), text;
     if(cached){
         cached = JSON.parse(cached);
-        if(cached.build === packages[corefile]){
+        if(cached.build && cached.build === packages[corefile]){
             text = cached.text;
         }
     }

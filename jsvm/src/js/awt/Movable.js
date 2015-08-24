@@ -397,6 +397,7 @@ js.awt.Movable = function (){
         var M = this.def, U = this._local;
         
         M.movable = b;
+        /*
         if(b){
             if(!U.moveEventAttached){
                 var mover = M.mover = M.mover || {};
@@ -420,7 +421,7 @@ js.awt.Movable = function (){
                 U.moveEventAttached = false;
             }
         }
-        
+        */
         U.movableSettled = true;
     };
     

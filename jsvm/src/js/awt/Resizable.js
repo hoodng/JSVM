@@ -537,7 +537,7 @@ js.awt.Resizable = function(){
         M.resizer = resizer;
         M.mover = M.mover || {};
         M.mover.grid = M.mover.grid || 1;
-
+        /*
         if(b){
             _createResizer.call(this, M.resizer);
             if(this.isDOMElement()){
@@ -547,7 +547,7 @@ js.awt.Resizable = function(){
         }else{
             this.removeResizer(true);
         }
-
+        */
         resizerbounds = resizerbounds || {
             BBM: J$VM.supports.borderBox,
             MBP: {BW: 0, BH: 0, PW: 0, PH: 0, BPW: 0, BPH: 0}

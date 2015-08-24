@@ -9,6 +9,31 @@
 <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
 </body>
 
+<style>
+.box1 {
+position: absolute;
+border: 1px solid red;
+
+left: 100px;
+top: 100px;
+
+width:200px;
+height:200px;
+}
+
+.box2 {
+position: absolute;
+border: 1px solid blue;
+
+left: 20px;
+top: 20px;
+
+width: 100px;
+height:100px;
+
+}
+</style>
+
 <script type="text/javascript">
 
 J$VM.exec("demo",function(entry){
@@ -17,6 +42,7 @@ var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ,
 R = this;
     
 this.createApp().run(function(){
+
     this.addComponent(new js.awt.Label(
         {
             id: "label",
@@ -28,9 +54,10 @@ this.createApp().run(function(){
         {
             id: "box1",
             className: "box1",
-            css: "position:absolute;border: 13px solid blue;width:200px;height:200px;left:100px;top:100px;",
-resizable: true,
-shadow: true
+            resizable: true,
+            className: "box1"
+            /*movable: true,
+            resizable: true*/
         }, R);
 
 
@@ -38,11 +65,11 @@ shadow: true
         {
             id: "box2",
             className: "box2",
-            css: "border: 20px solid red;width:100px;height:100px;position:absolute;",
             movable: true,
             mover:{br:1, bb:1},
             resizable: true
-        }, R);
+         }, R);
+
    box1.addComponent(box2);
 
    box2.getMovingMsgRecvs = function(){
@@ -63,7 +90,8 @@ shadow: true
 
    MQ.register(box2.getMovingMsgType(), this, _onMoving);
 
-this.addComponent(box1);
+   this.addComponent(box1);
+
 });
 
 });

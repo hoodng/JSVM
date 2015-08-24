@@ -468,7 +468,6 @@ js.awt.Shadow = function (){
         if(shadow && this.isDOMElement()){
             shadow.style.zIndex = this.getZ();
             DOM.insertBefore(shadow, this.view);
-            
         }
     };
 
@@ -903,6 +902,7 @@ js.awt.Movable = function (){
         var M = this.def, U = this._local;
         
         M.movable = b;
+        /*
         if(b){
             if(!U.moveEventAttached){
                 var mover = M.mover = M.mover || {};
@@ -926,7 +926,7 @@ js.awt.Movable = function (){
                 U.moveEventAttached = false;
             }
         }
-        
+        */
         U.movableSettled = true;
     };
     
@@ -1476,7 +1476,7 @@ js.awt.Resizable = function(){
         M.resizer = resizer;
         M.mover = M.mover || {};
         M.mover.grid = M.mover.grid || 1;
-
+        /*
         if(b){
             _createResizer.call(this, M.resizer);
             if(this.isDOMElement()){
@@ -1486,7 +1486,7 @@ js.awt.Resizable = function(){
         }else{
             this.removeResizer(true);
         }
-
+        */
         resizerbounds = resizerbounds || {
             BBM: J$VM.supports.borderBox,
             MBP: {BW: 0, BH: 0, PW: 0, PH: 0, BPW: 0, BPH: 0}
@@ -3620,14 +3620,42 @@ js.awt.FlowLayout = function (def){
 
 
 /**
- Copyright 2007-2015, The JSVM Project.
+
+ Copyright 2010-2011, The JSVM Project. 
  All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * Author: Hu Dong
- * Contact: hoodng@hotmail.com
+ * Author: Lv xianhao
+ * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/hoodng/JSVM
+ * Source code availability: https://github.com/jsvm/JSVM
+ * 
+ * Jul 1, 2012: Rewrote layout algorithm by Hu Dong by introduce js.awt.Grid class 
  */
 
 $package("js.awt");
@@ -3674,9 +3702,8 @@ js.awt.GridLayout = function (def){
      */    
     thi$.layoutContainer = function(container){
         var bounds = container.getBounds(), MBP = bounds.MBP, 
-        grid = this.grid, items = container.items0(), comp, 
-            constraints, rIdx, cIdx, cell, x, y, w, h, compz,
-            padding = [0,0,0,0], innerW, innerH;
+            grid = this.grid, items = container.items0(), comp, 
+            constraints, rIdx, cIdx, cell, x, y, w, h, compz;
         
         grid.layout(MBP.paddingLeft, MBP.paddingTop, 
                     bounds.innerWidth, bounds.innerHeight);
@@ -3689,23 +3716,21 @@ js.awt.GridLayout = function (def){
             cell = grid.cell(constraints.rowIndex, constraints.colIndex);
             if(cell && cell.visible){
                 compz = comp.getPreferredSize();
-                x = cell.x + padding[3];
-                y = cell.y + padding[0];
-
-                innerW = cell.width - padding[1] - padding[3];
+                x = cell.x + cell.paddingLeft;
+                y = cell.y + cell.paddingTop;
+                
                 if(comp.isRigidWidth()){
-                    x += (innerW - compz.width)*comp.getAlignmentX();
+                    x += (cell.innerWidth - compz.width)*comp.getAlignmentX();
                     w = compz.width;
                 }else{
-                    w = innerW;
+                    w = cell.innerWidth;
                 }
 
-                innerH = cell.height- padding[0] - padding[2];
                 if(comp.isRigidHeight()){
-                    y += (innerH- compz.height)*comp.getAlignmentY();
+                    y += (cell.innerHeight - compz.height)*comp.getAlignmentY();
                     h = compz.height;
                 }else{
-                    h = innerH;
+                    h = cell.innerHeight;
                 }
                 
                 comp.setBounds(x, y, w, h, 3);
@@ -3722,7 +3747,7 @@ js.awt.GridLayout = function (def){
         def.classType = "js.awt.GridLayout";
         arguments.callee.__super__.apply(this, arguments);
         
-        this.grid = new (Class.forName("js.awt.GridEx"))(def);
+        this.grid = new (Class.forName("js.awt.Grid"))(def);
 
     }.$override(this._init);
 
@@ -4216,10 +4241,7 @@ js.awt.Element = function(def, Runtime){
      * Test if the specified (x, y) is in area of the component 
      */
     thi$.inside = function(x, y){
-        var d = this.getBounds(), 
-            minX = d.absX + d.MBP.borderLeftWidth, maxX = minX + d.clientWidth,
-            minY = d.absY + d.MBP.borderTopWidth,  maxY = minY + d.clientHeight;
-        return (x > minX && x < maxX && y > minY && y < maxY);
+        return DOM.inside(x, y, this.getBounds());
     };
 
     /**
@@ -4229,11 +4251,7 @@ js.awt.Element = function(def, Runtime){
      * @return {x, y}
      */
     thi$.relative = function(point){
-        var bounds = this.getBounds();
-        return {
-            x: point.x - bounds.absX - bounds.MBP.borderLeftWidth,
-            y: point.y - bounds.absY - bounds.MBP.borderTopWidth
-        };
+        return DOM.offset(point.x, point.y, this.getBounds());
     };
 
     /**
@@ -4432,6 +4450,14 @@ js.awt.Element = function(def, Runtime){
 
     };
 
+    thi$.getCursor = function(ele, xy, dragObj){
+        var cursor = null, bounds, idx;
+        bounds = this.getBounds();
+        idx = DOM.offsetIndex(xy.x, xy.y, bounds, this.isMovable());
+        cursor = DOM.getCursor(idx);
+        return cursor;
+    };
+
     thi$.destroy = function(){
         if(this.destroied != true){
             delete this.peer;
@@ -4484,7 +4510,11 @@ js.awt.Element = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.util.EventTarget).$implements(js.awt.State, js.awt.ToolTip);
+}.$extend(js.util.EventTarget).$implements(
+    js.awt.State, js.awt.Shadow, js.awt.Cover,
+    js.awt.Movable, js.awt.MoveObject,
+    js.awt.Resizable, js.awt.SizeObject,
+    js.awt.ToolTip);
 
 js.awt.Element.count = 0;
 
@@ -5199,7 +5229,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         view = this.view;
         view.uuid = this.uuid();
         if(view.tagName != "BODY"){
-            view.id = def.id 
+            view.id = this.id 
                 || (this.classType() + "." + js.awt.Element.count);            
         }
 
@@ -5230,7 +5260,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Element).$implements(js.awt.Cover);
+}.$extend(js.awt.Element);
 
 
 
@@ -5848,10 +5878,7 @@ js.awt.Component = function (def, Runtime, view){
     this._init.apply(this, arguments);
     
 }.$extend(js.awt.BaseComponent).$implements(
-    js.util.Observer, js.awt.Shadow, 
-    js.awt.Movable, js.awt.MoveObject, 
-    js.awt.Resizable, js.awt.SizeObject, 
-    js.awt.Editable, js.awt.PopupLayer);
+    js.util.Observer, js.awt.Editable, js.awt.PopupLayer);
 
 
 /**
@@ -9961,441 +9988,455 @@ $package("js.awt");
  * Define Button component
  *
  * @param def:{
- *   className: string, required
+ *	 className: string, required
  *
- *   id: request,
+ *	 id: request,
  *
- *   iconImage: "",
- *   iconAlign: "left"|"right"|"top"|"bottom"
- *   labelText: "Button",
+ *	 iconImage: "",
+ *	 iconAlign: "left"|"right"|"top"|"bottom"
+ *	 labelText: "Button",
  *
- *   state:optional,
- *   toggle:boolean, required
+ *	 state:optional,
+ *	 toggle:boolean, required
  *
  * }
  */
 js.awt.Button = function(def, Runtime){
 
-    var CLASS = js.awt.Button, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
-
-    thi$.getMsgType = function(){
-        return "js.awt.event.ButtonEvent";
-    };
-
-    thi$.setIconImage = function(state){
-        var buf = this.__buf__.clear();
-        buf.append(this.Runtime().imagePath())
-            .append(state & 0x0F).append("-")
-            .append(this.getIconImage());
-
-        this.icon.src = buf.toString();
-    };
-
-    thi$.getIconImage = function(){
-        return this.def.iconImage || "blank.gif";
-    };
-
-    thi$.setText = function(text){
-        if(this.label){
-            this.def.labelText = text;
-            this.label.innerHTML = js.lang.String.encodeHtml(text);
-        }
-    };
-
-    thi$.getText = function(){
-        if(this.label){
-            return this.def.labelText;
-        }
-
-        return undefined;
-    };
-
-    thi$.isMarkable = function(){
-        return this.def.markable === true;
-    };
-
-    thi$.isMarked = function(){
-        return this.def.marked === true;
-    };
-
-    thi$.mark = function(b){
-        var marker = this.marker;
-        if(!marker) return;
-
-        b = b || false;
-        this.def.marked = b;
-
-        if(this.isMarked()){
-            marker.className = DOM.combineClassName(this.className, "_marker_4", "");
-        }else{
-            marker.className = DOM.combineClassName(this.className, "_marker_0", "");
-        }
-    };
-
-    thi$.isOnMousedown = function(){
-        return this._local.mousedown === true;
-    };
-
-    thi$.setToolTipText = function(s){
-        arguments.callee.__super__.apply(this, arguments);
-
-        if(this.icon) {
-            DOM.setAttribute(this.icon, "title", s);
-        }
-        if(this.label){
-            DOM.setAttribute(this.label, "title", s);
-        }
-
-    }.$override(this.setToolTipText);
-
-    /**
-     * @see js.awt.Component
-     */
-    thi$.repaint = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            this.doLayout(true);
-        }
-    }.$override(this.repaint);
-
-    /**
-     * @see js.awt.Component
-     */
-    thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            var G0 = this.getGeometric(), B = this.getBounds(),
-            BBM = B.BBM, MBP = B.MBP,
-            innerWidth = B.innerWidth, innerHeight= B.innerHeight,
-            xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
-            align_x = this.def.layout.align_x,
-            align_y = this.def.layout.align_y,
-            items = this.def.items, ele, i, len, cwidth = 0, D,
-            buf = this.__buf__, left, top, uwidth;
-
-            for(i=0, len=items.length; i<len; i++){
-                ele = this[items[i]];
-                D = G0[ele.iid];
-                if(ele.iid == "label"){
-                    cwidth += ele.scrollWidth;
-                }else{
-                    cwidth += ele.offsetWidth + D.MBP.marginRight;
-                }
-            }
-
-            cwidth = cwidth > innerWidth ? innerWidth : cwidth;
-
-            left = xbase + (innerWidth - cwidth) * align_x;
-            for(i=0, len=items.length; i<len; i++){
-                ele = this[items[i]];
-                D = G0[ele.iid];
-                top = ybase + (innerHeight - D.height) * align_y;
-                buf.clear().append(ele.style.cssText)
-                    .append(";left:").append(left).append("px;")
-                    .append("top:").append(top).append("px;");
-
-                if(ele.iid === "label"){
-                    buf.append("width:").append(cwidth+2).append("px;")
-                        .append("white-space:nowrap;overflow:hidden;")
-                        .append("text-overflow:ellipsis;");
-                }
-
-                ele.style.cssText = buf.toString();
-
-                uwidth = D.width + D.MBP.marginRight;
-                left   += uwidth;
-                cwidth -= uwidth;
-            }
-
-            _adjustEffectLayer.call(this);
-            return true;
-        }
-
-        return false;
-
-    }.$override(this.doLayout);
-
-    /**
-     * @see js.awt.State
-     * @see js.awt.Component
-     */
-    thi$.onStateChanged = function(){
-        arguments.callee.__super__.apply(this, arguments);
-
-        if(this.icon){
-            this.setIconImage(this.getState());
-        }
-    }.$override(this.onStateChanged);
-
-    thi$.setEnabled = function(b){
-        if(!b){
-            _showEffectLayer.call(this, "normal");
-        }
-
-        arguments.callee.__super__.apply(this, arguments);
-
-    }.$override(this.setEnabled);
-
-    var _showEffectLayer = function(style){
-        if(!this._effectLayer || !this.isEnabled()){
-            return;
-        }
-
-        var className = this.__buf__.clear()
-            .append(this._local.effectClass)
-            .append("_").append(style).toString();
-        this._effectLayer.className = className;
-
-        if(this.isStyleByState()){
-            var state;
-            switch(style){
-            case "trigger":
-                state = 4;
-                break;
-            case "hover":
-                state = 2;
-                break;
-            default:
-                break;
-            }
-
-            if(!isNaN(state) && state !== this.getState()){
-                this.view.className = this.__buf__.clear()
-                    .append(this.className).append("_")
-                    .append(state).toString();
-            }
-        }
-    };
-
-    var _createEffectLayer = function(){
-        var layer = this._effectLayer = DOM.createElement("DIV");
-        layer.uuid = this.uuid();
-        layer.className = this.__buf__.clear()
-            .append(this._local.effectClass)
-            .append("_").append("normal").toString();
-        layer.style.cssText = "position:absolute;left:0px;top:0px;";
-        DOM.appendTo(layer, this.view);
-    };
-
-    var _adjustEffectLayer = function(){
-        if(this._effectLayer){
-            // The effect layer has border
-            DOM.setSize(this._effectLayer,
-                        this.view.clientWidth, this.view.clientHeight);
-        }
-    };
-
-    var _onmousedown = function(e){
-        _showEffectLayer.call(this, "trigger");
-
-        this._local.mousedown = true;
-        this.onHover(false, e.getType());
-
-        e.setEventTarget(this);
-        this.notifyPeer(this.getMsgType(), e);
-    };
-
-    var _onmouseup = function(e){
-        if(this._local.mousedown === true){
-            delete this._local.mousedown;
-
-            _showEffectLayer.call(
-                this,
-                this.isHover() ? "hover" : "normal");
-
-            if(this.def.toggle === true){
-                this.setTriggered(!this.isTriggered());
-            }
-
-            e.setEventTarget(this);
-            this.notifyPeer(this.getMsgType(), e);
-        }
-    };
-
-    thi$.onHover = function(b, eType){
-        // Do something if need.
-    };
-
-    var _onmouseover = function(e){
-        if(this.contains(e.toElement, true)
-           && !this.isHover()){
-            this.setHover(true);
-            _showEffectLayer.call(this, "hover");
-
-            this.onHover(true, e.getType());
-        }
-    };
-
-    var _onmouseout = function(e){
-        if(!this.contains(e.toElement, true)
-           && this.isHover()){
-            delete this._local.mousedown;
-
-            this.setHover(false);
-            _showEffectLayer.call(
-                this,
-                !this.isTriggered() ? "normal" : "trigger");
-
-            this.onHover(false, e.getType());
-        }
-    };
-
-    var _createElements = function(){
-        var G = this.getGeometric(), className = this.className,
-        body = document.body, items = this.def.items,
-        ele, id, iid, viewType, i, len;
-
-        for(i=0, len=items.length; i<len; i++){
-            id = items[i];
-            iid = id.split(/\d+/g)[0];
-            switch(iid){
-            case "icon":
-                viewType = "IMG";
-                break;
-            case "label":
-                viewType = "SPAN";
-                break;
-            default:
-                viewType = "DIV";
-                break;
-            }
-
-            ele = DOM.createElement(viewType);
-            ele.id = id;
-            ele.className = DOM.combineClassName(className, id);
-            ele.iid = iid;
-
-            if(!G[iid]){
-                ele.style.cssText =
-                    "position:absolute;white-space:nowrap;visibility:hidden;";
-                DOM.appendTo(ele, body);
-                G[iid] = DOM.getBounds(ele);
-                DOM.removeFrom(ele);
-                ele.style.cssText = "";
-            }
-
-            ele.style.cssText ="position:absolute;";
-            DOM.appendTo(ele, this.view);
-        }
-    };
-
-    var _checkItems = function(){
-        var M = this.def, items = M.items;
-        if(items.length == 0){
-            if(this.isMarkable()) items.push("marker");
-            if(M.iconImage) items.push("icon");
-            if(M.labelText) items.push("label");
-        }
-    };
-
-    thi$.destroy = function(){
-        DOM.remove(this._effectLayer, true);
-        delete this._effectLayer;
-
-        this.detachEvent("mouseover", 0, this, _onmouseover);
-        this.detachEvent("mouseout",  0, this, _onmouseout);
-        this.detachEvent("mousedown", 0, this, _onmousedown);
-        this.detachEvent("mouseup",   0, this, _onmouseup);
-
-        arguments.callee.__super__.apply(this, arguments);
-
-    }.$override(this.destroy);
-
-    thi$._init = function(def, Runtime, view){
-        if(typeof def !== "object") return;
-
-        def.classType = def.classType || "js.awt.Button";
-        def.className = def.className || "jsvm_button";
-
-        arguments.callee.__super__.apply(this, [def, Runtime, view]);
-
-        var layout = def.layout = def.layout || {};
-        layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.5;
-        layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
-
-        def.items = def.items || [];
-
-        // Create inner elements
-        if(view == undefined){
-            _checkItems.call(this);
-            _createElements.call(this);
-        }
-
-        if(!def.items.clear){
-            js.util.LinkedList.$decorate(def.items);
-        }
-        def.items.clear();
-        var uuid = this.uuid(), nodes = this.view.childNodes,
-        id, i, len, node;
-        for(i=0, len=nodes.length; i<len; i++){
-            node = nodes[i]; id = node.id;
-            node.uuid = uuid;
-            node.iid = (node.iid || id.split(/\d+/g)[0]);
-            def.items.push(id);
-            this[id] = node;
-        }
-
-        if(this.icon){
-            this.setIconImage(this.isTriggered() ? 4 : (this.isEnabled() ? 0 : 1));
-        }
-
-        if(this.label){
-            this.setText(def.labelText || def.text || def.name || "Button");
-        }
-
-        if(def.effect === true){
-            this._local.effectClass = def.effectClass || "jsvm_btnEffect";
-            _createEffectLayer.call(this);
-        }
-
-        // Set Tip
-        var tip = def.tip;
-        if(Class.isString(tip) && tip.length > 0) {
-            this.setToolTipText(tip);
-        }
-
-        this.setAttribute("touchcapture", "true");
-        this.attachEvent("mouseover", 0, this, _onmouseover);
-        this.attachEvent("mouseout",  0, this, _onmouseout);
-        this.attachEvent("mousedown", 0, this, _onmousedown);
-        this.attachEvent("mouseup",   0, this, _onmouseup);
-
-    }.$override(this._init);
-
-    this._init.apply(this, arguments);
+	var CLASS = js.awt.Button, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System;
+
+	thi$.getMsgType = function(){
+		return "js.awt.event.ButtonEvent";
+	};
+
+	thi$.setIconImage = function(state){
+		var buf = this.__buf__.clear();
+		buf.append(this.Runtime().imagePath())
+			.append(state & 0x0F).append("-")
+			.append(this.getIconImage());
+
+		this.icon.src = buf.toString();
+	};
+
+	thi$.getIconImage = function(){
+		return this.def.iconImage || "blank.gif";
+	};
+
+	thi$.setText = function(text){
+		if(this.label){
+			this.def.labelText = text;
+			this.label.innerHTML = js.lang.String.encodeHtml(text);
+		}
+	};
+
+	thi$.getText = function(){
+		if(this.label){
+			return this.def.labelText;
+		}
+
+		return undefined;
+	};
+
+	thi$.isMarkable = function(){
+		return this.def.markable === true;
+	};
+
+	thi$.isMarked = function(){
+		return this.def.marked === true;
+	};
+
+	thi$.mark = function(b){
+		var marker = this.marker;
+		if(!marker) return;
+
+		b = b || false;
+		this.def.marked = b;
+
+		if(this.isMarked()){
+			marker.className = DOM.combineClassName(this.className, "marker_4");
+		}else{
+			marker.className = DOM.combineClassName(this.className, "marker_0");
+		}
+	};
+
+	thi$.isOnMousedown = function(){
+		return this._local.mousedown === true;
+	};
+
+	thi$.setToolTipText = function(s){
+		arguments.callee.__super__.apply(this, arguments);
+
+		if(this.icon) {
+			DOM.setAttribute(this.icon, "title", s);
+		}
+		if(this.label){
+			DOM.setAttribute(this.label, "title", s);
+		}
+
+	}.$override(this.setToolTipText);
+
+	/**
+	 * @see js.awt.Component
+	 */
+	thi$.repaint = function(){
+		if(arguments.callee.__super__.apply(this, arguments)){
+			this.doLayout(true);
+		}
+	}.$override(this.repaint);
+
+	/**
+	 * @see js.awt.Component
+	 */
+	thi$.doLayout = function(force){
+		if(arguments.callee.__super__.apply(this, arguments)){
+			var G0 = this.getGeometric(), B = this.getBounds(),
+			BBM = B.BBM, MBP = B.MBP,
+			innerWidth = B.innerWidth, innerHeight= B.innerHeight,
+			xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
+			align_x = this.def.layout.align_x,
+			align_y = this.def.layout.align_y,
+			items = this.def.items, ele, i, len, cwidth = 0, D,
+			buf = this.__buf__, left, top, uwidth;
+
+			for(i=0, len=items.length; i<len; i++){
+				ele = this[items[i]];
+				D = G0[ele.iid];
+				if(ele.iid == "label"){
+					cwidth += ele.scrollWidth;
+				}else{
+					cwidth += ele.offsetWidth + D.MBP.marginRight;
+				}
+			}
+
+			cwidth = cwidth > innerWidth ? innerWidth : cwidth;
+
+			left = xbase + (innerWidth - cwidth) * align_x;
+			for(i=0, len=items.length; i<len; i++){
+				ele = this[items[i]];
+				D = G0[ele.iid];
+				top = ybase + (innerHeight - D.height) * align_y;
+				buf.clear().append(ele.style.cssText)
+					.append(";left:").append(left).append("px;")
+					.append("top:").append(top).append("px;");
+
+				if(ele.iid === "label"){
+					buf.append("width:").append(cwidth+2).append("px;")
+						.append("white-space:nowrap;overflow:hidden;")
+						.append("text-overflow:ellipsis;");
+				}
+
+				ele.style.cssText = buf.toString();
+
+				uwidth = D.width + D.MBP.marginRight;
+				left   += uwidth;
+				cwidth -= uwidth;
+			}
+
+			_adjustEffectLayer.call(this);
+			return true;
+		}
+
+		return false;
+
+	}.$override(this.doLayout);
+
+	/**
+	 * @see js.awt.State
+	 * @see js.awt.Component
+	 */
+	thi$.onStateChanged = function(){
+		arguments.callee.__super__.apply(this, arguments);
+
+		if(this.icon){
+			this.setIconImage(this.getState());
+		}
+	}.$override(this.onStateChanged);
+
+	thi$.setEnabled = function(b){
+		if(!b){
+			_showEffectLayer.call(this, "normal");
+		}
+
+		arguments.callee.__super__.apply(this, arguments);
+
+	}.$override(this.setEnabled);
+
+	var _getEffectStyleClass = function(style){
+		style = style || "normal";
+
+		var tclazz = this._local.effectClass;
+		if(tclazz){
+			tclazz = DOM.combineClassName(tclazz, style);
+		}else{
+			tclazz = DOM.combineClassName("jsvm_btnEffect", style);
+
+			if(this.className){
+				style = "Effect" + "_" + style;
+				tclazz += " " + DOM.combineClassName(this.className, style, "");
+			}
+		}
+
+		return tclazz;		  
+	};
+
+	var _showEffectLayer = function(style){
+		if(!this._effectLayer || !this.isEnabled()){
+			return;
+		}
+
+		this._effectLayer.className 
+			= _getEffectStyleClass.call(this, style);
+
+		if(this.isStyleByState()){
+			var state;
+			switch(style){
+			case "trigger":
+				state = 4;
+				break;
+			case "hover":
+				state = 2;
+				break;
+			default:
+				break;
+			}
+
+			if(!isNaN(state) && state !== this.getState()){
+				this.view.className 
+					= DOM.stateClassName(this.def.className, state);
+			}
+		}
+	};
+
+	var _createEffectLayer = function(){
+		var layer = this._effectLayer = DOM.createElement("DIV");
+		layer.uuid = this.uuid();
+		layer.className = _getEffectStyleClass.call(this, "normal");
+		layer.style.cssText = "position:absolute;left:0px;top:0px;";
+
+		DOM.appendTo(layer, this.view);
+	};
+
+	var _adjustEffectLayer = function(){
+		if(this._effectLayer){
+			// The effect layer has border
+			DOM.setSize(this._effectLayer,
+						this.view.clientWidth, this.view.clientHeight);
+		}
+	};
+
+	var _onmousedown = function(e){
+		_showEffectLayer.call(this, "trigger");
+
+		this._local.mousedown = true;
+		this.onHover(false, e.getType());
+
+		e.setEventTarget(this);
+		this.notifyPeer(this.getMsgType(), e);
+	};
+
+	var _onmouseup = function(e){
+		if(this._local.mousedown === true){
+			delete this._local.mousedown;
+
+			_showEffectLayer.call(
+				this,
+				this.isHover() ? "hover" : "normal");
+
+			if(this.def.toggle === true){
+				this.setTriggered(!this.isTriggered());
+			}
+
+			e.setEventTarget(this);
+			this.notifyPeer(this.getMsgType(), e);
+		}
+	};
+
+	thi$.onHover = function(b, eType){
+		// Do something if need.
+	};
+
+	var _onmouseover = function(e){
+		if(this.contains(e.toElement, true)
+		   && !this.isHover()){
+			this.setHover(true);
+			_showEffectLayer.call(this, "hover");
+
+			this.onHover(true, e.getType());
+		}
+	};
+
+	var _onmouseout = function(e){
+		if(!this.contains(e.toElement, true)
+		   && this.isHover()){
+			delete this._local.mousedown;
+
+			this.setHover(false);
+			_showEffectLayer.call(
+				this,
+				!this.isTriggered() ? "normal" : "trigger");
+
+			this.onHover(false, e.getType());
+		}
+	};
+
+	var _createElements = function(){
+		var G = this.getGeometric(), className = this.className,
+		body = document.body, items = this.def.items,
+		ele, id, iid, viewType, i, len;
+
+		for(i=0, len=items.length; i<len; i++){
+			id = items[i];
+			iid = id.split(/\d+/g)[0];
+			switch(iid){
+			case "icon":
+				viewType = "IMG";
+				break;
+			case "label":
+				viewType = "SPAN";
+				break;
+			default:
+				viewType = "DIV";
+				break;
+			}
+
+			ele = DOM.createElement(viewType);
+			ele.id = id;
+			ele.className = DOM.combineClassName(className, id);
+			ele.iid = iid;
+
+			if(!G[iid]){
+				ele.style.cssText =
+					"position:absolute;white-space:nowrap;visibility:hidden;";
+				DOM.appendTo(ele, body);
+				G[iid] = DOM.getBounds(ele);
+				DOM.removeFrom(ele);
+				ele.style.cssText = "";
+			}
+
+			ele.style.cssText ="position:absolute;";
+			DOM.appendTo(ele, this.view);
+		}
+	};
+
+	var _checkItems = function(){
+		var M = this.def, items = M.items;
+		if(items.length == 0){
+			if(this.isMarkable()) items.push("marker");
+			if(M.iconImage) items.push("icon");
+			if(M.labelText) items.push("label");
+		}
+	};
+
+	thi$.destroy = function(){
+		DOM.remove(this._effectLayer, true);
+		delete this._effectLayer;
+
+		this.detachEvent("mouseover", 0, this, _onmouseover);
+		this.detachEvent("mouseout",  0, this, _onmouseout);
+		this.detachEvent("mousedown", 0, this, _onmousedown);
+		this.detachEvent("mouseup",	  0, this, _onmouseup);
+
+		arguments.callee.__super__.apply(this, arguments);
+
+	}.$override(this.destroy);
+
+	thi$._init = function(def, Runtime, view){
+		if(typeof def !== "object") return;
+
+		def.classType = def.classType || "js.awt.Button";
+		def.className = def.className || "jsvm_button";
+
+		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+
+		var layout = def.layout = def.layout || {};
+		layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.5;
+		layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
+
+		def.items = def.items || [];
+
+		// Create inner elements
+		if(view == undefined){
+			_checkItems.call(this);
+			_createElements.call(this);
+		}
+
+		if(!def.items.clear){
+			js.util.LinkedList.$decorate(def.items);
+		}
+		def.items.clear();
+		var uuid = this.uuid(), nodes = this.view.childNodes,
+		id, i, len, node;
+		for(i=0, len=nodes.length; i<len; i++){
+			node = nodes[i]; id = node.id;
+			node.uuid = uuid;
+			node.iid = (node.iid || id.split(/\d+/g)[0]);
+			def.items.push(id);
+			this[id] = node;
+		}
+
+		if(this.icon){
+			this.setIconImage(this.isTriggered() ? 4 : (this.isEnabled() ? 0 : 1));
+		}
+
+		if(this.label){
+			this.setText(def.labelText || def.text || def.name || "Button");
+		}
+
+		if(def.effect === true){
+			this._local.effectClass = def.effectClass;
+			_createEffectLayer.call(this);
+		}
+
+		// Set Tip
+		var tip = def.tip;
+		if(Class.isString(tip) && tip.length > 0) {
+			this.setToolTipText(tip);
+		}
+
+		this.setAttribute("touchcapture", "true");
+		this.attachEvent("mouseover", 0, this, _onmouseover);
+		this.attachEvent("mouseout",  0, this, _onmouseout);
+		this.attachEvent("mousedown", 0, this, _onmousedown);
+		this.attachEvent("mouseup",	  0, this, _onmouseup);
+
+	}.$override(this._init);
+
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);
 
 js.awt.Button.eventDispatcher = function(e){
-    var Class = js.lang.Class, System = J$VM.System,
-        target, func;
-    
-    switch(e.getType()){
-    case "mousedown":
-        if(Class.isFunction(this.activateComponent)){
-            this.activateComponent();            
-        }
-        break;
-    case "mouseup":
-    case "message":
-        target = e.getEventTarget();
-        func = this["on" + target.id];
-        func = Class.isFunction(func) ? func : this.onbtnDispatcher;
-        if(Class.isFunction(func)){
-            func.call(this, target, e);
-        }else{
-            System.err.println("Can not found function for button "+ target.id);
-        }
-        break;
-    default:
-        break;
-    }
+	var Class = js.lang.Class, System = J$VM.System,
+	target, func;
+	
+	switch(e.getType()){
+	case "mousedown":
+		if(Class.isFunction(this.activateComponent)){
+			this.activateComponent();			 
+		}
+		break;
+	case "mouseup":
+	case "message":
+		target = e.getEventTarget();
+		func = this["on" + target.id];
+		func = Class.isFunction(func) ? func : this.onbtnDispatcher;
+		if(Class.isFunction(func)){
+			func.call(this, target, e);
+		}else{
+			System.err.println("Can not found function for button "+ target.id);
+		}
+		break;
+	default:
+		break;
+	}
 };
 
 /**
@@ -14442,39 +14483,14 @@ js.awt.LayerManager = function(def, Runtime, view){
 
 /**
 
- Copyright 2010-2011, The JSVM Project.
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
-
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -14556,18 +14572,40 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _onmouseevent = function(e){
-        System.updateLastAccessTime();
-        MQ.post("js.awt.event.MouseEvent", e);
-        
-        switch(e.getType()){
-            case Event.W3C_EVT_MOUSE_DOWN:
-            case Event.W3C_EVT_MOUSE_WHEEL:
-            return _notifyLM.call(this, e);
+        var ele = e.srcElement, target = DOM.getEventTarget(ele),
+            type = e.getType(), XY;
 
-            case Event.W3C_EVT_CONTEXTMENU:
-            e.cancelBubble();
+        System.updateLastAccessTime();
+        if(type === Event.W3C_EVT_MOUSE_WHEEL){
+            _notifyLM.call(this, e);
+        }
+        
+        if(!target) return true;
+        
+        switch(type){
+            case Event.W3C_EVT_MOUSE_MOVE:
+            var cursor = target.getCursor(ele, e.eventXY(), null);
+            System.err.println("cursor: "+cursor);
+            DOM.setCursor(ele, cursor);
+            break;
+            case Event.W3C_EVT_MOUSE_OVER:
+
+            break;
+            case Event.W3C_EVT_MOUSE_OUT:
+            //DOM.setCursor(ele);
+            break;
+            case Event.W3C_EVT_MOUSE_DOWN:
+            target.fireEvent(e, true);
             return e.cancelDefault();
-            
+            break;
+            case Event.W3C_EVT_MOUSE_UP:
+            target.fireEvent(e, true);
+            return e.cancelDefault();
+            break;
+            case Event.W3C_EVT_MOUSE_WHEEL:
+            break;
+            case Event.W3C_EVT_CONTEXTMENU:
+            break;
             default:
             break;
         }
@@ -14807,7 +14845,10 @@ js.awt.Desktop = function (Runtime){
         Event.attachEvent(dom,  Event.W3C_EVT_KEY_UP,     0, this, _onkeyevent);
         
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmouseevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmouseevent);       
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OVER, 0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseevent);        
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseevent);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmouseevent);
         Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _onmouseevent);
         

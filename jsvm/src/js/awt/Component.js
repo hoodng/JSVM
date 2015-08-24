@@ -612,8 +612,5 @@ js.awt.Component = function (def, Runtime, view){
     this._init.apply(this, arguments);
     
 }.$extend(js.awt.BaseComponent).$implements(
-    js.util.Observer, js.awt.Shadow, 
-    js.awt.Movable, js.awt.MoveObject, 
-    js.awt.Resizable, js.awt.SizeObject, 
-    js.awt.Editable, js.awt.PopupLayer);
+    js.util.Observer, js.awt.Editable, js.awt.PopupLayer);
 
