@@ -708,7 +708,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
         view = this.view;
         view.uuid = this.uuid();
         if(view.tagName != "BODY"){
-            view.id = def.id 
+            view.id = this.id 
                 || (this.classType() + "." + js.awt.Element.count);            
         }
 
@@ -739,6 +739,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Element).$implements(js.awt.Cover);
+}.$extend(js.awt.Element);
 
 

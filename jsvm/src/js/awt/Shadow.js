@@ -84,7 +84,6 @@ js.awt.Shadow = function (){
         if(shadow && this.isDOMElement()){
             shadow.style.zIndex = this.getZ();
             DOM.insertBefore(shadow, this.view);
-            
         }
     };
 

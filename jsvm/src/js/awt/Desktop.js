@@ -1,38 +1,13 @@
 /**
 
- Copyright 2010-2011, The JSVM Project.
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
-
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -114,18 +89,40 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _onmouseevent = function(e){
-        System.updateLastAccessTime();
-        MQ.post("js.awt.event.MouseEvent", e);
-        
-        switch(e.getType()){
-            case Event.W3C_EVT_MOUSE_DOWN:
-            case Event.W3C_EVT_MOUSE_WHEEL:
-            return _notifyLM.call(this, e);
+        var ele = e.srcElement, target = DOM.getEventTarget(ele),
+            type = e.getType(), XY;
 
-            case Event.W3C_EVT_CONTEXTMENU:
-            e.cancelBubble();
+        System.updateLastAccessTime();
+        if(type === Event.W3C_EVT_MOUSE_WHEEL){
+            _notifyLM.call(this, e);
+        }
+        
+        if(!target) return true;
+        
+        switch(type){
+            case Event.W3C_EVT_MOUSE_MOVE:
+            var cursor = target.getCursor(ele, e.eventXY(), null);
+            System.err.println("cursor: "+cursor);
+            DOM.setCursor(ele, cursor);
+            break;
+            case Event.W3C_EVT_MOUSE_OVER:
+
+            break;
+            case Event.W3C_EVT_MOUSE_OUT:
+            //DOM.setCursor(ele);
+            break;
+            case Event.W3C_EVT_MOUSE_DOWN:
+            target.fireEvent(e, true);
             return e.cancelDefault();
-            
+            break;
+            case Event.W3C_EVT_MOUSE_UP:
+            target.fireEvent(e, true);
+            return e.cancelDefault();
+            break;
+            case Event.W3C_EVT_MOUSE_WHEEL:
+            break;
+            case Event.W3C_EVT_CONTEXTMENU:
+            break;
             default:
             break;
         }
@@ -365,7 +362,10 @@ js.awt.Desktop = function (Runtime){
         Event.attachEvent(dom,  Event.W3C_EVT_KEY_UP,     0, this, _onkeyevent);
         
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmouseevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmouseevent);       
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OVER, 0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseevent);        
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseevent);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmouseevent);
         Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _onmouseevent);
         
