@@ -26,7 +26,7 @@
     position: absolute;
     z-index: 10;
     border: 1px solid transparent;
-    background-color: gray;
+    background-color: transparent;
 }
 
 .jsvm_grid_hmove {
@@ -77,12 +77,11 @@ var R = this.Runtime();
             ]
         },
         resizable: true
-        
+
     },R);
 
 js.awt.Gridding.$decorate(panel);
 
-/*
     //1
     panel.addComponent(new js.awt.Component({
         className: "block",
@@ -176,11 +175,14 @@ js.awt.Gridding.$decorate(panel);
         css: "border-color:gray;",
         constraints:{rowIndex: 2, colIndex: 2}   
     },R));
-*/
 
 this.addComponent(panel);
 
 panel.initGridding(panel.layout.grid, {close:true});
+
+panel.onGridChanged = function(){
+    this.doLayout(true);
+}.$override(panel.onGridChanged);
 
 G = panel.layout.grid;
 

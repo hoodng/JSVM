@@ -39,7 +39,11 @@ js.awt.Gridding = function(){
         MQ.register("js.awt.GridEx.lineMoving", this, _onLineMoving);
     };
 
+    thi$.onGridChanged = function(e){
+    };
+
     var _onGridChanged = function(e){
+        this.onGridChanged(e);
         _updateLines.call(this);
     };
 

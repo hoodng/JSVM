@@ -1,40 +1,37 @@
-<!DOCTYPE html>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script id="j$vm" src="../../jsvm/jsre.js" -DmainClass="org.jsvm.App"></script>
-<script src="../../jsvm/lib/../jsre-ui.js" ></script>
-<style>
-
-
-</style>
+<!DOCTYPE HTML>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;lib/jsre-gks.jz;lib/service.jz;"></script>
 </head>
-<body>
-
-Test
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
 </body>
-
 
 <script type="text/javascript">
 
-J$VM.exec("org.jsvm.App",function(System){
+J$VM.exec("demo",function(entry){
 
-    var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ;
-
+var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ,
+R = this;
+    
+this.createApp().run(function(){
     this.addComponent(new js.awt.Label(
         {
             id: "label",
             css: "left:10px;top:10px;width:300px;height:20px;",
             text: "---:---"
-        }, this));
+        }, R));
     
     var box1 = new js.awt.Container(
         {
             id: "box1",
             className: "box1",
             css: "position:absolute;border: 13px solid blue;width:200px;height:200px;left:100px;top:100px;",
-            resizable: true
-        }, this);
+resizable: true,
+shadow: true
+        }, R);
 
 
    var box2 = new js.awt.Component(
@@ -45,7 +42,7 @@ J$VM.exec("org.jsvm.App",function(System){
             movable: true,
             mover:{br:1, bb:1},
             resizable: true
-        }, this);
+        }, R);
    box1.addComponent(box2);
 
    box2.getMovingMsgRecvs = function(){
@@ -66,7 +63,9 @@ J$VM.exec("org.jsvm.App",function(System){
 
    MQ.register(box2.getMovingMsgType(), this, _onMoving);
 
-   this.addComponent(box1);
+this.addComponent(box1);
+});
+
 });
 </script>
 </html>
