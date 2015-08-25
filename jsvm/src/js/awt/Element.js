@@ -692,12 +692,15 @@ js.awt.Element = function(def, Runtime){
 
     };
 
-    thi$.getCursor = function(ele, xy, dragObj){
-        var cursor = null, bounds, idx;
-        bounds = this.getBounds();
-        idx = DOM.offsetIndex(xy.x, xy.y, bounds, this.isMovable());
-        cursor = DOM.getCursor(idx);
-        return cursor;
+    thi$.spotIndex = function(ele, xy, dragObj){
+        var bounds, movable, resizable, idx = -1;
+        movable = this.isMovable();
+        resizable= this.isResizable();
+        if(movable || resizable){
+            bounds = this.getBounds();
+            idx = DOM.offsetIndex(xy.x, xy.y, bounds, movable);
+        }
+        return idx;
     };
 
     thi$.destroy = function(){

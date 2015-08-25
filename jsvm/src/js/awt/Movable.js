@@ -1,38 +1,13 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -47,6 +22,10 @@ js.awt.MoveObject = function(){
         return;
     }
     CLASS.__defined__ = true;
+
+    var DOM = J$VM.DOM,
+        max = Math.max, min = Math.min, round = Math.round,
+        floor = Math.floor, ceil = Math.ceil;
     
     /**
      * The moving peer is a moving object's ontologing. Generally,
@@ -102,6 +81,43 @@ js.awt.MoveObject = function(){
             this.movingPeer = null;
         }
     };
+
+    var isScroll = {"auto" : true, "scroll": true};
+
+    /**
+     * @return {Object} {
+     *  container: container element
+     *  range:[minX, minY, maxX, maxY]
+     * }
+     */
+    thi$.getMoveRange = function(){
+        var autoFit = false, bounds,
+            pview = DOM.offsetParent(this.view), cview,
+            pcomp = DOM.getEventTarget(pview), mgl, mgt
+
+        if(pcomp){
+            autoFit = pcomp.isAutoFit ? pcomp.isAutoFit() : false;
+        }
+
+        bounds = this.getBounds();
+        mgl = bounds.MBP.marginLeft;
+        mgt = bounds.MBP.marginTop;
+
+        cview = autoFit ? DOM.offsetParent(pview) : pview;
+
+        return{
+            container: cview,
+            range:[
+                0-mgl - bounds.width,
+                0-mgt - bounds.height,
+                autoFit ? max(pview.scrollWidth, pview.offsetWidth) - mgl :
+                    max(cview.scrollWidth, cview.offsetWidth) - mgl,
+                autoFit ? max(pview.scrollHeight,pview.offsetHeight)- mgt :
+                    max(cview.scrollHeight,cview.offsetHeight)- mgt
+            ]
+        }
+    };
+    
 };
 
 /**
@@ -140,12 +156,10 @@ js.awt.Movable = function (){
     var _doSelect = function(e){
 
         MQ.register("releaseMoveObject", this, _releaseMoveObject);
+        this.detachEvent("mouseup", 4, this, _onmouseup1);
 
-        Event.attachEvent(document, "mousemove", 0, this, _onmousemove);
-        Event.attachEvent(document, "mouseup", 0, this, _onmouseup);
-        
-        Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
-        Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
+        this.attachEvent("mousemove", 4, this, _onmousemove);
+        this.attachEvent("mouseup", 4, this, _onmouseup);                
 
         var U = this._local, moveObj = this.getMoveObject(e), 
         objContainer = moveObj.getContainer(), 
@@ -208,16 +222,87 @@ js.awt.Movable = function (){
         
     };
 
+    thi$._startmoving = function(e){
+        var U = this._local, moveObj = this.getMoveObject(e), 
+            moveRange = moveObj.getMoveRange(), r = moveRange.range,
+            bounds = moveObj.getBounds(), mover = this.def.mover,
+            grid = mover.grid, bound=mover.bound,
+            bt = max(mover.bt*bounds.height, bound),
+            br = max(mover.br*bounds.width, bound),
+            bb = max(mover.bb*bounds.height, bound),
+            bl = max(mover.bl*bounds.width, bound);
+        
+        moveObj.minX = grid*ceil( (r[0]+bl)/grid);
+        moveObj.minY = grid*ceil( (r[1]+bt)/grid);
+        moveObj.maxX = grid*floor((r[2]-br)/grid);
+        moveObj.maxY = grid*floor((r[3]-bb)/grid);
+        moveObj.cview= moveRange.container;
+        
+        moveObj.showMoveCover(true);
+
+        U.eventXY = e.eventXY();
+        U.eventXY.x += (moveObj.cview.scrollLeft- moveObj.getX());
+        U.eventXY.y += (moveObj.cview.scrollTop - moveObj.getY());
+        
+        MQ.register("releaseMoveObject", this, _release);        
+    };
+
+    thi$._domoving = function(e){
+        var U = this._local, moveObj = this.getMoveObject(e),
+            bounds = moveObj.getBounds(), mover = this.def.mover,
+            grid = mover.grid, freedom = mover.freedom,
+            p = moveObj.cview, xy = e.eventXY(), oxy = U.eventXY,
+            x = xy.x + p.scrollLeft - oxy.x ,
+            y = xy.y + p.scrollTop - oxy.y,
+            minX = moveObj.minX, minY = moveObj.minY,
+            maxX = moveObj.maxX, maxY = moveObj.maxY;
+        
+        x = x < minX ? minX : x > maxX ? maxX : x;
+        y = y < minY ? minY : y > maxY ? maxY : y;
+        
+        if(x != bounds.x || y != bounds.y){
+            // Snap to grid
+            x = grid*round(x/grid);
+            x = (freedom & 0x01) != 0 ? x : undefined;
+
+            y = grid*round(y/grid);
+            y = (freedom & 0x02) != 0 ? y : undefined;
+
+            moveObj.setPosition(x, y);
+            moveObj._moved = true;
+        }
+        
+        // Notify all drop targets
+        var recvs = moveObj.getMovingMsgRecvs() || [];
+        recvs.unshift(moveObj.getMovingPeer().uuid());
+        e.setEventTarget(moveObj);
+        MQ.post(moveObj.getMovingMsgType(), e, recvs);
+    };
+    
+    thi$._endmoving = function(e){
+        var moveObj = this.getMoveObject(),
+            recvs = moveObj.getMovingMsgRecvs() || [];
+
+        // Notify all drop targets
+        recvs.unshift(moveObj.getMovingPeer().uuid());
+        e.setEventTarget(moveObj);
+        MQ.post(moveObj.getMovingMsgType(), e, recvs);
+
+        // Release MoveObject
+        MQ.post("releaseMoveObject", "", [this.uuid()]);
+
+        moveObj.showMoveCover(false);
+        if(moveObj._moved){
+            moveObj.setPosition(moveObj.getX(), moveObj.getY(), 0x0F);
+            delete moveObj._moved;
+        }
+    };
+
     var _onmousedown = function(e){
-        this.fireEvent(e);
-        // Notify popup LayerManager 
-        e.setEventTarget(this);
-        MQ.post("js.awt.event.LayerEvent", e,
-                [this.Runtime().getDesktop().uuid()]);
 
         var targ = e.srcElement;
         if(targ.nodeType == 3){
-            // Safari bug
+            // Safari bug ?
             targ = targ.parentNode;
         }
 
@@ -232,41 +317,24 @@ js.awt.Movable = function (){
             longpress = Class.isNumber(longpress) ? longpress : 
                 (J$VM.env["j$vm_longpress"] || 145);
 
-            //Event.attachEvent(this.view, "mousemove", 0, this, _onmousemv1);            
-            Event.attachEvent(this.view, "mouseup",   0, this, _onmouseup1);
-
+            this.attachEvent("mouseup", 4, this, _onmouseup1);
             _doSelect.$delay(this, longpress, e);
-
-            //e.cancelBubble();
         }
-
-        return true;
-
     };
 
     var _onmouseup1 = function(e){
-        e.setEventTarget(this);
-        this.fireEvent(e);
-
         if(!_doSelect.$clearTimer()){
-            //Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
-            Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
+            this.detachEvent("mouseup", 4, this, _onmouseup1);
         }
-        return true;
     };
     
-    var _onmousemv1 = function(e){
-        if(!System.checkThreshold(e.getTimeStamp().getTime(), 20)) 
-            return e.cancelDefault();
-
-        return _onmouseup1.call(this, e);
-    };
 
     var _onmousemove =function(e){
+
         if(!System.checkThreshold(e.getTimeStamp().getTime(), 
                                   this.def.mover.threshold)) 
-            return e.cancelDefault();
-        
+            return;
+        System.err.pritnln("mouse moveing...");
         _doSelect.$clearTimer();
         
         if(!this._local.notified){
@@ -303,16 +371,11 @@ js.awt.Movable = function (){
         recvs.unshift(moveObj.getMovingPeer().uuid());
         e.setEventTarget(moveObj);
         MQ.post(moveObj.getMovingMsgType(), e, recvs);
-
-        return e.cancelDefault();
     };
 
     var _onmouseup =function(e){
         _doSelect.$clearTimer();
-        this.fireEvent(e);
 
-        Event.detachEvent(document, "mousemove", 0, this, _onmousemove);        
-        Event.detachEvent(document, "mouseup", 0, this, _onmouseup);
         // Notify all IFrames can remove cover now
         MQ.post(Event.SYS_EVT_MOVED, "");
         this._local.notified = false;
@@ -333,31 +396,32 @@ js.awt.Movable = function (){
             delete moveObj._moved;
         }
 
-        return true;
+        this.detachEvent("mousemove", 4, this, _onmousemove);
+        this.detachEvent("mouseup", 4, this, _onmouseup);                
     };
 
-    var _releaseMoveObject = function(){
+    var _release = function(){
         if(this.moveObj){
             delete this.moveObj.cview;
             this.moveObj.releaseMoveObject();
             delete this.moveObj;
         }
         
-        MQ.cancel("releaseMoveObject", this, _releaseMoveObject);
+        MQ.cancel("releaseMoveObject", this, _release);
     };
 
     /**
      * Test if the element is a hotspot for moving.
      * 
-     * @param el, a HTMLElement
+     * @param ele, a HTMLElement
      * @param x, y
      * 
      * @return boolean
      * 
      * Notes: Sub class should override this method
      */
-    thi$.isMoverSpot = function(el, x, y){
-        return true;
+    thi$.isMoverSpot = function(ele, x, y){
+        return this.spotIndex(ele, {x:x, y:y}) === 8;
     };
 
     /**
@@ -397,31 +461,18 @@ js.awt.Movable = function (){
         var M = this.def, U = this._local;
         
         M.movable = b;
-        /*
         if(b){
-            if(!U.moveEventAttached){
-                var mover = M.mover = M.mover || {};
-                mover.longpress = 
-                    Class.isNumber(mover.longpress) ? mover.longpress : 1;
-                mover.bound = 
-                    Class.isNumber(mover.bound) ? mover.bound : 20;
-                mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
-                mover.br = Class.isNumber(mover.br) ? mover.br : 0;
-                mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
-                mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
-                mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
-                mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
-
-                Event.attachEvent(this.view, "mousedown", 0, this, _onmousedown);
-                U.moveEventAttached = true;
-            }
-        }else{
-            if(U.moveEventAttached){
-                Event.detachEvent(this.view, "mousedown", 0, this, _onmousedown);
-                U.moveEventAttached = false;
-            }
+            var mover = M.mover = M.mover || {};
+            mover.bound = 
+                Class.isNumber(mover.bound) ? mover.bound : 20;
+            mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
+            mover.br = Class.isNumber(mover.br) ? mover.br : 0;
+            mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
+            mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
+            mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
+            mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
         }
-        */
+        
         U.movableSettled = true;
     };
     

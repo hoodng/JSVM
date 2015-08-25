@@ -1591,4 +1591,131 @@ js.util.Document = function (){
 		return ret;
 	};
 
+    thi$.getEventTarget = function(ele, create){
+        var obj = null, uuid, parent;
+        if(!ele || ele === self.document) return obj;
+
+        uuid = ele.uuid;
+        if(uuid){
+            // Return the object which was cached in 
+            // js.lang.Object.objectStore
+            obj = this.getObject(uuid);
+        }else if(create){
+            // Create new Component ?
+        }else{
+            // Return the ancestor which is a js.lang.Object
+            obj = this.getEventTarget(ele.parentNode);
+        }
+
+        return obj;
+    };
+
+    thi$.inside = function(x, y, bounds){
+        var d = bounds, MBP = d.MBP, minX, minY, maxX, maxY;
+        minX = d.absX + MBP.borderLeftWidth;
+        maxX = minX + d.clientWidth;
+        minY = d.absY + MBP.borderTopWidth;
+        maxY = minY + d.clientHeight;
+        return x > minX && x < maxX && y > minY && y < maxY;
+    };
+
+    thi$.offset = function(x, y, bounds){
+        var d = bounds, MBP = d.MBP;
+        return {
+            x: x - d.absX - MBP.borderLeftWidth,
+            y: y - d.absY - MBP.borderTopWidth
+        }
+    };
+
+    // Only resize
+    var OFFSETTABLE0 = [
+        [0, 7, 7, 7, 6],
+        [1, 8, 8, 8, 5],
+        [1, 8, 8, 8, 5],
+        [1, 8, 8, 8, 5],
+        [2, 3, 3, 3, 4]
+    ];
+
+    // For resize and move
+    var OFFSETTABLE1 = [
+        [0, 8, 7, 8, 6],
+        [8, 8, 8, 8, 8],
+        [1, 8, 8, 8, 5],
+        [8, 8, 8, 8, 8],
+        [2, 8, 3, 8, 4]
+    ];
+
+    var offsetIndex0 = function(offset, min, max, step){
+        var ret = -1, b0 = min, b1, b2, b3, b4, b5 = max, m, hm;
+        step = Class.isNumber(step) ? step : 4;
+        m = (b5-b0)/(2*step) - 1;
+        hm = m/2;
+
+        b1 = b0 + step;
+        b2 = b1 + hm*step;
+        b3 = b2 + m*step;
+        b4 = b3 + hm*step;
+        
+        if(offset >= b0 && offset < b1){
+            ret = 0;
+        }else if(offset >= b1 && offset < b2){
+            ret = 1;
+        }else if(offset >= b2 && offset < b3){
+            ret = 2;
+        }else if(offset >= b3 && offset < b4){
+            ret = 3;
+        }else if(offset >= b4 && offset <= b5){
+            ret = 4;
+        }
+
+        return ret;
+    };
+
+    thi$.offsetIndex = function(x, y, bounds, movable){
+        var xIdx, yIdx, table, idx = -1;
+        yIdx = offsetIndex0(y, bounds.absY,
+                            bounds.absY + bounds.height);
+        xIdx = offsetIndex0(x, bounds.absX,
+                            bounds.absX + bounds.width);
+
+        if(yIdx >= 0  && xIdx >= 0){
+            table = movable ? OFFSETTABLE1 : OFFSETTABLE0;
+            idx = table[yIdx][xIdx];
+        }
+
+        return idx;
+    };
+
+    var CURSORS = [
+        "nw-resize",
+        "w-resize",
+        "sw-resize",
+        "s-resize",
+        "se-resize",
+        "e-resize",
+        "ne-resize",
+        "n-resize",
+        "move"
+    ];
+    
+    thi$.getCursor = function(index){
+        return index >= 0 ? CURSORS[index] : null;
+    };
+    
+    thi$.setCursor = function(ele, cursor){
+        var cur = ele.getAttribute("pre-cursor");
+        if(!Class.isString(cur)){
+            cur = ele.style.cursor;
+            ele.setAttribute("pre-cursor", cur);
+        }
+        ele.style.cursor = "";
+        if(cursor){
+            ele.style.cursor = cursor;
+        }else{
+            ele.style.cursor = cur;
+        }
+    };
+
+    
+    
 }.$extend(js.lang.Object);
