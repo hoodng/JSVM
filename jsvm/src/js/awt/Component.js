@@ -391,16 +391,6 @@ js.awt.Component = function (def, Runtime, view){
         if(arguments.callee.__super__.apply(this, arguments)){
             var M = this.def;
 
-            // Create mover for moving if need
-            if(M.movable === true && !this.movableSettled()){
-                this.setMovable(true);
-            }
-            
-            // Create resizer for resizing if need
-            if(M.resizable === true && !this.resizableSettled()){
-                this.setResizable(true, M.resizer);
-            }
-            
             // For shadow
             if(M.shadow === true && !this.shadowSettled()){
                 this.setShadowy(true);
@@ -411,11 +401,6 @@ js.awt.Component = function (def, Runtime, view){
                 this.setFloating(true);
             }
 
-            if(this.resizableSettled()){
-                this.addResizer();
-                this.adjustResizer();
-            }
-            
             if(this.shadowSettled()){
                 this.addShadow();
                 this.adjustShadow();

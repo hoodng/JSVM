@@ -319,19 +319,6 @@ js.lang.System = function (env, vm){
 
     };
 
-
-    var last = 0;
-    this.checkThreshold = function(now, newThreshold){
-        if((now - last) >
-           (newThreshold ? newThreshold :
-            this.getProperty("j$vm_threshold", 45))){
-            last = now;
-            return true;
-        }
-
-        return false;
-    };
-
     var _buildEnv = function(){
         var script = document.getElementById("j$vm");
         if (script) {

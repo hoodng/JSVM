@@ -1111,7 +1111,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			e.srcElement = item ? item.view : this._treeView;
 		}
 
-		var isMulti = this.def.multiEnable, selected = this.selected, tmp;
+		var isMulti = this.def.multiEnable, selected = this.selected, 
+		tmp, doo = false;
 		if(item && item.isEnabled()){
 			if (item.canDrag()){
 				if(isMulti && e.ctrlKey === true){
@@ -1160,18 +1161,20 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			
 			this._doSort();
 
-			e.setType("selectchanged");
-			e.setData(this.getAllSelected());
+			doo = true;
 			e.setEventTarget(item);
-			this.notifyPeer("js.awt.event.TreeItemEvent", e);
 		}else{
 			if(selected.length > 0){
 				this.clearAllSelected();
 
-				e.setType("selectchanged");
-				e.setData(this.getAllSelected());
-				this.notifyPeer("js.awt.event.TreeItemEvent", e);
+				doo = true;
 			}
+		}
+
+		if(doo){
+			e.setType("selectchanged");
+			e.setData(this.getAllSelected());
+			this.notifyPeer("js.awt.event.TreeItemEvent", e);
 		}
 	};
 	

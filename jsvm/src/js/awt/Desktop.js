@@ -27,24 +27,6 @@ js.awt.Desktop = function (Runtime){
         System = J$VM.System, MQ =J$VM.MQ, R;
 
 
-    var _activateComponent = function(target, uuid){
-        if(!target) return;
-
-        if(target.activateComponent){
-            target.activateComponent();
-        }
-    };
-
-    var _notifyLM = function(e){
-        if(e){
-            var el = e.srcElement, target = e.getEventTarget(),
-                uuid = el ? el.uuid : undefined;
-            this.LM.cleanLayers(e, this);
-            _activateComponent(target, uuid);
-        }
-        return true;
-    };
-
     var _notifyComps = function(msgid, e){
         var comps = this.getAllComponents(),
             len = comps ? comps.length : 0,
@@ -88,45 +70,150 @@ js.awt.Desktop = function (Runtime){
         MQ.post("js.awt.event.KeyEvent", e);
     };
 
-    var _onmouseevent = function(e){
-        var ele = e.srcElement, target = DOM.getEventTarget(ele),
-            type = e.getType(), XY;
-
+    var drags = {}, lasts ={};
+    
+    var _onmousemove = function(e){
+        var ele, target, drag, last, now, spot;
         System.updateLastAccessTime();
-        if(type === Event.W3C_EVT_MOUSE_WHEEL){
-            _notifyLM.call(this, e);
-        }
-        
-        if(!target) return true;
-        
-        switch(type){
-            case Event.W3C_EVT_MOUSE_MOVE:
-            var cursor = target.getCursor(ele, e.eventXY(), null);
-            System.err.println("cursor: "+cursor);
-            DOM.setCursor(ele, cursor);
-            break;
-            case Event.W3C_EVT_MOUSE_OVER:
 
-            break;
-            case Event.W3C_EVT_MOUSE_OUT:
-            //DOM.setCursor(ele);
-            break;
-            case Event.W3C_EVT_MOUSE_DOWN:
-            target.fireEvent(e, true);
+        last = lasts[e.pointerId] || 0;
+        if((e.getTimeStamp().getTime() - last) <=
+                System.getProperty("j$vm_threshold", 45)){
+            e.cancelBubble();
             return e.cancelDefault();
-            break;
-            case Event.W3C_EVT_MOUSE_UP:
+        }
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+
+        drag = drags[e.pointerId];
+        if(!drag){
+            if(target && target != this){
+                if(target.isMovable() || target.isResizable()){
+                    spot = target.spotIndex(ele, e.eventXY());
+                    DOM.setCursor(ele, DOM.getCursor(spot));
+                }else{
+                    DOM.setCursor(ele, null);
+                }
+
+                target.fireEvent(e, true);
+
+            }else{
+                DOM.setCursor(ele, null);
+            }
+        }else{
+            if(!this._local.notified){
+                MQ.post(Event.SYS_EVT_MOVING, "");
+                this._local.notified = true;
+            }
+
+            DOM.setCursor(ele, DOM.getCursor(drag.spot));
+            
+            if(drag.spot === 8){
+                drag.target.processMoving(e);
+            }else{
+                drag.target.processSizing(e, drag.spot);
+            }
+        }
+
+        lasts[e.pointerId] = new Date().getTime();
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
+
+    var _onmouseover = function(e){
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
+
+    var _onmouseout = function(e){
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
+
+    var _onmousedown = function(e){
+        var ele, target, spot;
+        System.updateLastAccessTime();        
+        this.LM.cleanLayers(e, this);
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+
+        if(target && target != this){
             target.fireEvent(e, true);
-            return e.cancelDefault();
-            break;
-            case Event.W3C_EVT_MOUSE_WHEEL:
-            break;
-            case Event.W3C_EVT_CONTEXTMENU:
-            break;
-            default:
-            break;
+
+            if(e.button === 1 && !e.ctrlKey && !e.shiftKey &&
+               (target.isMovable() || target.isResizable())){
+                
+                spot = target.spotIndex(ele, e.eventXY());
+                if(spot >= 0){
+                    var longpress = target.def.mover.longpress;
+                    longpress = Class.isNumber(longpress) ? longpress :
+                        J$VM.env["j$vm_longpress"] || 145;
+
+                    _drag.$delay(this, longpress, e.pointerId, {
+                        event: e,
+                        absXY: e.eventXY(),
+                        srcElement: ele,
+                        target: target,
+                        spot: spot
+                    });
+                }
+            }
+        }
+
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
+
+    var _drag = function(id, drag){
+        drags[id] = drag;
+        if(drag.spot === 8){
+            drag.target.startMoving(drag.event);
+        }else{
+            drag.target.startSizing(drag.event, drag.spot);
         }
     };
+
+    var _onmouseup = function(e){
+        var ele, target, drag;
+        System.updateLastAccessTime();
+        _drag.$clearTimer();
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+        drag = drags[e.pointerId];
+        if(!drag){
+            if(target && target != this){
+                target.fireEvent(e, true);
+            }
+        }else{
+            MQ.post(Event.SYS_EVT_MOVED, "");
+            this._local.notified = false;
+
+            if(drag.spot === 8){
+                drag.target.endMoving(e);
+            }else{
+                drag.target.endSizing(e, drag.spot);
+            }
+        }
+
+        drags[e.pointerId] = null;
+        DOM.setCursor(ele, null);
+
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
+
+    var _onmousewheel = function(e){
+        System.updateLastAccessTime();        
+        this.LM.cleanLayers(e, this);
+    };
+
+    var _oncontextmenu = function(e){
+        
+    };
+    
     
     var _onmessage = function(e){
         var _e = e.getData();
@@ -361,16 +448,14 @@ js.awt.Desktop = function (Runtime){
         Event.attachEvent(dom,  Event.W3C_EVT_KEY_DOWN,   0, this, _onkeyevent);
         Event.attachEvent(dom,  Event.W3C_EVT_KEY_UP,     0, this, _onkeyevent);
         
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmouseevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OVER, 0, this, _onmouseevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseevent);        
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmouseevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmouseevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _onmouseevent);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmousemove);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OVER, 0, this, _onmouseover);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseout);        
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmousedown);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseup);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmousewheel);
+        Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _oncontextmenu);
         
-        MQ.register("js.awt.event.LayerEvent", this, _notifyLM);
-
         R = Runtime;
 
     }.$override(this._init);

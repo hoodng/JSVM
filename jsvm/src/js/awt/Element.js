@@ -328,8 +328,8 @@ js.awt.Element = function(def, Runtime){
         if(nocache === true || !ret){
             d = this.getBounds();
             this.setMinimumSize(
-                this.isRigidWidth() ? d.width : d.MBP.BPW, 
-                this.isRigidHeight()? d.height: d.MBP.BPH);
+                this.isRigidWidth() ? d.width : d.MBP.BPW+1, 
+                this.isRigidHeight()? d.height: d.MBP.BPH+1);
             ret = this.def.miniSize;
         }
         return ret;
@@ -345,7 +345,7 @@ js.awt.Element = function(def, Runtime){
         var d, ret = this.def.maxiSize;
         if(nocache === true || !ret){
             d = this.getBounds();
-            this.setMaximumSize(Number.MAX_VALUE, Number.MAX_VALUE);
+            this.setMaximumSize(0xFFFFFFFF, 0xFFFFFFFF);
             ret = this.def.maxiSize;
         }
         return ret;
@@ -493,7 +493,7 @@ js.awt.Element = function(def, Runtime){
      * @return {x, y}
      */
     thi$.relative = function(point){
-        return DOM.offset(point.x, point.y, this.getBounds());
+        return DOM.relative(point.x, point.y, this.getBounds());
     };
 
     /**
@@ -692,12 +692,24 @@ js.awt.Element = function(def, Runtime){
 
     };
 
-    thi$.getCursor = function(ele, xy, dragObj){
-        var cursor = null, bounds, idx;
-        bounds = this.getBounds();
-        idx = DOM.offsetIndex(xy.x, xy.y, bounds, this.isMovable());
-        cursor = DOM.getCursor(idx);
-        return cursor;
+    thi$.spotIndex = function(ele, xy, dragObj){
+        var bounds, movable, resizable, idx = -1;
+
+        movable = this.isMovable();
+        resizable= this.isResizable();
+        
+        if((movable && this.isMoverSpot(ele, xy.x, xy.y)) ||
+           resizable){
+            bounds = this.getBounds();
+            idx = DOM.offsetIndex(xy.x, xy.y, bounds, movable);
+        }
+        
+        if(idx >= 0 && idx != 8 &&
+           (this.def.resizer & (1<<idx)) === 0){
+            idx = -1;
+        }
+
+        return idx;
     };
 
     thi$.destroy = function(){
@@ -731,6 +743,14 @@ js.awt.Element = function(def, Runtime){
         this.__buf__ = new js.lang.StringBuffer();
 
         CLASS.count++;
+
+        if(def.movable){
+            this.setMovable(def.movable);
+        }
+
+        if(def.resizable){
+            this.setResizable(def.resizable, def.resizer);
+        }
         
         if(def.prefSize){
             this.isPreferredSizeSet = true;

@@ -1,38 +1,13 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -47,6 +22,8 @@ js.awt.MoveObject = function(){
         return;
     }
     CLASS.__defined__ = true;
+
+    var DOM = J$VM.DOM;
     
     /**
      * The moving peer is a moving object's ontologing. Generally,
@@ -88,7 +65,9 @@ js.awt.MoveObject = function(){
      * should be posted to which receivers.
      */
     thi$.getMovingMsgRecvs = function(){
-        return null;
+        var peer = this.getMovingPeer();
+        return (this != peer && peer && peer.getMovingMsgRecvs) ?
+            peer.getMovingMsgRecvs() : null;
     };
     
     /**
@@ -96,12 +75,50 @@ js.awt.MoveObject = function(){
      */
     thi$.releaseMoveObject = function(){
         if(this != this.movingPeer){
-            delete this.movingPeer;
+            delete this.movingPeer;            
             this.destroy();
         }else{
             this.movingPeer = null;
         }
     };
+
+    var isScroll = {auto: true, visible: true, scroll: true};
+
+    /**
+     * @return {Object} {
+     *  container: container element
+     *  range:[minX, minY, maxX, maxY]
+     * }
+     */
+    thi$.getMoveContext = function(){
+        var autofit = false, thip, bounds, pounds,
+            styles, hscroll, vscroll;
+
+        thip = DOM.getEventTarget(
+            DOM.offsetParent(this.view), true, this.Runtime()),
+        autofit = thip.isAutoFit ? thip.isAutoFit() : false;
+
+        styles = DOM.currentStyles(thip.view);
+        hscroll = isScroll[styles.overflowX];
+        vscroll = isScroll[styles.overflowY];
+
+        bounds = this.getBounds();
+        pounds = thip.getBounds();
+        
+        return{
+            container: thip,
+            range: [
+                0 - bounds.width,
+                0 - bounds.height,
+                hscroll ? 0xFFFFFFFF : pounds.innerWidth,
+                vscroll ? 0xFFFFFFFF : pounds.innerHeight
+            ],
+            autofit: autofit,
+            hscroll: hscroll,
+            vscroll: vscroll
+        }
+    };
+    
 };
 
 /**
@@ -137,152 +154,40 @@ js.awt.Movable = function (){
         max = Math.max, min = Math.min, 
         ceil = Math.ceil, floor = Math.floor, round = Math.round;
     
-    var _doSelect = function(e){
+    thi$.startMoving = function(e){
+        var moveObj = this.getMoveObject(e), 
+            ctx = moveObj.getMoveContext(), p = ctx.container.view,
+            r = ctx.range, bounds = moveObj.getBounds(),
+            mover = this.def.mover, grid = mover.grid, bound=mover.bound,
+            bt = max(mover.bt*bounds.height, bound),
+            br = max(mover.br*bounds.width,  bound),
+            bb = max(mover.bb*bounds.height, bound),
+            bl = max(mover.bl*bounds.width,  bound);
 
-        MQ.register("releaseMoveObject", this, _releaseMoveObject);
-
-        Event.attachEvent(document, "mousemove", 0, this, _onmousemove);
-        Event.attachEvent(document, "mouseup", 0, this, _onmouseup);
-        
-        Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
-        Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
-
-        var U = this._local, moveObj = this.getMoveObject(e), 
-        objContainer = moveObj.getContainer(), 
-        isAutoFit = false, rigidW = false, rigidH = false,
-        hscroll = false, vscroll = false;
-        if(objContainer){
-            rigidW = objContainer.isRigidWidth();
-            rigidH = objContainer.isRigidHeight();
-            if(objContainer instanceof js.awt.Container){
-                isAutoFit = objContainer.isAutoFit();
-            }
-            var styles = DOM.currentStyles(objContainer.view),
-            overflowX = styles.overflowX, overflowY = styles.overflowY;
-            hscroll = (overflowX === "auto" || overflowX === "scroll");
-            vscroll = (overflowY === "auto" || overflowY === "scroll");
-        }
-
-        var pview = DOM.offsetParent(moveObj.view), 
-            cview = isAutoFit ? DOM.offsetParent(pview) : pview,
-            pbounds = DOM.getBounds(pview),
-            mover = this.def.mover, grid = mover.grid, bound=mover.bound;
-
-        moveObj.cview = cview;
-        if(moveObj.getMoveRange){
-            var range = moveObj.getMoveRange();
-            moveObj.minX = grid*ceil( (range[0]+bound)/grid);
-            moveObj.minY = grid*ceil( (range[1]+bound)/grid);
-            moveObj.maxX = grid*floor((range[2]-bound)/grid);
-            moveObj.maxY = grid*floor((range[3]-bound)/grid);
-        }else{
-            var bounds = moveObj.getBounds(), maxX, maxY,
-                mW = bounds.width, mH = bounds.height, 
-                marginLf = bounds.MBP.marginLeft,
-                marginTp = bounds.MBP.marginTop,
-                bt = max(mover.bt*mH, bound),
-                br = max(mover.br*mW, bound),
-                bb = max(mover.bb*mH, bound),
-                bl = max(mover.bl*mW, bound);
-
-            moveObj.minX = grid*ceil((0 - marginLf - mW + bl)/grid);
-            moveObj.minY = grid*ceil((0 - marginTp - mH + bt)/grid);
-            
-            maxX = (!isAutoFit || rigidW) ? 
-                (!hscroll ? pbounds.width - pbounds.MBP.BW - marginLf - br:
-                 max(pview.scrollWidth, pbounds.width) - marginLf - br) :
-            max(cview.scrollWidth, cview.offsetWidth) - marginLf - br;
-            moveObj.maxX = maxX;
-
-            maxY = (!isAutoFit || rigidH) ?
-                (!vscroll ? pbounds.height-pbounds.MBP.BH - marginTp - bb:
-                 max(pview.scrollHeight, pbounds.height) - marginTp - bb) :
-            max(cview.scrollHeight, cview.offsetHeight) - marginTp - bb;
-            moveObj.maxY = maxY;
-        }
-        
+        ctx.minX = grid*ceil( (r[0]+bl)/grid);
+        ctx.minY = grid*ceil( (r[1]+bt)/grid);
+        ctx.maxX = grid*floor((r[2]-br)/grid);
+        ctx.maxY = grid*floor((r[3]-bb)/grid);
+        ctx.eventXY = e.eventXY();
+        ctx.eventXY.x += (p.scrollLeft- moveObj.getX());
+        ctx.eventXY.y += (p.scrollTop - moveObj.getY());
+        moveObj._moveCtx = ctx;        
         moveObj.showMoveCover(true);
-
-        U.clickXY.x += (cview.scrollLeft- moveObj.getX());
-        U.clickXY.y += (cview.scrollTop - moveObj.getY());
-        
+        MQ.register("releaseMoveObject", this, _release);        
     };
 
-    var _onmousedown = function(e){
-        this.fireEvent(e);
-        // Notify popup LayerManager 
-        e.setEventTarget(this);
-        MQ.post("js.awt.event.LayerEvent", e,
-                [this.Runtime().getDesktop().uuid()]);
-
-        var targ = e.srcElement;
-        if(targ.nodeType == 3){
-            // Safari bug
-            targ = targ.parentNode;
-        }
-
-        var xy = this._local.clickXY = e.eventXY();
-
-        if(e.button == 1 && !e.ctrlKey && !e.shiftKey 
-           && this.isMovable() 
-           && this.isMoverSpot(targ, xy.x, xy.y) 
-           && this.inside(xy.x, xy.y)){
-            
-            var longpress = this.def.mover.longpress;
-            longpress = Class.isNumber(longpress) ? longpress : 
-                (J$VM.env["j$vm_longpress"] || 145);
-
-            //Event.attachEvent(this.view, "mousemove", 0, this, _onmousemv1);            
-            Event.attachEvent(this.view, "mouseup",   0, this, _onmouseup1);
-
-            _doSelect.$delay(this, longpress, e);
-
-            //e.cancelBubble();
-        }
-
-        return true;
-
-    };
-
-    var _onmouseup1 = function(e){
-        e.setEventTarget(this);
-        this.fireEvent(e);
-
-        if(!_doSelect.$clearTimer()){
-            //Event.detachEvent(this.view, "mousemove", 0, this, _onmousemv1);
-            Event.detachEvent(this.view, "mouseup",   0, this, _onmouseup1);
-        }
-        return true;
-    };
-    
-    var _onmousemv1 = function(e){
-        if(!System.checkThreshold(e.getTimeStamp().getTime(), 20)) 
-            return e.cancelDefault();
-
-        return _onmouseup1.call(this, e);
-    };
-
-    var _onmousemove =function(e){
-        if(!System.checkThreshold(e.getTimeStamp().getTime(), 
-                                  this.def.mover.threshold)) 
-            return e.cancelDefault();
+    thi$.processMoving = function(e){
+        var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
+            bounds = moveObj.getBounds(), mover = this.def.mover,
+            grid = mover.grid, freedom = mover.freedom,
+            thip = ctx.container, p = thip.view,
+            xy = e.eventXY(), oxy = ctx.eventXY,
+            x = p.scrollLeft + xy.x - oxy.x ,
+            y = p.scrollTop  + xy.y - oxy.y,
         
-        _doSelect.$clearTimer();
-        
-        if(!this._local.notified){
-            // Notify all IFrames to show cover on itself
-            MQ.post(Event.SYS_EVT_MOVING, "");
-            this._local.notified = true;
-        }
+            minX = ctx.minX, minY = ctx.minY,
+            maxX = ctx.maxX, maxY = ctx.maxY;
 
-        var moveObj = this.getMoveObject(), p = moveObj.cview,
-        bounds = moveObj.getBounds(), mover = this.def.mover,
-        grid = mover.grid, freedom = mover.freedom,
-        xy = e.eventXY(), oxy = this._local.clickXY,
-        x = xy.x + p.scrollLeft - oxy.x , y = xy.y + p.scrollTop - oxy.y,
-        minX = moveObj.minX, minY = moveObj.minY,
-        maxX = moveObj.maxX, maxY = moveObj.maxY;
-        
         x = x < minX ? minX : x > maxX ? maxX : x;
         y = y < minY ? minY : y > maxY ? maxY : y;
         
@@ -295,7 +200,7 @@ js.awt.Movable = function (){
             y = (freedom & 0x02) != 0 ? y : undefined;
 
             moveObj.setPosition(x, y);
-            moveObj._moved = true;
+            ctx.moved = true;
         }
         
         // Notify all drop targets
@@ -303,22 +208,12 @@ js.awt.Movable = function (){
         recvs.unshift(moveObj.getMovingPeer().uuid());
         e.setEventTarget(moveObj);
         MQ.post(moveObj.getMovingMsgType(), e, recvs);
-
-        return e.cancelDefault();
     };
+    
+    thi$.endMoving = function(e){
+        var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
+            recvs = moveObj.getMovingMsgRecvs() || [];
 
-    var _onmouseup =function(e){
-        _doSelect.$clearTimer();
-        this.fireEvent(e);
-
-        Event.detachEvent(document, "mousemove", 0, this, _onmousemove);        
-        Event.detachEvent(document, "mouseup", 0, this, _onmouseup);
-        // Notify all IFrames can remove cover now
-        MQ.post(Event.SYS_EVT_MOVED, "");
-        this._local.notified = false;
-
-        var moveObj = this.getMoveObject(),
-        recvs = moveObj.getMovingMsgRecvs() || [];
         // Notify all drop targets
         recvs.unshift(moveObj.getMovingPeer().uuid());
         e.setEventTarget(moveObj);
@@ -328,35 +223,32 @@ js.awt.Movable = function (){
         MQ.post("releaseMoveObject", "", [this.uuid()]);
 
         moveObj.showMoveCover(false);
-        if(moveObj._moved){
+        if(ctx.moved){
             moveObj.setPosition(moveObj.getX(), moveObj.getY(), 0x0F);
-            delete moveObj._moved;
         }
-
-        return true;
+        delete moveObj._moveCtx;
     };
 
-    var _releaseMoveObject = function(){
+    var _release = function(){
         if(this.moveObj){
-            delete this.moveObj.cview;
             this.moveObj.releaseMoveObject();
             delete this.moveObj;
         }
         
-        MQ.cancel("releaseMoveObject", this, _releaseMoveObject);
+        MQ.cancel("releaseMoveObject", this, _release);
     };
 
     /**
      * Test if the element is a hotspot for moving.
      * 
-     * @param el, a HTMLElement
+     * @param ele, a HTMLElement
      * @param x, y
      * 
      * @return boolean
      * 
      * Notes: Sub class should override this method
      */
-    thi$.isMoverSpot = function(el, x, y){
+    thi$.isMoverSpot = function(ele, x, y){
         return true;
     };
 
@@ -390,44 +282,20 @@ js.awt.Movable = function (){
      * @param b, true is movable, false is unable.
      */
     thi$.setMovable = function(b){
-        this.def = this.def || {};
-        this._local = this._local || {};
+        var M = this.def;
         b = b || false;
-        
-        var M = this.def, U = this._local;
-        
         M.movable = b;
-        /*
         if(b){
-            if(!U.moveEventAttached){
-                var mover = M.mover = M.mover || {};
-                mover.longpress = 
-                    Class.isNumber(mover.longpress) ? mover.longpress : 1;
-                mover.bound = 
-                    Class.isNumber(mover.bound) ? mover.bound : 20;
-                mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
-                mover.br = Class.isNumber(mover.br) ? mover.br : 0;
-                mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
-                mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
-                mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
-                mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
-
-                Event.attachEvent(this.view, "mousedown", 0, this, _onmousedown);
-                U.moveEventAttached = true;
-            }
-        }else{
-            if(U.moveEventAttached){
-                Event.detachEvent(this.view, "mousedown", 0, this, _onmousedown);
-                U.moveEventAttached = false;
-            }
+            var mover = M.mover = M.mover || {};
+            mover.bound = 
+                Class.isNumber(mover.bound) ? mover.bound : 20;
+            mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
+            mover.br = Class.isNumber(mover.br) ? mover.br : 0;
+            mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
+            mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
+            mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
+            mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
         }
-        */
-        U.movableSettled = true;
     };
-    
-    thi$.movableSettled = function(){
-        return this._local.movableSettled || false;
-    };
-
 };
 
