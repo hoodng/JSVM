@@ -370,7 +370,7 @@
     line-height: 14px;
     height: 18px;
     width: 21px;
-    background-image: url("images/zoom_black.png");
+    background-image: url("images/filter-search.png");
     background-repeat: no-repeat;
     background-position: center center;
 }
@@ -388,7 +388,7 @@
     line-height: 14px;
     height: 18px;
     width: 18px;
-    background-image: url("images/search_studio.png");
+    background-image: url("images/search_small.gif");
     background-repeat: no-repeat;
     background-position: center center;
 }
@@ -415,7 +415,7 @@
     line-height: 14px;
     height: 18px;
     width: 21px;
-    background-image: url("images/search_studio_panel.png");
+    background-image: url("images/search.png");
     background-repeat: no-repeat;
     background-position: center center;
 }
@@ -442,7 +442,7 @@
     line-height: 14px;
     height: 18px;
     width: 21px;
-    background-image: url("images/zoom_white.png");
+    background-image: url("images/filter_search_white.png");
     background-repeat: no-repeat;
     background-position: center center;
 }
@@ -757,7 +757,7 @@ li {
 }
 
 /*** Table pagination style Begin ****/
-.tableNavigationButton_0 {
+.tableNavigationButton {
     width:18px;
     height: 18px;
     cursor:default;
@@ -785,13 +785,6 @@ li {
 }
 
 .tableNavigation{
-    height: 18px;
-    width:156px;
-    padding: 0 2px 0 2px;
-    margin:4px 0 4px 0;
-    background-color: #ffffff;
-}
-.tableNavigation_0{
     height: 18px;
     width:156px;
     padding: 0 2px 0 2px;
@@ -841,6 +834,7 @@ li {
 .montionplayer_btnplay_6,
 .montionplayer_btnplay_8,
 .montionplayer_btnplay_9 {
+    background-image: url("images/play_normal.png");	
     background-repeat: no-repeat;
     background-position:center;
 }
@@ -1022,6 +1016,11 @@ li {
     opacity: 0.5;
     background-color: #C0C0C0;
 }
+.navigation_Item_label {
+    height:16px;
+    line-height:16px;
+    cursor: default;
+}
 /*** Navigation style End ****/
 
 /****** for Advanced Search Panel *******/
@@ -1148,7 +1147,7 @@ li {
     float:left;
     height: 16px;
     background-color: #FFFFFF;
-    background-image: url("../../style/default/images/close_filter.gif");
+    background-image: url("images/close_filter.gif");
     background-position: center center;
     width: 14px;
     border: 1px solid #FFFFFF;

@@ -85,6 +85,8 @@ js.awt.Desktop = function (Runtime){
                 if(target.isMovable() || target.isResizable()){
                     spot = target.spotIndex(ele, e.eventXY());
                     DOM.setCursor(ele, DOM.getCursor(spot));
+                }else{
+                    DOM.setCursor(ele, null);
                 }
 
                 target.fireEvent(e, true);                    
@@ -94,12 +96,13 @@ js.awt.Desktop = function (Runtime){
                 MQ.post(Event.SYS_EVT_MOVING, "");
                 this._local.notified = true;
             }
+
+            DOM.setCursor(ele, DOM.getCursor(drag.spot));
             
             if(drag.spot === 8){
-                System.err.println("draging...");
-                drag.target._domoving(e);
+                drag.target.processMoving(e);
             }else{
-                // resize
+                drag.target.processSizing(e, drag.spot);
             }
         }
         e.cancelBubble();
@@ -131,17 +134,19 @@ js.awt.Desktop = function (Runtime){
                (target.isMovable() || target.isResizable())){
                 
                 spot = target.spotIndex(ele, e.eventXY());
-                var longpress = target.def.mover.longpress;
-                longpress = Class.isNumber(longpress) ? longpress :
-                    J$VM.env["j$vm_longpress"] || 145;
+                if(spot >= 0){
+                    var longpress = target.def.mover.longpress;
+                    longpress = Class.isNumber(longpress) ? longpress :
+                        J$VM.env["j$vm_longpress"] || 145;
 
-                _drag.$delay(this, longpress, e.pointerId, {
-                    event: e,
-                    absXY: e.eventXY(),
-                    srcElement: ele,
-                    target: target,
-                    spot: spot
-                });
+                    _drag.$delay(this, longpress, e.pointerId, {
+                        event: e,
+                        absXY: e.eventXY(),
+                        srcElement: ele,
+                        target: target,
+                        spot: spot
+                    });
+                }
             }
         }
 
@@ -151,7 +156,11 @@ js.awt.Desktop = function (Runtime){
 
     var _drag = function(id, drag){
         drags[id] = drag;
-        drag.target._startmoving(drag.event);
+        if(drag.spot === 8){
+            drag.target.startMoving(drag.event);
+        }else{
+            drag.target.startSizing(drag.event, drag.spot);
+        }
     };
 
     var _onmouseup = function(e){
@@ -173,14 +182,16 @@ js.awt.Desktop = function (Runtime){
             this._local.notified = false;
 
             if(drag.spot === 8){
-                drag.target._endmoving(e);
+                drag.target.endMoving(e);
             }else{
-                // resize
+                drag.target.endSizing(e, drag.spot);
             }
 
             drags[e.pointerId] = null;
         }
-        
+
+        DOM.setCursor(ele, null);
+
         e.cancelBubble();
         return e.cancelDefault();
     };

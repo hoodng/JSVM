@@ -493,7 +493,7 @@ js.awt.Element = function(def, Runtime){
      * @return {x, y}
      */
     thi$.relative = function(point){
-        return DOM.offset(point.x, point.y, this.getBounds());
+        return DOM.relative(point.x, point.y, this.getBounds());
     };
 
     /**
@@ -694,12 +694,21 @@ js.awt.Element = function(def, Runtime){
 
     thi$.spotIndex = function(ele, xy, dragObj){
         var bounds, movable, resizable, idx = -1;
+
         movable = this.isMovable();
         resizable= this.isResizable();
-        if(movable || resizable){
+        
+        if((movable && this.isMoverSpot(ele, xy.x, xy.y)) ||
+           resizable){
             bounds = this.getBounds();
             idx = DOM.offsetIndex(xy.x, xy.y, bounds, movable);
         }
+        
+        if(idx >= 0 && idx != 8 &&
+           (this.def.resizer & (1<<idx)) === 0){
+            idx = -1;
+        }
+
         return idx;
     };
 
@@ -734,6 +743,14 @@ js.awt.Element = function(def, Runtime){
         this.__buf__ = new js.lang.StringBuffer();
 
         CLASS.count++;
+
+        if(def.movable){
+            this.setMovable(def.movable);
+        }
+
+        if(def.resizable){
+            this.setResizable(def.resizable, def.resizer);
+        }
         
         if(def.prefSize){
             this.isPreferredSizeSet = true;

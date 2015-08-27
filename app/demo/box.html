@@ -13,13 +13,15 @@
 <style>
 .box1 {
 position: absolute;
-border: 1px solid red;
+border: 5px solid red;
 
-left: 100px;
+left: 300px;
 top: 100px;
 
 width:200px;
 height:200px;
+
+overflow: hidden;
 }
 
 .box2 {
@@ -52,7 +54,7 @@ this.createApp().run(function(){
     
     var box1 = new js.awt.Container(
         {
-            id: "box1",
+id: "box1",
             className: "box1"
             /*movable: true,
             resizable: true*/
@@ -64,8 +66,9 @@ this.createApp().run(function(){
             id: "box2",
             className: "box2",
             movable: true,
-            mover:{br:1, bb:1},
-            resizable: true
+            mover:{bt:1, br:1, bb:1, bl:1},
+resizable: true,
+resizer: 0xFF/*0x38*/
         }, R);
    box1.addComponent(box2);
 
@@ -79,9 +82,9 @@ this.createApp().run(function(){
        buf.push(":");
        buf.push(box2.getY());
        buf.push("  ");
-       buf.push(bounds.offsetX);
+       buf.push(bounds.absX);
        buf.push(":");
-       buf.push(bounds.offsetY);
+       buf.push(bounds.absY);
        this.label.setText(buf.join(""));
    };
 

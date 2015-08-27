@@ -1,38 +1,13 @@
 /**
 
- Copyright 2010-2011, The JSVM Project.
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
-
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
+ 
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -48,6 +23,7 @@ js.awt.SizeObject = function(){
     }
     CLASS.__defined__ = true;
 
+    var DOM = J$VM.DOM;
 
     thi$.setSizingPeer = function(peer){
         this.sizingPeer = peer;
@@ -67,7 +43,8 @@ js.awt.SizeObject = function(){
 
     thi$.getSizingMsgRecvs = function(){
         var peer = this.getSizingPeer();
-        return peer ? peer.getSizingMsgRecvs() : null;
+        return (peer && peer.getSizingMsgRecvs) ?
+            peer.getSizingMsgRecvs() : null;
     };
 
     thi$.releaseSizeObject = function(){
@@ -110,18 +87,9 @@ js.awt.Resizable = function(){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
-
-    var CURSORS = [
-        "nw-resize",
-        "w-resize",
-        "sw-resize",
-        "s-resize",
-        "se-resize",
-        "e-resize",
-        "ne-resize",
-        "n-resize"
-    ];
+        System = J$VM.System, MQ = J$VM.MQ,
+        max = Math.max, min = Math.min, 
+        ceil = Math.ceil, floor = Math.floor, round = Math.round;
 
     var SpotSize = {lw: 3, l2w: 6, pw: 5, p2w:10 };
 
@@ -245,6 +213,127 @@ js.awt.Resizable = function(){
         return h > maxiH ? maxiH : h;
     };
 
+    thi$.startSizing = function(e, i){
+        var moveObj = this.getSizeObject(e), 
+            ctx = moveObj.getMoveContext(), p = ctx.container.view,
+            r = ctx.range, bounds = moveObj.getBounds(),
+            mover = this.def.mover, grid = mover.grid, bound=mover.bound,
+            bt = max(mover.bt*bounds.height, bound),
+            br = max(mover.br*bounds.width,  bound),
+            bb = max(mover.bb*bounds.height, bound),
+            bl = max(mover.bl*bounds.width,  bound);
+
+        ctx.minX = grid*ceil( (r[0]+bl)/grid);
+        ctx.minY = grid*ceil( (r[1]+bt)/grid);
+        ctx.maxX = grid*floor((r[2]-br)/grid);
+        ctx.maxY = grid*floor((r[3]-bb)/grid);
+        ctx.eventXY = e.eventXY();
+        moveObj._moveCtx = ctx;        
+        MQ.register("releaseSizeObject", this, _release)
+    };
+
+    thi$.processSizing = function(e, i){
+        var sizeObj = this.getSizeObject(), ctx = sizeObj._moveCtx,
+            pox = ctx.container.view,
+            grid = this.def.mover.grid,
+            box = sizeObj.getBounds(),
+            miniSize = sizeObj.getMinimumSize(),
+            maxiSize = sizeObj.getMaximumSize();
+
+        var c = SpotSize.p2w, startXY = ctx.eventXY, xy = e.eventXY(),
+        dw = diffW(i, xy, startXY), dh = diffH(i, xy, startXY), x, y,
+        w = grid*round((box.userW + dw)/grid),
+        h = grid*round((box.userH + dh)/grid),
+        minW = grid*ceil(miniW(c, miniSize.width)/grid),
+        minH = grid*ceil(miniH(c, miniSize.height)/grid),
+        maxW = grid*floor(maxiW(i, box, pox, maxiSize.width)/grid - 1),
+        maxH = grid*floor(maxiH(i, box, pox, maxiSize.height)/grid - 1);
+
+        w = w < minW ? minW : (w > maxW) ? maxW : w;
+        h = h < minH ? minH : (h > maxH) ? maxH : h;
+
+        switch(i){
+        case 0:
+            x = box.userX + box.userW - w;
+            y = box.userY + box.userH - h;
+            break;
+        case 1:
+            x = box.userX + box.userW - w;
+            y = box.userY;
+            h = box.userH;
+            break;
+        case 2:
+            x = box.userX + box.userW - w;
+            y = box.userY;
+            break;
+        case 3:
+            x = box.userX;
+            y = box.userY;
+            w = box.userW;
+            break;
+        case 4:
+            x = box.userX;
+            y = box.userY;
+            break;
+        case 5:
+            x = box.userX;
+            y = box.userY;
+            h = box.userH;
+            break;
+        case 6:
+            x = box.userX;
+            y = box.userY + box.userH - h;
+            break;
+        case 7:
+            x = box.userX;
+            y = box.userY + box.userH - h;
+            w = box.userW;
+            break;
+        }
+
+        // Snap to grid
+        x = grid*Math.round(x/grid);
+        y = grid*Math.round(y/grid);
+
+        if(x != box.offsetX || y != box.offsetY){
+            sizeObj.setPosition(x, y);
+            ctx.moved = true;
+        }
+        if(w != box.width || h != box.height){
+            sizeObj.setSize(w, h);
+            ctx.sized = true;
+        }
+
+        // Notify all message receivers
+        var recvs = sizeObj.getSizingMsgRecvs() || [];
+        recvs.unshift(sizeObj.getSizingPeer().uuid());
+        e.setEventTarget(sizeObj);
+        MQ.post(sizeObj.getSizingMsgType(), e, recvs);
+    };
+
+    thi$.endSizing = function(e, i){
+        var sizeObj = this.getSizeObject(e),
+            ctx = sizeObj._moveCtx,
+            recvs = sizeObj.getSizingMsgRecvs() || [];
+
+        if(ctx.sized){
+            this.setSize(sizeObj.getWidth(), sizeObj.getHeight(), 0x0F);
+            ctx.sized = false;
+        }
+        if(ctx.moved){
+            this.setPosition(sizeObj.getX(), sizeObj.getY(), 0x0F);
+            ctx.moved = false;
+        }
+        
+        // Notify all message receivers
+        recvs.unshift(sizeObj.getSizingPeer().uuid());
+        e.setEventTarget(sizeObj);
+        MQ.post(sizeObj.getSizingMsgType(), e, recvs);
+
+        // Release SizeObject
+        MQ.post("releaseSizeObject", "", [this.uuid()]);
+    };
+    
     var _onmousedown = function(e, i){
         // Notify popup LayerManager
         e.setEventTarget(this);
@@ -286,12 +375,12 @@ js.awt.Resizable = function(){
 
         var c = SpotSize.p2w, startXY = this._local.clickXY, xy = e.eventXY(),
         dw = diffW(i, xy, startXY), dh = diffH(i, xy, startXY), x, y,
-        w = grid*Math.round((box.userW + dw)/grid),
-        h = grid*Math.round((box.userH + dh)/grid),
-        minW = grid*Math.ceil(miniW(c, miniSize.width)/grid),
-        minH = grid*Math.ceil(miniH(c, miniSize.height)/grid),
-        maxW = grid*Math.floor(maxiW(i, box, pox, maxiSize.width)/grid - 1),
-        maxH = grid*Math.floor(maxiH(i, box, pox, maxiSize.height)/grid - 1);
+        w = grid*round((box.userW + dw)/grid),
+        h = grid*round((box.userH + dh)/grid),
+        minW = grid*ceil(miniW(c, miniSize.width)/grid),
+        minH = grid*ceil(miniH(c, miniSize.height)/grid),
+        maxW = grid*floor(maxiW(i, box, pox, maxiSize.width)/grid - 1),
+        maxH = grid*floor(maxiH(i, box, pox, maxiSize.height)/grid - 1);
 
         w = w < minW ? minW : (w > maxW) ? maxW : w;
         h = h < minH ? minH : (h > maxH) ? maxH : h;
@@ -388,13 +477,13 @@ js.awt.Resizable = function(){
         return e.cancelDefault();
     };
 
-    var _releaseSizeObject = function(){
+    var _release = function(){
         if(this.sizeObj){
             this.sizeObj.releaseSizeObject();
             delete this.sizeObj;
         }
 
-        MQ.cancel("releaseSizeObject", this, _releaseSizeObject);
+        MQ.cancel("releaseSizeObject", this, _release);
     };
 
     var _onsizingevent = function(e){
@@ -468,10 +557,10 @@ js.awt.Resizable = function(){
      * Notes: If need sub class can override this method
      */
     thi$.getSizeObject = function(){
-        var sizeObj = this.sizeObj, bounds, tdef;
+        var sizeObj = this.sizeObj, bounds, def;
         if(!sizeObj){
             bounds = this.getBounds();
-            tdef = {
+            def = {
                 classType: "js.awt.Component",
                 className: "jsvm_resize_cover " 
                     + DOM.combineClassName(this.className, "--resize-cover", ""),
@@ -491,13 +580,11 @@ js.awt.Resizable = function(){
             
             sizeObj = this.sizeObj = /*this;*/
             
-            new js.awt.Component(tdef, this.Runtime());
-
-            sizeObj.insertAfter(this._coverView || this.view);
-
+            new js.awt.Component(def, this.Runtime());
+            sizeObj.insertAfter(this.view);
             sizeObj.setSizingPeer(this);
 
-            MQ.register(sizeObj.getSizingMsgType(), this, _onsizingevent);
+            //MQ.register(sizeObj.getSizingMsgType(), this, _onsizingevent);
         }
 
         return sizeObj;
@@ -519,45 +606,15 @@ js.awt.Resizable = function(){
      * @param resizer a number 0 to 255 identifies 8 directions
      */
     thi$.setResizable = function(b, resizer){
-        this._local = this._local || {};
-
+        var M = this.def;
         b = b || false;
         resizer = Class.isNumber(resizer) ? (resizer & 0x0FF) : 255;
-
-        var M = this.def, U = this._local;
-        if(U.resizableSettled && M.resizable === b){
-            if(b == false || M.resizer === resizer){
-                return;
-            }else{
-                this.removeResizer(true);
-            }
-        }
-
         M.resizable = b;
         M.resizer = resizer;
-        M.mover = M.mover || {};
-        M.mover.grid = M.mover.grid || 1;
-        /*
         if(b){
-            _createResizer.call(this, M.resizer);
-            if(this.isDOMElement()){
-                this.addResizer();
-                this.adjustResizer();
-            }
-        }else{
-            this.removeResizer(true);
+            M.mover = M.mover || {};
+            M.mover.grid = M.mover.grid || 1;
         }
-        */
-        resizerbounds = resizerbounds || {
-            BBM: J$VM.supports.borderBox,
-            MBP: {BW: 0, BH: 0, PW: 0, PH: 0, BPW: 0, BPH: 0}
-        };
-
-        U.resizableSettled = true;
-    };
-
-    thi$.resizableSettled = function(){
-        return this._local.resizableSettled || false;
     };
 
     thi$.adjustResizer = function(bounds){

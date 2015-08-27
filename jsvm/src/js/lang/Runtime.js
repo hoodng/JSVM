@@ -256,14 +256,13 @@ js.lang.Runtime = function(){
 
                 title: {
                     classType: "js.awt.HBox",
-                    className: "win_title",
+                    className: "win_title message_title",
                     constraints: "north",
 
                     items:["labTitle", "btnClose"],
 
                     labTitle:{
                         classType: "js.awt.Label",
-                        className: "win_title_label",
                         text : "Dialog",
                         rigid_w: false,
                         rigid_h: false
@@ -271,7 +270,6 @@ js.lang.Runtime = function(){
 
                     btnClose:{
                         classType: "js.awt.Button",
-                        className: "win_title_button",
                         iconImage: "dialog_close.png"
                     }
                 },
@@ -295,7 +293,7 @@ js.lang.Runtime = function(){
 
                     btnOK:{
                         classType: "js.awt.Button",
-                        className: "dlg_button",
+                        className: "jbtn",
                         effect: true,
                         labelText: this.nlsText("btnOK", "OK")
                     },
@@ -328,14 +326,13 @@ js.lang.Runtime = function(){
 
                 title: {
                     classType: "js.awt.HBox",
-                    className: "win_title",
+                    className: "win_title message_title",
                     constraints: "north",
 
                     items:["labTitle", "btnClose"],
 
                     labTitle:{
                         classType: "js.awt.Label",
-                        className: "win_title_label",
                         text : "Confirm",
                         rigid_w: false,
                         rigid_h: false
@@ -343,7 +340,6 @@ js.lang.Runtime = function(){
 
                     btnClose:{
                         classType: "js.awt.Button",
-                        className: "win_title_button",
                         iconImage: "dialog_close.png"
                     }
                 },
@@ -367,14 +363,14 @@ js.lang.Runtime = function(){
 
                     btnOK:{
                         classType: "js.awt.Button",
-                        className: "dlg_button",
+                        className: "jbtn",
                         effect: true,
                         labelText: this.nlsText("btnOK", "OK")
                     },
 
                     btnCancel:{
                         classType: "js.awt.Button",
-                        className: "dlg_button",
+                        className: "jbtn",
                         effect: true,
                         labelText: this.nlsText("btnCancel", "Cancel")
                     },
@@ -408,14 +404,13 @@ js.lang.Runtime = function(){
 
                 title: {
                     classType: "js.awt.HBox",
-                    className: "win_title",
+                    className: "win_title message_title",
                     constraints: "north",
 
                     items:["labTitle", "btnClose"],
 
                     labTitle:{
                         classType: "js.awt.Label",
-                        className: "win_title_label",
                         text : "Confirm",
                         rigid_w: false,
                         rigid_h: false
@@ -423,7 +418,6 @@ js.lang.Runtime = function(){
 
                     btnClose:{
                         classType: "js.awt.Button",
-                        className: "win_title_button",
                         iconImage: "dialog_close.png"
                     }
                 },
@@ -447,21 +441,21 @@ js.lang.Runtime = function(){
 
                     btnYes:{
                         classType: "js.awt.Button",
-                        className: "dlg_button",
+                        className: "jbtn",
                         effect: true,
                         labelText: this.nlsText("btnYes", "Yes")
                     },
 
                     btnNo:{
                         classType: "js.awt.Button",
-                        className: "dlg_button",
+                        className: "jbtn",
                         effect: true,
                         labelText: this.nlsText("btnNo", "No")
                     },
 
                     btnCancel:{
                         classType: "js.awt.Button",
-                        className: "dlg_button",
+                        className: "jbtn",
                         effect: true,
                         labelText: this.nlsText("btnCancel", "Cancel")
                     },

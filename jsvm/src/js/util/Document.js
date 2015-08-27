@@ -1591,7 +1591,7 @@ js.util.Document = function (){
 		return ret;
 	};
 
-    thi$.getEventTarget = function(ele, create){
+    thi$.getEventTarget = function(ele, create, Runtime){
         var obj = null, uuid, parent;
         if(!ele || ele === self.document) return obj;
 
@@ -1601,7 +1601,9 @@ js.util.Document = function (){
             // js.lang.Object.objectStore
             obj = this.getObject(uuid);
         }else if(create){
-            // Create new Component ?
+            uuid = js.lang.Math.uuid();
+            ele.uuid = uuid;
+            obj = new js.awt.Component({uuid:uuid}, Runtime, ele);
         }else{
             // Return the ancestor which is a js.lang.Object
             obj = this.getEventTarget(ele.parentNode);
@@ -1619,7 +1621,7 @@ js.util.Document = function (){
         return x > minX && x < maxX && y > minY && y < maxY;
     };
 
-    thi$.offset = function(x, y, bounds){
+    thi$.relative = function(x, y, bounds){
         var d = bounds, MBP = d.MBP;
         return {
             x: x - d.absX - MBP.borderLeftWidth,
