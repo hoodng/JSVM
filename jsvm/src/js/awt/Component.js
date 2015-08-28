@@ -210,23 +210,19 @@ js.awt.Component = function (def, Runtime, view){
         case "resize":
             var bounds = this.getBounds();
             this.adjustCover(bounds);
-            this.adjustResizer(bounds);
             this.adjustShadow(bounds);
             break;
         case "zorder":
             var z = this.getZ();
             this.setCoverZIndex(z);
-            this.setResizerZIndex(z);
             this.setShadowZIndex(z);
             break;
         case "display":
             this.setCoverDisplay(show);
-            this.setResizerDisplay(show);
             this.setShadowDisplay(show);
             break;
         case "remove":
             this.removeCover();
-            this.removeResizer();            
             this.removeShadow();
             break;
         }

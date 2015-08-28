@@ -345,7 +345,7 @@ js.awt.Element = function(def, Runtime){
         var d, ret = this.def.maxiSize;
         if(nocache === true || !ret){
             d = this.getBounds();
-            this.setMaximumSize(0xFFFFFFFF, 0xFFFFFFFF);
+            this.setMaximumSize(0xFFFF, 0xFFFF);
             ret = this.def.maxiSize;
         }
         return ret;
@@ -693,22 +693,22 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.spotIndex = function(ele, xy, dragObj){
-        var bounds, movable, resizable, idx = -1;
+        var bounds, movable, resizable, idxes, idx = -1;
 
-        movable = this.isMovable();
-        resizable= this.isResizable();
-        
-        if((movable && this.isMoverSpot(ele, xy.x, xy.y)) ||
-           resizable){
-            bounds = this.getBounds();
-            idx = DOM.offsetIndex(xy.x, xy.y, bounds, movable);
-        }
-        
-        if(idx >= 0 && idx != 8 &&
-           (this.def.resizer & (1<<idx)) === 0){
-            idx = -1;
-        }
+        movable = this.isMovable() && this.isMoverSpot(ele, xy.x, xy.y);
 
+        bounds = this.getBounds();
+        idxes = DOM.offsetIndexes(xy.x, xy.y, bounds, movable);
+        if(idxes[1] === -1){
+            idx = movable ? 8 : -1;
+        }else{
+            idx = idxes[1];
+            if(idxes[0] === 9){
+                idx = movable ? 8 : (this.isResizable(idx) ? idx : -1);
+            }else{
+                idx = this.isResizable(idx) ? idx : (movable ? 8 : -1);
+            }
+        }
         return idx;
     };
 

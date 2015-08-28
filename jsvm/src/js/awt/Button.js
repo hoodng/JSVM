@@ -392,10 +392,10 @@ js.awt.Button = function(def, Runtime){
 		DOM.remove(this._effectLayer, true);
 		delete this._effectLayer;
 
-		this.detachEvent("mouseover", 0, this, _onmouseover);
-		this.detachEvent("mouseout",  0, this, _onmouseout);
-		this.detachEvent("mousedown", 0, this, _onmousedown);
-		this.detachEvent("mouseup",	  0, this, _onmouseup);
+		this.detachEvent("mouseover", 4, this, _onmouseover);
+		this.detachEvent("mouseout",  4, this, _onmouseout);
+		this.detachEvent("mousedown", 4, this, _onmousedown);
+		this.detachEvent("mouseup",	  4, this, _onmouseup);
 
 		arguments.callee.__super__.apply(this, arguments);
 
@@ -455,10 +455,10 @@ js.awt.Button = function(def, Runtime){
 		}
 
 		this.setAttribute("touchcapture", "true");
-		this.attachEvent("mouseover", 0, this, _onmouseover);
-		this.attachEvent("mouseout",  0, this, _onmouseout);
-		this.attachEvent("mousedown", 0, this, _onmousedown);
-		this.attachEvent("mouseup",	  0, this, _onmouseup);
+		this.attachEvent("mouseover", 4, this, _onmouseover);
+		this.attachEvent("mouseout",  4, this, _onmouseout);
+		this.attachEvent("mousedown", 4, this, _onmousedown);
+		this.attachEvent("mouseup",	  4, this, _onmouseup);
 
 	}.$override(this._init);
 

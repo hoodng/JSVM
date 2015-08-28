@@ -89,7 +89,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 	
 	thi$.destroy = function(e){
 		if(!this.isWholeTrigger()){
-			this.detachEvent("click", 0, this, _onclick);
+			this.detachEvent("click", 4, this, _onclick);
 		} 
 		
 		arguments.callee.__super__.apply(this, arguments);		 
@@ -121,7 +121,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 		this.mark(def.marked);
 		
 		if(!this.isWholeTrigger()){
-			this.attachEvent("click", 0, this, _onclick);
+			this.attachEvent("click", 4, this, _onclick);
 		}
 
 	}.$override(this._init);

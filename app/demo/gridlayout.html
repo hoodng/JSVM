@@ -26,7 +26,7 @@
     position: absolute;
     z-index: 10;
     border: 1px solid transparent;
-    background-color: transparent;
+    background-color: gray;
 }
 
 .jsvm_grid_hmove {
@@ -61,6 +61,7 @@ var R = this.Runtime();
          
         layout:{
             classType: "js.awt.GridLayout",
+            gridClass: "js.awt.GridEx",
             rowNum: 3,
             colNum: 3,
             rows:[
@@ -76,12 +77,14 @@ var R = this.Runtime();
                 {rowIndex:2, colIndex:0, colSpan:2}
             ]
         },
-        resizable: true
-
+resizable: true,
+movable: true,
+rigid_w: false,
+rigid_h: false
     },R);
 
 js.awt.Gridding.$decorate(panel);
-
+/*
     //1
     panel.addComponent(new js.awt.Component({
         className: "block",
@@ -175,6 +178,7 @@ js.awt.Gridding.$decorate(panel);
         css: "border-color:gray;",
         constraints:{rowIndex: 2, colIndex: 2}   
     },R));
+*/
 
 this.addComponent(panel);
 

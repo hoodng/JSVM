@@ -110,8 +110,8 @@ js.awt.MoveObject = function(){
             range: [
                 0 - bounds.width,
                 0 - bounds.height,
-                hscroll ? 0xFFFFFFFF : pounds.innerWidth,
-                vscroll ? 0xFFFFFFFF : pounds.innerHeight
+                hscroll ? 0xFFFF : pounds.innerWidth,
+                vscroll ? 0xFFFF : pounds.innerHeight
             ],
             autofit: autofit,
             hscroll: hscroll,

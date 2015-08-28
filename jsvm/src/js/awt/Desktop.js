@@ -85,7 +85,6 @@ js.awt.Desktop = function (Runtime){
 
         ele = e.srcElement;
         target = e.getEventTarget();
-
         drag = drags[e.pointerId];
         if(!drag){
             if(target && target != this){
@@ -109,7 +108,7 @@ js.awt.Desktop = function (Runtime){
 
             DOM.setCursor(ele, DOM.getCursor(drag.spot));
             
-            if(drag.spot === 8){
+            if(drag.spot >= 8){
                 drag.target.processMoving(e);
             }else{
                 drag.target.processSizing(e, drag.spot);
@@ -122,11 +121,31 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _onmouseover = function(e){
+        var ele, target, drag;
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+        drag = drags[e.pointerId];
+        if(!drag){
+            if(target && target != this){
+                target.fireEvent(e, true);
+            }
+        }
         e.cancelBubble();
         return e.cancelDefault();
     };
 
     var _onmouseout = function(e){
+        var ele, target, drag;
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+        drag = drags[e.pointerId];
+        if(!drag){
+            if(target && target != this){
+                target.fireEvent(e, true);
+            }
+        }
         e.cancelBubble();
         return e.cancelDefault();
     };
@@ -138,13 +157,11 @@ js.awt.Desktop = function (Runtime){
 
         ele = e.srcElement;
         target = e.getEventTarget();
-
         if(target && target != this){
             target.fireEvent(e, true);
 
             if(e.button === 1 && !e.ctrlKey && !e.shiftKey &&
                (target.isMovable() || target.isResizable())){
-                
                 spot = target.spotIndex(ele, e.eventXY());
                 if(spot >= 0){
                     var longpress = target.def.mover.longpress;
@@ -168,7 +185,7 @@ js.awt.Desktop = function (Runtime){
 
     var _drag = function(id, drag){
         drags[id] = drag;
-        if(drag.spot === 8){
+        if(drag.spot >= 8){
             drag.target.startMoving(drag.event);
         }else{
             drag.target.startSizing(drag.event, drag.spot);
@@ -191,7 +208,7 @@ js.awt.Desktop = function (Runtime){
             MQ.post(Event.SYS_EVT_MOVED, "");
             this._local.notified = false;
 
-            if(drag.spot === 8){
+            if(drag.spot >= 8){
                 drag.target.endMoving(e);
             }else{
                 drag.target.endSizing(e, drag.spot);
@@ -211,9 +228,24 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _oncontextmenu = function(e){
-        
+        e.cancelBubble();
+        return e.cancelDefault();
     };
     
+    var _onclick = function(e){
+        var ele, target, drag;
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+        drag = drags[e.pointerId];
+        if(!drag){
+            if(target && target != this){
+                target.fireEvent(e, true);
+            }
+        }
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
     
     var _onmessage = function(e){
         var _e = e.getData();
@@ -450,9 +482,10 @@ js.awt.Desktop = function (Runtime){
         
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmousemove);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OVER, 0, this, _onmouseover);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseout);        
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseout);   
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmousedown);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseup);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_CLICK,0, this, _onclick);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmousewheel);
         Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _oncontextmenu);
         

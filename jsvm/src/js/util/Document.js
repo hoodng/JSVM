@@ -1629,22 +1629,13 @@ js.util.Document = function (){
         }
     };
 
-    // Only resize
-    var OFFSETTABLE0 = [
-        [0, 7, 7, 7, 6],
-        [1, 8, 8, 8, 5],
-        [1, 8, 8, 8, 5],
-        [1, 8, 8, 8, 5],
-        [2, 3, 3, 3, 4]
-    ];
-
     // For resize and move
-    var OFFSETTABLE1 = [
-        [0, 8, 7, 8, 6],
-        [8, 8, 8, 8, 8],
-        [1, 8, 8, 8, 5],
-        [8, 8, 8, 8, 8],
-        [2, 8, 3, 8, 4]
+    var OFFSETTABLE = [
+        [[8, 0], [9, 7], [8, 7], [9, 7], [8, 6]],
+        [[9, 1], [8,-1], [8,-1], [8,-1], [9, 5]],
+        [[8, 1], [8,-1], [8,-1], [8,-1], [8, 5]],
+        [[9, 1], [8,-1], [8,-1], [8,-1], [9, 5]],
+        [[8, 2], [9, 3], [8, 3], [9, 3], [8, 4]]
     ];
 
     var offsetIndex0 = function(offset, min, max, step){
@@ -1673,16 +1664,15 @@ js.util.Document = function (){
         return ret;
     };
 
-    thi$.offsetIndex = function(x, y, bounds, movable){
-        var xIdx, yIdx, table, idx = -1;
+    thi$.offsetIndexes = function(x, y, bounds, movable){
+        var xIdx, yIdx, idx = [-1,-1];
         yIdx = offsetIndex0(y, bounds.absY,
                             bounds.absY + bounds.height);
         xIdx = offsetIndex0(x, bounds.absX,
                             bounds.absX + bounds.width);
 
         if(yIdx >= 0  && xIdx >= 0){
-            table = movable ? OFFSETTABLE1 : OFFSETTABLE0;
-            idx = table[yIdx][xIdx];
+            idx = OFFSETTABLE[yIdx][xIdx];
         }
 
         return idx;
@@ -1697,7 +1687,9 @@ js.util.Document = function (){
         "e-resize",
         "ne-resize",
         "n-resize",
-        "move"
+        "move",
+        "ew-resize",
+        "ns-resize"
     ];
     
     thi$.getCursor = function(index){
@@ -1707,7 +1699,7 @@ js.util.Document = function (){
     thi$.setCursor = function(ele, cursor){
         var cur = ele.getAttribute("pre_cursor");
         if(!Class.isString(cur)){
-            cur = ele.style.cursor;
+            cur = this.getStyle(ele, "cursor");
             if(cur === ""){
                 cur = "default";
             }

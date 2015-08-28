@@ -96,6 +96,10 @@ js.awt.Gridding = function(){
         this.eraseLines(true);
     };
 
+    thi$.isMoverSpot = function(ele, x, y){
+        return (ele === this.view);
+    };
+
     /**
      * 
      */
@@ -218,7 +222,7 @@ js.awt.Gridding = function(){
                 moveObj.getMovingMsgRecvs = _getMovingMsgRecvs.$bind(this);
                 moveObj.getMovingMsgType = _getMovingMsgType.$bind(this);
                 moveObj.showMoveCover = _showMoveCover.$bind(this);
-                moveObj.getMoveRange = _getMoveRange.$bind(this);
+                moveObj.getMoveContext = _getMoveContext.$bind(this);
                 moveObj.appendTo(this.view.parentNode);
                 moveObj.setMovingPeer(this);
             }
@@ -236,9 +240,16 @@ js.awt.Gridding = function(){
             // Line no need cover
         };
 
-        var _getMoveRange = function(){
-            return this.moverange;
+        var _getMoveContext = function(){
+            return {
+                container:this.getPeerComponent(),
+                range: this.moverange
+            };
         };
+
+        thi$.spotIndex = function(){
+            return this.def.dir === 0 ? 9 : 10;
+        }.$override(this.spotIndex);
 
         thi$.setMoveRange = function(minX, minY, maxX, maxY){
             this.moverange = [minX, minY, maxX, maxY];

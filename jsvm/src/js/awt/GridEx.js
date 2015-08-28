@@ -622,8 +622,10 @@ js.awt.GridEx = function(def){
         var i, ilen, j, jlen, cell, ret = [];
         for(i=0, ilen=this.rowNum(); i<ilen; i++){
             for(j=0, jlen=this.colNum(); j<jlen; j++){
-                cell = this.cell(i, j);
+                cell = this.cell(i, j);                
                 if(cell){
+                	cell.rowIndex = i;
+                	cell.colIndex = j;
                     ret.push(cell);
                 }
             }
