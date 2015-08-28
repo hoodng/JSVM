@@ -615,8 +615,8 @@ js.awt.MoveObject = function(){
             range: [
                 0 - bounds.width,
                 0 - bounds.height,
-                hscroll ? 0xFFFFFFFF : pounds.innerWidth,
-                vscroll ? 0xFFFFFFFF : pounds.innerHeight
+                hscroll ? 0xFFFF : pounds.innerWidth,
+                vscroll ? 0xFFFF : pounds.innerHeight
             ],
             autofit: autofit,
             hscroll: hscroll,
@@ -685,7 +685,7 @@ js.awt.Movable = function (){
         var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
             bounds = moveObj.getBounds(), mover = this.def.mover,
             grid = mover.grid, freedom = mover.freedom,
-            thip = ctx.container, p = thip.view, w, h,
+            thip = ctx.container, p = thip.view,
             xy = e.eventXY(), oxy = ctx.eventXY,
             x = p.scrollLeft + xy.x - oxy.x ,
             y = p.scrollTop  + xy.y - oxy.y,
@@ -898,117 +898,6 @@ js.awt.Resizable = function(){
         max = Math.max, min = Math.min, 
         ceil = Math.ceil, floor = Math.floor, round = Math.round;
 
-    var SpotSize = {lw: 3, l2w: 6, pw: 5, p2w:10 };
-
-    var ACalc = [
-    // 0
-    function(box, spot){
-        return {
-            x: box.offsetX, y: box.offsetY,
-            w: spot.pw, h: spot.pw
-        };
-    },
-    // 1
-    function(box, spot){
-        return {
-            x: box.offsetX, y: box.offsetY + spot.pw,
-            w : spot.lw, h:box.height - spot.p2w
-        };
-    },
-    // 2
-    function(box, spot){
-        return {
-            x: box.offsetX,
-            y: box.offsetY + box.height - spot.pw,
-            w: spot.pw, h:spot.pw
-        };
-    },
-    // 3
-    function(box, spot){
-        return {
-            x:box.offsetX + spot.pw,
-            y:box.offsetY + box.height - spot.lw,
-            w:box.width - spot.p2w, h:spot.lw
-        };
-    },
-    // 4
-    function(box, spot){
-        return {
-            x: box.offsetX + box.width - spot.pw,
-            y: box.offsetY + box.height- spot.pw,
-            w: spot.pw, h: spot.pw
-        };
-    },
-    // 5
-    function(box, spot){
-        return {
-            x: box.offsetX + box.width - spot.lw,
-            y: box.offsetY + spot.pw,
-            w: spot.lw, h: box.height - spot.p2w
-        };
-    },
-    // 6
-    function(box, spot){
-        return {
-            x: box.offsetX + box.width - spot.pw,
-            y: box.offsetY,
-            w: spot.pw, h: spot.pw
-        };
-    },
-    // 7
-    function(box, spot){
-        return {
-            x: box.offsetX + spot.pw, y: box.offsetY,
-            w: box.width - spot.p2w, h: spot.lw
-        };
-    }
-    ];
-
-    var DW = [-1,-1,-1,+0,+1,+1,+1,+0],
-        DH = [-1,+0,+1,+1,+1,+0,-1,-1];
-
-    var diffW = function(i, eventXY, startXY){
-        return DW[i]*(eventXY.x - startXY.x);
-    };
-
-    var diffH = function(i, eventXY, startXY){
-        return DH[i]*(eventXY.y - startXY.y);
-    };
-
-    var miniW = function(w, miniW){
-        return w < miniW ? miniW : w;
-    };
-
-    var miniH = function(h, miniH){
-        return h < miniH ? miniH : h;
-    };
-
-    var maxiW = function(i, box, pox, maxiW){
-        var w;
-        switch(i){
-        case 4: case 5: case 6:
-            w = pox.clientWidth - box.offsetX;
-            break;
-        case 0: case 1: case 2:
-            w = box.userX + box.userW;
-            break;
-        }
-        return w > maxiW ? maxiW : w;
-    };
-
-    var maxiH = function(i, box, pox, maxiH){
-        var h;
-        switch(i){
-        case 2: case 3: case 4:
-            h = pox.clientHeight - box.offsetY;
-            break;
-        case 0: case 6: case 7:
-            h = box.userY + box.userH;
-            break;
-        }
-        return h > maxiH ? maxiH : h;
-    };
-
     thi$.startSizing = function(e, i){
         var moveObj = this.getSizeObject(e),
             ctx = moveObj.getMoveContext();
@@ -1020,72 +909,71 @@ js.awt.Resizable = function(){
 
     thi$.processSizing = function(e, i){
         var sizeObj = this.getSizeObject(), ctx = sizeObj._moveCtx,
-            pox = ctx.container.view,
-            grid = this.def.mover.grid,
-            box = sizeObj.getBounds(),
-            miniSize = sizeObj.getMinimumSize(),
-            maxiSize = sizeObj.getMaximumSize();
+            thip = ctx.container, pounds = thip.getBounds(),
+            bounds = sizeObj.getBounds(),
+            mover = this.def.mover, grid = this.def.mover.grid, 
+            minSize = sizeObj.getMinimumSize(),
+            maxSize = sizeObj.getMaximumSize(),
+            xy = e.eventXY(), minV, maxV, v0, v1, x, y, w, h;
 
-        var c = SpotSize.p2w, startXY = ctx.eventXY, xy = e.eventXY(),
-        dw = diffW(i, xy, startXY), dh = diffH(i, xy, startXY), x, y,
-        w = grid*round((box.userW + dw)/grid),
-        h = grid*round((box.userH + dh)/grid),
-        minW = grid*ceil(  miniSize.width/grid),
-        minH = grid*ceil( miniSize.height/grid),
-        maxW = grid*floor( maxiSize.width/grid),
-        maxH = grid*floor(maxiSize.height/grid);
+        x = bounds.userX; w = bounds.userW;
+        y = bounds.userY; h = bounds.userH;
 
-        w = w < minW ? minW : (w > maxW) ? maxW : w;
-        h = h < minH ? minH : (h > maxH) ? maxH : h;
+        xy = DOM.relative(xy.x, xy.y, pounds);
 
+        // calc x
         switch(i){
-        case 0:
-            x = box.userX + box.userW - w;
-            y = box.userY + box.userH - h;
+            case 0:
+            case 1:
+            case 2:
+            v1 = bounds.userX + bounds.userW;
+            minV = mover.bl < 1 ? (v1 - maxSize.width) : 0;
+            maxV = v1-max(minSize.width, bounds.MBP.BW+1);
+            x = xy.x;
+            x = grid*floor((x < minV ? minV : (x > maxV ? maxV : x))/grid);
+            w = grid*round((v1 - x)/grid);
             break;
-        case 1:
-            x = box.userX + box.userW - w;
-            y = box.userY;
-            h = box.userH;
-            break;
-        case 2:
-            x = box.userX + box.userW - w;
-            y = box.userY;
-            break;
-        case 3:
-            x = box.userX;
-            y = box.userY;
-            w = box.userW;
-            break;
-        case 4:
-            x = box.userX;
-            y = box.userY;
-            break;
-        case 5:
-            x = box.userX;
-            y = box.userY;
-            h = box.userH;
-            break;
-        case 6:
-            x = box.userX;
-            y = box.userY + box.userH - h;
-            break;
-        case 7:
-            x = box.userX;
-            y = box.userY + box.userH - h;
-            w = box.userW;
+            case 4:
+            case 5:
+            case 6:
+            v0 = bounds.userX;
+            minV = max(bounds.MBP.BW+1, minSize.width);
+            maxV = mover.br < 1 ? maxSize.width : pounds.innerWidth;
+            x = bounds.userX;
+            w = xy.x - v0;
+            w = grid*round((w < minV ? minV : (w > maxV ? maxV : w)/grid));
             break;
         }
 
-        // Snap to grid
-        x = grid*Math.round(x/grid);
-        y = grid*Math.round(y/grid);
+        // calc y
+        switch(i){
+            case 0:
+            case 7:
+            case 6:
+            v1 = bounds.userY + bounds.userH;
+            minV = mover.bt < 1 ? (v1 - maxSize.height) : 0;
+            maxV = v1-max(minSize.height, bounds.MBP.BH+1);
+            y = xy.y;
+            y = grid*floor((y < minV ? minV : (y > maxV ? maxV : y)/grid));
+            h = grid*round((v1 - y)/grid);
+            break;
+            case 2:
+            case 3:
+            case 4:
+            v0 = bounds.userY;
+            minV = max(bounds.MBP.BH+1, minSize.height);
+            maxV = mover.bb < 1 ? maxSize.height : pounds.innerHeight;
+            y = bounds.userY;
+            h = xy.y - v0;
+            h = grid*round((h < minV ? minV : (h > maxV ? maxV : h)/grid));
+            break;
+        }
 
-        if(x != box.offsetX || y != box.offsetY){
+        if(x != bounds.offsetX || y != bounds.offsetY){
             sizeObj.setPosition(x, y);
             ctx.moved = true;
         }
-        if(w != box.width || h != box.height){
+        if(w != bounds.width || h != bounds.height){
             sizeObj.setSize(w, h);
             ctx.sized = true;
         }
@@ -1171,8 +1059,16 @@ js.awt.Resizable = function(){
     /**
      * Tests whether this component is resizable.
      */
-    thi$.isResizable = function(){
-        return (this.def.resizable || false);
+    thi$.isResizable = function(idx){
+        var b = (this.def.resizable || false),
+            resizer = this.def.resizer;
+        
+        if(b && Class.isNumber(idx)){
+            resizer = Class.isNumber(resizer) ? resizer : 0xFF;
+            b = b && ((resizer & (1<<idx)) !== 0);
+        }
+
+        return b;
     };
 
     var resizerbounds;
@@ -1190,81 +1086,12 @@ js.awt.Resizable = function(){
         M.resizable = b;
         M.resizer = resizer;
         if(b){
-            M.mover = M.mover || {};
-            M.mover.grid = M.mover.grid || 1;
-        }
-    };
-
-    thi$.adjustResizer = function(bounds){
-        var resizer = this._local.resizer;
-        if(resizer == undefined) return;
-
-        bounds = bounds || this.getBounds();
-        var aCalc = ACalc, spot = this.SpotSize || SpotSize,
-        div, i, rect;
-
-        for(i=0; i<8; i++){
-            div = resizer[i];
-            if(div == undefined) continue;
-
-            rect = aCalc[i](bounds, spot);
-            DOM.setBounds(div, rect.x, rect.y, rect.w, rect.h, resizerbounds);
-        }
-    };
-
-    thi$.addResizer = function(){
-        var resizer = this._local.resizer;
-        if(resizer == undefined) return;
-
-        var div, i, isDOM = this.isDOMElement();
-        for(i=0; isDOM && i<8; i++){
-            div = resizer[i];
-            if(div){
-                div.style.zIndex = this.getZ();
-                DOM.insertAfter(div, this.view);
-            }
-        }
-
-    };
-
-    thi$.removeResizer = function(gc){
-        var resizer = this._local.resizer;
-        if(resizer == undefined) return;
-
-        var div, i;
-        while(resizer.length > 0){
-            div = resizer.shift();
-            if(div){
-                DOM.remove(div, gc);
-            }
-        }
-
-        delete this._local.resizer;
-    };
-
-    thi$.setResizerZIndex = function(z){
-        var resizer = this._local.resizer;
-        if(resizer == undefined) return;
-
-        var div, i;
-        for(i=0; i<8; i++){
-            div = resizer[i];
-            if(div){
-                div.style.zIndex = z;
-            }
-        }
-    };
-
-    thi$.setResizerDisplay = function(show){
-        var resizer = this._local.resizer;
-        if(resizer == undefined) return;
-
-        var div, i;
-        for(i=0; i<8; i++){
-            div = resizer[i];
-            if(div){
-                div.style.display = show;
-            }
+            var mover = M.mover = M.mover || {};
+            mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
+            mover.br = Class.isNumber(mover.br) ? mover.br : 0;
+            mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
+            mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
+            mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
         }
     };
 };
@@ -3442,8 +3269,8 @@ js.awt.GridLayout = function (def){
 
         def.classType = "js.awt.GridLayout";
         arguments.callee.__super__.apply(this, arguments);
-        
-        this.grid = new (Class.forName("js.awt.Grid"))(def);
+        def.gridClass = def.gridClass || "js.awt.Grid";
+        this.grid = new (Class.forName(def.gridClass))(def);
 
     }.$override(this._init);
 
@@ -3799,7 +3626,7 @@ js.awt.Element = function(def, Runtime){
         var d, ret = this.def.maxiSize;
         if(nocache === true || !ret){
             d = this.getBounds();
-            this.setMaximumSize(0xFFFFFFFF, 0xFFFFFFFF);
+            this.setMaximumSize(0xFFFF, 0xFFFF);
             ret = this.def.maxiSize;
         }
         return ret;
@@ -4147,22 +3974,22 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.spotIndex = function(ele, xy, dragObj){
-        var bounds, movable, resizable, idx = -1;
+        var bounds, movable, resizable, idxes, idx = -1;
 
-        movable = this.isMovable();
-        resizable= this.isResizable();
-        
-        if((movable && this.isMoverSpot(ele, xy.x, xy.y)) ||
-           resizable){
-            bounds = this.getBounds();
-            idx = DOM.offsetIndex(xy.x, xy.y, bounds, movable);
-        }
-        
-        if(idx >= 0 && idx != 8 &&
-           (this.def.resizer & (1<<idx)) === 0){
-            idx = -1;
-        }
+        movable = this.isMovable() && this.isMoverSpot(ele, xy.x, xy.y);
 
+        bounds = this.getBounds();
+        idxes = DOM.offsetIndexes(xy.x, xy.y, bounds, movable);
+        if(idxes[1] === -1){
+            idx = movable ? 8 : -1;
+        }else{
+            idx = idxes[1];
+            if(idxes[0] === 9){
+                idx = movable ? 8 : (this.isResizable(idx) ? idx : -1);
+            }else{
+                idx = this.isResizable(idx) ? idx : (movable ? 8 : -1);
+            }
+        }
         return idx;
     };
 
@@ -5192,23 +5019,19 @@ js.awt.Component = function (def, Runtime, view){
         case "resize":
             var bounds = this.getBounds();
             this.adjustCover(bounds);
-            this.adjustResizer(bounds);
             this.adjustShadow(bounds);
             break;
         case "zorder":
             var z = this.getZ();
             this.setCoverZIndex(z);
-            this.setResizerZIndex(z);
             this.setShadowZIndex(z);
             break;
         case "display":
             this.setCoverDisplay(show);
-            this.setResizerDisplay(show);
             this.setShadowDisplay(show);
             break;
         case "remove":
             this.removeCover();
-            this.removeResizer();            
             this.removeShadow();
             break;
         }
@@ -10040,10 +9863,10 @@ js.awt.Button = function(def, Runtime){
 		DOM.remove(this._effectLayer, true);
 		delete this._effectLayer;
 
-		this.detachEvent("mouseover", 0, this, _onmouseover);
-		this.detachEvent("mouseout",  0, this, _onmouseout);
-		this.detachEvent("mousedown", 0, this, _onmousedown);
-		this.detachEvent("mouseup",	  0, this, _onmouseup);
+		this.detachEvent("mouseover", 4, this, _onmouseover);
+		this.detachEvent("mouseout",  4, this, _onmouseout);
+		this.detachEvent("mousedown", 4, this, _onmousedown);
+		this.detachEvent("mouseup",	  4, this, _onmouseup);
 
 		arguments.callee.__super__.apply(this, arguments);
 
@@ -10103,10 +9926,10 @@ js.awt.Button = function(def, Runtime){
 		}
 
 		this.setAttribute("touchcapture", "true");
-		this.attachEvent("mouseover", 0, this, _onmouseover);
-		this.attachEvent("mouseout",  0, this, _onmouseout);
-		this.attachEvent("mousedown", 0, this, _onmousedown);
-		this.attachEvent("mouseup",	  0, this, _onmouseup);
+		this.attachEvent("mouseover", 4, this, _onmouseover);
+		this.attachEvent("mouseout",  4, this, _onmouseout);
+		this.attachEvent("mousedown", 4, this, _onmousedown);
+		this.attachEvent("mouseup",	  4, this, _onmouseup);
 
 	}.$override(this._init);
 
@@ -10231,7 +10054,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 	
 	thi$.destroy = function(e){
 		if(!this.isWholeTrigger()){
-			this.detachEvent("click", 0, this, _onclick);
+			this.detachEvent("click", 4, this, _onclick);
 		} 
 		
 		arguments.callee.__super__.apply(this, arguments);		 
@@ -10263,7 +10086,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 		this.mark(def.marked);
 		
 		if(!this.isWholeTrigger()){
-			this.attachEvent("click", 0, this, _onclick);
+			this.attachEvent("click", 4, this, _onclick);
 		}
 
 	}.$override(this._init);
@@ -14272,7 +14095,6 @@ js.awt.Desktop = function (Runtime){
 
         ele = e.srcElement;
         target = e.getEventTarget();
-
         drag = drags[e.pointerId];
         if(!drag){
             if(target && target != this){
@@ -14296,7 +14118,7 @@ js.awt.Desktop = function (Runtime){
 
             DOM.setCursor(ele, DOM.getCursor(drag.spot));
             
-            if(drag.spot === 8){
+            if(drag.spot >= 8){
                 drag.target.processMoving(e);
             }else{
                 drag.target.processSizing(e, drag.spot);
@@ -14309,11 +14131,31 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _onmouseover = function(e){
+        var ele, target, drag;
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+        drag = drags[e.pointerId];
+        if(!drag){
+            if(target && target != this){
+                target.fireEvent(e, true);
+            }
+        }
         e.cancelBubble();
         return e.cancelDefault();
     };
 
     var _onmouseout = function(e){
+        var ele, target, drag;
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+        drag = drags[e.pointerId];
+        if(!drag){
+            if(target && target != this){
+                target.fireEvent(e, true);
+            }
+        }
         e.cancelBubble();
         return e.cancelDefault();
     };
@@ -14325,13 +14167,11 @@ js.awt.Desktop = function (Runtime){
 
         ele = e.srcElement;
         target = e.getEventTarget();
-
         if(target && target != this){
             target.fireEvent(e, true);
 
             if(e.button === 1 && !e.ctrlKey && !e.shiftKey &&
                (target.isMovable() || target.isResizable())){
-                
                 spot = target.spotIndex(ele, e.eventXY());
                 if(spot >= 0){
                     var longpress = target.def.mover.longpress;
@@ -14355,7 +14195,7 @@ js.awt.Desktop = function (Runtime){
 
     var _drag = function(id, drag){
         drags[id] = drag;
-        if(drag.spot === 8){
+        if(drag.spot >= 8){
             drag.target.startMoving(drag.event);
         }else{
             drag.target.startSizing(drag.event, drag.spot);
@@ -14378,7 +14218,7 @@ js.awt.Desktop = function (Runtime){
             MQ.post(Event.SYS_EVT_MOVED, "");
             this._local.notified = false;
 
-            if(drag.spot === 8){
+            if(drag.spot >= 8){
                 drag.target.endMoving(e);
             }else{
                 drag.target.endSizing(e, drag.spot);
@@ -14398,9 +14238,24 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _oncontextmenu = function(e){
-        
+        e.cancelBubble();
+        return e.cancelDefault();
     };
     
+    var _onclick = function(e){
+        var ele, target, drag;
+
+        ele = e.srcElement;
+        target = e.getEventTarget();
+        drag = drags[e.pointerId];
+        if(!drag){
+            if(target && target != this){
+                target.fireEvent(e, true);
+            }
+        }
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
     
     var _onmessage = function(e){
         var _e = e.getData();
@@ -14637,9 +14492,10 @@ js.awt.Desktop = function (Runtime){
         
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmousemove);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OVER, 0, this, _onmouseover);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseout);        
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseout);   
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmousedown);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseup);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_CLICK,0, this, _onclick);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmousewheel);
         Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _oncontextmenu);
         
@@ -14654,39 +14510,14 @@ js.awt.Desktop = function (Runtime){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -15162,8 +14993,8 @@ js.awt.Window = function (def, Runtime, view){
         this.client.view.uuid = uuid;
         //restricted.push(this.client); ??
 
-        Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
-        Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
+        this.attachEvent("mouseover", 4, this, _onmouseover);
+        this.attachEvent("mouseout",  4, this, _onmouseover);
 
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);
