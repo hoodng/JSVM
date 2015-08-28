@@ -895,7 +895,7 @@ js.awt.Resizable = function(){
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
         System = J$VM.System, MQ = J$VM.MQ,
-        max = Math.max, min = Math.min, 
+        max = Math.max, min = Math.min, abs = Math.abs,
         ceil = Math.ceil, floor = Math.floor, round = Math.round;
 
     thi$.startSizing = function(e, i){
@@ -930,18 +930,19 @@ js.awt.Resizable = function(){
             minV = mover.bl < 1 ? (v1 - maxSize.width) : 0;
             maxV = v1-max(minSize.width, bounds.MBP.BW+1);
             x = xy.x;
-            x = grid*floor((x < minV ? minV : (x > maxV ? maxV : x))/grid);
-            w = grid*round((v1 - x)/grid);
+            x = x < minV ? minV : (x > maxV ? maxV : x);
+            w = grid*ceil((v1 - x)/grid);
+            x = grid*floor((v1 - w)/grid);
             break;
             case 4:
             case 5:
             case 6:
             v0 = bounds.userX;
-            minV = max(bounds.MBP.BW+1, minSize.width);
-            maxV = mover.br < 1 ? maxSize.width : pounds.innerWidth;
+            minV = grid*ceil(max(bounds.MBP.BW+1, minSize.width)/grid);
+            maxV = grid*floor((mover.br < 1 ? maxSize.width : pounds.innerWidth)/grid);
             x = bounds.userX;
-            w = xy.x - v0;
-            w = grid*round((w < minV ? minV : (w > maxV ? maxV : w)/grid));
+            w = grid*floor((xy.x - v0)/grid);
+            w = w < minV ? minV : (w > maxV ? maxV : w);
             break;
         }
 
@@ -954,18 +955,19 @@ js.awt.Resizable = function(){
             minV = mover.bt < 1 ? (v1 - maxSize.height) : 0;
             maxV = v1-max(minSize.height, bounds.MBP.BH+1);
             y = xy.y;
-            y = grid*floor((y < minV ? minV : (y > maxV ? maxV : y)/grid));
-            h = grid*round((v1 - y)/grid);
+            y = y < minV ? minV : (y > maxV ? maxV : y);
+            h = grid*ceil((v1 - y)/grid);
+            y = grid*floor((v1 - h)/grid);
             break;
             case 2:
             case 3:
             case 4:
             v0 = bounds.userY;
-            minV = max(bounds.MBP.BH+1, minSize.height);
-            maxV = mover.bb < 1 ? maxSize.height : pounds.innerHeight;
+            minV = grid*ceil(max(bounds.MBP.BH+1, minSize.height)/grid);
+            maxV = grid*floor((mover.bb < 1 ? maxSize.height : pounds.innerHeight)/grid);
             y = bounds.userY;
-            h = xy.y - v0;
-            h = grid*round((h < minV ? minV : (h > maxV ? maxV : h)/grid));
+            h = grid*floor((xy.y - v0)/grid);
+            h = h < minV ? minV : (h > maxV ? maxV : h);
             break;
         }
 
