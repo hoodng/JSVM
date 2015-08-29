@@ -2110,16 +2110,22 @@ js.awt.PopupLayer = function () {
     };
 
     thi$.LM = function(){
-        return J$VM.Runtime.getDesktop().LM;
+        return this.Runtime().getDesktop().LM;
     };
 };
 
-js.awt.PopupLayer.F_BODYMOUSEDOWN = 0x01 << 0;
-js.awt.PopupLayer.F_BODYCLICK = 0x01 << 1;
-js.awt.PopupLayer.F_BODYMOUSEWHEEL = 0x01 << 2;
-js.awt.PopupLayer.F_FOCUSBOXBLUR = 0x01 << 3;
-js.awt.PopupLayer.F_TIMEOUT = 0x01 << 4;
-js.awt.PopupLayer.F_AUTO = 0x01 << 5;
+(function(){
+    var CLASS = js.awt.PopupLayer;
+    CLASS.F_BODYMOUSEDOWN = 0x01 << 0;
+    CLASS.F_BODYCLICK = 0x01 << 1;
+    CLASS.F_BODYMOUSEWHEEL = 0x01 << 2;
+    CLASS.F_FOCUSBOXBLUR = 0x01 << 3;
+    CLASS.F_TIMEOUT = 0x01 << 4;
+    CLASS.F_AUTO = 0x01 << 5;
+})();
+
+
+
 
 /**
 
@@ -3144,33 +3150,33 @@ js.awt.CardLayout = function (def){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice, 
+  this list of conditions and the following disclaimer.
+  
+  2. Redistributions in binary form must reproduce the above copyright notice, 
+  this list of conditions and the following disclaimer in the 
+  documentation and/or other materials provided with the distribution.
+  
+  3. Neither the name of the JSVM nor the names of its contributors may be 
+  used to endorse or promote products derived from this software 
+  without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -3206,24 +3212,24 @@ js.awt.FlowLayout = function (def){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+        System = J$VM.System;
 
     thi$.layoutContainer = function(container){
         var setting = this.def;
         switch(setting.axis){
-        case 0:
+            case 0:
             _axis0Layout.call(this, container);
             break;
-        case 1:
+            case 1:
             _axis1Layout.call(this, container);
             break;
-        case 2:
+            case 2:
             _axis2Layout.call(this, container);
             break;
-        case 3:
+            case 3:
             _axis3Layout.call(this, container);
             break;
-        default:
+            default:
             throw "Unsupport axis "+setting.axis;
             break;
         }
@@ -3231,13 +3237,14 @@ js.awt.FlowLayout = function (def){
 
     var _axis0Layout = function(container){
         var setting = this.def, bounds = container.getBounds(),
-        gap = setting.hgap, comps = container.items0(),
-        xbase = bounds.MBP.paddingLeft, left = 0,
-        ybase = bounds.MBP.paddingTop,  top = 0,
-        rigid = container.isRigidWidth(), comp, i, len,
-        d = _axis0Size.call(
-            this, container, bounds, "getPreferredSize");
-        left = xbase + (rigid ? (bounds.innerWidth - d.width) * this.getLayoutAlignmentX():0);
+            gap = setting.hgap, comps = container.items0(),
+            xbase = bounds.MBP.paddingLeft, left = 0,
+            ybase = bounds.MBP.paddingTop,  top = 0,
+            rigid = container.isRigidWidth(), comp, i, len,
+            d = _axis0Size.call(
+                this, container, bounds, "getPreferredSize");
+        left = xbase + (rigid ?
+                        (bounds.innerWidth - d.width) * this.getLayoutAlignmentX():0);
 
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
@@ -3254,13 +3261,14 @@ js.awt.FlowLayout = function (def){
 
     var _axis1Layout = function(container){
         var setting = this.def, bounds = container.getBounds(),
-        gap = setting.vgap, comps = container.items0(),
-        xbase = bounds.MBP.paddingLeft, left = 0,
-        ybase = bounds.MBP.paddingTop,  top = 0,
-        rigid = container.isRigidHeight(), comp, i, len,
-        d = _axis1Size.call(
-            this, container, bounds, "getPreferredSize");
-        top = ybase + (rigid ? (bounds.innerHeight - d.height) * this.getLayoutAlignmentY():0);
+            gap = setting.vgap, comps = container.items0(),
+            xbase = bounds.MBP.paddingLeft, left = 0,
+            ybase = bounds.MBP.paddingTop,  top = 0,
+            rigid = container.isRigidHeight(), comp, i, len,
+            d = _axis1Size.call(
+                this, container, bounds, "getPreferredSize");
+        top = ybase + (rigid ?
+                       (bounds.innerHeight - d.height) * this.getLayoutAlignmentY():0);
 
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
@@ -3301,8 +3309,8 @@ js.awt.FlowLayout = function (def){
     
     var _axis0Size = function(container, bounds, fn){
         var setting = this.def, gap = setting.hgap,
-        comps = container.items0(),
-        d, w = 0, h = 0, n= 0, comp, i, len;
+            comps = container.items0(),
+            d, w = 0, h = 0, n= 0, comp, i, len;
         
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
@@ -3325,8 +3333,8 @@ js.awt.FlowLayout = function (def){
 
     var _axis1Size = function(container, bounds, fn){
         var setting = this.def, gap = setting.vgap,
-        comps = container.items0(),
-        d, w = 0, h = 0, n = 0, comp, i, len;
+            comps = container.items0(),
+            d, w = 0, h = 0, n = 0, comp, i, len;
         
         for(i=0, len=comps.length; i<len; i++){
             comp = container[comps[i]];
@@ -4599,6 +4607,10 @@ js.awt.Element = function(def, Runtime){
         }else{
             this.setVisible(true);
         }
+    };
+
+    thi$.doLayout = function(){
+
     };
 
     thi$.destroy = function(){
@@ -9461,6 +9473,7 @@ js.awt.Button.eventDispatcher = function(e){
         case "message":
         target = e.getEventTarget();
         func = this["on" + target.id];
+        func = Class.isFunction(func) ? func : this.onbtnDispatcher;
         if(Class.isFunction(func)){
             func.call(this, target);
         }else{
@@ -15046,7 +15059,8 @@ js.awt.Dialog = function (def, Runtime){
     thi$.show = function(){
         _showMaskCover.call(this, true);
 
-        var x = this.def.x, y = this.def.y, DM = J$VM.Runtime.getDesktop().DM,
+        var x = this.def.x, y = this.def.y,
+            DM = this.Runtime().getDesktop().DM,
             pox = DM.getBounds();
         
         if(x == undefined){
@@ -15145,7 +15159,6 @@ js.awt.Dialog = function (def, Runtime){
     };
 
     thi$.onbtnClose = function(button){
-
         var event = this.buildDialogEvent("close", false);
         this.notifyPeer(event.msgId, event, true);
 
@@ -15154,13 +15167,9 @@ js.awt.Dialog = function (def, Runtime){
     }.$override(this.onbtnClose);
 
     thi$.close = function(){
-        var peer = this.getPeerComponent();
-        /*
-if(peer){
-peer.getDialogs().remove(this);
-}*/
+        var peer = this.getPeerComponent(),
+            handler = this._local.handler;
 
-        var handler = this._local.handler;
         if(typeof handler == "function"){
             MQ.cancel(this.getDialogMsgType(), peer, handler);
             delete this._local.handler;
@@ -15253,6 +15262,7 @@ js.awt.AbstractDialogObject = function(def, Runtime){
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 
 js.awt.Dialog.DEFAULTDEF = function(){
+    var R = J$VM.Runtime;
     return {
         classType : "js.awt.Dialog",
         className : "jsvm_dlg",
@@ -15303,24 +15313,21 @@ js.awt.Dialog.DEFAULTDEF = function(){
             btnApply:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: (J$VM.env && J$VM.env['dict'])
-                         ? J$VM.env['dict'].btnApply : "Apply",
+                labelText: R.nlsText("btnApply", "Apply"),
                 effect: true
             },
 
             btnOK:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: (J$VM.env && J$VM.env['dict'])
-                         ? J$VM.env['dict'].btnOK : "OK",
+                labelText: R.nlsText("btnOK", "OK"),
                 effect: true
             },
 
             btnCancel:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText: (J$VM.env && J$VM.env['dict'])
-                         ? J$VM.env['dict'].btnCancel : "Cancel",
+                labelText: R.nlsText("btnCancel", "Cancel"),
                 effect: true
             },
 
@@ -15338,6 +15345,7 @@ js.awt.Dialog.DEFAULTDEF = function(){
 J$VM.Factory.registerClass(js.awt.Dialog.DEFAULTDEF());
 
 js.awt.Dialog.MSGDIALOGDEF = function(){
+    var R = J$VM.Runtime;
     return{
         classType : "js.awt.Dialog",
         className : "jsvm_msg",
@@ -15375,8 +15383,7 @@ js.awt.Dialog.MSGDIALOGDEF = function(){
             btnOK:{
                 classType: "js.awt.Button",
                 className: "jsvm_button",
-                labelText:  (J$VM.env && J$VM.env['dict'])
-                         ? J$VM.env['dict'].btnOK : "OK",
+                labelText: R.nlsText("btnOK", "OK"),
                 effect: true
             },
 
