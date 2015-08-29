@@ -279,7 +279,8 @@ js.awt.ScrollPane = function (def, Runtime){
      * @see js.awt.BaseComponent
      */
     thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if(this.isDOMElement() 
+            && arguments.callee.__super__.apply(this, arguments)){
             var r = _getLayoutSize.call(this), max = this.getMaximumSize(), 
             width, height, oldw = this.getWidth(), oldh = this.getHeight(),
             resized = false;
@@ -315,18 +316,21 @@ js.awt.ScrollPane = function (def, Runtime){
 
     var _onclick = function(e){
         var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-        eType;
+        eType, evt;
 
         if(item){
             eType = e.getType();
 
-            if(eType == "click" && el === item.ctrl){
+            if(eType == "click"){
                 e.setEventTarget(item);
-                this.notifyPeer(
-                    "js.awt.event.ItemEvent", new Event("ctrlclick", "", item));
-
+                
+                evt = new Event(el === item.ctrl 
+                    ? "ctrlclick" : "itemclick", "", item);
+                this.notifyPeer("js.awt.event.ItemEvent", evt);
+                
             }else if(eType == "dblclick"){
                 e.cancelBubble();
+                
                 if(item.isEditable && item.isEditable()) {
                     item.editLabel();
                 }

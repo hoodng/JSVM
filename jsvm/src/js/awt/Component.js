@@ -210,23 +210,19 @@ js.awt.Component = function (def, Runtime, view){
         case "resize":
             var bounds = this.getBounds();
             this.adjustCover(bounds);
-            this.adjustResizer(bounds);
             this.adjustShadow(bounds);
             break;
         case "zorder":
             var z = this.getZ();
             this.setCoverZIndex(z);
-            this.setResizerZIndex(z);
             this.setShadowZIndex(z);
             break;
         case "display":
             this.setCoverDisplay(show);
-            this.setResizerDisplay(show);
             this.setShadowDisplay(show);
             break;
         case "remove":
             this.removeCover();
-            this.removeResizer();            
             this.removeShadow();
             break;
         }
@@ -391,16 +387,6 @@ js.awt.Component = function (def, Runtime, view){
         if(arguments.callee.__super__.apply(this, arguments)){
             var M = this.def;
 
-            // Create mover for moving if need
-            if(M.movable === true && !this.movableSettled()){
-                this.setMovable(true);
-            }
-            
-            // Create resizer for resizing if need
-            if(M.resizable === true && !this.resizableSettled()){
-                this.setResizable(true, M.resizer);
-            }
-            
             // For shadow
             if(M.shadow === true && !this.shadowSettled()){
                 this.setShadowy(true);
@@ -411,11 +397,6 @@ js.awt.Component = function (def, Runtime, view){
                 this.setFloating(true);
             }
 
-            if(this.resizableSettled()){
-                this.addResizer();
-                this.adjustResizer();
-            }
-            
             if(this.shadowSettled()){
                 this.addShadow();
                 this.adjustShadow();
@@ -524,8 +505,8 @@ js.awt.Component = function (def, Runtime, view){
 
     thi$.onStateChanged = function(e){
         if(this.isStyleByState()){
-            this.view.className = DOM.stateCSSClass(
-                this.def.className, this.getState());
+            this.view.className = DOM.stateClassName(
+                this.def.className || this.className, this.getState());
         }        
         
         if(this.view.parentNode){
@@ -604,27 +585,13 @@ js.awt.Component = function (def, Runtime, view){
             def.state = def.state || 0;
             
             if(this.isStyleByState()){
-                view.className = DOM.stateCSSClass(def.className, this.getState());
+                view.className = DOM.stateClassName(def.className, this.getState());
             }
         }
-
-        if(def.prefSize){
-            this.isPreferredSizeSet = true;
-        }
-        if(def.miniSize){
-            this.isMinimumSizeSet = true;
-        }
-        if(def.maxiSize){
-            this.isMaximumSizeSet = true;
-        }
-
     }.$override(this._init);
 
     this._init.apply(this, arguments);
     
 }.$extend(js.awt.BaseComponent).$implements(
-    js.util.Observer, js.awt.Shadow, 
-    js.awt.Movable, js.awt.MoveObject, 
-    js.awt.Resizable, js.awt.SizeObject, 
-    js.awt.Editable, js.awt.PopupLayer);
+    js.util.Observer, js.awt.Editable, js.awt.PopupLayer);
 

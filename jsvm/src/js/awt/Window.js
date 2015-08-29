@@ -1,38 +1,13 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -449,21 +424,27 @@ js.awt.Window = function (def, Runtime, view){
         
         var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
         newDef.css = def.css || "";
-        var titleDef = newDef.title;
-        titleDef.className = titleDef.className || newDef.className + "_title";
-        (function(name){
-            var item = titleDef[name];
-            if(name.indexOf("lab") == 0){
-                item.className = item.className || titleDef.className + "_label";
-                item.css = (item.css || "") + "white-space:nowrap;"
-                    + "test-overflow:ellipsis;"
-                    + "overflow:hidden;cursor:default;";
-            }else if(name.indexOf("btn") == 0){
-                item.className = item.className || titleDef.className + "_button"; 
-            }
-        }).$forEach(this, titleDef.items);
 
-        newDef.client.className = newDef.client.className || newDef.className + "_client";
+        var titleDef = newDef.title;
+        titleDef.className = titleDef.className 
+            || DOM.combineClassName(newDef.className, "title");
+
+        (function(name){
+             var item = titleDef[name];
+             if(name.indexOf("lab") == 0){
+                 item.className = item.className 
+                     || DOM.combineClassName(titleDef.className, "label");
+                 item.css = (item.css || "") + "white-space:nowrap;"
+                     + "test-overflow:ellipsis;"
+                     + "overflow:hidden;cursor:default;";
+             }else if(name.indexOf("btn") == 0){
+                 item.className = item.className 
+                     || DOM.combineClassName(titleDef.className, "button"); 
+             }
+         }).$forEach(this, titleDef.items);
+
+        newDef.client.className = newDef.client.className 
+            || DOM.combineClassName(newDef.className, "client");
 
         System.objectCopy(newDef, def, true, true);
         arguments.callee.__super__.apply(this, arguments);
@@ -471,24 +452,24 @@ js.awt.Window = function (def, Runtime, view){
         view.style.position = "absolute";
         view.style.overflow = "hidden";
 
-        var uuid = this.uuid();
         // For MoverSpot testing
         var restricted = this._local.restricted = js.util.LinkedList.$decorate([]);
-        
+
+        var uuid = this.uuid();
         var title = this.title;
         if(title){
             title.setPeerComponent(this);
             title.view.uuid = uuid;
             (function(name){
-                var item = this.title[name];
-                item.setPeerComponent(this);
-                item.view.uuid = uuid;
-                if(name.indexOf("btn") == 0){
-                    this.addMoverRestricted(item);
-                    item.icon.uuid = uuid;
-                }
+                 var item = this.title[name];
+                 item.setPeerComponent(this);
+                 item.view.uuid = uuid;
+                 if(name.indexOf("btn") == 0){
+                     this.addMoverRestricted(item);
+                     item.icon.uuid = uuid;
+                 }
 
-            }).$forEach(this, title.def.items);
+             }).$forEach(this, title.def.items);
             
             var tstyle = title.def.tstyle, bstyle = title.def.bstyle;
 
@@ -502,8 +483,8 @@ js.awt.Window = function (def, Runtime, view){
         this.client.view.uuid = uuid;
         //restricted.push(this.client); ??
 
-        Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
-        Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
+        this.attachEvent("mouseover", 4, this, _onmouseover);
+        this.attachEvent("mouseout",  4, this, _onmouseover);
 
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);

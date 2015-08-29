@@ -121,8 +121,12 @@ js.awt.TreeDataProvider = function(){
 	 * Notes: Sub class should overrides this method.
 	 */
 	thi$.getIconImage = function(def){
-		var type = def.type, map = this.imageMap,
-		image = map ? map[type] : "blank.gif";
+		var image = def["iconImage"] || def["image"],
+		map = this.imageMap;
+		if(!image){
+			image = map ? map[def.type] : "blank.gif"; 
+		}
+
 		return image;
 	};
 
@@ -184,6 +188,19 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 	System = J$VM.System, MQ = J$VM.MQ,
 
 	permission = Class.forName("js.util.Permission");
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Element#notifyPeer
+	 */
+	thi$.notifyPeer = function(msgId, event, sync){
+		if(event){
+			event.srcTree = this;
+		}
+		
+		arguments.callee.__super__.apply(this, arguments);
+		
+	}.$override(this.notifyPeer);
 
 	/**
 	 * Find and return the previous same-level sibling of the specified 
@@ -369,7 +386,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
 			clazz = itemDef.className;
 			if(!clazz){
-				clazz = itemDef.className = this.className + "_item";
+				clazz = this.def.className || this.className;
+				clazz = itemDef.className = DOM.combineClassName(clazz, "item");
 			}
 
 			refItem = item;
@@ -444,7 +462,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			nodes.remove(item);
 		}
 
-        item.removeAllNodes();
+		item.removeAllNodes();
 		delete this.cache[item.uuid()];
 
 		this.marked.remove(item);
@@ -488,13 +506,13 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		nodes = nodes.splice(index, length);
 		while(nodes.length > 0){
 			item = nodes.shift();
-            item.removeAllNodes();
+			item.removeAllNodes();
 			delete cache[item.uuid()];
 
-            item.mark(false);
+			item.mark(false);
 			marked.remove(item);
 
-            item.setTriggered(false);
+			item.setTriggered(false);
 			selected.remove(item);
 
 			item.destroy();
@@ -515,8 +533,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 	 * Remove all tree times
 	 */
 	thi$.removeAllNodes = function(isDestroying){
-        this.marked.clear();
-        this.selected.clear();
+		this.marked.clear();
+		this.selected.clear();
 
 		var nodes = this.nodes;
 		if(nodes){
@@ -679,7 +697,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			_setMaxSize.$delay(this, 1);
 			_keepScroll.$delay(this, 1, true);
 		}else{
-			item.branch.className = item.className + "_branch0";
+			item.branch.className 
+				= DOM.combineClassName(item.className, "branch0");
 		}
 	};
 
@@ -782,8 +801,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		var selected = this.selected, item;
 		while(selected.length > 0){
 			item = selected.shift();
+			item.setHover(false);
 			item.setTriggered(false);
 		}
+
 		this._doSort();
 	};
 
@@ -1090,7 +1111,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			e.srcElement = item ? item.view : this._treeView;
 		}
 
-		var isMulti = this.def.multiEnable, selected = this.selected, tmp;
+		var isMulti = this.def.multiEnable, selected = this.selected, 
+		tmp, doo = false;
 		if(item && item.isEnabled()){
 			if (item.canDrag()){
 				if(isMulti && e.ctrlKey === true){
@@ -1111,7 +1133,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 						item.setTriggered(true);
 						selected.push(item);
 					}else{
-						this.clearAllSelected(false);
+						this.clearAllSelected();
 					}
 
 					if(first && item){
@@ -1128,9 +1150,9 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 						}
 					}
 				}else if(item.isTriggered()){
-					this.clearAllSelected(false);
+					this.clearAllSelected();
 				}else{
-					this.clearAllSelected(false);
+					this.clearAllSelected();
 
 					item.setTriggered(true);
 					selected.push(item);
@@ -1139,23 +1161,25 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			
 			this._doSort();
 
-			e.setType("selectchanged");
-			e.setData(this.getAllSelected());
+			doo = true;
 			e.setEventTarget(item);
-			this.notifyPeer("js.awt.event.TreeItemEvent", e);
 		}else{
 			if(selected.length > 0){
 				this.clearAllSelected();
 
-				e.setType("selectchanged");
-				e.setData(this.getAllSelected());
-				this.notifyPeer("js.awt.event.TreeItemEvent", e);
+				doo = true;
 			}
+		}
+
+		if(doo){
+			e.setType("selectchanged");
+			e.setData(this.getAllSelected());
+			this.notifyPeer("js.awt.event.TreeItemEvent", e);
 		}
 	};
 	
 	var _doSelect = function(e){
-		var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid];
+		var el = e.srcElement, item = this.cache[el.uuid];
 		this.selectItem(item, e);
 	};
 
@@ -1215,11 +1239,6 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		return e.cancelDefault();		  
 	};
 
-	// Notify tree peer
-	var _ondrag = function(e){
-		this.notifyPeer("js.awt.event.TreeItemEvent", e);
-	};
-
 	thi$.destroy = function(){
 		this.removeAllNodes(true);
 		delete this.nodes;
@@ -1240,6 +1259,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		arguments.callee.__super__.apply(this, arguments);
 
 	}.$override(this.destroy);
+
+	var _ondrag = function(e){
+		this.notifyPeer("js.awt.event.TreeItemEvent", e);
+	};
 
 	thi$._init = function(def, Runtime, dataProvider){
 		if(def == undefined) return;
@@ -1265,7 +1288,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		this.showTip(def.showTip);
 
 		var treeShell = this._treeShell = DOM.createElement("DIV");
-		treeShell.className = this.className + "_treeshell";
+		treeShell.className = DOM.combineClassName(this.className, "treeshell");
 		treeShell.style.cssText = "position:relative;width:100%;height:100%;"
 			+ "overflow:visible;";
 		DOM.appendTo(treeShell, this.view);
@@ -1441,12 +1464,14 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 	thi$._init = function(def, Runtime, tree){
 		if(def === undefined) return;
 
-		var selected = tree.selected;
 		def.classType = "js.awt.TreeMoveObject";
+
+		var treeClazz = tree.def.className || tree.className,
+		selected = tree.selected;
 		if(selected.length === 1){
-			def.className = tree.className + "_moveobj0";
+			def.className = DOM.combineClassName(treeClazz, "moveobj0");
 		}else{
-			def.className = tree.className + "_moveobj1";
+			def.className = DOM.combineClassName(treeClazz, "moveobj1");
 		}
 
 		def.css = "position:absolute;";

@@ -319,19 +319,6 @@ js.lang.System = function (env, vm){
 
     };
 
-
-    var last = 0;
-    this.checkThreshold = function(now, newThreshold){
-        if((now - last) >
-           (newThreshold ? newThreshold :
-            this.getProperty("j$vm_threshold", 45))){
-            last = now;
-            return true;
-        }
-
-        return false;
-    };
-
     var _buildEnv = function(){
         var script = document.getElementById("j$vm");
         if (script) {
@@ -681,8 +668,7 @@ js.lang.System = function (env, vm){
 
     // Initialize JSVM's locale with browser's.
     var _initJSVMLocale = function(){
-        var lang = (navigator.userLanguage || navigator.language).split("-");
-        vm.locale = new js.util.Locale(lang[0], lang[1]);
+        vm.locale = new js.util.Locale();
     };
     
     var _onload = function(e){
@@ -861,7 +847,7 @@ js.lang.System = function (env, vm){
              * @member J$VM
              * @function disableLogger
              */
-            vm.disableLogger = _disableLogger
+            vm.disableLogger = _disableLogger;
 
             /**
              * @member J$VM.Runtime

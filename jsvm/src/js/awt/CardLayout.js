@@ -167,7 +167,25 @@ js.awt.CardLayout = function (def){
 
         return item;
     };
-
+	
+	/**
+	 * Return the index of current shown component.
+	 */
+	thi$.getShownIndex = function(){
+		return this.def.status.index;
+	};
+	
+	/**
+	 * Return the current shown component.
+	 */
+	thi$.getShownComp = function(container){
+		var items = container.items0(),
+		index = this.def.status.index,
+		compid = items[index];
+		
+		return container.getComponent(compid);
+	};
+	
     thi$._init = function(def){
         def = def || {};
         

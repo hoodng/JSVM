@@ -18,9 +18,9 @@
   J$VM.exec(null, function(){
     var Class = js.lang.Class;
 
-    Class.forName("com.jinfonet.RuntimeProxy").call(J$VM.Runtime, env);
-    Class.forName("com.jinfonet.ServiceProxy").call(J$VM.Runtime.getService());
-
+    Class.forName("org.jsvm.RuntimeDecorator").call(J$VM.Runtime, env);
+    Class.forName("org.jsvm.ServiceDecorator").call(J$VM.Runtime.getService());
+    this.getDesktop().updateTheme(this.theme());
   });
 
 })();

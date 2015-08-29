@@ -1,51 +1,79 @@
-<!DOCTYPE html>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<script id="j$vm" src="../../jsvm/jsre.js" -DmainClass="org.jsvm.App"></script>
-<script src="../../jsvm/lib/../jsre-ui.js" ></script>
-<style>
-
-
-</style>
+<!DOCTYPE HTML>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+	<script src="../../jsvm/src/js/awt/Gridding.js"></script>
 </head>
-<body>
-
-
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
 </body>
 
+<style>
+.box1 {
+position: absolute;
+border: 5px solid red;
+
+left: 300px;
+top: 100px;
+
+width:200px;
+height:200px;
+
+overflow: hidden;
+}
+
+.box2 {
+position: absolute;
+border: 1px solid blue;
+
+left: 20px;
+top: 20px;
+
+width: 100px;
+height:100px;
+
+}
+</style>
 
 <script type="text/javascript">
 
-J$VM.exec("org.jsvm.App",function(System){
+J$VM.exec("demo",function(entry){
 
-    var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ;
+this.createApp().run(function(){
+
+    var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ, R =this.Runtime();
 
     this.addComponent(new js.awt.Label(
         {
             id: "label",
             css: "left:10px;top:10px;width:300px;height:20px;",
             text: "---:---"
-        }, this));
+        }, R));
     
     var box1 = new js.awt.Container(
         {
-            id: "box1",
-            className: "box1",
-            css: "position:absolute;border: 13px solid blue;width:200px;height:200px;left:100px;top:100px;",
-            resizable: true
-        }, this);
+id: "box1",
+className: "box1",
+movable: true,
+resizable: true,
+rigid_w:false,
+rigid_h:false
+        }, R);
 
 
    var box2 = new js.awt.Component(
         {
             id: "box2",
-            className: "box2",
-            css: "border: 20px solid red;width:100px;height:100px;position:absolute;",
+className: "box2",
+rigid_w: false,
+rigid_h: false,
             movable: true,
-            mover:{br:1, bb:1},
-            resizable: true
-        }, this);
+            mover:{bt:1, br:1, bb:1, bl:1, grid:10},
+resizable: true,
+resizer: 0xFF/*0x38*/
+        }, R);
    box1.addComponent(box2);
 
    box2.getMovingMsgRecvs = function(){
@@ -58,15 +86,18 @@ J$VM.exec("org.jsvm.App",function(System){
        buf.push(":");
        buf.push(box2.getY());
        buf.push("  ");
-       buf.push(bounds.offsetX);
+       buf.push(bounds.absX);
        buf.push(":");
-       buf.push(bounds.offsetY);
+       buf.push(bounds.absY);
        this.label.setText(buf.join(""));
    };
 
    MQ.register(box2.getMovingMsgType(), this, _onMoving);
 
    this.addComponent(box1);
+
+});
+
 });
 </script>
 </html>

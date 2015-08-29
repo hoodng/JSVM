@@ -170,6 +170,33 @@ js.awt.Containable = function(){
         return this[id];
     };
 
+    /**
+     * Replace id of the element with the new one.
+     * 
+     * @param {String} id The id of the element to handle.
+     * @param {String} newid
+     */     
+    thi$.replaceElementId = function(id, newid){
+        _check.call(this);
+
+        var ele = this[id];
+        delete this[id];
+
+        this[newid] = ele;
+        if(ele){
+            if(ele.id){
+                ele.id = newid;
+            }
+
+            if(ele.view){
+                ele.view.id = newid;
+            }
+        }
+
+        this.def.items.replace(id, newid);
+        this._local.items.replace(id, newid);
+    };
+
     thi$.getElements = function(filter){
         filter = filter || function(ele){
             return true;

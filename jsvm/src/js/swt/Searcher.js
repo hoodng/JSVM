@@ -147,11 +147,12 @@ js.swt.Searcher = function(host, options){
 		var hlight = options.highlight, 
 		hStyleClass = options.highlightClass,
 		mlen = matchedIndexes ? matchedIndexes.length : 0,
-		len = items.length, textMatches, item;
+		len = items.length, rstItems = [], textMatches, item;
 		for(var i = 0; i < len; i++){
 			item = items[i];
 			
-			if(mlen > 0 && (_contains.call(this, matchedIndexes, i))){
+			if(mlen > 0 && (_contains.call(this, matchedIndexes, "" + i))){
+				rstItems.push(item);
 				item.setVisible(true);
 				
 				if(hlight && (typeof item.highlight === "function")){
@@ -160,6 +161,9 @@ js.swt.Searcher = function(host, options){
 					item.highlightByMatches(textMatches, hStyleClass);
 				}
 			}else{
+				if(options.keep){
+					rstItems.push(item);
+				}
 				item.setVisible(options.keep);
 				
 				if(typeof item.clearHighlight === "function"){
@@ -167,6 +171,8 @@ js.swt.Searcher = function(host, options){
 				}
 			}
 		}
+
+		return rstItems;
 	};
 	
 	thi$.restore = function(options){
@@ -187,7 +193,11 @@ js.swt.Searcher = function(host, options){
 	};
 	
 	/**
-	 *	
+	 * Search according to the given keyword and options, and then digest
+	 * the matched result.
+	 * 
+	 * @param {String} keyword The keyword to search.
+	 * @param {Object} options The searching options
 	 */	   
 	thi$.search = function(keyword, options /* optional */) {
 		if(typeof keyword !== "string"){
@@ -205,7 +215,7 @@ js.swt.Searcher = function(host, options){
 		}
 		
 		// Increasedly match base on latest match
-		var items;
+		var items, textSet, result, matches, matchedIndexes;
 		if(this.latestKeyword && (keyword.indexOf(this.latestKeyword) == 0)){
 			items = this.latestItems;	 
 		} else {
@@ -221,10 +231,9 @@ js.swt.Searcher = function(host, options){
 							+ "an unsupported data type.");
 		}
 		
-		var textSet = _getTextSet.call(this, items),
-		result = SKit.search(textSet, keyword, options),
-		matches = this.matches = result ? result.matches : undefined,
-
+		textSet = _getTextSet.call(this, items);
+		result = SKit.search(textSet, keyword, options);
+		matches = this.matches = result ? result.matches : undefined;
 		matchedIndexes = LinkedList.$decorate([]);
 		if(matches && matches.size() > 0){
 			matchedIndexes = LinkedList.$decorate(matches.keys());
@@ -232,7 +241,8 @@ js.swt.Searcher = function(host, options){
 
 		// Highlight the matches if need
 		// Hide the non-matches if need
-		_digestMatches.call(this, items, keyword, options, matchedIndexes);
+		this.latestItems = _digestMatches
+			.call(this, items, keyword, options, matchedIndexes);
 	};
 	
 	thi$.destroy = function(){

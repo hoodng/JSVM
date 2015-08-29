@@ -1,16 +1,19 @@
 /**
- * Copyright (c) Jinfonet Inc. 2000-2012, All rights reserved.
+ Copyright 2007-2015, The JSVM Project.
+ All rights reserved.
+
  *
- * @File: BlockingAction.js
- * @Create: 2013/12/24
- * @Author: dong.hu@china.jinfonet.com
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
-$package("com.jinfonet");
+$package("org.jsvm");
 
-com.jinfonet.DummyConnection = function(id, data){
+org.jsvm.DummyConnection = function(id, data){
 
-    var CLASS = com.jinfonet.DummyConnection, thi$ = CLASS.prototype;
+    var CLASS = org.jsvm.DummyConnection, thi$ = CLASS.prototype;
     if(CLASS.__defined){
         this._init.apply(this, arguments);
         return;
@@ -44,12 +47,12 @@ com.jinfonet.DummyConnection = function(id, data){
 /**
  *
  */
-com.jinfonet.BlockingAction = new function(){
+org.jsvm.BlockingAction = new function(){
 
     var Class = js.lang.Class, System = J$VM.System,
         Event = js.util.Event, Q = new js.util.HashMap(),
         Q2 = new js.util.HashMap(), running = false,
-        DummyConnection = com.jinfonet.DummyConnection;
+        DummyConnection = org.jsvm.DummyConnection;
 
     this.post = function(ticket, recv){
         if(!recv)return;
@@ -78,7 +81,7 @@ com.jinfonet.BlockingAction = new function(){
         var http = J$VM.XHRPool.getXHR(false),
             recv = Q.values()[0], data, results, p,
             params = {
-                jrd_input:"['webos', 'GetPendingResultsAction',{}]"
+                $:['webos', 'GetPendingResultsAction',{}]
             };
         if(recv.params.j$vm_pid){
             params.j$vm_pid = recv.params.j$vm_pid;

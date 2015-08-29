@@ -146,7 +146,7 @@ js.lang.Class = new function (){
             cached = storage.getItem(key);
 
             if(cached){
-                if(cached.build === J$VM.pkgversion[key]){
+                if(cached.build && cached.build === J$VM.pkgversion[key]){
                     text = cached.text;
                     incache = true;
                 }
@@ -459,18 +459,19 @@ js.lang.Class = new function (){
     };
 
     /**
-     * Checks if a object is of a specific type for example an array.
-     *
-     * @param o: Object to check type of.
-     * @param type: Optional type to check for.
-     *
-     * @return true/false if the object is of the specified type.
+     * Check whether the specified object is one of the given type.
+     * 
+     * @param {String / Object / ...}  o The object to check.
+     * @param {String} type The specified type to ref.
+     * 
+     * @return {Boolean} true is the object is of the given type.
      */
     this.is = function(o, type){
-        if(!type)
-            return o !== undefined && o !== null;
-
         var b = false;
+        if(!this.isString(type) || type.length == 0){
+            return this.isValid(o);
+        }
+
         type = type.toLowerCase();
         switch(type){
         case "number":
@@ -487,4 +488,35 @@ js.lang.Class = new function (){
         return b;
     };
 
+    /**
+     * Check whether the specified element is in the given collection.
+     * The collection may be the array or object. If the collection is
+     * object, the method will check whether the specified element is
+     * its own property.
+     * 
+     * @param {String / Object / ...} e The specified element to check.
+     * @param {Array / Object} set The given collection to ref.
+     */
+    this.isIn = function(e, set){
+        var b = false;
+        if(!this.isValid(e)){
+            return b;
+        }
+
+        switch(this.typeOf(set)){
+        case "object":
+            b = set.hasOwnProperty("" + e);
+            break;
+        case "array":
+            if(typeof set.contains !== "function"){
+                js.util.LinkedList.$decorate(set);
+            }
+            b = set.contains(e);
+            break;
+        default:
+            break;
+        }
+
+        return b;
+    };
 }();

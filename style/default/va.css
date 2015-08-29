@@ -21,7 +21,7 @@
 .win_title_label,
 .win_title_label_0 {
     color: #666666;
-    font-weight: bold;  
+    font-weight: bold;
 }
 
 .win_title_button,
@@ -30,7 +30,7 @@
     height:18px;
 }
 
-.win_title_button_16, 
+.win_title_button_16,
 .win_title_button_20{
     visibility: hidden;
 }
@@ -89,7 +89,7 @@
 
 /** For Button */
 .dlg_button,
-.dlg_button_0, .dlg_button_1, 
+.dlg_button_0, .dlg_button_1,
 .dlg_button_2, .dlg_button_3,
 .dlg_button_4, .dlg_button_6,
 .dlg_button_7, .dlg_button_8 {
@@ -97,18 +97,18 @@
     height: 22px;
     text-align: center;
     border: 1px solid #C0C0C0;
-    
+
     -moz-border-radius: 3px;
     -khtml-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
-} 
+}
 
 .dlg_button_0, .dlg_button_2 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
     background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
     background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10-12.00 */
-    
+
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
 }
@@ -155,7 +155,7 @@
     cursor: default;
     text-overflow: ellipsis;
     white-space:nowrap;
-    overflow:hidden;    
+    overflow:hidden;
 }
 
 .dlg_mail,
@@ -163,7 +163,7 @@
     position: absolute;
     text-align: left;
     display: block;
-    overflow: hidden; 
+    overflow: hidden;
     white-space: nowrap;
 }
 
@@ -172,7 +172,7 @@
     position: absolute;
     text-align: left;
     display: block;
-    overflow: hidden; 
+    overflow: hidden;
     white-space: nowrap;
 }
 
@@ -283,15 +283,15 @@
     background-image: url("images/2-sp_dn.png");
 }
 
-.file_chooser_hbox_upImage, 
-.file_chooser_hbox_upImage_0, 
+.file_chooser_hbox_upImage,
+.file_chooser_hbox_upImage_0,
 .file_chooser_hbox_upImage_2 {
-    padding-right: 10px; 
-    cursor: pointer; 
-    margin-left: 15px; 
+    padding-right: 10px;
+    cursor: pointer;
+    margin-left: 15px;
 }
 
-.file_chooser_dshfile, 
+.file_chooser_dshfile,
 .file_chooser_dshfile_0{
     border: 1px solid #CCCCCC;
     overflow: hidden;
@@ -308,7 +308,7 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/0-fold-close.gif) no-repeat 3px 50%;
+    background: url(images/0-fold-close.gif) no-repeat 3px 50%;
 }
 
 .file_chooser_file_cell, .file_chooser_file_cell_0{
@@ -322,7 +322,7 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/dashboard.png) no-repeat 3px 50%;
+    background: url(images/dashboard.png) no-repeat 3px 50%;
 }
 
 .file_chooser_folder_cell_dhtml, .file_chooser_folder_cell_dhtml_0{
@@ -336,7 +336,7 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/0-fold-close.gif) no-repeat 3px 50%;
+    background: url(images/0-fold-close.gif) no-repeat 3px 50%;
 }
 
 .file_chooser_component_cell, .file_chooser_component_cell_0{
@@ -350,7 +350,7 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/0-lc.png) no-repeat 3px 50%;
+    background: url(images/0-lc.png) no-repeat 3px 50%;
 }
 
 .file_chooser_pagerpt_cell, .file_chooser_pagerpt_cell_0{
@@ -364,7 +364,7 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/4-cls.gif) no-repeat 3px 50%;
+    background: url(images/4-cls.gif) no-repeat 3px 50%;
 }
 .file_chooser_pagerptrpt_cell, .file_chooser_pagerptrpt_cell_0{
     white-space: nowrap;
@@ -377,7 +377,21 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/0-rpt.gif) no-repeat 3px 50%;
+    background: url(images/0-rpt.gif) no-repeat 3px 50%;
+}
+
+.file_chooser_webreport_cell, .file_chooser_webreport_cell_0{
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+    text-indent: 23px;
+    height: 20px;
+    width: 200px;
+    line-height: 20px;
+    cursor: pointer;
+    padding:0;
+    background: url(images/0-wls.gif) no-repeat 3px 50%;
 }
 
 .file_chooser_pagerptxml_cell, .file_chooser_pagerptxml_cell_0{
@@ -391,7 +405,7 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/0-xml.gif) no-repeat 3px 50%;
+    background: url(images/0-xml.gif) no-repeat 3px 50%;
 }
 
 .file_chooser_pagerptclx_cell, .file_chooser_pagerptclx_cell_0{
@@ -405,7 +419,7 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/0-clx.gif) no-repeat 3px 50%;
+    background: url(images/0-clx.gif) no-repeat 3px 50%;
 }
 
 .file_choose_vcomponent_cell, .file_choose_vcomponent_cell_0{
@@ -419,7 +433,7 @@
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/0-icon-va.png) no-repeat 3px 50%;
+    background: url(images/0-icon-va.png) no-repeat 3px 50%;
 }
 /******** End of file dialog ********/
 
@@ -430,14 +444,14 @@
     overflow:hidden;
 }
 /**********  End of ColorPicker ***********/
-.visualAnalytics, 
-.visualAnalytics_0, .visualAnalytics_2, 
+.visualAnalytics,
+.visualAnalytics_0, .visualAnalytics_2,
 .visualAnalytics_32, .visualAnalytics_34 {
     width: 1024px;
     height: 768px;
-    
+
     background-color: #FFFFFF;
-    
+
     font-family: Arial;
     font-size: 12px;
     color: #454545;
@@ -464,17 +478,17 @@
 
 /** For icon button **/
 .va_iconBtn,
-.va_iconBtn_0, .va_iconBtn_1, 
-.va_iconBtn_2, .va_iconBtn_3, 
+.va_iconBtn_0, .va_iconBtn_1,
+.va_iconBtn_2, .va_iconBtn_3,
 .va_iconBtn_4, .va_iconBtn_6,
 .va_iconBtn_16 {
     position:relative;
     left:0px;
     top: 0px;
-    
+
     width: 18px;
     height: 18px;
-    
+
     padding: 0px;
     background-color: transparent;
     border: 1px solid transparent;
@@ -492,7 +506,7 @@
     opacity: 0.4;
 }
 
-.va_iconBtn_2, .va_iconBtn_4, 
+.va_iconBtn_2, .va_iconBtn_4,
 .va_iconBtn_6 {
     background-color: #FFDF7C;
     border-color: #FC9B55;
@@ -526,22 +540,22 @@
 
 /*** For buttons in Toolbar ***/
 .va_toolbarBtn,
-.va_toolbarBtn_0, .va_toolbarBtn_1, 
+.va_toolbarBtn_0, .va_toolbarBtn_1,
 .va_toolbarBtn_2, .va_toolbarBtn_3,
 .va_toolbarBtn_4, .va_toolbarBtn_6,
 .va_toolbarBtn_16 {
     width: 22px;
     height: 22px;
-    
+
     padding: 2px;
     text-align: center;
-    
+
     background-color: transparent;
     border: 1px solid transparent;
 
     display: block;
     cursor: pointer;
-} 
+}
 
 .va_toolbarBtn_2, .va_toolbarBtn_4,
 .va_toolbarBtn_6 {
@@ -554,7 +568,7 @@
 
     filter: alpha(opacity=40);
     -moz-opacity: 0.4;
-    opacity: 0.4; 
+    opacity: 0.4;
 }
 
 .va_toolbarBtn_4 {
@@ -600,7 +614,7 @@
 /*** For workspace ***/
 .va_workspace {
     background-color: #FFFFFF;
-    
+
     border-width: 0px 1px 1px 1px;
     border-style: solid;
     border-color: #E1E1E1;
@@ -612,7 +626,7 @@
     border-style: solid;
     border-color: #E1E1E1;
     border-width: 0px 1px 0px 0px;
-    
+
     padding: 0px;
 }
 
@@ -679,10 +693,10 @@
 /******  for DSSelector   ******/
 /******searchbtn***********/
 .searchDSbtn,
-.searchDSbtn_0, .searchDSbtn_1, 
+.searchDSbtn_0, .searchDSbtn_1,
 .searchDSbtn_2, .searchDSbtn_3,
 .searchDSbtn_4, .searchDSbtn_6,
-.searchDSbtn_16 {   
+.searchDSbtn_16 {
     background: #FFFFFF;
     border-top: 1px solid #E1E1E1;
     border-bottom: 1px solid #E1E1E1;
@@ -690,17 +704,17 @@
 
 .searchDSbtn_icon {
     width: 13px;
-    height:13px;    
+    height:13px;
 }
 
 .btnmenu,
-.btnmenu_0, .btnmenu_1, 
+.btnmenu_0, .btnmenu_1,
 .btnmenu_2, .btnmenu_3,
 .btnmenu_4, .btnmenu_6,
-.btnmenu_16 {  
+.btnmenu_16 {
     font-family: Arial;
     font-size: 12px;
-    
+
     background: #FFFFFF;
 }
 
@@ -710,7 +724,7 @@
 
 .btnmenu_icon {
     width: 13px;
-    height:13px;    
+    height:13px;
 }
 
 /******searchText***********/
@@ -728,7 +742,7 @@
 
 .searchText_input {
     top:1px;
-    background-color: #FFFFFF;   
+    background-color: #FFFFFF;
 }
 
 .searchText_disable {
@@ -741,13 +755,13 @@
 /***  end for DSSelector  ***/
 
 /*** for CompSelector ***/
-.dTypeSelector, 
+.dTypeSelector,
 .dTypeSelector_0 {
     position: absolute;
 
     width: 154px;
     height: 114px;
-    
+
     padding: 3px;
     border: 1px solid #E1E1E1;
 }
@@ -757,20 +771,20 @@
 .displayType_4, .displayType_6 {
     position: static;
     float: left;
-    
+
     width: 30px;
     height: 30px;
     padding: 2px;
 
     margin: 3px;
-    
+
     /*
       -moz-border-radius: 3px;
       -khtml-border-radius: 3px;
       -webkit-border-radius: 3px;
       border-radius: 3px;
       */
-    
+
     background-color: transparent;
     border: 1px solid transparent;
     cursor: pointer;
@@ -789,18 +803,18 @@
 
 .va_compArea,
 .va_compArea_0 {
-    padding: 6px;
+    padding: 0px;
 }
 
 /** For display type button **/
 .btnDisplayType,
-.btnDisplayType_0, .btnDisplayType_1, 
-.btnDisplayType_2, .btnDisplayType_3, 
+.btnDisplayType_0, .btnDisplayType_1,
+.btnDisplayType_2, .btnDisplayType_3,
 .btnDisplayType_4, .btnDisplayType_6,
 .btnDisplayType_16 {
     width: 30px;
     height: 30px;
-    
+
     padding: 2px;  /* 3px if no border */
     background-color: transparent;
     border: 1px solid transparent;
@@ -809,7 +823,7 @@
     cursor : pointer;
 }
 
-.btnDisplayType_2, .btnDisplayType_4, 
+.btnDisplayType_2, .btnDisplayType_4,
 .btnDisplayType_6 {
     background-color: #FFDF7C;
     border-color: #F8B686;
@@ -845,7 +859,7 @@
     -khtml-border-radius: 3px 0px 0px 3px;
     -webkit-border-radius: 3px 0px 0px 3px;
     border-radius: 3px 0px 0px 3px;
-    
+
     padding-left: 5px;
 }
 
@@ -861,7 +875,7 @@
     -khtml-border-radius: 3px 3px 0px 0px;
     -webkit-border-radius: 3px 3px 0px 0px;
     border-radius: 3px 3px 0px 0px;
-    
+
     display: block;
     padding-left: 5px;
 }
@@ -874,12 +888,12 @@
 .paneTitle_label_0 {
     height: 26px;
     line-height: 26px;
-    
+
     font-family: Arial;
     font-size: 11px;
     font-weight: bold;
     color: #666;
-    
+
     display: block;
 }
 
@@ -918,10 +932,10 @@
 .rowspane_list_10 {
     position: relative;
     float: left;
-    
+
     width: 200px;
     height: 26px;
-    
+
     overflow: hidden;
     border: 1px solid #D3D3D3;
     background-color: #FFFFFF;
@@ -956,7 +970,7 @@
     position: absolute;
     width: 18px;
     height: 18px;
-    
+
     padding: 0px;
     border: 1px solid transparent;
 }
@@ -979,7 +993,7 @@
 .colspane {
     left: 10px;
     top: 50px;
-    
+
     width: 100px;
     height: 400px;
 }
@@ -1035,7 +1049,7 @@
     position: absolute;
     width: 16px;
     height: 16px;
-    
+
     padding: 0px;
     border: 1px solid transparent;
 }
@@ -1057,18 +1071,18 @@
 /**** for ComboTree  ****/
 .comboTree.dItem,
 .comboTree.dItem_0 {
-    
+
 }
 
 .comboTree_dItem_icon {
     width: 14px;
-    height: 14px;   
+    height: 14px;
 }
 
 .comboTree_dItem_icon_img {
     left: 4px;
     width: 14px;
-    height: 14px;   
+    height: 14px;
 }
 
 .comboTree_dItem_label {
@@ -1084,7 +1098,7 @@
 /***** For DSField ******/
 /* Group */
 .dsDimension,
-.dsDimension_0, .dsDimension_2, 
+.dsDimension_0, .dsDimension_2,
 .dsDimension_4, .dsDimension_6 {
     width: 90px;
     height: 20px;
@@ -1097,7 +1111,7 @@
     overflow: hidden;
 }
 
-.dsDimension_2, .dsDimension_4, 
+.dsDimension_2, .dsDimension_4,
 .dsDimension_6 {
     border: 1px solid #A1DCED;
     background-color: #A1DCED;
@@ -1113,29 +1127,29 @@
 }
 
 .dsDimension_label,
-.dsDimension_label_0, .dsDimension_label_2, 
+.dsDimension_label_0, .dsDimension_label_2,
 .dsDimension_label_4, .dsDimension_label_6 {
     text-overflow: ellipsis;
-    
+
     cursor: default;
     overflow: hidden;
 }
 
 /* Agg, Detail */
 .dsMeasure,
-.dsMeasure_0, .dsMeasure_2, 
+.dsMeasure_0, .dsMeasure_2,
 .dsMeasure_4, .dsMeasure_6,
 .dsMField,
-.dsMField_0, .dsMField_2, 
+.dsMField_0, .dsMField_2,
 .dsMField_4, .dsMField_6 {
     width: 90px;
     height: 20px;
-    
+
     padding: 0px 4px;
-    
+
     border: 1px solid #EDCBF4;
     background-color: #EDCBF4;
-    
+
     cursor: default;
     overflow: hidden;
 }
@@ -1158,12 +1172,12 @@
 }
 
 .dsMeasure_label,
-.dsMeasure_label_0, .dsMeasure_label_2, 
+.dsMeasure_label_0, .dsMeasure_label_2,
 .dsMeasure_label_4, .dsMeasure_label_6,
-.dsMField_label_0, .dsMField_label_2, 
+.dsMField_label_0, .dsMField_label_2,
 .dsMField_label_4, .dsMField_label_6{
     text-overflow: ellipsis;
-    
+
     cursor: default;
     overflow: hidden;
 }
@@ -1171,21 +1185,21 @@
 /***** For VDSField ******/
 /* Group */
 .vDimension,
-.vDimension_0, .vDimension_2, 
+.vDimension_0, .vDimension_2,
 .vDimension_4, .vDimension_6 {
     width: 20px;
     height: 90px;
-    
+
     padding: 4px 0px;
-    
+
     border: 1px solid #BAE6F2;
     background-color: #BAE6F2;
-    
+
     cursor: default;
     overflow: hidden;
 }
 
-.vDimension_2, .vDimension_4, 
+.vDimension_2, .vDimension_4,
 .vDimension_6 {
     border: 1px solid #A1DCED;
     background-color: #A1DCED;
@@ -1201,25 +1215,25 @@
 }
 
 .vDimension_label,
-.vDimension_label_0, .vDimension_label_2, 
+.vDimension_label_0, .vDimension_label_2,
 .vDimension_label_4, .vDimension_label_6 {
     text-overflow: ellipsis;
-    
+
     cursor: default;
     overflow: hidden;
 }
 
 /* Agg, Detail */
 .vMeasure,
-.vMeasure_0, .vMeasure_2, 
+.vMeasure_0, .vMeasure_2,
 .vMeasure_4, .vMeasure_6 {
     width: 20px;
     height: 90px;
 
     padding: 4px 0px;
-    
+
     border: 1px solid #EDCBF4;
-    background-color: #EDCBF4; 
+    background-color: #EDCBF4;
 
     cursor: default;
     overflow: hidden;
@@ -1230,7 +1244,7 @@
     background-color: #EDCBF4;
 }
 
-.vMeasure_2, .vMeasure_4, 
+.vMeasure_2, .vMeasure_4,
 .vMeasure_6 {
     border: 1px solid #E6B7F0;
     background-color: #E6B7F0;
@@ -1246,10 +1260,10 @@
 }
 
 .vMeasure_label,
-.vMeasure_label_0, .vMeasure_label_2, 
+.vMeasure_label_0, .vMeasure_label_2,
 .vMeasure_label_4, .vMeasure_label_6 {
     text-overflow: ellipsis;
-    
+
     cursor: default;
     overflow: hidden;
 }
@@ -1264,336 +1278,21 @@
 }
 
 .dataGrid_hline {
-    cursor: n-resize; 
+    cursor: n-resize;
 }
 
 .dataGrid_vline {
     cursor: e-resize;
 }
 
-.dataGrid_hline_move, 
+.dataGrid_hline_move,
 .dataGrid_vline_move {
     background-color: red;
     filter: alpha(opacity=100);
     -moz-opacity: 1;
-    opacity: 1; 
+    opacity: 1;
 }
 /************************/
-
-/** For icon button of legend icon button **/
-.va_legendIconBtn,
-.va_legendIconBtn_0, .va_legendIconBtn_2, 
-.va_legendIconBtn_4, .va_legendIconBtn_6,
-.va_legendIconBtn_8, .va_legendIconBtn_10,
-.va_legendIconBtn_12,.va_legendIconBtn_14,
-.va_legendIconBtn_16 {
-    position:relative;
-    left:0px;
-    top: 0px;
-    
-    width: 18px;
-    height: 18px;
-    
-    background-color: transparent;
-    border: 1px solid transparent; /* # E1E1E1 */
-
-    float: left;
-    display: block;
-    
-    cursor : default;
-}
-
-.va_legendIconBtn_2, .va_legendIconBtn_4, 
-.va_legendIconBtn_6, .va_legendIconBtn_8, 
-.va_legendIconBtn_10,.va_legendIconBtn_12,
-.va_legendIconBtn_14 {
-    border-color: #FC9B55;
-}
-
-.va_legendIconBtn_4, .va_legendIconBtn_6, 
-.va_legendIconBtn_12,.va_legendIconBtn_14 {
-    background-color: #FFDF7C;
-}
-
-.va_legendIconBtn_16{
-    display: none;
-}
-
-.va_legendIconBtn_icon {
-    width: 16px;
-    height: 16px;
-}
-
-.va_legendIconBtn_disable {
-    filter: alpha(Opacity = 0);
-    -moz-opacity: 0;
-    opacity: 0;
-    background-color: #EEEEEE;
-}
-/************************/
-
-/*** For Legend Field ***/
-.legendField,
-.legendField_0, .legendField_2, 
-.legendField_4, .legendField_6 {
-    width: 90px;
-    height: 20px;
-
-    padding: 0px 4px;
-    border: 1px solid transparent;
-
-    cursor: default;
-    overflow: hidden;
-}
-
-.legendField_2, .legendField_4, 
-.legendField_6 {
-    background-color: #FFDF7C;
-    border-color: #F8B686;
-}
-
-.legendField_icon {
-    width: 16px;
-    height: 16px;
-}
-
-.legendField_label,
-.legendField_label_0, .legendField_label_2, 
-.legendField_label_4, .legendField_label_6 {
-    color: #000000;
-    
-    text-overflow: ellipsis;
-    
-    cursor: default;
-    overflow: hidden;
-}
-
-.legendField_ctrl,
-.legendField_ctrl_0, .legendField_ctrl_2, 
-.legendField_ctrl_4, .legendField_ctrl_6 {
-    width: 16px;
-    height: 16px;
-}
-
-.legendField_ctrl_0 {
-    visibility: visible;
-}
-
-.legendField_ctrl_2, .legendField_ctrl_4, 
-.legendField_ctrl_6 {
-    visibility: visible;
-}
-/************************/
-
-/**** For Legend ****/
-.va_legendPanel,
-.va_legendPanel_0 {
-    padding: 6px;
-}
-
-.va_legendGroup_title,
-.va_legendGroup_title_0, va_legendGroup_title_16 {
-    height: 25px;
-    
-    border-bottom: 1px solid #D3D3D3;
-    padding: 4px 4px 2px 4px;
-    
-    display: block;
-}
-
-.va_legendGroup_title_16 {
-    display: none;
-}
-
-.va_legendGroup_title_button,
-.va_legendGroup_title_button_0, .va_legendGroup_title_button_2,
-.va_legendGroup_title_button_16 {
-    position: absolute;
-    width: 16px;
-    height: 16px;
-}
-
-.va_legendGroup_title_button_icon {
-    position: absolute;
-    width: 9px;
-    height: 9px;
-}
-
-.va_legendGroup_indicator {
-    background-color: #FFDF7C;
-    height: 2px;
-}
-
-.legendCtrlBar,
-.legendCtrlBar_0 {
-
-}
-
-.bindFieldLegend,
-.bindFieldLegend_0{
-
-}
-
-.bindFieldLegend_legendView,
-.bindFieldLegend_legendView_0{
-    font-family: Arial;
-    font-size: 11px;
-
-    padding-left: 6px;
-
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-.legendItem,
-.legendItem_0, .legendItem_2,
-.legendItem_4, .legendItem_6,
-.slegendItem,
-.slegendItem_0, .slegendItem_2,
-.slegendItem_4, .slegendItem_6 {
-    position: relative;
-    width: 100%;
-    height: 18px;
-    color:#000000;
-    cursor: default;
-}
-
-.legendItem_2,
-.slegendItem_2 {
-    background: #ffdf7c;
-}
-
-.legendItem_4, .legendItem_6,
-.slegendItem_4, .slegendItem_6 {
-    background: #ffd070;
-}
-
-.legendItem_colorblock,
-.legendItem_shapeblock {
-    width: 13px;
-    height: 13px;
-}
-
-.slegendItem_sizeblock {
-    width: 41px;
-    height: 13px;
-}
-
-.slegendItem_sblock {
-    background-color: #D8D8D8;
-}
-
-.legendItem_label,
-.slegendItem_label {
-    height: 18px;
-    line-height: 18px;
-    
-    text-overflow: ellipsis;
-
-    cursor: default;
-    overflow: hidden;
-}
-
-.mLegendItem,
-.mLegendItem_0 {
-    position: relative;
-    width: 100%;
-    height: 36px;
-    
-    cursor: default;
-}
-
-.mLegendItem_graphics2d {
-
-}
-
-.mLegendItem_tickmarkLabel,
-.mLegendItem_tickmarkLabel0, 
-.mLegendItem_tickmarkLabel1 {
-    overflow: hidden;
-
-    color: #000000;
-    text-overflow: ellipsis;
-    text-align: center;
-    
-    display: block;
-    cursor: default;
-}
-
-.mLegendItem_tickmarkLabel0 {
-    text-align: left;
-}
-
-.mLegendItem_tickmarkLabel1 {
-    text-align: right;
-}
-
-.dPatternItem,
-.dPatternItem_0, .dPatternItem_2,
-.dPatternItem_4, .dPatternItem_6 {
-    /*position: relative;*/
-    position: relative;
-    float: left;
-    /*width: 100%;*/
-    height: 30px;
-    width: 30px;
-    cursor: default;
-}
-
-.dPatternItem_2 {
-    background: #E1E1E1;
-}
-
-.dPatternItem_4, .dPatternItem_6 {
-    background: #CCCCCC;
-}
-
-.dPatternItem_graphics2d {
-    position: relative;
-    float: left;
-}
-
-.dPatternItem_label {
-    color: #000000;
-    position: relative;
-    float: left;
-    cursor: default;
-    overflow: hidden;
-    padding: 3px;
-}
-
-.mPatternItem,
-.mPatternItem_0, .mPatternItem_2,
-.mPatternItem_4, .mPatternItem_6 {
-    position: relative;
-    float: left;
-    height: 30px;
-    width: 30px;
-    cursor: default;
-    padding:1px;
-}
-
-.mPatternItem_2 {
-    background: #E1E1E1;
-}
-
-.mPatternItem_4, .mPatternItem_6 {
-    background: #CCCCCC;
-}
-
-.mPatternItem_graphics2d {
-    position: relative;
-    float: left;
-}
-
-.mPatternItem_label {
-    color: #000000;
-    position: relative;
-    float: left;
-    cursor: default;
-    overflow: hidden;
-}
-/***** End Legend ******/
 
 /********** for Visual Designer DSFieldTreePane ************/
 .dsfieldtree,
@@ -1604,7 +1303,7 @@
 .fieldtreelabel,
 .fieldtreelabel_0 {
     padding-left: 12px;
-    padding-right: 12px;    
+    padding-right: 12px;
     color: #999999;
 
     font-size:14px;
@@ -1625,7 +1324,7 @@
     filter: alpha(opacity = 50);
     -moz-opacity: 0.5;
     opacity: 0.5;
-    
+
     display: block;
 }
 
@@ -1639,7 +1338,7 @@
     font-size: 10px;
 
     /* color: #999999; */
-    
+
     text-overflow: ellipsis;
 }
 
@@ -1653,14 +1352,14 @@
     transform: rotate(-90deg);
 }
 
-.legendplaceholder, 
+.legendplaceholder,
 .legendplaceholder_0, .legendplaceholder_16 {
     position: absolute;
     font-family: Arial;
     font-size: 10px;
 
     border-bottom: 1px solid #E1E1E1;
-    
+
     cursor: default;
     overflow: hidden;
 
@@ -1677,271 +1376,6 @@
 
 /********** end Placeholder ***********/
 
-/**** For Visual Analytics Menu ****/
-/**** menuVA: no icon, has mark ****/
-/** simpleMenuVA: no icon, no mark */
-.menuVA,
-.menuVA_0,
-.simpleMenuVA,
-.simpleMenuVA_0 {
-    font-family: Arial;
-    font-size: 12px;
-
-    width: 180px;
-    border: 1px solid #E1E1E1;
-
-    background-color:#FFFFFF;
-}
-
-.simpleMenuVA,
-.simpleMenuVA_0 {
-    width: 160px;
-}
-
-.menuVA_item,
-.menuVA_item_0, .menuVA_item_1, 
-.menuVA_item_2, .menuVA_item_3,
-.menuVA_item_4,
-.simpleMenuVA_item,
-.simpleMenuVA_item_0, .simpleMenuVA_item_1, 
-.simpleMenuVA_item_2, .simpleMenuVA_item_3,
-.simpleMenuVA_item_4 {
-    height: 22px;
-
-    cursor: default;
-    overflow: hidden;
-    background-color: #FFFFFF;
-}
-
-.menuVA_item_2,
-.simpleMenuVA_item_2 {
-    background-color: #ffdf7c;
-}
-
-.menuVA_item_1, .menuVA_item_3,
-.simpleMenuVA_item_1, .simpleMenuVA_item_3 {
-    color: #CCCCCC;
-}
-
-.menuVA_separator,
-.menuVA_separator_0,
-.simpleMenuVA_separator,
-.simpleMenuVA_separator_0 {
-    height: 1px;
-    background-color: #E1E1E1;
-}
-
-.menuVA_item_marker,
-.menuVA_item_marker_0, .menuVA_item_marker_4 {
-    width: 18px;
-    height: 22px;
-
-    margin-right: 2px;
-    background-color: #FFFFFF; /* #E1E1E1; */
-}
-
-.simpleMenuVA_item_marker,
-.simpleMenuVA_item_marker_0, .simpleMenuVA_item_marker_4 {
-    width: 0px;
-    height: 0px;
-}
-
-.menuVA_item_marker_4 {
-    background-image: url("images/mark.png");
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.menuVA_item_icon, 
-.menuVA_item_icon_0,
-.simpleMenuVA_item_icon, 
-.simpleMenuVA_item_icon_0 {
-    width: 0px;
-    height: 0px;
-}
-
-.simpleMenuVA_item_icon, 
-.simpleMenuVA_item_icon_0 {
-    margin-left: 4px;
-}
-
-.menuVA_item_label,
-.menuVA_item_label_0, .menuVA_item_label_1,
-.simpleMenuVA_item_label,
-.simpleMenuVA_item_label_0, .simpleMenuVA_item_label_1 {
-    height: 16px;
-
-    text-overflow: ellipsis;
-    overflow: hidden;
-    cursor: default;
-}
-
-.menuVA_item_ctrl,
-.menuVA_item_ctrl_0,
-.simpleMenuVA_item_ctrl,
-.simpleMenuVA_item_ctrl_0 {
-    width: 16px;
-    height: 16px;
-
-    background-image: url("images/expand.gif");
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.menuVA_item_1 img[class*="menuVA_item_icon"], 
-.menuVA_item_3 img[class*="menuVA_item_icon"],
-.simpleMenuVA_item_1 img[class*="simpleMenuVA_item_icon"], 
-.simpleMenuVA_item_3 img[class*="simpleMenuVA_item_icon"] {
-    filter: alpha(Opacity = 45);
-    -moz-opacity: 0.45;
-    opacity: 0.45;
-    background-color: #FFFFFF;
-}
-
-.menuVA_item_disable,
-.simpleMenuVA_item_disable {
-    filter: alpha(Opacity = 0);
-    -moz-opacity: 0;
-    opacity: 0;
-    background-color: #FFFFFF;
-}
-
-/** end Visual Analytics Menu **/
-
-/********** For VA Iconic Menu ***********/
-/*** iconicMenuVA: has icon, has mark ****/
-/* simpleIconicMenuVA: has icon, no mark */
-.iconicMenuVA,
-.iconicMenuVA_0 {
-    width: 180px;
-    border: 1px solid #E1E1E1;
-    background-color: #FFFFFF;
-}
-
-.simpleIconicMenuVA,
-.simpleIconicMenuVA_0 {
-    width: 160px;
-    border: 1px solid #E1E1E1;
-    background-color: #FFFFFF;
-}
-
-.iconicMenuVA_item,
-.iconicMenuVA_item_0, .iconicMenuVA_item_1, 
-.iconicMenuVA_item_2, .iconicMenuVA_item_3,
-.iconicMenuVA_item_4,
-.simpleIconicMenuVA_item,
-.simpleIconicMenuVA_item_0, .simpleIconicMenuVA_item_1, 
-.simpleIconicMenuVA_item_2, .simpleIconicMenuVA_item_3,
-.simpleIconicMenuVA_item_4 {
-    height: 22px;
-    
-    cursor: default;
-    overflow: hidden;
-    background-color: #FFFFFF;
-}
-
-.iconicMenuVA_item_2,
-.simpleIconicMenuVA_item_2 {
-    background-color: #ffdf7c;
-}
-
-.iconicMenuVA_item_1, .iconicMenuVA_item_3,
-.simpleIconicMenuVA_item_1, .simpleIconicMenuVA_item_3 {
-    color: #CCCCCC;
-}
-
-.iconicMenuVA_separator,
-.iconicMenuVA_separator_0,
-.simpleIconicMenuVA_separator,
-.simpleIconicMenuVA_separator_0 {
-    height: 1px;
-    background-color:#E1E1E1;
-}
-
-.iconicMenuVA_item_marker,
-.iconicMenuVA_item_marker_0, 
-.iconicMenuVA_item_marker_4 {
-    width: 18px;
-    height: 22px;
-    
-    background-color: #FFFFFF; /* #E1E1E1; */
-    
-    margin-right: 2px;
-}
-
-.simpleIconicMenuVA_item_marker,
-.simpleIconicMenuVA_item_marker_0, 
-.simpleIconicMenuVA_item_marker_4 {
-    width: 0px;
-    height: 0px;
-}
-
-.iconicMenuVA_item_marker_4 {
-    background-image: url("images/mark.png");
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.iconicMenuVA_item_icon {
-    width: 16px;
-    height: 16px;
-    
-    margin-right: 2px;
-}
-
-.simpleIconicMenuVA_item_icon {
-    width: 16px;
-    height: 16px;
-
-    margin-left: 4px;
-    margin-right: 4px;
-}
-
-.iconicMenuVA_item_label,
-.iconicMenuVA_item_label_0, 
-.iconicMenuVA_item_label_1,
-.simpleIconicMenuVA_item_label,
-.simpleIconicMenuVA_item_label_0, 
-.simpleIconicMenuVA_item_label_1 {
-    height: 16px;
-
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: default;
-}
-
-.iconicMenuVA_item_ctrl,
-.iconicMenuVA_item_ctrl_0,
-.simpleIconicMenuVA_item_ctrl,
-.simpleIconicMenuVA_item_ctrl_0 {
-    width: 16px;
-    height: 16px;
-
-    background-image: url("images/expand.gif");
-    background-repeat: no-repeat;
-    background-position:center;
-}
-
-.iconicMenuVA_item_1 img[class*="iconicMenuVA_item_icon"], 
-.iconicMenuVA_item_3 img[class*="iconicMenuVA_item_icon"],
-.simpleIconicMenuVA_item_1 img[class*="simpleIconicMenuVA_item_icon"], 
-.simpleIconicMenuVA_item_3 img[class*="simpleIconicMenuVA_item_icon"] {
-    filter: alpha(Opacity = 45);
-    -moz-opacity: 0.45;
-    opacity: 0.45;
-    background-color: #FFFFFF;
-}
-
-.iconicMenuVA_item_disable,
-.simpleIconicMenuVA_item_disable {
-    filter: alpha(Opacity = 0);
-    -moz-opacity: 0;
-    opacity: 0;
-    background-color: #FFFFFF;
-}
-
-/** end VA Iconic Menu **/
-
 /*********** For BindFieldFilter *******/
 .bindfieldfilter, .bindfieldfilter_0, .bindfieldfilter_2 {
     position: relative;
@@ -1954,7 +1388,7 @@
     width: 100%;
     height: 26px;
     background-color: #FFFFFF;
-    
+
     display: block;
     padding-left: 5px;
     border-top: 1px solid #EEEEEE;
@@ -1995,7 +1429,7 @@
     border:1px solid #e6e6e6;
     padding:12px 12px 12px 12px;
     background-color:#FFFFFF;
-    
+
 }
 
 .jsvm_tooltip_item,
@@ -2039,15 +1473,15 @@
 }
 
 .filterList_item,
-.filterList_item_0, .filterList_item_1, 
+.filterList_item_0, .filterList_item_1,
 .filterList_item_2, .filterList_item_4,
 .filterList_item_6, .filterList_item_16,
 .filterList_item_20 {
     position: relative;
-    
+
     width: 100%;
     height: 18px;
-    
+
     cursor: pointer;
     overflow: hidden;
 }
@@ -2074,7 +1508,7 @@
     background-color: #FDD073;
 }
 
-.filterList_item_marker, 
+.filterList_item_marker,
 .filterList_item_marker_0, .filterList_item_marker_4,
 .filterList_item_marker_1, .filterList_item_marker_5 {
     width: 14px;
@@ -2120,7 +1554,7 @@
 /******end BindFieldList ************/
 
 /***** for VA Dialog ***************/
-.vadlg, 
+.vadlg,
 .vadlg_0, .vadlg_2, .vadlg_8{
     border:1px solid #e6e6e6;
     background-color:#FFFFFF;
@@ -2159,13 +1593,13 @@
 }
 
 .vadlg_title_button,
-.vadlg_title_button_0, .vadlg_title_button_16, 
+.vadlg_title_button_0, .vadlg_title_button_16,
 .vadlg_title_button_20 {
     width: 18px;
     height:18px;
 }
 
-.vadlg_title_button_16, 
+.vadlg_title_button_16,
 .vadlg_title_button_20{
     visibility: hidden;
 }
@@ -2210,7 +1644,7 @@
     background-color: #E1E1E1;
 }
 
-.vadlg_split, 
+.vadlg_split,
 .vadlg_split_0 {
     height: 1px;
     background-color: #E1E1E1;
@@ -2218,7 +1652,7 @@
 
 /** For Dialog Button of VA */
 .vadlg_button,
-.vadlg_button_0, .vadlg_button_1, 
+.vadlg_button_0, .vadlg_button_1,
 .vadlg_button_2, .vadlg_button_3,
 .vadlg_button_4, .vadlg_button_8 {
     width: 80px;
@@ -2227,22 +1661,23 @@
     -moz-border-radius: 2px;
     -khtml-border-radius: 2px;
     -webkit-border-radius: 2px;
-    border-radius: 2px; 
+    border-radius: 2px;
+    background: #666666;
 /*  border: 1px solid #E1E1E1;*/
-} 
+}
 
 .vadlg_button_0, .vadlg_button_2 {
-    /*  background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); 
-        background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); 
-        background: -o-linear-gradient(top, #FBFBFB, #EDEDED); 
-        
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); 
+    /*  background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED));
+        background: -moz-linear-gradient(top, #FBFBFB, #EDEDED);
+        background: -o-linear-gradient(top, #FBFBFB, #EDEDED);
+
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0");
         -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0");
-        */    
+        */
     -moz-border-radius: 2px;
     -khtml-border-radius: 2px;
     -webkit-border-radius: 2px;
-    border-radius: 2px; 
+    border-radius: 2px;
     background: #666666;
 }
 
@@ -2284,19 +1719,19 @@
     color: #FFFFFF;
 }
 
-.vadlg_btnEffect_normal, 
+.vadlg_btnEffect_normal,
 .vadlg_btnEffect_hover,
 .vadlg_btnEffect_trigger {
     -moz-border-radius: 2px;
     -khtml-border-radius: 2px;
     -webkit-border-radius: 2px;
-    border-radius: 2px; 
+    border-radius: 2px;
 }
 
 /***** End for vA Dialog **********/
 
 /****** for SelectBVDialog ***********/
-.vaSelectBVDlg, 
+.vaSelectBVDlg,
 .vaSelectBVDlg_0, .vaSelectBVDlg_2,
 .vaSelectBVDlg_8{
     border:1px solid #e6e6e6;
@@ -2304,7 +1739,7 @@
     -moz-border-radius: 5px;
     -khtml-border-radius: 5px;
     -webkit-border-radius: 5px;
-    border-radius: 5px; 
+    border-radius: 5px;
 }
 
 .vaSelectBVDlg_movecover {
@@ -2351,7 +1786,7 @@
 
 /******* VA Help Window ********/
 .vahelpwin,
-.vahelpwin_0, .vahelpwin_2, 
+.vahelpwin_0, .vahelpwin_2,
 .vahelpwin_32, .vahelpwin_34 {
     border: 1px solid #E1E1E1;
     background-color: #FFFFFF;
@@ -2367,14 +1802,14 @@
 /******* End VA Help Window ********/
 
 /********* VA CustomizeDialog *************/
-.customizedlg, 
+.customizedlg,
 .customizedlg_0, .customizedlg_2, .customizedlg_8{
     border:1px solid #e6e6e6;
     background-color:#FFFFFF;
     -moz-border-radius: 5px;
     -khtml-border-radius: 5px;
     -webkit-border-radius: 5px;
-    border-radius: 5px; 
+    border-radius: 5px;
 }
 
 .customizedlg_movecover {
@@ -2400,10 +1835,10 @@
     background-color:#FFFFFF;
     padding-left: 12px;
     padding-right: 12px;
-    
+
     color: #999999;
     font-size:14px;
-    
+
 }
 
 .customizedlg_title_16{
@@ -2415,13 +1850,13 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 }
 
 .customizedlg_title_button,
-.customizedlg_title_button_0, .customizedlg_title_button_16, 
+.customizedlg_title_button_0, .customizedlg_title_button_16,
 .customizedlg_title_button_20 {
     width: 18px;
     height:18px;
 }
 
-.customizedlg_title_button_16, 
+.customizedlg_title_button_16,
 .customizedlg_title_button_20{
     visibility: hidden;
 }
@@ -2468,20 +1903,20 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 
 /** For Dialog Button of VA */
 .custmoizedlg_button,
-.custmoizedlg_button_0, .customizedlg_button_1, 
+.custmoizedlg_button_0, .customizedlg_button_1,
 .customizedlg_button_2, .customizedlg_button_3,
 .customizedlg_button_4, .customizedlg_button_8 {
     width: 80px;
     height: 22px;
     text-align: center;
     border: 1px solid #E1E1E1;
-} 
+}
 
 .customizedlg_button_0, .customizedlg_button_2 {
     background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
     background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
     background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10-12.00 */
-    
+
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
     -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
 }
@@ -2523,8 +1958,8 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     cursor: default;
     text-overflow: ellipsis;
     white-space:nowrap;
-    overflow:hidden; 
-    
+    overflow:hidden;
+
     font-family: Arial;
     font-size: 13px;
 }
@@ -2599,7 +2034,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .va_dropdownList,
 .va_dropdownList_0 {
     color: #454545;
-    background-color: #FFFFFF;  
+    background-color: #FFFFFF;
     border: 1px solid #DDD;
 
     overflow: hidden;
@@ -2632,7 +2067,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .va_dropdownList_item_16, .va_dropdownList_item_20 {
     padding: 0px 4px;
     height: 18px;
-    
+
     overflow: hidden;
 }
 
@@ -2672,9 +2107,9 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .va_dropdownList_item_label_0{
     height: 16px;
     line-height: 16px;
-    
+
     cursor: default;
-    
+
     text-overflow:ellipsis;
     overflow:hidden;
 }
@@ -2695,7 +2130,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 /* BV tree panel */
 .vabvtree {
     border: 0px;
-    padding: 0px; /* 6px;*/ 
+    padding: 0px; /* 6px;*/
     background-color: #FFFFFF;
 }
 
@@ -2710,20 +2145,26 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 }
 
 .vabvtree_item,
-.vabvtree_item_0, 
+.vabvtree_item_0,
 .vabvtree_item_1,
-.vabvtree_item_2, 
-.vabvtree_item_4, 
+.vabvtree_item_2,
+.vabvtree_item_4,
 .vabvtree_item_5,
-.vabvtree_item_6 {
+.vabvtree_item_6,
+.vabvtree_item_16 {
     height: 22px;
     width: 100%;
     padding: 3px 0px 3px 0px;
-    
+
     white-space: nowrap;
     text-overflow: ellipsis;
-    
+
     overflow: hidden;
+    display: block;
+}
+
+.vabvtree_item_16 {
+    display: none;
 }
 
 /* Disable */
@@ -2739,8 +2180,8 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     background-color:#ffd070;
 }
 
-.vabvtree_item_leader, 
-.vabvtree_item_leader0, 
+.vabvtree_item_leader,
+.vabvtree_item_leader0,
 .vabvtree_item_leader1 {
     width: 16px;
     height:16px;
@@ -2759,7 +2200,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     height:16px;
     background-repeat: no-repeat;
     background-position:center;
-    margin-right:2px;     
+    margin-right:2px;
 }
 
 .vabvtree_item_branch4_0 {
@@ -2842,7 +2283,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     border: 0px;
     background-color: #FFFFFF;
     overflow: auto;
-    padding: 6px; /* 5px 0px 0px 5px;*/ 
+    padding: 6px; /* 5px 0px 0px 5px;*/
 }
 
 .singleLevelTree_treeshell {
@@ -2856,17 +2297,23 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 }
 
 .singleLevelTree_item,
-.singleLevelTree_item_0, 
+.singleLevelTree_item_0,
 .singleLevelTree_item_1,
-.singleLevelTree_item_2, 
-.singleLevelTree_item_4, 
+.singleLevelTree_item_2,
+.singleLevelTree_item_4,
 .singleLevelTree_item_5,
-.singleLevelTree_item_6 {
+.singleLevelTree_item_6,
+.singleLevelTree_item_16 {
     height: 22px;
     width: 100%;
     padding: 3px 0px 3px 0px;
     overflow: hidden;
     white-space: nowrap;
+    display: block;
+}
+
+.singleLevelTree_item_16 {
+    display: none;
 }
 
 /* Disable */
@@ -2882,8 +2329,8 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     background-color:#ffd070;
 }
 
-.singleLevelTree_item_leader, 
-.singleLevelTree_item_leader0, 
+.singleLevelTree_item_leader,
+.singleLevelTree_item_leader0,
 .singleLevelTree_item_leader1 {
     width: 0px;
     height:0px;
@@ -2899,7 +2346,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .singleLevelTree_item_branch5_4, .singleLevelTree_item_branch6_4,
 .singleLevelTree_item_branch7_4 {
     width: 0px;
-    height:0px;    
+    height:0px;
 }
 
 .singleLevelTree_item_branch4_0 {
@@ -2982,13 +2429,13 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 /**For custiomizecolordlg******/
 .combocolorbtn,
 .combocolorbtn_0, .combocolorbtn_2,
-.combocolorbtn_4 {   
+.combocolorbtn_4 {
     background: #FFFFFF;
 }
 
 .combocolorbtn_icon {
     width: 13px;
-    height:13px;    
+    height:13px;
 }
 
 .colorlistbtn,
@@ -3045,7 +2492,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .groupitem_colorblock_2,
 .groupitem_colorblock_4 {
     background-color: #FFFFFF;
-    
+
 }
 
 .groupitem_colorblock_4 {
@@ -3063,7 +2510,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .cbocolorsubview,
 .cbocolorsubview_0 {
     border:1px solid #E1E1E1;
-    background:#FFFFFF; 
+    background:#FFFFFF;
     padding:2px;
 }
 
@@ -3085,7 +2532,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     text-align: right;
 }
 
-.multiSignItem, 
+.multiSignItem,
 .multiSignItem_0,.multiSignItem_2,
 .multiSignItem_4, .multiSignItem_6 {
     position: relative;
@@ -3100,10 +2547,10 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     background: #ffdf7c;
 }
 
-.multiSignItem_4, 
+.multiSignItem_4,
 .multiSignItem_6{
     background: #ffdf7c;
-} 
+}
 
 .custiomizecolor_tick {
     background-image: url("images/transparent.gif");
@@ -3112,7 +2559,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 }
 
 .custiomizecolor_tick_img {
-    height: 19px; 
+    height: 19px;
     width: 21px;
     background-image: url("images/icon-colorpen.png");
     background-repeat: no-repeat;
@@ -3122,8 +2569,8 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 /**End custiomizecolordlg********/
 
 /***** For VA CustomizeLabel **********/
-.ctrlitem, 
-.ctrlitem_0, 
+.ctrlitem,
+.ctrlitem_0,
 .ctrlitem_2 {
     height: 18px;
     width:100%;
@@ -3135,7 +2582,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 
 .ctrlitem_ctrl {
     width: 10px; height: 10px;
-    background-image: url("../../style/default/images/0-icon-menu-arrow.png");  
+    background-image: url("images/0-icon-menu-arrow.png");
 }
 
 .ctrlitem_icon {
@@ -3144,7 +2591,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 }
 
 .va_edIconBtn,
-.va_edIconBtn_0, .va_edIconBtn_1, 
+.va_edIconBtn_0, .va_edIconBtn_1,
 .va_edIconBtn_2, .va_edIconBtn_3,
 .va_edIconBtn_4, .va_edIconBtn_6,
 .va_edIconBtn_16 {
@@ -3154,20 +2601,20 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
        top: 0px; !important; */
     padding: 2px;
     text-align: center;
-    
+
     background-color: transparent;
     border: 1px solid transparent;
 
     display: block;
     cursor: pointer;
-} 
+}
 
 .va_edIconBtn_2, .va_edIconBtn_4,
 .va_edIconBtn_6 {
     background-color: #FFDF7C;
 }
 
-.va_edIconBtn_4, 
+.va_edIconBtn_4,
 .va_edIconBtn_6 {
     border-color: #F8B686;
 }
@@ -3177,7 +2624,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 
     filter: alpha(opacity=40);
     -moz-opacity: 0.4;
-    opacity: 0.4; 
+    opacity: 0.4;
 }
 
 .va_edIconBtn_16{
@@ -3203,18 +2650,18 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .shapetype_4, .shapetype_6 {
     position: static;
     float: left;
-    
+
     width: 25px;
     height: 25px;
     padding: 3px;
 
     margin: 2px;
-    
+
     -moz-border-radius: 1px;
     -khtml-border-radius: 1px;
     -webkit-border-radius: 1px;
     border-radius: 1px;
-    
+
     background-color: transparent;
     border: 1px solid transparent;
     cursor: pointer;
@@ -3234,7 +2681,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .patternshape_0, .patternshape_2{
     position: static;
     float: left;
-    
+
     width: 20px;
     height: 20px;
     -moz-border-radius: 1px;
@@ -3242,7 +2689,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     -webkit-border-radius: 1px;
     border-radius: 1px;
     padding: 2px;
-    
+
     background-color: transparent;
     cursor: pointer;
 }
@@ -3266,7 +2713,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 /******End VA CustomizeShape ***********/
 
 /******For VA customizeSize ************/
-.customizesize_label, 
+.customizesize_label,
 .customizesize_label_0{
     font-size: 11px;
     color: #336699;
@@ -3292,22 +2739,22 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 .sortdialog_textfield_0, .sortdialog_textfield_1 {
     width: 80px;
     height: 20px;
-    
+
     background-color: #FFFFFF;
     border: 1px solid #CCCCCC;
-    
+
     /*
       -moz-border-radius: 3px;
       -khtml-border-radius: 3px;
       -webkit-border-radius: 3px;
       border-radius: 3px;
       */
-    
+
     overflow: hidden;
 }
 
 .sortdialog_textfield_1 {
-    
+
 }
 
 .sortdialog_textfield_input {
@@ -3335,8 +2782,8 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
 
 .icon_button,
 .icon_button_0,
-.icon_button_1, 
-.icon_button_16, 
+.icon_button_1,
+.icon_button_16,
 .icon_button_20 {
     width: 18px;
     height:18px;
@@ -3354,7 +2801,7 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     border-radius: 3px;
 }
 
-.icon_button_16, 
+.icon_button_16,
 .icon_button_20{
     visibility: hidden;
 }
@@ -3439,8 +2886,8 @@ custmoizedlg_title_label, .custmoizedlg_title_label_0{
     line-height: 20px;
     cursor: pointer;
     padding:0;
-    background: url(../../style/default/images/0-va-fold.gif) no-repeat 3px 50%;
+    background: url(images/0-va-fold.gif) no-repeat 3px 50%;
 }
 
-/****** End VA sava/open Dialog *********/ 
+/****** End VA sava/open Dialog *********/
 /********************* End Visual Analytics ***************************/

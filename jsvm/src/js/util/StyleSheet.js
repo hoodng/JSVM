@@ -1,32 +1,32 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without modification, 
+  are permitted provided that the following conditions are met:
+  
+  1. Redistributions of source code must retain the above copyright notice, 
+  this list of conditions and the following disclaimer.
+  
+  2. Redistributions in binary form must reproduce the above copyright notice, 
+  this list of conditions and the following disclaimer in the 
+  documentation and/or other materials provided with the distribution.
+  
+  3. Neither the name of the JSVM nor the names of its contributors may be 
+  used to endorse or promote products derived from this software 
+  without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: hudong@dong.hu@china,jinfonet.com
@@ -50,94 +50,120 @@ js.util.StyleSheet = function(nativeSheet){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+        System = J$VM.System, J$VMCSS = "/***__j$vm-css__***/";
     
-    /**
-     * @param style {
-     *     borderLeftWidth: "10px" // or border-left-width : "10px"
-     * }
-     * 
-     * @return "border-left-width:10px;"
-     */
-    CLASS.styleToString = function(style){
-        var p, v,ret = [];
-        if(Class.isObject(style)){
-            for(p in style){
-                v = style[p];
-                p = DOM.hyphenName(p);
-                ret.push(p,":",v,";");
-            }
-        }
-        return ret.join("");
-    };
+    thi$.applyCSS = function(css){
+        var styleEle = this.nativeSheet.ownerNode;
 
-    thi$.getRule = function(selector){
-        var rule = this.rules[selector];
-        if(!rule){
+        if(styleEle.styleSheet){
+            // IE ?
+            try{
+                styleEle.styleSheet.cssText =
+                    comboCSSCode(styleEle.styleSheet.cssText, css);
+            } catch (x) {
+
+            }
+        }else{
+            // W3C
+            styleEle.textContent = comboCSSCode(styleEle.textContent, css); 
             
         }
+
+        this._syncUpdate();
+    };
+
+    var comboCSSCode = function(ori, css){
+        var codes = ori.split(J$VMCSS),ret=[];
+        for(var i=0, len=codes.length; i<len; i++){
+            if(i==0){
+                ret.push(codes[0]);
+                ret.push(J$VMCSS);
+                ret.push(css);
+                ret.push(J$VMCSS);
+            }else if(i==1){
+                continue;
+            }else{
+                ret.push(codes[i]);
+            }
+        }
+        return ret.join("\r\n");
+    };
+    
+    thi$.getRule = function(selector){
+        return this.rules[selector];
     };
     
     /**
-     * @param name, selector name
+     * @param selector, selector name
      * @param style {
      *   border-width: 10px
      * }
      */
-    thi$.addRule = function(name, style){
-        var sheet = this.sheet, 
-        rules = sheet.cssRules || sheet.rules,
-        cssText = CLASS.styleToString(style);
-
-        if(sheet.addRule){
-            // IE
-            sheet.addRule(name, cssText);
+    thi$.addRule = function(selector, style){
+        style = style || {};
+        
+        var rule = this.getRule(selector), sheet, rules, cssText;
+        if(Class.isObject(rule)){
+            cssText = DOM.toCssText(style);
+            rule.style.cssText = cssText;
         }else{
-            // Others
-            sheet.insertRule(
-                [name, "{", cssText, "}"].join(""), 
-                sheet.cssRules.length-1);
+            sheet = this.nativeSheet;
+            rules = sheet.cssRules || sheet.rules;
+            cssText = DOM.toCssText(style);
+
+            if(sheet.insertRule){
+                // W3C
+                sheet.insertRule(
+                    [selector, "{", cssText, "}"].join(""), 
+                    rules.length);
+                
+            }else if(sheet.addRule){
+                // IE
+                sheet.addRule(selector, cssText, rules.length);            
+            }
+            
+            rule = this.rules[selector] = {selector: selector,
+                                           style:rules[rules.length-1].style};
         }
 
-        this.rules[name] = rules[rules.length-1].style;
+        return rule;
     };
 
-    thi$.delRule = function(selector){
-        var sheet = this.sheet;
-        
-        delete this.rules[selector];
-    };
-    
     var _parseSheet = function(sheet, rules){
-        var cssrules = sheet.cssRules || sheet.rules, rule, i, len,
-        selector, tmpA, j, jn;
-
+        var cssrules = sheet.cssRules || sheet.rules,
+            rule, i, len, selector;
+        
         for(i=0, len=cssrules.length; i<len; i++){
             rule = cssrules[i];
-            tmpA = rule.selectorText.split(",");
-            for(j=0, jn=tmpA.length; j<jn; j++){
-                selector = tmpA[j].trim();
-                if(selector.length >0){
-                    rules[selector] = {
-                        selector: selector,
-                        style: rule.style
-                    };
-                }
+            selector = rule.selectorText;
+            rules[selector] = {
+                selector: selector,
+                style: rule.style
             }
         }
     };
     
     thi$.destroy = function(){
-        delete this.sheet;
-        delete this.rules;
-        
-        arguments.callee.__super__.apply(this, arguments);
-    }.$override(this.destroy);
+        this.nativeSheet = null;
+        this.id = null;
+        this.href = null;        
+        this.rules = null;
+    };
+
+    thi$._syncUpdate = function(){
+        var nativeSheet = DOM._findNativeStyleSheet(this.id, this.href);
+        if(nativeSheet !== this.nativeSheet){
+            this._init(nativeSheet);
+        }
+        return this;
+    };
 
     thi$._init = function(nativeSheet){
-        this.sheet= nativeSheet;
-        this.name = nativeSheet.title;
+        this.nativeSheet = nativeSheet;
+        this.id = nativeSheet.ownerNode.id;
+        this.href = nativeSheet.href;
         this.rules = {};
+        
         _parseSheet.call(this, nativeSheet, this.rules);
     };
     

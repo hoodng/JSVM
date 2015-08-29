@@ -145,6 +145,13 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
     thi$.invalidateBounds = function(){
         this.view.bounds = null;
+        
+        // If the preferred size is not from the definition, it will be calcualted
+        // with bounds. And when the bounds is invalidating, the old calculated 
+        // preferred size should be invalidated, too.
+        if(!this.isPreferredSizeSet){
+            this.def.prefSize = null;
+        }
     };
     
     /**
@@ -178,10 +185,11 @@ js.awt.BaseComponent = function(def, Runtime, view){
         delete styles.height;
 
         var sizeChanged = function(value, sp){
-            return sp.match(/[wW]idth|padding/) != undefined;
+            return sp.match(/[wW]idth|margin|border|padding/) != undefined;
         }.$some(this, styles);
 
         DOM.applyStyles(el, styles);
+
         if(sizeChanged){
             this.invalidateBounds();
         }
@@ -191,7 +199,6 @@ js.awt.BaseComponent = function(def, Runtime, view){
         }
         
         return sizeChanged ? this.repaint() : false;
-
     };
 
     /**
@@ -405,8 +412,10 @@ js.awt.BaseComponent = function(def, Runtime, view){
      * Notes: Sub class should override this method
      */
     thi$.doLayout = function(force){
-        if(!this.needLayout(force) || 
-           (this.getStyle("display") === "none")) return false;
+        if(!this.needLayout(force) || !this.isDOMElement() 
+            || (this.getStyle("display") === "none")) {
+                return false;
+        }
 
         this._local.didLayout = true;
         
@@ -546,56 +555,98 @@ js.awt.BaseComponent = function(def, Runtime, view){
      * }
      */
     thi$.MBP = function(){
-        return this.getGeometric(this.className).MBP;
+        var G = this.getGeometric(this.className);
+        return System.objectCopy(MBP, {});
     };
     
     thi$.getGeometric = function(className){
         className  = className || this.className;
-        return CLASS.G[className] || this._local.G;
+        return CLASS.G[className];
     };
 
-    /**
-     * @param NUCG Not Use Cached Geometric
-     */
-    var _preparegeom = function(NUCG){
-        NUCG = NUCG || false;
-        CLASS.G = CLASS.G || {};
+    var _getBounds = function(){
+        var cssText = this.def.css, rst = {},
+        ele = this.view.cloneNode(false);
+
+        // The clean bounds should be generated only with the css file
+        // and style tags. The css fragment in the def shouldn't parse
+        // into the cached bounds. Otherwise, it may pollute and influence
+        // other object instances.
+        if(cssText){
+            ele.style.cssText = "";
+        }
+
+        // When we append an DOM element to body, if it didn't set any
+        // "position" or set the position as "absolute" but no "top" and 
+        // "left" that element also be place at the bottom of body other
+        // than the (0, 0) position. Then it may extend the body's size 
+        // and trigger window's "resize" event.
+        ele.style.position = "absolute";
+        ele.style.top = "-10000px";
+        ele.style.left = "-10000px";
+
+        ele.style.whiteSpace = "nowrap";
+        ele.style.visibility = "hidden";
+
+        DOM.appendTo(ele, document.body);
+        rst.bounds = DOM.getBounds(ele);
+
+        if(cssText){
+            ele.style.cssText += cssText;
+
+            ele.bounds = null;
+            rst.vbounds = DOM.getBounds(ele);
+        }else{
+            rst.vbounds = rst.bounds;
+        }
+
+        DOM.remove(ele, true);
         
-        var className = this.className, G = NUCG ? null : CLASS.G[className], 
-            M = this.def, ele, bounds, styleW, styleH, 
-            buf = new js.lang.StringBuffer();
+        return rst;
+    };
+
+    var _preparegeom = function(){
+        CLASS.G = CLASS.G || {};
+
+        var className = this.className, G = CLASS.G[className], 
+        M = this.def, bounds, styleW, styleH, rst,
+        buf = new js.lang.StringBuffer();
         if(!G){
             G = {};
-            ele = this.view.cloneNode(false);
-            ele.style.whiteSpace = "nowrap";
-            ele.style.visibility = "hidden";
+            rst = _getBounds.call(this, M.css);
+            G.bounds = rst.bounds;
+            CLASS.G[className] = G;
             
-            // When we append an DOM element to body, if we didn't set any "position"
-            // or set the position as "absolute" but "top" and "left" that element also
-            // be place at the bottom of body other than the (0, 0) position. Then it
-            // may extend the body's size and trigger window's "resize" event.
-            ele.style.position = "absolute";
-            ele.style.top = "-10000px";
-            ele.style.left = "-10000px";
-
-            DOM.appendTo(ele, document.body);
-            G.bounds = DOM.getBounds(ele);
-            DOM.remove(ele, true);
-            if(!NUCG){
-                CLASS.G[className] = G;
-            }else{
-                this._local.G = G;
+            bounds = rst.vbounds;
+        }else{
+            if(!M.css){ // Use the cached bounds directly
+                bounds = G.bounds;
+            }else{ // Get bounds with the definition's css text
+                rst = _getBounds.call(this);
+                bounds = rst.vbounds;
             }
         }
 
-        bounds = this.view.bounds = {BBM: G.bounds.BBM, MBP:G.bounds.MBP};
-        
+        // TODO: Cache the initial bounds
+        this._local.vbounds = System.objectCopy(bounds, {});
+
+        // Copy the MBP to avoid some object's change pollute and 
+        // influence other object instance with the same className. 
+        // With copying, the old "NUCG" property should be discarded.
+        bounds = this.view.bounds = {
+            BBM: bounds.BBM, 
+            MBP: System.objectCopy(bounds.MBP, {})
+        };
+
+        // Hande the x, y, width, height of definition
         if(Class.isNumber(M.x)){
             buf.append("left:").append(M.x).append("px;");
         }
+
         if(Class.isNumber(M.y)){
             buf.append("top:").append(M.y).append("px;");
         }
+
         if(Class.isNumber(M.width)){
             styleW = M.width;
             if(!bounds.BBM){
@@ -603,6 +654,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
             }
             buf.append("width:").append(styleW).append("px;");
         }
+
         if(Class.isNumber(M.height)){
             styleH = M.height;
             if(!bounds.BBM){
@@ -613,8 +665,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
         buf.append(this.view.style.cssText);
 
-        this.view.style.cssText = buf.toString();        
-
+        this.view.style.cssText = buf.toString(); 
     };
 
     thi$.destroy = function(){
@@ -639,24 +690,34 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
         arguments.callee.__super__.apply(this, arguments);
         
+        var tclazz = def.className;
+        if(tclazz){
+            tclazz = DOM.extractDOMClassName(tclazz);
+        }
+
         if(view){
             this.view = view;
             def.className = view.clazz || def.className;
         }else{
             this.view = view = DOM.createElement(def.viewType || "DIV");
             def.className = def.className || "jsvm__element";
-            view.clazz = view.className = (view.className + " " + def.className); 
+            view.clazz = view.className = view.className 
+                + (tclazz ? (" " + tclazz) : "");
         }
         
         view = this.view;
         view.uuid = this.uuid();
-        view.id = def.id || (this.classType() + "." + js.awt.Element.count);
+        if(view.tagName != "BODY"){
+            view.id = this.id 
+                || (this.classType() + "." + js.awt.Element.count);            
+        }
 
-        this.className = def.className;
+
+        this.className = tclazz;
         if(def.css) view.style.cssText = view.style.cssText + def.css;
         if(view.tagName != "BODY" && view.tagName != "CANVAS"
            && view.cloned != "true"){
-            _preparegeom.call(this, def.NUCG);    
+            _preparegeom.call(this);    
         }
 
         this._geometric = function(){
@@ -668,16 +729,16 @@ js.awt.BaseComponent = function(def, Runtime, view){
         if(def.useUserDefinedTip === true){
             this.setTipUserDefined(true);
         }else{
-		    var tip = def.tip;
-		    if(Class.isString(tip) && tip.length > 0) {
-			    this.setToolTipText(tip);
-		    }
+            var tip = def.tip;
+            if(Class.isString(tip) && tip.length > 0) {
+                this.setToolTipText(tip);
+            }
         }
         
     }.$override(this._init);
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Element).$implements(js.awt.Cover);
+}.$extend(js.awt.Element);
 
 

@@ -74,7 +74,7 @@ js.swt.ListItem = function(def, Runtime, view){
 	}
 	CLASS.__defined__ = true;
 	
-	var C = js.lang.Class, E = js.util.Event, DOM = J$VM.DOM,
+	var Class = js.lang.Class, E = js.util.Event, DOM = J$VM.DOM,
 	System = J$VM.System, MQ = J$VM.MQ;
 
 	/**
@@ -110,7 +110,7 @@ js.swt.ListItem = function(def, Runtime, view){
 	};
 	
 	thi$.hasController = function(b){
-		if(C.isBoolean(b)){
+		if(Class.isBoolean(b)){
 			this.model.noController = !b;
 		}
 		
@@ -157,7 +157,7 @@ js.swt.ListItem = function(def, Runtime, view){
 	};
 	
 	thi$.isSearchable = function () {
-		return C.isString(this.model.dname);
+		return Class.isString(this.model.dname);
 	};
 	
 	thi$.cloneView = function(){
@@ -173,8 +173,13 @@ js.swt.ListItem = function(def, Runtime, view){
 			return def;
 		}
 		
-		var dname = m.dname,
+		var sign = m.sign, dname = m.dname,
 		iconImage = m.img || m.iconImage;
+
+		if(Class.isObject(sign)){
+			def.sign = sign;	
+		}
+		
 		if(dname !== undefined || dname !== null){
 			def.labelText = dname;
 		}

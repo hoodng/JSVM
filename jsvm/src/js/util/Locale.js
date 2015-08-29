@@ -65,7 +65,7 @@ js.util.Locale = function(language, country){
 			res = C.forName("js.text.resources." + locale.toString());
 			
 			if(C.isString(type)){
-				symbols = res ? res[type] : undefined;				  
+				symbols = res ? res[type] : null;				  
 			}else{
 				symbols = res;
 			}
@@ -131,20 +131,18 @@ js.util.Locale = function(language, country){
 	
 	thi$.toString = function(){
 		var language = this.getLanguage(), 
-		country = this.getCountry(),
-		symbol = (language && country) ? "_" : "",
-		buf = [];
-		
-		buf.push(language);
-		buf.push(symbol);
-		buf.push(country);
-		
-		return buf.join("");
+		    country = this.getCountry();
+        return [language, country].join(country ? "_":"");
 	};
 	
 	thi$._init = function(language, country){
 		if(!C.isString(language) && !C.isString(country)){
-			return;
+            var nav = self.navigator, lang =
+                nav.browserLanguage || nav.language;
+            
+            lang = lang.replace("-","_").split("_");
+            language = lang[0];
+            country = lang.length > 1 ? lang[1] : "";
 		}
 		
 		this.setLanguage(language);

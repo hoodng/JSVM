@@ -122,6 +122,13 @@ js.util.LinkedList = function (array){
         return -1;
     };
 
+    thi$.replace = function(e, newE){
+        var idx = this.indexOf(e);
+        if(idx != -1){
+            this.splice(idx, 1, newE);
+        }
+    };
+
     thi$.contains = function(e){
         return this.indexOf(e) != -1;
     };

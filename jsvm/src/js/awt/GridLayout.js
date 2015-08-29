@@ -81,8 +81,8 @@ js.awt.GridLayout = function (def){
      */    
     thi$.layoutContainer = function(container){
         var bounds = container.getBounds(), MBP = bounds.MBP, 
-        grid = this.grid, items = container.items0(), comp, 
-        constraints, rIdx, cIdx, cell, x, y, w, h, compz;
+            grid = this.grid, items = container.items0(), comp, 
+            constraints, rIdx, cIdx, cell, x, y, w, h, compz;
         
         grid.layout(MBP.paddingLeft, MBP.paddingTop, 
                     bounds.innerWidth, bounds.innerHeight);
@@ -97,7 +97,7 @@ js.awt.GridLayout = function (def){
                 compz = comp.getPreferredSize();
                 x = cell.x + cell.paddingLeft;
                 y = cell.y + cell.paddingTop;
-
+                
                 if(comp.isRigidWidth()){
                     x += (cell.innerWidth - compz.width)*comp.getAlignmentX();
                     w = compz.width;
@@ -106,7 +106,7 @@ js.awt.GridLayout = function (def){
                 }
 
                 if(comp.isRigidHeight()){
-                    y += (cell.innerHeight- compz.height)*comp.getAlignmentY();
+                    y += (cell.innerHeight - compz.height)*comp.getAlignmentY();
                     h = compz.height;
                 }else{
                     h = cell.innerHeight;
@@ -125,8 +125,8 @@ js.awt.GridLayout = function (def){
 
         def.classType = "js.awt.GridLayout";
         arguments.callee.__super__.apply(this, arguments);
-        
-        this.grid = new (Class.forName("js.awt.Grid"))(def);
+        def.gridClass = def.gridClass || "js.awt.Grid";
+        this.grid = new (Class.forName(def.gridClass))(def);
 
     }.$override(this._init);
 

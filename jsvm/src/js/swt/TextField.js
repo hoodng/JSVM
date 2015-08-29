@@ -432,9 +432,7 @@ js.swt.TextField = function(def){
     
     var _onKeyUp = function(e){
         e.cancelBubble();
-        
-        // _onValueChanged.$clearTimer();
-        // _onValueChanged.$delay(this, 500, e);
+
         _onValueChanged.call(this, e);
     };
     

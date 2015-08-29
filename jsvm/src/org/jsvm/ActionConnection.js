@@ -1,22 +1,24 @@
 /**
- * Copyright (c) Jinfonet Inc. 2000-2012, All rights reserved.
- * 
- * @File: ActionConnection.js
- * @Create: 2013/12/23
- * @Author: dong.hu@china.jinfonet.com
+ Copyright 2007-2015, The JSVM Project.
+ All rights reserved.
+
+ *
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
-$package("com.jinfonet");
+$package("org.jsvm");
 
-$import("com.jinfonet.BlockingAction");
+$import("org.jsvm.BlockingAction");
 
 /**
  * 
  */
-com.jinfonet.ActionConnection = function(isAsync){
+org.jsvm.ActionConnection = function(isAsync){
     
-    var CLASS = com.jinfonet.ActionConnection,
-        thi$ = CLASS.prototype;
+    var CLASS = org.jsvm.ActionConnection, thi$ = CLASS.prototype;
     
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
@@ -25,7 +27,7 @@ com.jinfonet.ActionConnection = function(isAsync){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, System = J$VM.System, 
-        Event = js.util.Event, AQ = com.jinfonet.BlockingAction,
+        Event = js.util.Event, AQ = org.jsvm.BlockingAction,
         Base64 = Class.forName("js.util.Base64");
 
     thi$.isAsync = function(){
@@ -170,3 +172,4 @@ com.jinfonet.ActionConnection = function(isAsync){
     this._init.apply(this, arguments);
 
 }.$extend(js.util.EventTarget);
+

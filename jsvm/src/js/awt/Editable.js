@@ -44,11 +44,32 @@ js.awt.Editable = function(){
         return;
     }
 
+    var Class = js.lang.Class;
+    
     thi$.getProperties = function(category){
         return {};
     };
 
     thi$.apply = function(category, properties){
+        
+    };
+
+    /**
+     * Return Editor def
+     */
+    thi$.getEditorDef = function(){
+    };
+
+    /**
+     * 
+     */
+    thi$.enterEdit = function(data){
+        var def = this.getEditorDef(), editor;
+        if(!def) return;
+        
+        editor = new (Class.forName(def.classType))(def, this.Runtime());
+        editor.initEdit(data, this);
+        editor.show();
         
     };
     

@@ -52,6 +52,8 @@ js.awt.Event = function(e){
     }
     CLASS.__defined__ = true;
 
+    var DOM = J$VM.DOM, Event = js.util.Event;
+
     thi$.eventXY = function(){
         return {x: this.clientX, y: this.clientY};
     };
@@ -96,70 +98,13 @@ js.awt.Event = function(e){
 
     }.$override(this.cancelDefault);
 
-    /**
-     *
-     */
-    thi$.isPointerDown = function(){
-        var type = this.getType();
-        return type == "pointerdown" || type == "mousedown";
+    var isOver = function(type){
+        return Event.W3C_EVT_MOUSE_OVER === type;
     };
 
-    /**
-     *
-     */
-    thi$.isPointerMove = function(){
-        var type = this.getType();
-        return type == "pointermove" || type == "mousemove";
+    var isOut = function(type){
+        return Event.W3C_EVT_MOUSE_OUT === type;
     };
-
-    /**
-     *
-     */
-    thi$.isPointerUp = function(){
-        var type = this.getType();
-        return type == "pointerup" || type == "mouseup";
-    };
-
-    /**
-     *
-     */
-    thi$.isPointerOver = function(){
-        var type = this.getType();
-        return type == "pointerover" || type == "mouseover";
-    };
-
-    /**
-     *
-     */
-    thi$.isPointerOut = function(){
-        var type = this.getType();
-        return type == "pointerout" || type == "mouseout";
-    };
-
-    /**
-     *
-     */
-    thi$.isPointerEnter = function(){
-        var type = this.getType();
-        return type == "pointerenter" || "mouseenter";
-    };
-
-    /**
-     *
-     */
-    thi$.isPointerLeave = function(){
-        var type = this.getType();
-        return type == "pointerleave" || "mouseleave";
-    };
-
-    /**
-     *
-     */
-    thi$.isPointerCancel = function(){
-        var type = this.getType();
-        return type == "pointercancel";
-    };
-
 
     thi$._init = function(e){
         var _e = this._event = e || window.event;
@@ -167,7 +112,9 @@ js.awt.Event = function(e){
         arguments.callee.__super__.call(this, _e.type, _e);
 
         var ie = (_e.stopPropagation == undefined),
-            ff = (J$VM.firefox != undefined);
+            ff = (J$VM.firefox != undefined),
+            domE =  document.documentElement,
+            body =  document.body;
 
         this.altKey   = _e.altKey   || false;
         this.ctrlKey  = _e.ctrlKey  || false;
@@ -177,17 +124,8 @@ js.awt.Event = function(e){
         this.keyCode  = ie ? _e.keyCode : _e.which;
 
         // Left:1, Right:2, Middle:4
-        switch(_e.button){
-        case 0:
-            this.button = 1;
-            break;
-        case 1:
-            this.button = ie ? 1 : 4;
-            break;
-        default:
-            this.button = _e.button;
-            break;
-        }
+        this.button = _e.buttons != undefined ?
+            _e.buttons : _e.button;
 
         this.pointerId = _e.pointerId || 0;
         this.pointerType = _e.pointerType ||
@@ -197,9 +135,9 @@ js.awt.Event = function(e){
         this.pageY = _e.pageY;
 
         this.clientX = !isNaN(_e.pageX) ? _e.pageX
-            : (_e.clientX + document.documentElement.scrollLeft - document.body.clientLeft);
+                     : (_e.clientX + domE.scrollLeft - body.clientLeft);
         this.clientY = !isNaN(_e.pageY) ? _e.pageY
-            : (_e.clientY + document.documentElement.scrollTop - document.body.clientTop);
+                     : (_e.clientY + domE.scrollTop - body.clientTop);
 
         this.offsetX = ff ? _e.layerX : _e.offsetX;
         this.offsetY = ff ? _e.layerY : _e.offsetY;
@@ -207,11 +145,14 @@ js.awt.Event = function(e){
         this.srcElement = ie ? _e.srcElement : _e.target;
 
         this.fromElement= ie ? _e.fromElement :
-            (this.isPointerOver() ? _e.relatedTarget :
-             (this.isPointerOut()  ? _e.target : undefined));
+            (isOver(_e.type) ? _e.relatedTarget :
+             (isOut(_e.type)  ? _e.target : undefined));
+        
         this.toElement  = ie ? _e.toElement :
-            (this.isPointerOut() ? _e.relatedTarget :
-             (this.isPointerOver() ? _e.target : undefined));
+            (isOut(_e.type) ? _e.relatedTarget :
+             (isOver(_e.type) ? _e.target : undefined));
+
+        this.setEventTarget(DOM.getEventTarget(this.srcElement));
 
     }.$override(this._init);
 

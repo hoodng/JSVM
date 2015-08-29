@@ -385,6 +385,7 @@ public class Compiler extends ConsoleApp {
 		int rootLen = root.getAbsolutePath().length();
 		for (File jz : jzFiles) {
 			String key = jz.getAbsolutePath().substring(rootLen+1);
+			key = key.replaceAll("\\\\", "/");
 			packJson.put(key, jz.lastModified());
 		}
 		InputStream ins = null;

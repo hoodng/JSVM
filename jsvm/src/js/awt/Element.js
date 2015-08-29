@@ -328,8 +328,8 @@ js.awt.Element = function(def, Runtime){
         if(nocache === true || !ret){
             d = this.getBounds();
             this.setMinimumSize(
-                this.isRigidWidth() ? d.width : d.MBP.BPW, 
-                this.isRigidHeight()? d.height: d.MBP.BPH);
+                this.isRigidWidth() ? d.width : d.MBP.BPW+1, 
+                this.isRigidHeight()? d.height: d.MBP.BPH+1);
             ret = this.def.miniSize;
         }
         return ret;
@@ -345,7 +345,7 @@ js.awt.Element = function(def, Runtime){
         var d, ret = this.def.maxiSize;
         if(nocache === true || !ret){
             d = this.getBounds();
-            this.setMaximumSize(Number.MAX_VALUE, Number.MAX_VALUE);
+            this.setMaximumSize(0xFFFF, 0xFFFF);
             ret = this.def.maxiSize;
         }
         return ret;
@@ -483,10 +483,7 @@ js.awt.Element = function(def, Runtime){
      * Test if the specified (x, y) is in area of the component 
      */
     thi$.inside = function(x, y){
-        var d = this.getBounds(), 
-            minX = d.absX + d.MBP.borderLeftWidth, maxX = minX + d.clientWidth,
-            minY = d.absY + d.MBP.borderTopWidth,  maxY = minY + d.clientHeight;
-        return (x > minX && x < maxX && y > minY && y < maxY);
+        return DOM.inside(x, y, this.getBounds());
     };
 
     /**
@@ -496,11 +493,7 @@ js.awt.Element = function(def, Runtime){
      * @return {x, y}
      */
     thi$.relative = function(point){
-        var bounds = this.getBounds();
-        return {
-            x: point.x - bounds.absX - bounds.MBP.borderLeftWidth,
-            y: point.y - bounds.absY - bounds.MBP.borderTopWidth
-        };
+        return DOM.relative(point.x, point.y, this.getBounds());
     };
 
     /**
@@ -699,6 +692,26 @@ js.awt.Element = function(def, Runtime){
 
     };
 
+    thi$.spotIndex = function(ele, xy, dragObj){
+        var bounds, movable, resizable, idxes, idx = -1;
+
+        movable = this.isMovable() && this.isMoverSpot(ele, xy.x, xy.y);
+
+        bounds = this.getBounds();
+        idxes = DOM.offsetIndexes(xy.x, xy.y, bounds, movable);
+        if(idxes[1] === -1){
+            idx = movable ? 8 : -1;
+        }else{
+            idx = idxes[1];
+            if(idxes[0] === 9){
+                idx = movable ? 8 : (this.isResizable(idx) ? idx : -1);
+            }else{
+                idx = this.isResizable(idx) ? idx : (movable ? 8 : -1);
+            }
+        }
+        return idx;
+    };
+
     thi$.destroy = function(){
         if(this.destroied != true){
             delete this.peer;
@@ -730,6 +743,26 @@ js.awt.Element = function(def, Runtime){
         this.__buf__ = new js.lang.StringBuffer();
 
         CLASS.count++;
+
+        if(def.movable){
+            this.setMovable(def.movable);
+        }
+
+        if(def.resizable){
+            this.setResizable(def.resizable, def.resizer);
+        }
+        
+        if(def.prefSize){
+            this.isPreferredSizeSet = true;
+        }
+        
+        if(def.miniSize){
+            this.isMinimumSizeSet = true;
+        }
+        
+        if(def.maxiSize){
+            this.isMaximumSizeSet = true;
+        }        
         
         if(def.useUserDefinedTip === true){
             this.setTipUserDefined(true);
@@ -739,7 +772,11 @@ js.awt.Element = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.util.EventTarget).$implements(js.awt.State, js.awt.ToolTip);
+}.$extend(js.util.EventTarget).$implements(
+    js.awt.State, js.awt.Shadow, js.awt.Cover,
+    js.awt.Movable, js.awt.MoveObject,
+    js.awt.Resizable, js.awt.SizeObject,
+    js.awt.ToolTip);
 
 js.awt.Element.count = 0;
 
