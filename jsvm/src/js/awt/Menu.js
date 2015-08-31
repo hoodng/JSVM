@@ -203,7 +203,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	thi$.repaint = function(){
 		if(!this._local.repaint){
 			var M = this.def, bounds = this.getBounds(),
-			nodes = this.nodes, node;
+			    nodes = this.nodes, node, i, len;
 
 			var clientH = document.documentElement.clientHeight,
 			height = this.def.height ? this.def.height : bounds.height;
@@ -236,7 +236,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 				this.setFloating(true);
 			}
 
-			var nodes = this.nodes, node, i, len;
+			nodes = this.nodes;
 			for(i=0, len=nodes.length; i<len; i++){
 				node = nodes[i];
 				if(!(node instanceof js.awt.MenuSeparator)){
@@ -378,9 +378,9 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		}
 
 		this.setAttribute("touchcapture", "true");
-		Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
-		Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
-		Event.attachEvent(this.view, "click",	  0, this, _onclick);
+		this.attachEvent("mouseover", 4, this, _onmouseover);
+		this.attachEvent("mouseout",  4, this, _onmouseover);
+		this.attachEvent("click",	  4, this, _onclick);
 
 		MQ.register("js.awt.event.ItemTextEvent", this, _onMenuItem);
 

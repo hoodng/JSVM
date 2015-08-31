@@ -501,7 +501,7 @@ J$VM = new function (){
                 $args = slice.call(arguments, 2);
 
             (function(v, i, set){
-                if(fn.apply(thi$, $args.concat(v, i, set))){
+                if(!fn.apply(thi$, $args.concat(v, i, set))){
                     ret = false;
                     throw "break";
                 }

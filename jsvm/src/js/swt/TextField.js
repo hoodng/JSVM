@@ -539,7 +539,7 @@ js.swt.TextField = function(def){
         DOM.appendTo(rView, this.view);     
         
         E.attachEvent(rView, "selectstart", 1, this, _onselectstart);
-        E.attachEvent(rView, "mousedown", 0, this, _onMouseDown);
+        this.attachEvent("mousedown", 4, this, _onMouseDown);
         E.attachEvent(rView, "focus", 1, this, _onFocus);
     };
     

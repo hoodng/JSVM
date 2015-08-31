@@ -94,7 +94,7 @@ js.awt.MoveObject = function(){
         var autofit = false, thip, bounds, pounds,
             styles, hscroll, vscroll;
 
-        thip = DOM.getEventTarget(
+        thip = DOM.getComponent(
             DOM.offsetParent(this.view), true, this.Runtime()),
         autofit = thip.isAutoFit ? thip.isAutoFit() : false;
 
@@ -296,6 +296,10 @@ js.awt.Movable = function (){
             mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
             mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
         }
+    };
+
+    thi$.getMoverInfo = function(){
+        return this.def.mover;
     };
 };
 

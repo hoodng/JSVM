@@ -54,7 +54,7 @@ js.awt.Highlighter = function(){
 	
 	var Class = js.lang.Class, String = js.lang.String,
 	Math = js.lang.Math, StringBuffer = js.lang.StringBuffer,
-	System = J$VM.System,
+	System = J$VM.System, DOM = J$VM.DOM,
 	
 	SKit = Class.forName("js.swt.SearchKit");
 	
@@ -152,8 +152,7 @@ js.awt.Highlighter = function(){
 		
 		styleClass = highlightClass;
 		if(!Class.isString(styleClass) || styleClass.length == 0){
-			styleClass = this.__buf__.clear().append(this.def.className)
-				.append("_").append("highlight").toString();
+			styleClass = DOM.combineClassName(this.def.className, "highlight");
 		}
 		
 		newText = text.replace(
@@ -200,8 +199,7 @@ js.awt.Highlighter = function(){
 		
 		styleClass = highlightClass;
 		if(!Class.isString(styleClass) || styleClass.length == 0){
-			styleClass = this.__buf__.clear().append(this.def.className)
-				.append("_").append("highlight").toString();
+			styleClass = DOM.combineClassName(this.def.className, "highlight");
 		}
 		
 		ids = [];

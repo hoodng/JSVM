@@ -1566,7 +1566,7 @@ js.util.Document = function (){
 		return ret;
 	};
 
-    thi$.getEventTarget = function(ele, create, Runtime){
+    thi$.getComponent = function(ele, create, Runtime){
         var obj = null, uuid, parent;
         if(!ele || ele === self.document) return obj;
 
@@ -1581,7 +1581,7 @@ js.util.Document = function (){
             obj = new js.awt.Component({uuid:uuid}, Runtime, ele);
         }else{
             // Return the ancestor which is a js.lang.Object
-            obj = this.getEventTarget(ele.parentNode);
+            obj = this.getComponent(ele.parentNode);
         }
 
         return obj;
@@ -1664,28 +1664,29 @@ js.util.Document = function (){
         "n-resize",
         "move",
         "ew-resize",
-        "ns-resize"
+        "ns-resize",
+        "default"
     ];
     
-    thi$.getCursor = function(index){
+    thi$.getDynamicCursor = function(index){
         return index >= 0 ? CURSORS[index] : null;
     };
+
+    var _ele, _cursor;
     
-    thi$.setCursor = function(ele, cursor){
-        var cur = ele.getAttribute("pre_cursor");
-        if(!Class.isString(cur)){
-            cur = this.getStyle(ele, "cursor");
-            if(cur === ""){
-                cur = "default";
-            }
-            ele.setAttribute("pre_cursor", cur);
+    thi$.setDynamicCursor = function(ele, cursor){
+
+        if(_ele){
+            _ele.style.cursor = _cursor;
         }
 
-        ele.style.cursor = "default";
+        if(ele !== _ele){
+            _ele = ele;
+            _cursor = this.getStyle(ele, "cursor");
+        }
+
         if(cursor){
             ele.style.cursor = cursor;
-        }else{
-            ele.style.cursor = cur;
         }
     };
 
