@@ -39,10 +39,6 @@ $package("js.awt");
 
 $import("js.awt.BaseComponent");
 $import("js.awt.Editable");
-$import("js.awt.Movable");
-$import("js.awt.PopupLayer");
-$import("js.awt.Resizable");
-$import("js.awt.Shadow");
 $import("js.util.Observer");
 
 /**
@@ -204,31 +200,6 @@ js.awt.Component = function (def, Runtime, view){
 
     }.$override(this.setBounds);
     
-    thi$._adjust = function(cmd, show){
-        switch(cmd){
-        case "move":
-        case "resize":
-            var bounds = this.getBounds();
-            this.adjustCover(bounds);
-            this.adjustShadow(bounds);
-            break;
-        case "zorder":
-            var z = this.getZ();
-            this.setCoverZIndex(z);
-            this.setShadowZIndex(z);
-            break;
-        case "display":
-            this.setCoverDisplay(show);
-            this.setShadowDisplay(show);
-            break;
-        case "remove":
-            this.removeCover();
-            this.removeShadow();
-            break;
-        }
-
-    }.$override(this._adjust);
-    
     /**
      * Tests whether this component has scroll bar
      * 
@@ -387,22 +358,10 @@ js.awt.Component = function (def, Runtime, view){
         if(arguments.callee.__super__.apply(this, arguments)){
             var M = this.def;
 
-            // For shadow
-            if(M.shadow === true && !this.shadowSettled()){
-                this.setShadowy(true);
-            }
-            
             // For floating layer
             if(M.isfloating === true && !this.floatingSettled()){
                 this.setFloating(true);
             }
-
-            if(this.shadowSettled()){
-                this.addShadow();
-                this.adjustShadow();
-            }
-            
-            this.showDisableCover(!this.isEnabled());
 
             return true;
         }
@@ -519,9 +478,6 @@ js.awt.Component = function (def, Runtime, view){
      */
     thi$.destroy = function(){
         if(this.destroied != true){
-            this.setShadowy(false);
-            this.setResizable(false);
-            this.setMovable(false);
 
             if(this.controller){
                 this.controller.destroy();
@@ -540,21 +496,6 @@ js.awt.Component = function (def, Runtime, view){
         }
     }.$override(this.destroy);
     
-    thi$.getLastResizer = function(){
-        var resizer = this._local.resizer, 
-        len = resizer ? resizer.length : 0,
-        el;
-        
-        for(var i = 0; i < len; i++){
-            el = resizer[i];
-            if(el){
-                return el;
-            }
-        }
-        
-        return undefined;
-    };
-
     /**
      * When some propery of component was changed, it may cause the layout of parent component change,
      * So we must find the parent component which take charge of the change and redo layout.

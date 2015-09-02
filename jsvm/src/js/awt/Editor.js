@@ -29,38 +29,31 @@
  OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
- * File: (>>>FILE<<<)
- * Create: (>>>VC_DATE<<<)
- * Author: 
+ * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
  * Source code availability: https://github.com/jsvm/JSVM
  */
 
-$package("(>>>package<<<)");
+$package("js.awt");
 
-/**
- *
- * 
- */
-(>>>package<<<).(>>>FILE_SANS<<<) = function(def, Runtime){
-    var CLASS = (>>>package<<<).(>>>FILE_SANS<<<),
-    thi$ = CLASS.prototype;
-    
+js.awt.Editor = function(){
+
+    var CLASS = js.awt.Editor, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
-        this._init.apply(this, arguments);
         return;
     }
     CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, System = J$VM.System;
-    
-    thi$._init = function(def, Runtime){
-        if(typeof def !== "object") return;
+
+    var Class = js.lang.Class;
+
+    thi$.initEdit = function(data, listener){
+        
+    };
+
+    thi$.show = function(){
         
     };
     
-    this._init.apply(this, arguments);
 };
->>>TEMPLATE-DEFINITION-SECTION<<<
-("package" "Class Package: ")
+

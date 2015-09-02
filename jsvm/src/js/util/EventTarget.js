@@ -155,11 +155,12 @@ js.util.EventTarget = function (def, Runtime){
         }
 
         // Bubble event
-        if(isEventObj && (bubble === true) && 
-           (evt._bubble === true)){
-            var p = this.getContainer ? this.getContainer() : undefined;
-            if(p && p.fireEvent){
-                p.fireEvent(evt, bubble);
+        if(isEventObj && (bubble === true && evt._bubble === true)){
+            var src = this.view || evt.srcElement,
+                ele = src ? src.parentNode : null,
+                target = J$VM.DOM.getComponent(ele);
+            if(target && target.fireEvent){
+                target.fireEvent(evt, bubble);
             }
         }
     };
@@ -169,7 +170,8 @@ js.util.EventTarget = function (def, Runtime){
         cap = cap || false;
         if(cap){
             parent = this.getContainer ? this.getContainer() : null;
-            cap = cap && ((parent && parent.canCapture) ? parent.canCapture() : false);
+            cap = cap && ((parent && parent.canCapture) ?
+                          parent.canCapture() : false);
         }
         return cap;
     };

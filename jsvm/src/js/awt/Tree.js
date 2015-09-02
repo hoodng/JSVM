@@ -1305,14 +1305,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			this.insertNodes(0, def.nodes);
 		}
 
-		Event.attachEvent(treeView, "mouseover", 0, this, _onmouseover);
-		Event.attachEvent(treeView, "mouseout",	 0, this, _onmouseover);
-		Event.attachEvent(treeView, "click",	 0, this, _onclick);
-		Event.attachEvent(treeView, "dblclick",	 0, this, _onclick);
-
+		this.attachEvent("mouseover",  4, this, _onmouseover);
+		this.attachEvent("mouseout",   4, this, _onmouseover);
+		this.attachEvent("click",	   4, this, _onclick);
+		this.attachEvent("dblclick",   4, this, _onclick);
 		// Avoid autoscroll when drag item.
-		Event.attachEvent(treeView, "mousedown", 1, this, _onmousedown);
+		this.attachEvent("mousedown",  4, this, _onmousedown);
 
+        
 		if(this.isMovable()){
 			MQ.register(this.dataProvider.getDragMsgType(), this, _ondrag);
 		}

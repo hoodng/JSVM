@@ -358,9 +358,6 @@ js.awt.Container = function (def, Runtime, view){
     thi$.doLayout = function(force){
         if(arguments.callee.__super__.apply(this, arguments)){
             this.layoutComponents(force);
-            if(this.isCovering()){
-                this.adjustCover(this.getBounds());
-            }
             return true;
         }
 

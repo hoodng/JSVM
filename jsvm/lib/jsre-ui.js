@@ -197,45 +197,19 @@ js.awt.Editable = function(){
 
 
 /**
-
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
+  Copyright 2008-2015, The JSVM Project. 
+  All rights reserved.
+  
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
 
-js.awt.Cover = function (comp){
+js.awt.Cover = function (){
 
     var CLASS = js.awt.Cover, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -243,138 +217,94 @@ js.awt.Cover = function (comp){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
+    var Class = js.lang.Class, DOM = J$VM.DOM;
 
+    thi$.showCover = function(b, className, modifier){
+        var view = this._coverView, selector;
+
+        selector = DOM.combineClassName(
+            ["jsvm_", className||""].join(" "),
+            ["cover", modifier? "cover--"+modifier:""]);
+        
+        if(b){
+            if(!view){
+                _createView.call(this, selector);
+            }
+            this.adjustCover();
+        }else{
+            if(view && view.className === selector){
+                this.removeCover();                
+            }
+        }
+    };
+
+    var _createView = function(selector){
+        var cview = this.view, view, uuid;
+
+        uuid = this.uuid();
+        view = this._coverView = DOM.createElement("DIV");
+        view.uuid = [uuid, "cover"].join("-");
+        view.id = [this.getID(), "cover"].join("-");
+        view.className = selector;
+        view.style.position = "absolute";
+        view.style.zIndex = this.getZ();
+        if(cview === self.document.body){
+            cview.appendChild(view);
+        }else{
+            DOM.insertAfter(view, cview);
+        }
+    };
+    
     /**
      * Show loading status in this cover
      */
     thi$.showLoading = function(b, styleClass){
-        b = b || false;
-        if(b && this._coverView) return;
-        
-        styleClass = styleClass || DOM.combineClassName(this.className, "loading");
-        _showCover.call(this, b, styleClass);
+        this.showCover(b, styleClass, "loading");
     };
     
-    /**
-     * Show cover for resizing with class name "jsvm_resizecover"
-     */
-    thi$.showResizeCover = function(b){
-        b = b || false;
-        if(b && this._coverView) return;
-
-        var styleClass = DOM.combineClassName(this.className, "resizecover");
-        _showCover.call(this, b, styleClass);
-    };
-
     /**
      * Show cover for moving with class name "jsvm_movecover"
      */
-    thi$.showMoveCover = function(b){
-        b = b || false;
-        if(b && this._coverView) return;
-
-        var styleClass = DOM.combineClassName(this.className, "movecover");
-        _showCover.call(this, b, styleClass);
+    thi$.showMoveCover = function(b, styleClass){
+        this.showCover(b, styleClass, "move");
     };
 
     thi$.showMaskCover = function(b, styleClass){
-        b = b || false;
-        if(b && this._coverView) return;
-
-        styleClass = styleClass || DOM.combineClassName(this.className, "mask");
-        _showCover.call(this, b, styleClass);
+        this.showCover(b, styleClass, "mask");
     };
 
-    thi$.showDisableCover = function(b){
-        b = b || false;
-        if(b && this._coverView) return;
-
-        var styleClass = DOM.combineClassName(this.className, "disable");
-        _showCover.call(this, b, styleClass);
-    };
-
-    thi$.showCover = function(b, style){
-        b = b || false;
-        if(b && this._coverView) return;
-
-        _showCover.call(this, b, (style || "jsvm_cover"));
-    };
-
-    /**
-     * Show cover
-     * 
-     * @param b, true show the cover and false hide the cover
-     */
-    var _showCover = function(b, style){
-        var cover = this._coverView, body = self.document.body;
-
-        if(b){
-            if(cover == undefined){
-                cover = this._coverView = DOM.createElement("DIV");
-                cover.className = style;
-                cover.style.cssText = "position:absolute;";             
-
-                var el = (typeof this.getLastResizer == "function") ?
-                    (this.getLastResizer() || this.view) :this.view;
-                
-                if(el !== body){
-                    DOM.insertAfter(cover, el);
-                }else{
-                    body.appendChild(cover);
-                }
-            }
-
-            this.adjustCover();
-            
-        }else{
-            if(cover && cover.className == style){
-                cover.style.cursor = "default"; 
-                this.removeCover();
-            }
-        }
-    };
-    
-    thi$.setCoverZIndex = function(z){
-        var cover = this._coverView;
-        if(cover){
-            z = z || this.getZ();
-            cover.style.zIndex = z;
-        }
-    };
-
-    thi$.setCoverDisplay = function(show){
-        var cover = this._coverView;
-        if(cover){
-            cover.style.display = show;
-        }
+    thi$.showDisableCover = function(b, styleClass){
+        this.showCover(b, styleClass, "disable");
     };
 
     /**
      * Adjust the postion and size of the cover
      */
     thi$.adjustCover = function(bounds){
-        var cover = this._coverView, U = this._local;
-        if(cover){
-            bounds = bounds || this.getBounds();
-            DOM.setBounds(cover,
-                          bounds.x, 
-                          bounds.y,
-                          bounds.width + bounds.MBP.MW, 
-                          bounds.height+ bounds.MBP.MH);    
-        }
-    };
-    
-    thi$.removeCover = function(){
-        if(this._coverView){
-            DOM.remove(this._coverView, true);
-            this._coverView = undefined;
-        }
+        var view = this._coverView;
+        if(!view) return;
+        bounds = bounds || this.getBounds();
+        DOM.setBounds(view,bounds.x, bounds.y,
+                      bounds.width, bounds.height);    
     };
 
-    thi$.isCovering = function(){
-        return this._coverView != undefined;
+    thi$.setCoverZIndex = function(z){
+        var view = this._coverView;
+        if(!view) return;
+        view.style.zIndex = z;
+    };
+    
+    thi$.setCoverDisplay = function(show){
+        var view = this._coverView;
+        if(!view) return;
+        view.style.display = show;
+    };
+
+    thi$.removeCover = function(){
+        var view = this._coverView;
+        if(!view) return;
+        DOM.remove(view, true);
+        delete this._coverView;
     };
 
 };
@@ -383,46 +313,20 @@ js.awt.Cover = function (comp){
 
 
 /**
-
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
+  Copyright 2008-2015, The JSVM Project. 
+  All rights reserved.
+  
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
 
 /**
- * A <em>Shodow</em> is used to support shodow of a component.<p>
+ * A <code>Shodow</code> is used to support shodow of a component.
  */
 js.awt.Shadow = function (){
 
@@ -432,74 +336,63 @@ js.awt.Shadow = function (){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System;
-
-    var shadowbounds;
-
-    thi$.setShadowy = function(b){
-        b = b || false;
-        if(b){
-            var shadow = this._shadowView = DOM.createElement("DIV");
-            shadow.className = "jsvm_shadow";
-            shadow.style.cssText = "position:absolute;";
-            shadow.uuid = this.uuid();
-        }else{
-            if(this._shadowView){
-                this.removeShadow(true);
-                delete this._shadowView;
-            }
-        }
-        
-        shadowbounds = shadowbounds || {
-            BBM: J$VM.supports.borderBox,
-            MBP: {BW: 0, BH: 0, PW: 0, PH: 0, BPW: 0, BPH: 0}
-        };
-
-        this._local.shadowSettled = true;
-    };
+    var Class = js.lang.Class, DOM = J$VM.DOM;
     
-    thi$.shadowSettled = function(){
-        return this._local.shadowSettled || false;
-    };
-
-    thi$.addShadow = function(){
-        var shadow = this._shadowView;
-        if(shadow && this.isDOMElement()){
-            shadow.style.zIndex = this.getZ();
-            DOM.insertBefore(shadow, this.view);
+    thi$.showShadow = function(b, className){
+        var view = this._shadowView, selector;
+        selector = DOM.combineClassName(
+            ["jsvm_", className||""].join(" "),
+            ["shadow"]);
+        
+        if(b){
+            if(!view){
+                _createView.call(this, selector);
+            }
+            this.adjustShadow();
+        }else{
+            this.removeShadow();
         }
     };
 
-    thi$.removeShadow = function(gc){
-        var shadow = this._shadowView;
-        if(shadow){
-            DOM.remove(shadow, gc);
-        }
+    var _createView = function(selector){
+        var cview = this.view, view, uuid;
+        if(cview === self.document.body) return;
+
+        uuid = this.uuid();
+        view = this._shadowView = DOM.createElement("DIV");
+        view.uuid = uuid;
+        view.id = [this.getID(), "shadow"].join("-");
+        view.className = selector;
+        view.style.position = "absolute";
+        view.style.zIndex = this.getZ();
+        DOM.insertBefore(view, cview);
     };
 
     thi$.adjustShadow = function(bounds){
-        var shadow = this._shadowView, U = this._local;
-        if(shadow){
-            bounds = bounds || this.getBounds();
-            DOM.setBounds(shadow, bounds.offsetX, bounds.offsetY, 
-                          bounds.width, bounds.height, shadowbounds);
-        }
+        var view = this._shadowView;
+        if(!DOM.isDOMElement(this.view) || !view) return;
+        bounds = bounds || this.getBounds();
+        DOM.setBounds(view, bounds.x, bounds.y, 
+                      bounds.width, bounds.height);
     };
 
     thi$.setShadowZIndex = function(z){
-        var shadow = this._shadowView;
-        if(shadow){
-            z = z || this.getZ();
-            shadow.style.zIndex = z;
-        }            
+        var view = this._shadowView;
+        if(!view) return;
+        view.style.zIndex = z;
     };
 
     thi$.setShadowDisplay = function(show){
-        var shadow = this._shadowView;
-        if(shadow){
-            shadow.style.display = show;
-        }            
+        var view = this._shadowView;
+        if(!view) return;
+        view.style.display = show;
+    };
+
+    thi$.removeShadow = function(){
+        var view = this._shadowView;
+        if(!view) return;
+        DOM.remove(view, true);
+        delete this._shadowView;
     };
 };
 
@@ -580,6 +473,7 @@ js.awt.MoveObject = function(){
      */
     thi$.releaseMoveObject = function(){
         if(this != this.movingPeer){
+            this.movingPeer.moveObj = null;
             delete this.movingPeer;            
             this.destroy();
         }else{
@@ -587,43 +481,6 @@ js.awt.MoveObject = function(){
         }
     };
 
-    var isScroll = {auto: true, visible: true, scroll: true};
-
-    /**
-     * @return {Object} {
-     *  container: container element
-     *  range:[minX, minY, maxX, maxY]
-     * }
-     */
-    thi$.getMoveContext = function(){
-        var autofit = false, thip, bounds, pounds,
-            styles, hscroll, vscroll;
-
-        thip = DOM.getEventTarget(
-            DOM.offsetParent(this.view), true, this.Runtime()),
-        autofit = thip.isAutoFit ? thip.isAutoFit() : false;
-
-        styles = DOM.currentStyles(thip.view);
-        hscroll = isScroll[styles.overflowX];
-        vscroll = isScroll[styles.overflowY];
-
-        bounds = this.getBounds();
-        pounds = thip.getBounds();
-        
-        return{
-            container: thip,
-            range: [
-                0 - bounds.width,
-                0 - bounds.height,
-                hscroll ? 0xFFFF : pounds.innerWidth,
-                vscroll ? 0xFFFF : pounds.innerHeight
-            ],
-            autofit: autofit,
-            hscroll: hscroll,
-            vscroll: vscroll
-        }
-    };
-    
 };
 
 /**
@@ -661,9 +518,10 @@ js.awt.Movable = function (){
     
     thi$.startMoving = function(e){
         var moveObj = this.getMoveObject(e), 
-            ctx = moveObj.getMoveContext(), p = ctx.container.view,
+            ctx = moveObj.getMovingContext(), p = ctx.container.view,
             r = ctx.range, bounds = moveObj.getBounds(),
-            mover = this.def.mover, grid = mover.grid, bound=mover.bound,
+            mover = this.getMovingConstraints(),
+            grid = mover.grid, bound=mover.bound,
             bt = max(mover.bt*bounds.height, bound),
             br = max(mover.br*bounds.width,  bound),
             bb = max(mover.bb*bounds.height, bound),
@@ -683,7 +541,8 @@ js.awt.Movable = function (){
 
     thi$.processMoving = function(e){
         var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
-            bounds = moveObj.getBounds(), mover = this.def.mover,
+            bounds = moveObj.getBounds(),
+            mover = this.getMovingConstraints(),
             grid = mover.grid, freedom = mover.freedom,
             thip = ctx.container, p = thip.view,
             xy = e.eventXY(), oxy = ctx.eventXY,
@@ -725,7 +584,7 @@ js.awt.Movable = function (){
         MQ.post(moveObj.getMovingMsgType(), e, recvs);
 
         // Release MoveObject
-        MQ.post("releaseMoveObject", "", [this.uuid()]);
+        MQ.post("releaseMoveObject", moveObj, [this.uuid()]);
 
         moveObj.showMoveCover(false);
         if(ctx.moved){
@@ -734,12 +593,11 @@ js.awt.Movable = function (){
         delete moveObj._moveCtx;
     };
 
-    var _release = function(){
+    var _release = function(moveObj){
+        moveObj.releaseMoveObject();
         if(this.moveObj){
-            this.moveObj.releaseMoveObject();
-            delete this.moveObj;
+            delete this.moveObj;            
         }
-        
         MQ.cancel("releaseMoveObject", this, _release);
     };
 
@@ -802,6 +660,7 @@ js.awt.Movable = function (){
             mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
         }
     };
+
 };
 
 
@@ -856,6 +715,7 @@ js.awt.SizeObject = function(){
 
     thi$.releaseSizeObject = function(){
         if(this != this.sizingPeer){
+            this.sizingPeer.sizeObj = null;
             delete this.sizingPeer;
             this.destroy();
         }else{
@@ -865,23 +725,21 @@ js.awt.SizeObject = function(){
 };
 
 /**
- * A <em>Resizable</em> is used to support resizing a component.<p>
- * This function request a <em>resizer</em> definition as below in the def of
- * the component.
- * <p>
+ * A <code>Resizable</code> is used to support resizing a component.
+ * This function request a <code>resizer</code> definition as below 
+ * in the def of the component.
  *
  * def.resizer : number
- *                 8 bits for the 8 directions
- *                 7  6  5  4  3  2  1  0
- *                 N  NE E  SE S  SW W  NW
+ *  8 bits for the 8 directions
+ *  7  6  5  4  3  2  1  0
+ *  N  NE E  SE S  SW W  NW
  *
- *                 0 ---- 7 ---- 6
- *                 |             |
- *                 1             5
- *                 |             |
- *                 2 ---- 3 ---- 4
+ *  0 ---- 7 ---- 6
+ *  |             |
+ *  1             5
+ *  |             |
+ *  2 ---- 3 ---- 4
  *
- * <p>
  * When the component is resizing, the event "resizing" will be raised.
  * Other components can attach this event.
  */
@@ -900,7 +758,7 @@ js.awt.Resizable = function(){
 
     thi$.startSizing = function(e, i){
         var moveObj = this.getSizeObject(e),
-            ctx = moveObj.getMoveContext();
+            ctx = moveObj.getMovingContext();
 
         ctx.eventXY = e.eventXY();
         moveObj._moveCtx = ctx;        
@@ -911,7 +769,7 @@ js.awt.Resizable = function(){
         var sizeObj = this.getSizeObject(), ctx = sizeObj._moveCtx,
             thip = ctx.container, pounds = thip.getBounds(),
             bounds = sizeObj.getBounds(),
-            mover = this.def.mover, grid = mover.grid, 
+            mover = this.getMovingConstraints(), grid = mover.grid, 
             minSize = sizeObj.getMinimumSize(),
             maxSize = sizeObj.getMaximumSize(),
             xy = e.eventXY(), minV, maxV, v0, v1, x, y, w, h;
@@ -981,6 +839,8 @@ js.awt.Resizable = function(){
             sizeObj.setSize(w, h);
             ctx.sized = true;
         }
+        
+        sizeObj.getSizingPeer().adjustOutline(bounds);
 
         // Notify all message receivers
         var recvs = sizeObj.getSizingMsgRecvs() || [];
@@ -1008,15 +868,14 @@ js.awt.Resizable = function(){
         MQ.post(sizeObj.getSizingMsgType(), e, recvs);
 
         // Release SizeObject
-        MQ.post("releaseSizeObject", "", [this.uuid()]);
+        MQ.post("releaseSizeObject", sizeObj, [this.uuid()]);
     };
     
-    var _release = function(){
+    var _release = function(sizeObj){
+        sizeObj.releaseSizeObject();
         if(this.sizeObj){
-            this.sizeObj.releaseSizeObject();
             delete this.sizeObj;
         }
-
         MQ.cancel("releaseSizeObject", this, _release);
     };
 
@@ -1033,9 +892,9 @@ js.awt.Resizable = function(){
             bounds = this.getBounds();
             def = {
                 classType: "js.awt.Component",
-                className: "jsvm--resize-cover " 
-                         + DOM.combineClassName(
-                             this.className, "--resize-cover", ""),
+                className: DOM.combineClassName(
+                    ["jsvm_", this.def.resizeClassName||""].join(" "),
+                    ["cover", "cover--resize"]),
                 css: "position:absolute;",
                 stateless: true,
 
@@ -1075,8 +934,6 @@ js.awt.Resizable = function(){
         return b;
     };
 
-    var resizerbounds;
-
     /**
      * Sets whether this component is resizable.
      *
@@ -1099,6 +956,204 @@ js.awt.Resizable = function(){
         }
     };
 };
+
+/**
+  Copyright 2008-2015, The JSVM Project. 
+  All rights reserved.
+  
+ *
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/hoodng/JSVM
+ */
+
+$package("js.awt");
+
+/**
+ * @param def:{
+ *     
+ * }
+ */
+js.awt.Outline = function(){
+
+    var CLASS = js.awt.Outline, thi$ = CLASS.prototype;
+    if (CLASS.__defined__) {
+        return;
+    }
+    CLASS.__defined__ = true;
+
+    var Class = js.lang.Class, DOM = J$VM.DOM,
+        LINES = ["top", "right", "bottom", "left",
+                 "nw", "w", "sw", "s", "se","e","ne","n"];
+
+    var _createView = function(i, lines, selector){
+        var cview = this._coverView || this.view, view, uuid;
+
+        uuid = this.uuid();
+        view = DOM.createElement("DIV");
+        view.uuid = uuid;
+        view.id = [this.getID(), LINES[i]].join("-");
+        view.className = selector;
+        view.style.position = "absolute";
+        view.style.zIndex = this.getZ();
+        if(cview === self.document.body){
+            cview.appendChild(view);
+        }else{
+            DOM.insertAfter(view, cview);            
+        }
+        lines.push(view);
+    };
+
+    thi$.showOutline = function(b, className){
+        var views = this._outlineView, clazz, ext, selector, bounds;
+
+        if(b){
+            if(!views){
+                bounds = this.getBounds();
+                views = this._outlineView = [];
+                clazz = ["jsvm_", className||""].join(" ");
+                for(var i=0; i<12; i++){
+                    if(i < 4 || this.isResizable(i-4)){
+                        ext = ["outline"];
+                        if(i < 4){
+                            ext.push(["outline", LINES[i]].join("--"));
+                        }else{
+                            ext.push("outline-resizer",
+                                     ["outline-resizer", LINES[i]].join("--"));
+                        }
+                        selector = DOM.combineClassName(clazz, ext);
+                        _createView.call(this, i, views, selector);
+                    }
+                }
+            }
+            this.adjustOutline(bounds);
+        }else{
+            this.removeOutline();
+        }
+    };
+
+    var SETBOUNDS = {
+        top: function(line, lbounds, bounds){
+            DOM.setBounds(line, bounds.x, bounds.y,
+                          bounds.width, lbounds.height, lbounds);
+        },
+        right: function(line, lbounds, bounds){
+            DOM.setBounds(line, (bounds.x + bounds.width-lbounds.width),
+                          bounds.y, lbounds.width, bounds.height, lbounds);
+        },
+        bottom: function(line, lbounds, bounds){
+            DOM.setBounds(line, bounds.x,
+                          (bounds.y+bounds.height-lbounds.height),
+                          bounds.width, lbounds.height, lbounds);
+        },
+        left: function(line, lbounds, bounds){
+            DOM.setBounds(line, bounds.x, bounds.y, lbounds.width,
+                          bounds.height, lbounds);
+        },
+        nw: function(line, lbounds, bounds){
+            DOM.setBounds(line, bounds.x, bounds.y,
+                          lbounds.width, lbounds.height, lbounds);
+        },
+        w: function(line, lbounds, bounds){
+            if(bounds.height <= 24){
+                line.style.visibility = "hidden";
+            }else{
+                DOM.setBounds(line, bounds.x,
+                              Math.round(bounds.y+(bounds.height/2)-lbounds.height/2),
+                              lbounds.width, lbounds.height, lbounds);
+                line.style.visibility = "visible";
+            }
+        },
+        sw: function(line, lbounds, bounds){
+            DOM.setBounds(line, bounds.x, bounds.y+bounds.height-lbounds.height,
+                          lbounds.width, lbounds.height, lbounds);
+        },
+        s: function(line, lbounds, bounds){
+            if(bounds.width <= 24){
+                line.style.visibility = "hidden";
+            }else{
+                DOM.setBounds(line,
+                              Math.round(bounds.x + bounds.width/2 - lbounds.width/2),
+                              bounds.y+bounds.height-lbounds.height,
+                              lbounds.width, lbounds.height, lbounds);
+                line.style.visibility = "visible";
+            }
+        },
+        se: function(line, lbounds, bounds){
+            DOM.setBounds(line, bounds.x+bounds.width-lbounds.width,
+                          bounds.y+bounds.height-lbounds.height,
+                          lbounds.width, lbounds.height, lbounds);
+        },
+        e: function(line, lbounds, bounds){
+            if(bounds.height <= 24){
+                line.style.visibility = "hidden";
+            }else{
+                DOM.setBounds(line,
+                              bounds.x+bounds.width-lbounds.width,
+                              Math.round(bounds.y+(bounds.height/2)-lbounds.height/2),
+                              lbounds.width, lbounds.height, lbounds);
+                line.style.visibility = "visible";
+            }
+        },
+        ne: function(line, lbounds, bounds){
+            DOM.setBounds(line,
+                          bounds.x+bounds.width-lbounds.width,
+                          bounds.y,
+                          lbounds.width, lbounds.height, lbounds);
+        },
+        n: function(line, lbounds, bounds){
+            if(bounds.width <= 24){
+                line.style.visibility = "hidden";
+            }else{
+                DOM.setBounds(line,
+                              Math.round(bounds.x + bounds.width/2 - lbounds.width/2),
+                              bounds.y,
+                              lbounds.width, lbounds.height, lbounds);
+                line.style.visibility = "visible";
+            }
+        }
+    };
+    
+    thi$.adjustOutline = function(bounds){
+        var views = this._outlineView, i, len, line, id, lbounds;
+        if(!DOM.isDOMElement(this.view) || !views) return;
+        bounds = bounds || this.getBounds();
+        for(i=0, len=views.length; i<len; i++){
+            line = views[i];
+            lbounds = DOM.getBounds(line);
+            id = line.id.split("-");
+            id = id[id.length-1];
+            SETBOUNDS[id](line, lbounds, bounds);
+        }
+    };
+
+    thi$.setOutlineZIndex = function(z){
+        var views = this._outlineView;
+        if(!views) return;
+        for(var i=0, len=views.length; i<len; i++){
+            views[i].style.zIndex = z;
+        }
+    };
+
+    thi$.setOutlineDisplay = function(show){
+        var views = this._outlineView;
+        if(!views) return;
+        for(var i=0, len=views.length; i<len; i++){
+            views[i].style.display = show;
+        }
+    };
+
+    thi$.removeOutline = function(){
+        var views = this._outlineView;
+        if(!views) return;
+        while(views.length > 0){
+            DOM.remove(views.shift(), true);
+        }
+        delete this._outlineView;
+    };
+};
+
 
 /**
 
@@ -3285,46 +3340,25 @@ js.awt.GridLayout = function (def){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
-
 $package("js.awt");
 
-$import("js.awt.State");
-$import("js.awt.ToolTip");
 $import("js.util.EventTarget");
+$import("js.awt.State");
+$import("js.awt.Shadow");
+$import("js.awt.Cover");
+$import("js.awt.Movable");
+$import("js.awt.Resizable");
+$import("js.awt.Outline");
+$import("js.awt.ToolTip");
 
 /**
  * Define general element
@@ -3997,6 +4031,52 @@ js.awt.Element = function(def, Runtime){
         return idx;
     };
 
+    thi$.getCursor = function(ele){
+        return "default";
+    };
+
+    thi$.getMovingConstraints = function(){
+        return this.def.mover;
+    };
+
+    var isScroll = {auto: true, visible: true, scroll: true};
+
+    /**
+     * @return {Object} {
+     *  container: container element
+     *  range:[minX, minY, maxX, maxY]
+     * }
+     */
+    thi$.getMovingContext = function(){
+        var autofit = false, thip, bounds, pounds,
+            styles, hscroll, vscroll;
+
+        thip = DOM.getComponent(
+            DOM.offsetParent(this.view), true, this.Runtime()),
+        autofit = thip.isAutoFit ? thip.isAutoFit() : false;
+
+        styles = DOM.currentStyles(thip.view);
+        hscroll = isScroll[styles.overflowX];
+        vscroll = isScroll[styles.overflowY];
+
+        bounds = this.getBounds();
+        pounds = thip.getBounds();
+        
+        return{
+            container: thip,
+            range: [
+                0 - bounds.width,
+                0 - bounds.height,
+                hscroll ? 0xFFFF : pounds.innerWidth,
+                vscroll ? 0xFFFF : pounds.innerHeight
+            ],
+            autofit: autofit,
+            hscroll: hscroll,
+            vscroll: vscroll
+        }
+    };
+    
+
     thi$.destroy = function(){
         if(this.destroied != true){
             delete this.peer;
@@ -4061,7 +4141,7 @@ js.awt.Element = function(def, Runtime){
     js.awt.State, js.awt.Shadow, js.awt.Cover,
     js.awt.Movable, js.awt.MoveObject,
     js.awt.Resizable, js.awt.SizeObject,
-    js.awt.ToolTip);
+    js.awt.Outline, js.awt.ToolTip);
 
 js.awt.Element.count = 0;
 
@@ -4105,7 +4185,6 @@ js.awt.Element.count = 0;
 
 $package("js.awt");
 
-$import("js.awt.Cover");
 $import("js.awt.Element");
 
 /**
@@ -4430,6 +4509,16 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
             el.style.zIndex = M.z;
 
+            if(M.shadow){
+                this.showShadow(true, M.shadowClassName);
+            }
+
+            if(!this.isEnabled()){
+                this.showDisableCover(true);
+            }
+
+            this._adjust("resize");
+
             ret = true;
         }
         
@@ -4484,7 +4573,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
             || (this.getStyle("display") === "none")) {
                 return false;
         }
-
+        this._adjust("resize");
         this._local.didLayout = true;
         
         return true;
@@ -4514,19 +4603,30 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
     
     thi$._adjust = function(cmd, show){
+        var bounds, z;
         switch(cmd){
         case "move":
         case "resize":
-            this.adjustCover(this.getBounds());
+            bounds = this.getBounds();
+            this.adjustShadow(bounds);
+            this.adjustCover(bounds);
+            this.adjustOutline(bounds);
             break;
         case "zorder":
-            this.setCoverZIndex(this.getZ());
+            z = this.getZ();
+            this.setShadowZIndex(z);
+            this.setCoverZIndex(z);
+            this.setOutlineZIndex(z);
             break;
         case "display":
+            this.setShadowDisplay(show);
             this.setCoverDisplay(show);
+            this.setOutlineDisplay(show);            
             break;
         case "remove":
+            this.removeShadow();
             this.removeCover();
+            this.removeOutline();
             break;
         }
     };
@@ -4624,7 +4724,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
      */
     thi$.MBP = function(){
         var G = this.getGeometric(this.className);
-        return System.objectCopy(MBP, {});
+        return System.objectCopy(G.bounds.MBP, {});
     };
     
     thi$.getGeometric = function(className){
@@ -4737,18 +4837,14 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
 
     thi$.destroy = function(){
-        if(this.destroied != true){
-            if(this._coverView){
-                this.removeCover();
-            }
-            
-            var view = this.view;
-            delete this.view;
-            
-            DOM.remove(view, true);
+        if(this.destroied) return;
 
-            arguments.callee.__super__.apply(this, arguments);    
-        }
+        this.removeOutline();
+        this.removeCover();
+        this.removeShadow();
+        DOM.remove(this.view, true);            
+        delete this.view;
+        arguments.callee.__super__.apply(this, arguments);    
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, view){
@@ -4852,10 +4948,6 @@ $package("js.awt");
 
 $import("js.awt.BaseComponent");
 $import("js.awt.Editable");
-$import("js.awt.Movable");
-$import("js.awt.PopupLayer");
-$import("js.awt.Resizable");
-$import("js.awt.Shadow");
 $import("js.util.Observer");
 
 /**
@@ -5017,31 +5109,6 @@ js.awt.Component = function (def, Runtime, view){
 
     }.$override(this.setBounds);
     
-    thi$._adjust = function(cmd, show){
-        switch(cmd){
-        case "move":
-        case "resize":
-            var bounds = this.getBounds();
-            this.adjustCover(bounds);
-            this.adjustShadow(bounds);
-            break;
-        case "zorder":
-            var z = this.getZ();
-            this.setCoverZIndex(z);
-            this.setShadowZIndex(z);
-            break;
-        case "display":
-            this.setCoverDisplay(show);
-            this.setShadowDisplay(show);
-            break;
-        case "remove":
-            this.removeCover();
-            this.removeShadow();
-            break;
-        }
-
-    }.$override(this._adjust);
-    
     /**
      * Tests whether this component has scroll bar
      * 
@@ -5200,22 +5267,10 @@ js.awt.Component = function (def, Runtime, view){
         if(arguments.callee.__super__.apply(this, arguments)){
             var M = this.def;
 
-            // For shadow
-            if(M.shadow === true && !this.shadowSettled()){
-                this.setShadowy(true);
-            }
-            
             // For floating layer
             if(M.isfloating === true && !this.floatingSettled()){
                 this.setFloating(true);
             }
-
-            if(this.shadowSettled()){
-                this.addShadow();
-                this.adjustShadow();
-            }
-            
-            this.showDisableCover(!this.isEnabled());
 
             return true;
         }
@@ -5332,9 +5387,6 @@ js.awt.Component = function (def, Runtime, view){
      */
     thi$.destroy = function(){
         if(this.destroied != true){
-            this.setShadowy(false);
-            this.setResizable(false);
-            this.setMovable(false);
 
             if(this.controller){
                 this.controller.destroy();
@@ -5353,21 +5405,6 @@ js.awt.Component = function (def, Runtime, view){
         }
     }.$override(this.destroy);
     
-    thi$.getLastResizer = function(){
-        var resizer = this._local.resizer, 
-        len = resizer ? resizer.length : 0,
-        el;
-        
-        for(var i = 0; i < len; i++){
-            el = resizer[i];
-            if(el){
-                return el;
-            }
-        }
-        
-        return undefined;
-    };
-
     /**
      * When some propery of component was changed, it may cause the layout of parent component change,
      * So we must find the parent component which take charge of the change and redo layout.
@@ -6042,9 +6079,6 @@ js.awt.Container = function (def, Runtime, view){
     thi$.doLayout = function(force){
         if(arguments.callee.__super__.apply(this, arguments)){
             this.layoutComponents(force);
-            if(this.isCovering()){
-                this.adjustCover(this.getBounds());
-            }
             return true;
         }
 
@@ -7625,7 +7659,7 @@ js.awt.Highlighter = function(){
 	
 	var Class = js.lang.Class, String = js.lang.String,
 	Math = js.lang.Math, StringBuffer = js.lang.StringBuffer,
-	System = J$VM.System,
+	System = J$VM.System, DOM = J$VM.DOM,
 	
 	SKit = Class.forName("js.swt.SearchKit");
 	
@@ -7723,8 +7757,7 @@ js.awt.Highlighter = function(){
 		
 		styleClass = highlightClass;
 		if(!Class.isString(styleClass) || styleClass.length == 0){
-			styleClass = this.__buf__.clear().append(this.def.className)
-				.append("_").append("highlight").toString();
+			styleClass = DOM.combineClassName(this.def.className, "highlight");
 		}
 		
 		newText = text.replace(
@@ -7771,8 +7804,7 @@ js.awt.Highlighter = function(){
 		
 		styleClass = highlightClass;
 		if(!Class.isString(styleClass) || styleClass.length == 0){
-			styleClass = this.__buf__.clear().append(this.def.className)
-				.append("_").append("highlight").toString();
+			styleClass = DOM.combineClassName(this.def.className, "highlight");
 		}
 		
 		ids = [];
@@ -10742,7 +10774,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	thi$.repaint = function(){
 		if(!this._local.repaint){
 			var M = this.def, bounds = this.getBounds(),
-			nodes = this.nodes, node;
+			    nodes = this.nodes, node, i, len;
 
 			var clientH = document.documentElement.clientHeight,
 			height = this.def.height ? this.def.height : bounds.height;
@@ -10775,7 +10807,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 				this.setFloating(true);
 			}
 
-			var nodes = this.nodes, node, i, len;
+			nodes = this.nodes;
 			for(i=0, len=nodes.length; i<len; i++){
 				node = nodes[i];
 				if(!(node instanceof js.awt.MenuSeparator)){
@@ -10917,9 +10949,9 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		}
 
 		this.setAttribute("touchcapture", "true");
-		Event.attachEvent(this.view, "mouseover", 0, this, _onmouseover);
-		Event.attachEvent(this.view, "mouseout",  0, this, _onmouseover);
-		Event.attachEvent(this.view, "click",	  0, this, _onclick);
+		this.attachEvent("mouseover", 4, this, _onmouseover);
+		this.attachEvent("mouseout",  4, this, _onmouseover);
+		this.attachEvent("click",	  4, this, _onclick);
 
 		MQ.register("js.awt.event.ItemTextEvent", this, _onMenuItem);
 
@@ -11003,6 +11035,26 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	var _setTreeContainer = function(tree){
 		this.setPeerComponent(tree);
 	};
+
+    thi$.isMovable = function(){
+        return this.treeContainer().isMovable();
+    };
+
+    thi$.spotIndex = function(){
+        return 11;
+    };
+
+    thi$.isMoverSpot = function(ele, x, y){
+        return this.treeContainer().isMoverSpot(ele, x, y);
+    };
+
+    thi$.getMoveObject = function(e){
+        return this.treeContainer().getMoveObject(e);
+    };
+
+    thi$.getMovingConstraints = function(){
+        return this.treeContainer().getMovingConstraints();
+    };
 
 	thi$.parentItem = function(){
 		return this._local.parent;
@@ -12836,14 +12888,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			this.insertNodes(0, def.nodes);
 		}
 
-		Event.attachEvent(treeView, "mouseover", 0, this, _onmouseover);
-		Event.attachEvent(treeView, "mouseout",	 0, this, _onmouseover);
-		Event.attachEvent(treeView, "click",	 0, this, _onclick);
-		Event.attachEvent(treeView, "dblclick",	 0, this, _onclick);
-
+		this.attachEvent("mouseover",  4, this, _onmouseover);
+		this.attachEvent("mouseout",   4, this, _onmouseover);
+		this.attachEvent("click",	   4, this, _onclick);
+		this.attachEvent("dblclick",   4, this, _onclick);
 		// Avoid autoscroll when drag item.
-		Event.attachEvent(treeView, "mousedown", 1, this, _onmousedown);
+		this.attachEvent("mousedown",  4, this, _onmousedown);
 
+        
 		if(this.isMovable()){
 			MQ.register(this.dataProvider.getDragMsgType(), this, _ondrag);
 		}
@@ -14089,10 +14141,9 @@ js.awt.Desktop = function (Runtime){
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot;
         System.updateLastAccessTime();
-
         last = lasts[e.pointerId] || 0;
         if((e.getTimeStamp().getTime() - last) <=
-                System.getProperty("j$vm_threshold", 45)){
+                System.getProperty("j$vm_threshold", 15)){
             e.cancelBubble();
             return e.cancelDefault();
         }
@@ -14104,15 +14155,12 @@ js.awt.Desktop = function (Runtime){
             if(target && target != this){
                 if(target.isMovable() || target.isResizable()){
                     spot = target.spotIndex(ele, e.eventXY());
-                    DOM.setCursor(ele, DOM.getCursor(spot));
+                    DOM.setDynamicCursor(ele, DOM.getDynamicCursor(spot));
                 }else{
-                    DOM.setCursor(ele, null);
+                    DOM.setDynamicCursor(ele, null);
                 }
 
                 target.fireEvent(e, true);
-
-            }else{
-                DOM.setCursor(ele, null);
             }
         }else{
             if(!this._local.notified){
@@ -14120,7 +14168,7 @@ js.awt.Desktop = function (Runtime){
                 this._local.notified = true;
             }
 
-            DOM.setCursor(ele, DOM.getCursor(drag.spot));
+            DOM.setDynamicCursor(ele, DOM.getDynamicCursor(drag.spot));
             
             if(drag.spot >= 8){
                 drag.target.processMoving(e);
@@ -14131,7 +14179,7 @@ js.awt.Desktop = function (Runtime){
 
         lasts[e.pointerId] = new Date().getTime();
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _onmouseover = function(e){
@@ -14146,7 +14194,7 @@ js.awt.Desktop = function (Runtime){
             }
         }
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _onmouseout = function(e){
@@ -14159,9 +14207,14 @@ js.awt.Desktop = function (Runtime){
             if(target && target != this){
                 target.fireEvent(e, true);
             }
+
+            ele = e.fromElement;
+            if(ele){
+                DOM.setDynamicCursor(ele, null);
+            }
         }
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _onmousedown = function(e){
@@ -14178,7 +14231,8 @@ js.awt.Desktop = function (Runtime){
                (target.isMovable() || target.isResizable())){
                 spot = target.spotIndex(ele, e.eventXY());
                 if(spot >= 0){
-                    var longpress = target.def.mover.longpress;
+                    var mover = target.getMovingConstraints(),
+                        longpress = mover.longpress;
                     longpress = Class.isNumber(longpress) ? longpress :
                         J$VM.env["j$vm_longpress"] || 145;
 
@@ -14194,7 +14248,7 @@ js.awt.Desktop = function (Runtime){
         }
 
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _drag = function(id, drag){
@@ -14230,10 +14284,10 @@ js.awt.Desktop = function (Runtime){
         }
 
         drags[e.pointerId] = null;
-        DOM.setCursor(ele, null);
+        DOM.setDynamicCursor(ele, null);
 
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _onmousewheel = function(e){
@@ -14258,7 +14312,7 @@ js.awt.Desktop = function (Runtime){
             }
         }
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
     
     var _onmessage = function(e){
@@ -14500,6 +14554,7 @@ js.awt.Desktop = function (Runtime){
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmousedown);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseup);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_CLICK,0, this, _onclick);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DBCLICK,0, this, _onclick);        
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmousewheel);
         Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _oncontextmenu);
         
@@ -14530,552 +14585,692 @@ $import("js.awt.Container");
 
 js.awt.Window = function (def, Runtime, view){
 
-    var CLASS = js.awt.Window, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.Window, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
-    
-    var _getTitle = function(){
-        return (this.title && this.title.labTitle) ? 
-            this.title.labTitle : undefined;        
-    };
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System, MQ = J$VM.MQ,
 
-    thi$.getTitle = function(){
-        var title = _getTitle.call(this);
-        return title ? title.getText() : null; 
-    };
-    
-    thi$.setTitle = function(s){
-        var title = _getTitle.call(this);
-        if(title) title.setText(s, true);
-    };
-    
-    thi$.isFloatTitle = function(){
-        return (this.def.tstyle & 0x01) != 0;
-    };
-    
-    /**
-     * Set Title style and Button style
-     * 
-     * @param tstyle: 0: Always show, 1: Never show, 3: Hover show
-     * @param bstyle: 0: Always show, 1: Never show, 3: Hover show
-     */
-    thi$.setTitleStyle = function(tstyle, bstyle){
-        var title = this.title, style;
-        
-        if(!title) return;
+	titleItemMap = {
+		btnMin:	  {iconImage: "edit2.gif"},
+		btnMax:	  {iconImage: "remove.gif"},
+		btnClose: {iconImage: "sort2.png"}
+	};
+	
+	var _getTitle = function(){
+		return (this.title && this.title.labTitle) ? 
+			this.title.labTitle : undefined;		
+	};
 
-        style = title.def;
+	thi$.getTitle = function(){
+		var title = _getTitle.call(this);
+		return title ? title.getText() : null; 
+	};
+	
+	thi$.setTitle = function(s){
+		var title = _getTitle.call(this);
+		if(title) title.setText(s, true);
+	};
+	
+	thi$.isFloatTitle = function(){
+		return (this.def.tstyle & 0x01) != 0;
+	};
+	
+	/**
+	 * Set Title style and Button style
+	 * 
+	 * @param tstyle: 0: Always show, 1: Never show, 3: Hover show
+	 * @param bstyle: 0: Always show, 1: Never show, 3: Hover show
+	 */
+	thi$.setTitleStyle = function(tstyle, bstyle){
+		var title = this.title, style;
+		
+		if(!title) return;
 
-        tstyle = (tstyle || 0) & 0x03; 
-        bstyle = (bstyle || 0) & 0x03;
+		style = title.def;
 
-        if(style.bstyle !== bstyle){
-            style.bstyle = bstyle;
-            switch(bstyle){
-            case 0:
-            case 2:
-                this.showtitlebutton(true);
-                break;
-            case 1:
-            case 3:
-                this.showtitlebutton(false);
-                break;
-            }
-        }
+		tstyle = (tstyle || 0) & 0x03; 
+		bstyle = (bstyle || 0) & 0x03;
 
-        if(style.tstyle !== tstyle){
-            style.tstyle = tstyle;
+		if(style.bstyle !== bstyle){
+			style.bstyle = bstyle;
+			switch(bstyle){
+			case 0:
+			case 2:
+				this.showtitlebutton(true);
+				break;
+			case 1:
+			case 3:
+				this.showtitlebutton(false);
+				break;
+			}
+		}
 
-            switch(tstyle){
-            case 0:
-            case 2:
-                title = this.delController();
-                this.addComponent(title, title.def.constraints);
-                title.setVisible(true);
-                break;
-            case 1:
-            case 3:
-                title = this.title = this.removeComponent("title");
-                this.setController(title);
-                title.setVisible(false);
-                break;
-            default:
-                break;
-            }
+		if(style.tstyle !== tstyle){
+			style.tstyle = tstyle;
 
-            if(this.isDOMElement()){
-                this.doLayout(true);
-            }
-        }
-    };
+			switch(tstyle){
+			case 0:
+			case 2:
+				title = this.delController();
+				this.addComponent(title, title.def.constraints);
+				title.setVisible(true);
+				break;
+			case 1:
+			case 3:
+				title = this.title = this.removeComponent("title");
+				this.setController(title);
+				title.setVisible(false);
+				break;
+			default:
+				break;
+			}
 
-    thi$.getTitleStyle = function(){
-        var style = this.title.def;
-        return {
-            tstyle: style.tstyle,
-            bstyle: style.bstyle
-        };
-    };
+			if(this.isDOMElement()){
+				this.doLayout(true);
+			}
+		}
+	};
 
-    /**
-     * @see js.awt.Cover
-     */
-    thi$.showLoading = function(b, styleClass){
-        this.client.showLoading(b, styleClass);
+	thi$.getTitleStyle = function(){
+		var style = this.title.def;
+		return {
+			tstyle: style.tstyle,
+			bstyle: style.bstyle
+		};
+	};
 
-    }.$override(this.showLoading);
+	/**
+	 * @see js.awt.Cover
+	 */
+	thi$.showLoading = function(b, styleClass){
+		this.client.showLoading(b, styleClass);
 
-    /**
-     * @see js.awt.Movable
-     */    
-    thi$.isMoverSpot = function(el){
-        var b = function(comp){
-            return comp.contains(el, true);            
-        }.$every(this, this._local.restricted);
+	}.$override(this.showLoading);
 
-        return b && (el.tagName != "INPUT") && (el.tagName != "TEXTAREA");
+	/**
+	 * @see js.awt.Movable
+	 */	   
+	thi$.isMoverSpot = function(el){
+		var b = function(comp){
+			return !comp.contains(el, true);			
+		}.$every(this, this._local.restricted);
 
-    }.$override(this.isMoverSpot);
+		return b && (el.tagName != "INPUT") && (el.tagName != "TEXTAREA");
 
-    /**
-     * Add restricted move area
-     */
-    thi$.addMoverRestricted = function(comp){
-        this._local.restricted.push(comp);
-    };
-    
-    /**
-     * Remove restricted move area
-     */
-    thi$.rmvMoverRestricted = function(comp){
-        this._local.restricted.remove(comp);
-    };
-    
-    /**
-     * @see js.awt.Component
-     */
-    thi$.needLayout = function(force){
-        return arguments.callee.__super__.apply(this, arguments) || 
-            this.isMaximized();        
+	}.$override(this.isMoverSpot);
 
-    }.$override(this.needLayout);
-    
-    /**
-     * @see js.awt.Component
-     */
-    thi$.doLayout = function(force){
-        var p, ele, styles, scroll, 
-            overflowX, overflowY, 
-            width, height;
+	/**
+	 * Add restricted move area
+	 */
+	thi$.addMoverRestricted = function(comp){
+		this._local.restricted.push(comp);
+	};
+	
+	/**
+	 * Remove restricted move area
+	 */
+	thi$.rmvMoverRestricted = function(comp){
+		this._local.restricted.remove(comp);
+	};
+	
+	/**
+	 * @see js.awt.Component
+	 */
+	thi$.needLayout = function(force){
+		return arguments.callee.__super__.apply(this, arguments) || 
+			this.isMaximized();		   
 
-        if(this.needLayout(force)){
-            if(this.isMaximized()){
-                p = this.view.parentNode;
-                scroll = DOM.hasScrollbar(p);
-                styles = DOM.currentStyles(p);
-                overflowX = styles.overflowX;
-                overflowY = styles.overflowY;
+	}.$override(this.needLayout);
+	
+	/**
+	 * @see js.awt.Component
+	 */
+	thi$.doLayout = function(force){
+		var p, ele, styles, scroll, 
+		overflowX, overflowY, 
+		width, height;
 
-                width = (overflowX === "hidden") ? p.clientWidth :
-                    (scroll.hscroll ? p.scrollWidth : p.clientWidth);
+		if(this.needLayout(force)){
+			if(this.isMaximized()){
+				p = this.view.parentNode;
+				scroll = DOM.hasScrollbar(p);
+				styles = DOM.currentStyles(p);
+				overflowX = styles.overflowX;
+				overflowY = styles.overflowY;
 
-                height= (overflowY === "hidden") ? p.clientHeight: 
-                    (scroll.vscroll ? p.scrollHeight : p.clientHeight);
-                
-                if(this.getWidth() != width || this.getHeight() != height){
-                    this.setBounds(0, 0, width, height);    
-                }
-                arguments.callee.__super__.apply(this, arguments);    
-            }else{
-                ele = this.client.view; 
-                styles = DOM.currentStyles(ele);
-                overflowX = styles.overflowX; 
-                overflowY = styles.overflowY;
-                ele.style.overflow = "hidden";
-                arguments.callee.__super__.apply(this, arguments);
-                ele.style.overflowX = overflowX;
-                ele.style.overflowY = overflowY;
-            }
+				width = (overflowX === "hidden") ? p.clientWidth :
+					(scroll.hscroll ? p.scrollWidth : p.clientWidth);
 
-            return true;
-        }
+				height= (overflowY === "hidden") ? p.clientHeight: 
+					(scroll.vscroll ? p.scrollHeight : p.clientHeight);
+				
+				if(this.getWidth() != width || this.getHeight() != height){
+					this.setBounds(0, 0, width, height);	
+				}
+				arguments.callee.__super__.apply(this, arguments);	  
+			}else{
+				ele = this.client.view; 
+				styles = DOM.currentStyles(ele);
+				overflowX = styles.overflowX; 
+				overflowY = styles.overflowY;
+				ele.style.overflow = "hidden";
+				arguments.callee.__super__.apply(this, arguments);
+				ele.style.overflowX = overflowX;
+				ele.style.overflowY = overflowY;
+			}
 
-        return false;
+			return true;
+		}
 
-    }.$override(this.doLayout);
-    
-    var _setSizeTo = function(winsize){
-        var d, m, r;
-        winsize = winsize || "normal";
-        switch(winsize){
-        case "maximized":
-            var p = this.view.parentNode;
-            d = {x: 0, y: 0, width: p.scrollWidth, height: p.scrollHeight };
-            this._local.movable = this.isMovable();
-            this._local.resizable = this.isResizable();
-            this._local.alwaysOnTop = this.isAlwaysOnTop();
-            m = false; 
-            r = false;
-            break;
-        case "minimized":
-            d = this.getMinimumSize();
-            d.x = this._local.userX;
-            d.y = this._local.userY;
-            this._local.movable = this.isMovable();
-            this._local.resizable = this.isResizable();
-            m = this.isMovable();
-            r = false;
-            break;
-        default:
-            d = { width: this._local.userW, height:this._local.userH };
-            d.x = this._local.userX;
-            d.y = this._local.userY;
-            m = this._local.movable || this.isMovable();
-            r = this._local.resizable || this.isResizable();
-            break;
-        }
+		return false;
 
-        this.setMovable(m);
-        this.setResizable(r);
-        if(r){
-            this.addResizer();
-        }
-        this.setBounds(d.x, d.y, d.width, d.height, 3);
-    };
+	}.$override(this.doLayout);
+	
+	var _setSizeTo = function(winsize){
+		var U = this._local, d, m, r;
+		winsize = winsize || "normal";
+		switch(winsize){
+		case "maximized":
+			var p = this.view.parentNode;
+			d = {x: 0, y: 0, width: p.scrollWidth, height: p.scrollHeight };
+			U.movable = this.isMovable();
+			U.resizable = this.isResizable();
+			U.alwaysOnTop = this.isAlwaysOnTop();
+			m = false; 
+			r = false;
+			break;
+		case "minimized":
+			d = this.getMinimumSize();
+			d.x = U.userX;
+			d.y = U.userY;
+			U.movable = this.isMovable();
+			U.resizable = this.isResizable();
+			m = this.isMovable();
+			r = false;
+			break;
+		default:
+			d = { width: U.userW, height:U.userH };
+			d.x = U.userX;
+			d.y = U.userY;
+			m = U.movable || this.isMovable();
+			r = U.resizable || this.isResizable();
+			break;
+		}
 
-    thi$.onbtnMin = function(button){
-        if(this.isMinimized()){
-            // Restore
-            this.setMinimized(false);
-            _setSizeTo.call(this, "normal");                
-        }else{
-            if(this.isMaximized()){
-                this.setMovable(this._local.movable);
-                this.setResizable(this._local.resizable);
-            }
-            this.setMinimized(true);
-            _setSizeTo.call(this, "minimized");            
-        }
-    };
-    
-    thi$.onbtnMax = function(button){
-        if(this.isMaximized()){
-            // Restore
-            this.setMaximized(false);
-            _setSizeTo.call(this, "normal");
-            button.setTriggered(false);
-            button.setToolTipText(this.Runtime().nlsText("btnMax_tip"));    
-        }else{
-            if(this.isMinimized()){
-                this.setMovable(this._local.movable);
-                this.setResizable(this._local.resizable);
-            }
-            this.setMaximized(true);
-            _setSizeTo.call(this, "maximized");
-            button.setTriggered(true);
-            button.setToolTipText(this.Runtime().nlsText("btnMin_tip"));
-        }
-    };
-    
-    thi$.onbtnClose = function(button){
-        this.close();
-    };
+		this.setMovable(m);
+		this.setResizable(r);
+		this.setBounds(d.x, d.y, d.width, d.height, 3);
+	};
 
-    thi$.close = function(){
-        
-        if(typeof this.beforClose == "function"){
-            this.beforClose();
-        }
-        
-        if(this.container instanceof js.awt.Container){
-            this.container.removeComponent(this);
-        }
-        
-        this.destroy();
-    };
-    
-    thi$.refresh = function(){
-        var client = this.client;
-        if(typeof client.refresh == "function"){
-            client.refresh();
-        }
-    };
-    
-    thi$.onrefresh = function(target){
-        this.refresh();
-    };
+	thi$.onbtnMin = function(button){
+		var U = this._local;
+		if(this.isMinimized()){
+			// Restore
+			this.setMinimized(false);
+			_setSizeTo.call(this, "normal");				
+		}else{
+			if(this.isMaximized()){
+				this.setMovable(U.movable);
+				this.setResizable(U.resizable);
+			}
+			this.setMinimized(true);
+			_setSizeTo.call(this, "minimized");			   
+		}
+	};
+	
+	thi$.onbtnMax = function(button){
+		var U = this._local;
+		if(this.isMaximized()){
+			// Restore
+			this.setMaximized(false);
+			_setSizeTo.call(this, "normal");
+			button.setTriggered(false);
+			button.setToolTipText(this.Runtime().nlsText("btnMax_tip"));	
+		}else{
+			if(this.isMinimized()){
+				this.setMovable(U.movable);
+				this.setResizable(U.resizable);
+			}
+			this.setMaximized(true);
+			_setSizeTo.call(this, "maximized");
+			button.setTriggered(true);
+			button.setToolTipText(this.Runtime().nlsText("btnMin_tip"));
+		}
+	};
+	
+	thi$.onbtnClose = function(button){
+		this.close();
+	};
 
-    thi$.notifyIFrame = function(msgId, msgData){
-        var win = this.client.getWindow();
-        if (win) {
-            MQ.post(msgId, msgData, [], win, 1);
-        }
-    };
-    
-    thi$.isMaximized = function(){
-        if(typeof arguments.callee.__super__ == "function"){
-            // 0.9d
-            return arguments.callee.__super__.call(this);
-        }else{
-            return this.def.winsize == "maximized";
-        }
-    }.$override(this.isMaximized);
-    
-    thi$.setMaximized = function(b){
-        if(typeof arguments.callee.__super__ == "function"){
-            // 0.9d
-            arguments.callee.__super__.apply(this, arguments);
-        }else{
-            this.def.winsize = b ? "maximized" : "normal";
-        }
-    }.$override(this.setMaximized);
+	thi$.close = function(){
+		if(typeof this.beforClose == "function"){
+			this.beforClose();
+		}
+		
+		if(this.container instanceof js.awt.Container){
+			this.container.removeComponent(this);
+		}
+		
+		this.destroy();
+	};
+	
+	thi$.refresh = function(){
+		var client = this.client;
+		if(typeof client.refresh == "function"){
+			client.refresh();
+		}
+	};
+	
+	thi$.onrefresh = function(target){
+		this.refresh();
+	};
 
-    thi$.isMinimized = function(){
-        if(typeof arguments.callee.__super__ == "function"){
-            // 0.9d
-            return arguments.callee.__super__.call(this);
-        }else{
-            return this.def.winsize == "minimized";
-        }
-    }.$override(this.isMinimized);
-    
-    thi$.setMinimized = function(b){
-        if(typeof arguments.callee.__super__ == "function"){
-            // 0.9d
-            arguments.callee.__super__.apply(this, arguments);
-        }else{
-            this.def.winsize = b ? "minimized" : "normal";
-        }
-    }.$override(this.setMinimized);
-    
-    thi$.loadUrl = function(url){
-        var client = this.client;
-        if(client.instanceOf(js.awt.Frame)){
-            client.setSrc(url);
-            client.load();
-        }else{
-            throw "This window does not support this ability.";
-        }
-    };
-    
-    thi$.setContent = function(html, href){
-        var client = this.client;
-        if(client.instanceOf(js.awt.Frame)){
-            client.setContent(html, href);
-        }else{
-            throw "This window does not support this ability.";
-        }
-    };
-    
-    var _onmouseover = function(e){
-        var title = this.title;
-        if(!title) return;
+	thi$.notifyIFrame = function(msgId, msgData){
+		var win = this.client.getWindow();
+		if (win) {
+			MQ.post(msgId, msgData, [], win, 1);
+		}
+	};
+	
+	thi$.isMaximized = function(){
+		if(typeof arguments.callee.__super__ == "function"){
+			// 0.9d
+			return arguments.callee.__super__.call(this);
+		}else{
+			return this.def.winsize == "maximized";
+		}
+	}.$override(this.isMaximized);
+	
+	thi$.setMaximized = function(b){
+		if(typeof arguments.callee.__super__ == "function"){
+			// 0.9d
+			arguments.callee.__super__.apply(this, arguments);
+		}else{
+			this.def.winsize = b ? "maximized" : "normal";
+		}
+	}.$override(this.setMaximized);
 
-        var eType = e.getType(), ele = e.toElement,  
-            xy = this.relative(e.eventXY()), style = this.getTitleStyle();
+	thi$.isMinimized = function(){
+		if(typeof arguments.callee.__super__ == "function"){
+			// 0.9d
+			return arguments.callee.__super__.call(this);
+		}else{
+			return this.def.winsize == "minimized";
+		}
+	}.$override(this.isMinimized);
+	
+	thi$.setMinimized = function(b){
+		if(typeof arguments.callee.__super__ == "function"){
+			// 0.9d
+			arguments.callee.__super__.apply(this, arguments);
+		}else{
+			this.def.winsize = b ? "minimized" : "normal";
+		}
+	}.$override(this.setMinimized);
+	
+	thi$.loadUrl = function(url){
+		var client = this.client;
+		if(client.instanceOf(js.awt.Frame)){
+			client.setSrc(url);
+			client.load();
+		}else{
+			throw "This window does not support this ability.";
+		}
+	};
+	
+	thi$.setContent = function(html, href){
+		var client = this.client;
+		if(client.instanceOf(js.awt.Frame)){
+			client.setContent(html, href);
+		}else{
+			throw "This window does not support this ability.";
+		}
+	};
+	
+	var _onmouseover = function(e){
+		var title = this.title;
+		if(!title) return;
 
-        switch(eType){
-        case "mouseover":
-            if(this.contains(ele, true) && xy.y < 50){
+		var eType = e.getType(), ele = e.toElement,	 
+		xy = this.relative(e.eventXY()), style = this.getTitleStyle();
 
-                if(style.tstyle === 3){
-                    title.setVisible(true);
-                }
+		switch(eType){
+		case "mouseover":
+			if(this.contains(ele, true) && xy.y < 50){
 
-                if(style.bstyle === 3){
-                    if(title.contains(ele, true)){
-                        this.showtitlebutton(true);
-                    }else{
-                        this.showtitlebutton(false);
-                    }
-                }
-            }
-            this.setHover(true);
-            break;
-        case "mouseout":
-            if(!this.contains(ele, true) && ele !== this._coverView){
+				if(style.tstyle === 3){
+					title.setVisible(true);
+				}
 
-                if(style.tstyle === 3){
-                    title.setVisible(false);
-                }
+				if(style.bstyle === 3){
+					if(title.contains(ele, true)){
+						this.showtitlebutton(true);
+					}else{
+						this.showtitlebutton(false);
+					}
+				}
+			}
+			this.setHover(true);
+			break;
+		case "mouseout":
+			if(!this.contains(ele, true) && ele !== this._coverView){
 
-                if(style.bstyle === 3){
-                    this.showtitlebutton(false);
-                }
-            }
-            this.setHover(false);
-            break;
-        }
-    };
+				if(style.tstyle === 3){
+					title.setVisible(false);
+				}
 
-    thi$.showtitlebutton = function(b){
-        var title = this.title, items = title.items0(), item;
-        for(var i=0, len=items.length; i<len; i++){
-            item = title[items[i]];
-            if(item.id.indexOf("btn") == 0){
-                item.setVisible(b);
-            }
-        }
+				if(style.bstyle === 3){
+					this.showtitlebutton(false);
+				}
+			}
+			this.setHover(false);
+			break;
+		}
+	};
 
-        if(title.isDOMElement()){
-            title.doLayout(true);
-        }
-    };
+	thi$.showtitlebutton = function(b){
+		var title = this.title, items = title.items0(), item;
+		for(var i=0, len=items.length; i<len; i++){
+			item = title[items[i]];
+			if(item.id.indexOf("btn") == 0){
+				item.setVisible(b);
+			}
+		}
 
-    thi$.destroy = function(){
-        delete this._local.restricted;
-        arguments.callee.__super__.apply(this,arguments);
-    }.$override(this.destroy);
-    
-    thi$._init = function(def, Runtime, view){
-        if(def == undefined) return;
-        
-        var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
-        newDef.css = def.css || "";
+		if(title.isDOMElement()){
+			title.doLayout(true);
+		}
+	};
 
-        var titleDef = newDef.title;
-        titleDef.className = titleDef.className 
-            || DOM.combineClassName(newDef.className, "title");
+	thi$.destroy = function(){
+		delete this._local.restricted;
+		arguments.callee.__super__.apply(this,arguments);
 
-        (function(name){
-             var item = titleDef[name];
-             if(name.indexOf("lab") == 0){
-                 item.className = item.className 
-                     || DOM.combineClassName(titleDef.className, "label");
-                 item.css = (item.css || "") + "white-space:nowrap;"
-                     + "test-overflow:ellipsis;"
-                     + "overflow:hidden;cursor:default;";
-             }else if(name.indexOf("btn") == 0){
-                 item.className = item.className 
-                     || DOM.combineClassName(titleDef.className, "button"); 
-             }
-         }).$forEach(this, titleDef.items);
+	}.$override(this.destroy);
 
-        newDef.client.className = newDef.client.className 
-            || DOM.combineClassName(newDef.className, "client");
+	/**
+	 * Recognize and generate the definition for the specified title item.
+	 * 
+	 * @param {String} iid The specified item id.
+	 * @param {Object} def The current panel definition.
+	 * @param {Runtime} R
+	 */
+	thi$.getTitleItemDef = function(iid, def, R){
+		var tmp, idef;
 
-        System.objectCopy(newDef, def, true, true);
-        arguments.callee.__super__.apply(this, arguments);
-        view = this.view;
-        view.style.position = "absolute";
-        view.style.overflow = "hidden";
+		switch(iid){
+		case "labTitle":
+			idef = {
+				classType: "js.awt.Label",
+				
+				rigid_w: false, rigid_h: false,
+				align_x: 0.0, align_y: 1.0
+			};
+			break;
+		case "btnMin":
+		case "btnMax":
+		case "btnClose":
+			idef = {
+				classType: "js.awt.Button",
+				className: "jsvm_title_button",
+				
+				rigid_w: true, rigid_h: false
+			},
 
-        // For MoverSpot testing
-        var restricted = this._local.restricted = js.util.LinkedList.$decorate([]);
+			tmp = titleItemMap[iid];
+			idef.iconImage = tmp.iconImage;
 
-        var uuid = this.uuid();
-        var title = this.title;
-        if(title){
-            title.setPeerComponent(this);
-            title.view.uuid = uuid;
-            (function(name){
-                 var item = this.title[name];
-                 item.setPeerComponent(this);
-                 item.view.uuid = uuid;
-                 if(name.indexOf("btn") == 0){
-                     this.addMoverRestricted(item);
-                     item.icon.uuid = uuid;
-                 }
+			if(tmp.nlsKey){
+				idef.tip = R.nlsText(tmp.nlskey, tmp.defaultTip);
+			}
+			break;
+		default:
+			break;
+		}
 
-             }).$forEach(this, title.def.items);
-            
-            var tstyle = title.def.tstyle, bstyle = title.def.bstyle;
+		return idef;
+	};
 
-            title.def.tstyle = 0;
-            title.def.bstyle = 0;
+	var _preTitleDef = function(def, R){
+		var tdef = def.title || {}, 
+		items = tdef.items = def.titleItems || tdef.items 
+			|| ["labTitle", "btnMin", "btnMax", "btnClose"],
+		iid, idef;
 
-            this.setTitleStyle(tstyle, bstyle);
-        }
+		tdef.classType = tdef.classType || "js.awt.HBox";
 
-        this.client.setPeerComponent(this);
-        this.client.view.uuid = uuid;
-        //restricted.push(this.client); ??
+		for(var i = 0, len = items.length; i < len; i++){
+			iid = items[i];
+			idef = this.getTitleItemDef(iid, def, R);
 
-        this.attachEvent("mouseover", 4, this, _onmouseover);
-        this.attachEvent("mouseout",  4, this, _onmouseover);
+			if(Class.isObject(tdef[iid])){
+				idef = System.objectCopy(tdef[iid], idef);
+			}
+			
+			tdef[iid] = idef;
+		}
 
-        MQ.register("js.awt.event.ButtonEvent",
-                    this, js.awt.Button.eventDispatcher);
-        
-    }.$override(this._init);
+		idef = tdef["labTitle"];
+		if(idef){
+			if(Class.isString(def.titleText)){
+				idef.text = def.titleText;
+			}else{
+				idef.text = Class.isString(idef.text) 
+					? idef.text : "J$VM";
+			}
+		}
 
-    this._init.apply(this, arguments);
+		return tdef;
+	};
+
+	var _preDef = function(def, R){
+		var items = def.items = def.items || ["title", "client"],
+		iid, idef;
+		for(var i = 0, len = items.length; i < len; i++){
+			iid = items[i];
+			switch(iid){
+			case "title":
+				idef = def[iid] = _preTitleDef.apply(this, arguments);
+				idef.rigid_w = (idef.rigid_w === true);
+				idef.rigid_h = (idef.rigid_h !== false);
+				idef.constraints = idef.constraints || "north";
+				break;
+			case "client":
+				idef = def[iid] = def[iid] || {
+					classType: "js.awt.VFrame"
+				};
+
+				idef.rigid_w = (idef.rigid_w === true);
+				idef.rigid_h = (idef.rigid_h === true);
+				idef.constraints = idef.constraints || "center";
+				break;
+			}
+		}
+
+		if(!def.layout){
+			def.layout = {
+				classType: "js.awt.BorderLayout",
+				mode: 0,
+				hgap: 0,
+				vgap: 0
+			};
+		}
+
+		def.resizable = (def.resizable !== false);
+		def.resizer = def.resizer || 0xFF;
+
+		def.movable = (def.movable !== false);
+		def.mover = def.mover || { bt:1.0, br:0.0, bb:0.0, bl:1.0 };
+
+		def.shadow = (def.shadow !== false);
+		def.rigid_w = (def.rigid_w !== false);
+		def.rigid_w = (def.rigid_w !== false);
+
+		return def;		   
+	};
+	
+	thi$._init = function(def, Runtime, view){
+		if(def == undefined) return;
+		
+		def.classType = def.classType || "js.awt.Window";
+		def.className = def.className || "jsvm_win";
+
+		_preDef.apply(this, arguments);
+
+		var tdef = def.title;
+		if(tdef){
+			tdef.className = tdef.className 
+				|| DOM.combineClassName(def.className, "title");
+
+			(function(iid){
+				 var item = tdef[iid], clazz;
+				 if(iid.indexOf("lab") == 0){
+					 if(!item.className){
+						 item.className = DOM.combineClassName(tdef.className, "label");
+					 }
+
+					 item.css = (item.css || "") 
+						 + "white-space:nowrap;"
+						 + "test-overflow:ellipsis;"
+						 + "overflow:hidden;cursor:default;";
+				 }else if(iid.indexOf("btn") == 0){
+					 if(!item.className){
+						 clazz = DOM.combineClassName(tdef.className, "button");
+						 item.className = "jsvm_title_button $jsvm_title_button" 
+							 + " " + clazz + " " + ("$" + clazz);
+					 }
+				 }else{
+					 item.className = item.className 
+						 || DOM.combineClassName(tdef.className, iid);
+				 }
+
+			 }).$forEach(this, tdef.items);
+		}
+
+		tdef = def.client;
+		tdef.className = tdef.className 
+			|| DOM.combineClassName(def.className, "client");
+
+		def.css = "position:absolute;" + (def.css || "") 
+			+ "overflow:hidden;";
+		arguments.callee.__super__.apply(this, arguments);
+
+		// For MoverSpot testing
+		var restricted = this._local.restricted = [];
+
+		var uuid = this.uuid();
+		var title = this.title;
+		if(title){
+			title.setPeerComponent(this);
+			title.view.uuid = uuid;
+			(function(name){
+				 var item = this.title[name];
+				 item.setPeerComponent(this);
+				 if(name.indexOf("btn") == 0){
+					 this.addMoverRestricted(item);
+					 item.icon.uuid = item.uuid();
+				 }else{
+					 item.view.uuid = uuid;	 
+				 }
+			 }).$forEach(this, title.def.items);
+			
+			var tstyle = title.def.tstyle, 
+			bstyle = title.def.bstyle;
+
+			title.def.tstyle = 0;
+			title.def.bstyle = 0;
+
+			this.setTitleStyle(tstyle, bstyle);
+		}
+
+		this.client.setPeerComponent(this);
+		this.client.view.uuid = uuid;
+		//restricted.push(this.client); 
+
+		this.attachEvent("mouseover", 4, this, _onmouseover);
+		this.attachEvent("mouseout",  4, this, _onmouseover);
+
+		MQ.register("js.awt.event.ButtonEvent",
+					this, js.awt.Button.eventDispatcher);
+		
+	}.$override(this._init);
+
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Container);
 
 js.awt.Window.DEFAULTDEF = function(){
-    return {
-        classType : "js.awt.Window",
-        className : "jsvm_win",
+	return {
+		classType : "js.awt.Window",
+		className : "jsvm_win",
 
-        items: ["title", "client"],
+		items: ["title", "client"],
 
-        title: {
-            classType: "js.awt.HBox",
-            constraints: "north",
+		title: {
+			classType: "js.awt.HBox",
+			constraints: "north",
 
-            items:["labTitle", "btnMin", "btnMax", "btnClose"],
-            
-            labTitle:{
-                classType: "js.awt.Label",
-                text: "J$VM",
+			items:["labTitle", "btnMin", "btnMax", "btnClose"],
+			
+			labTitle:{
+				classType: "js.awt.Label",
+				text: "J$VM",
 
-                rigid_w: false,
-                rigid_h: false
-            },
-            
-            btnMin:{
-                classType: "js.awt.Button",
-                className: "jsvm_title_button",
-                iconImage: "minimize.gif"
-            },
+				rigid_w: false,
+				rigid_h: false
+			},
+			
+			btnMin:{
+				classType: "js.awt.Button",
+				className: "jsvm_title_button",
+				iconImage: "minimize.gif"
+			},
 
-            btnMax:{
-                classType: "js.awt.Button",
-                className: "jsvm_title_button",
-                iconImage: "maximize.png"
-            },
+			btnMax:{
+				classType: "js.awt.Button",
+				className: "jsvm_title_button",
+				iconImage: "maximize.png"
+			},
 
-            btnClose:{
-                classType: "js.awt.Button",
-                className: "jsvm_title_button",
-                iconImage: "close.png"
-            }
-        },
+			btnClose:{
+				classType: "js.awt.Button",
+				className: "jsvm_title_button",
+				iconImage: "close.png"
+			}
+		},
 
-        client:{
-            classType: "js.awt.VFrame",
-            constraints: "center",
-            rigid_w: false,
-            rigid_h: false
-        },
+		client:{
+			classType: "js.awt.VFrame",
+			constraints: "center",
+			rigid_w: false,
+			rigid_h: false
+		},
 
-        layout:{
-            classType: "js.awt.BorderLayout",
-            mode: 0,
-            hgap: 0,
-            vgap: 0
-        },
+		layout:{
+			classType: "js.awt.BorderLayout",
+			mode: 0,
+			hgap: 0,
+			vgap: 0
+		},
 
-        resizer: 0xFF, resizable: true,
-        mover:{ bt:1.0, br:0.0, bb:0.0, bl:1.0 }, movable: true,
-        shadow: true,
-        
-        width: 400,
-        height:300,
+		resizer: 0xFF, resizable: true,
+		mover:{ bt:1.0, br:0.0, bb:0.0, bl:1.0 }, movable: true,
+		shadow: true,
+		
+		width: 400,
+		height:300,
 
-        rigid_w: true,
-        rigid_h: true,
+		rigid_w: true,
+		rigid_h: true,
 
-        miniSize:{width: 72, height:24},
-        prefSize:{width: 640, height:480}    
-    };
+		miniSize:{width: 72, height:24},
+		prefSize:{width: 640, height:480}	 
+	};
 };
 
 J$VM.Factory.registerClass(js.awt.Window.DEFAULTDEF());
@@ -15083,39 +15278,14 @@ J$VM.Factory.registerClass(js.awt.Window.DEFAULTDEF());
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
- * Author: Hu dong
- * Contact: jsvm.prj@gmail.com
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -15183,8 +15353,9 @@ js.awt.Application = function(def, Runtime, entryId){
         if(def == undefined) return;
 
         def.classType = def.classType || "js.awt.Application";
-        def.className = def.className || "jsvm_app";
-        def.className = "jsvm__entry " + def.className;
+        def.className = DOM.combineClassName(
+            ["jsvm_", def.className||""].join(" "),
+            ["entry", "app"]);
         def.id = def.uuid = entryId;
         def.__contextid__ = Runtime.uuid();
 
@@ -18888,7 +19059,7 @@ js.swt.TextField = function(def){
         DOM.appendTo(rView, this.view);     
         
         E.attachEvent(rView, "selectstart", 1, this, _onselectstart);
-        E.attachEvent(rView, "mousedown", 0, this, _onMouseDown);
+        this.attachEvent("mousedown", 4, this, _onMouseDown);
         E.attachEvent(rView, "focus", 1, this, _onFocus);
     };
     

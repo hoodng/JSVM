@@ -222,7 +222,7 @@ js.awt.Gridding = function(){
                 moveObj.getMovingMsgRecvs = _getMovingMsgRecvs.$bind(this);
                 moveObj.getMovingMsgType = _getMovingMsgType.$bind(this);
                 moveObj.showMoveCover = _showMoveCover.$bind(this);
-                moveObj.getMoveContext = _getMoveContext.$bind(this);
+                moveObj.getMovingContext = _getMovingContext.$bind(this);
                 moveObj.appendTo(this.view.parentNode);
                 moveObj.setMovingPeer(this);
             }
@@ -240,7 +240,7 @@ js.awt.Gridding = function(){
             // Line no need cover
         };
 
-        var _getMoveContext = function(){
+        var _getMovingContext = function(){
             return {
                 container:this.getPeerComponent(),
                 range: this.moverange

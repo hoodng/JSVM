@@ -73,6 +73,26 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		this.setPeerComponent(tree);
 	};
 
+    thi$.isMovable = function(){
+        return this.treeContainer().isMovable();
+    };
+
+    thi$.spotIndex = function(){
+        return 11;
+    };
+
+    thi$.isMoverSpot = function(ele, x, y){
+        return this.treeContainer().isMoverSpot(ele, x, y);
+    };
+
+    thi$.getMoveObject = function(e){
+        return this.treeContainer().getMoveObject(e);
+    };
+
+    thi$.getMovingConstraints = function(){
+        return this.treeContainer().getMovingConstraints();
+    };
+
 	thi$.parentItem = function(){
 		return this._local.parent;
 	};

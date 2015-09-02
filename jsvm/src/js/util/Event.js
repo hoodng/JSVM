@@ -80,7 +80,7 @@ js.util.Event = function (eventType, eventData, eventTarget){
 
     thi$.cancelDefault = function(){
         this._default = false;
-        return false;
+        return this._default;
     };
 
     thi$._init = function(eventType, eventData, eventTarget){

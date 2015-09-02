@@ -54,8 +54,8 @@ J$VM = new function (){
         j$vm_ajax_timeout: 600000,
         j$vm_ajax_concurrent: 8,
         j$vm_timeslice: 20,
-        j$vm_threshold: 45,
-        j$vm_longpress: 90
+        j$vm_threshold: 15,
+        j$vm_longpress: 145
     };
 
     var slice = Array.prototype.slice;
@@ -501,7 +501,7 @@ J$VM = new function (){
                 $args = slice.call(arguments, 2);
 
             (function(v, i, set){
-                if(fn.apply(thi$, $args.concat(v, i, set))){
+                if(!fn.apply(thi$, $args.concat(v, i, set))){
                     ret = false;
                     throw "break";
                 }

@@ -1769,8 +1769,8 @@ js.swt.List = function(def, runtime){
     
     var _createContents = function(){
         var listView = this.listView = DOM.createElement("DIV");
-        listView.style.cssText = "position:relative;top:0px;left:0px;border:0px none;"
-            + "padding:0px;margin:0px;overflow:visible;"
+        listView.style.cssText = "position:relative;top:0px;left:0px;"
+            + "border:0px none;padding:0px;margin:0px;overflow:visible;"
             + "width:100%;height:100%;";
         
         DOM.appendTo(listView, this.view);

@@ -75,10 +75,9 @@ js.awt.Desktop = function (Runtime){
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot;
         System.updateLastAccessTime();
-
         last = lasts[e.pointerId] || 0;
         if((e.getTimeStamp().getTime() - last) <=
-                System.getProperty("j$vm_threshold", 45)){
+                System.getProperty("j$vm_threshold", 15)){
             e.cancelBubble();
             return e.cancelDefault();
         }
@@ -90,15 +89,12 @@ js.awt.Desktop = function (Runtime){
             if(target && target != this){
                 if(target.isMovable() || target.isResizable()){
                     spot = target.spotIndex(ele, e.eventXY());
-                    DOM.setCursor(ele, DOM.getCursor(spot));
+                    DOM.setDynamicCursor(ele, DOM.getDynamicCursor(spot));
                 }else{
-                    DOM.setCursor(ele, null);
+                    DOM.setDynamicCursor(ele, null);
                 }
 
                 target.fireEvent(e, true);
-
-            }else{
-                DOM.setCursor(ele, null);
             }
         }else{
             if(!this._local.notified){
@@ -106,7 +102,7 @@ js.awt.Desktop = function (Runtime){
                 this._local.notified = true;
             }
 
-            DOM.setCursor(ele, DOM.getCursor(drag.spot));
+            DOM.setDynamicCursor(ele, DOM.getDynamicCursor(drag.spot));
             
             if(drag.spot >= 8){
                 drag.target.processMoving(e);
@@ -117,7 +113,7 @@ js.awt.Desktop = function (Runtime){
 
         lasts[e.pointerId] = new Date().getTime();
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _onmouseover = function(e){
@@ -132,7 +128,7 @@ js.awt.Desktop = function (Runtime){
             }
         }
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _onmouseout = function(e){
@@ -145,9 +141,14 @@ js.awt.Desktop = function (Runtime){
             if(target && target != this){
                 target.fireEvent(e, true);
             }
+
+            ele = e.fromElement;
+            if(ele){
+                DOM.setDynamicCursor(ele, null);
+            }
         }
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _onmousedown = function(e){
@@ -164,7 +165,8 @@ js.awt.Desktop = function (Runtime){
                (target.isMovable() || target.isResizable())){
                 spot = target.spotIndex(ele, e.eventXY());
                 if(spot >= 0){
-                    var longpress = target.def.mover.longpress;
+                    var mover = target.getMovingConstraints(),
+                        longpress = mover.longpress;
                     longpress = Class.isNumber(longpress) ? longpress :
                         J$VM.env["j$vm_longpress"] || 145;
 
@@ -180,7 +182,7 @@ js.awt.Desktop = function (Runtime){
         }
 
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _drag = function(id, drag){
@@ -216,10 +218,10 @@ js.awt.Desktop = function (Runtime){
         }
 
         drags[e.pointerId] = null;
-        DOM.setCursor(ele, null);
+        DOM.setDynamicCursor(ele, null);
 
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
 
     var _onmousewheel = function(e){
@@ -244,7 +246,7 @@ js.awt.Desktop = function (Runtime){
             }
         }
         e.cancelBubble();
-        return e.cancelDefault();
+        return e._default;
     };
     
     var _onmessage = function(e){
@@ -486,6 +488,7 @@ js.awt.Desktop = function (Runtime){
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmousedown);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseup);
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_CLICK,0, this, _onclick);
+        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DBCLICK,0, this, _onclick);        
         Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmousewheel);
         Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _oncontextmenu);
         

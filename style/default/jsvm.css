@@ -1,7 +1,70 @@
-.jsvm_app {
+.jsvm__app {
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 11px;
 }
+
+.jsvm__outline {
+	border: 0px none transparent;
+	width:  1px;
+	height: 1px;
+	background-color: #ffab3f;
+}
+
+.jsvm__outline-resizer {
+	width:  4px;
+	height: 4px;
+	background-color: #ff9e00;
+}
+
+.jsvm__cover {
+    background-color: #eeeeee;
+}
+
+.jsvm__cover--mask {
+    filter: alpha(Opacity = 20);
+    -moz-opacity: 0.2;
+    opacity: 0.2;
+}
+
+.jsvm__cover--disable {
+    filter: alpha(Opacity = 20);
+    -moz-opacity: 0.2;
+    opacity: 0.2;
+}
+
+.jsvm__cover--loading {
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;	
+}
+
+.jsvm__cover--resize {
+    filter: alpha(Opacity = 40);
+    -moz-opacity: 0.4;
+    opacity: 0.4;
+	border: 1px solid #F57900;
+}
+
+.jsvm__cover--move {
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;		
+}
+
+.jsvm__shadow {
+    background: #ffffff;
+    border-bottom: #666666;
+    border-right: #666666;
+    border-top: #666666;
+    -webkit-box-shadow: 5px 5px 6px #555555;
+    box-shadow: 5px 5px 6px #555555;
+    filter: progid:DXImageTransform.Microsoft.Shadow(color='#555555', Direction=135, Strength=5);
+    -moz-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
 
 .jsvm_desktop {
     overflow: hidden;
