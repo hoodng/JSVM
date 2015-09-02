@@ -21,12 +21,12 @@ js.awt.Cover = function (){
 
     var Class = js.lang.Class, DOM = J$VM.DOM;
 
-    thi$.showCover = function(b, className, modifier){
+    thi$.showCover = function(b, modify, className){
         var view = this._coverView, selector;
 
         selector = DOM.combineClassName(
             ["jsvm_", className||""].join(" "),
-            ["cover", modifier? "cover--"+modifier:""]);
+            ["cover", modify? "cover--"+modify:""]);
         
         if(b){
             if(!view){
@@ -61,22 +61,22 @@ js.awt.Cover = function (){
      * Show loading status in this cover
      */
     thi$.showLoading = function(b, styleClass){
-        this.showCover(b, styleClass, "loading");
+        this.showCover(b, "loading", styleClass);
     };
     
     /**
      * Show cover for moving with class name "jsvm_movecover"
      */
     thi$.showMoveCover = function(b, styleClass){
-        this.showCover(b, styleClass, "move");
+        this.showCover(b, "move", styleClass);
     };
 
     thi$.showMaskCover = function(b, styleClass){
-        this.showCover(b, styleClass, "mask");
+        this.showCover(b, "mask", styleClass);
     };
 
     thi$.showDisableCover = function(b, styleClass){
-        this.showCover(b, styleClass, "disable");
+        this.showCover(b, "disable", styleClass);
     };
 
     /**

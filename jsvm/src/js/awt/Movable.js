@@ -129,13 +129,11 @@ js.awt.Movable = function (){
             bb = max(mover.bb*bounds.height, bound),
             bl = max(mover.bl*bounds.width,  bound);
 
+        ctx.eventXY = e.eventXY();
         ctx.minX = grid*ceil( (r[0]+bl)/grid);
         ctx.minY = grid*ceil( (r[1]+bt)/grid);
         ctx.maxX = grid*floor((r[2]-br)/grid);
         ctx.maxY = grid*floor((r[3]-bb)/grid);
-        ctx.eventXY = e.eventXY();
-        ctx.eventXY.x += (p.scrollLeft- moveObj.getX());
-        ctx.eventXY.y += (p.scrollTop - moveObj.getY());
         moveObj._moveCtx = ctx;        
         moveObj.showMoveCover(true);
         MQ.register("releaseMoveObject", this, _release);        
@@ -148,9 +146,8 @@ js.awt.Movable = function (){
             grid = mover.grid, freedom = mover.freedom,
             thip = ctx.container, p = thip.view,
             xy = e.eventXY(), oxy = ctx.eventXY,
-            x = p.scrollLeft + xy.x - oxy.x ,
-            y = p.scrollTop  + xy.y - oxy.y,
-        
+            x = p.scrollLeft + bounds.userX + (xy.x - oxy.x),
+            y = p.scrollTop  + bounds.userY + (xy.y - oxy.y),
             minX = ctx.minX, minY = ctx.minY,
             maxX = ctx.maxX, maxY = ctx.maxY;
 

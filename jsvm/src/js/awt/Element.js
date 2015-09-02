@@ -710,7 +710,6 @@ js.awt.Element = function(def, Runtime){
     thi$.getMovingContext = function(){
         var autofit = false, thip, bounds, pounds,
             styles, hscroll, vscroll;
-
         thip = DOM.getComponent(
             DOM.offsetParent(this.view), true, this.Runtime()),
         autofit = thip.isAutoFit ? thip.isAutoFit() : false;

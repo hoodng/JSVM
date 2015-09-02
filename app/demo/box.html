@@ -8,6 +8,9 @@
 	<script src="../../jsvm/src/js/awt/Gridding.js"></script>
 </head>
 <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+  <div id="box3" class="box3">
+    test
+  </div>
 </body>
 
 <style>
@@ -33,6 +36,26 @@ top: 20px;
 
 width: 100px;
 height:100px;
+
+}
+
+.box3 {
+position: absolute;
+border: 1px solid green;
+
+left: 600px;
+top: 100px;
+
+width: 100px;
+height:100px;
+
+-ms-user-select: none;
+-webkit-user-select: none;
+-moz-user-select: none;
+
+-ms-user-drag: none;
+-webkit-user-drag: none;
+-moz-user-drag: none;
 
 }
 </style>
@@ -68,7 +91,7 @@ className: "box2",
 rigid_w: false,
 rigid_h: false,
             movable: true,
-            mover:{bt:1, br:1, bb:1, bl:1, grid:1},
+            mover:{bt:1, br:1, bb:1, bl:1, grid:10},
 resizable: true,
 resizer: 0xFF/*0x38*/
         }, R);
@@ -116,6 +139,17 @@ var _onMoving = function(e){
    this.addComponent(box1);
 
    box2.showOutline(true);
+
+var compBox3 = J$VM.DOM.getComponent(self.document.getElementById("box3"), true, R);
+
+compBox3.setMovable(true);
+compBox3.setResizable(true, 0xFF);
+
+//compBox3.showCover(true, "disable");
+//compBox3.showShadow(true);
+//compBox3.showOutline(true);
+
+
 });
 
 });

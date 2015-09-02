@@ -1583,7 +1583,15 @@ js.util.Document = function (){
         }else if(create){
             uuid = js.lang.Math.uuid();
             ele.uuid = uuid;
-            obj = new js.awt.Component({uuid:uuid}, Runtime, ele);
+            obj = new js.awt.Component({
+                id: ele.id,
+                uuid:uuid,
+                className: ele.className||"",
+                stateless:true},
+                Runtime, ele);
+            var bounds = obj.getBounds();
+            obj.setBounds(bounds.x, bounds.y,
+                bounds.width, bounds.height, 0x04);
         }else{
             // Return the ancestor which is a js.lang.Object
             obj = this.getComponent(ele.parentNode);
@@ -1695,6 +1703,30 @@ js.util.Document = function (){
         }
     };
 
-    
+    thi$.setMovable = function(ele, b, R){
+        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
+        comp.setMovable(b);
+    };
+
+    thi$.setResizable = function(ele, b, resizer, R){
+        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
+        comp.setResizable(b, resizer);
+    };
+
+    thi$.showOutline = function(ele, show, R, className){
+        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
+        comp.showOutline(show, className);
+    };
+
+    thi$.showShadow = function(ele, show, R, className){
+        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
+        comp.showShadow(show, className);
+    };
+
+    thi$.showCover = function(ele, show, modify, R, className){
+        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
+        comp.showCover(show, modify, className);
+    };
+
     
 }.$extend(js.lang.Object);

@@ -27,9 +27,9 @@
 }
 
 .jsvm__cover--disable {
-    filter: alpha(Opacity = 20);
-    -moz-opacity: 0.2;
-    opacity: 0.2;
+    filter: alpha(Opacity = 70);
+    -moz-opacity: 0.7;
+    opacity: 0.7;
 }
 
 .jsvm__cover--loading {

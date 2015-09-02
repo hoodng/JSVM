@@ -219,12 +219,12 @@ js.awt.Cover = function (){
 
     var Class = js.lang.Class, DOM = J$VM.DOM;
 
-    thi$.showCover = function(b, className, modifier){
+    thi$.showCover = function(b, modify, className){
         var view = this._coverView, selector;
 
         selector = DOM.combineClassName(
             ["jsvm_", className||""].join(" "),
-            ["cover", modifier? "cover--"+modifier:""]);
+            ["cover", modify? "cover--"+modify:""]);
         
         if(b){
             if(!view){
@@ -259,22 +259,22 @@ js.awt.Cover = function (){
      * Show loading status in this cover
      */
     thi$.showLoading = function(b, styleClass){
-        this.showCover(b, styleClass, "loading");
+        this.showCover(b, "loading", styleClass);
     };
     
     /**
      * Show cover for moving with class name "jsvm_movecover"
      */
     thi$.showMoveCover = function(b, styleClass){
-        this.showCover(b, styleClass, "move");
+        this.showCover(b, "move", styleClass);
     };
 
     thi$.showMaskCover = function(b, styleClass){
-        this.showCover(b, styleClass, "mask");
+        this.showCover(b, "mask", styleClass);
     };
 
     thi$.showDisableCover = function(b, styleClass){
-        this.showCover(b, styleClass, "disable");
+        this.showCover(b, "disable", styleClass);
     };
 
     /**
@@ -527,13 +527,11 @@ js.awt.Movable = function (){
             bb = max(mover.bb*bounds.height, bound),
             bl = max(mover.bl*bounds.width,  bound);
 
+        ctx.eventXY = e.eventXY();
         ctx.minX = grid*ceil( (r[0]+bl)/grid);
         ctx.minY = grid*ceil( (r[1]+bt)/grid);
         ctx.maxX = grid*floor((r[2]-br)/grid);
         ctx.maxY = grid*floor((r[3]-bb)/grid);
-        ctx.eventXY = e.eventXY();
-        ctx.eventXY.x += (p.scrollLeft- moveObj.getX());
-        ctx.eventXY.y += (p.scrollTop - moveObj.getY());
         moveObj._moveCtx = ctx;        
         moveObj.showMoveCover(true);
         MQ.register("releaseMoveObject", this, _release);        
@@ -546,9 +544,8 @@ js.awt.Movable = function (){
             grid = mover.grid, freedom = mover.freedom,
             thip = ctx.container, p = thip.view,
             xy = e.eventXY(), oxy = ctx.eventXY,
-            x = p.scrollLeft + xy.x - oxy.x ,
-            y = p.scrollTop  + xy.y - oxy.y,
-        
+            x = p.scrollLeft + bounds.userX + (xy.x - oxy.x),
+            y = p.scrollTop  + bounds.userY + (xy.y - oxy.y),
             minX = ctx.minX, minY = ctx.minY,
             maxX = ctx.maxX, maxY = ctx.maxY;
 
@@ -1157,39 +1154,14 @@ js.awt.Outline = function(){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Pan mingfa
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -1314,11 +1286,11 @@ js.awt.PopupLayer = function () {
 		this._local.LMTimeout = timeout;
 		
 		if ((this._local.LMFlag & CLASS.F_TIMEOUT) != 0) {
-			this.attachEvent("mouseover", 0, this, this.timeoutMouseover);
-			this.attachEvent("mouseout", 0, this, this.timeoutMouseout);
+			this.attachEvent("mouseover", 4, this, this.timeoutMouseover);
+			this.attachEvent("mouseout",  4, this, this.timeoutMouseout);
 		} else {
-			this.detachEvent("mouseover", 0, this, this.timeoutMouseover);
-			this.detachEvent("mouseout", 0, this, this.timeoutMouseout);
+			this.detachEvent("mouseover", 4, this, this.timeoutMouseover);
+			this.detachEvent("mouseout",  4, this, this.timeoutMouseout);
 		}
 		
 		if ((this._local.LMFlag & CLASS.F_FOCUSBOXBLUR) != 0){
@@ -4050,7 +4022,6 @@ js.awt.Element = function(def, Runtime){
     thi$.getMovingContext = function(){
         var autofit = false, thip, bounds, pounds,
             styles, hscroll, vscroll;
-
         thip = DOM.getComponent(
             DOM.offsetParent(this.view), true, this.Runtime()),
         autofit = thip.isAutoFit ? thip.isAutoFit() : false;
@@ -14141,6 +14112,7 @@ js.awt.Desktop = function (Runtime){
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot;
         System.updateLastAccessTime();
+
         last = lasts[e.pointerId] || 0;
         if((e.getTimeStamp().getTime() - last) <=
                 System.getProperty("j$vm_threshold", 15)){
@@ -15310,14 +15282,21 @@ js.awt.Application = function(def, Runtime, entryId){
     };
 
     thi$.startApp = function(){
-        if(this.view != this._local.entry){
-            this.appendTo(this._local.entry);            
+        var cview = this._local.entry;
+        if(this.view != cview){
+            var children = cview.children;
+            if(children.length === 0){
+                this.appendTo(cview);
+            }else{
+                this.insertBefore(children[0], cview);
+            }
         }
     };
 
     thi$.closeApp = function(){
-        if(this.view != this._local.entry){
-            this.removeFrom(this._local.entry);
+        var cview = this._local.entry;
+        if(this.view != cview){
+            this.removeFrom(cview);
         }
         Desktop.unregisterApp(this.getAppID());
     };

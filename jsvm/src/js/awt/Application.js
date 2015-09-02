@@ -32,14 +32,21 @@ js.awt.Application = function(def, Runtime, entryId){
     };
 
     thi$.startApp = function(){
-        if(this.view != this._local.entry){
-            this.appendTo(this._local.entry);            
+        var cview = this._local.entry;
+        if(this.view != cview){
+            var children = cview.children;
+            if(children.length === 0){
+                this.appendTo(cview);
+            }else{
+                this.insertBefore(children[0], cview);
+            }
         }
     };
 
     thi$.closeApp = function(){
-        if(this.view != this._local.entry){
-            this.removeFrom(this._local.entry);
+        var cview = this._local.entry;
+        if(this.view != cview){
+            this.removeFrom(cview);
         }
         Desktop.unregisterApp(this.getAppID());
     };

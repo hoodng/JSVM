@@ -21,7 +21,7 @@
 
 .jsvm--nombp {
     margin: 0;
-    border: 0 none;
+    border: 0 none transparent;
     padding: 0;
 }
 

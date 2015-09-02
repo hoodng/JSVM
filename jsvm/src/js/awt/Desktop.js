@@ -75,6 +75,7 @@ js.awt.Desktop = function (Runtime){
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot;
         System.updateLastAccessTime();
+
         last = lasts[e.pointerId] || 0;
         if((e.getTimeStamp().getTime() - last) <=
                 System.getProperty("j$vm_threshold", 15)){
