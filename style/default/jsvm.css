@@ -47,6 +47,13 @@
     opacity: 0;
 }
 
+.jsvm--resize-cover {
+    filter: alpha(Opacity = 30);
+    -moz-opacity: 0.3;
+    opacity: 0.3;
+    background-color: #C0C0C0;
+}
+
 .jsvm_resize_cover {
     border: 2px solid #F57900;
     filter: alpha(Opacity = 30);

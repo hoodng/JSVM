@@ -76,15 +76,33 @@ resizer: 0xFF/*0x38*/
         }, R);
    box1.addComponent(box2);
 
+   var box3 = new js.awt.Component(
+        {
+            id: "box3",
+className: "box2",
+rigid_w: false,
+rigid_h: false,
+            movable: true,
+            mover:{bt:1, br:1, bb:1, bl:1, grid:10},
+resizable: true,
+resizer: 0xFF/*0x38*/
+        }, R);
+   box1.addComponent(box3);
+
    box2.getMovingMsgRecvs = function(){
        return [this.uuid()];
    }.$bind(this);
 
-   var _onMoving = function(e){
-       var buf = [], bounds = box2.getBounds();
-       buf.push(box2.getX());
+   box3.getMovingMsgRecvs = function(){
+       return [this.uuid()];
+   }.$bind(this);
+
+var _onMoving = function(e){
+       var target = e.getEventTarget(), box = target.getMovingPeer();
+       var buf = [], bounds = box.getBounds();
+       buf.push(box.getX());
        buf.push(":");
-       buf.push(box2.getY());
+       buf.push(box.getY());
        buf.push("  ");
        buf.push(bounds.absX);
        buf.push(":");

@@ -911,7 +911,7 @@ js.awt.Resizable = function(){
         var sizeObj = this.getSizeObject(), ctx = sizeObj._moveCtx,
             thip = ctx.container, pounds = thip.getBounds(),
             bounds = sizeObj.getBounds(),
-            mover = this.def.mover, grid = this.def.mover.grid, 
+            mover = this.def.mover, grid = mover.grid, 
             minSize = sizeObj.getMinimumSize(),
             maxSize = sizeObj.getMaximumSize(),
             xy = e.eventXY(), minV, maxV, v0, v1, x, y, w, h;
@@ -939,7 +939,8 @@ js.awt.Resizable = function(){
             case 6:
             v0 = bounds.userX;
             minV = grid*ceil(max(bounds.MBP.BW+1, minSize.width)/grid);
-            maxV = grid*floor((mover.br < 1 ? maxSize.width : pounds.innerWidth)/grid);
+            maxV = grid*floor((mover.br < 1 ?
+                    maxSize.width : pounds.innerWidth)/grid);
             x = bounds.userX;
             w = grid*floor((xy.x - v0)/grid);
             w = w < minV ? minV : (w > maxV ? maxV : w);
@@ -964,7 +965,8 @@ js.awt.Resizable = function(){
             case 4:
             v0 = bounds.userY;
             minV = grid*ceil(max(bounds.MBP.BH+1, minSize.height)/grid);
-            maxV = grid*floor((mover.bb < 1 ? maxSize.height : pounds.innerHeight)/grid);
+            maxV = grid*floor((mover.bb < 1 ?
+                    maxSize.height : pounds.innerHeight)/grid);
             y = bounds.userY;
             h = grid*floor((xy.y - v0)/grid);
             h = h < minV ? minV : (h > maxV ? maxV : h);
@@ -988,8 +990,7 @@ js.awt.Resizable = function(){
     };
 
     thi$.endSizing = function(e, i){
-        var sizeObj = this.getSizeObject(e),
-            ctx = sizeObj._moveCtx,
+        var sizeObj = this.getSizeObject(e), ctx = sizeObj._moveCtx,
             recvs = sizeObj.getSizingMsgRecvs() || [];
 
         if(ctx.sized){
@@ -1032,8 +1033,9 @@ js.awt.Resizable = function(){
             bounds = this.getBounds();
             def = {
                 classType: "js.awt.Component",
-                className: "jsvm_resize_cover " 
-                    + DOM.combineClassName(this.className, "--resize-cover", ""),
+                className: "jsvm--resize-cover " 
+                         + DOM.combineClassName(
+                             this.className, "--resize-cover", ""),
                 css: "position:absolute;",
                 stateless: true,
 
