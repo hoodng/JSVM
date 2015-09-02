@@ -11,9 +11,14 @@
  */
 $package("js.awt");
 
-$import("js.awt.State");
-$import("js.awt.ToolTip");
 $import("js.util.EventTarget");
+$import("js.awt.State");
+$import("js.awt.Shadow");
+$import("js.awt.Cover");
+$import("js.awt.Movable");
+$import("js.awt.Resizable");
+$import("js.awt.Outline");
+$import("js.awt.ToolTip");
 
 /**
  * Define general element
@@ -690,6 +695,48 @@ js.awt.Element = function(def, Runtime){
         return "default";
     };
 
+    thi$.getMovingConstraints = function(){
+        return this.def.mover;
+    };
+
+    var isScroll = {auto: true, visible: true, scroll: true};
+
+    /**
+     * @return {Object} {
+     *  container: container element
+     *  range:[minX, minY, maxX, maxY]
+     * }
+     */
+    thi$.getMovingContext = function(){
+        var autofit = false, thip, bounds, pounds,
+            styles, hscroll, vscroll;
+
+        thip = DOM.getComponent(
+            DOM.offsetParent(this.view), true, this.Runtime()),
+        autofit = thip.isAutoFit ? thip.isAutoFit() : false;
+
+        styles = DOM.currentStyles(thip.view);
+        hscroll = isScroll[styles.overflowX];
+        vscroll = isScroll[styles.overflowY];
+
+        bounds = this.getBounds();
+        pounds = thip.getBounds();
+        
+        return{
+            container: thip,
+            range: [
+                0 - bounds.width,
+                0 - bounds.height,
+                hscroll ? 0xFFFF : pounds.innerWidth,
+                vscroll ? 0xFFFF : pounds.innerHeight
+            ],
+            autofit: autofit,
+            hscroll: hscroll,
+            vscroll: vscroll
+        }
+    };
+    
+
     thi$.destroy = function(){
         if(this.destroied != true){
             delete this.peer;
@@ -754,7 +801,7 @@ js.awt.Element = function(def, Runtime){
     js.awt.State, js.awt.Shadow, js.awt.Cover,
     js.awt.Movable, js.awt.MoveObject,
     js.awt.Resizable, js.awt.SizeObject,
-    js.awt.ToolTip);
+    js.awt.Outline, js.awt.ToolTip);
 
 js.awt.Element.count = 0;
 

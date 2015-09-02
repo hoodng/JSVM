@@ -49,6 +49,7 @@ js.awt.SizeObject = function(){
 
     thi$.releaseSizeObject = function(){
         if(this != this.sizingPeer){
+            this.sizingPeer.sizeObj = null;
             delete this.sizingPeer;
             this.destroy();
         }else{
@@ -58,23 +59,21 @@ js.awt.SizeObject = function(){
 };
 
 /**
- * A <em>Resizable</em> is used to support resizing a component.<p>
- * This function request a <em>resizer</em> definition as below in the def of
- * the component.
- * <p>
+ * A <code>Resizable</code> is used to support resizing a component.
+ * This function request a <code>resizer</code> definition as below 
+ * in the def of the component.
  *
  * def.resizer : number
- *                 8 bits for the 8 directions
- *                 7  6  5  4  3  2  1  0
- *                 N  NE E  SE S  SW W  NW
+ *  8 bits for the 8 directions
+ *  7  6  5  4  3  2  1  0
+ *  N  NE E  SE S  SW W  NW
  *
- *                 0 ---- 7 ---- 6
- *                 |             |
- *                 1             5
- *                 |             |
- *                 2 ---- 3 ---- 4
+ *  0 ---- 7 ---- 6
+ *  |             |
+ *  1             5
+ *  |             |
+ *  2 ---- 3 ---- 4
  *
- * <p>
  * When the component is resizing, the event "resizing" will be raised.
  * Other components can attach this event.
  */
@@ -93,7 +92,7 @@ js.awt.Resizable = function(){
 
     thi$.startSizing = function(e, i){
         var moveObj = this.getSizeObject(e),
-            ctx = moveObj.getMoveContext();
+            ctx = moveObj.getMovingContext();
 
         ctx.eventXY = e.eventXY();
         moveObj._moveCtx = ctx;        
@@ -104,7 +103,7 @@ js.awt.Resizable = function(){
         var sizeObj = this.getSizeObject(), ctx = sizeObj._moveCtx,
             thip = ctx.container, pounds = thip.getBounds(),
             bounds = sizeObj.getBounds(),
-            mover = this.def.mover, grid = this.def.mover.grid, 
+            mover = this.getMovingConstraints(), grid = mover.grid, 
             minSize = sizeObj.getMinimumSize(),
             maxSize = sizeObj.getMaximumSize(),
             xy = e.eventXY(), minV, maxV, v0, v1, x, y, w, h;
@@ -172,6 +171,8 @@ js.awt.Resizable = function(){
             sizeObj.setSize(w, h);
             ctx.sized = true;
         }
+        
+        sizeObj.getSizingPeer().adjustOutline(bounds);
 
         // Notify all message receivers
         var recvs = sizeObj.getSizingMsgRecvs() || [];
@@ -200,15 +201,14 @@ js.awt.Resizable = function(){
         MQ.post(sizeObj.getSizingMsgType(), e, recvs);
 
         // Release SizeObject
-        MQ.post("releaseSizeObject", "", [this.uuid()]);
+        MQ.post("releaseSizeObject", sizeObj, [this.uuid()]);
     };
     
-    var _release = function(){
+    var _release = function(sizeObj){
+        sizeObj.releaseSizeObject();
         if(this.sizeObj){
-            this.sizeObj.releaseSizeObject();
             delete this.sizeObj;
         }
-
         MQ.cancel("releaseSizeObject", this, _release);
     };
 
@@ -225,8 +225,9 @@ js.awt.Resizable = function(){
             bounds = this.getBounds();
             def = {
                 classType: "js.awt.Component",
-                className: "jsvm_resize_cover " 
-                    + DOM.combineClassName(this.className, "--resize-cover", ""),
+                className: DOM.combineClassName(
+                    ["jsvm_", this.def.resizeClassName||""].join(" "),
+                    ["cover", "cover--resize"]),
                 css: "position:absolute;",
                 stateless: true,
 
@@ -265,8 +266,6 @@ js.awt.Resizable = function(){
 
         return b;
     };
-
-    var resizerbounds;
 
     /**
      * Sets whether this component is resizable.

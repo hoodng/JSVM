@@ -75,10 +75,9 @@ js.awt.Desktop = function (Runtime){
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot;
         System.updateLastAccessTime();
-
         last = lasts[e.pointerId] || 0;
         if((e.getTimeStamp().getTime() - last) <=
-                System.getProperty("j$vm_threshold", 45)){
+                System.getProperty("j$vm_threshold", 15)){
             e.cancelBubble();
             return e.cancelDefault();
         }
@@ -166,7 +165,8 @@ js.awt.Desktop = function (Runtime){
                (target.isMovable() || target.isResizable())){
                 spot = target.spotIndex(ele, e.eventXY());
                 if(spot >= 0){
-                    var longpress = 145;//target.def.mover.longpress;
+                    var mover = target.getMovingConstraints(),
+                        longpress = mover.longpress;
                     longpress = Class.isNumber(longpress) ? longpress :
                         J$VM.env["j$vm_longpress"] || 145;
 

@@ -37,7 +37,6 @@
 
 $package("js.awt");
 
-$import("js.awt.Cover");
 $import("js.awt.Element");
 
 /**
@@ -362,6 +361,16 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
             el.style.zIndex = M.z;
 
+            if(M.shadow){
+                this.showShadow(true, M.shadowClassName);
+            }
+
+            if(!this.isEnabled()){
+                this.showDisableCover(true);
+            }
+
+            this._adjust("resize");
+
             ret = true;
         }
         
@@ -416,7 +425,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
             || (this.getStyle("display") === "none")) {
                 return false;
         }
-
+        this._adjust("resize");
         this._local.didLayout = true;
         
         return true;
@@ -446,19 +455,30 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
     
     thi$._adjust = function(cmd, show){
+        var bounds, z;
         switch(cmd){
         case "move":
         case "resize":
-            this.adjustCover(this.getBounds());
+            bounds = this.getBounds();
+            this.adjustShadow(bounds);
+            this.adjustCover(bounds);
+            this.adjustOutline(bounds);
             break;
         case "zorder":
-            this.setCoverZIndex(this.getZ());
+            z = this.getZ();
+            this.setShadowZIndex(z);
+            this.setCoverZIndex(z);
+            this.setOutlineZIndex(z);
             break;
         case "display":
+            this.setShadowDisplay(show);
             this.setCoverDisplay(show);
+            this.setOutlineDisplay(show);            
             break;
         case "remove":
+            this.removeShadow();
             this.removeCover();
+            this.removeOutline();
             break;
         }
     };
@@ -556,7 +576,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
      */
     thi$.MBP = function(){
         var G = this.getGeometric(this.className);
-        return System.objectCopy(MBP, {});
+        return System.objectCopy(G.bounds.MBP, {});
     };
     
     thi$.getGeometric = function(className){
@@ -669,18 +689,14 @@ js.awt.BaseComponent = function(def, Runtime, view){
     };
 
     thi$.destroy = function(){
-        if(this.destroied != true){
-            if(this._coverView){
-                this.removeCover();
-            }
-            
-            var view = this.view;
-            delete this.view;
-            
-            DOM.remove(view, true);
+        if(this.destroied) return;
 
-            arguments.callee.__super__.apply(this, arguments);    
-        }
+        this.removeOutline();
+        this.removeCover();
+        this.removeShadow();
+        DOM.remove(this.view, true);            
+        delete this.view;
+        arguments.callee.__super__.apply(this, arguments);    
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, view){

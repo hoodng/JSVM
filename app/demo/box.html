@@ -68,7 +68,7 @@ className: "box2",
 rigid_w: false,
 rigid_h: false,
             movable: true,
-            mover:{bt:1, br:1, bb:1, bl:1, grid:10},
+            mover:{bt:1, br:1, bb:1, bl:1, grid:1},
 resizable: true,
 resizer: 0xFF/*0x38*/
         }, R);
@@ -94,6 +94,7 @@ resizer: 0xFF/*0x38*/
 
    this.addComponent(box1);
 
+   box2.showOutline(true);
 });
 
 });

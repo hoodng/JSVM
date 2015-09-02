@@ -85,8 +85,12 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         return this.treeContainer().isMoverSpot(ele, x, y);
     };
 
-    thi$.getMoveObjct = function(e){
+    thi$.getMoveObject = function(e){
         return this.treeContainer().getMoveObject(e);
+    };
+
+    thi$.getMovingConstraints = function(){
+        return this.treeContainer().getMovingConstraints();
     };
 
 	thi$.parentItem = function(){

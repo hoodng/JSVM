@@ -75,6 +75,7 @@ js.awt.MoveObject = function(){
      */
     thi$.releaseMoveObject = function(){
         if(this != this.movingPeer){
+            this.movingPeer.moveObj = null;
             delete this.movingPeer;            
             this.destroy();
         }else{
@@ -82,43 +83,6 @@ js.awt.MoveObject = function(){
         }
     };
 
-    var isScroll = {auto: true, visible: true, scroll: true};
-
-    /**
-     * @return {Object} {
-     *  container: container element
-     *  range:[minX, minY, maxX, maxY]
-     * }
-     */
-    thi$.getMoveContext = function(){
-        var autofit = false, thip, bounds, pounds,
-            styles, hscroll, vscroll;
-
-        thip = DOM.getComponent(
-            DOM.offsetParent(this.view), true, this.Runtime()),
-        autofit = thip.isAutoFit ? thip.isAutoFit() : false;
-
-        styles = DOM.currentStyles(thip.view);
-        hscroll = isScroll[styles.overflowX];
-        vscroll = isScroll[styles.overflowY];
-
-        bounds = this.getBounds();
-        pounds = thip.getBounds();
-        
-        return{
-            container: thip,
-            range: [
-                0 - bounds.width,
-                0 - bounds.height,
-                hscroll ? 0xFFFF : pounds.innerWidth,
-                vscroll ? 0xFFFF : pounds.innerHeight
-            ],
-            autofit: autofit,
-            hscroll: hscroll,
-            vscroll: vscroll
-        }
-    };
-    
 };
 
 /**
@@ -156,9 +120,10 @@ js.awt.Movable = function (){
     
     thi$.startMoving = function(e){
         var moveObj = this.getMoveObject(e), 
-            ctx = moveObj.getMoveContext(), p = ctx.container.view,
+            ctx = moveObj.getMovingContext(), p = ctx.container.view,
             r = ctx.range, bounds = moveObj.getBounds(),
-            mover = this.def.mover, grid = mover.grid, bound=mover.bound,
+            mover = this.getMovingConstraints(),
+            grid = mover.grid, bound=mover.bound,
             bt = max(mover.bt*bounds.height, bound),
             br = max(mover.br*bounds.width,  bound),
             bb = max(mover.bb*bounds.height, bound),
@@ -178,7 +143,8 @@ js.awt.Movable = function (){
 
     thi$.processMoving = function(e){
         var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
-            bounds = moveObj.getBounds(), mover = this.def.mover,
+            bounds = moveObj.getBounds(),
+            mover = this.getMovingConstraints(),
             grid = mover.grid, freedom = mover.freedom,
             thip = ctx.container, p = thip.view,
             xy = e.eventXY(), oxy = ctx.eventXY,
@@ -220,7 +186,7 @@ js.awt.Movable = function (){
         MQ.post(moveObj.getMovingMsgType(), e, recvs);
 
         // Release MoveObject
-        MQ.post("releaseMoveObject", "", [this.uuid()]);
+        MQ.post("releaseMoveObject", moveObj, [this.uuid()]);
 
         moveObj.showMoveCover(false);
         if(ctx.moved){
@@ -229,12 +195,11 @@ js.awt.Movable = function (){
         delete moveObj._moveCtx;
     };
 
-    var _release = function(){
+    var _release = function(moveObj){
+        moveObj.releaseMoveObject();
         if(this.moveObj){
-            this.moveObj.releaseMoveObject();
-            delete this.moveObj;
+            delete this.moveObj;            
         }
-        
         MQ.cancel("releaseMoveObject", this, _release);
     };
 
@@ -298,8 +263,5 @@ js.awt.Movable = function (){
         }
     };
 
-    thi$.getMoverInfo = function(){
-        return this.def.mover;
-    };
 };
 

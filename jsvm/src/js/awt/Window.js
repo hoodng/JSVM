@@ -279,7 +279,6 @@ js.awt.Window = function (def, Runtime, view){
 	};
 
 	thi$.close = function(){
-		
 		if(typeof this.beforClose == "function"){
 			this.beforClose();
 		}
@@ -489,7 +488,12 @@ js.awt.Window = function (def, Runtime, view){
 
 		idef = tdef["labTitle"];
 		if(idef){
-			idef.text = Class.isValid(idef.text) ? idef.text : "J$VM";
+			if(Class.isString(def.titleText)){
+				idef.text = def.titleText;
+			}else{
+				idef.text = Class.isString(idef.text) 
+					? idef.text : "J$VM";
+			}
 		}
 
 		return tdef;

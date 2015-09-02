@@ -1403,7 +1403,7 @@ js.util.Document = function (){
 
 	var STATEREG = /(\w+)(_\d{1,4})$/;
 
-	thi$.splitCSSClass = function(className){
+	thi$.splitClassName = function(className){
 		className.trim();
 
 		var names = className.split(" "), last = names.pop();
@@ -1428,10 +1428,10 @@ js.util.Document = function (){
 			separator = "_";
 		}
 
-		var names = this.splitCSSClass(className), rst = [], name;
+		var names = this.splitClassName(className), rst = [], name, tmp;
 		for(var i = 0, len = names.length; i < len; i++){
-			name = names[i];
-
+			name = names[i].trim();
+            
             // Skip the decorating className, e.g. restree--nombp, btn--square.
             // Rule: all decorating className only for the current component
             if(!name || name.indexOf("--") !== -1){
@@ -1439,7 +1439,12 @@ js.util.Document = function (){
             }
 
 			for(var j = 0, jlen = ext.length; j < jlen; j++){
-				rst.push(name + separator + ext[j]);
+                tmp = ext[j].trim();
+                if(tmp){
+                    rst.push(name+separator+tmp);
+                }else{
+                    rst.push(name);
+                }
 			}
 		}
 		
@@ -1506,7 +1511,7 @@ js.util.Document = function (){
 									return "";
 								});
 
-		names = this.splitCSSClass(str);
+		names = this.splitClassName(str);
 		if(stateNames.length === 0){
             // Skip the decorating className, e.g. restree--nombp, btn--square.
             for(var i = names.length - 1; i >= 0; i--){

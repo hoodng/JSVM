@@ -74,6 +74,7 @@
             "js/awt/Shadow.js",
             "js/awt/Movable.js",
             "js/awt/Resizable.js",
+            "js/awt/Outline.js",			
             "js/awt/PopupLayer.js",
             "js/awt/ToolTip.js",
             "js/awt/ZOrderManager.js",
