@@ -1702,31 +1702,5 @@ js.util.Document = function (){
             ele.style.cursor = cursor;
         }
     };
-
-    thi$.setMovable = function(ele, b, R){
-        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
-        comp.setMovable(b);
-    };
-
-    thi$.setResizable = function(ele, b, resizer, R){
-        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
-        comp.setResizable(b, resizer);
-    };
-
-    thi$.showOutline = function(ele, show, R, className){
-        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
-        comp.showOutline(show, className);
-    };
-
-    thi$.showShadow = function(ele, show, R, className){
-        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
-        comp.showShadow(show, className);
-    };
-
-    thi$.showCover = function(ele, show, modify, R, className){
-        var comp = this.getComponent(ele, true, R || J$VM.Runtime);
-        comp.showCover(show, modify, className);
-    };
-
     
 }.$extend(js.lang.Object);
