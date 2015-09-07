@@ -165,8 +165,11 @@ org.jsvm.ServiceDecorator = function(){
     };
 
     var _onheartbeat = function(e){
-        var apps = R.getDesktop().getApps(), app, fn;
-        for(var appid in apps){
+        var apps, appid, app, fn;
+        if("recv" !== e.getType()) return;
+        
+        apps = R.getDesktop().getApps();
+        for(appid in apps){
             app = apps[appid];
             fn = app.onHeartbeat;
             if(Class.isFunction(fn)){

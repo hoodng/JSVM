@@ -910,8 +910,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			moveObj.setMovingPeer(this);
 			moveObj.appendTo(document.body);
 
-			/*moveObj.setPosition(absXY.x, absXY.y);*/
-			moveObj.setPosition(absXY.x - 10, absXY.y - 8);
+			moveObj.setPosition(absXY.x+8, absXY.y+8, 4);
 		}
 
 		return moveObj;

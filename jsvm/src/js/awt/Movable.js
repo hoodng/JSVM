@@ -147,7 +147,7 @@ js.awt.Movable = function (){
             thip = ctx.container, p = thip.view,
             xy = e.eventXY(), oxy = ctx.eventXY,
             x = p.scrollLeft + bounds.userX + (xy.x - oxy.x),
-            y = p.scrollTop  + bounds.userY + (xy.y - oxy.y),
+            y = p.scrollTop + bounds.userY + (xy.y - oxy.y),
             minX = ctx.minX, minY = ctx.minY,
             maxX = ctx.maxX, maxY = ctx.maxY;
 
@@ -222,10 +222,12 @@ js.awt.Movable = function (){
      * Notes: If need sub class can override this method
      */    
     thi$.getMoveObject = function(e){
-        var moveObj = this.moveObj;
+        var moveObj = this.moveObj, B;
         if(!moveObj){
             moveObj = this.moveObj = this;
             moveObj.setMovingPeer(this);
+            B = this.getBounds();
+            moveObj.setBounds(B.x, B.y, B.width, B.height, 0x04);
         }
 
         return moveObj;

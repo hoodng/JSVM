@@ -231,23 +231,18 @@ js.awt.Resizable = function(){
                     ["cover", "cover--resize"]),
                 css: "position:absolute;",
                 stateless: true,
-
-                x : bounds.offsetX,
-                y : bounds.offsetY,
                 z : this.getZ(),
-                width: bounds.width,
-                height:bounds.height,
-
                 prefSize : this.getPreferredSize(),
                 miniSize : this.getMinimumSize(),
                 maxiSize : this.getMaximumSize()
             };
             
             sizeObj = this.sizeObj = /*this;*/
-            
             new js.awt.Component(def, this.Runtime());
             sizeObj.insertAfter(this.view);
             sizeObj.setSizingPeer(this);
+            sizeObj.setBounds(bounds.x, bounds.y,
+                              bounds.width, bounds.height, 0x04);
         }
 
         return sizeObj;
