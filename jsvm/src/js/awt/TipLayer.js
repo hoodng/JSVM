@@ -1,54 +1,30 @@
 /**
-
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * File: TipLayer.js
- * Create: 2014/02/20 09:16:52
+ * Create: 2014/02/20 06:41:25
  * Author: Pan Mingfa
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
-
 $package("js.awt");
 
+$import("js.awt.Component");
+
 js.awt.TipLayer = function(def, Runtime){
-	var CLASS = js.awt.TipLayer, thi$ = CLASS.prototype;
+
+    var CLASS = js.awt.TipLayer, thi$ = CLASS.prototype;
 	if(CLASS.__defined__){
 		this._init.apply(this, arguments); 
 		return;
 	}
 	CLASS.__defined__ = true;
 	
-	var Class = js.lang.Class, Event = js.util.Event, System = J$VM.System,
-	MQ = J$VM.MQ, DOM = J$VM.DOM;
+	var Class = js.lang.Class, Event = js.util.Event,
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
 	
 	/**
 	 * Set the tip object for current tip layer. If a old tip object is existed
@@ -57,81 +33,72 @@ js.awt.TipLayer = function(def, Runtime){
 	 * 
 	 * @param tipObj: {Component} A Component or Container instance object.
 	 */
-	thi$.setTipObj = function(tipObj){
-		var oTipObj = this.tipObj;
-		if(oTipObj && tipObj === oTipObj){
-			return null;
-		}
+	thi$.setTipObject = function(tipObj, gc){
+        this.releaseTipObject(gc);
+        if(!tipObj) return;
 
-		if(oTipObj){
-			oTipObj = this.removeTipObj();
-		}
-		
-		if(tipObj && tipObj.view){
-			DOM.applyStyles(tipObj.view, {position: "absolute"});
-			this.tipObj = tipObj;
-
-			tipObj.id = "tipObj";
+        this.tipObj = tipObj;        
+        if(tipObj.view){
+            tipObj.view.style.position = "absolute";
 			tipObj.appendTo(this.view);
-		}
-		
-		return oTipObj;
+        }
 	};
-	
+
+	thi$.getTipObject = function(){
+		return this.tipObj;	 
+	};
+    
 	/**
 	 * Attention:
 	 * 
 	 * The tipObj is not created by tip layer. So tip layer won't
 	 * take responsibility for destroy it.
 	 */
-	thi$.removeTipObj = function(){
+	thi$.releaseTipObject = function(gc){
 		var tipObj = this.tipObj;
-		delete this.tipObj;
-		
-		if(tipObj){
-			tipObj.removeFrom(this.view);
-		}
-		
-		return tipObj;
+        if(!tipObj) return;
+        if(gc){
+            tipObj.destroy(gc);
+        }else{
+            tipObj.removeFrom(this.view);            
+        }
+        delete this.tipObj;
 	};
-	
-	thi$.getTipObj = function(){
-		return this.tipObj;	 
-	};
-	
+		
 	thi$.doLayout = function(force){
-		if(arguments.callee.__super__.apply(this, arguments)){
-			var tipObj = this.tipObj, bounds = this.getBounds(),
-			MBP = bounds.MBP;
-			if(tipObj){
-				tipObj.setPosition(MBP.borderLeftWidth + MBP.paddingLeft, 
-								   MBP.borderTopWidth + MBP.paddingTop);
-				tipObj.doLayout(true);
-				
-				bounds = tipObj.getBounds();
-				this.setSize(bounds.width + MBP.BPW, bounds.height + MBP.BPH, 4);
-			}
-			
-			return true;
-		}
+	    var tipObj, bounds, MBP;
+        if(!arguments.callee.__super__.apply(this, arguments))
+            return false;
+        
+		tipObj = this.tipObj;
+        if(!tipObj) return true;
+        
+        bounds = this.getBounds();
+		MBP = bounds.MBP;
+		tipObj.setPosition(MBP.borderLeftWidth + MBP.paddingLeft, 
+						   MBP.borderTopWidth + MBP.paddingTop);
+		tipObj.doLayout(true);
 		
-		return false;
-		
+		bounds = tipObj.getBounds();
+		this.setSize(bounds.width + MBP.BPW,
+                     bounds.height + MBP.BPH, 4);
+		return true;
+
 	}.$override(this.doLayout);
 	
 	thi$.destroy = function(){
-		this.removeTipObj();
-		
+		this.releaseTipObject();
 		arguments.callee.__super__.apply(this, arguments);
-		
 	}.$override(this.destroy);
 	
 	thi$._init = function(def, Runtime){
 		if(typeof def !== "object") return;
 		
 		def.classType = def.classType || "js.awt.TipLayer";
-		def.className = def.className || "jsvm_tipLayer";
-		
+		def.className = DOM.combineClassName(
+            ["jsvm_", def.className||""].join(" "),
+            ["tip-layer"]);
+
 		def.isfloating = true;
 		def.stateless = true;
 		
@@ -142,3 +109,4 @@ js.awt.TipLayer = function(def, Runtime){
 	this._init.apply(this, arguments);
 	
 }.$extend(js.awt.Component);
+

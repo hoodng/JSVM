@@ -57,7 +57,7 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
 
     thi$.getShapeInfo = function(){
         var M = this.def, U = this._local, 
-            u = this.getAttr("angleUnit") || Graph.RAD,
+            u = this.defAttr("angleUnit") || Graph.RAD,
             e = M.rotate, image = U.image || M.image, ret;
 
         e = Class.isNumber(e) ? Graph.deg2rad(e, u) : 0;

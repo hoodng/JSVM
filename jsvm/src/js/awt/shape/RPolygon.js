@@ -103,13 +103,13 @@ js.awt.shape.RPolygon = function(def, Graphics2D, Renderer){
 
         tmp = def.ends;
         tmp = Class.isNumber(tmp) ? tmp : 3;
-        this.setAttr("ends", (tmp < 3 ? 3 : tmp));
+        this.defAttr("ends", (tmp < 3 ? 3 : tmp));
 
         tmp = def.offset;
-        this.setAttr("offset", Class.isNumber(tmp)? tmp : 90);
+        this.defAttr("offset", Class.isNumber(tmp)? tmp : 90);
 
         tmp = def.rscale;
-        this.setAttr("rscale", Class.isNumber(tmp)? tmp : 1);
+        this.defAttr("rscale", Class.isNumber(tmp)? tmp : 1);
 
     }.$override(this._init);
     

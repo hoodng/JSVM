@@ -56,7 +56,7 @@ js.awt.shape.Text = function(def, Graphics2D, Renderer){
         Graph = Class.forName("js.awt.Graphics2D");
 
     thi$.getShapeInfo = function(){
-        var M = this.def, u = this.getAttr("angleUnit") || Graph.RAD,
+        var M = this.def, u = this.defAttr("angleUnit") || Graph.RAD,
             e = M.rotate;
 
         e = Class.isNumber(e) ? Graph.deg2rad(e, u) : 0;

@@ -105,23 +105,24 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
 
     }.$override(this.drawing);
 
-
-    thi$.setAttr = function(key, value){
-        arguments.callee.__super__.apply(this, arguments);
-
-        this.fireEvent(new Event(
-            G.Events.ATTRS_CHANGED, {}, this), true);
-
-    }.$override(this.setAttr);
-
-    thi$.getAttr = function(key){
-        var v = arguments.callee.__super__.apply(this, arguments), p;
-        if(!v){
-            p = this.getContainer();
-            v = p ? p.getAttr(key) : undefined;
+    
+    thi$.defAttr = function(key, val){
+        var v, p;
+        if(Class.isValid(val)){
+            v = arguments.callee.__super__.apply(this, arguments);
+            this.fireEvent(new Event(
+                G.Events.ATTRS_CHANGED, {}, this), true);
+        }else{
+            v = arguments.callee.__super__.call(this, key);
+            if(Class.isValid(v)){
+                p = this.getContainer();
+                v = p ? p.defAttr(key) : null;
+            }
         }
+        
         return v;
-    }.$override(this.getAttr);
+        
+    }.$override(this.defAttr);
     
     /*
      *  Translation Transform 

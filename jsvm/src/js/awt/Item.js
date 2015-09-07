@@ -40,6 +40,24 @@ $package("js.awt");
 $import("js.awt.Highlighter");
 
 /**
+ * @fileOverview Define the basic Item component. 
+ * 
+ * For such Item, there are about two kinds of user cases:
+ * 
+ * 1) Use as the iterable items for tree, list and so on. It should be 
+ * lightweight, high-performance. And it can be a little low flexibility. 
+ * So we need to finish most of the layout things before appending it to 
+ * the DOM tree. And reducing the "repaint" and "layout" things.
+ * 
+ * 2) Use as the standalone component like a button. It should be strict, 
+ * flexibility and with smart layout. Of course it may be a little weighty
+ * and low-performace.
+ * 
+ * However, we add the "strict" property in the definition of the item to 
+ * diff such two scenes.
+ */
+
+/**
  * @param def :{
  *
  *	   markable: true/false. If true will create a marker element.
@@ -62,14 +80,39 @@ js.awt.Item = function(def, Runtime, view){
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
 	System = J$VM.System, MQ = J$VM.MQ;
 
+	thi$.msgType = function(msgType){
+		var U = this._local;
+		if(Class.isString(msgType) && msgType.length > 0){
+			U.msgType = msgType;
+		}
+
+		return U.msgType || "js.awt.event.StrictItemEvent";
+	};
+	
+	/**
+	 * Judge whether the current Item is strict for the non-iterative
+	 * use scenes.
+	 */
+	thi$.isStrict = function(){
+		return this.def.strict === true;  
+	};
+
 	/**
 	 * @see js.awt.BaseComponent
 	 */
 	thi$.getPreferredSize = function(){
-		if(this.def.prefSize == undefined){
-			var G = this.getGeometric(), nodes = this.view.childNodes,
-			ele1 = nodes[nodes.length-2], ele0 = nodes[nodes.length -1],
-			width;
+		var M = this.def, prefSize = M.prefSize, G, D,
+		nodes, ele1, ele0, width;
+
+		if(this.isPreferredSizeSet && prefSize){
+			return prefSize;
+		}
+
+		if(!this.isStrict()){
+			G = this.getGeometric();
+			nodes = this.view.childNodes;
+			ele1 = nodes[nodes.length-2];
+			ele0 = nodes[nodes.length -1];
 
 			if(ele0.tagName == "SPAN"){
 				/*
@@ -95,9 +138,17 @@ js.awt.Item = function(def, Runtime, view){
 			this.setPreferredSize(
 				width,
 				G.bounds.height - (G.bounds.BBM ? 0 : G.bounds.MBP.BPH));
+			prefSize = M.prefSize;
+
+		}else{
+			D = this.getBounds();
+			prefSize = {
+				width: D.width,
+				height: D.height
+			};
 		}
 
-		return this.def.prefSize;
+		return prefSize;
 	};
 
 	thi$.getIconImage = function(){
@@ -289,28 +340,186 @@ js.awt.Item = function(def, Runtime, view){
 	 * @see js.awt.Movable
 	 */
 	thi$.isMoverSpot = function(el, x, y){
-		return (el != this.branch &&
-				el != this.marker &&
-				el !== this.ctrl);
+		return el != this.branch &&	el != this.marker 
+			&& el !== this.ctrl;
 	};
 
 	/**
-	 * @see js.awt.BaseComponent
+	 * @method
+	 * @inheritdoc js.awt.Component#onStateChanged
 	 */
-	thi$.doLayout = function(){
-		var ele = this.label || this.input,
-		maxWidth = this.ctrl ? this.ctrl.offsetLeft :
-			this.getBounds().innerWidth,
-		width = maxWidth - ele.offsetLeft;
-		width = width < 0 ? 0 : width;
-
-		if(this.input){
-			DOM.setSize(ele, width, undefined);
-		}else{
-			ele.style.width = width + "px";
+	thi$.onStateChanged = function(){
+		arguments.callee.__super__.apply(this, arguments);		  
+		
+		if(this.isStrict() && this.icon){
+			this.setIconImage(this.getState());
 		}
 
-	}.$override(this.doLayout);
+	}.$override(this.onStateChanged);
+
+	/*
+	 * Do the strict layout	 
+	 */
+	var _doStrictLayout = function(force){
+		if(!this.isDOMElement() || !this.needLayout(force)){
+			return false;
+		}
+
+		var M = this.def, G = this.getGeometric(), bounds = this.getBounds(),
+		MBP = bounds.MBP, xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
+		left = 0, top, space = bounds.innerWidth, layout = M.layout || {},
+		gap = layout.gap || 0, hAlign = layout.align_x, vAlign = layout.align_y,
+		ctrlAlign = M.ctrlAlign, items = M.items, len = items.length, 
+		rects = [], rigid, ele, id, iid, d, r, h, c = 0, iSize, sv;
+
+		if(!Class.isNumber(hAlign)){
+			hAlign = 0.5;
+		}
+
+		if(!Class.isNumber(vAlign)){
+			vAlign = 0.5;
+		}
+
+		if(!Class.isNumber(ctrlAlign)){
+			ctrlAlign = 0.5;
+		}
+		
+		for(var i = 0; i < len; i++){
+			id = items[i];
+			ele = this[id];
+
+			d = G[id] = G[id] || DOM.getBounds(ele);
+			MBP = d.MBP;
+			iid = id.split(/\d+/g)[0];
+			r = {};
+			
+			space -= MBP.marginLeft;
+			switch(iid){
+			case "label":
+			case "input":
+				rigid = (iid === "label") 
+					? M.labelRigid === true 
+					: M.inputRigid === true;
+
+				if(rigid){
+					r.width = d.width;
+					space -= r.width;
+				}else{
+					r.width = null;
+					c += 1;
+				}
+
+				// ?? Sometimes, no any height style setten for the label,
+				// the height of bounds will be 0.
+				if(d.height == 0){
+					d.height = bounds.innerHeight;
+				}
+				break;
+
+			case "icon":
+			case "sign":
+				r.width = d.width;
+				
+				if(iid === "icon"){
+					iSize = M.iconSize || {};
+				}else{
+					iSize = M.signSize || {};
+				}
+
+				sv = iSize.width;
+				if(!isNaN(sv) && sv > 0){
+					r.width = sv;
+				}
+				
+				sv = iSize.height;
+				if(!isNaN(sv) && sv > 0){
+					r.height = sv;
+				}
+
+				space -= r.width;				 
+				break;
+
+			default:
+				r.width = d.width;
+				space -= r.width;
+				break;
+			}
+			space -= MBP.marginRight;
+			
+			r.node = ele;
+			rects.push(r);
+		}
+		
+		space -= gap * (len - 1);
+		
+		if(c > 1){
+			space = Math.round(space / c);
+		}
+		
+		if(c == 0){
+			left = Math.round(space * hAlign);
+		}
+
+		for(i = 0, len = rects.length; i < len; i++){
+			r = rects[i];
+			if(r.width == null){
+				r.width = space;
+			}
+
+			ele = r.node;
+			id = ele.id;
+			iid = id.split(/\d+/g)[0];
+
+			d = G[id];
+			MBP = d.MBP;
+			h = r.height || d.height;
+
+			left += MBP.marginLeft;
+
+			if(iid == "ctrl" && Class.isNumber(ctrlAlign)){
+				top = ybase + (bounds.innerHeight - h) * ctrlAlign;
+			}else{
+				if(!Class.isNumber(vAlign)){
+					vAlign = 0.5;
+				}
+				top = ybase + (bounds.innerHeight - h) * vAlign;
+			}
+
+			if(iid == "label"){
+				ele.style.lineHeight = h + "px";
+			}
+
+			DOM.setBounds(r.node, xbase + left, top, r.width, h, 0);
+
+			left += r.width + MBP.marginRight + gap;
+		}
+		
+		return true;
+		
+	};
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Item#doLayout
+	 */
+	thi$.doLayout = function(){
+		if(!this.isStrict()){
+			var ele = this.label || this.input,
+			maxWidth = this.ctrl ? this.ctrl.offsetLeft :
+				this.getBounds().innerWidth,
+			width = maxWidth - ele.offsetLeft;
+			width = width < 0 ? 0 : width;
+
+			if(this.input){
+				DOM.setSize(ele, width, undefined);
+			}else{
+				ele.style.width = width + "px";
+			}
+		}else{
+			_doStrictLayout.apply(this, arguments);
+		}
+
+	};
 
 	/**
 	 * The js.awt.Item is prepared for those iterable cases. So it must
@@ -321,17 +530,31 @@ js.awt.Item = function(def, Runtime, view){
 	 * @link js.awt.Component#repaint
 	 */
 	thi$.repaint = function(){
-		var rst = js.awt.BaseComponent.prototype.repaint.apply(this, arguments);
-		if(rst){
-			this.showDisableCover(!this.isEnabled());
+		var rst = false;
+		if(!this.isStrict()){
+			if(this.isDOMElement()){
+				rst = true;
+				this.showDisableCover(!this.isEnabled());
+			}
+		}else{
+			rst = arguments.callee.__super__.apply(this, arguments);
 		}
 
 		return rst;
-	};
+
+	}.$override(this.repaint);
 
 	thi$.destroy = function(){
 		if(this.input){
 			Event.detachEvent(this.input, "focus", 1,  this, _onFocus);
+		}
+
+		if(this.isStrict() && !this.isStateless()){
+			this.attachEvent("mouseover", 4, this, _onHover);
+			this.attachEvent("mouseout", 4, this, _onHover);
+
+			this.attachEvent("mousedown", 4, this, _onmousedown);
+			this.attachEvent("mouseup", 4, this, _onmouseup);
 		}
 
 		arguments.callee.__super__.apply(this, arguments);
@@ -496,30 +719,69 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	var _onBlur = function(e) {
-		if(this._local.eventAttached){
+		var U = this._local;
+		if(U.eventAttached){
 			Event.detachEvent(this.input, 'keydown', 0, this, _onKeyDown);
 			Event.detachEvent(this.input, "blur", 1, this, _onBlur);
 
-			this._local.eventAttached = false;
+			U.eventAttached = false;
 		}
 
 		this.onSubmit(e);
 	};
 
+	var _onHover = function(e){
+		if(e.getType() === "mouseover"){
+			if(this.contains(e.toElement, true)
+			   && !this.isHover()){
+				this.setHover(true);
+			}
+		}else{
+			if(!this.contains(e.toElement, true)
+			   && this.isHover()){
+				this.setHover(false);
+			}
+		}
+	};
+
+	var _onmousedown = function(e){
+		this._local.mousedown = true;
+
+		e.setEventTarget(this);
+		this.notifyPeer(this.msgType(), e);
+	};
+
+	var _onmouseup = function(e){
+		if(this._local.mousedown === true){
+			delete this._local.mousedown;
+
+			if(this.def.toggle === true){
+				this.setTriggered(!this.isTriggered());
+			}
+
+			e.setEventTarget(this);
+			this.notifyPeer(this.msgType(), e);
+		}
+	};
+
 	var _createElements = function(){
-		var G = this.getGeometric(), M = this.def,
-		xbase = G.bounds.MBP.paddingLeft, ybase = G.bounds.MBP.paddingTop,
-		height = G.bounds.BBM ?
-			G.bounds.height : G.bounds.height - G.bounds.MBP.BPH,
-		innerHeight = height - G.bounds.MBP.BPH,
-		className = this.className, body = document.body,
-		items = M.items, ele, id, iid, viewType, i, len, D,
-		left = xbase, top, buf = this.__buf__;
+		var M = this.def, items = M.items, G = this.getGeometric(),
+		bounds = G.bounds, MBP = bounds.MBP, xbase = MBP.paddingLeft,
+		ybase = MBP.paddingTop, left = xbase, top, height, innerHeight,
+		D, ele, id ,iid, viewType, i, len, buf = this.__buf__, 
+		strict = this.isStrict(), uuid = this.uuid();
 
-		this.view.style.height = G.bounds.BBM ?
-			(height + "px") : (innerHeight+"px");
-
-		for(i=0, len=items.length; i<len; i++){
+		// For the iterable items, rectify the Box-model compatibility 
+		// differences in advance.
+		if(!strict){
+			height = bounds.BBM ? bounds.height : bounds.height - MBP.BPH;
+			innerHeight = height - MBP.BPH;
+			
+			this.view.style.height = bounds.BBM ?
+				(height + "px") : (innerHeight+"px");
+		}		 
+		
+		for(i = 0, len = items.length; i < len; i++){
 			id = items[i];
 			iid = id.split(/\d+/g)[0];
 			switch(iid){
@@ -539,32 +801,37 @@ js.awt.Item = function(def, Runtime, view){
 
 			ele = DOM.createElement(viewType);
 			ele.id = id;
-			ele.className = DOM.combineClassName(className, id);
+			ele.className = DOM.combineClassName(this.className, id);
 			ele.iid = iid;
-
-			if(!G[iid]){
-				ele.style.cssText =
-					"position:absolute;white-space:nowrap;visibility:hidden;";
-				DOM.appendTo(ele, body);
-				G[iid] = DOM.getBounds(ele);
-				DOM.removeFrom(ele);
-				ele.style.cssText = "";
-			}else{
-				ele.bounds = G[iid];
-			}
-
-			D = G[iid];
 
 			buf.clear();
 			buf.append("position:absolute;");
-			top = ybase + (innerHeight - D.height)*0.5;
-			buf.append("top:").append(top).append("px;");
-			if(iid !== "ctrl"){
-				buf.append("left:").append(left).append("px;");
-				left += D.MBP.marginLeft + D.width + D.MBP.marginRight;
-			}else{
-				buf.append("right:")
-					.append(G.bounds.MBP.paddingRight).append("px;");
+
+			// For the iterable items, do the layout things ahead
+			if(!strict){
+				if(!G[iid]){
+					ele.style.cssText =
+						"position:absolute;white-space:nowrap;visibility:hidden;";
+					DOM.appendTo(ele, document.body);
+					G[iid] = DOM.getBounds(ele);
+					DOM.removeFrom(ele);
+					ele.style.cssText = "";
+				}else{
+					ele.bounds = G[iid];
+				}
+
+				D = G[iid];
+
+				top = ybase + (innerHeight - D.height) * 0.5;
+				buf.append("top:").append(top).append("px;");
+
+				if(iid !== "ctrl"){
+					buf.append("left:").append(left).append("px;");
+					left += D.MBP.marginLeft + D.width + D.MBP.marginRight;
+				}else{
+					buf.append("right:")
+						.append(G.bounds.MBP.paddingRight).append("px;");
+				}
 			}
 
 			if(iid == "label"){
@@ -573,36 +840,41 @@ js.awt.Item = function(def, Runtime, view){
 
 			ele.style.cssText = buf.toString();
 
+			ele.uuid = uuid;
+			this[id] = ele;
+
 			DOM.appendTo(ele, this.view);
 		}
 	};
 
 	var _checkItems = function(){
 		var M = this.def, items = M.items;
-		if(items.length == 0){
-			if(this.isMarkable()){
-				items.push("marker");
-			}
+		if(items.length > 0){
+			return;
+		}
 
-			if(M.iconImage){
-				items.push("icon");
-			}
+		if(this.isMarkable()){
+			items.push("marker");
+		}
 
-			if(M.sign){
-				items.push("sign");
-			}
+		if(M.iconImage){
+			items.push("icon");
+		}
 
-			if(Class.isValid(M.labelText)){
-				items.push("label");
-			}else{
-				if(Class.isValid(M.inputText)){
-					items.push("input");
-				}
-			}
+		if(M.sign){
+			items.push("sign");
+		}
 
-			if(this.isControlled()){
-				items.push("ctrl");
+		if(Class.isValid(M.labelText)){
+			items.push("label");
+		}else{
+			if(Class.isValid(M.inputText)){
+				items.push("input");
 			}
+		}
+
+		if(this.isControlled()){
+			items.push("ctrl");
 		}
 	};
 
@@ -614,28 +886,28 @@ js.awt.Item = function(def, Runtime, view){
 
 		arguments.callee.__super__.apply(this, [def, Runtime, view]);
 
-		def.items = def.items || [];
-
-		// Create inner elements
+		var M = this.def, uuid = this.uuid(), items, nodes, id, 
+		i, len, node, text, ipt, placeholder;
 		if(view == undefined){
+			items = M.items = M.items || [];
+
 			_checkItems.call(this);
 			_createElements.call(this);
-		}
+		}else{
+			items = M.items = [];
 
-		if(!def.items.clear){
-			js.util.LinkedList.$decorate(def.items);
-		}
-		def.items.clear();
+			nodes = this.view.childNodes;
+			len = nodes.length;
+			for(i = 0; i < len; i++){
+				node = nodes[i]; 
+				id = node.id;
+				node.iid = (node.iid || id.split(/\d+/g)[0]);
+				node.className = DOM.combineClassName(this.className, id);
+				items.push(id);
 
-		var uuid = this.uuid(), nodes = this.view.childNodes,
-		id, i, len, node, text, ipt, placeholder;
-		for(i=0, len=nodes.length; i<len; i++){
-			node = nodes[i]; id = node.id;
-			node.uuid = uuid;
-			node.iid = (node.iid || id.split(/\d+/g)[0]);
-			node.className = DOM.combineClassName(this.className, id);
-			def.items.push(id);
-			this[id] = node;
+				node.uuid = uuid;
+				this[id] = node;
+			}
 		}
 
 		if(this.icon){
@@ -672,6 +944,14 @@ js.awt.Item = function(def, Runtime, view){
 
 		if(this.isMarkable()){
 			this.mark(def.checked === true);
+		}
+
+		if(this.isStrict() && !this.isStateless()){
+			this.attachEvent("mouseover", 4, this, _onHover);
+			this.attachEvent("mouseout", 4, this, _onHover);
+
+			this.attachEvent("mousedown", 4, this, _onmousedown);
+			this.attachEvent("mouseup", 4, this, _onmouseup);
 		}
 
 	}.$override(this._init);

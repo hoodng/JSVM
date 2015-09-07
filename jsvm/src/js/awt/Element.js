@@ -96,9 +96,18 @@ js.awt.Element = function(def, Runtime){
      * @param y, the position top
      */
     thi$.setPosition = function(x, y, fire){
-        var M = this.def;
-        M.x = Class.isNumber(x) ? x : this.getX();
-        M.y = Class.isNumber(y) ? y : this.getY();
+        var M = this.def, ele = this.view, bounds;
+        if(ele){
+            bounds = this.getBounds();
+            DOM.setPosition(ele, x, y, bounds);
+            M.x = bounds.x;
+            M.y = bounds.y;
+        }else{
+            M.x = Class.isNumber(x) ? x : this.getX();
+            M.y = Class.isNumber(y) ? y : this.getY();
+        }
+        
+        this.adjustLayers("move");
     };
 
 
@@ -117,7 +126,13 @@ js.awt.Element = function(def, Runtime){
      * @param z
      */
     thi$.setZ = function(z, fire){
-        this.def.z = Class.isNumber(z) ? z : this.getZ();
+        var M = this.def, ele = this.view;
+        M.z = Class.isNumber(z) ? z : this.getZ();
+        if(ele){
+            ele.style.zIndex = M.z;
+        }
+        
+        this.adjustLayers("zorder");        
     };
     
     /**
@@ -178,9 +193,19 @@ js.awt.Element = function(def, Runtime){
      * @param h, height
      */
     thi$.setSize = function(w, h, fire){
-        var M = this.def;
-        M.width = Class.isNumber(w) ? w : this.getWidth();
-        M.height= Class.isNumber(h) ? h : this.getHeight();
+        var M = this.def, ele = this.veiw, bounds;
+
+        if(ele){
+            bounds = this.getBounds();
+            DOM.setSize(ele, w, h, bounds);
+            M.width = bounds.width;
+            M.height= bounds.height;
+        }else{
+            M.width = Class.isNumber(w) ? w : this.getWidth();
+            M.height= Class.isNumber(h) ? h : this.getHeight();
+        }
+        
+        this.adjustLayers("resize");
     };
 
     thi$.absXY = function(){
@@ -252,8 +277,8 @@ js.awt.Element = function(def, Runtime){
                     BPH: border[0]+padding[0]+padding[2]+border[2]
                 },
 
-                absX : abs.X,
-                absY : abs.Y
+                absX : abs.x,
+                absY : abs.y
             };
             
             bounds.offsetX = bounds.x;
@@ -277,12 +302,23 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def;
+        var M = this.def, ele = this.view, bounds;
 
-        M.x = Class.isNumber(x) ? x : this.getX();
-        M.y = Class.isNumber(y) ? y : this.getY();
-        M.width = Class.isNumber(w) ? w : this.getWidth();
-        M.height= Class.isNumber(h) ? h : this.getHeight();
+        if(ele){
+            bounds = this.getBounds();
+            DOM.setBounds(ele, x, y, w, h, bounds);
+            M.x = bounds.x;
+            M.y = bounds.y;
+            M.width = bounds.width;
+            M.height= bounds.height;
+        }else{
+            M.x = Class.isNumber(x) ? x : this.getX();
+            M.y = Class.isNumber(y) ? y : this.getY();
+            M.width = Class.isNumber(w) ? w : this.getWidth();
+            M.height= Class.isNumber(h) ? h : this.getHeight();
+        }
+
+        this.adjustLayers("resize");        
     };
 
     thi$.getPreferredSize = function(nocache){
@@ -348,19 +384,15 @@ js.awt.Element = function(def, Runtime){
         return ret;
     };
     
-    thi$.getAttr = function(key){
-        return this.def[key];
+    thi$.defAttr = function(key, val){
+        var M = this.getDef();
+        if(Class.isValid(val)){
+            M[key] = val;            
+        }
+        return M[key];
     };
 
-    thi$.setAttr = function(key, val){
-        this.def[key] = val;
-    };
-
-    thi$.delAttr = function(key){
-        delete this.def[key];
-    };
-
-    thi$.getAttrs = function(){
+    thi$.getDef = function(){
         return this.def;
     };
 
@@ -417,7 +449,9 @@ js.awt.Element = function(def, Runtime){
             DOM.removeFrom(this.view, parent);
         }else if (parent.removeChild){
             parent.removeChild(this);
-        } 
+        }
+        
+        this.adjustLayers("remove");
     };
 
     /**
@@ -632,9 +666,10 @@ js.awt.Element = function(def, Runtime){
     };
 
     var _notify = function(comp, msgId, event, sync){
-        sync = (sync == undefined) ? this.def.sync : sync;
+        sync = (sync === undefined) ?
+            this.isSynchronizedNotify() : (sync || false);
 
-        if(sync == true){
+        if(sync){
             MQ.send(msgId, event, [comp.uuid()]);    
         }else{
             MQ.post(msgId, event, [comp.uuid()]);
@@ -660,15 +695,101 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.display = function(show){
-        if(show === false){
-            this.setVisible(false);
-        }else{
-            this.setVisible(true);
-        }
+        this.setVisible(show||false);
     };
 
-    thi$.doLayout = function(){
+    /**
+     * Gets the attribute with specified name
+     * 
+     * @param attr, attribute name
+     */    
+    thi$.getAttribute = function(attr){
+        return DOM.getAttribute(this.view, attr);
+    };
+    
+    /**
+     * Sets the attribute with specified name and value
+     * 
+     * @param attr, attribute name
+     */    
+    thi$.setAttribute = function(attr, value){
+        DOM.setAttribute(this.view, attr, value);
+    };
+    
+    /**
+     * Removes the attribute with specified name
+     * 
+     * @param attr, attribute name
+     */    
+    thi$.removeAttribute = function(attr){
+        DOM.removeAttribute(this.view, attr);
+    };
 
+    /**
+     * Test whether this componet view is a DOM element
+     */    
+    thi$.isDOMElement = function(){
+        return DOM.isDOMElement(this.view);
+    };
+    
+    thi$.doLayout = function(force){
+        var U = this._local, ret = true;
+        if(!this.needLayout(force)){
+            ret = false;
+        }else{
+            this.adjustLayers("resize");
+            ret = U.didLayout = true;
+        }
+        
+        return ret;
+    };
+
+    /**
+     * Test whether this component need do layout
+     * 
+     */
+    thi$.needLayout = function(force){
+        return force === true ? true :
+            (!this.isRigidWidth() || 
+                 !this.isRigidHeight() || 
+                 !this._local.didLayout);
+    };
+    
+    /**
+     * Force this compoents need do layout
+     * 
+     */
+    thi$.forceLayout = function(){
+        this._local.didLayout = false;
+    };
+    
+    thi$.adjustLayers = function(cmd, show){
+        var bounds, z;
+        switch(cmd){
+        case "move":
+        case "resize":
+            bounds = this.getBounds();
+            this.adjustShadow(bounds);
+            this.adjustCover(bounds);
+            this.adjustOutline(bounds);
+            break;
+        case "zorder":
+            z = this.getZ();
+            this.setShadowZIndex(z);
+            this.setCoverZIndex(z);
+            this.setOutlineZIndex(z);
+            break;
+        case "display":
+            this.setShadowDisplay(show);
+            this.setCoverDisplay(show);
+            this.setOutlineDisplay(show);            
+            break;
+        case "remove":
+            this.removeShadow();
+            this.removeCover();
+            this.removeOutline();
+            break;
+        }
     };
 
     thi$.spotIndex = function(ele, xy, dragObj){
@@ -737,16 +858,18 @@ js.awt.Element = function(def, Runtime){
     
 
     thi$.destroy = function(){
-        if(this.destroied != true){
-            delete this.peer;
-            delete this.container;
-            
-            if(this.isTipUserDefined()){
-                this.setTipUserDefined(false);
-            }
-            
-            arguments.callee.__super__.apply(this, arguments);
-        }
+        if(this.destroied) return;
+
+        this.removeOutline();
+        this.removeCover();
+        this.removeShadow();
+        this.removeTipLayer();
+        
+        delete this.peer;
+        delete this.container;
+
+        arguments.callee.__super__.apply(this, arguments);
+
     }.$override(this.destroy);
 
     thi$.classType = function(){
@@ -775,6 +898,10 @@ js.awt.Element = function(def, Runtime){
         if(def.resizable){
             this.setResizable(def.resizable, def.resizer);
         }
+
+        if(def.useUserDefinedTip){
+            this.setUserDefinedTip(true, def.tipDef);
+        }
         
         if(def.prefSize){
             this.isPreferredSizeSet = true;
@@ -787,11 +914,7 @@ js.awt.Element = function(def, Runtime){
         if(def.maxiSize){
             this.isMaximumSizeSet = true;
         }        
-        
-        if(def.useUserDefinedTip === true){
-            this.setTipUserDefined(true);
-        }
-        
+                
     }.$override(this._init);
     
     this._init.apply(this, arguments);

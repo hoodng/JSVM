@@ -1,59 +1,34 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
-
 $package("js.awt");
 
-$import("js.awt.BaseComponent");
-$import("js.awt.Editable");
 $import("js.util.Observer");
+$import("js.awt.Element");
+$import("js.awt.Editable");
+$import("js.awt.PopupLayer");
 
 /**
- * A <em>component</em> is an object having a graphical representation
+ * A base Component is an object having a graphical representation
  * that can be displayed in the browser and that can interact with the
- * user.<p>
+ * user.
  * 
- * The <em>model</em> of a <em>component</em> as below:<p>
  *@param def : {
- *     classType : class type of this component
+ *     className : style class
  *     id : string to identify a component
- *     
+ *     css: css text
  * 
  *     x : position left,
  *     y : position top,
+ * 
  *     width : outer width of the componet,
  *     height: outer height of the component,
  *     miniSize: {width, height},
@@ -64,9 +39,6 @@ $import("js.util.Observer");
  *     align_x: 0.0|0.5|1.0
  *     align_y: 0.0|0.5|1.0
  *     
- *     className : style class
- *     css: css text
- * 
  *     state : number, see also <code>js.util.State</code>
  *     
  *     mover : {delay, bound ...}, see also <code>js.awt.Movable</code>
@@ -77,20 +49,18 @@ $import("js.util.Observer");
  *     resizable : true/false
  * 
  *     alwaysOnTop: true/false
- * }<p>
  * 
- * The <em>Runtime</em> is runtime context, it may includes:
- * @param Runtime :{
- *     imgPath : The image path,
- *     ...
- * }<p>
+ * },
+ * The <code>def</code> is the definition of this component.
  * 
- * When new a <em>component</em> will create a DIV element as the <em>View</em>
- * of this component. But you also can use an existing view to instead of the
- * view.
+ * @param Runtime, @see <code>js.lang.Runtime</code>
+ * 
  * @param view,  a document element  
+ * When new a <code>component</code> will create a DIV element as the 
+ * <code>view</code> of this component. But you also can use an existing 
+ * view to instead of the view.
  */
-js.awt.Component = function (def, Runtime, view){
+js.awt.Component = function(def, Runtime, view){
 
     var CLASS = js.awt.Component, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
@@ -99,8 +69,8 @@ js.awt.Component = function (def, Runtime, view){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+    var Class = js.lang.Class, Event = js.util.Event,
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
 
     /**
      * Set position of the component.<p>
@@ -213,78 +183,6 @@ js.awt.Component = function (def, Runtime, view){
     };
 
     /**
-     * Apply a style set to the component.<p>
-     * 
-     * @param styles, an object with key are style name and value are style value. 
-     */
-    thi$.applyStyles = function(styles){
-
-        if(arguments.callee.__super__.apply(this, arguments)){
-            this.onGeomChanged(0x02);            
-        }
-
-    }.$override(this.applyStyles);
-    
-    thi$.setController = function(ctrl){
-        this.controller = ctrl;
-        this.controller.setContainer(this);
-    };
-    
-    thi$.delController = function(){
-        var ctrl = this.controller;
-        if(ctrl){
-            ctrl.removeFrom(this.view);
-            delete ctrl.container;
-            delete this.controller;
-        }
-        return ctrl;
-    };
-    
-    /**
-     * Sets container of this component
-     */
-    thi$.setContainer = function(container){
-        arguments.callee.__super__.apply(this, arguments);
-
-        if(container && this.isMovable() && 
-           container instanceof js.awt.Container && 
-           container.isAutoFit()){
-            var moveObj = this.getMoveObject(),
-            msgType = moveObj.getMovingMsgType();
-            MQ.register(msgType, this, _onMovingEvent);
-            moveObj.releaseMoveObject();
-            delete this.moveObj;
-        }
-
-    }.$override(this.setContainer);
-
-    /**
-     * When the position and size of the component has changed, we need
-     * to adjust its container's size to handle the scroll bars.
-     */
-    thi$.autoResizeContainer = function(){
-        var container = this.getContainer();
-        if(container && (container instanceof js.awt.Container)){
-            container.autoResize();
-        }
-    };
-    
-    /**
-     * Handler of the component which is moving in an 
-     * auto fit container 
-     */
-    var _onMovingEvent = function(e){
-        var container = this.getContainer();
-        if (container && container._local
-            && container._local.autoArrange == undefined) {
-            container._local.autoArrange = container.def.autoArrange;
-            container.def.autoArrange = false;
-        }
-
-        this.autoResizeContainer();
-    };
-
-    /**
      * Activate this component
      * 
      */    
@@ -294,7 +192,7 @@ js.awt.Component = function (def, Runtime, view){
             container.activateComponent(this);
         }
     };
-    
+
     /**
      * Open a dialog with specified dialog class and dialog object
      * 
@@ -345,55 +243,265 @@ js.awt.Component = function (def, Runtime, view){
             new js.awt.MessageBox(def, this.Runtime()),
             handler);
     };
+    
+    /**
+     * Return the computed styles set with the specified style names array.<p>
+     * 
+     * @return an object with key are style name and value are style value. 
+     */
+    thi$.getStyles = function(sps){
+        var currents = DOM.currentStyles(this.view), 
+            styles = {}, i, len, sp;
+
+        for(i=0, len=sps.length; i<len; i++){
+            sp = DOM.camelName(sps[i]);
+            styles[sp] = currents[sp];
+        }
+        
+        return styles;
+    };
+
+    var SIZEP = /[wW]idth|margin|border|padding/;
+    /**
+     * Apply a style set to the component.<p>
+     * 
+     * @param styles, an object with key are style name and value 
+     * are style value. 
+     */
+    thi$.applyStyles = function(styles){
+        var el = this.view, 
+            w = parseFloat(styles.width), 
+            h = parseFloat(styles.height);
+        
+        delete styles.width;
+        delete styles.height;
+
+        var sizeChanged = function(value, sp){
+            return sp.match(SIZEP) != undefined;
+        }.$some(this, styles);
+
+        DOM.applyStyles(el, styles);
+
+        if(sizeChanged){
+            this.invalidateBounds();
+        }
+        
+        if(!isNaN(w) || !isNaN(h)){
+            this.setSize(w, h);
+        }
+
+        if(sizeChanged && this.repaint()){
+            this.onGeomChanged(0x02);
+            return true;
+        }        
+        
+        return false;
+    };
+
+    var DISPLAYS = ["none", "block"];
+    /**
+     * Sets style.display = none/blcok
+     */
+    thi$.display = function(show){
+        var disp;
+        show = show ? 1 : 0;
+        disp = DISPLAYS[show];
+        this.view.style.display = disp;
+        this.adjustLayers("display", disp);
+    }.$override(this.display);
+
+    /**
+     * Append the view of this component to the specified parent node.
+     * 
+     * @see removeFrom(parentNode)
+     */
+    thi$.appendTo = function(parentNode){
+        arguments.callee.__super__.apply(this,arguments);
+        if(this.repaint()){
+            this.doLayout(true);
+        }
+    }.$override(this.appendTo);
+    
+    /**
+     * Insert the view of this component before the specified refNode
+     * 
+     * @param refNode
+     */
+    thi$.insertBefore = function(refNode, parentNode){
+        arguments.callee.__super__.apply(this,arguments);
+        if(this.repaint()){
+            this.doLayout(true);
+        }
+    }.$override(this.insertBefore);
+
+    /**
+     * Insert the view of this component after the specified refNode
+     * 
+     * @see insertBefore(refNode, parentNode)
+     */
+    thi$.insertAfter = function(refNode){
+        this.insertBefore(refNode.nextSibling, refNode.parentNode);
+    }.$override(this.insertAfter);
+
+    /**
+     * Test whether contains a child node in this component
+     * 
+     * @param child, a HTMLElement
+     * @param containSelf, a boolean indicates whether includes the scenario 
+     * of the parent === child.
+     */
+    thi$.contains = function(child, containSelf){
+        return DOM.contains(this.view, child, containSelf);
+    }.$override(this.contains);
 
     /**
      * When this component was add to DOM tree, then invokes
      * this method. 
+     * 
+     * @param force true/false
      * 
      * @return Must return true if did repaint.
      * 
      * Notes: Sub class should override this method
      */
     thi$.repaint = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            var M = this.def;
+        var M = this.def, U = this._local, ele, bounds;
+        if(!this.isDOMElement()) return false;
+        
+        if(this._geometric) {
+            this._geometric();
+        }
+        
+        ele = this.view;
+        bounds = this.getBounds();
 
-            // For floating layer
-            if(M.isfloating === true && !this.floatingSettled()){
-                this.setFloating(true);
-            }
-
-            return true;
+        if(M.x != bounds.x || M.y != bounds.y){
+            DOM.setPosition(ele, M.x, M.y, bounds);
         }
 
-        return false;
+        if(M.width != bounds.width || M.height != bounds.height){
+            DOM.setSize(ele, M.width, M.height, bounds);
+        }
 
-    }.$override(this.repaint);
+        ele.style.zIndex = M.z;
+
+        if(M.isfloating){
+            this.setFloating(true);
+        }
+
+        if(!this.isEnabled()){
+            this.showDisableCover(true);
+        }
+
+        if(M.outline){
+            this.showOutline(true, M.outlineClassName);
+        }
+        
+        if(M.shadow){
+            this.showShadow(true, M.shadowClassName);
+        }
+
+        this.adjustLayers("resize");
+        return true;
+    };
     
+    var _geometric = function(){
+        var M = this.def, U = this._local, bounds = this.getBounds();
+        
+        if(!Class.isNumber(M.x)){
+            M.x = bounds.x;
+        }
+        U.userX = M.x; 
+
+        if(!Class.isNumber(M.y)){
+            M.y = bounds.y;
+        }
+        U.userY = M.y;
+
+        if(!Class.isNumber(M.width)){
+            M.width = bounds.width;
+            if(!bounds.BBM){
+                M.width -= bounds.MBP.BPW;
+            }
+        }
+        U.userW = M.width;
+
+        if(!Class.isNumber(M.height)){
+            M.height= bounds.height;
+            if(!bounds.BBM){
+                M.height -= bounds.MBP.BPH;
+            }
+        }
+        U.userH = M.height;
+
+        if(!Class.isNumber(M.z)){
+            var z = parseInt(this.getStyle("z-index"));
+            M.z = Class.isNumber(z) ? z : 0;
+        }
+    };
+
     /**
-     * @see js.awt.BaseComponent
+     * When parent size changed will ask every children component
+     * doLayout.
+     * 
+     * @return Must return true if did layout
+     * 
+     * Notes: Sub class should override this method
      */
     thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            var ctrl = this.controller;
-            if(ctrl){
-                ctrl.appendTo(this.view); // Keep controller alwasy on top
-                var bounds = this.getBounds(), cbounds = ctrl.getBounds(),
-                x, y, w, h;
-                w = ctrl.isRigidWidth() ? cbounds.width : bounds.innerWidth;
-                h = ctrl.isRigidHeight()? cbounds.height: bounds.innerHeight;
-                x = bounds.MBP.paddingLeft + (bounds.innerWidth - w)*ctrl.getAlignmentX();
-                y = bounds.MBP.paddingTop  + (bounds.innerHeight- h)*ctrl.getAlignmentY();
-
-                ctrl.setBounds(x, y, w, h, 7);
-            }
-            return true;
+        var ret = true;
+        if(!this.isDOMElement() ||
+           (this.getStyle("display") === "none") ||
+                    !arguments.callee.__super__.apply(this, arguments)){
+            ret = false;
         }
-
-        return false;
-
+        this.adjustController();
+        return ret;
     }.$override(this.doLayout);
+
+    thi$.setController = function(ctrl){
+        this.controller = ctrl;
+        this.controller.setContainer(this);
+    };
     
+    thi$.delController = function(){
+        var ctrl = this.controller;
+        if(ctrl){
+            ctrl.removeFrom(this.view);
+            delete ctrl.container;
+            delete this.controller;
+        }
+        return ctrl;
+    };
+    
+    thi$.adjustController = function(){
+        var ctrl = this.controller, bounds, counds, x, y, w, h;
+        if(!ctrl) return;
+
+        ctrl.appendTo(this.view); // Keep controller alwasy on top
+        bounds = this.getBounds();
+        counds = ctrl.getBounds();
+        w = ctrl.isRigidWidth() ? counds.width : bounds.innerWidth;
+        h = ctrl.isRigidHeight()? counds.height: bounds.innerHeight;
+        x = bounds.MBP.paddingLeft +
+            (bounds.innerWidth - w)*ctrl.getAlignmentX();
+        y = bounds.MBP.paddingTop  +
+            (bounds.innerHeight- h)*ctrl.getAlignmentY();
+        ctrl.setBounds(x, y, w, h, 7);
+    };
+
+
+    /**
+     * When the position and size of the component has changed, we need
+     * to adjust its container's size to handle the scroll bars.
+     */
+    thi$.autoResizeContainer = function(){
+        var container = this.getContainer();
+        if(container && (container instanceof js.awt.Container)){
+            container.autoResize();
+        }
+    };
+
     /**
      * When this component was moved to a new position will 
      * invoke this method,
@@ -402,12 +510,6 @@ js.awt.Component = function (def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onMoved = function(fire){
-        var container = this.getContainer();
-        if (container && container._local
-            && container._local.autoArrange != undefined) {
-            container.def.autoArrange = container._local.autoArrange;
-            delete container._local.autoArrange;
-        }
         this.autoResizeContainer();
     };
 
@@ -422,13 +524,6 @@ js.awt.Component = function (def, Runtime, view){
         if((fire & 0x02) != 0){
             this.doLayout(true);
         }
-        var container = this.getContainer();
-        if (container && container._local
-            && container._local.autoArrange != undefined) {
-            container.def.autoArrange = container._local.autoArrange;
-            delete container._local.autoArrange;
-        }
-        // Adjust the container's size to handle the scrollbars
         this.autoResizeContainer();
     };
 
@@ -453,6 +548,56 @@ js.awt.Component = function (def, Runtime, view){
         }
     };
     
+    thi$.appendStyleClass = function(className){
+        if(Class.isString(className)){
+            var names = this._local.styles;
+            if(!names){
+                names = [this.className];
+            }
+            names = names.concat(className.split(" "));
+            this._local.styles = names;
+
+            this.view.className = names.join(" ");
+        }
+    };
+
+    thi$.removeStyleClass = function(className){
+        var names = this._local.styles, e;
+
+        if(Class.isArray(names)){
+            for(var i=0, len=names.length; i<len; i++){
+                e = names[i];
+                if(e == className){
+                    names.splice(i, 1);
+                    break;
+                }
+            }
+            
+            this.view.className = names.join(" ");
+        }
+    };
+
+    thi$.hasStyleClass = function(className){
+        var names = this._local.styles, e, ret = false;
+        if(Class.isArray(names)){
+            for(var i=0, len=names.length; i<len; i++){
+                e = names[i];
+                if(e == className){
+                    ret = true;
+                    break;
+                }
+            }
+        }
+        return ret;
+    };
+
+    thi$.clearStyleClass = function(apply){
+        var names = this._local.styles = [this.className];
+        if(apply === true){
+            this.view.className = names.join(" ");            
+        }
+    };
+
     /**
      * Indicate whether the state can affect the style
      * of current Component.
@@ -474,31 +619,175 @@ js.awt.Component = function (def, Runtime, view){
     };
 
     /**
-     * Override destroy method of js.lang.Object
+     * Clone view from the view of this component
      */
-    thi$.destroy = function(){
-        if(this.destroied != true){
+    thi$.cloneView = function(){
+        var ele = this.view, view = ele.cloneNode(true);
+        //DOM.removeFun(view);
+        view.bounds = {BBM:ele.bounds.BBM, MBP:ele.bounds.MBP};
+        view.cloned = "true";
+        return view;
+    };
 
-            if(this.controller){
-                this.controller.destroy();
-                delete this.controller;
-            }
+    /**
+     * Return componet's Margin-Border-Padding information
+     * 
+     * @return:{
+     *     marginLeft,
+     *     marginTop,
+     *     marginRight,
+     *     marginBottom,
+     *    
+     *     borderLeftWidth,
+     *     borderTopWidth,
+     *     borderRightWidth,
+     *     borderBottomWidth,
+     * 
+     *     paddingLeft,
+     *     paddingTop,
+     *     paddingRight,
+     *     paddingBottom,
+     * 
+     *     BW: borderLeftWidth + borderRightWidth
+     *     BH: borderTopWidth + borderBottomWidth
+     * 
+     *     PW: paddingLeft + paddingRight
+     *     PH: paddingTop + paddingBottom
+     * 
+     *     BPW: BW + PW
+     *     BPH: BH + PH
+     *     
+     * }
+     */
+    thi$.MBP = function(){
+        var G = this.getGeometric(this.className);
+        return System.objectCopy(G.bounds.MBP, {});
+    };
+    
+    thi$.getGeometric = function(className){
+        className  = className || this.className;
+        return CLASS.G[className];
+    };
 
-            var container = this.container;
-            if(container && container instanceof js.awt.Container){
-                container.removeComponent(this);
-            }
+    var _getBounds = function(){
+        var cssText = this.def.css, rst = {},
+        ele = this.view.cloneNode(false);
 
-            delete this.container;        
-            delete this.peer;
-
-            arguments.callee.__super__.apply(this, arguments);
+        // The clean bounds should be generated only with the css file
+        // and style tags. The css fragment in the def shouldn't parse
+        // into the cached bounds. Otherwise, it may pollute and influence
+        // other object instances.
+        if(cssText){
+            ele.style.cssText = "";
         }
-    }.$override(this.destroy);
+
+        // When we append an DOM element to body, if it didn't set any
+        // "position" or set the position as "absolute" but no "top" and 
+        // "left" that element also be place at the bottom of body other
+        // than the (0, 0) position. Then it may extend the body's size 
+        // and trigger window's "resize" event.
+        ele.style.position = "absolute";
+        ele.style.top = "-10000px";
+        ele.style.left = "-10000px";
+
+        ele.style.whiteSpace = "nowrap";
+        ele.style.visibility = "hidden";
+
+        DOM.appendTo(ele, document.body);
+        rst.bounds = DOM.getBounds(ele);
+
+        if(cssText){
+            ele.style.cssText += cssText;
+
+            ele.bounds = null;
+            rst.vbounds = DOM.getBounds(ele);
+        }else{
+            rst.vbounds = rst.bounds;
+        }
+
+        DOM.remove(ele, true);
+        
+        return rst;
+    };
+
+    var _preparegeom = function(){
+        CLASS.G = CLASS.G || {};
+
+        var className = this.className, G = CLASS.G[className], 
+        M = this.def, bounds, styleW, styleH, rst,
+        buf = new js.lang.StringBuffer();
+        if(!G){
+            G = {};
+            rst = _getBounds.call(this, M.css);
+            G.bounds = rst.bounds;
+            CLASS.G[className] = G;
+            
+            bounds = rst.vbounds;
+        }else{
+            if(!M.css){ // Use the cached bounds directly
+                bounds = G.bounds;
+            }else{ // Get bounds with the definition's css text
+                rst = _getBounds.call(this);
+                bounds = rst.vbounds;
+            }
+        }
+
+        // TODO: Cache the initial bounds
+        this._local.vbounds = System.objectCopy(bounds, {});
+
+        // Copy the MBP to avoid some object's change pollute and 
+        // influence other object instance with the same className. 
+        // With copying, the old "NUCG" property should be discarded.
+        bounds = this.view.bounds = {
+            BBM: bounds.BBM, 
+            MBP: System.objectCopy(bounds.MBP, {})
+        };
+
+        // Hande the x, y, width, height of definition
+        if(Class.isNumber(M.x)){
+            buf.append("left:").append(M.x).append("px;");
+        }
+
+        if(Class.isNumber(M.y)){
+            buf.append("top:").append(M.y).append("px;");
+        }
+
+        if(Class.isNumber(M.width)){
+            styleW = M.width;
+            if(!bounds.BBM){
+                styleW -= bounds.MBP.BPW;
+            }
+            buf.append("width:").append(styleW).append("px;");
+        }
+
+        if(Class.isNumber(M.height)){
+            styleH = M.height;
+            if(!bounds.BBM){
+                styleH -= bounds.MBP.BPH;
+            }
+            buf.append("height:").append(styleH).append("px;");
+        }
+
+        buf.append(this.view.style.cssText);
+
+        this.view.style.cssText = buf.toString(); 
+    };
+
+    thi$.invalidateBounds = function(){
+        this.view.bounds = null;
+        
+        // If the preferred size is not from the definition, it will be calcualted
+        // with bounds. And when the bounds is invalidating, the old calculated 
+        // preferred size should be invalidated, too.
+        if(!this.isPreferredSizeSet){
+            this.def.prefSize = null;
+        }
+    };
     
     /**
-     * When some propery of component was changed, it may cause the layout of parent component change,
-     * So we must find the parent component which take charge of the change and redo layout.
+     * When some propery of component was changed, it may cause the 
+     * layout of parent component change, So we must find the parent 
+     * component which take charge of the change and redo layout.
      */
     thi$.invalidParentLayout = function() {
         var target = this.getContainer();
@@ -513,26 +802,87 @@ js.awt.Component = function (def, Runtime, view){
             target.handleLayoutInvalid();
         }
     };
+    
+    thi$.destroy = function(){
+        if(this.destroied) return;
 
+        var obj = this.controller;
+        if(obj){
+            obj.destroy();
+            delete this.controller;
+        }
+
+        obj = this.getContainer();
+        if(obj && obj instanceof js.awt.Container){
+            obj.removeComponent(this);
+        }
+        delete this.container;
+        delete this.peer;
+        
+        DOM.remove(this.view, true);            
+        delete this.view;
+        
+        arguments.callee.__super__.apply(this, arguments);    
+    }.$override(this.destroy);
+    
     thi$._init = function(def, Runtime, view){
         if(def == undefined) return;
-
-        def.classType = def.classType || "js.awt.Component";
         
+        def.classType = def.classType || "js.awt.Component";
+
         arguments.callee.__super__.apply(this, arguments);
+        
+        var tclazz = def.className;
+        if(tclazz){
+            tclazz = DOM.extractDOMClassName(tclazz);
+        }
+
+        if(view){
+            this.view = view;
+            def.className = view.clazz || def.className;
+        }else{
+            this.view = view = DOM.createElement(def.viewType || "DIV");
+            def.className = def.className || "jsvm__element";
+            view.clazz = view.className = view.className 
+                + (tclazz ? (" " + tclazz) : "");
+        }
+        
         view = this.view;
+        view.uuid = this.uuid();
+        if(view.tagName != "BODY"){
+            view.id = this.id 
+                || (this.classType() + "." + js.awt.Element.count);            
+        }
+
+
+        this.className = tclazz;
+        if(def.css) view.style.cssText = view.style.cssText + def.css;
+        if(view.tagName != "BODY" && view.tagName != "CANVAS"
+           && view.cloned != "true"){
+            _preparegeom.call(this);    
+        }
 
         if(!this.isStateless()){
             def.state = def.state || 0;
-            
             if(this.isStyleByState()){
-                view.className = DOM.stateClassName(def.className, this.getState());
+                view.className = DOM.stateClassName(
+                    def.className, this.getState());
             }
         }
-    }.$override(this._init);
 
-    this._init.apply(this, arguments);
+        this.setTipText(def.tip);
+
+        this._geometric = function(){
+            var o = _geometric.call(this);
+            delete this._geometric;
+            return o;
+        };
+        
+    }.$override(this._init);
     
-}.$extend(js.awt.BaseComponent).$implements(
+    this._init.apply(this, arguments);
+
+}.$extend(js.awt.Element).$implements(
     js.util.Observer, js.awt.Editable, js.awt.PopupLayer);
+
 

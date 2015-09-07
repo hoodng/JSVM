@@ -280,5 +280,5 @@ js.awt.MenuSeparator = function(def, Runtime, menu){
 	
 	this._init.apply(this, arguments);
 	
-}.$extend(js.awt.BaseComponent);
+}.$extend(js.awt.Component);
 

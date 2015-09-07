@@ -41,7 +41,7 @@ js.awt.Cover = function (){
     };
 
     var _createView = function(selector){
-        var cview = this.view, view, uuid;
+        var cview = this.view, view, uuid, tip;
 
         uuid = this.uuid();
         view = this._coverView = DOM.createElement("DIV");
@@ -54,6 +54,11 @@ js.awt.Cover = function (){
             cview.appendChild(view);
         }else{
             DOM.insertAfter(view, cview);
+        }
+        
+        tip = this.def.tip;
+        if(Class.isString(tip)){
+            DOM.setAttribute(view, "title", tip);
         }
     };
     

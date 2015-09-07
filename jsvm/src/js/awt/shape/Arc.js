@@ -64,7 +64,7 @@ js.awt.shape.Arc = function(def, Graphics2D, Renderer){
         Graph = Class.forName("js.awt.Graphics2D");
 
     thi$.getShapeInfo = function(){
-        var M = this.def, u = this.getAttr("angleUnit") || Graph.RAD,
+        var M = this.def, u = this.defAttr("angleUnit") || Graph.RAD,
             s = M.startAngle, e = M.endAngle;
 
         s = Class.isNumber(s) ? Graph.deg2rad(s, u) : 0;

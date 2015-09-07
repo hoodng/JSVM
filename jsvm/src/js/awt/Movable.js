@@ -211,6 +211,7 @@ js.awt.Movable = function (){
      * Notes: Sub class should override this method
      */
     thi$.isMoverSpot = function(ele, x, y){
+        
         return true;
     };
 
