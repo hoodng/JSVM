@@ -267,7 +267,13 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _onhtmlevent = function(e){
-        System.err.println(e);
+        var target;
+        target = e.getEventTarget();
+        if(target){
+            target.fireEvent(e, false);
+        }
+        e.cancelBubble();
+        return e._default;
     };
 
     var apps = {};
@@ -442,7 +448,6 @@ js.awt.Desktop = function (Runtime){
         var dom = self.document, body = dom.body,        
             def = {
                 classType: "js.awt.Desktop",
-                className: body.className,
                 id: body.id,
                 uuid: "desktop",
                 zorder:true,
@@ -456,8 +461,8 @@ js.awt.Desktop = function (Runtime){
         // Popup Layer manager
         var LM = this.LM = new js.awt.LayerManager(
             {classType: "js.awt.LayerManager",
-             className: body.className,
              id: body.id,
+             uuid: "layer-manager", 
              zorder:true,
              stateless: true,
              zbase: 10000
@@ -466,8 +471,8 @@ js.awt.Desktop = function (Runtime){
         // Popup dialog manager
         var DM = this.DM = new js.awt.Container(
             {classType: "js.awt.Container",
-             className: body.className,
              id: body.id,
+             uuid: "dialog-manager",
              zorder:true,
              stateless: true,
              zbase: 1000

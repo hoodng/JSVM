@@ -1,39 +1,15 @@
 /**
 
-  Copyright 2010-2011, The JSVM Project.
-  All rights reserved.
-
-  Redistribution and use in source and binary forms, with or without modification,
-  are permitted provided that the following conditions are met:
-
-  1. Redistributions of source code must retain the above copyright notice,
-  this list of conditions and the following disclaimer.
-
-  2. Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the
-  documentation and/or other materials provided with the distribution.
-
-  3. Neither the name of the JSVM nor the names of its contributors may be
-  used to endorse or promote products derived from this software
-  without specific prior written permission.
-
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-  OF THE POSSIBILITY OF SUCH DAMAGE.
-
+ Copyright 2007-2015, The JSVM Project. 
+ All rights reserved.
+ 
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
+
 /**
  * @member js.lang
  * @class js.lang.System
@@ -672,7 +648,8 @@ js.lang.System = function (env, vm){
     };
     
     var _onload = function(e){
-        J$VM.System.out.println(J$VM.__product__+" "+J$VM.__version__+" loading...");
+        J$VM.System.out.println(
+            [J$VM.__product__, J$VM.__version__, "loading..."].join(" "));
 
         var b = vm.storage.session.getItem("j$vm_log");
         if(b === "true"){
@@ -759,13 +736,13 @@ js.lang.System = function (env, vm){
          * @member J$VM
          * @property {js.util.Messenger} MQ
          */
-        vm.MQ = new js.util.Messenger();
+        vm.MQ = new js.util.Messenger(this);
 
         /**
          * @member J$VM
          * @property {js.lang.Runtime} Runtime
          */
-        vm.Runtime = new js.lang.Runtime();
+        vm.Runtime = new js.lang.Runtime(this);
         
         if(!vm.env.j$vm_isworker){
             
@@ -855,8 +832,8 @@ js.lang.System = function (env, vm){
              */
             vm.exec = vm.Runtime.exec;
 
-            Event.attachEvent(vm.hwnd, Event.W3C_EVT_LOAD,   0, this, _onload);
-            Event.attachEvent(vm.hwnd, Event.W3C_EVT_UNLOAD, 0, this, _onunload);
+            Event.attachEvent(self, Event.W3C_EVT_LOAD,   0, this, _onload);
+            Event.attachEvent(self, Event.W3C_EVT_UNLOAD, 0, this, _onunload);
 
         }else{
             // Because Web Worker can not use consle to output, so we can use our MQ

@@ -10,7 +10,7 @@
  * Source code availability: https://github.com/hoodng/JSVM
  */
 
-js.lang.Runtime = function(){
+js.lang.Runtime = function(System){
 
     var CLASS = js.lang.Runtime, thi$ = CLASS.prototype;
     if(CLASS.__defined__) {
@@ -113,11 +113,11 @@ js.lang.Runtime = function(){
     };
 
     thi$.getProperty = function(key, defValue){
-        return J$VM.System.getProperty(key, defValue);
+        return System.getProperty(key, defValue);
     };
     
     thi$.setProperty = function(key, value){
-        J$VM.System.setProperty(key, value);
+        System.setProperty(key, value);
     };
 
     thi$.prefer = function(prefer){
@@ -451,7 +451,7 @@ js.lang.Runtime = function(){
     };
 
     thi$.initialize = function(env){
-        J$VM.System.getProperties().addAll(env || {});
+        System.getProperties().addAll(env || {});
 
         if(env.postEntry){
             this.postEntry(env.postEntry);
@@ -490,10 +490,9 @@ js.lang.Runtime = function(){
         
     }.$override(this.destroy);
 
-    thi$._init = function(){
-        this.uuid("runtime");
-        arguments.callee.__super__.call(this, [{}, this]);
-        
+    thi$._init = function(system){
+        System = system;
+        arguments.callee.__super__.call(this, {uuid:"runtime"}, this);
     }.$override(this._init);
 
     this._init.apply(this, arguments);

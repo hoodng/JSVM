@@ -72,12 +72,13 @@ js.util.Observable = function (def, Runtime){
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
-        var M, U;
-        if(def === undefined) return;
-        
+        if(!Class.isObject(def)) return;
+
+        this.def = def;
+        this.uuid(def.uuid);
         this.__observers__ = List.$decorate([]);
-        M = this.def = this.def || {};
-        U = this._local = this._local || {};
+
+        var U = this._local = {};
         U.Runtime = Runtime;
         U.changed = false;
         // Cache current object

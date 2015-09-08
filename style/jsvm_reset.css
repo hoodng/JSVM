@@ -1,3 +1,32 @@
+.jsvm--com {
+    -ms-user-select:none;
+    -webkit-user-select:none;
+    -moz-user-select:none;
+
+    -ms-user-drag: none;
+    -webkit-user-drag: none;
+    -moz-user-drag: none;
+    
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;    
+}
+
+.jsvm--txt {
+    -ms-user-select: text;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+
+    -ms-user-drag: none;
+    -webkit-user-drag: none;
+    -moz-user-drag: none;
+    
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+
+    resize: none;
+    outline: none;
+    overflow: auto;
+}
 
 .jsvm--full-w {
     width: 100%;
@@ -26,10 +55,6 @@
 }
 
 input::-ms-clear{ display: none; }
-
-textarea {
-    overflow: auto;
-}
 
 .jsvm--font {
     font-family: Verdana, Arial, Helvetica, sans-serif;

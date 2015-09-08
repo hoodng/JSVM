@@ -62,42 +62,13 @@ js.util.Document = function (){
 		"html-4.01-transitional": {bodysize: true}
 	};
 
-	var _prefix_ = thi$.CSSPrefix = function(){
-		if(J$VM.ie){
-			return "-ms-";
-		}else if(J$VM.chrome || J$VM.safari){
-			return "-webkit-";
-		}else if(J$VM.firefox){
-			return "-moz-";
-		}
-		return "";
-	}();
-
-	var userselect = _prefix_+"user-select",
-	    userdrag = _prefix_+"user-drag",
-        textastyles = {resize: "none", outline: "none",
-                       overflow: "auto"};
-	
 	/**
 	 * Create a DOM element
 	 *
 	 */
 	thi$.createElement = function(type){
 		var el = document.createElement(type);
-		switch(el.tagName){
-            case "SCRIPT":
-            case "STYLE":
-            case "LINK":
-            break;
-            
-		    case "INPUT":
-		    case "TEXTAREA":
-            el.className = "jsvm--txt";
-			break;
-            default:
-            el.className = "jsvm--com";
-            break;
-		}
+        // TODO ?
 		return el;
 	};
 
@@ -714,7 +685,7 @@ js.util.Document = function (){
 
         if(!changed) return;
         
-        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_SIZE);
+        //_fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_SIZE);
         
 	};
 
@@ -801,7 +772,7 @@ js.util.Document = function (){
 
         if(!changed) return;
 
-        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_POSITION);            
+        //_fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_POSITION);            
 	};
 
 	/**

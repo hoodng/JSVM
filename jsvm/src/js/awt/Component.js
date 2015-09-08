@@ -801,6 +801,11 @@ js.awt.Component = function(def, Runtime, view){
             target.handleLayoutInvalid();
         }
     };
+
+    thi$.onelementappend = function(e){
+        //System.err.println(e);
+        e.cancelDefault();
+    };
     
     thi$.destroy = function(){
         if(this.destroied) return;
@@ -821,18 +826,19 @@ js.awt.Component = function(def, Runtime, view){
         DOM.remove(this.view, true);            
         delete this.view;
         
-        arguments.callee.__super__.apply(this, arguments);    
+        arguments.callee.__super__.apply(this, arguments);
+
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, view){
         if(!Class.isObject(def)) return;
         
         def.classType = def.classType || "js.awt.Component";
-
+        
         arguments.callee.__super__.apply(this, arguments);
 
-        var hasView = Class.isHtmlElement(view), clazz;
-        if(!hasView){
+        var preView = Class.isHtmlElement(view), clazz;
+        if(!preView){
             this.view = view = DOM.createElement(def.viewType || "DIV");
             view.id = this.id;
             if(def.css){
@@ -843,6 +849,7 @@ js.awt.Component = function(def, Runtime, view){
             this.view = view;
             def.className = view.clazz || view.className;
         }
+        view.uuid = this.uuid();
 
         this.className = DOM.extractDOMClassName(def.className);
         if(this.isStyleByState()){
@@ -851,10 +858,10 @@ js.awt.Component = function(def, Runtime, view){
             clazz = this.className;
         }
         view.clazz = def.className;
-        DOM.setClassName(view, clazz, def.classPrefix);
-        view = this.view;
-        view.uuid = this.uuid();
-        
+        if(!preView){
+            DOM.setClassName(view, clazz, def.classPrefix);
+        }
+
         /*
         if(view.tagName != "BODY" && view.tagName != "CANVAS"
            && view.cloned != "true"){
@@ -875,5 +882,4 @@ js.awt.Component = function(def, Runtime, view){
 
 }.$extend(js.awt.Element).$implements(
     js.util.Observer, js.awt.Editable, js.awt.PopupLayer);
-
 

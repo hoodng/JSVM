@@ -239,7 +239,7 @@ js.awt.Cover = function (){
     };
 
     var _createView = function(selector){
-        var cview = this.view, view, uuid;
+        var cview = this.view, view, uuid, tip;
 
         uuid = this.uuid();
         view = this._coverView = DOM.createElement("DIV");
@@ -252,6 +252,11 @@ js.awt.Cover = function (){
             cview.appendChild(view);
         }else{
             DOM.insertAfter(view, cview);
+        }
+        
+        tip = this.def.tip;
+        if(Class.isString(tip)){
+            DOM.setAttribute(view, "title", tip);
         }
     };
     
@@ -545,7 +550,7 @@ js.awt.Movable = function (){
             thip = ctx.container, p = thip.view,
             xy = e.eventXY(), oxy = ctx.eventXY,
             x = p.scrollLeft + bounds.userX + (xy.x - oxy.x),
-            y = p.scrollTop  + bounds.userY + (xy.y - oxy.y),
+            y = p.scrollTop + bounds.userY + (xy.y - oxy.y),
             minX = ctx.minX, minY = ctx.minY,
             maxX = ctx.maxX, maxY = ctx.maxY;
 
@@ -609,6 +614,7 @@ js.awt.Movable = function (){
      * Notes: Sub class should override this method
      */
     thi$.isMoverSpot = function(ele, x, y){
+        
         return true;
     };
 
@@ -620,10 +626,12 @@ js.awt.Movable = function (){
      * Notes: If need sub class can override this method
      */    
     thi$.getMoveObject = function(e){
-        var moveObj = this.moveObj;
+        var moveObj = this.moveObj, B;
         if(!moveObj){
             moveObj = this.moveObj = this;
             moveObj.setMovingPeer(this);
+            B = this.getBounds();
+            moveObj.setBounds(B.x, B.y, B.width, B.height, 0x04);
         }
 
         return moveObj;
@@ -894,23 +902,18 @@ js.awt.Resizable = function(){
                     ["cover", "cover--resize"]),
                 css: "position:absolute;",
                 stateless: true,
-
-                x : bounds.offsetX,
-                y : bounds.offsetY,
                 z : this.getZ(),
-                width: bounds.width,
-                height:bounds.height,
-
                 prefSize : this.getPreferredSize(),
                 miniSize : this.getMinimumSize(),
                 maxiSize : this.getMaximumSize()
             };
             
             sizeObj = this.sizeObj = /*this;*/
-            
             new js.awt.Component(def, this.Runtime());
             sizeObj.insertAfter(this.view);
             sizeObj.setSizingPeer(this);
+            sizeObj.setBounds(bounds.x, bounds.y,
+                              bounds.width, bounds.height, 0x04);
         }
 
         return sizeObj;
@@ -1508,42 +1511,16 @@ js.awt.PopupLayer = function () {
 
 
 /**
-
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * File: ToolTip.js
  * Create: 2014/02/20 06:41:25
  * Author: Pan Mingfa
  * Contact: jsvm.prj@gmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -1556,337 +1533,194 @@ $package("js.awt");
  * If the user-defined tooltips will be shown for GraphicElement, its "Graphic2D" 
  * ancestor object must invoke the "checkAttachEvent" method to make the "mouseover",
  * "mouseout", "mousemove" can be fired and listened, as follow:
- *	   this.checkAttachEvent("mouseover", "mouseout", "mousemove");
+ *     this.checkAttachEvent("mouseover", "mouseout", "mousemove");
  */
 js.awt.ToolTip = function(){
-	var CLASS = js.awt.ToolTip, thi$ = CLASS.prototype;
-	if(CLASS.__defined__){
-		return;
-	}
-	CLASS.__defined__ = true;
-	
-	CLASS.DEFAULTTOOLTIPID =  "__J$VMTOOLTIP__";
-	
-	var Class = js.lang.Class, Event = js.util.Event, 
-	System = J$VM.System, MQ = J$VM.MQ;
-	
-	thi$.layerDef = function(def){
-		var U = this._local, cdef = U.layerDef;
-		if(Class.isObject(def)){
-			cdef = U.layerDef = System.objectCopy(def, {}, true);			 
-		}
-		
-		return cdef || {shadow: true};
-	};
-	
-	/**
-	 * Set the tip object for tip layer. The tip object is the real content
-	 * component for showing user-defined tips. It can be any "Component", 
-	 * "Container" instance object.
-	 * 
-	 * @param tipObj: {Component} A Component or Container instance object.
-	 * @param gc: {Boolean} Indicate whether gc the old useless tipObj.
-	 */
-	thi$.setTipObj = function(tipObj, gc){
-		var tipLayer = this.tipLayer, oTipObj;
-		if(tipLayer){
-			delete this._local.tipObj;
-			oTipObj = tipLayer.setTipObj(tipObj, gc);
-			
-			if(gc === true && oTipObj && !oTipObj.destroied 
-			   && Class.isFunction(oTipObj.destroy)){
-				oTipObj.destroy();
-			}
-		}else{
-			this._local.tipObj = tipObj;
-		}
-	};
-	
-	thi$.getTipObj = function(){
-		var tipLayer = this.tipLayer, U = this._local,
-		tipObj = tipLayer ? tipLayer.tipObj : null;
-		return tipObj || U.tipObj;
-	};
-	
-	var _createTipObjByDef = function(def){
-		var classType = def ? def.classType : null,
-		tipClz = Class.isString(classType) 
-			? Class.forName(def.classType) : null,
-		tipObj;	  
-		if(!tipClz){
-			return tipObj;
-		}
-		
-		def.stateless = true;
-		def.NUCG = true;
-		def.className = def.className || "jsvm_tipObj";
-		
-		tipObj = new (tipClz)(def, this.Runtime());
-		return tipObj;
-	};
-	
-	/**
-	 * Set the tip object by the specified definition. The real tip object
-	 * will be created with the given definition.
-	 * 
-	 * @param def: {Object} Definition for the tip object.
-	 */ 
-	thi$.setTipObjByDef = function(def){
-		var tipObj = _createTipObjByDef.call(this, def);
-		this.setTipObj(tipObj, true);
-		
-		return tipObj;
-	};
 
-	/**
-	 * Set the text for the label tip. If the label tip object is not
-	 * existed, create it first.
-	 * 
-	 * @param labelText: {String} Text for the label tip.
-	 * @param styles: {Object} Optional. Some extra styles for the label 
-	 *		  tip to apply.
-	 * @param extDef: {Object} Optional. Some extra definition.
-	 */
-	thi$.setTipLabel = function(labelText, styles, extDef){
-		// Creat it when show
-		this._local.tipLabelArgs 
-			= Array.prototype.slice.call(arguments, 0);
-	};
-	
-	/**
-	 * Maybe, sometimes we need to adjust the tip contents accordint to the 
-	 * runtime event position. Then we can use it.
-	 */
-	thi$.adjustTipObj = function(e){
-		return false;  
-	};
-	
-	var _initTipLabel = function(labelText, styles, extDef){
-		var LabelClz = js.awt.Label, tipLabel = this.getTipObj(), tdef;
-		if(!tipLabel || !(tipLabel instanceof LabelClz)){
-			tdef = {
-				id: "tipObj",
-				classType: "js.awt.Label",
-				className: "jsvm_tipObj",
+    var CLASS = js.awt.ToolTip, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class, Event = js.util.Event,
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
+    
+    /**
+     * Set the tip object for tip layer. The tip object is the real content
+     * component for showing user-defined tips. It can be any "Component", 
+     * "Container" instance object.
+     * 
+     * @param tipObj: {Component} A Component or Container instance object.
+     * @param gc: {Boolean} Indicate whether gc the old useless tipObj.
+     */
+    thi$.setTipObject = function(tipObj, gc){
+        var U = this._local, tip = this.getTipLayer();
+        U.tipObj = tipObj;
+        if(!tip) return;
+        tip.setTipObject(tipObj, gc);
+    };
+    
+    thi$.getTipObject = function(e){
+        var U = this._local;
+        return U.tipObj; 
+    };
 
-				NUCG: true,
-				stateless: true		   
-			};
-			
-			if(extDef && Class.isObject(extDef)){
-				System.objectCopy(extDef, tdef);
-			}
-			
-			tdef.classType = "js.awt.Label";
-			tipLabel = _createTipObjByDef.call(this, tdef);
-			tipLabel.doLayout = function(){
-				return;
-			};
-		}
-		
-		if(styles && Class.isObject(styles)){
-			tipLabel.applyStyles(styles);
-		}
-		
-		tipLabel.setText(labelText);
-		
-		return tipLabel;
-	};
-	
-	var _initTipObj = function(){
-		var U = this._local, tipObj = this.getTipObj(),
-		args = U.tipLabelArgs;
-		
-		// Destroy cache
-		//delete U.tipLabelArgs;
-		
-		if(Class.isArray(args) && args.length > 0){
-			tipObj = _initTipLabel.apply(this, args);
-		}
-		
-		return tipObj;
-	};
-	
-	var _getTipLayer = function(){
-		var M = this.def, tipLayer = this.tipLayer, 
-		tipLayers, tipId, tdef;
-		if(tipLayer){
-			return tipLayer;
-		}
-		
-		tipLayers = CLASS.TIPLAYERS;
-		if(!tipLayers){
-			tipLayers = CLASS.TIPLAYERS = {cnt: 0};
-		}
-		
-		tipId = M.tipId;
-		if(!tipId){
-			tipId = M.tipId = this.hasOwnTip() 
-				? this.uuid() + "_tip" : CLASS.DEFAULTTOOLTIPID;
-		}
-		
-		tipLayer = tipLayers[tipId];
-		if(tipLayer){
-			tipLayer["__refCnt__"] += 1;
-			return tipLayer;
-		}
-		
-		tdef = this.layerDef();
-		tdef.id = tipId;
-		tipLayer = this.tipLayer 
-			= new (Class.forName("js.awt.TipLayer"))(tdef, this.Runtime());
-		tipLayer["__refCnt__"] = 1;
-		
-		tipLayers.cnt += 1;
-		tipLayers[tipLayer.id] = tipLayer;
-		return tipLayer;
-	};
+    thi$.setTipObjByDef = function(def){
+        var tipObj;
+        if(!Class.isObject(def) || !def.classType) return;
+        def.stateless = true;
+        def.NUCG = true;
+        tipObj = new (Class.forName(def.classType))(def, this.Runtime());
+        this.setTipObject(tipObj, true);
+    };
+    
+    /**
+     * Set the text for the label tip. If the label tip object is not
+     * existed, create it first.
+     * 
+     * @param labelText: {String} Text for the label tip.
+     * @param styles: {Object} Optional. Some extra styles for the label 
+     *        tip to apply.
+     * @param extDef: {Object} Optional. Some extra definition.
+     */
+    thi$.setTipLabel = function(labelText, styles, extDef){
+        var tipObj = this.getTipObject(), objDef;
+        if(!tipObj || !(tipObj instanceof js.awt.Label)){
+            objDef = {
+                classType: "js.awt.Label"
+            }
+            if(Class.isObject(extDef)){
+                System.objectCopy(extDef, objDef);
+            }
+            this.setTipObjByDef(objDef);
+        }
+        
+        tipObj = this.getTipObject();
+        if(Class.isObject(styles)){
+            tipObj.applyStyles(styles);
+        }
 
-	
-	thi$.showTipLayer = function(b, e){
-		var U = this._local, tipLayer = this.tipLayer, tipObj, xy;
-		if(b){
-			if(!tipLayer){
-				tipLayer = this.tipLayer = _getTipLayer.call(this);
-			}
+        tipObj.setText(labelText);
+    };
+        
+    thi$.getTipLayer = function(){
+        return this.tipLayer;
+    };
 
-			tipObj = _initTipObj.call(this);
-			if(tipObj){
-				tipLayer.setTipObj(tipObj, true);
-			}
-			
-			if(this.adjustTipObj(e) 
-			   && tipLayer.isDOMElement()){
-				tipLayer.doLayout(true); 
-			}
+    var _createTipLayer = function(tipDef){
+        var M = this.def, tip;
 
-			xy = e.eventXY();
-			tipLayer.showAt(xy.x - 2, xy.y + 18, true);
-		}else{
-			if(tipLayer){
-				tipLayer.hide(e);
-			}
-		}
-	};
-	
-	var _onhover = function(e){
-		if(e.getType() === "mouseover"){
-			this.showTipLayer(true, e);
-		}else{
-			this.showTipLayer(false);
-		}
-	};
-	
-	var _onmousemv = function(e){
-		var tipLayer = this.tipLayer, xy;
-		if(tipLayer && tipLayer.isShown()){
-			this.showTipLayer(true, e);
-		}
-	};
-	
-	thi$.gcTipLayer = function(){
-		var M = this.def, tipLayer = this.tipLayer, 
-		tipLayers = CLASS.TIPLAYERS, tipId, tipObj;
-		
-		delete this.tipLayer;
-		if(!tipLayer){
-			return;
-		}
-		
-		tipId = M.tipId;
-		tipLayer["__refCnt__"] -= 1;
+        tip = this.tipLayer;
+        if(tip) return;
+        
+        if(Class.isObject(tipDef)){
+            tipDef = System.objectCopy(tipDef, {}, true);
+        }else{
+            tipDef = {shadow: true};
+        }
+        M.tipDef = tipDef;
+        tipDef.classType = tipDef.classType || "js.awt.TipLayer";
+        tipDef.id = tipDef.id || [this.getID(), "tip"].join("-");
+        tipDef.uuid = tipDef.uuid || [this.uuid(), "tip"].join("-");
+        tipDef.isfloating = true;
+        tipDef.stateless = true;
+        tip = this.tipLayer = new (Class.forName(tipDef.classType))(
+            tipDef, this.Runtime());
 
-		if(tipLayer["__refCnt__"] == 0){
-			delete tipLayers[tipId];
-			tipLayers.cnt -= 1;
-			
-			tipObj = tipLayer.removeTipObj();
-			if(tipObj && !tipObj.destroied 
-			   && Class.isFunction(tipObj.destroy)){
-				tipObj.destroy();
-			}
-			
-			
-			tipLayer.destroy();
-		}
-		
-		if(tipLayers.cnt == 0){
-			delete CLASS.TIPLAYERS;
-		}
-	};
-	
-	/**
-	 * Init the user-defined tip usage environment and prepare to listen
-	 * the mouseover, mouseout and mousemove event.
-	 * 
-	 * Here, two branch logics are existed. For the GraphicElement, the 
-	 * user event will be attached with the flag 4. And for Component, 
-	 * the DOM event will be attached with the flag 0.
-	 */
-	thi$.setTipUserDefined = function(b){
-		b = (b === true);
-		
-		this.def = this.def || {};
-		this._local = this._local || {};
-		
-		var M = this.def, U = this._local, flag = this.view ? 0 : 4, 
-		tip, tipLayer;
+        this.attachEvent("mouseover", 4, this, _onhover);
+        this.attachEvent("mouseout",  4, this, _onhover);                 
+        this.attachEvent("mousemove", 4, this, _onhover);
+    };
+    
+    thi$.removeTipLayer = function(){
+        var tip = this.tipLayer;
+        if(!tip) return;
+        this.detachEvent("mouseover", 4, this, _onhover);
+        this.detachEvent("mouseout",  4, this, _onhover);                 
+        this.detachEvent("mousemove", 4, this, _onhover);
+        tip.destroy();
+        delete this.tipLayer;
+    };
 
-		M.useUserDefinedTip = b;
-		if(b){
-			tip = U.nativeTip = M.tip;
-			if(Class.isString(tip) && tip.length > 0
-			   && Class.isFunction(this.delToolTipText)){
-				this.delToolTipText();				  
-			}
-			
-			if(U.attachedFlag !== flag){
-				if(!isNaN(U.attachedFlag)){
-					this.detachEvent("mouseover", U.attachedFlag, this, _onhover);
-					this.detachEvent("mouseout", U.attachedFlag, this, _onhover);				  
-					this.detachEvent("mousemove", U.attachedFlag, this, _onmousemv);
-				}
-				
-				this.attachEvent("mouseover", flag, this, _onhover);
-				this.attachEvent("mouseout", flag, this, _onhover);
-				this.attachEvent("mousemove", flag, this, _onmousemv);
-				
-				U.attachedFlag = flag;
-			}
-		}else{
-			delete U.layerDef;
-			delete U.tipLabelArgs;
-			
-			tipLayer = this.tipLayer;
-			if(tipLayer){
-				tipLayer.hide();
-				this.gcTipLayer();
-			}
+    thi$.showTipLayer = function(b, e){
+        var tip, xy;
+        b = b || false;
+        tip = this.getTipLayer();
+        if(!tip) return;
+        
+        if(b){
+            xy = e.eventXY();
+            tip.setTipObject(this.getTipObject(e));
+            tip.showAt(xy.x-2, xy.y+18, true);
+        }else{
+            tip.hide(e);
+        }
+    };
+    
+    var _onhover = function(e){
+        if(e.getType() === Event.W3C_EVT_MOUSE_OUT){
+            this.showTipLayer(false);
+        }else{
+            this.showTipLayer(true, e);
+        }
+        e.cancelBubble();
+        return e.cancelDefault();
+    };
+    
+    /**
+     * Init the user-defined tip usage environment and prepare to listen
+     * the mouseover, mouseout and mousemove event.
+     * 
+     * Here, two branch logics are existed. For the GraphicElement, the 
+     * user event will be attached with the flag 4. And for Component, 
+     * the DOM event will be attached with the flag 0.
+     */
+    thi$.setUserDefinedTip = function(b, tipDef){
+        var M = this.def, U = this._local, tip;
+        b = b || false;
+        M.useUserDefinedTip = b;
 
-			tip = U.nativeTip;
-			if(Class.isString(tip) && tip.length > 0 
-			   && Class.isFunction(this.setToolTipText)){
-				this.setToolTipText(tip);
-			}
-			
-			if(!isNaN(U.attachedFlag)){
-				this.detachEvent("mouseover", U.attachedFlag, this, _onhover);
-				this.detachEvent("mouseout", U.attachedFlag, this, _onhover);				  
-				this.detachEvent("mousemove", U.attachedFlag, this, _onmousemv);
+        if(b){
+            U.tipText = M.tip; // keep tip text
+            this.rmvTipText();
+            _createTipLayer.call(this, tipDef || M.tipDef);
+        }else{
+            this.setTipText(U.tipText);
+            this.removeTipLayer();
+        }
+    };
 
-				delete U.attachedEventFlag;
-			}
-		}
-	};
-	
-	thi$.isTipUserDefined = function(){
-		return this.def.useUserDefinedTip;
-	};
-	
-	thi$.hasOwnTip = function(){
-		return this.def.hasOwnTip === true;
-	};
+    thi$.setTipText = function(text){
+        if(!Class.isString(text) ||
+           text.trim().length == 0 ) return;
+
+        this.def.tip = text;
+        DOM.setAttribute(this.view, "title", text);
+        DOM.setAttribute(this._coverView, "title", text);            
+    };
+
+    thi$.rmvTipText = function(){
+        this.def.tip = undefined;
+        DOM.removeAttribute(this.view, "title");
+        DOM.removeAttribute(this._coverView, "title");            
+    };
+
+    /**
+     * @deprecated Use setTipText()
+     */
+    thi$.setToolTipText = function(s){
+        this.setTipText(s);
+    };
+
+    /**
+     * @deprecated Use rmvTipText()
+     */
+    thi$.delToolTipText = function(){
+        this.rmvTipText();
+    };
 };
+
 
 /**
 
@@ -3408,9 +3242,18 @@ js.awt.Element = function(def, Runtime){
      * @param y, the position top
      */
     thi$.setPosition = function(x, y, fire){
-        var M = this.def;
-        M.x = Class.isNumber(x) ? x : this.getX();
-        M.y = Class.isNumber(y) ? y : this.getY();
+        var M = this.def, ele = this.view, bounds;
+        if(ele){
+            bounds = this.getBounds();
+            DOM.setPosition(ele, x, y, bounds);
+            M.x = bounds.x;
+            M.y = bounds.y;
+        }else{
+            M.x = Class.isNumber(x) ? x : this.getX();
+            M.y = Class.isNumber(y) ? y : this.getY();
+        }
+        
+        this.adjustLayers("move");
     };
 
 
@@ -3429,7 +3272,13 @@ js.awt.Element = function(def, Runtime){
      * @param z
      */
     thi$.setZ = function(z, fire){
-        this.def.z = Class.isNumber(z) ? z : this.getZ();
+        var M = this.def, ele = this.view;
+        M.z = Class.isNumber(z) ? z : this.getZ();
+        if(ele){
+            ele.style.zIndex = M.z;
+        }
+        
+        this.adjustLayers("zorder");        
     };
     
     /**
@@ -3490,9 +3339,19 @@ js.awt.Element = function(def, Runtime){
      * @param h, height
      */
     thi$.setSize = function(w, h, fire){
-        var M = this.def;
-        M.width = Class.isNumber(w) ? w : this.getWidth();
-        M.height= Class.isNumber(h) ? h : this.getHeight();
+        var M = this.def, ele = this.view, bounds;
+
+        if(ele){
+            bounds = this.getBounds();
+            DOM.setSize(ele, w, h, bounds);
+            M.width = bounds.width;
+            M.height= bounds.height;
+        }else{
+            M.width = Class.isNumber(w) ? w : this.getWidth();
+            M.height= Class.isNumber(h) ? h : this.getHeight();
+        }
+        
+        this.adjustLayers("resize");
     };
 
     thi$.absXY = function(){
@@ -3564,8 +3423,8 @@ js.awt.Element = function(def, Runtime){
                     BPH: border[0]+padding[0]+padding[2]+border[2]
                 },
 
-                absX : abs.X,
-                absY : abs.Y
+                absX : abs.x,
+                absY : abs.y
             };
             
             bounds.offsetX = bounds.x;
@@ -3589,12 +3448,23 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def;
+        var M = this.def, ele = this.view, bounds;
 
-        M.x = Class.isNumber(x) ? x : this.getX();
-        M.y = Class.isNumber(y) ? y : this.getY();
-        M.width = Class.isNumber(w) ? w : this.getWidth();
-        M.height= Class.isNumber(h) ? h : this.getHeight();
+        if(ele){
+            bounds = this.getBounds();
+            DOM.setBounds(ele, x, y, w, h, bounds);
+            M.x = bounds.x;
+            M.y = bounds.y;
+            M.width = bounds.width;
+            M.height= bounds.height;
+        }else{
+            M.x = Class.isNumber(x) ? x : this.getX();
+            M.y = Class.isNumber(y) ? y : this.getY();
+            M.width = Class.isNumber(w) ? w : this.getWidth();
+            M.height= Class.isNumber(h) ? h : this.getHeight();
+        }
+
+        this.adjustLayers("resize");        
     };
 
     thi$.getPreferredSize = function(nocache){
@@ -3660,19 +3530,15 @@ js.awt.Element = function(def, Runtime){
         return ret;
     };
     
-    thi$.getAttr = function(key){
-        return this.def[key];
+    thi$.defAttr = function(key, val){
+        var M = this.getDef();
+        if(Class.isValid(val)){
+            M[key] = val;            
+        }
+        return M[key];
     };
 
-    thi$.setAttr = function(key, val){
-        this.def[key] = val;
-    };
-
-    thi$.delAttr = function(key){
-        delete this.def[key];
-    };
-
-    thi$.getAttrs = function(){
+    thi$.getDef = function(){
         return this.def;
     };
 
@@ -3712,7 +3578,7 @@ js.awt.Element = function(def, Runtime){
      * @param parent, the specified parent
      */
     thi$.appendTo = function(parent){
-        if(this.view && Class.isHtmlElement(parent)){
+        if(this.view){
             DOM.appendTo(this.view, parent);
         }else if (parent.appendChild){
             parent.appendChild(this);
@@ -3725,11 +3591,13 @@ js.awt.Element = function(def, Runtime){
      * @param parent, the specified parent
      */
     thi$.removeFrom = function(parent){
-        if(this.view && Class.isHtmlElement(parent)){
+        if(this.view){
             DOM.removeFrom(this.view, parent);
         }else if (parent.removeChild){
             parent.removeChild(this);
-        } 
+        }
+        
+        this.adjustLayers("remove");
     };
 
     /**
@@ -3737,9 +3605,9 @@ js.awt.Element = function(def, Runtime){
      *
      * @param ref, the specified node
      */
-    thi$.insertBefore = function(ref, parent){
-        if(this.view && (ref || Class.isHtmlElement(parent))){
-            DOM.insertBefore(this.view, ref, parent);
+    thi$.insertBefore = function(ref){
+        if(this.view){
+            DOM.insertBefore(this.view, ref);
         }else if (ref.getContainer()){
             ref.getContainer().insertChildBefore(this, ref);
         } 
@@ -3751,8 +3619,8 @@ js.awt.Element = function(def, Runtime){
      * @param ref, the specified node
      */
     thi$.insertAfter = function(ref){
-        if(this.view && ref){
-            this.insertBefore(ref.nextSibling, ref.parentNode);
+        if(this.view){
+            DOM.insertAfter(this.view, ref);
         }else if (ref.getContainer()){
             ref.getContainer().insertChildAfter(this, ref);
         } 
@@ -3944,9 +3812,10 @@ js.awt.Element = function(def, Runtime){
     };
 
     var _notify = function(comp, msgId, event, sync){
-        sync = (sync == undefined) ? this.def.sync : sync;
+        sync = (sync === undefined) ?
+            this.isSynchronizedNotify() : (sync || false);
 
-        if(sync == true){
+        if(sync){
             MQ.send(msgId, event, [comp.uuid()]);    
         }else{
             MQ.post(msgId, event, [comp.uuid()]);
@@ -3972,15 +3841,101 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.display = function(show){
-        if(show === false){
-            this.setVisible(false);
-        }else{
-            this.setVisible(true);
-        }
+        this.setVisible(show||false);
     };
 
-    thi$.doLayout = function(){
+    /**
+     * Gets the attribute with specified name
+     * 
+     * @param attr, attribute name
+     */    
+    thi$.getAttribute = function(attr){
+        return DOM.getAttribute(this.view, attr);
+    };
+    
+    /**
+     * Sets the attribute with specified name and value
+     * 
+     * @param attr, attribute name
+     */    
+    thi$.setAttribute = function(attr, value){
+        DOM.setAttribute(this.view, attr, value);
+    };
+    
+    /**
+     * Removes the attribute with specified name
+     * 
+     * @param attr, attribute name
+     */    
+    thi$.removeAttribute = function(attr){
+        DOM.removeAttribute(this.view, attr);
+    };
 
+    /**
+     * Test whether this componet view is a DOM element
+     */    
+    thi$.isDOMElement = function(){
+        return DOM.isDOMElement(this.view);
+    };
+    
+    thi$.doLayout = function(force){
+        var U = this._local, ret = true;
+        if(!this.needLayout(force)){
+            ret = false;
+        }else{
+            this.adjustLayers("resize");
+            ret = U.didLayout = true;
+        }
+        
+        return ret;
+    };
+
+    /**
+     * Test whether this component need do layout
+     * 
+     */
+    thi$.needLayout = function(force){
+        return force === true ? true :
+            (!this.isRigidWidth() || 
+                 !this.isRigidHeight() || 
+                 !this._local.didLayout);
+    };
+    
+    /**
+     * Force this compoents need do layout
+     * 
+     */
+    thi$.forceLayout = function(){
+        this._local.didLayout = false;
+    };
+    
+    thi$.adjustLayers = function(cmd, show){
+        var bounds, z;
+        switch(cmd){
+        case "move":
+        case "resize":
+            bounds = this.getBounds();
+            this.adjustShadow(bounds);
+            this.adjustCover(bounds);
+            this.adjustOutline(bounds);
+            break;
+        case "zorder":
+            z = this.getZ();
+            this.setShadowZIndex(z);
+            this.setCoverZIndex(z);
+            this.setOutlineZIndex(z);
+            break;
+        case "display":
+            this.setShadowDisplay(show);
+            this.setCoverDisplay(show);
+            this.setOutlineDisplay(show);            
+            break;
+        case "remove":
+            this.removeShadow();
+            this.removeCover();
+            this.removeOutline();
+            break;
+        }
     };
 
     thi$.spotIndex = function(ele, xy, dragObj){
@@ -4047,63 +4002,70 @@ js.awt.Element = function(def, Runtime){
         }
     };
     
-
     thi$.destroy = function(){
-        if(this.destroied != true){
-            delete this.peer;
-            delete this.container;
-            
-            if(this.isTipUserDefined()){
-                this.setTipUserDefined(false);
-            }
-            
-            arguments.callee.__super__.apply(this, arguments);
-        }
+        if(this.destroied) return;
+
+        this.removeOutline();
+        this.removeCover();
+        this.removeShadow();
+        this.removeTipLayer();
+        
+        delete this.peer;
+        delete this.container;
+
+        arguments.callee.__super__.apply(this, arguments);
+
     }.$override(this.destroy);
 
     thi$.classType = function(){
         return this.def.classType;
     };
 
-    thi$._init = function(def, Runtime){
-        if(def === undefined) return;
-        
-        this.def = def;
-        this.uuid(def.uuid);
-        this.id = def.id || this.uuid();
+    thi$._init = function(def, Runtime, view){
+        if(!Class.isObject(def)) return;
         
         def.classType = def.classType || "js.awt.Element";
+        var id = this.uuid(def.uuid);
+        this.id = def.id || (view ? (view.id || id) : id); 
 
         arguments.callee.__super__.apply(this, arguments);
+
+        var M = this.def, U = this._local;
 
         this.__buf__ = new js.lang.StringBuffer();
 
         CLASS.count++;
 
-        if(def.movable){
-            this.setMovable(def.movable);
+        if(!this.isStateless()){
+            if(!Class.isNumber(M.state)){
+                M.state = 0;
+            }
         }
 
-        if(def.resizable){
-            this.setResizable(def.resizable, def.resizer);
+        if(M.movable){
+            this.setMovable(true);
+        }
+
+        if(M.resizable){
+            this.setResizable(true, M.resizer);
+        }
+
+        if(M.useUserDefinedTip){
+            this.setUserDefinedTip(true, M.tipDef);
         }
         
-        if(def.prefSize){
+        if(M.prefSize){
             this.isPreferredSizeSet = true;
         }
         
-        if(def.miniSize){
+        if(M.miniSize){
             this.isMinimumSizeSet = true;
         }
         
-        if(def.maxiSize){
+        if(M.maxiSize){
             this.isMaximumSizeSet = true;
         }        
-        
-        if(def.useUserDefinedTip === true){
-            this.setTipUserDefined(true);
-        }
-        
+                
     }.$override(this._init);
     
     this._init.apply(this, arguments);
@@ -4119,49 +4081,26 @@ js.awt.Element.count = 0;
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
- * Author: Hu dong
- * Contact: jsvm.prj@gmail.com
+ * Author: Hu Dong
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
-
 $package("js.awt");
 
+$import("js.util.Observer");
 $import("js.awt.Element");
+$import("js.awt.Editable");
+$import("js.awt.PopupLayer");
 
 /**
- * A Component is an object having a graphical representation
+ * A base Component is an object having a graphical representation
  * that can be displayed in the browser and that can interact with the
- * user.<p>
+ * user.
  * 
  *@param def : {
  *     className : style class
@@ -4173,17 +4112,34 @@ $import("js.awt.Element");
  * 
  *     width : outer width of the componet,
  *     height: outer height of the component,
+ *     miniSize: {width, height},
+ *     maxiSize: {width, height},
+ *     prefSize: {width, height},
+ *     rigid_w: true|false
+ *     rigid_h: true|false  
+ *     align_x: 0.0|0.5|1.0
+ *     align_y: 0.0|0.5|1.0
+ *     
+ *     state : number, see also <code>js.util.State</code>
+ *     
+ *     mover : {delay, bound ...}, see also <code>js.awt.Movable</code>
+ *     movable : true/false,
+ *     
+ *     resizer : 8 bits number to define 8 directions resize, see also 
+ *               <code>js.awt.Resizable</code>,
+ *     resizable : true/false
+ * 
+ *     alwaysOnTop: true/false
  * 
  * },
- * The <em>def</em> is the definition of this component.
+ * The <code>def</code> is the definition of this component.
  * 
  * @param Runtime, @see <code>js.lang.Runtime</code>
  * 
  * @param view,  a document element  
- * When new a <em>component</em> will create a DIV element as the <em>view</em>
- * of this component. But you also can use an existing view to instead of the
- * view.
-
+ * When new a <code>component</code> will create a DIV element as the 
+ * <code>view</code> of this component. But you also can use an existing 
+ * view to instead of the view.
  */
 js.awt.Component = function(def, Runtime, view){
 
@@ -4194,82 +4150,179 @@ js.awt.Component = function(def, Runtime, view){
     }
     CLASS.__defined__ = true;
     
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System;
+    var Class = js.lang.Class, Event = js.util.Event,
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
 
     /**
      * Set position of the component.<p>
      * 
      * @param x, the position left
      * @param y, the position top
+     * @param fire       1: raise <em>moved</em>  event
+     *                   2: doLayout
+     *                   4: set this position as original position
      */
     thi$.setPosition = function(x, y, fire){
-        var M = this.def, bounds = this.getBounds();
+        var M = this.def, U = this._local;
 
-        DOM.setPosition(this.view, x, y, bounds);
-        M.x = bounds.x;
-        M.y = bounds.y;
-        
-        this._adjust("move");
+        arguments.callee.__super__.apply(this, arguments);
+
+        fire = !Class.isNumber(fire) ? 0 : fire;
+
+        if((fire & 0x04) != 0){
+            U.userX = M.x;
+            U.userY = M.y;
+        }
+
+        if((fire & 0x01) != 0){
+            this.onMoved(fire);            
+        }
 
     }.$override(this.setPosition);
-
+    
     /**
      * Set css z-index of the component.<p>
      * 
      * @param z
+     * @param fire
      */
     thi$.setZ = function(z, fire){
-        var M = this.def;
+        var M = this.def, U = this._local;
         
-        M.z = z;
-        this.view.style.zIndex = M.z;
-        
-        this._adjust("zorder");
+        arguments.callee.__super__.apply(this, arguments);
 
+        fire = !Class.isNumber(fire) ? 0 : fire;
+
+        if((fire & 0x04) != 0){
+            U.userZ = M.z;
+        }
+
+        if((fire & 0x01) != 0){
+            this.onZOrderChanged(fire);
+        }
     }.$override(this.setZ);
-    
+
     /**
      * Set outer size of the component.<p>
      * 
      * @param w, width
      * @param h, height
+     * @param fire       1: raise <em>resized</em>  event
+     *                   2: doLayout
+     *                   4: set this size as original size
      */
     thi$.setSize = function(w, h, fire){
-        var M = this.def, bounds = this.getBounds();
+        var M = this.def, U = this._local;
 
-        DOM.setSize(this.view, w, h, bounds);
-        M.width = bounds.width;
-        M.height= bounds.height;
+        arguments.callee.__super__.apply(this, arguments);
 
-        this._adjust("resize");
+        fire = !Class.isNumber(fire) ? 0 : fire;
 
+        if((fire & 0x04) != 0){
+            U.userW = M.width;
+            U.userH = M.height;
+        }
+
+        if((fire & 0x01) != 0){
+            this.onResized(fire);
+        }
+        
     }.$override(this.setSize);
     
-    
-    thi$.setBounds = function(x, y, w, h){
-        var M = this.def, bounds = this.getBounds();
-        
-        DOM.setBounds(this.view, x, y, w, h, bounds);
-        
-        M.x = bounds.x; 
-        M.y = bounds.y;
-        M.width = bounds.width; 
-        M.height= bounds.height;
-        
-        this._adjust("resize");
+
+    thi$.setBounds = function(x, y, w, h, fire){
+        var M = this.def, U = this._local;
+
+        arguments.callee.__super__.apply(this, arguments);
+
+        fire = Class.isNumber(fire) ? fire : 0;
+
+        if((fire & 0x04) != 0){
+            U.userX = M.x;
+            U.userY = M.y;
+
+            U.userW = M.width;
+            U.userH = M.height;
+        }
+
+        if((fire & 0x01) != 0){
+            this.onGeomChanged(fire);
+        }
 
     }.$override(this.setBounds);
+    
+    /**
+     * Tests whether this component has scroll bar
+     * 
+     * @return {
+     *   hscroll: true/false, 
+     *   vscroll: true/false
+     * }
+     */
+    thi$.hasScrollbar = function(){
+        return DOM.hasScrollbar(this.view);
+    };
 
-    thi$.invalidateBounds = function(){
-        this.view.bounds = null;
-        
-        // If the preferred size is not from the definition, it will be calcualted
-        // with bounds. And when the bounds is invalidating, the old calculated 
-        // preferred size should be invalidated, too.
-        if(!this.isPreferredSizeSet){
-            this.def.prefSize = null;
+    /**
+     * Activate this component
+     * 
+     */    
+    thi$.activateComponent = function(){
+        var container = this.getContainer();
+        if(container){
+            container.activateComponent(this);
         }
+    };
+
+    /**
+     * Open a dialog with specified dialog class and dialog object
+     * 
+     * @param className, the definition of dialog
+     * @param rect, x, y, width and height
+     * @param dialogObj, the DialogObj instance 
+     * @param handler
+     */
+    thi$.openDialog = function(className, rect, dialogObj, handler){
+        var dialog = J$VM.Factory.createComponent(
+            className, rect, this.Runtime());
+
+        dialog.setPeerComponent(this);        
+        dialog.setDialogObject(dialogObj, handler);
+       
+        //@link js.lang.Object#setContextID
+        if(!dialogObj.def["__contextid__"]){
+            dialogObj.setContextID(this.uuid());
+        }
+
+        dialog.show();
+        return dialog;
+    };
+    
+    /**
+     * Open confirm dialog
+     * 
+     * @param className, the definition of dialog
+     * @param rect, x, y, width and height
+     * @param def, ,an object like:{
+     *     className: "",
+     *     model: {
+     *         msgSubject: "",
+     *         msgContent: ""
+     *     }
+     * } 
+     * @param handler
+     */
+    thi$.openConfirm = function(className, rect, def, handler){
+        def = def || {};
+        def.className = def.className || "msgbox";
+        def.stateless = true;
+        def.model = def.model || {};
+        def.model.msgType = def.model.msgType || "confirm";
+        return this.openDialog(
+            className,
+            rect, 
+            new js.awt.MessageBox(def, this.Runtime()),
+            handler);
     };
     
     /**
@@ -4289,10 +4342,12 @@ js.awt.Component = function(def, Runtime, view){
         return styles;
     };
 
+    var SIZEP = /[wW]idth|margin|border|padding/;
     /**
      * Apply a style set to the component.<p>
      * 
-     * @param styles, an object with key are style name and value are style value. 
+     * @param styles, an object with key are style name and value 
+     * are style value. 
      */
     thi$.applyStyles = function(styles){
         var el = this.view, 
@@ -4303,7 +4358,7 @@ js.awt.Component = function(def, Runtime, view){
         delete styles.height;
 
         var sizeChanged = function(value, sp){
-            return sp.match(/[wW]idth|margin|border|padding/) != undefined;
+            return sp.match(SIZEP) != undefined;
         }.$some(this, styles);
 
         DOM.applyStyles(el, styles);
@@ -4315,96 +4370,27 @@ js.awt.Component = function(def, Runtime, view){
         if(!isNaN(w) || !isNaN(h)){
             this.setSize(w, h);
         }
+
+        if(sizeChanged && this.repaint()){
+            this.onGeomChanged(0x02);
+            return true;
+        }        
         
-        return sizeChanged ? this.repaint() : false;
+        return false;
     };
 
+    var DISPLAYS = ["none", "block"];
     /**
      * Sets style.display = none/blcok
      */
     thi$.display = function(show){
-        if(show === false){
-            this.view.style.display = "none";
-            this._adjust("display", "none");
-        }else{
-            this.view.style.display = "block";
-            this._adjust("display", "block");
-        }
+        var disp;
+        show = show ? 1 : 0;
+        disp = DISPLAYS[show];
+        this.view.style.display = disp;
+        this.adjustLayers("display", disp);
     }.$override(this.display);
 
-    /**
-     * Gets the attribute with specified name
-     * 
-     * @param attr, attribute name
-     */    
-    thi$.getAttribute = function(attr){
-        return DOM.getAttribute(this.view, attr);
-    };
-    
-    /**
-     * Sets the attribute with specified name and value
-     * 
-     * @param attr, attribute name
-     */    
-    thi$.setAttribute = function(attr, value){
-        DOM.setAttribute(this.view, attr, value);
-    };
-    
-    /**
-     * Removes the attribute with specified name
-     * 
-     * @param attr, attribute name
-     */    
-    thi$.removeAttribute = function(attr){
-        DOM.removeAttribute(this.view, attr);
-    };
-
-    thi$.setToolTipText = function(s){
-        this.def.tip = s;
-        this.setAttribute("title", s);
-    };
-    
-    thi$.delToolTipText = function(){
-        this.def.tip = undefined;
-        this.removeAttribute("title");
-    };
-
-    /**
-     * @method
-     * 
-     * Override to use the tooltip of current component also as the tooltip
-     * of its disable cover.
-     * 
-     * Ref: http://redmine.jinfonet.com.cn/issues/59362
-     */
-    thi$.showDisableCover = function(b){
-
-        arguments.callee.__super__.apply(this, arguments);        
-
-        var cover = this._coverView, tip = this.getAttribute("title");
-        if(cover && tip){
-            DOM.setAttribute(cover, "title", tip);
-        }
-
-    }.$override(this.showDisableCover);
-
-    /**
-     * Test whether this componet view is a DOM element
-     */    
-    thi$.isDOMElement = function(){
-        return DOM.isDOMElement(this.view);
-    };
-
-    /**
-     * Remove the view of this component from the specified parent node.
-     * 
-     * @see appendTo(parentNode)
-     */
-    thi$.removeFrom = function(parentNode){
-        arguments.callee.__super__.apply(this,arguments);
-        this._adjust("remove");
-    }.$override(this.removeFrom);
-    
     /**
      * Append the view of this component to the specified parent node.
      * 
@@ -4460,40 +4446,44 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class should override this method
      */
     thi$.repaint = function(){
-        var M = this.def, U = this._local, el = this.view, 
-            bounds, ret = false;
-
-        if(this.isDOMElement()){
-            if(this._geometric) {
-                this._geometric();
-            }
-
-            bounds = this.getBounds();
-
-            if(M.x != bounds.x || M.y != bounds.y){
-                DOM.setPosition(el, M.x, M.y, bounds);
-            }
-
-            if(M.width != bounds.width || M.height != bounds.height){
-                DOM.setSize(el, M.width, M.height, bounds);
-            }
-
-            el.style.zIndex = M.z;
-
-            if(M.shadow){
-                this.showShadow(true, M.shadowClassName);
-            }
-
-            if(!this.isEnabled()){
-                this.showDisableCover(true);
-            }
-
-            this._adjust("resize");
-
-            ret = true;
+        var M = this.def, U = this._local, ele, bounds;
+        if(!this.isDOMElement()) return false;
+        
+        if(this._geometric) {
+            this._geometric();
         }
         
-        return ret;
+        ele = this.view;
+        bounds = this.getBounds();
+
+        if(M.x != bounds.x || M.y != bounds.y){
+            DOM.setPosition(ele, M.x, M.y, bounds);
+        }
+
+        if(M.width != bounds.width || M.height != bounds.height){
+            DOM.setSize(ele, M.width, M.height, bounds);
+        }
+
+        ele.style.zIndex = M.z;
+
+        if(M.isfloating){
+            this.setFloating(true);
+        }
+
+        if(!this.isEnabled()){
+            this.showDisableCover(true);
+        }
+
+        if(M.outline){
+            this.showOutline(true, M.outlineClassName);
+        }
+        
+        if(M.shadow){
+            this.showShadow(true, M.shadowClassName);
+        }
+
+        this.adjustLayers("resize");
+        return true;
     };
     
     var _geometric = function(){
@@ -4540,68 +4530,105 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class should override this method
      */
     thi$.doLayout = function(force){
-        if(!this.needLayout(force) || !this.isDOMElement() 
-            || (this.getStyle("display") === "none")) {
-                return false;
+        var ret = true;
+        if(!this.isDOMElement() ||
+           (this.getStyle("display") === "none") ||
+                    !arguments.callee.__super__.apply(this, arguments)){
+            ret = false;
         }
-        this._adjust("resize");
-        this._local.didLayout = true;
-        
-        return true;
-    };
+        this.adjustController();
+        return ret;
+    }.$override(this.doLayout);
 
-    /**
-     * Test whether this component need do layout
-     * 
-     */
-    thi$.needLayout = function(force){
-        return force === true ? true :
-            (!this.isRigidWidth() || 
-             !this.isRigidHeight() || 
-             !this._local.didLayout);
+    thi$.setController = function(ctrl){
+        this.controller = ctrl;
+        this.controller.setContainer(this);
     };
     
-    /**
-     * Force this compoents need do layout
-     * 
-     */
-    thi$.forceLayout = function(){
-        this._local.didLayout = false;
-    };
-
-    thi$.activateComponent = function(){
-        
+    thi$.delController = function(){
+        var ctrl = this.controller;
+        if(ctrl){
+            ctrl.removeFrom(this.view);
+            delete ctrl.container;
+            delete this.controller;
+        }
+        return ctrl;
     };
     
-    thi$._adjust = function(cmd, show){
-        var bounds, z;
-        switch(cmd){
-        case "move":
-        case "resize":
-            bounds = this.getBounds();
-            this.adjustShadow(bounds);
-            this.adjustCover(bounds);
-            this.adjustOutline(bounds);
-            break;
-        case "zorder":
-            z = this.getZ();
-            this.setShadowZIndex(z);
-            this.setCoverZIndex(z);
-            this.setOutlineZIndex(z);
-            break;
-        case "display":
-            this.setShadowDisplay(show);
-            this.setCoverDisplay(show);
-            this.setOutlineDisplay(show);            
-            break;
-        case "remove":
-            this.removeShadow();
-            this.removeCover();
-            this.removeOutline();
-            break;
+    thi$.adjustController = function(){
+        var ctrl = this.controller, bounds, counds, x, y, w, h;
+        if(!ctrl) return;
+
+        ctrl.appendTo(this.view); // Keep controller alwasy on top
+        bounds = this.getBounds();
+        counds = ctrl.getBounds();
+        w = ctrl.isRigidWidth() ? counds.width : bounds.innerWidth;
+        h = ctrl.isRigidHeight()? counds.height: bounds.innerHeight;
+        x = bounds.MBP.paddingLeft +
+            (bounds.innerWidth - w)*ctrl.getAlignmentX();
+        y = bounds.MBP.paddingTop  +
+            (bounds.innerHeight- h)*ctrl.getAlignmentY();
+        ctrl.setBounds(x, y, w, h, 7);
+    };
+
+
+    /**
+     * When the position and size of the component has changed, we need
+     * to adjust its container's size to handle the scroll bars.
+     */
+    thi$.autoResizeContainer = function(){
+        var container = this.getContainer();
+        if(container && (container instanceof js.awt.Container)){
+            container.autoResize();
         }
     };
 
+    /**
+     * When this component was moved to a new position will 
+     * invoke this method,
+     * 
+     * 
+     * Notes: Sub class maybe should override this method
+     */
+    thi$.onMoved = function(fire){
+        this.autoResizeContainer();
+    };
+
+    /**
+     * When this component was resized will invoke this method.
+     * 
+     * @param doLayout, true then invoke doLayout of this component
+     * 
+     * Notes: Sub class maybe should override this method
+     */
+    thi$.onResized = function(fire){
+        if((fire & 0x02) != 0){
+            this.doLayout(true);
+        }
+        this.autoResizeContainer();
+    };
+
+    /**
+     * When this component ZOrder.
+     * 
+     * Notes: Sub class maybe should override this method
+     */
+    thi$.onZOrderChanged = function(fire){
+
+    };
+    
+    /**
+     * When geometric (includes position and size) was changed 
+     * of this compoent will invoke this method.
+     * 
+     * Notes: Sub class maybe should override this method
+     */
+    thi$.onGeomChanged = function(fire){
+        if((fire & 0x02) != 0){
+            this.doLayout(true);
+        }
+    };
+    
     thi$.appendStyleClass = function(className){
         if(Class.isString(className)){
             var names = this._local.styles;
@@ -4649,6 +4676,25 @@ js.awt.Component = function(def, Runtime, view){
         var names = this._local.styles = [this.className];
         if(apply === true){
             this.view.className = names.join(" ");            
+        }
+    };
+
+    /**
+     * Indicate whether the state can affect the style
+     * of current Component.
+     */ 
+    thi$.isStyleByState = function(){
+        return !this.isStateless() && this.def.styleByState;
+    };
+
+    thi$.onStateChanged = function(e){
+        if(this.isStyleByState()){
+            this.view.className = DOM.stateClassName(
+                this.def.className || this.className, this.getState());
+        }        
+        
+        if(this.view.parentNode){
+            this.showDisableCover(!this.isEnabled());
         }
     };
 
@@ -4807,578 +4853,21 @@ js.awt.Component = function(def, Runtime, view){
         this.view.style.cssText = buf.toString(); 
     };
 
-    thi$.destroy = function(){
-        if(this.destroied) return;
-
-        this.removeOutline();
-        this.removeCover();
-        this.removeShadow();
-        DOM.remove(this.view, true);            
-        delete this.view;
-        arguments.callee.__super__.apply(this, arguments);    
-    }.$override(this.destroy);
-    
-    thi$._init = function(def, Runtime, view){
-        if(def == undefined) return;
+    thi$.invalidateBounds = function(){
+        this.view.bounds = null;
         
-        def.classType = def.classType || "js.awt.Component";
-
-        arguments.callee.__super__.apply(this, arguments);
-        
-        var tclazz = def.className;
-        if(tclazz){
-            tclazz = DOM.extractDOMClassName(tclazz);
-        }
-
-        if(view){
-            this.view = view;
-            def.className = view.clazz || def.className;
-        }else{
-            this.view = view = DOM.createElement(def.viewType || "DIV");
-            def.className = def.className || "jsvm__element";
-            view.clazz = view.className = view.className 
-                + (tclazz ? (" " + tclazz) : "");
-        }
-        
-        view = this.view;
-        view.uuid = this.uuid();
-        if(view.tagName != "BODY"){
-            view.id = this.id 
-                || (this.classType() + "." + js.awt.Element.count);            
-        }
-
-
-        this.className = tclazz;
-        if(def.css) view.style.cssText = view.style.cssText + def.css;
-        if(view.tagName != "BODY" && view.tagName != "CANVAS"
-           && view.cloned != "true"){
-            _preparegeom.call(this);    
-        }
-
-        this._geometric = function(){
-            var o = _geometric.call(this);
-            delete this._geometric;
-            return o;
-        };
-        
-        if(def.useUserDefinedTip === true){
-            this.setTipUserDefined(true);
-        }else{
-            var tip = def.tip;
-            if(Class.isString(tip) && tip.length > 0) {
-                this.setToolTipText(tip);
-            }
-        }
-        
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
-
-}.$extend(js.awt.Element);
-
-
-
-/**
-
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
- *
- * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
- * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
- */
-
-$package("js.awt");
-
-$import("js.awt.Component");
-$import("js.awt.Editable");
-$import("js.util.Observer");
-
-/**
- * A <em>component</em> is an object having a graphical representation
- * that can be displayed in the browser and that can interact with the
- * user.<p>
- * 
- * The <em>model</em> of a <em>component</em> as below:<p>
- *@param def : {
- *     classType : class type of this component
- *     id : string to identify a component
- *     
- * 
- *     x : position left,
- *     y : position top,
- *     width : outer width of the componet,
- *     height: outer height of the component,
- *     miniSize: {width, height},
- *     maxiSize: {width, height},
- *     prefSize: {width, height},
- *     rigid_w: true|false
- *     rigid_h: true|false  
- *     align_x: 0.0|0.5|1.0
- *     align_y: 0.0|0.5|1.0
- *     
- *     className : style class
- *     css: css text
- * 
- *     state : number, see also <code>js.util.State</code>
- *     
- *     mover : {delay, bound ...}, see also <code>js.awt.Movable</code>
- *     movable : true/false,
- *     
- *     resizer : 8 bits number to define 8 directions resize, see also 
- *               <code>js.awt.Resizable</code>,
- *     resizable : true/false
- * 
- *     alwaysOnTop: true/false
- * }<p>
- * 
- * The <em>Runtime</em> is runtime context, it may includes:
- * @param Runtime :{
- *     imgPath : The image path,
- *     ...
- * }<p>
- * 
- * When new a <em>component</em> will create a DIV element as the <em>View</em>
- * of this component. But you also can use an existing view to instead of the
- * view.
- * @param view,  a document element  
- */
-js.awt.Component = function (def, Runtime, view){
-
-    var CLASS = js.awt.Component, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
-
-    /**
-     * Set position of the component.<p>
-     * 
-     * @param x, the position left
-     * @param y, the position top
-     * @param fire       1: raise <em>moved</em>  event
-     *                   2: doLayout
-     *                   4: set this position as original position
-     */
-    thi$.setPosition = function(x, y, fire){
-        var M = this.def, U = this._local;
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userX = M.x;
-            U.userY = M.y;
-        }
-
-        if((fire & 0x01) != 0){
-            this.onMoved(fire);            
-        }
-
-    }.$override(this.setPosition);
-    
-    /**
-     * Set css z-index of the component.<p>
-     * 
-     * @param z
-     * @param fire
-     */
-    thi$.setZ = function(z, fire){
-        var M = this.def, U = this._local;
-        
-        arguments.callee.__super__.apply(this, arguments);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userZ = M.z;
-        }
-
-        if((fire & 0x01) != 0){
-            this.onZOrderChanged(fire);
-        }
-    }.$override(this.setZ);
-
-    /**
-     * Set outer size of the component.<p>
-     * 
-     * @param w, width
-     * @param h, height
-     * @param fire       1: raise <em>resized</em>  event
-     *                   2: doLayout
-     *                   4: set this size as original size
-     */
-    thi$.setSize = function(w, h, fire){
-        var M = this.def, U = this._local;
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userW = M.width;
-            U.userH = M.height;
-        }
-
-        if((fire & 0x01) != 0){
-            this.onResized(fire);
-        }
-        
-    }.$override(this.setSize);
-    
-
-    thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def, U = this._local;
-
-        arguments.callee.__super__.apply(this, arguments);
-
-        fire = Class.isNumber(fire) ? fire : 0;
-
-        if((fire & 0x04) != 0){
-            U.userX = M.x;
-            U.userY = M.y;
-
-            U.userW = M.width;
-            U.userH = M.height;
-        }
-
-        if((fire & 0x01) != 0){
-            this.onGeomChanged(fire);
-        }
-
-    }.$override(this.setBounds);
-    
-    /**
-     * Tests whether this component has scroll bar
-     * 
-     * @return {
-     *   hscroll: true/false, 
-     *   vscroll: true/false
-     * }
-     */
-    thi$.hasScrollbar = function(){
-        return DOM.hasScrollbar(this.view);
-    };
-
-    /**
-     * Apply a style set to the component.<p>
-     * 
-     * @param styles, an object with key are style name and value are style value. 
-     */
-    thi$.applyStyles = function(styles){
-
-        if(arguments.callee.__super__.apply(this, arguments)){
-            this.onGeomChanged(0x02);            
-        }
-
-    }.$override(this.applyStyles);
-    
-    thi$.setController = function(ctrl){
-        this.controller = ctrl;
-        this.controller.setContainer(this);
-    };
-    
-    thi$.delController = function(){
-        var ctrl = this.controller;
-        if(ctrl){
-            ctrl.removeFrom(this.view);
-            delete ctrl.container;
-            delete this.controller;
-        }
-        return ctrl;
-    };
-    
-    /**
-     * Sets container of this component
-     */
-    thi$.setContainer = function(container){
-        arguments.callee.__super__.apply(this, arguments);
-
-        if(container && this.isMovable() && 
-           container instanceof js.awt.Container && 
-           container.isAutoFit()){
-            var moveObj = this.getMoveObject(),
-            msgType = moveObj.getMovingMsgType();
-            MQ.register(msgType, this, _onMovingEvent);
-            moveObj.releaseMoveObject();
-            delete this.moveObj;
-        }
-
-    }.$override(this.setContainer);
-
-    /**
-     * When the position and size of the component has changed, we need
-     * to adjust its container's size to handle the scroll bars.
-     */
-    thi$.autoResizeContainer = function(){
-        var container = this.getContainer();
-        if(container && (container instanceof js.awt.Container)){
-            container.autoResize();
+        // If the preferred size is not from the definition, it will be calcualted
+        // with bounds. And when the bounds is invalidating, the old calculated 
+        // preferred size should be invalidated, too.
+        if(!this.isPreferredSizeSet){
+            this.def.prefSize = null;
         }
     };
     
     /**
-     * Handler of the component which is moving in an 
-     * auto fit container 
-     */
-    var _onMovingEvent = function(e){
-        var container = this.getContainer();
-        if (container && container._local
-            && container._local.autoArrange == undefined) {
-            container._local.autoArrange = container.def.autoArrange;
-            container.def.autoArrange = false;
-        }
-
-        this.autoResizeContainer();
-    };
-
-    /**
-     * Activate this component
-     * 
-     */    
-    thi$.activateComponent = function(){
-        var container = this.getContainer();
-        if(container){
-            container.activateComponent(this);
-        }
-    };
-    
-    /**
-     * Open a dialog with specified dialog class and dialog object
-     * 
-     * @param className, the definition of dialog
-     * @param rect, x, y, width and height
-     * @param dialogObj, the DialogObj instance 
-     * @param handler
-     */
-    thi$.openDialog = function(className, rect, dialogObj, handler){
-        var dialog = J$VM.Factory.createComponent(
-            className, rect, this.Runtime());
-
-        dialog.setPeerComponent(this);        
-        dialog.setDialogObject(dialogObj, handler);
-       
-        //@link js.lang.Object#setContextID
-        if(!dialogObj.def["__contextid__"]){
-            dialogObj.setContextID(this.uuid());
-        }
-
-        dialog.show();
-        return dialog;
-    };
-    
-    /**
-     * Open confirm dialog
-     * 
-     * @param className, the definition of dialog
-     * @param rect, x, y, width and height
-     * @param def, ,an object like:{
-     *     className: "",
-     *     model: {
-     *         msgSubject: "",
-     *         msgContent: ""
-     *     }
-     * } 
-     * @param handler
-     */
-    thi$.openConfirm = function(className, rect, def, handler){
-        def = def || {};
-        def.className = def.className || "msgbox";
-        def.stateless = true;
-        def.model = def.model || {};
-        def.model.msgType = def.model.msgType || "confirm";
-        return this.openDialog(
-            className,
-            rect, 
-            new js.awt.MessageBox(def, this.Runtime()),
-            handler);
-    };
-
-    /**
-     * When this component was add to DOM tree, then invokes
-     * this method. 
-     * 
-     * @return Must return true if did repaint.
-     * 
-     * Notes: Sub class should override this method
-     */
-    thi$.repaint = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            var M = this.def;
-
-            // For floating layer
-            if(M.isfloating === true && !this.floatingSettled()){
-                this.setFloating(true);
-            }
-
-            return true;
-        }
-
-        return false;
-
-    }.$override(this.repaint);
-    
-    /**
-     * @see js.awt.Component
-     */
-    thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
-            var ctrl = this.controller;
-            if(ctrl){
-                ctrl.appendTo(this.view); // Keep controller alwasy on top
-                var bounds = this.getBounds(), cbounds = ctrl.getBounds(),
-                x, y, w, h;
-                w = ctrl.isRigidWidth() ? cbounds.width : bounds.innerWidth;
-                h = ctrl.isRigidHeight()? cbounds.height: bounds.innerHeight;
-                x = bounds.MBP.paddingLeft + (bounds.innerWidth - w)*ctrl.getAlignmentX();
-                y = bounds.MBP.paddingTop  + (bounds.innerHeight- h)*ctrl.getAlignmentY();
-
-                ctrl.setBounds(x, y, w, h, 7);
-            }
-            return true;
-        }
-
-        return false;
-
-    }.$override(this.doLayout);
-    
-    /**
-     * When this component was moved to a new position will 
-     * invoke this method,
-     * 
-     * 
-     * Notes: Sub class maybe should override this method
-     */
-    thi$.onMoved = function(fire){
-        var container = this.getContainer();
-        if (container && container._local
-            && container._local.autoArrange != undefined) {
-            container.def.autoArrange = container._local.autoArrange;
-            delete container._local.autoArrange;
-        }
-        this.autoResizeContainer();
-    };
-
-    /**
-     * When this component was resized will invoke this method.
-     * 
-     * @param doLayout, true then invoke doLayout of this component
-     * 
-     * Notes: Sub class maybe should override this method
-     */
-    thi$.onResized = function(fire){
-        if((fire & 0x02) != 0){
-            this.doLayout(true);
-        }
-        var container = this.getContainer();
-        if (container && container._local
-            && container._local.autoArrange != undefined) {
-            container.def.autoArrange = container._local.autoArrange;
-            delete container._local.autoArrange;
-        }
-        // Adjust the container's size to handle the scrollbars
-        this.autoResizeContainer();
-    };
-
-    /**
-     * When this component ZOrder.
-     * 
-     * Notes: Sub class maybe should override this method
-     */
-    thi$.onZOrderChanged = function(fire){
-
-    };
-    
-    /**
-     * When geometric (includes position and size) was changed 
-     * of this compoent will invoke this method.
-     * 
-     * Notes: Sub class maybe should override this method
-     */
-    thi$.onGeomChanged = function(fire){
-        if((fire & 0x02) != 0){
-            this.doLayout(true);
-        }
-    };
-    
-    /**
-     * Indicate whether the state can affect the style
-     * of current Component.
-     */ 
-    thi$.isStyleByState = function(){
-        return !this.isStateless() 
-            && (this.def.styleByState !== false);
-    };
-
-    thi$.onStateChanged = function(e){
-        if(this.isStyleByState()){
-            this.view.className = DOM.stateClassName(
-                this.def.className || this.className, this.getState());
-        }        
-        
-        if(this.view.parentNode){
-            this.showDisableCover(!this.isEnabled());
-        }
-    };
-
-    /**
-     * Override destroy method of js.lang.Object
-     */
-    thi$.destroy = function(){
-        if(this.destroied != true){
-
-            if(this.controller){
-                this.controller.destroy();
-                delete this.controller;
-            }
-
-            var container = this.container;
-            if(container && container instanceof js.awt.Container){
-                container.removeComponent(this);
-            }
-
-            delete this.container;        
-            delete this.peer;
-
-            arguments.callee.__super__.apply(this, arguments);
-        }
-    }.$override(this.destroy);
-    
-    /**
-     * When some propery of component was changed, it may cause the layout of parent component change,
-     * So we must find the parent component which take charge of the change and redo layout.
+     * When some propery of component was changed, it may cause the 
+     * layout of parent component change, So we must find the parent 
+     * component which take charge of the change and redo layout.
      */
     thi$.invalidParentLayout = function() {
         var target = this.getContainer();
@@ -5394,26 +4883,85 @@ js.awt.Component = function (def, Runtime, view){
         }
     };
 
-    thi$._init = function(def, Runtime, view){
-        if(def == undefined) return;
+    thi$.onelementappend = function(e){
+        //System.err.println(e);
+        e.cancelDefault();
+    };
+    
+    thi$.destroy = function(){
+        if(this.destroied) return;
 
+        var obj = this.controller;
+        if(obj){
+            obj.destroy();
+            delete this.controller;
+        }
+
+        obj = this.getContainer();
+        if(obj && obj instanceof js.awt.Container){
+            obj.removeComponent(this);
+        }
+        delete this.container;
+        delete this.peer;
+        
+        DOM.remove(this.view, true);            
+        delete this.view;
+        
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.destroy);
+    
+    thi$._init = function(def, Runtime, view){
+        if(!Class.isObject(def)) return;
+        
         def.classType = def.classType || "js.awt.Component";
         
         arguments.callee.__super__.apply(this, arguments);
-        view = this.view;
 
-        if(!this.isStateless()){
-            def.state = def.state || 0;
-            
-            if(this.isStyleByState()){
-                view.className = DOM.stateClassName(def.className, this.getState());
+        var preView = Class.isHtmlElement(view), clazz;
+        if(!preView){
+            this.view = view = DOM.createElement(def.viewType || "DIV");
+            view.id = this.id;
+            if(def.css){
+                view.style.cssText = view.style.cssText + def.css;
             }
+            def.className = def.className || "jsvm__element";
+        }else{
+            this.view = view;
+            def.className = view.clazz || view.className;
         }
-    }.$override(this._init);
+        view.uuid = this.uuid();
 
-    this._init.apply(this, arguments);
+        this.className = DOM.extractDOMClassName(def.className);
+        if(this.isStyleByState()){
+            clazz = DOM.stateClassName(def.className, this.getState());
+        }else{
+            clazz = this.className;
+        }
+        view.clazz = def.className;
+        if(!preView){
+            DOM.setClassName(view, clazz, def.classPrefix);
+        }
+
+        /*
+        if(view.tagName != "BODY" && view.tagName != "CANVAS"
+           && view.cloned != "true"){
+            _preparegeom.call(this);    
+        }*/
+
+        this.setTipText(def.tip);
+
+        this._geometric = function(){
+            var o = _geometric.call(this);
+            delete this._geometric;
+            return o;
+        };
+        
+    }.$override(this._init);
     
-}.$extend(js.awt.Component).$implements(
+    this._init.apply(this, arguments);
+
+}.$extend(js.awt.Element).$implements(
     js.util.Observer, js.awt.Editable, js.awt.PopupLayer);
 
 
@@ -7872,6 +7420,24 @@ $package("js.awt");
 $import("js.awt.Highlighter");
 
 /**
+ * @fileOverview Define the basic Item component. 
+ * 
+ * For such Item, there are about two kinds of user cases:
+ * 
+ * 1) Use as the iterable items for tree, list and so on. It should be 
+ * lightweight, high-performance. And it can be a little low flexibility. 
+ * So we need to finish most of the layout things before appending it to 
+ * the DOM tree. And reducing the "repaint" and "layout" things.
+ * 
+ * 2) Use as the standalone component like a button. It should be strict, 
+ * flexibility and with smart layout. Of course it may be a little weighty
+ * and low-performace.
+ * 
+ * However, we add the "strict" property in the definition of the item to 
+ * diff such two scenes.
+ */
+
+/**
  * @param def :{
  *
  *	   markable: true/false. If true will create a marker element.
@@ -7894,14 +7460,39 @@ js.awt.Item = function(def, Runtime, view){
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
 	System = J$VM.System, MQ = J$VM.MQ;
 
+	thi$.msgType = function(msgType){
+		var U = this._local;
+		if(Class.isString(msgType) && msgType.length > 0){
+			U.msgType = msgType;
+		}
+
+		return U.msgType || "js.awt.event.StrictItemEvent";
+	};
+	
+	/**
+	 * Judge whether the current Item is strict for the non-iterative
+	 * use scenes.
+	 */
+	thi$.isStrict = function(){
+		return this.def.strict === true;  
+	};
+
 	/**
 	 * @see js.awt.Component
 	 */
 	thi$.getPreferredSize = function(){
-		if(this.def.prefSize == undefined){
-			var G = this.getGeometric(), nodes = this.view.childNodes,
-			ele1 = nodes[nodes.length-2], ele0 = nodes[nodes.length -1],
-			width;
+		var M = this.def, prefSize = M.prefSize, G, D,
+		nodes, ele1, ele0, width;
+
+		if(this.isPreferredSizeSet && prefSize){
+			return prefSize;
+		}
+
+		if(!this.isStrict()){
+			G = this.getGeometric();
+			nodes = this.view.childNodes;
+			ele1 = nodes[nodes.length-2];
+			ele0 = nodes[nodes.length -1];
 
 			if(ele0.tagName == "SPAN"){
 				/*
@@ -7927,9 +7518,17 @@ js.awt.Item = function(def, Runtime, view){
 			this.setPreferredSize(
 				width,
 				G.bounds.height - (G.bounds.BBM ? 0 : G.bounds.MBP.BPH));
+			prefSize = M.prefSize;
+
+		}else{
+			D = this.getBounds();
+			prefSize = {
+				width: D.width,
+				height: D.height
+			};
 		}
 
-		return this.def.prefSize;
+		return prefSize;
 	};
 
 	thi$.getIconImage = function(){
@@ -8121,28 +7720,186 @@ js.awt.Item = function(def, Runtime, view){
 	 * @see js.awt.Movable
 	 */
 	thi$.isMoverSpot = function(el, x, y){
-		return (el != this.branch &&
-				el != this.marker &&
-				el !== this.ctrl);
+		return el != this.branch &&	el != this.marker 
+			&& el !== this.ctrl;
 	};
 
 	/**
-	 * @see js.awt.Component
+	 * @method
+	 * @inheritdoc js.awt.Component#onStateChanged
 	 */
-	thi$.doLayout = function(){
-		var ele = this.label || this.input,
-		maxWidth = this.ctrl ? this.ctrl.offsetLeft :
-			this.getBounds().innerWidth,
-		width = maxWidth - ele.offsetLeft;
-		width = width < 0 ? 0 : width;
-
-		if(this.input){
-			DOM.setSize(ele, width, undefined);
-		}else{
-			ele.style.width = width + "px";
+	thi$.onStateChanged = function(){
+		arguments.callee.__super__.apply(this, arguments);		  
+		
+		if(this.isStrict() && this.icon){
+			this.setIconImage(this.getState());
 		}
 
-	}.$override(this.doLayout);
+	}.$override(this.onStateChanged);
+
+	/*
+	 * Do the strict layout	 
+	 */
+	var _doStrictLayout = function(force){
+		if(!this.isDOMElement() || !this.needLayout(force)){
+			return false;
+		}
+
+		var M = this.def, G = this.getGeometric(), bounds = this.getBounds(),
+		MBP = bounds.MBP, xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
+		left = 0, top, space = bounds.innerWidth, layout = M.layout || {},
+		gap = layout.gap || 0, hAlign = layout.align_x, vAlign = layout.align_y,
+		ctrlAlign = M.ctrlAlign, items = M.items, len = items.length, 
+		rects = [], rigid, ele, id, iid, d, r, h, c = 0, iSize, sv;
+
+		if(!Class.isNumber(hAlign)){
+			hAlign = 0.5;
+		}
+
+		if(!Class.isNumber(vAlign)){
+			vAlign = 0.5;
+		}
+
+		if(!Class.isNumber(ctrlAlign)){
+			ctrlAlign = 0.5;
+		}
+		
+		for(var i = 0; i < len; i++){
+			id = items[i];
+			ele = this[id];
+
+			d = G[id] = G[id] || DOM.getBounds(ele);
+			MBP = d.MBP;
+			iid = id.split(/\d+/g)[0];
+			r = {};
+			
+			space -= MBP.marginLeft;
+			switch(iid){
+			case "label":
+			case "input":
+				rigid = (iid === "label") 
+					? M.labelRigid === true 
+					: M.inputRigid === true;
+
+				if(rigid){
+					r.width = d.width;
+					space -= r.width;
+				}else{
+					r.width = null;
+					c += 1;
+				}
+
+				// ?? Sometimes, no any height style setten for the label,
+				// the height of bounds will be 0.
+				if(d.height == 0){
+					d.height = bounds.innerHeight;
+				}
+				break;
+
+			case "icon":
+			case "sign":
+				r.width = d.width;
+				
+				if(iid === "icon"){
+					iSize = M.iconSize || {};
+				}else{
+					iSize = M.signSize || {};
+				}
+
+				sv = iSize.width;
+				if(!isNaN(sv) && sv > 0){
+					r.width = sv;
+				}
+				
+				sv = iSize.height;
+				if(!isNaN(sv) && sv > 0){
+					r.height = sv;
+				}
+
+				space -= r.width;				 
+				break;
+
+			default:
+				r.width = d.width;
+				space -= r.width;
+				break;
+			}
+			space -= MBP.marginRight;
+			
+			r.node = ele;
+			rects.push(r);
+		}
+		
+		space -= gap * (len - 1);
+		
+		if(c > 1){
+			space = Math.round(space / c);
+		}
+		
+		if(c == 0){
+			left = Math.round(space * hAlign);
+		}
+
+		for(i = 0, len = rects.length; i < len; i++){
+			r = rects[i];
+			if(r.width == null){
+				r.width = space;
+			}
+
+			ele = r.node;
+			id = ele.id;
+			iid = id.split(/\d+/g)[0];
+
+			d = G[id];
+			MBP = d.MBP;
+			h = r.height || d.height;
+
+			left += MBP.marginLeft;
+
+			if(iid == "ctrl" && Class.isNumber(ctrlAlign)){
+				top = ybase + (bounds.innerHeight - h) * ctrlAlign;
+			}else{
+				if(!Class.isNumber(vAlign)){
+					vAlign = 0.5;
+				}
+				top = ybase + (bounds.innerHeight - h) * vAlign;
+			}
+
+			if(iid == "label"){
+				ele.style.lineHeight = h + "px";
+			}
+
+			DOM.setBounds(r.node, xbase + left, top, r.width, h, 0);
+
+			left += r.width + MBP.marginRight + gap;
+		}
+		
+		return true;
+		
+	};
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Item#doLayout
+	 */
+	thi$.doLayout = function(){
+		if(!this.isStrict()){
+			var ele = this.label || this.input,
+			maxWidth = this.ctrl ? this.ctrl.offsetLeft :
+				this.getBounds().innerWidth,
+			width = maxWidth - ele.offsetLeft;
+			width = width < 0 ? 0 : width;
+
+			if(this.input){
+				DOM.setSize(ele, width, undefined);
+			}else{
+				ele.style.width = width + "px";
+			}
+		}else{
+			_doStrictLayout.apply(this, arguments);
+		}
+
+	};
 
 	/**
 	 * The js.awt.Item is prepared for those iterable cases. So it must
@@ -8153,17 +7910,31 @@ js.awt.Item = function(def, Runtime, view){
 	 * @link js.awt.Component#repaint
 	 */
 	thi$.repaint = function(){
-		var rst = js.awt.Component.prototype.repaint.apply(this, arguments);
-		if(rst){
-			this.showDisableCover(!this.isEnabled());
+		var rst = false;
+		if(!this.isStrict()){
+			if(this.isDOMElement()){
+				rst = true;
+				this.showDisableCover(!this.isEnabled());
+			}
+		}else{
+			rst = arguments.callee.__super__.apply(this, arguments);
 		}
 
 		return rst;
-	};
+
+	}.$override(this.repaint);
 
 	thi$.destroy = function(){
 		if(this.input){
 			Event.detachEvent(this.input, "focus", 1,  this, _onFocus);
+		}
+
+		if(this.isStrict() && !this.isStateless()){
+			this.attachEvent("mouseover", 4, this, _onHover);
+			this.attachEvent("mouseout", 4, this, _onHover);
+
+			this.attachEvent("mousedown", 4, this, _onmousedown);
+			this.attachEvent("mouseup", 4, this, _onmouseup);
 		}
 
 		arguments.callee.__super__.apply(this, arguments);
@@ -8328,30 +8099,69 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	var _onBlur = function(e) {
-		if(this._local.eventAttached){
+		var U = this._local;
+		if(U.eventAttached){
 			Event.detachEvent(this.input, 'keydown', 0, this, _onKeyDown);
 			Event.detachEvent(this.input, "blur", 1, this, _onBlur);
 
-			this._local.eventAttached = false;
+			U.eventAttached = false;
 		}
 
 		this.onSubmit(e);
 	};
 
+	var _onHover = function(e){
+		if(e.getType() === "mouseover"){
+			if(this.contains(e.toElement, true)
+			   && !this.isHover()){
+				this.setHover(true);
+			}
+		}else{
+			if(!this.contains(e.toElement, true)
+			   && this.isHover()){
+				this.setHover(false);
+			}
+		}
+	};
+
+	var _onmousedown = function(e){
+		this._local.mousedown = true;
+
+		e.setEventTarget(this);
+		this.notifyPeer(this.msgType(), e);
+	};
+
+	var _onmouseup = function(e){
+		if(this._local.mousedown === true){
+			delete this._local.mousedown;
+
+			if(this.def.toggle === true){
+				this.setTriggered(!this.isTriggered());
+			}
+
+			e.setEventTarget(this);
+			this.notifyPeer(this.msgType(), e);
+		}
+	};
+
 	var _createElements = function(){
-		var G = this.getGeometric(), M = this.def,
-		xbase = G.bounds.MBP.paddingLeft, ybase = G.bounds.MBP.paddingTop,
-		height = G.bounds.BBM ?
-			G.bounds.height : G.bounds.height - G.bounds.MBP.BPH,
-		innerHeight = height - G.bounds.MBP.BPH,
-		className = this.className, body = document.body,
-		items = M.items, ele, id, iid, viewType, i, len, D,
-		left = xbase, top, buf = this.__buf__;
+		var M = this.def, items = M.items, G = this.getGeometric(),
+		bounds = G.bounds, MBP = bounds.MBP, xbase = MBP.paddingLeft,
+		ybase = MBP.paddingTop, left = xbase, top, height, innerHeight,
+		D, ele, id ,iid, viewType, i, len, buf = this.__buf__, 
+		strict = this.isStrict(), uuid = this.uuid();
 
-		this.view.style.height = G.bounds.BBM ?
-			(height + "px") : (innerHeight+"px");
-
-		for(i=0, len=items.length; i<len; i++){
+		// For the iterable items, rectify the Box-model compatibility 
+		// differences in advance.
+		if(!strict){
+			height = bounds.BBM ? bounds.height : bounds.height - MBP.BPH;
+			innerHeight = height - MBP.BPH;
+			
+			this.view.style.height = bounds.BBM ?
+				(height + "px") : (innerHeight+"px");
+		}		 
+		
+		for(i = 0, len = items.length; i < len; i++){
 			id = items[i];
 			iid = id.split(/\d+/g)[0];
 			switch(iid){
@@ -8371,32 +8181,37 @@ js.awt.Item = function(def, Runtime, view){
 
 			ele = DOM.createElement(viewType);
 			ele.id = id;
-			ele.className = DOM.combineClassName(className, id);
+			ele.className = DOM.combineClassName(this.className, id);
 			ele.iid = iid;
-
-			if(!G[iid]){
-				ele.style.cssText =
-					"position:absolute;white-space:nowrap;visibility:hidden;";
-				DOM.appendTo(ele, body);
-				G[iid] = DOM.getBounds(ele);
-				DOM.removeFrom(ele);
-				ele.style.cssText = "";
-			}else{
-				ele.bounds = G[iid];
-			}
-
-			D = G[iid];
 
 			buf.clear();
 			buf.append("position:absolute;");
-			top = ybase + (innerHeight - D.height)*0.5;
-			buf.append("top:").append(top).append("px;");
-			if(iid !== "ctrl"){
-				buf.append("left:").append(left).append("px;");
-				left += D.MBP.marginLeft + D.width + D.MBP.marginRight;
-			}else{
-				buf.append("right:")
-					.append(G.bounds.MBP.paddingRight).append("px;");
+
+			// For the iterable items, do the layout things ahead
+			if(!strict){
+				if(!G[iid]){
+					ele.style.cssText =
+						"position:absolute;white-space:nowrap;visibility:hidden;";
+					DOM.appendTo(ele, document.body);
+					G[iid] = DOM.getBounds(ele);
+					DOM.removeFrom(ele);
+					ele.style.cssText = "";
+				}else{
+					ele.bounds = G[iid];
+				}
+
+				D = G[iid];
+
+				top = ybase + (innerHeight - D.height) * 0.5;
+				buf.append("top:").append(top).append("px;");
+
+				if(iid !== "ctrl"){
+					buf.append("left:").append(left).append("px;");
+					left += D.MBP.marginLeft + D.width + D.MBP.marginRight;
+				}else{
+					buf.append("right:")
+						.append(G.bounds.MBP.paddingRight).append("px;");
+				}
 			}
 
 			if(iid == "label"){
@@ -8405,36 +8220,41 @@ js.awt.Item = function(def, Runtime, view){
 
 			ele.style.cssText = buf.toString();
 
+			ele.uuid = uuid;
+			this[id] = ele;
+
 			DOM.appendTo(ele, this.view);
 		}
 	};
 
 	var _checkItems = function(){
 		var M = this.def, items = M.items;
-		if(items.length == 0){
-			if(this.isMarkable()){
-				items.push("marker");
-			}
+		if(items.length > 0){
+			return;
+		}
 
-			if(M.iconImage){
-				items.push("icon");
-			}
+		if(this.isMarkable()){
+			items.push("marker");
+		}
 
-			if(M.sign){
-				items.push("sign");
-			}
+		if(M.iconImage){
+			items.push("icon");
+		}
 
-			if(Class.isValid(M.labelText)){
-				items.push("label");
-			}else{
-				if(Class.isValid(M.inputText)){
-					items.push("input");
-				}
-			}
+		if(M.sign){
+			items.push("sign");
+		}
 
-			if(this.isControlled()){
-				items.push("ctrl");
+		if(Class.isValid(M.labelText)){
+			items.push("label");
+		}else{
+			if(Class.isValid(M.inputText)){
+				items.push("input");
 			}
+		}
+
+		if(this.isControlled()){
+			items.push("ctrl");
 		}
 	};
 
@@ -8446,28 +8266,28 @@ js.awt.Item = function(def, Runtime, view){
 
 		arguments.callee.__super__.apply(this, [def, Runtime, view]);
 
-		def.items = def.items || [];
-
-		// Create inner elements
+		var M = this.def, uuid = this.uuid(), items, nodes, id, 
+		i, len, node, text, ipt, placeholder;
 		if(view == undefined){
+			items = M.items = M.items || [];
+
 			_checkItems.call(this);
 			_createElements.call(this);
-		}
+		}else{
+			items = M.items = [];
 
-		if(!def.items.clear){
-			js.util.LinkedList.$decorate(def.items);
-		}
-		def.items.clear();
+			nodes = this.view.childNodes;
+			len = nodes.length;
+			for(i = 0; i < len; i++){
+				node = nodes[i]; 
+				id = node.id;
+				node.iid = (node.iid || id.split(/\d+/g)[0]);
+				node.className = DOM.combineClassName(this.className, id);
+				items.push(id);
 
-		var uuid = this.uuid(), nodes = this.view.childNodes,
-		id, i, len, node, text, ipt, placeholder;
-		for(i=0, len=nodes.length; i<len; i++){
-			node = nodes[i]; id = node.id;
-			node.uuid = uuid;
-			node.iid = (node.iid || id.split(/\d+/g)[0]);
-			node.className = DOM.combineClassName(this.className, id);
-			def.items.push(id);
-			this[id] = node;
+				node.uuid = uuid;
+				this[id] = node;
+			}
 		}
 
 		if(this.icon){
@@ -8504,6 +8324,14 @@ js.awt.Item = function(def, Runtime, view){
 
 		if(this.isMarkable()){
 			this.mark(def.checked === true);
+		}
+
+		if(this.isStrict() && !this.isStateless()){
+			this.attachEvent("mouseover", 4, this, _onHover);
+			this.attachEvent("mouseout", 4, this, _onHover);
+
+			this.attachEvent("mousedown", 4, this, _onmousedown);
+			this.attachEvent("mouseup", 4, this, _onmouseup);
 		}
 
 	}.$override(this._init);
@@ -10769,8 +10597,8 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			M.z = this.getStyle("z-index");
 
 			// For shadow
-			if(M.shadow === true && !this.shadowSettled()){
-				this.setShadowy(true);
+			if(M.shadow){
+				this.showShadow(true, M.shadowClassName);
 			}
 
 			// For floating layer
@@ -10789,10 +10617,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			this._local.repaint = true;
 		}
 
-		if(this.shadowSettled()){
-			this.addShadow();
-			this.adjustShadow();
-		}
+        this.adjustLayers("resize");
 
 		if(this.active){
 			this.active.setHover(false);
@@ -12464,8 +12289,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			moveObj.setMovingPeer(this);
 			moveObj.appendTo(document.body);
 
-			/*moveObj.setPosition(absXY.x, absXY.y);*/
-			moveObj.setPosition(absXY.x - 10, absXY.y - 8);
+			moveObj.setPosition(absXY.x+8, absXY.y+8, 4);
 		}
 
 		return moveObj;
@@ -14303,6 +14127,16 @@ js.awt.Desktop = function (Runtime){
         }
     };
 
+    var _onhtmlevent = function(e){
+        var target;
+        target = e.getEventTarget();
+        if(target){
+            target.fireEvent(e, false);
+        }
+        e.cancelBubble();
+        return e._default;
+    };
+
     var apps = {};
 
     thi$.getApps = function(){
@@ -14394,7 +14228,8 @@ js.awt.Desktop = function (Runtime){
             link = dom.createElement("link");
             link.type = "text/css";
             link.rel = "stylesheet";
-            link.href = DOM.makeUrlPath(J$VM.j$vm_home, "../style/"+theme+"/"+file);
+            link.href = DOM.makeUrlPath(J$VM.j$vm_home,
+                                        "../style/"+theme+"/"+file);
             DOM.insertBefore(link, dom.getElementById("j$vm"));
         }
     };
@@ -14474,7 +14309,6 @@ js.awt.Desktop = function (Runtime){
         var dom = self.document, body = dom.body,        
             def = {
                 classType: "js.awt.Desktop",
-                className: body.className,
                 id: body.id,
                 uuid: "desktop",
                 zorder:true,
@@ -14488,8 +14322,8 @@ js.awt.Desktop = function (Runtime){
         // Popup Layer manager
         var LM = this.LM = new js.awt.LayerManager(
             {classType: "js.awt.LayerManager",
-             className: body.className,
              id: body.id,
+             uuid: "layer-manager", 
              zorder:true,
              stateless: true,
              zbase: 10000
@@ -14498,8 +14332,8 @@ js.awt.Desktop = function (Runtime){
         // Popup dialog manager
         var DM = this.DM = new js.awt.Container(
             {classType: "js.awt.Container",
-             className: body.className,
              id: body.id,
+             uuid: "dialog-manager",
              zorder:true,
              stateless: true,
              zbase: 1000
@@ -14513,26 +14347,46 @@ js.awt.Desktop = function (Runtime){
         var styleText = Class.getResource(
             J$VM.j$vm_home + "../style/jsvm_reset.css", true);
         this.applyCSSCode("jsvm_reset.css", styleText);
-        
-        Event.attachEvent(self, Event.W3C_EVT_RESIZE, 0, this, _onresize);
-        Event.attachEvent(self, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
 
-        Event.attachEvent(dom,  Event.W3C_EVT_KEY_DOWN,   0, this, _onkeyevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_KEY_UP,     0, this, _onkeyevent);
-        
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmousemove);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OVER, 0, this, _onmouseover);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseout);   
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmousedown);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseup);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_CLICK,0, this, _onclick);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DBCLICK,0, this, _onclick);        
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmousewheel);
-        Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _oncontextmenu);
-        
+        _bindEvents.call(this);
+
         R = Runtime;
 
     }.$override(this._init);
+
+    var _bindEvents = function(){
+        var dom = self.document,
+            EVENTS = [
+                [self, Event.W3C_EVT_RESIZE,        _onresize],
+                [self, Event.W3C_EVT_MESSAGE,       _onmessage],
+
+                [dom,  Event.W3C_EVT_KEY_DOWN,      _onkeyevent],
+                [dom,  Event.W3C_EVT_KEY_UP,        _onkeyevent],
+            
+                [dom,  Event.W3C_EVT_MOUSE_MOVE,    _onmousemove],
+                [dom,  Event.W3C_EVT_MOUSE_OVER,    _onmouseover],
+                [dom,  Event.W3C_EVT_MOUSE_OUT,     _onmouseout],   
+                [dom,  Event.W3C_EVT_MOUSE_DOWN,    _onmousedown],
+                [dom,  Event.W3C_EVT_MOUSE_UP,      _onmouseup],
+                [dom,  Event.W3C_EVT_MOUSE_CLICK,   _onclick],
+                [dom,  Event.W3C_EVT_MOUSE_DBCLICK, _onclick],        
+                [dom,  Event.W3C_EVT_MOUSE_WHEEL,   _onmousewheel],
+                [dom,  Event.W3C_EVT_CONTEXTMENU,   _oncontextmenu],
+
+                [dom,  Event.SYS_EVT_ELE_APPEND,    _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_REMOVED,   _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_POSITION,  _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_SIZE,      _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_ZINDEX,    _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_ATTRS,     _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_STYLE,     _onhtmlevent]        
+            ], item;
+
+        for(var i=0, len=EVENTS.length; i<len; i++){
+            item = EVENTS[i];
+            Event.attachEvent(item[0], item[1], 0, this, item[2]);
+        }
+    };
 
     this._init.apply(this, arguments);
 
@@ -15288,7 +15142,7 @@ js.awt.Application = function(def, Runtime, entryId){
             if(children.length === 0){
                 this.appendTo(cview);
             }else{
-                this.insertBefore(children[0], cview);
+                this.insertBefore(children[0]);
             }
         }
     };
@@ -15352,6 +15206,7 @@ js.awt.Application = function(def, Runtime, entryId){
         this.putContextAttr("app", this);
         
         this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
+        
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);
 
@@ -19307,4 +19162,6154 @@ js.swt.ListItem = function(def, Runtime, view){
 	this._init.apply(this, arguments);
 	
 }.$extend(js.awt.Item);
+
+/**
+
+ Copyright 2010-2011, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * File: HItem.js
+ * Create: 2015/07/21 03:20:16
+ * Author: 
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.swt");
+
+$import("js.awt.Item");
+
+/**
+ * @fileOverview Define the more complex item. It is horizontal and with more
+ * complex layout than js.awt.Item. It can have own model. And it should be used
+ * to replace js.swt.DItem and com.jinfonet.ui.CtrlItem.
+ */
+
+/**
+ * @class js.swt.HItem
+ * @extends js.awt.Item
+ * 
+ * @param {Object} def The definition for HItem.
+ * 
+ *		  @example
+ *		  {
+ *			  markable: true / false, // Indicate whether show a marker
+ *			  iconImage: "xxx", // Optional
+ * 
+ *			  model: {	// Optional
+ *				  dname: "xxx", // Optional
+ *				  sign: {
+ *					  type: "color" / "shape",
+ *					  color: "xxx" / js.awt.Color,
+ *					  opacity: 0.45,
+ *					  
+ *					  shape: "xxx",
+ *					  real: true / false //Indicate whether the shape is real path.
+ *				  },
+ * 
+ *				  value: {},
+ *				  ...
+ *			  },
+ * 
+ *			  labelRigid: false, // Indicate whether the label's width is rigid.
+ *			  inputRigid: false, // Indicate whether the input's width is rigid.
+ * 
+ *			  iconSize: {width: xx, height: xx}, // Optional
+ * 
+ *			  controlled: true, // Indicate whether the current item has ctrl
+ *			  ctrlAlign: 0.5, // 0.0 - 1.0
+ * 
+ *			  layout: { 
+ *				  gap: 0,
+ *			  
+ *				  align_x: 0.5, //0.0 - 1.0
+ *				  align_y: 0.5	// 0.0 - 1.0
+ *			  }
+ *		  }
+ */
+js.swt.HItem = function(def, Runtime){
+	var CLASS = js.swt.HItem,
+	thi$ = CLASS.prototype;
+	
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System, MQ = J$VM.MQ;
+
+	thi$.msgType = function(msgType){
+		var U = this._local;
+		if(Class.isString(msgType) && msgType.length > 0){
+			U.msgType = msgType;
+		}
+
+		return U.msgType || "js.swt.event.HItemEvent";
+	};
+	
+	thi$.isControlled = function(){
+		return this.def.controlled === true;
+	};
+	
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Item#getPreferredSize
+	 */
+	thi$.getPreferredSize = function(){
+		var prefSize = this.def.prefSize, size;
+		if(!this.isPreferredSizeSet || !prefSize){
+			size = this.getSize();
+			prefSize = {
+				height: size.height,
+				width: size.width
+			};
+		}
+
+		return prefSize;
+	};	
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#onStateChanged
+	 */
+	thi$.onStateChanged = function(){
+		arguments.callee.__super__.apply(this, arguments);		  
+		
+		if(this.icon){
+			this.setIconImage(this.getState());
+		}
+
+	}.$override(this.onStateChanged);
+
+	/**
+	 * The js.swt.HItem is different from the js.awt.Item. It should be the 
+	 * normal component. So it can support resize, move and so on.
+	 * 
+	 * @link js.awt.Component#repaint
+	 * @link js.awt.Component#repaint
+	 */
+	thi$.repaint = function(){
+		return js.awt.Component.prototype.repaint.apply(this, arguments);
+	};
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Item#doLayout
+	 */	   
+	thi$.doLayout = function(force){
+		if(!this.isDOMElement() || !this.needLayout(force)){
+			return false;
+		}
+
+		var G = this.getGeometric(), bounds = this.getBounds(),
+		xbase = bounds.MBP.paddingLeft, ybase = bounds.MBP.paddingTop,
+		left = 0, M = this.def, layout = def.layout, gap = layout.gap || 0, 
+		iSize, sv, space = bounds.innerWidth, hAlign = layout.align_x, 
+		vAlign = layout.align_y, ctrlAlign = M.ctrlAlign, 
+		items = M.items, len = items.length, rects = [], rigid,
+		ele, id, iid, d, MBP, r, h, c = 0, top;
+		
+		for(var i = 0; i < len; i++){
+			id = items[i];
+			ele = this[id];
+
+			iid = id.split(/\d+/g)[0];
+			r = {};
+			d = G[id];
+
+			switch(iid){
+			case "label":
+			case "input":
+				G[id] = d = DOM.getBounds(ele);
+				
+				rigid = iid === "label" 
+					? M.labelRigid : M.inputRigid;
+				if(rigid){
+					r.width = d.width;
+					space -= r.width;
+				}else{
+					r.width = null;
+					c += 1;
+				}
+				break;
+
+			case "icon":
+			case "sign":
+				r.width = d.width;
+				
+				if(iid === "icon"){
+					iSize = M.iconSize || {};
+				}else{
+					iSize = M.signSize || {};
+				}
+
+				sv = iSize.width;
+				if(!isNaN(sv) && sv > 0){
+					r.width = sv;
+				}
+				
+				sv = iSize.height;
+				if(!isNaN(sv) && sv > 0){
+					r.height = sv;
+				}
+
+				space -= r.width;				 
+				break;
+
+			default:
+				r.width = d.width;
+				space -= r.width;
+				break;
+			}
+			
+			r.node = ele;
+			rects.push(r);
+		}
+		
+		space -= gap*(len - 1);
+		
+		if(c > 1){
+			space = Math.round(space / c);
+		}
+		
+		if(c == 0){
+			left = Math.round(space * hAlign);
+		}
+
+		for(i = 0, len = rects.length; i < len; i++){
+			r = rects[i];
+			if(r.width == null){
+				r.width = space;
+			}
+
+			ele = r.node;
+			id = ele.id;
+			iid = id.split(/\d+/g)[0];
+			d = G[id];
+			MBP = d.MBP;
+			h = r.height || d.height;
+
+			left += MBP.marginLeft;
+
+			if(iid == "ctrl" && Class.isNumber(ctrlAlign)){
+				top = ybase + (bounds.innerHeight - h) * ctrlAlign;
+			}else{
+				if(Class.isNumber(vAlign)){
+					top = ybase + (bounds.innerHeight - h) * vAlign;
+				}else{
+					top = undefined;
+				}
+			}
+
+			DOM.setBounds(r.node, xbase + left, top, r.width, r.height, 0);
+			left += r.width + MBP.marginRight + gap;
+		}
+		
+		return true;
+		
+	}.$override(this.doLayout);
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Item#destroy
+	 */
+	thi$.destroy = function(){
+		if(!this.isStateless()){
+			this.detachEvent("mouseover", 4, this, _onHover);
+			this.detachEvent("mouseout", 4, this, _onHover);
+
+			this.detachEvent("mousedown", 4, this, _onmousedown);
+			this.detachEvent("mouseup", 4, this, _onmouseup);
+		}
+		
+		arguments.callee.__super__.apply(this, arguments);
+
+	}.$override(this.destroy);
+
+	var _onHover = function(e){
+		if(e.getType() === "mouseover"){
+			if(this.contains(e.toElement, true)
+			   && !this.isHover()){
+				this.setHover(true);
+			}
+		}else{
+			if(!this.contains(e.toElement, true)
+			   && this.isHover()){
+				this.setHover(false);
+			}
+		}
+	};
+
+	var _onmousedown = function(e){
+		this._local.mousedown = true;
+
+		e.setEventTarget(this);
+		this.notifyPeer(this.msgType(), e);
+	};
+
+	var _onmouseup = function(e){
+		if(this._local.mousedown === true){
+			delete this._local.mousedown;
+
+			if(this.def.toggle === true){
+				this.setTriggered(!this.isTriggered());
+			}
+
+			e.setEventTarget(this);
+			this.notifyPeer(this.msgType(), e);
+		}
+	};
+
+	var _preDef = function(def, R){
+		var m = def.model, iconImage, sign, dname;
+		if(!Class.isObject(m)){
+			return def;
+		}
+
+		iconImage = m.img || m.iconImage;
+		if(iconImage){
+			def.iconImage = iconImage;
+		}
+
+		sign = m.sign;
+		if(Class.isObject(sign)){
+			def.sign = sign;	
+		}
+
+		dname = m.dname;
+		if(Class.isValid(dname)){
+			if(def.useInput === true){
+				def.inputText = dname;
+				def.labelText = null;
+			}else{
+				def.inputText = null;
+				def.labelText = dname;
+			}
+		}
+
+		def.checked = (m.marked === true);
+
+		return def;
+	};
+
+	thi$._init = function(def, Runtime, view){
+		if(typeof def !== "object") return;
+
+		def.classType = def.classType || "js.swt.HItem";
+		def.className = def.className || "jsvm_item";
+		def.stateless = def.stateless || false;
+
+		var layout = def.layout = def.layout || {};
+		if(!Class.isNumber(layout.align_x)){
+			layout.align_x = 0.0;
+		}
+
+		if(!Class.isNumber(layout.align_y)){
+			layout.align_y = 0.5;
+		}
+
+		def = _preDef.call(this, def, Runtime);
+		arguments.callee.__super__.apply(this, arguments);
+
+		if(def.stateless !== true){
+			this.attachEvent("mouseover", 4, this, _onHover);
+			this.attachEvent("mouseout", 4, this, _onHover);
+
+			this.attachEvent("mousedown", 4, this, _onmousedown);
+			this.attachEvent("mouseup", 4, this, _onmouseup);
+		}
+
+		// For compatible with the old DItem
+		this.model = def.model || {};
+
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
+
+}.$extend(js.awt.Item);
+
+/**
+
+ Copyright 2010-2013, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ * 
+ * File: List.js
+ * Create: 2012/04/28 01:47:36
+ * Author: Pan Mingfa
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.swt");
+
+$import("js.swt.ListItem");
+
+/**
+ * @fileOverview Define the List. A <em>List</em> is a item container.
+ */
+
+/** 
+ * @class js.swt.List
+ * @extends js.awt.Container
+ * 
+ * @constructor Initialize the List.
+ * @param {Object} The definition of the List.
+ *
+ *        @example 
+ *        def: {
+ *            className: {String} required,
+ *            css: {String} optional
+ *            id: {String} optional,
+ *            container: {js.awt.Component} requied.
+ * 
+ *            multiEnable: {Boolean} Default is <em>false</em>, required,
+ *            multiByCheck: {Boolean} Default is false. When <em>multiEnable</em>
+ *                is true, if the <em>multiByCheck</em> is false, the "CTRL" and
+ *                "SHIFT" keys will be validation. Otherwise "CTRL" and "SHIFT" 
+ *                keys will be used and each item cannot be markable. 
+ *            useMarkerToggle: {Boolean} Default is false, optional. Indicate 
+ *                whether only when the marker of item is clicked, the item can
+ *                be selected. Other than selecting it by clicking any part of 
+ *                the item. When <em>multiByCheck</em> is false, it will be ignored.
+ * 
+ *            distinct: {Boolean} Default is false, required. Indicate whether item
+ *                of List is distinct. 
+ *            searchEnable: {Boolean} Default is false, required. Indicate whether 
+ *                the List can support quick search. 
+ *
+ *            lazy: {Boolean} Default is false, optional. Indicate whether all 
+ *                items should be loaded lazily. That is to say, all items will 
+ *                be added and removed asynchronously.
+ *  
+ *            itemDefs: {Array} Definitions of items. If it is specified, the itemModels 
+ *               will be ignored. 
+ *            itemModels: {Array} Models of items, optional. Its structure is as follow:
+ *                [
+ *                  {dname: xxx, img: xxx (Optional), value},
+ *                  ......
+ *                  {dname: xxx, img: xxx (Optional), value}     
+ *                ] 
+ *        }
+ * 
+ *  Attention: 
+ *      only when <em>multiEnable</em> is <em>true</em>, the <em>multiByCheck</em> 
+ *      can take effect. Otherwise it will be ignored. In addition, only when <em>
+ *      multiByCheck</em> takes effect, the <em>useMarkerToggle</em> can take effect.
+ */ 
+js.swt.List = function(def, runtime){
+    var CLASS = js.swt.List, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    CLASS.EVT_READY = "Ready";
+    CLASS.EVT_ACK_ITEMSADDED = "ItemsAdded";
+    CLASS.EVT_ACK_ITEMSREMOVED = "ItemsRemoved";
+    
+    CLASS.EVT_ITEMSELECTED = "ItemSelected";
+    CLASS.EVT_ITEMCLICKED = "ItemClicked";
+    CLASS.EVT_ITEMMOVED = "ItemMoved";
+
+    var Class = js.lang.Class, Event = js.util.Event, 
+    DOM = J$VM.DOM, System = J$VM.System,
+
+    LinkedList = js.util.LinkedList, 
+    ListItem = js.swt.ListItem;
+    
+    thi$.item = function(uuid){
+        return this._local.cache[uuid];
+    };
+    
+    /**
+     * Returen true if items can ack their follower's interaction required,
+     * otherwise return false.
+     */
+    thi$.isReady = function(){
+        return this._isReady;
+    };
+    
+    var _preSelect = function(item){
+        if(!item.isSelected()){
+            return;
+        }
+        
+        var uuid = item.uuid();
+        if(this.multiEnable 
+           || (this._selectedItems.length == 0)){
+            this._selectedItems.addLast(uuid);   
+        }else{
+            item.setSelected(false);
+        }
+    };
+    
+    /**
+     * Add a list item to the list.
+     * 
+     * @param {js.swt.ListItem} item The item to add.
+     * @param {Boolean} ack Indicate whether all items are added to the list 
+     *        and they can ack their follower's interaction required.
+     * 
+     * @param {Boolean} force Indicate whether the ack need be done however
+     *        the specified item was/wasn't be added literally.
+     * 
+     */
+    thi$.addItem = function(item, ack, force){
+        this.insertItem(undefined, item, ack, force);
+    };
+
+    /**
+     * Insert the specified item to the list at the specified index position.
+     * 
+     * @param {Number} index The specified index position to insert. If a negative
+     *        number is given, it is treated as "length + index".
+     * @param {js.swt.ListItem} item The specified item to add.
+     * @param {Boolean} ack Indicate whether all items are added to the list 
+     *        and they can ack their follower's interaction required.
+     * 
+     * @param {Boolean} force Indicate whether the ack need be done however
+     *        the specified item was/wasn't be added literally.
+     */
+    thi$.insertItem = function(index, item, ack, force){
+        if(!item || !(item instanceof ListItem) 
+           || (this.distinct && this.contains(item.def))){
+            // Maybe some item has been added before the last one
+            if(ack === true && force === true){ 
+                _sendAck.call(this, "ACK_ADD", true);
+            }   
+            
+            return;
+        }
+
+        var U = this._local, items = this._items, len = items.length, 
+        ref, uuid = item.uuid();
+
+        if(Class.isNumber(index)){
+            if(index < 0){
+                index = len + index;
+            }
+
+            if(index > len){
+                index = len;
+            }
+
+            if(index < 0){
+                index = 0;
+            }
+
+            ref = U.cache[items[index]];
+        }
+
+        item.setPeerComponent(this);
+        DOM.insertBefore(item.view, ref ? ref.view : null, this.listView);
+
+        if(ref){
+            items.add(index, uuid);
+        }else{
+            items.addLast(uuid);
+        }
+        U.cache[uuid] = item;
+        
+        // Rectify the item's selected state
+        _preSelect.call(this, item);
+        
+        // Check whether the current item searched
+        this._canBeSearched = this._canBeSearched && (item.isSearchable());
+        
+        if(ack === true){
+            // Re-calculate the size of list view
+            // _invalidateSize.call(this);
+            // _setAck.call(this, "ACK_ADD");
+
+            _sendAck.call(this, "ACK_ADD", true);
+        }
+    };
+    
+    var _setItems = function(items, append){
+        // When there is nothing to set, we will remove all old items
+        // and then nofity.
+        var len = items ? items.length : 0;
+        if(!append){
+            this._isReady = false;
+            this.wipe();
+            
+            if(len == 0){
+                _sendAck.call(this, "ACK_ADD", true);
+            }
+        }
+
+        if(len == 0){
+            return;
+        }
+        
+        var i, item, isLast = false;
+        for(i = 0; i < len; i++){
+            item = items[i];
+            isLast = (i == len - 1);
+            
+            if(this.lazy){
+                this.addItem.$delay(this, 0, item, isLast, isLast);
+            }else{
+                this.addItem(item, isLast, isLast);
+            }
+        }
+    };
+    
+    /**
+     * Replace all old items with the new items.
+     * 
+     * @param {Array} items Objects of js.swt.ListItem to add
+     */
+    thi$.setItems = function(items){
+        _setItems.call(this, items, false);
+    };
+    
+    /**
+     * Add the specified items to the list.
+     * 
+     * @param {Array} items Objects of js.swt.ListItem to add
+     */
+    thi$.addItems = function(items){
+        _setItems.call(this, items, true);
+    };
+    
+    // {dname: xxx, value: xxx}
+    var _createItemDef = function (model) {
+        var itemDef = {
+            markable: this.multiByCheck,
+            showTips: this.showTips,
+            toggle: false,
+            model: model
+        };
+
+        return itemDef;
+    };
+
+    /**
+     * Insert item to the specified position of current list with the given definition.
+     * 
+     * @link #insertItem
+     */
+    thi$.insertItemByDef = function(index, itemDef, ack, force){
+        if(!itemDef || (this.distinct && this.contains(itemDef))){
+            // Maybe some item has been added before the last one
+            if(ack === true && force === true){ 
+                _sendAck.call(this, "ACK_ADD", true);
+            }
+            
+            return null;
+        }
+        
+        var M = this.def, itemClassName = M.itemClassName;
+        if(!itemDef.className && itemClassName){
+            itemDef.className = itemClassName;
+        }
+        
+        // Maybe needn't to set with as 100%
+        itemDef.css = "position:relative;overflow:visible;"
+            + "white-space:nowrap;";
+        
+        if(this.multiEnable){
+            itemDef.markable = (this.multiByCheck === true);
+            itemDef.hoverForSelected = false;
+        }else{
+            itemDef.markable = false;
+            itemDef.hoverForSelected = (M.hoverForSelected === true);
+        }
+        
+        var item = new ListItem(itemDef, this.Runtime());
+        this.insertItem(index, item, ack, force);
+
+        return item;
+    };
+
+
+    /**
+     * Add one item to List with the specified definition.
+     * 
+     * @link #insertItemByDef
+     */
+    thi$.addItemByDef = function(itemDef, ack, force){
+        return this.insertItemByDef(undefined, itemDef, ack, force);
+    };
+
+    /**
+     * Insert item to the specified position of the List with the given model.
+     * 
+     * @link #insertItemByDef
+     */
+    thi$.insertItemByModel = function(index, model, ack){
+        if(!model){
+            return null;
+        }
+
+        var itemDef = _createItemDef.call(this, model);
+        return this.insertItemByDef(index, itemDef, ack);
+    };
+
+    /**
+     * Add one item to List with the specified model.
+     * 
+     * @link #insertItemByModel
+     */
+    thi$.addItemByModel = function(model, ack){
+        return this.insertItemByModel(undefined, model, ack);
+    };
+
+    var _setItemsByModel = function(models, append){
+        // When there is nothing to set, we will remove all old items
+        // and then nofity.
+        var len = models ? models.length : 0;
+        if(!append){
+            this._isReady = false;
+            this.wipe();
+            
+            if(len == 0){
+                _sendAck.call(this, "ACK_ADD", true);
+            }
+        }
+        
+        if(len == 0){
+            return;            
+        }
+        
+        var i, model, def, isLast = false;
+        for(i = 0; i < len; i++){
+            model = models[i];
+            isLast = (i == len - 1);
+            
+            if(!model){
+                throw "Unsupport item's model " + String(model);
+            }
+            
+            def = _createItemDef.call(this, model);
+            if(this.lazy){
+                this.addItemByDef.$delay(this, 0, def, isLast, isLast);
+            }else{
+                this.addItemByDef(def, isLast, isLast);
+            }
+        }
+    };
+
+    /**
+     * Replaces all old items with new ones by the specified models.
+     * 
+     * @param {Array} models Models of items that will be added.
+     *        
+     *        @example
+     *        [
+     *            {dname: xxx, img: xxx (Optional), value},
+     *            ......
+     *            {dname: xxx, img: xxx (Optional), value}   
+     *        ]
+     */
+    thi$.setItemsByModel = function(models){
+        _setItemsByModel.call(this, models, false, false);
+    };
+
+    /**
+     * Add some new items to the List with the specified models
+     * 
+     * @param {Array} models Models of items that will be added.
+     *        
+     *        @example
+     *        [
+     *            {dname: xxx, img: xxx (Optional), value},
+     *            ......
+     *            {dname: xxx, img: xxx (Optional), value}   
+     *        ]
+     */
+    thi$.addItemsByModel = function(models){
+        _setItemsByModel.call(this, models, true, false);
+    };
+
+    var _setItemsByDef = function(defs, append){
+        // When there is nothing to set, we will remove all old items
+        // and then nofity.
+        var len = defs ? defs.length : 0;
+        if(!append){
+            this._isReady = false;
+            this.wipe();
+            
+            if(len == 0){
+                _sendAck.call(this, "ACK_ADD", true);
+            }
+        }
+
+        if(len == 0){
+            return;
+        }
+
+        var def, isLast = false;
+        for(var i = 0; i < len; i++){
+            def = defs[i];
+            isLast = (i == len - 1);
+            
+            if(!def){
+                throw "Unsupport item's difinition " + String(def);
+            }
+            
+            if(this.lazy){
+                this.addItemByDef.$delay(this, 0, def, isLast, isLast);
+            }else{
+                this.addItemByDef(def, isLast, isLast);
+            }
+        }
+    };
+    
+    /**
+     * Replace all old items with new ones by the specified definitions.
+     * 
+     * @param {Array} defs Definitions of items that will be added.
+     */
+    thi$.setItemsByDef = function(defs){
+        _setItemsByDef.call(this, defs, false, false);      
+    };
+    
+    /**
+     * Add some new items to the list with the specified definitions.
+     * 
+     * @param {Array} defs Definitions of items that will be added.
+     */ 
+    thi$.addItemsByDef = function(defs){
+        _setItemsByDef.call(this, defs, true, false);
+    };
+    
+    /**
+     * Remove a item from the List.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @param {js.swt.ListItem} item A item that will be removed.
+     * @param {Boolean} ack Indicate whether some acked behaviors will be 
+     *        done after the item is removed.
+     */ 
+    thi$.remove = function(item, ack){
+        if(item && (typeof item == "object")){
+            var uuid = item.uuid();
+            this._selectedItems.remove(uuid);
+            this._items.remove(uuid);
+            
+            delete this._local.cache[uuid];
+            item.removeFrom(this.listView);
+            
+            if(typeof this.onItemRemoved == "function"){
+                this.onItemRemoved(item);
+            }
+
+            // Destroy the removed item
+            item.destroy(); 
+            item = null;
+            
+            if(ack === true){
+                // Re-calculate the size of list view
+                // _invalidateSize.call(this);
+                // _setAck.call(this, "ACK_REMOVE");
+
+                _sendAck.call(this, "ACK_REMOVE", true);
+            }
+        }
+    };
+    
+    /**
+     * Remove some items from the List.
+     * 
+     * @param {Array} items Items that will be removed.
+     * @link js.swt.List#remove
+     */ 
+    thi$.removeItems = function(items){
+        var len = items ? items.length : 0;
+        if(len <= 0){
+            return;
+        }
+        
+        (function(len, item, idx){
+             if(this.lazy){
+                 this.remove.$delay(this, 0, item, (idx == len - 1));
+             }else{
+                 this.remove(item, (idx == len - 1));
+             }
+         }).$forEach(this, items, len);
+    };
+    
+    /**
+     * Remove all items of the List.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     */ 
+    thi$.removeAll = function(){
+        this.wipe();
+        
+        // Re-calculate the size of list view
+        // _invalidateSize.call(this);
+        // _setAck.call(this, "ACK_REMOVE");
+
+        _sendAck.call(this, "ACK_REMOVE", true);
+    };
+    
+    var _setAck = function(signal){
+        switch(signal){
+        case "ACK_ADD":
+            var ready = this._isReady;
+            this._isReady = true;
+            
+            this.fireEvent(
+                new Event(CLASS.EVT_ACK_ITEMSADDED, undefined, this));
+            if(!ready){
+                this.fireEvent(new Event(CLASS.EVT_READY, undefined, this));
+            }
+            
+            _layout.call(this);
+            break;
+            
+        case "ACK_REMOVE":
+            this.fireEvent(
+                new Event(CLASS.EVT_ACK_ITEMSREMOVED, undefined, this));
+            _layout.call(this);
+            break;
+            
+        default:
+            break;
+        };
+    };
+    
+    var _sendAck = function(signal, invalid){
+        // Re-caculate the size of list view
+        if(invalid === true){
+            _invalidateSize.call(this);
+        }
+        
+        _setAck.call(this, signal);
+    };
+
+    /**
+     * Return the number of items in the current list.
+     * 
+     * @return {Number}
+     */
+    thi$.getItemsCount = function(){
+        return this._items.length;
+    };
+
+    /**
+     * Return the item specified by the given index position.
+     * 
+     * @param {Number} index The index of the item to return.
+     * 
+     * @return {js.swt.ListItem}
+     */
+    thi$.getItemAt = function(index){
+        return this._local.cache[this._items[index]];
+    };
+
+    /**
+     * Return the current index position of the given item.
+     * 
+     * @param {js.swt.ListItem} item
+     * 
+     * @return {Number}
+     */
+    thi$.getItemIndex = function(item){
+        return this._items.indexOf(item.uuid());
+    };
+
+    /**
+     * Judge whether the specified item is the first one.
+     * 
+     * @param {js.swt.ListItem} item
+     * @return {Boolean}
+     */
+    thi$.isFirstItem = function(item){
+        var items = this._items;
+        return items.indexOf(item.uuid()) === 0;
+    };
+
+    /**
+     * Judge whether the specified item is the last one.
+     * 
+     * @param {js.swt.ListItem} item
+     * @return {Boolean}
+     */
+    thi$.isLastItem = function(item){
+        var items = this._items;
+        return items.indexOf(item.uuid()) === (items.length - 1);
+    };
+
+    /**
+     * Find and return the previous sibling item of the specified item.
+     * 
+     * @param {js.swt.ListItem} item
+     * 
+     * @return {js.awt.ListItem}
+     */
+    thi$.getPreSiblingItem = function(item){
+        var idx = this.getItemIndex(item);
+        if(idx <= 0){
+            return null;
+        }
+
+        return this.getItemAt(idx - 1);        
+    };
+
+    /**
+     * Find and return the next sibling item of the the specified item
+     * 
+     * @param {js.swt.ListItem} item
+     * 
+     * @return {js.swt.ListItem}
+     */
+    thi$.getNextSiblingItem = function(item){
+        var items = this._items, idx = this.getItemIndex(item);
+        if(idx < 0 || idx >= items.length - 1){
+            return null;
+        }
+        
+        return this.getItemAt(idx + 1);
+    };
+
+    /**
+     * Move the specified item from one index to another.
+     *
+     * @param {Number} from Current index of a row to move.
+     * @param {Number} to The target index to move in current view (before move).
+     */
+    thi$.moveItem = function(from, to){
+        var cache = this._local.cache, items = this._items, 
+        len = items.length, fitem, titem;
+        if(to > len){
+            to = len;
+        }
+
+        if(from == to || from === to - 1){
+            return;
+        }
+
+        fitem = cache[items[from]];
+        titem = cache[items[to]];
+        if(!fitem){
+            return;
+        }
+
+        items.remove0(from);
+        if(from < to){
+            --to;            
+        }
+
+        if(titem){
+            items.add(to, fitem.uuid());
+            DOM.insertBefore(fitem.view, titem.view, this.listView);
+        }else{
+            items.addLast(fitem.uuid());
+            DOM.appendTo(fitem.view, this.listView);
+        }
+
+        // Notify about the item moving
+        this.fireEvent(new Event(CLASS.EVT_ITEMMOVED, fitem, fitem));
+    };
+
+    /**
+     * Shift the item specified by the given index up.
+     *
+     * @param {Number} index The index of the specified item to shift.
+     * 
+     * @link #moveItem
+     */
+    thi$.shiftUpItemAt = function(index){
+        if(index > 0){
+            this.moveItem(index, index - 1);
+        }
+    };
+
+    /**
+     * Shift the specified item up.
+     *
+     * @param {js.swt.ListItem} item
+     * 
+     * @link #getItemIndex
+     * @link #moveItem
+     */
+    thi$.shiftUpItem = function(item){
+        var index = this.getItemIndex(item);
+        if(index !== -1){
+            this.shiftUpItemAt(index);
+        }
+    };
+
+    /**
+     * Shift the item specified by the given index down.
+     *
+     * @param {Number} index The index of the specified item to shift.
+     * 
+     * @link #moveItem
+     */
+    thi$.shiftDownItemAt = function(index){
+        var len = this._items.length;
+        if(index < len - 1){
+            this.moveItem(index + 1, index);
+        }
+    };
+
+    /**
+     * Shift the specified item up.
+     *
+     * @param {js.swt.ListItem} item
+     * 
+     * @link #getItemIndex
+     * @link #moveItem
+     */
+    thi$.shiftDownItem = function(item){
+        var index = this.getItemIndex(item);
+        if(index !== -1){
+            this.shiftDownItemAt(index);
+        }
+    };
+    
+    /**
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     */ 
+    thi$.getItemsByModel = function(items, model){
+        if(!model || (typeof model !== "object"))
+            return null;
+        
+        var finds = [], 
+        len = items.length, 
+        item;
+        for(var i = 0; i < len; i++){
+            item = items[i];
+            if(item.isMine(model)){
+                finds.push(item);
+            }
+        } 
+        
+        return finds;   
+    };
+
+    /**
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     */ 
+    thi$.getItemsByDname = function(items, dname){
+        if(typeof dname !== "string")
+            return null;
+        
+        var finds = [], 
+        len = items.length, 
+        item, v;
+        for(var i = 0; i < len; i++){
+            item = items[i];
+            v = item && item.model ? item.model.dname : null;
+            if(v && dname === v){
+                finds.push(item);
+            }
+        } 
+        
+        return finds;
+    };
+
+    /**
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     */ 
+    thi$.getItemsByValue = function(items, value){
+        if(value == undefined || value == null)
+            return null;
+        
+        var finds = [], 
+        len = items.length, 
+        item, v;
+        for(var i = 0; i < len; i++){
+            item = items[i];
+            v = item ? item.getValue() : null;
+            if(value === v){
+                finds.push(item);
+                
+                if(this.distinct){
+                    return finds;
+                }
+            }
+        } 
+        
+        return finds;
+    };
+
+    /**
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @link js.awt.Container#contains
+     */ 
+    thi$.contains = function(itemDef){
+        var m = itemDef ? itemDef.model : undefined;
+        if(!m || (typeof m !== "object")){
+            return false;
+        }
+        
+        var len = this._items ? this._items.length : 0,
+        item;
+        for(var i = 0; i < len; i++){
+            item = this.item(this._items[i]);
+            if(item.isMine(m)){
+                return true;
+            }
+        }
+        
+        return false;
+    };
+    
+    // The result doesn't keep the order
+    var _getInfoByUUids = function(ids, prop, distinct){
+        var len = ids ? ids.length : 0, 
+        rst = LinkedList.$decorate([]), item, m, v;
+        for(var i = 0; i < len; i++){
+            item = this.item(ids[i]);
+            
+            switch(prop){
+            case "def":
+                rst.addLast(item.def);
+                break;
+            case "model":
+                m = item ? item.model : undefined;
+                if(m && (distinct !== true 
+                         || !CLASS.isModelIn(m, rst))){
+                    rst.addLast(m);
+                }
+                break;
+            case "value":
+                m = item ? item.model : undefined;
+                v = m ? m.value : undefined;
+                if(v && (distinct !== true 
+                         || !rst.contains(v))){
+                    rst.addLast(v);
+                }
+                break;
+            default:
+                rst.addLast(item);
+                break;
+            }
+        }
+        
+        return rst;
+    };
+    
+    // The result keep the order
+    var _getInfoByUUids0 = function(ids, prop, distinct){
+        if(!Class.isArray(ids) || ids.length == 0){
+            return [];
+        }
+        LinkedList.$decorate(ids);
+        
+        var len = this._items ? this._items.length : 0,
+        rst = LinkedList.$decorate([]), 
+        uuid, item, m, v, idx;
+        for(var i = 0; i < len; i++){
+            uuid = this._items[i];
+            if(!ids.contains(uuid)){
+                continue;
+            }
+            
+            item = this.item(uuid);
+            switch(prop){
+            case "def":
+                rst.addLast(item.def);
+                break;
+            case "model":
+                m = item ? item.model : undefined;
+                if(m && (distinct !== true 
+                         || !CLASS.isModelIn(m, rst))){
+                    rst.addLast(m);
+                }
+                break;
+            case "value":
+                m = item ? item.model : undefined;
+                v = m ? m.value : undefined;
+                if(v && (distinct !== true 
+                         || !rst.contains(v))){
+                    rst.addLast(v);
+                }
+                break;
+            case "index":
+                idx = i;
+                if(distinct !== true 
+                   || !rst.contains(idx)){
+                    rst.addLast(idx);
+                }
+                break;
+            default:
+                rst.addLast(item);
+                break;
+            }
+        }
+        
+        return rst;
+    };
+    
+    /**
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @return a <em>js.util.LinkedList</em> which contained all
+     *         items of the List.  
+     */
+    thi$.getAll = function(){
+        var len = this._items ? this._items.length : 0, 
+        rst = [];
+        for(var i = 0; i < len; i++){
+            rst.push(this.item(this._items[i]));
+        }
+        
+        return rst;
+    };   
+    
+    /**
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @return {js.util.LinedList} All items of the List.  
+     */
+    thi$.getItems = function(){
+        return this.getAll();
+    };
+    
+    /**
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @return {js.util.LinedList} All items' definitions of the List.  
+     */
+    thi$.getItemDefs = function(){
+        return _getInfoByUUids.call(this, this._items, "def");
+    };
+    
+    /**
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @return {js.util.LinkedList} All items' model of the List.  
+     */
+    thi$.getItemModels = function(){
+        return _getInfoByUUids.call(this, this._items, "model");
+    };
+    
+    /**
+     * @param {Boolean} isOrdered Indicate whether the result should keep the order.
+     * 
+     * @return {js.util.LinkedList} All selected items of the List. 
+     */
+    thi$.getSelectedItems = function(isOrdered){
+        var rst;
+        if(isOrdered === true){
+            rst = _getInfoByUUids0.call(this, this._selectedItems);
+        }else{
+            rst = _getInfoByUUids.call(this, this._selectedItems);
+        }
+        
+        return rst;
+    };
+    
+    /**
+     * @param {Boolean} isOrdered Indicate whether the result should keep the order.
+     * 
+     * @return {js.util.LinkedList} The defs of all selected items in the List.  
+     */
+    thi$.getSelectedDefs = function(isOrdered){
+        var rst;
+        if(isOrdered === true){
+            rst = _getInfoByUUids0.call(this, this._selectedItems, "def");
+        }else{
+            rst = _getInfoByUUids.call(this, this._selectedItems, "def");
+        }
+        
+        return rst; 
+    };
+    
+    /**
+     * @param {Boolean} isOrdered Indicate whether the result should keep the order.
+     * 
+     * @return {js.util.LinkedList} The models of all selected items in the List.  
+     */
+    thi$.getSelectedModels = function(isOrdered){
+        var rst;
+        if(isOrdered === true){
+            rst = _getInfoByUUids0.call(this, this._selectedItems, "model", true);
+        }else{
+            rst = _getInfoByUUids.call(this, this._selectedItems, "model", true);
+        }
+        
+        return rst;
+    };
+    
+    /**
+     * @return {js.util.LinkedList} The indexes of all selected items in the List.  
+     */
+    thi$.getSelectedIndexes = function(){
+        return _getInfoByUUids0.call(this, this._selectedItems, "index", true);
+    };
+
+    /**
+     * @param {Boolean} isOrdered Indicate whether the result should keep the order.
+     * 
+     * @return {js.util.LinkedList} The values of all selected items in the List.   
+     */    
+    thi$.getSelectedValues = function(isOrdered){
+        var rst;
+        if(isOrdered === true){
+            rst = _getInfoByUUids0.call(this, this._selectedItems, "value", true);
+        }else{
+            rst = _getInfoByUUids.call(this, this._selectedItems, "value", true);
+        }
+        
+        return rst;
+    };
+
+    thi$.wipe = function(){
+        if(!this.listView){
+            return;
+        }
+        
+        this._local.cache = {};
+        this._selectedItems = LinkedList.$decorate([]);
+        this._items = LinkedList.$decorate([]);
+        this.listView.innerHTML = "";
+        
+        // All items are new, all sizes need be ajusted.
+        delete this._contentSize;
+        
+        if(!this.isPreferredSizeSet){
+            this.def.prefSize = undefined;    
+        }
+    };
+    
+    var _measure = function(){
+        var cv = this.listView, w, h;
+        cv.style.overflow = "hidden";
+        cv.style.width = "0px";
+        cv.style.height = "0px";
+        DOM.appendTo(cv, document.body);
+        
+        w = cv.scrollWidth;
+        h = cv.scrollHeight;
+
+        //DOM.remove(cv);
+        cv.style.overflow = "visible";
+        cv.style.width = w + "px";
+        cv.style.height = h + "px";
+        
+        DOM.appendTo(cv, this.view);
+        
+        this._contentSize = this._contentSize || {};
+        this._contentSize.width = w;
+        this._contentSize.height = h;
+        
+        System.log.println("List Size:" + JSON.stringify(this._contentSize));
+    };
+    
+    /*
+     * Attention:
+     * 
+     * This method should be invoked after the list view is appended to the DOM
+     * tree. Otherwise, it will get the inaccurate values.
+     */
+    var _measure$ = function(){
+        var cv = this.listView, w, h;
+        cv.style.overflow = "hidden";
+        cv.style.width = "0px";
+        cv.style.height = "0px";
+
+        w = cv.scrollWidth;
+        h = cv.scrollHeight;
+
+        cv.style.overflow = "visible";
+        cv.style.width = w + "px";
+        cv.style.height = h + "px";
+        
+        this._contentSize = this._contentSize || {};
+        this._contentSize.width = w;
+        this._contentSize.height = h;
+    };
+    
+    /* 
+     * When items are added or removed, the size of the list view 
+     * will be invalidated and must be computed.
+     * If the list is appended to the DOM tree, the preferred size
+     * could be re-calculated if need.
+     */
+    var _invalidateSize = function(items){
+        this._isLayoutDirty = true;
+        
+        // Calculate the content size of list view        
+        _measure.call(this);
+        
+        // Only when the list is appended to DOM tree, 
+        // the calcaulation is significative.        
+        if(this.isDOMElement() && !this.isPreferredSizeSet){
+            this.def.prefSize = undefined;
+            this.getPreferredSize();
+        }
+    };
+    
+    var _calPreferredSize = function(){
+        if(!this._contentSize){
+            _measure.call(this);
+        }
+        
+        var s = this._contentSize, 
+        cw = s ? s.width : undefined,
+        ch = s ? s.height : undefined, 
+        d = this.getBounds(), mbp = d.MBP, 
+        w = d.width, h = d.height;
+        
+        w = !isNaN(cw) ? (cw + mbp.BPW) : w;
+        h = !isNaN(ch) ? (ch + mbp.BPH) : h;
+        
+        // That is no reason to add 2px for the preferred size.
+        // However if didn't add these 2px, that will be cause the
+        // scroll bar in IE 8.
+        //return {width: w, height: h};
+        return {width: w + 2, height: h + 2};
+    };
+    
+    thi$.getContentSize = function(){
+        if(!this._contentSize){
+            _measure.call(this);
+        }
+        
+        return this._contentSize;
+    };
+    
+    thi$.getPreferredSize = function(){
+        if(this.def.prefSize == undefined){
+            var s = _calPreferredSize.call(this);
+            this.setPreferredSize(s.width, s.height);
+        }
+
+        return this.def.prefSize;
+
+    }.$override(this.getPreferredSize);
+    
+    var _layoutListView = function(w, h, box){
+        box = box || this.getBounds();
+        
+        var mbp = box.MBP, 
+        avaiW = w - mbp.BPW,
+        avaiH = h - mbp.BPH;
+        
+        var cvSize = this._contentSize, cw, ch;
+        cw = (cvSize.width < avaiW) 
+            ? "100%" : (cvSize.width + "px");
+        ch = (cvSize.height < avaiH) 
+            ? "100%" : (cvSize.height + "px");
+        
+        this.listView.style.width = cw;
+        this.listView.style.height = ch;
+    };
+    
+    var _layout = function(w, h){ 
+        if(!this._isLayoutDirty || !this._isReady 
+           || !this.isDOMElement()){
+            return;
+        }
+
+        this._isLayoutDirty = false;
+        
+        var d = this.getBounds(), prefSize = this.getPreferredSize(),
+        maxSize = this.isMaximumSizeSet ? this.getMaximumSize() : null, 
+        minSize = this.isMinimumSizeSet ? this.getMinimumSize() : null;
+        
+        w = (!isNaN(w) && w > 0) ? w : (this.hauto ? prefSize.width : d.width);
+        h = (!isNaN(h) && h > 0) ? h : (this.vauto ? prefSize.height : d.height);
+        
+        if(minSize){
+            w = (!isNaN(minSize.width) && minSize.width > 0)
+                ? Math.max(w, minSize.width) : w;
+            h = (!isNaN(minSize.height) && minSize.height > 0) 
+                ? Math.max(h, minSize.height) : h;
+        }
+        
+        if(maxSize){
+            w = !isNaN(maxSize.width) ? Math.min(w, maxSize.width) : w;
+            h = !isNaN(maxSize.height) ? Math.min(h, maxSize.height) : h;
+        }
+        
+        // Sizing content view
+        _layoutListView.call(this, w, h, d);
+        
+        // Sizing List container
+        this.setSize(w, h); 
+    };
+    
+    thi$.onResized = function(){
+        this._isLayoutDirty = true;
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.onResized);
+    
+    thi$.onGeomChanged = function(){
+        this._isLayoutDirty = true;
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.onGeomChanged);
+    
+    thi$.doLayout = function(){
+        if(arguments.callee.__super__.apply(this, arguments)){
+            _layout.call(this);
+            return true;
+        }
+        
+        return false;
+        
+    }.$override(this.doLayout);
+    
+    /**
+     * Dispose the list and its items. If the <em>w/h</em> is/are specified, the
+     * outer size of current component will use those values regardless of the hauto
+     * and vauto. However, the container of items will always be autofit by items.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     */
+    thi$.dispose = function(w, h){
+        this._isLayoutDirty = true;
+        _layout.apply(this, arguments);            
+    };
+
+    /**
+     * Theoretically, whether the current list can be searched.
+     */
+    thi$.canBeSearched = function(){
+        return this._canBeSearched;
+    };
+
+    /**
+     * Enable / disable the search function of the list.
+     * 
+     * @param {Boolean} b
+     */ 
+    thi$.setSearchEnable = function(b){
+        var v = (b === true);
+        if(this.searchEnable === v)
+            return;
+        
+        this.searchEnable = v;
+        if(this.searchEnable){
+            this.searcher = this.searcher 
+                || new (Class.forName("js.swt.Searcher"))(this, this.def.searchOptions);    
+        }else{
+            if(this.searcher){
+                this.searcher.destroy();
+            }
+            
+            this.searcher = null;
+        }
+    };
+    
+    thi$.quickSearch = function(keyword, options){
+        if(this.searcher && (typeof keyword === "string")){
+            this.searcher.search(keyword, options);
+        }
+    };
+    
+    thi$.restore = function(){
+        if(this.searcher){
+            this.searcher.restore();
+        }
+    };
+    
+    var _selectItems = function(items){
+        var len = items ? items.length : 0;
+        if(len == 0)
+            return;
+        
+        var item;
+        for(var i = 0; i < len; i++){
+            item = items[i];
+            this.selectItem(item);
+        }
+    };
+    
+    /**
+     * Select the given item.
+     * 
+     * @param {js.swt.ListItem} item The item to select.
+     */
+    thi$.selectItem = function(item){
+        var uuid = item ? item.uuid() : undefined;
+        if(uuid && !this._selectedItems.contains(uuid)){
+            item.setSelected(true);
+            this._selectedItems.addLast(uuid);
+        }
+    };
+    
+    var _onItemSelected = function(arg){
+        this.fireEvent(new Event(CLASS.EVT_ITEMSELECTED, arg, this));
+        
+        // @deprecated
+        if(typeof this.onSelected === "function"){
+            this.onSelected(arg);
+        }
+    };
+
+    /**
+     * Select all items indicated by given values.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @param {Array} values The given values to specify items to select. An 
+     *        item whose value equals with one of values will be selected.
+     * @param {Boolean} callback Optional. Indicate whether need to notify.
+     */
+    thi$.setSelectedValues = function(values, callback){
+        var len = values ? values.length : 0;
+        if(len == 0){
+            return;
+        }
+        
+        // Unselect all
+        this.unselectAll();
+        
+        var cnt = this.multiEnable ? len : 1, value, items;
+        for(var i = 0; i < cnt; i++){
+            value = values[i];
+            items = this.getItemsByValue(this.getItems(), value);
+            
+            _selectItems.call(this, items);
+        }
+        
+        if(callback){
+            _onItemSelected.call(this, arguments[2]);
+        }
+    };
+
+    /**
+     * Select all items indicated by given indexes.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @param {Array} indexes The given indexes to select. Each element indicate
+     *        an item which need be selected.    
+     * @param {Boolean} callback Optional. Indicate whether need to notify.
+     */    
+    thi$.setSelectedIndexes = function(indexes, callback){
+        var len = indexes ? indexes.length : 0;
+        if(len == 0){
+            return;
+        }
+        
+        // Unselect all
+        this.unselectAll();
+
+        var cnt = this.multiEnable ? len : 1,
+        item, items = [];
+        for(var i = 0; i < cnt; i++){
+            item = this.item(this._items[indexes[i]]);
+            items.push(item);
+        }
+        
+        _selectItems.call(this, items);
+        
+        if(callback){
+            _onItemSelected.call(this, arguments[2]);
+        }
+    };
+
+    /**
+     * Select all given items.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @param {Array} items The given items to select, each of which need be 
+     *        selected.
+     * @param {Boolean} callback Optional. Indicate whether need to notify.
+     */
+    thi$.setSelectedItems = function(items, callback){
+        if(!items || items.length == 0)
+            return;
+        
+        // Unselect all
+        this.unselectAll();
+        
+        var temp = this.multiEnable ? items : [items[0]];
+        _selectItems.call(this, temp);
+        
+        if(callback){
+            _onItemSelected.call(this, arguments[2]);
+        }
+    };
+
+    /**
+     * Select all items in the list.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     */
+    thi$.selectAll = function(callback){
+        var len = this._items.length, item;
+        for(var i = 0; i < len; i++){
+            item = this.item(this._items[i]);
+            if(!item.isSelected()){
+                this.selectItem(item);
+            }
+        }
+        
+        if(callback === true){
+            _onItemSelected.call(this);
+        }
+    };
+
+    var _unselectItem = function(item) {
+        if(item){
+            item.setSelected(false);
+            this._selectedItems.remove(item.uuid());
+        }
+    };
+
+    /**
+     * Unselecte the given item.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     * 
+     * @param {js.swt.ListItem} item The specified item to select.
+     */
+    thi$.unselectItem = function(item){
+        if(item){
+            _unselectItem.call(this, item);
+        }
+    };
+
+    /**
+     * Make all items unselected.
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     */
+    thi$.unselectAll = function(callback){
+        var uuid, item;
+        while(this._selectedItems.length > 0){
+            uuid = this._selectedItems.getLast();
+            item = this.item(uuid);
+            
+            _unselectItem.call(this, item);
+        }
+        
+        if(callback === true){
+            _onItemSelected.call(this, arguments[1]);
+        }
+    };
+
+    /**
+     * Invert all selections:
+     *    selected --> unselected
+     *    unselected --> selected
+     * 
+     * Attention: 
+     * If the "lazy" of list definition is true, this method should be invoke
+     * when the "EVT_READY" or "EVT_ACK_ITEMSADDED" is listened/catched.
+     */
+    thi$.invertSelection = function(){
+        var len = this._items.length, item;
+        for(var i = 0; i < len; i++){
+            item = this.item(this._items[i]);
+            
+            if(item.isSelected()){
+                this.unselectItem(item);
+            }else{
+                this.selectItem(item);
+            }
+        }
+    };
+
+    /**
+     * Judge whether all the items in current list is selected.
+     * 
+     * @return {Boolean}
+     */
+    thi$.isAllSelected = function(){
+        var itemCnt = this._items.length,
+        selectedCnt = this._selectedItems.length;
+        
+        if (!this.multiEnable){
+            return false;
+        } else if (selectedCnt === itemCnt){
+            return true;
+        } else if (this.distinct && (selectedCnt !== itemCnt)){
+            return false;
+        } else {
+            var item;
+            for(var i = 0; i < itemCnt; i++){
+                item = this.item(this._items[i]);
+                if(!item.isSelected()){
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+    };
+
+    thi$.onStateChange = function(){
+        if(!this.container){
+            return;
+        }
+        
+        if(this.isEnabled()){
+            this.showCover(false);
+        }else{
+            this.showCover(true);
+        }
+    };
+
+    thi$.destroy = function(){
+        delete this._selectedItems;
+        delete this._items;
+        delete this._local.cache;
+        
+        if(this.searcher){
+            this.searcher.destroy();
+            delete this.searcher;
+        }
+        
+        DOM.remove(this.listView, true);
+        delete this.listView;
+        
+        arguments.callee.__super__.apply(this, arguments);
+        
+    }.$override(this.destroy);
+
+    var _select = function (listItem, ctrlKey, shiftKey){
+        if(!listItem){
+            return;
+        }
+        
+        if(this.multiEnable && ctrlKey){
+            if(listItem.isSelected()){
+                this.unselectItem(listItem);
+            }else{
+                this.selectItem(listItem);
+            }
+        }else if(this.multiEnable && shiftKey){
+            if(this._selectedItems.length == 0){
+                this.selectItem(listItem);
+            }else{
+                var fUUID = this._selectedItems.getLast(),
+                from = this._items.indexOf(fUUID),
+                to = this._items.indexOf(listItem.uuid()), 
+                step = (to - from) / Math.abs(to - from),
+                index, item;
+                for(var i = 1, cnt = Math.abs(to - from); i <= cnt; i++){
+                    index = from + step * i;
+                    
+                    item = this.item(this._items[index]);
+                    this.selectItem(item);    
+                }
+            }
+        }else{
+            this.unselectAll();
+            this.selectItem(listItem);
+        }
+    };
+
+    var _selectCheckableItem = function(item){
+        if(!item)
+            return;
+        
+        if(this.multiEnable){
+            if(item.isSelected()){
+                this.unselectItem(item);
+            }else{
+                this.selectItem(item);
+            }
+        }else{
+            this.unselectAll();
+            this.selectItem(item);
+        }
+    };
+    
+    thi$.showController = function(b, item){
+        if(!this.controller){
+            return;
+        }
+        
+        if(b){
+            this.controller.setAttribute("itemUUID", item.uuid());
+            this.controller.display(true);
+            
+            var vb = this.getBounds(), ib = item.getBounds(), 
+            s = this.controller.getPreferredSize(),
+            vOffset = (ib.height - s.height) * 0.5,
+            x = this.view.scrollLeft + (vb.clientWidth - s.width),
+            y = this.view.scrollTop + (ib.absY - vb.absY + vb.MBP.borderTopWidth) + vOffset;
+
+            this.controller.setBounds(x, y, s.width, s.height, 7);
+
+        }else{
+            this.controller.removeAttribute("itemUUID");
+            this.controller.display(false); 
+        }
+    };
+
+    var _onHover = function(e){
+        if(typeof this.onHovering == "function"){
+            this.onHovering();
+        }
+        
+        var from = e.fromElement, to = e.toElement,
+        fid = from ? from.uuid : "", tid = to ? to.uuid :"",
+        fitem = this._local.cache[fid], titem = this._local.cache[tid];
+        
+        if(fitem && fitem.isHover()){
+            if(to && this.controller 
+               && this.controller.contains(to, true)){
+                return; 
+            }
+            
+            fitem.setHover(false);
+            this.showController(false);
+        }
+        
+        if(titem && !titem.isHover()){
+            titem.setHover(true);
+            
+            if(titem.hasController()){
+                this.showController(true, titem);
+            }
+        }
+    };
+
+    var _onItemClicked = function(e){
+        var src = e.srcElement, uuid = src ? src.uuid : "",
+        item = this._local.cache[uuid];
+        
+        if(!item || !item.isEnabled()){
+            return;
+        }
+        
+        if (this.multiByCheck){
+            if(!this.useMarkerToggle || src === item.marker){
+                _selectCheckableItem.call(this, item);
+            }
+        } else {
+            _select.call(this, item, e.ctrlKey || false, 
+                         e.shiftKey || false);
+        }
+        
+        if(item){
+            this.fireEvent(new Event(CLASS.EVT_ITEMCLICKED, item, item));
+            
+            // @deprecated
+            if(typeof this.onClicked == "function"){
+                this.onClicked(item);
+            }
+        }
+    };
+
+    thi$.onItemEvent = function(e){
+        var type = e.getType();
+        switch(type){
+        case ListItem.OP_REMOVE:
+            this.remove(e.getItem());
+            break;
+
+        default:
+            break;
+        }
+    };
+    
+    var _onController = function(e){
+        var uuid = this.controller.getAttribute("itemUUID"),
+        item = this._local.cache[uuid], evt;
+        switch(e.getType()){
+        case "click":
+            evt = new Event("ClickController", 
+                            {event: e, item: item}, this.controller);
+            this.notifyPeer("js.swt.event.ControllerEvent", evt);
+            break;
+        case "mouseout":
+            if(item && item.isHover()){
+                item.setHover(false);
+                this.showController(false);
+            }
+            break;
+        default:
+            break;
+        }
+    };
+
+    var _createController = function(def, Runtime){
+        var cDef = def.controller, clz, ctrl;
+        if(cDef && cDef.classType){
+            ctrl = new (Class.forName(cDef.classType))(cDef, Runtime);
+            ctrl.applyStyles({position: "absolute", display: "none"});
+            
+            ctrl.attachEvent("mouseout", 0, this, _onController);
+            ctrl.attachEvent("click", 0, this, _onController);
+            this.setController(ctrl);
+        }
+    };
+    
+    var _createContents = function(){
+        var listView = this.listView = DOM.createElement("DIV");
+        listView.style.cssText = "position:relative;top:0px;left:0px;"
+            + "border:0px none;padding:0px;margin:0px;overflow:visible;"
+            + "width:100%;height:100%;";
+        
+        DOM.appendTo(listView, this.view);
+    };
+
+    thi$._init = function(def, runtime){
+        if(typeof def !== "object") return;
+
+        def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);       
+        def.className = def.className || "jsvm_list";
+        arguments.callee.__super__.apply(this, arguments);
+
+        this._isReady = false;
+        this._isLayoutDirty = false;
+        this._canBeSearched = true;
+        
+        this._local.cache = {};
+        this._selectedItems = LinkedList.$decorate([]);
+        this._items = LinkedList.$decorate([]);
+
+        this.lazy = (def.lazy === true);
+        this.hauto = (def.hauto === true);
+        this.vauto = (def.vauto === true);
+
+        this.showTips = (def.showTips !== false);
+        this.distinct = (def.distinct === true);
+        this.multiEnable = (def.multiEnable === true);
+        
+        // Only when multiEnable is true, the item can be markable
+        this.multiByCheck = (this.multiEnable && def.multiByCheck === true);
+        // Only when the marker of item is clicked, the item can be marked
+        this.useMarkerToggle = (this.multiByCheck && def.useMarkerToggle === true);        
+        
+        _createContents.call(this);
+        
+        if(def.itemDefs && def.itemDefs.length > 0){
+            _setItemsByDef.call(this, def.itemDefs, false, true);
+        }else if(def.itemModels && def.itemModels.length > 0){
+            _setItemsByModel.call(this, def.itemModels, false, true);
+        }else{
+            //?? When no any items, we also need to trigger the layout.
+            _setAck.call(this, "ACK_ADD");
+        }
+        
+        this.setSearchEnable(def.searchEnable);
+        
+        _createController.call(this, def, runtime);
+        
+        Event.attachEvent(this.listView, "mouseover", 0, this, _onHover);
+        Event.attachEvent(this.listView, "mouseout", 0, this, _onHover);
+        Event.attachEvent(this.listView, "click", 0, this, _onItemClicked);
+        
+        J$VM.MQ.register("js.swt.event.ListItemEvent", this, this.onItemEvent);
+        
+    }.$override(this._init);
+
+    this._init.apply(this, arguments);
+
+}.$extend(js.awt.Component);
+
+js.swt.List.DEFAULTDEF = function(){
+    return {
+        classTy: "js.swt.List", 
+        
+        multiEnable: true,
+        multiByCheck: false,
+        distinct: false,
+        
+        lazy: false,
+        
+        hauto: false,
+        vauto: false,
+        
+        itemModels: [],
+        itemDefs: [],
+        
+        align_x: 0.5,
+        align_y: 0.0,
+        
+        rigid_w: false,
+        rigid_h: false
+    };  
+};
+
+/**
+ * Judge whether the specified value has been in the given collection.
+ * 
+ * @param {String / Object /...} value The specified value to check.
+ * @param {Array} set {Array} The reference models collection.
+ */
+js.swt.List.isIn = function(value, set){
+    var len = set ? set.length : 0;
+    for(var i = 0; i < len; i++){
+        if(set[i] === value){
+            return true;
+        }
+    }
+    
+    return false;
+};
+
+/**
+ * Judge whether the specified models are same.
+ */
+js.swt.List.isSameModel = function(m1, m2){
+    if (!(m1 && m2))
+        return false;
+    
+    if (m1 === m2)
+        return true;
+    
+    //TODO: maybe this is not enough
+    if ((m1.value === m2.value)
+        && ((m1.dname === m2.dname)
+            || (m1.img === m2.img))) {
+        return true;
+    }
+    
+    return false;
+};
+
+/**
+ * Judge whether the specified model has been in the given models collection.
+ * 
+ * @param {Object} model The specified model to check.
+ * @param {Array} set The reference models collection.
+ */
+js.swt.List.isModelIn = function(model, set){
+    var C = js.swt.List, len = set ? set.length : 0;
+    for(var i = 0; i < len; i++){
+        if(C.isSameModel(model, set[i])){
+            return true;
+        }
+    }
+    
+    return false;
+};
+
+/**
+
+ Copyright 2010-2013, The JSVM Project.
+ All rights reserved.
+
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
+
+ 1. Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimer.
+
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
+ documentation and/or other materials provided with the distribution.
+
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
+ without specific prior written permission.
+
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * File: DropdownList.js
+ * Create: 2012/05/07 02:06:36
+ * Author: Pan Mingfa
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.swt");
+
+/**
+ * A <em>DropdownList</em> is a <em>Container</em> which includes a <em>List</em>.
+ *
+ * Attention:
+ *      only when <em>multiEnable</em> is <em>true</em>, the <em>multiByCheck</em> can
+ *      take effect. Otherwise it will be ignored.
+ *
+ * @param def: {
+ *     className: {String} required,
+ *     css: {String} optional
+ *     id: {String} optional,
+ *
+ *     container: {js.awt.Component} required,
+ *     multiEnable: {Boolean} Default is <em>false</em>, required,
+ *     distinct: {Boolean} Default is false, required. Indicate whether the item of List
+ *         is distinct.
+ *     searchIfAllowed: {Boolean} Default is false, required. Indicate whether the DropdownList
+ *         can support quick search if it is enable.
+ *     showItemTip: {Boolean} Default is false, required. Indicate whether each item should show
+ *         its tooltips with the given tooltips or its display value.
+ *     searchCritical: {Number} An optional value between 1 and 100 which expresses a percent.
+ *         When (the viewable height/total contents height) <= this percent, the DropdownList can
+ *         be enable to do quick search.
+ *
+ *     lazy: {Boolean} Default is false, optional. Indicate whether all items should
+ *        be loaded lazily. That is to say, all items will be added and removed
+ *        asynchronously.
+ *
+ *     itemDefs: {Array} Definitions of items. If it is specified, the itemModels will be ignored.
+ *     itemModels: {Array} Models of items, optional. Its structure is as follow:
+ *     [
+ *          {dname: xxx, img: xxx (Optional), value},
+ *              ......
+ *          {dname: xxx, img: xxx (Optional), value}
+ *     ]
+ * }
+ */
+$import("js.swt.List");
+
+js.swt.DropdownList = function(def, Runtime){
+    var CLASS = js.swt.DropdownList, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+
+    var Class = js.lang.Class, Event = js.util.Event,
+    DOM = J$VM.DOM, System = J$VM.System;
+
+    var searchBoxDef = {
+        classType: "js.awt.HBox",
+
+        align_x: 0.5, align_y: 0.0,
+        rigid_w: false, rigid_h: true,
+
+        height: CLASS.DEFAULTSEARCHBOXHEIGHT,
+
+        layout: {gap: 0, align_x: 1.0, align_y: 0.5},
+
+        items: ["btnStrategy", "inputBox", "btnClear"],
+        btnStrategy: {
+            classType: "js.awt.Icon",
+            image: "search.png",
+
+            rigid_w: true, rigid_h: true,
+            prefSize: {width: 11, height: 11},
+
+            width: 11, height: 11
+        },
+        inputBox: {
+            classType: "js.swt.TextField",
+            rigid_w: false, rigid_h: false
+        },
+        btnClear: {
+            classType: "js.awt.Icon",
+            image: "clear.png",
+
+            rigid_w: true,  rigid_h : true,
+            prefSize: {width: 11,   height: 11},
+
+            width: 11, height: 11
+        }
+    },
+    controlBarDef = {
+        classType: "js.awt.HBox",
+
+        align_x: 0.5, align_y: 1.0,
+        rigid_w: false, rigid_h: true,
+
+        height: CLASS.DEFAULTCONTROLBARHEIGHT,
+
+        layout: {gap: 0, align_x: 1.0, align_y: 0.5},
+        items: ["label"],
+        label: {
+            classType: "js.awt.Label",
+            rigid_w: true, rigid_h: false
+        }
+    };
+
+    /**
+     * @see js.swt.List #setItems
+     */
+    thi$.setItems = function(items){
+        this.list.setItems(items);
+    };
+
+    /**
+     * @see js.swt.List #addItems
+     */
+    thi$.addItems = function(items){
+        this.list.addItems(items);
+    };
+
+    /**
+     * @see js.swt.List #setItemsByModel
+     */
+    thi$.setItemsByModel = function(models){
+        this.list.setItemsByModel(models);
+    };
+
+    /**
+     * @see js.swt.List #addItemsByModel
+     */
+    thi$.addItemsByModel = function(models){
+        this.list.addItemsByModel(models);
+    };
+
+    /**
+     * @see js.swt.List #setItemsByDef
+     */
+    thi$.setItemsByDef = function(defs){
+        this.list.setItemsByDef(defs);
+    };
+
+    /**
+     * @see js.swt.List #addItemsByDef
+     */
+    thi$.addItemsByDef = function(defs){
+        this.list.addItemsByDef(defs);
+    };
+
+    /**
+     * @see js.swt.DropdownList #removeItemsByModel
+     */
+    thi$.removeItemsByDef = function(def){
+        var m = def ? def.model : undefined,
+        tmp;
+        if(m){
+            tmp = this.removeItemsByModel(m);
+        }
+
+        return tmp;
+    };
+
+    /**
+     * @see js.swt.DropdownList #removeItems
+     */
+    thi$.removeItemsByModel = function(model){
+        var items = this.findItemsByModel(model),
+        tmp;
+        if(items && items.length > 0){
+            if(this.def.multiEnable === true){
+                tmp = items;
+            }else{
+                tmp = [items[0]];
+            }
+
+            this.removeItems(tmp);
+        }
+
+        return tmp;
+    };
+
+    /**
+     * @see js.swt.List #removeItems
+     */
+    thi$.removeItems = function(items){
+        this.list.removeItems(items);
+        return items;
+    };
+
+    /**
+     * @see <em>js.swt.List #getItems()</em>
+     */
+    thi$.getItems = function(){
+        return this.list.getItems();
+    };
+
+    /**
+     * @see <em>js.swt.List #getItemModels()</em>
+     */
+    thi$.getItemModels = function(){
+        return this.list.getItemModels();
+    };
+
+    /**
+     * @see <em>js.swt.List #getItemDefs()</em>
+     */
+    thi$.getItemDefs = function(){
+        return this.list.getItemDefs();
+    };
+
+    /**
+     * Select all items indicated by given values.
+     *
+     * @see <em>js.swt.List #setSelectedValues</em>
+     */
+    thi$.setSelectedValues = function(values, callback){
+        var list = this.list;
+        list.setSelectedValues.apply(list, arguments);
+    };
+
+    /**
+     * Select all items indicated by given indexes.
+     *
+     * @see <em>js.swt.List #setSelectedIndexes</em>
+     */
+    thi$.setSelectedIndexes = function(indexes, callback){
+        var list = this.list;
+        list.setSelectedIndexes.apply(list, arguments);
+    };
+
+    /**
+     * Select all given items.
+     *
+     * @see <em>js.swt.List #setSelectedItems</em>
+     */
+    thi$.setSelectedItems = function(items, callback){
+        var list = this.list;
+        list.setSelectedItems.apply(list, arguments);
+    };
+
+    /**
+     * Un-select all given items.
+     *
+     * @see <em>js.swt.List #unselectAll</em>
+     */
+    thi$.unselectAll = function(callback){
+        var list = this.list;
+        list.unselectAll.apply(list, arguments);
+    };
+
+    /**
+     * Select all items indicated by given model.
+     *
+     * @see <em>js.swt.List #setSelectedItems</em>
+     */
+    thi$.setSelectedByModel = function(model, callback){
+        var args = Array.prototype.slice.call(arguments, 1),
+        items = this.findItemsByModel(model);
+        args.unshift(items);
+
+        this.setSelectedItems.apply(this, args);
+    };
+
+    /**
+     * @see <em>js.swt.List #getSelectedItems</em>
+     */
+    thi$.getSelectedItems = function(isOrdered){
+        return this.list.getSelectedItems();;
+    };
+
+    /**
+     * @see <em>js.swt.List #getSelectedModels</em>
+     */
+    thi$.getSelectedModels = function(isOrdered){
+        return this.list.getSelectedModels(isOrdered);
+    };
+
+    /**
+     * @see <em>js.swt.List #getSelectedIndexes</em>
+     */
+    thi$.getSelectedIndexes = function(){
+        return this.list.getSelectedIndexes();
+    };
+
+    thi$.findModelByIndex = function (index){
+        var items = this.getItems();
+        var len = items ? items.length : 0;
+        if(isNaN(index) || len == 0 || index >= len){
+            return null;
+        }
+
+        return items[0] ? items[0].model : null;
+    };
+
+    thi$.findItemsByModel = function(model){
+        if(!model || (typeof model !== "object"))
+            return null;
+
+        return this.list.getItemsByModel(this.getItems(), model);
+    };
+
+    thi$.findItemsByDname = function(dname){
+        if(typeof dname !== "string")
+            return null;
+
+        return this.list.getItemsByDname(this.getItems(), dname);
+    };
+
+    thi$.findModelByDname = function (dname) {
+        var items = this.findItemsByDname(dname);
+        return (items && items.length > 0) ? items[0].model : null;
+    };
+
+    thi$.findItemsByValue = function (value){
+        if(value == undefined || value == null)
+            return null;
+
+        return this.list.getItemsByValue(this.getItems(), value);
+    };
+
+    thi$.findModelByValue = function (value) {
+        var items = this.findItemsByValue(value);
+        return items && items.length > 0 ? items[0].model : null;
+    };
+
+    thi$.setSearchCritical = function(num){
+        num = parseInt(num);
+        if(!isNaN(num) && num >= 1 && num <= 100){
+            this.searchCritical = num;
+        } else {
+            this.searchCritical = js.swt.DropdownList.SEARCHCRITICAL;
+        }
+    };
+
+    thi$.getSearchCritical = function(){
+        return this.searchCritical;
+    };
+
+    thi$.setMinimumSize = function(w, h){
+        this.def.miniSize = this.def.miniSize || {};
+
+        var miniSize = this.def.miniSize,
+        ow = miniSize.width, oh = miniSize.height,
+        invalidate = false;
+        if(!isNaN(w) && w !== ow){
+            invalidate = true;
+            miniSize.width = w;
+        }
+
+        if(!isNaN(h) && h !== oh){
+            invalidate = true;
+            miniSize.height = h;
+        }
+
+        if(invalidate){
+            this.invalidateLayout(false);
+        }
+
+    }.$override(this.setMinimumSize);
+
+    var _calMiniHeight = function(){
+        var box = this.getBounds(), mbp = box.MBP,
+        gap = (this.layout && this.layout.def) ? (this.layout.def.gap || 0) : 0,
+        h = 18, d;
+
+        if(this.searchBox && this.searchBox.isVisible()){
+            d = this.searchBox.getSize();
+            h += d.height;
+
+            h += gap;
+        }
+
+        if(this.controlBar && this.controlBar.isVisible()){
+            d = this.controlBar.getSize();
+            h += d.height;
+
+            h += gap;
+        }
+
+        h += mbp.BPW;
+        return h;
+    };
+
+    thi$.getMinimumSize = function(){
+        var minH = this.def.miniSize
+            ? this.def.miniSize.height : undefined;
+        if(isNaN(minH)){
+            minH = _calMiniHeight.call(this);
+            this.setMinimumSize(undefined, minH);
+        }
+
+        return this.def.miniSize;
+
+    }.$override(this.getMinimumSize);
+
+    thi$.setMaximumSize = function(w, h){
+        this.def.maxiSize = this.def.maxiSize || {};
+
+        var maxiSize = this.def.maxiSize,
+        ow = maxiSize.width, oh = maxiSize.height,
+        invalidate = false;
+        if(!isNaN(w) && ow !== w){
+            invalidate = true;
+            maxiSize.width = w;
+        }
+
+        if(!isNaN(h) && oh !== h){
+            invalidate = true;
+            this.def.maxiSize.height = h;
+        }
+
+        if(invalidate){
+            this.invalidateLayout(false);
+        }
+
+    }.$override(this.setMinimumSize);
+
+    thi$.getMaximumSize = function(){
+        return this.def.maxiSize;
+    }.$override(this.getMaximumSize);
+
+    thi$.getPreferredSize = function(){
+        if(this.isPreferredSizeSet){
+            return this.def.prefSize;
+        }
+
+        if(this._local.optimalSize){
+            return this._local.optimalSize;
+        }else{
+            return arguments.callee.__super__.apply(this, arguments);
+        }
+    }.$override(this.getPreferredSize);
+
+    var _setSearchEnable = function(b){
+        var v = (b === true);
+        if(this.searchEnable === v)
+            return;
+
+        this.searchEnable = v;
+
+        if(this.searchBox){
+            this.searchBox.setVisible(v);
+            this.searchBox.applyStyles({display : (v ? "block" : "none")});
+        }
+
+        if(this.list){
+            this.list.setSearchEnable(v);
+        }
+    };
+
+    var _layoutSearchBox = function(){
+        var box = this.getBounds(), prefSize = this.list.getPreferredSize(),
+        avaiH = box.innerHeight, show = false;
+
+        if(this.controlBar && this.controlBar.isVisible()){
+            var d = this.controlBar.getSize();
+            avaiH -= d.height;
+        }
+
+        if(this.searchBox && this.searchIfAllowed
+           && this.list.canBeSearched()){
+            show = ((avaiH / prefSize.height * 100) <= this.searchCritical);
+        }
+
+        _setSearchEnable.call(this, show);
+    };
+
+    var _setOptimalSize = function(w, h){
+        if(this._local.optimalSize){
+            return;
+        }
+
+        var s = DOM.outerSize(this.view);
+        this._local.optimalSize = {
+            width: (isNaN(w) ? s.width : w),
+            height: (isNaN(h) ? s.height: h)
+        };
+    };
+
+    var _getGap = function(){
+        var gap = this._local.gap;
+        if(!isNaN(gap)){
+            return gap;
+        }
+
+        gap = 0;
+        if(this.layout && this.layout.def){
+            gap = this.layout.def.gap || 0;
+        }
+
+        this._local.gap = gap;
+        return this._local.gap;
+    };
+
+    var _isSBoxVisible = function(ah){
+        var show = false, prefSize = this.list.getPreferredSize();
+        if(this.searchBox && this.searchIfAllowed
+           && this.list.canBeSearched()){
+            show = ((ah / prefSize.height * 100) <= this.searchCritical);
+        }
+
+        return show;
+    };
+
+    var _calLengthenDeltas = function(listW, listH){
+        var rtBounds = this._local.runtimeBounds,
+        area = this._local.runtimeArea, deltas;
+        if(!rtBounds || !area){
+            return deltas;
+        }
+
+        var st = CLASS.SCROLLBARTHINKNESS,
+        prefSize = this.list.getPreferredSize(),
+        maxiSize = this.getMaximumSize(),
+        rx = rtBounds.x, ry = rtBounds.y,
+        rw = rtBounds.width, rh = rtBounds.height,
+        aw = area.width, ah = area.height,
+        hGap = listW - prefSize.width,
+        vGap = listH - prefSize.height,
+        wDelta = hGap <= 0 ? st : (st - hGap),
+        hDelta = vGap <= 0 ? st : (st - vGap),
+        wAmple = false, hAmple = false,
+        tmpW, tmpH;
+
+        if(maxiSize){
+            tmpW = maxiSize.width;
+            if(!isNaN(tmpW) && tmpW < aw){
+                aw = tmpW;
+            }
+
+            tmpH = maxiSize.height;
+            if(!isNaN(tmpH) && tmpH < ah){
+                ah = tmpH;
+            }
+        }
+
+        if(wDelta <= 0){
+            wDelta = 0;
+            wAmple = true; //Enough to place all contents and vertical scrollbar
+        }
+
+        if(hDelta <= 0){
+            hDelta = 0;
+            hAmple = true; //Enough to place all contents and vertical scrollbar
+        }
+
+        switch(area.AID){
+        case "A":
+            tmpW = aw - rw;
+            wDelta = Math.min(wDelta, tmpW);
+
+            tmpH = ah - rh;
+            hDelta = Math.min(hDelta, tmpH);
+            break;
+        case "D": //Area D
+            tmpW = rx > 0 ? rx : 0;
+            wDelta = 0 - Math.min(wDelta, tmpW);
+
+            tmpH = ah - rh;
+            hDelta = Math.min(hDelta, tmpH);
+            break;
+        case "B": //Area B
+            tmpW = aw - rw;
+            wDelta = Math.min(wDelta, tmpW);
+
+            tmpH = ry > 0 ? ry : 0;
+            hDelta = 0 - Math.min(hDelta, tmpH);
+            break;
+        case "C":
+            tmpW = rx > 0 ? rx : 0;
+            wDelta = 0 - Math.min(wDelta, tmpW);
+
+            tmpH = ry > 0 ? ry : 0;
+            hDelta = 0 - Math.min(hDelta, tmpH);
+            break;
+        }
+
+        deltas = {
+            wAmple: wAmple, wDelta: wDelta, maxWDelta: tmpW,
+            hAmple: hAmple, hDelta: hDelta, maxHDelta: tmpH
+        };
+
+        return deltas;
+    };
+
+    var _preSize = function(){
+        var matrix = this._local.matrix;
+        if(matrix){
+            return matrix;
+        }
+
+        matrix = {};
+
+        var box = this.getBounds(), mbp = box.MBP,
+        houter = mbp.BPW, vouter = mbp.BPH,
+        prefSize = this.list.getPreferredSize(),
+        miniSize = this.getMinimumSize(),
+        maxiSize = this.getMaximumSize(),
+        gap = _getGap.call(this),
+        w = box.width, h = box.height,
+        vother = 0, show = false,
+        d, minW, minH, maxW, maxH,
+        rb, rw, rh;
+
+        if(this.controlBar){
+            d = this.controlBar.getSize();
+            vother += d.height;
+
+            vother += gap;
+        }
+
+        w = this.hauto ? prefSize.width + houter : w;
+        h = this.vauto ? prefSize.height + vouter + vother : h;
+
+        if(miniSize){
+            minW = miniSize.width;
+            minH = miniSize.height;
+
+            w = (!isNaN(minW) && minW > 0) ? Math.max(w, minW) : w;
+            h = (!isNaN(minH) && minH > 0) ? Math.max(h, minH) : h;
+        }
+
+        if(maxiSize){
+            maxW = maxiSize.width;
+            maxH = maxiSize.height;
+        }
+
+        rb = this._local.runtimeBounds;
+        if(rb){
+            rw = rb.width;
+            rh = rb.height;
+
+            maxW = !isNaN(maxW) ? Math.min(maxW, rw) : rw;
+            maxH = !isNaN(maxH) ? Math.min(maxH, rh) : rh;
+        }
+
+        if(!isNaN(maxW) && maxW < w){
+            w = maxW;
+        }
+
+        if(!isNaN(maxH) && maxH < h){
+            h = maxH;
+        }
+
+        matrix.width = w;
+        matrix.height = h;
+
+        show = _isSBoxVisible.call(this, h - vouter - vother);
+        matrix.isSBoxVisible = show;
+        _setSearchEnable.call(this, show);
+
+        vother = 0;
+        if(this.searchBox && this.searchBox.isVisible()){
+            d = this.searchBox.getSize();
+            vother += d.height;
+
+            vother += gap;
+        }
+
+        if(this.controlBar && this.controlBar.isVisible()){
+            d = this.controlBar.getSize();
+            vother += d.height;
+
+            vother += gap;
+        }
+
+        matrix.listW = w - houter;
+        matrix.listH = h - vouter - vother;
+
+        this._local.matrix = matrix;
+        return matrix;
+    };
+
+    var _rectifyListSize = function(s){
+        if(!s.wAdjusted && !s.hAdjusted){
+            return;
+        }
+
+        var ST = CLASS.SCROLLBARTHINKNESS,
+        listBox = this.list.getBounds(),
+        w = listBox.innerWidth,
+        h = listBox.innerHeight,
+        listView = this.list.listView,
+        vBox = DOM.getBounds(listView),
+        sw = listView.scrollWidth,
+        sh = listView.scrollHeight;
+
+        if(s.wAdjusted){
+            w -= ST;
+        }else{
+            // if(J$VM.ie && !isNaN(sw)
+            //  && sw != vBox.width){
+            //  System.err.println("Width:" + vBox.width + " ScollWidth:" + sw);
+            //  w = sw;
+            // }else{
+            w = undefined;
+            // }
+        }
+
+        if(s.hAdjusted){
+            h -= ST;
+        }else{
+            // if(J$VM.ie && !isNaN(sh)
+            //  && sh != vBox.height){
+            //  System.err.println("Height:" + vBox.height + " ScollHeight:" + sh);
+            //  h = sh;
+            // }else{
+            h = undefined;
+            // }
+        }
+
+        DOM.setSize(listView, w, h, vBox);
+
+        // ?? That is very strange in IE when doctype
+        if(J$VM.ie && J$VM.doctype.declared){
+            var lvStyle = this.list.view.style,
+            overflow = this.list.getStyle("overflow");
+            if(overflow === "auto"){
+                lvStyle.overflow = "scroll";
+                this.list.setSize(listBox.width, listBox.height);
+                lvStyle.overflow = "auto";
+            }
+        }
+    };
+
+    var _layout = function(){
+        if(!this._isLayoutDirty || !this.list.isReady()
+           || !this.isDOMElement()){
+            return undefined;
+        }
+
+        this._isLayoutDirty = false;
+
+        var ST = CLASS.SCROLLBARTHINKNESS,
+        matrix = _preSize.call(this),
+        prefSize = this.list.getPreferredSize(),
+        listW = matrix.listW, listH = matrix.listH,
+        w = matrix.width, h = matrix.height,
+        deltas = _calLengthenDeltas.call(this, listW, listH),
+        ample = false, delta = 0, maxDelta, deltaSize = {},
+        rb, rx, ry, x, y;
+
+        if(deltas){
+            rb = this._local.runtimeBounds;
+            rx = rb.x;
+            ry = rb.y;
+
+            if(this.hauto && (listH < prefSize.height)){
+                ample = deltas.wAmple;
+                delta = deltas.wDelta;
+                maxDelta = deltas.maxWDelta;
+
+                if(!ample && maxDelta > 0){
+                    if(delta < 0){
+                        delta = Math.abs(delta);
+                        x = rx - delta;
+                    }
+                    w += delta;
+
+                    deltaSize.wDelta = delta;
+                    deltaSize.wAdjusted = true;
+                }else if(ample){
+                    // Although the space is enough to place all contents and
+                    // the vertical scrollbar, however the vertical scrollbar
+                    // occupied the space and the list need be adjusted to make
+                    // space for in "_rectifyListSize()".
+                    deltaSize.wDelta = ST;
+                    deltaSize.wAdjusted = true;
+                }else{
+                    //Ignore
+                }
+            }
+
+            if(this.vauto && (listW < prefSize.width)){
+                ample = deltas.hAmple;
+                delta = deltas.hDelta;
+                maxDelta = deltas.maxHDelta;
+
+                if(!ample && maxDelta > 0){
+                    if(delta < 0){
+                        delta = Math.abs(delta);
+                        y = ry - delta;
+
+                    }
+                    h += delta;
+
+                    deltaSize.hDelta = delta;
+                    deltaSize.hAdjusted = true;
+                }else if(ample){
+                    // Although the space is enough to place all contents and
+                    // the horizontal scrollbar, however the vertical scrollbar
+                    // occupied the space and the list need be adjusted to make
+                    // space for in "_rectifyListSize()".
+                    deltaSize.hDelta = ST;
+                    deltaSize.hAdjusted = true;
+                }else{
+                    //Ignore
+                }
+            }
+        }
+
+        _setOptimalSize.call(this, w, h);
+        this.setBounds(x, y, w, h);
+
+        return deltaSize;
+    };
+
+    thi$.doLayout = function(){
+        // We need to invoke the "_layout" function one time
+        // only if some items are changed (Added and removed).
+        var s = _layout.call(this);
+        if(s){
+            arguments.callee.__super__.apply(this, arguments);
+            _rectifyListSize.call(this, s);
+        }
+    }.$override(this.doLayout);
+
+    /**
+     * @see js.awt.PopupLayer #beforeRemoveLayer
+     */
+    thi$.beforeRemoveLayer = function(e){
+        this.notifyPeer("js.awt.event.LayerEvent",
+                        new Event("beforeRemoveLayer", e || "", this));
+
+        this.list.showController(false);
+        this.restore();
+
+    }.$override(this.beforeRemoveLayer);
+
+    /**
+     * @see js.awt.PopupLayer #afterRemoveLayer
+     */
+    thi$.afterRemoveLayer = function(e){
+        if(e && e.getType() === "resize"){
+            this.invalidateLayout(false);
+        }
+
+        this.notifyPeer("js.awt.event.LayerEvent",
+                        new Event("afterRemoveLayer", e || "", this));
+
+    }.$override(this.afterRemoveLayer);
+
+    /**
+     * @see js.awt.PopupLayer #showAt
+     */
+    thi$.setCallback = function(bounds, area, nofly){
+        // Need to trigger doLayout() to re-layout the searchBox,
+        // list and controlBar. However, we don't need to invoke
+        // "_layout" function again.
+        this._isLayoutDirty = true;
+        this._local.matrix = undefined;
+        this._local.runtimeBounds = bounds;
+        this._local.runtimeArea = area;
+
+        this.doLayout(true);
+
+    }.$override(this.setCallback);
+
+    /*
+     * Ref the native html "select" and "option" element, for ComboBox, 
+     * when it isn't multiple, the current selected item will be hovered
+     * while the dropdownlist is showing. And then the hover effect will
+     * be rinsed after hovering another item.
+     */
+    var _reStyleSelected = function(){ 
+        var list = this.list;
+        if(!list || def.multiEnable === true){
+            return;
+        }
+        
+        var sitems = list.getSelectedItems(),
+        item = sitems ? sitems[0] : null;
+        if(item && item.isHoverForSelected()){
+            item.setHover(true);
+        }
+    };
+    
+    var _rinseSelected = function(){
+        var list = this.list;
+        if(!list || def.multiEnable === true){
+            return;
+        }
+        
+        var sitems = list.getSelectedItems(),
+        item = sitems ? sitems[0] : null;
+        if(item && item.isHoverForSelected()){
+            item.setHover(false);
+        }
+    };
+
+    /**
+     * @see js.awt.PopupLayer #showAt
+     */
+    thi$.showAt = function(x, y, m){
+        if(this == this.rootLayer()){
+            this.hideOthers();
+        }
+
+        // ?? Whether clear here
+        // this._local.runtimeBounds = undefined;
+        // this._local.runtimeArea = undefined;
+
+        // Force the DropdownList's nofly area
+        // as horizontal breakthrough.
+        arguments.callee.__super__.apply(this, [x, y, false, m]);
+        
+        // Re-highlight the current selected item
+        _reStyleSelected.call(this);
+
+    }.$override(this.showAt);
+
+    /**
+     * @see js.awt.PopupLayer #showBy
+     */
+    thi$.showBy = function(by, m){
+        if(this == this.rootLayer()){
+            this.hideOthers();
+        }
+
+        // ?? Whether clear here
+        // this._local.runtimeBounds = undefined;
+        // this._local.runtimeArea = undefined;
+
+        // Force the DropdownList's nofly area
+        // as horizontal breakthrough.
+        arguments.callee.__super__.apply(this, [by, false, m]);
+
+        // Re-highlight the current selected item
+        _reStyleSelected.call(this);
+
+    }.$override(this.showBy);
+
+    thi$.setPeerComponent = function(peer){
+        if(this.list){
+            this.list.setPeerComponent(peer);
+        }
+
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.setPeerComponent);
+
+    thi$.destroy = function(){
+        this.detachEvent("mousedown", 0, this, _onMouseDown);
+        this.detachEvent("click", 0, this, _onClick);
+        this.detachEvent(J$VM.firefox ? "DOMMouseScroll" : "mousewheel",
+                         0, this, _onMouseScroll);
+
+        if(this.searchBox){
+            this.searchBox.inputBox.detachEvent(js.swt.TextField.EVT_VALUECHANGED,
+                                                4, this, _onKeywordChanged);
+            this.searchBox.btnClear.detachEvent("click",
+                                                0, this, _onBtnClearClicked);
+
+            //this.searchBox.destroy();
+            delete this.searchBox;
+        }
+
+        if(this.list){
+            var clz = js.swt.List;
+            this.list.detachEvent(clz.EVT_READY, 4, this, _onListReady);
+            this.list.detachEvent(clz.EVT_ACK_ITEMSADDED,
+                                  4, this, _onListItemsAdded);
+            this.list.detachEvent(clz.EVT_ACK_ITEMSREMOVED,
+                                  4, this, _onLisItemsRemoved);
+            this.list.detachEvent(clz.EVT_ITEMSELECTED,
+                                  4, this, _notifySelectChanged, "set");
+            this.list.detachEvent(clz.EVT_ITEMCLICKED,
+                                  4, this, _notifySelectChanged, "click");
+
+            //this.list.destroy();
+            delete this.list;
+        }
+
+        if(this.controlBar){
+            var label = this.controlBar.label;
+            label.detachEvent("mouseover", 0, this, _onMouseOver);
+            label.detachEvent("mouseout", 0, this, _onMouseOut);
+            label.detachEvent("click", false, this, _onSubmit);
+
+            //this.controlBar.destroy();
+            delete this.controlBar;
+        }
+
+        delete this._local.root;
+        delete this._local.optimalSize;
+        delete this._local.matrix;
+        delete this._local.runtimeBounds;
+        delete this._local.runtimeArea;
+
+        arguments.callee.__super__.apply(this, arguments);
+    }.$override(this.destroy);
+
+    /**
+     * @see js.swt.List #quickSearch
+     */
+    thi$.quickSearch = function(keyword, options){
+        this.list.quickSearch(keyword, options);
+    };
+
+    /**
+     * @see js.swt.List #restore
+     */
+    thi$.restore = function(){
+        if(!this.searchEnable){
+            return;
+        };
+
+        var inputBox = this.searchBox.inputBox;
+        if(inputBox){
+            inputBox.setValue("");
+        }
+
+        this.list.restore();
+    };
+
+    var _search = function(e){
+        _search.$clearTimer();
+        
+        var keyword = this.searchBox.inputBox.getValue();
+        this.quickSearch(keyword);
+    };
+
+    var _onKeywordChanged = function(e){
+        if(!this.searchEnable){
+            return;
+        }
+
+        // Search once while input quickly and consecutively
+        _search.$clearTimer();
+        _search.$delay(this, 200);
+    };
+
+    var _onBtnClearClicked = function(e){
+        this.searchBox.inputBox.setValue("");
+        this.restore();
+    };
+
+    var _createSearchBox = function(def){
+        var r = this.Runtime(), searchBox,
+        theDef = {
+            className: DOM.combineClassName(def.className, "searchBox")
+        };
+
+        theDef = System.objectCopy(searchBoxDef, theDef, true);
+        searchBox = this.searchBox =
+            new (Class.forName("js.awt.HBox"))(theDef, r);
+
+        searchBox.inputBox.attachEvent(js.swt.TextField.EVT_VALUECHANGED,
+                                       4, this, _onKeywordChanged);
+        searchBox.btnClear.attachEvent("click", 0, this, _onBtnClearClicked);
+
+        theDef = null;
+        this.addComponent(searchBox);
+    };
+
+    var _notifySelectChanged = function(e, eType){
+        var data = {
+            models: this.getSelectedModels(true),
+            callbackInfo: e.getData()
+        };
+        this.notifyPeer(
+            "js.swt.event.SelectChangedEvent",
+            new Event(eType, data, e.getEventTarget())
+        );
+    };
+
+    var _onListReady = function(e){
+        this.fireEvent(e);
+    };
+
+    thi$.invalidateLayout = function(doLayout){
+        if(!this._isLayoutDirty){
+            var M = this.def, bounds = this.view.bounds,
+            userW = bounds ? bounds.userW : undefined,
+            userH = bounds ? bounds.userH : undefined,
+            listView = this.list.view;
+            
+            if(!isNaN(userW) || !isNaN(userH)){
+                DOM.setSize(this.view, userW, userH, bounds);
+            }
+            
+            // listView.style.width = "100%";
+            listView.style.width = "auto";
+            listView.style.height = "auto";
+
+            delete M.width;
+            delete M.height;
+
+            this.invalidateBounds();
+        }
+
+        this._isLayoutDirty = true;
+        this._local.matrix = undefined;
+        this._local.optimalSize = undefined;
+        this._local.runtimeBounds = undefined;
+        this._local.runtimeArea = undefined;
+
+        if(doLayout === true){
+            this.doLayout(true);
+        }
+    };
+
+    var _onListItemsAdded = function(e){
+        this.invalidateLayout(true);
+        this.fireEvent(e);
+    };
+
+    var _onLisItemsRemoved = function(e){
+        this.invalidateLayout(true);
+        this.fireEvent(e);
+    };
+
+    var _createList = function(def){
+        var listDef = {
+            className: DOM.combineClassName(def.className, "list"),
+            itemClassName: def.itemClassName 
+                || DOM.combineClassName(def.className, "item"),
+
+            searchOptions: def.searchOptions,
+
+            hoverForSelected: Class.isBoolean(def.hoverForSelected) 
+                ? def.hoverForSelected : def.multiEnable !== true,
+
+            multiEnable: (def.multiEnable === true),
+            multiByCheck: (def.multiEnable === true),
+            distinct: (def.distinct === true),
+            lazy: def.lazy,
+
+            hauto: false,
+            vauto: false,
+
+            itemModels: def.itemModels,
+            itemDefs: def.itemDefs,
+            controller: def.controller,
+
+            align_x: 0.5,
+            align_y: 0.0,
+            rigid_w: false,
+            rigid_h: false
+        };
+        
+        var clz = Class.forName("js.swt.List"),
+        list = this.list = new (clz)(listDef, this.Runtime());
+
+        // In DropdownList, list'repaint is not naught. We should depend on
+        // Container(current DropdownList)'s layoutComponent method to set
+        // list's size and trigger its onResized to adjust its contents' size.
+        list.repaint = function(){
+            // Do nothing
+        }.$override(list.repaint);
+        
+        /*
+         * Ref the native html "select" and "option" element, for ComboBox, 
+         * when it isn't multiple, the current selected item will be hovered
+         * while the dropdownlist is showing. And then the hover effect will
+         * be rinsed after hovering another item.
+         */
+        list.onHovering = _rinseSelected.$bind(this);
+
+        list.attachEvent(clz.EVT_READY, 4, this, _onListReady);
+        list.attachEvent(clz.EVT_ACK_ITEMSADDED, 4, this, _onListItemsAdded);
+        list.attachEvent(clz.EVT_ACK_ITEMSREMOVED, 4, this, _onLisItemsRemoved);
+        list.attachEvent(clz.EVT_ITEMSELECTED, 4, this, _notifySelectChanged, "set");
+        list.attachEvent(clz.EVT_ITEMCLICKED, 4, this, _notifySelectChanged, "click");
+
+        this.addComponent(list);
+    };
+
+    var _onMouseOver = function(e){
+        this.controlBar.label.setHover(true);
+    };
+
+    var _onMouseOut = function(e){
+        this.controlBar.label.setHover(false);
+    };
+
+    var _onSubmit = function(e){
+        this.controlBar.label.setHover(false);
+        this.fireEvent(
+            new Event(CLASS.EVT_SUBMITVALUES, undefined, this));
+    };
+
+    var _createControlBar = function(def){
+        var r = this.Runtime(), controlBar, label,
+        theDef = {className: DOM.combineClassName(def.className, "controlBar")};
+
+        theDef = System.objectCopy(controlBarDef, theDef, true);
+        theDef.label.text = r.nlsText("btnOK", "OK");
+        controlBar = this.controlBar =
+            new (Class.forName("js.awt.HBox"))(theDef, r);
+
+        label = controlBar.label;
+        label.attachEvent("mouseover", 0, this, _onMouseOver);
+        label.attachEvent("mouseout", 0, this, _onMouseOut);
+        label.attachEvent("click", false, this, _onSubmit);
+
+        theDef = null;
+        this.addComponent(controlBar);
+    };
+
+    var _onMouseDown = function(e) {
+        e.cancelBubble();
+    };
+
+    var _onClick = function(e){
+        if(this.isfloating){
+            e.cancelBubble();
+        }
+    };
+
+    var _onMouseScroll = function(e) {
+        if(this.isfloating){
+            e.cancelBubble();
+        }
+    };
+
+    thi$._init = function(def, Runtime){
+        if(typeof def !== "object") return;
+
+        def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
+        def.className = def.className || "jsvm_dropdownList";
+        arguments.callee.__super__.apply(this, arguments);
+
+        this._isLayoutDirty = true;
+        this._local.root = this;
+
+        this.hauto = (def.hauto === true);
+        this.vauto = (def.vauto === true);
+
+        this.searchIfAllowed = (def.searchIfAllowed === true);
+        this.isfloating = (def.isfloating === true);
+
+        this.setSearchCritical(def.searchCritical);
+
+        if(this.searchIfAllowed){
+            _createSearchBox.call(this, def);
+        }
+
+        _createList.call(this, def);
+
+        if(def.multiEnable === true
+           && def.showControlBar === true){
+            _createControlBar.call(this, def);
+        }
+
+        _setSearchEnable.call(this, false);
+
+        this.attachEvent("mousedown", 0, this, _onMouseDown);
+        this.attachEvent("click", 0, this, _onClick);
+        this.attachEvent(J$VM.firefox ? "DOMMouseScroll" : "mousewheel",
+                         0, this, _onMouseScroll);
+
+    }.$override(this._init);
+
+    this._init.apply(this, arguments);
+
+}.$extend(js.awt.VBox);
+
+js.swt.DropdownList.SEARCHCRITICAL = 80;
+js.swt.DropdownList.DEFAULTSEARCHBOXWIDTH = 30;
+js.swt.DropdownList.DEFAULTSEARCHBOXHEIGHT = 17;
+js.swt.DropdownList.DEFAULTCONTROLBARHEIGHT = 16;
+js.swt.DropdownList.SCROLLBARTHINKNESS = 17;
+js.swt.DropdownList.DEFAULTITEMHEIGHT = 16;
+
+js.swt.DropdownList.EVT_SUBMITVALUES = "SubmitValues";
+
+js.swt.DropdownList.DEFAULTDEF = function(){
+    return {
+        classType: "js.swt.DropdownList",
+
+        distinct: false,
+        multiEnable: false,
+        showControlBar: false,
+        showItemTip: true,
+
+        hauto: true,
+        vauto: true,
+
+        isfloating: true,
+        PMFlag: 0x27,
+
+        searchIfAllowed: false,
+        searchCritical: 80,
+
+        lazy: false,
+
+        itemModels: [],
+        itemDefs: [],
+
+        layout: {
+            gap: 5
+        }
+    };
+};
+
+/**
+
+ Copyright 2010-2013, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * File: ComboBox.js
+ * Create: 2012/05/08 02:55:06
+ * Author: Pan Mingfa
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.swt");
+
+$import("js.swt.ModelItem");
+
+/**
+ * @param def: {
+ *     className: {String} required,
+ *     css: {String} optional
+ *     id: {String} optional,
+ *     container: {js.awt.Component} required,
+ * 
+ *     effect: {Boolean} Default is <em>false</em>. Indicate whether the ComboBox has effect
+ *             when hover.
+ *     wholeTrigger: {Boolean} Default is <em>false</em>. Indicate whether the DropDownList 
+ *             should be popuped only while the whole ComboBox is clicked.
+ *     showBtnByHover: {Boolean} Default is <em>false</em>. Indicate whether the DropDown 
+ *             button can be shown only when mouse is hovering on.
+ *     
+ *     editable: {Boolean} Default is <em>false</em>, required,
+ *     multiEnable: {Boolean} Default is <em>false</em>, required,
+ *     distinct: {Boolean} Default is false, required. Indicate whether item of List is distinct. 
+ *     searchIfAllowed: {Boolean} Default is false, required. Indicate whether the Combobox can 
+ *         support quick search if it is enable. 
+ 
+ *     showTips: {Boolean} Default is false, required. Indicate whether combobox should show 
+ *         tooltips with the specified displayTip or the current selected item. 
+ *         If <em>displayTip</em> is specifed, use it. Otherwise display value or real value of 
+ *         the current selected item.
+ *     displayTip: {String} A string specified the tip of combobox. 
+ *     showItemTip: {Boolean} Default is false, required. Indicate whether each item of combobox's
+ *          DropdownList show its display value (use real value if no display value) as tip.
+ 
+ *     searchCritical: {Number} An optional value between 1 and 100 which expresses a percent. 
+ *          When (the viewable height / total contents height) <= this percent, the DropdownList 
+ *          can be enable to do quick search.
+ * 
+ *     lazy: {Boolean} Default is false, optional. Indicate whether all items should
+ *        be loaded lazily. That is to say, all items will be added and removed 
+ *        asynchronously.
+ * 
+ *     itemDefs: {Array} Definitions of items. If it is specified, the itemModels will be ignored.
+ *     itemModels: {Array} Models of items, optional. Its structure is as follow:
+ *     [
+ *          {dname: xxx, img: xxx (Optional), value},
+ *              ......
+ *          {dname: xxx, img: xxx (Optional), value}     
+ *     ]
+ * }
+ */
+
+js.swt.ComboBox = function(def, Runtime){
+    var CLASS = js.swt.ComboBox, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class, Event = js.util.Event, 
+    LList = js.util.LinkedList, DOM = J$VM.DOM, 
+    System = J$VM.System, MQ = J$VM.MQ,
+    
+    List = Class.forName("js.swt.List"),
+    DDList = Class.forName("js.swt.DropdownList");
+    
+    var dItemContainerDef = {
+        classType: "js.awt.HBox",
+
+        rigid_w: false, rigid_h: false,
+        layout: {
+            gap: 0,
+            align_x: 0.5, align_y: 0.5
+        }
+    },
+    btnDropDownDef = {
+        classType: "js.awt.Button",
+        iconImage: "dropdown_new.png",
+
+        rigid_w: true, rigid_h: false,
+        effect: false
+    },
+    inputBoxDef = {
+        classType: "js.swt.TextField",
+        css: "border:0px none;",
+        rigid_w: false, rigid_h: false,
+        NUCG: true
+    },
+    sps = [
+        "position", "top", "left",
+        "font-family", "font-size", "font-style", "font-weight",
+        "text-decoration", "text-align", "font-weight",
+        "color", "background-color",
+        "padding-top", "padding-right", "padding-bottom", "padding-left",
+        "border-top-width", "border-right-width", 
+        "border-bottom-width", "border-left-width",
+        "border-top-style", "border-right-style",
+        "border-bottom-style", "border-left-style",
+        "border-top-color", "border-right-color",
+        "border-bottom-style", "border-left-color"
+    ],
+    iptSps = [
+        "font-family", "font-size", "font-style", "font-weight",
+        "text-decoration", "text-align", "font-weight", "color", 
+        "background-color"
+    ];
+    
+    thi$.hasEffect = function(){
+        return this.def.effect === true;
+    };
+    
+    thi$.isWholeTrigger = function(){
+        return this.def.wholeTrigger === true;
+    };
+    
+    thi$.isShowBtnByHover = function(){
+        return this.def.showBtnByHover === true;
+    };
+    
+    thi$.setSubviewRoot = function(root){
+        if(this.subview && root){
+            this.subview.rootLayer(root);
+        }else{
+            this._local.subviewRoot = root;
+        }
+    };
+    
+    /**
+     * @see js.swt.DropdownList #setItemsByModel
+     */
+    thi$.setItemsByModel = function(models){
+        this._local.itemDefs = undefined;
+        this._local.itemModels = models;
+
+        _preSelect.call(this);
+        
+        if(this.subview){
+            _showSubview.call(this, false);
+            this.subview.setItemsByModel(models);
+        }
+    };
+
+    /**
+     * @see js.swt.DropdownList #addItemsByModel
+     */
+    thi$.addItemsByModel = function(models){
+        if(!Class.isArray(models) || models.length == 0){
+            return;
+        }
+        
+        var ms = this._local.itemModels || [];
+        this._local.itemModels = ms.concat(models);
+        
+        _preSelect.call(this);
+        
+        if(this.subview){
+            _showSubview.call(this, false);
+            this.subview.addItemsByModel(models);
+        }
+    };
+    
+    /**
+     * @see js.swt.DropdownList #setItemsByDef
+     */
+    thi$.setItemsByDef = function(defs){
+        this._local.itemModels = undefined;
+        this._local.itemDefs = defs;
+        
+        _preSelect.call(this);
+        
+        if(this.subview){
+            _showSubview.call(this, false);
+            this.subview.setItemsByDef(defs);
+        }
+    };
+    
+    /**
+     * @see js.swt.DropdownList #addItemsByDef
+     */
+    thi$.addItemsByDef = function(defs){
+        if(!Class.isArray(defs) || defs.length == 0){
+            return;
+        }
+        
+        var ds = this._local.itemModels || [];
+        this._local.itemDefs = ds.concat(defs);
+        
+        _preSelect.call(this);
+        
+        if(this.subview){
+            _showSubview.call(this, false);
+            this.subview.addItemsByDef(defs);
+        }
+    };
+    
+    /**
+     * @return {Array} Items of ComboBox DropdownList.
+     * @see js.swt.DropdownList #getItems
+     */
+    thi$.getItems = function(){
+        return this.subview 
+            ? this.subview.getItems() : undefined;
+    };
+    
+    /**
+     * @return {Array} Models of ComboBox DropdownList's items.
+     * @see js.swt.DropdownList #getItemModels
+     */
+    thi$.getItemModels = function(){
+        var ms = this._local.itemModels;
+        if(!ms && this.subview){
+            ms = this.subview.getItemModels();
+        };
+        
+        return ms;
+    };
+    
+    /**
+     * @return {Array} Definitions of ComboBox DropdownList's items.
+     * @see js.swt.DropdownList #getItemDefs
+     */
+    thi$.getItemDefs = function(){
+        var ds = this._local.itemDefs;
+        if(!ds && this.subview){
+            ds = this.subview.getItemDefs();
+        }
+        
+        return ds;
+    };
+    
+    /**
+     * Return current selected values, some of them may be not belonged to
+     * any items.
+     */
+    thi$.getSelectedValues = function(){
+        return this._local.selectedValues;     
+    };
+    
+    var _getSelectedIndexes = function(){
+        var ds = this._local.itemDefs, 
+        ms = this._local.itemModels, 
+        useDs = false, set;
+        
+        if(Class.isArray(ds) && ds.length > 0){
+            useDs = true;
+            set = ds;
+        }else if(Class.isArray(ms) && ms.length > 0){
+            useDs = false;
+            set = ms;
+        }
+
+        var len = set ? set.length : 0, 
+        indexes = LList.$decorate([]), 
+        m;
+        for(var i = 0; i < len; i++){
+            m = set[i];
+            m = useDs ? m.model : m;
+            if(m && m.marked === true 
+               && !List.isIn(i, indexes)){
+                indexes.addLast(i);
+            }
+        } 
+
+        return indexes;
+    };
+    
+    /**
+     * Return all selected items' index.
+     */
+    thi$.getSelectedIndexes = function(){
+        return this.subview 
+            ? this.subview.getSelectedIndexes() 
+            : _getSelectedIndexes.call(this);
+    };
+    
+    /**
+     * Return crrent selection's model.
+     */
+    thi$.getSelectedModel = function(){
+        return this.displayItem.model;
+    };
+    
+    var _unMarkAll = function(){
+        var ds = this._local.itemDefs, 
+        ms = this._local.itemModels, 
+        useDs = false, set;
+        
+        if(Class.isArray(ds) && ds.length > 0){
+            useDs = true;
+            set = ds;
+        }else if(Class.isArray(ms) && ms.length > 0){
+            useDs = false;
+            set = ms;
+        }
+        
+        var len = set ? set.length : 0, m;
+        for(var i = 0; i < len; i++){
+            m = useDs ? set[i].model : set[i];
+            if(m){
+                m.marked = false;
+            }
+        }
+    };
+    
+    /**
+     * Query and return all the condition-met models of items
+     * by the given condition.
+     * 
+     * @param by: {String} The reference property of model.
+     * @param values: {Array} The reference values of the 
+     *        reference property in model.
+     * @param findAll: {Boolean} Indicate whether all satisfied
+     *        models.
+     * @param distinct: {Boolean} Indicate whether each item is
+     *        distinct in the result set.
+     */
+    thi$.findItemModels = function(by, values, findAll, distinct){
+        if(!Class.isString(by) || by.length == 0 
+           || !Class.isArray(values) || values.length == 0){
+            return undefined;
+        }
+        
+        var ds = this._local.itemDefs, 
+        ms = this._local.itemModels, 
+        useDs = false, set;
+        
+        if(Class.isArray(ds) && ds.length > 0){
+            useDs = true;
+            set = ds;
+        }else if(Class.isArray(ms) && ms.length > 0){
+            useDs = false;
+            set = ms;
+        }else{
+            return undefined;
+        }
+        
+        var len = set ? set.length : 0, rst = [], m, v;
+        for(var i = 0; i < len; i++){
+            m = useDs ? set[i].model : set[i];
+            v = m[by];
+            
+            if(List.isIn(v, values)){
+                if(findAll !== true){
+                    rst.push(m);
+                    break;
+                }
+                
+                if(!distinct || !List.isModelIn(m, rst)){
+                    rst.push(m);
+                }                
+            }
+        }
+        
+        return rst;
+    };
+    
+    /**
+     * Select all items indicated by given values.
+     * Attention:
+     *     If an end user didn't do any selection from the DropdownList, the given values
+     *     will be kept even though some of the given values wasn't belonged any item of
+     *     the DropdownList.
+     * 
+     * @param values: {Array} An <em>Array</em> for values. An item whose value equals with one
+     *                of values will be selected.
+     * @param callback: {Boolean} Indicate whethe need to nofiy the value changed.
+     */
+    thi$.setSelectedValues = function(values, callback){
+        // If combobox is in edit, quit the editing status.
+        // Add by mingfa.pan, 04/11/2013
+        _quitEdit.call(this);
+        
+        if(!values || values.length == 0){
+            this.unselectAll(callback);
+            return;
+        }
+        
+        if(this.subview){
+            var cInfo = {values: values, notify: callback};
+            this.subview.setSelectedValues(values, true, cInfo);
+        }else{
+            // Mark all models' state as un-marked
+            _unMarkAll.call(this);
+            
+            var models, model;
+            if(!this.multiEnable){
+                var v = values[0];
+                values = [v];
+                
+                models = this.findItemModels("value", values, false);
+                model = (models && models.length > 0) ? models[0] : undefined;          
+
+                if (!Class.isObject(model)) {
+                    model = {dname: v, value: v};
+                }else{
+                    model.marked = true;
+                }
+            }else{
+                models = this.findItemModels("value", values, true, false);
+                
+                var len = models ? models.length : 0,
+                dnames = LList.$decorate([]), m, dn;
+                for(var i = 0; i < len; i++){
+                    m = models[i];
+                    m.marked = true;
+                    
+                    dn = m.dname;
+                    if(dn !== undefined && dn !== null 
+                       && !dnames.contains(dn)){
+                        dnames.addLast(dn);
+                    }
+                }
+                
+                if(dnames.length > 0){
+                    var dname = _joinTexts.call(this, dnames);
+                    model = {dname: dname, value: values};
+                }else{
+                    model = CLASS.DEFAULTMODEL;
+                }
+            }
+            
+            // Display current selection in display item
+            if(Class.isObject(model)){
+                _select.call(this, model);
+            }
+            
+            /* Attention: 
+             * Some of values may be not belonged to any item. So there are two steps as follow
+             * to finish selecting:
+             * 1) Recorde all current selected value include the one which is not belonged to any
+             *    item of DropdownList.
+             * 2) Select all items. Each of them is indicated by values.
+             */
+            _setSelectedValues.call(this, values);
+            
+            if(callback === true){
+                this.onSelectedChanged();
+            }
+        }
+        
+    };
+    
+    /**
+     * Return items' models by the given indexes.
+     */
+    thi$.findItemModelsByIndex = function(indexes, distinct){
+        if(!Class.isArray(indexes) || indexes.length == 0){
+            return undefined;
+        }
+        var ds = this._local.itemDefs, 
+        ms = this._local.itemModels, 
+        useDs = false;
+        
+        if(Class.isArray(ds) && ds.length > 0){
+            useDs = true;
+        }else if(Class.isArray(ms) && ms.length > 0){
+            useDs = false;
+        }else{
+            return undefined;            
+        }
+        
+        // Sort indexes by numerically and ascending
+        indexes = indexes.sort(function(a,b){return a-b;});
+        
+        var len = indexes.length, idx, m, rst = [];
+        for(var i = 0; i < len; i++){
+            idx = indexes[i];
+            m = useDs ? ds[idx].model : ms[idx];
+            
+            if(m && (!distinct 
+                     || !List.isModelIn(m, rst))){
+                rst.push(m);
+            }
+        }
+        
+        return rst;
+    };
+    
+    /**
+     * Select all items indicated by given indexes.
+     * 
+     * @param indexes: {Array} An <em>Array</em> for indexes, each element indicate an 
+     *                 item which need be selected.
+     *   
+     * @see js.swt.DropdownList #setSelectedIndexed
+     */    
+    thi$.setSelectedIndexes = function(indexes, callback){
+        // If combobox is in edit, quit the editing status.
+        // Add by mingfa.pan, 04/11/2013
+        _quitEdit.call(this);
+        
+        if(!indexes || indexes.length == 0){
+            this.unselectAll(callback);
+            return;
+        }
+        
+        if(this.subview){
+            var cInfo = {indexes: indexes, notify: callback};
+            this.subview.setSelectedIndexes(indexes, true, cInfo);
+        }else{
+            // Mark all models' state as un-marked
+            _unMarkAll.call(this);
+            
+            var ms, m, dnames, values, dname;
+            if(!this.multiEnable){
+                indexes = [indexes[0]];
+                
+                ms = this.findItemModelsByIndex(indexes);
+                m = (ms && ms.length) ? ms[0] : undefined;
+
+                if(m){
+                    m.marked = true;
+                    values = [m.value];
+                }else{
+                    m = CLASS.DEFAULTMODEL;
+                }
+            }else{
+                dnames = LList.$decorate([]);
+                values = LList.$decorate([]);
+                ms = this.findItemModelsByIndex(indexes);
+                
+                var len = ms ? ms.length : 0, i, d, v;
+                for(i = 0; i < len; i++){
+                    m = ms[i];
+                    m.marked = true;
+                    
+                    d = m.dname;
+                    v = m.value;
+                    if(d !== undefined && d !== null 
+                       && !dnames.contains(d)){
+                        dnames.addLast(d);
+                    }
+                    
+                    if(!values.contains(v)){
+                        values.push(v);
+                    }
+                }
+                
+                if(dnames.length > 0){
+                    dname = _joinTexts.call(this, dnames);
+                    m = {dname: dname, value: values};
+                }else{
+                    m = CLASS.DEFAULTMODEL;
+                }
+            }
+            
+            // Display current selection in display item
+            _select.call(this, m);
+            _setSelectedValues.call(this, values);
+            
+            if(callback === true){
+                this.onSelectedChanged();
+            }
+        }
+    };
+    
+    var _isSelectedChanged = function(model){
+        var latestModel = this._local.latestModel;
+        if(!(latestModel && model)){
+            return true;
+        }
+        
+        if(latestModel === model){
+            return false;
+        }
+        
+        // Date type is different, or value is different
+        if(((typeof latestModel.value) != (typeof model.value)) 
+            || (model.value != latestModel.value)){
+            return true;
+        }
+        
+        // Maybe only need to compare the "value"
+        if(model.dname != latestModel.dname){
+            return true;
+        }
+        
+        if(model.img != latestModel.img){
+            return true;
+        }
+        
+        return false;
+    };
+    
+    var _filterItemsByModel = function(model){
+        var ds = this._local.itemDefs, 
+        ms = this._local.itemModels,
+        set, useDef = false;
+        
+        if(Class.isArray(ds) && ds.length > 0){
+            set = ds;
+            useDef = true;
+        }else if(Class.isArray(ms) && ms.length > 0){
+            set = ms;
+            useDef = false;
+        }else{
+            return undefined;
+        }
+        
+        var indexes = [], len = set.length, m;
+        for(var i = 0; i < len; i++){
+            m = useDef ? set[i].model : set[i];
+            if(List.isSameModel(m, model)){
+                if(!this.multiEnable && indexes.length == 0){
+                    m.marked = true;
+                    indexes.push(i);
+                }else if(this.multiEnable){
+                    m.marked = true;
+                    if (!List.isIn(i, indexes)){
+                        indexes.push(i);
+                    }
+                }else{
+                    m.marked = false;
+                }
+            }else{
+                m.marked = false;
+            }
+        }
+        
+        return indexes;
+    };
+    
+    /**
+     * Un-select all given items.
+     * 
+     * @see <em>js.swt.DropdownList #unselectAll</em>
+     */
+    thi$.unselectAll = function(callback){
+        if(this.subview){
+            var cInfo = {notify: callback};
+            this.subview.unselectAll(true, cInfo);
+        }else{
+            // Mark all models' state as un-marked
+            _unMarkAll.call(this);
+            
+            _select.call(this, {dname: "", value: []});
+            _setSelectedValues.call(this, []);
+            
+            if(callback === true){
+                this.onSelectedChanged();
+            }
+        }
+    };
+    
+    /**
+     * @param model: {dname: xxx, value: xxx} or {img: xxx, value: xxx}
+     */
+    thi$.setSelectedByModel = function(model, callback){
+        if(!model || (typeof model !== "object"))
+            return;
+
+        // If combobox is in edit, quit the editing status.
+        // Add by mingfa.pan, 04/11/2013
+        _quitEdit.call(this);
+
+        // For bug #113854 (http://redmine.jinfonet.com.cn/issues/113854)
+        // The initial selected model may be generated from the itemDefs 
+        // or itemModels of current definition. At this time, the current
+        // ComboBox instance haven't been instantiated complete, and some
+        // override operations, such as rectifyModel, haven't been executed.
+        // So that the display value may not be right during the initialization
+        // phase. Aut the current method must be invoked again to make the
+        // logic complete.
+        // var changed = _isSelectedChanged.call(this, model);
+        // if(!changed){
+        //  return;
+        // }
+
+        var indexes = _filterItemsByModel.call(this, model) || [];
+        if(indexes.length == 0){
+            // this.unselectAll(false);
+
+            if(this.subview){
+                this.subview.unselectAll(false);
+            }else{
+                // Mark all models' state as un-marked
+                _unMarkAll.call(this);
+            }
+        }else{
+            if(this.subview){
+                this.subview.setSelectedIndexes(indexes, false); 
+            }
+        }
+        
+        _select.call(this, model);
+        _setSelectedValues.call(this, [model.value]);
+        
+        if (callback === true){
+            this.onSelectedChanged();
+        }
+    };
+
+    thi$.msgType = function(msgType){
+        var U = this._local;
+        if(Class.isString(msgType) && msgType.length > 0){
+            U.msgType = msgType;
+        }  
+
+        return U.msgType || "js.swt.event.SelectedChanged";
+    };
+
+    /**
+     * @deprecated
+     */ 
+    thi$.setMsgType = function(msgType){
+        this.msgType(msgType);
+    };
+
+    /**
+     * @deprecated
+     */ 
+    thi$.getMsgType = function(){
+        return this.msgType();
+    };
+    
+    thi$.onSelectedChanged = function(target, eType){
+        var msgType = this.msgType(),
+        values = this.getSelectedValues(),
+        eData = {comboID: this.id, values: values},
+        evt = new Event(eType || "Selected", eData, target || this);
+        this.notifyPeer(msgType, evt);
+    };
+    
+    /**
+     * @see js.swt.DropdownList #setSearchCritical
+     */
+    thi$.setSearchCritical = function(num){
+        if(Class.isNumber(num)){
+            this._local.searchCritical = num;
+            
+            var subview = this.subview;
+            if(subview){
+                subview.setSearchCritical(num);
+            }
+        }
+    };
+    
+    thi$.isSearchEnable = function(){
+        return this.subview 
+            ? this.subview.searchEnable : false;  
+    };
+    
+    thi$.setEditable = function(b){
+        b = (b === true);
+        if(this.editable === b){
+            return;
+        }
+
+        this.editable = this.def.editable = b;
+
+        var ditem = this.displayItem;
+        if(ditem){
+            if(b) {
+                ditem.attachEvent("click", 0, this, _onEdit);
+            }else{
+                ditem.detachEvent("click", 0, this, _onEdit);
+            }
+        }
+    };
+
+    thi$.onMoved = function(){
+        arguments.callee.__super__.apply(this, arguments);
+        
+        var subview = this.subview;
+        if(subview){
+            subview.invalidateLayout(false);
+        }
+    }.$override(this.onMoved);
+    
+    thi$.onResized = function(fire){
+        arguments.callee.__super__.apply(this, arguments);
+        
+        var subview = this.subview;
+        if(subview){
+            subview.invalidateLayout(false);
+        }
+    }.$override(this.onResized);
+    
+    var _onController = function(e){
+        this.notifyPeer("js.swt.event.ControllerEvent", e);
+    };
+    
+    thi$.onStateChanged = function(e){
+        arguments.callee.__super__.apply(this, arguments);
+        
+        this.btnDropDown.setState(this.getState());
+
+    }.$override(this.onStateChanged);
+    
+    thi$.destroy = function(){
+        this._local.itemDefs = null;
+        this._local.itemModels = null;
+        this._local.selectedValues = null;
+        
+        if(this.displayItem){
+            //this.displayItem.destroy();
+            delete this.displayItem;
+        }
+        
+        var M = this.def, subview = this.subview;
+        if(this._eventAttached){
+            if(M.wholeTrigger === true){
+                this.detachEvent("click", 0, this, _onDropDown);    
+            }else{
+                Event.detachEvent(this.btnDropDown.view, "click", 0, 
+                                  this, _onDropDown);
+            }
+            
+            if(M.effect === true || M.showBtnByHover === true){
+                this.detachEvent("mouseover", 0, this, _onMouseOver);
+                this.detachEvent("mouseout", 0, this, _onMouseOut);
+            }
+            
+            MQ.cancel("js.swt.event.SelectChangedEvent", 
+                      this, this.selectedChanged);
+            MQ.cancel("js.swt.event.ControllerEvent",
+                      this, _onController);
+            MQ.cancel("js.awt.event.LayerEvent", 
+                      this, _onLayerRemoved);
+        }
+        
+        if(subview){
+            _showSubview.call(this, false);
+            subview.setPMFlag(0);
+            
+            subview.detachEvent(List.EVT_READY, 4, this, _onListEvent);
+            subview.detachEvent(List.EVT_ACK_ITEMSADDED, 4, this, _onListEvent);
+            subview.detachEvent(List.EVT_ACK_ITEMSREMOVED, 4, this, _onListEvent);
+            subview.detachEvent(DDList.EVT_SUBMITVALUES, 4, this, _onListSubmit);
+            
+            delete this.subview;
+            subview.destroy();
+        }
+        
+        arguments.callee.__super__.apply(this, arguments);
+        
+    }.$override(this.destroy);
+
+    /**
+     * The display item is created and removed dynamically. When its styles was controlled,
+     * we need to cache those styles and aplly them when the display item is created again.
+     * 
+     * @styles: {Object}
+     */
+    thi$.setDisplayItemStyles = function(styles){
+        if(typeof styles !== "object"){
+            return;
+        }
+        
+        this._latestStyles = styles;
+        if(this.displayItem){
+            this.displayItem.applyStyles(styles);
+        }
+    };
+    
+    thi$.setErrSign = function(b, errStyles){
+        var ditem = this.displayItem, dview, U = this._local, 
+        oStyles = this._latestStyles, sp, styles, isCached;
+        
+        if(ditem){
+            dview = ditem.view;
+        }else{
+            dview = this.dItemContainer.view;
+        }
+        
+        if(b){
+            U.errStyles = null;
+            
+            if(typeof errStyles === "object"){
+                styles = U.errStyles = {};
+                
+                if(!oStyles){
+                    oStyles = this._latestStyles = {};
+                }
+                
+                for(sp in errStyles){
+                    isCached = false;    
+                    
+                    if(oStyles.hasOwnProperty(sp)){
+                        isCached = true;
+                        
+                        styles[sp] = oStyles[sp];
+                        oStyles[sp] = errStyles[sp];
+                    }else{
+                        sp = DOM.camelName(sp);
+                        if(oStyles.hasOwnProperty(sp)){
+                            isCached = true;
+                            
+                            styles[sp] = oStyles[sp];
+                            oStyles[sp] = errStyles[sp];
+                        }
+                    }
+                    
+                    if(!isCached){
+                        styles[sp] = DOM.getStyle(dview, sp);
+                        oStyles[sp] = errStyles[sp];
+                    }
+                }
+                
+                this.setDisplayItemStyles(oStyles);
+            }
+        }else{
+            styles = U.errStyles;
+            delete U.errStyles;
+
+            if(typeof styles === "object"){
+                if(!oStyles){
+                    oStyles = this._latestStyles = {};
+                }
+                
+                for(sp in styles){
+                    if(oStyles.hasOwnProperty(sp)){
+                        oStyles[sp] = styles[sp];
+                    }else{
+                        sp = DOM.camelName(sp);
+                        oStyles[sp] = styles[sp];
+                    }
+                }
+                
+                this.setDisplayItemStyles(oStyles);
+            }
+        }
+    };
+    
+    thi$.doEdit = function(){
+        var dContainer = this.dItemContainer, iptView = this._inputView, 
+        curV = iptView.getValue(), changed = true, models, model, values,
+        findInList = false;
+        
+        // For the blur event of an input can be caused while remove it from
+        // the parent node, when we invoke the removeComponent below, TextField
+        // can catch the blur event and then fire the "SubmitValue" event to 
+        // trigger the "doEdit" handler to remove the _inputView again, so detach
+        // event first.
+        iptView.detachEvent(js.swt.TextField.EVT_SUBMIT, 4, this, this.doEdit);
+        delete this._inputView;
+        
+        dContainer.removeComponent(iptView);
+        iptView.destroy();
+        
+        if(Class.isString(this._latestValue) 
+           && this._latestValue === curV){
+            changed = false;
+        }
+        
+        if(!changed){
+            _select.call(this, this._local.latestModel);
+            return;
+        }
+        
+        if(!this.multiEnable){
+            /*
+             * We think the input value will be as display value of item. so if there is some
+             * item with the same display value existed in the DropDownList, we will use it.
+             */
+            models = this.findItemModels("dname", [curV]);
+            model = (models && models.length > 0) ? models[0] : undefined;
+            
+            if(!model){
+                model = {dname: curV, value: curV};
+            }else{
+                findInList = true;
+            }
+            
+            values = [model.value];
+        }else{
+            values = _splitText.call(this, curV);
+            model = {dname: curV, value: values};
+        }
+        
+        /*
+         * Before using the input value, if there are some special bussiness logic,
+         * we need to implement the rectifyInput() method to handle the input value.
+         * 
+         * Add on 03/18/2014, for bug #102193:
+         * If find a item with the input text as dname, use it directly.
+         */
+        if(!findInList && (typeof this.rectifyInput == "function")){
+            model = this.rectifyInput(model);
+            
+            if(!this.multiEnable){
+                values = [model.value]; 
+            }
+        }
+        
+        // Display current selection in display item
+        _select.call(this, model);
+        
+        /* Attention: 
+         * Some of values may be not belonged to any item. So there are two steps as follow
+         * to finish selecting:
+         * 1) Recorde all current selected value include the one which is not belonged to any
+         *    item of DropdownList.
+         * 2) Select all items. Each of them is indicated by values.
+         */
+        _setSelectedValues.call(this, values);
+        
+        var subview = this.subview;
+        if(subview){
+            subview.setSelectedValues(values, false);
+        }
+        
+        // Notify the selected changed
+        this.onSelectedChanged();       
+    };
+    
+    var _preIptStyles = function(sps){
+        var latestStyles = this._latestStyles, styles = {}, 
+        len, sp, v;
+        if(!latestStyles){
+            return styles;
+        }
+
+        sps = sps || iptSps;
+        len = Class.isArray(sps) ? sps.length : 0;
+        
+        for(var i = 0; i < len; i++){
+            sp = sps[i];
+            v = latestStyles[sp];
+            
+            if(v != undefined && v != null){
+                styles[sp] = v;
+            }
+        }
+        
+        return styles;
+    };
+    
+    thi$.getEditContents = function(m){
+        return Class.isObject(m) ? m.dname || "" : "";
+    };
+    
+    var _onEdit = function(e){
+        e.cancelBubble();
+        
+        // Hide the DropDown button if need
+        if(this.isShowBtnByHover()){
+            this.showBtnDropDown(false);
+        }
+        
+        // Hide the DropdownList
+        _showSubview.call(this, false);
+        
+        var dContainer = this.dItemContainer, 
+        Clz = Class.forName("js.swt.TextField"),
+        iptStyles, iptDef, input, m, v;
+        
+        m = this._local.latestModel = this.displayItem.model;
+
+        // Record the styles and remove the displayItem
+        _removeDisplayItem.call(this);
+        
+        // Create input box'
+        iptStyles = _preIptStyles.call(this);
+        iptStyles = DOM.toCssText(iptStyles);
+        
+        iptDef = {
+            width: this._latestWidth,
+            height: this._latestHeight
+        };
+        
+        iptDef = System.objectCopy(inputBoxDef, iptDef, true); 
+        iptDef.css = (iptDef.css || "") + iptStyles;
+        iptDef.fontCss = iptStyles;
+        
+        input = this._inputView = 
+            new (Clz)(iptDef, this.Runtime());
+
+        v = this._latestValue = this.getEditContents(m);
+        input.setValue(v);
+        
+        dContainer.addComponent(input);
+        dContainer.doLayout(true);
+        
+        input.attachEvent(Clz.EVT_SUBMIT, 4, this, this.doEdit);
+        input.focus(true);
+    };
+    
+    var _removeDisplayItem = function(){
+        var dContainer = this.dItemContainer, 
+        ditem = this.displayItem;
+        
+        if(ditem){
+            if(!this._latestStyles){
+                this._latestStyles = ditem.getStyles(sps);
+            }
+            
+            this._latestWidth = ditem.getWidth();
+            this._latestHeight = ditem.getHeight();
+            
+            if(this.editable) {
+                ditem.detachEvent("click", 0, this, _onEdit);
+            }
+            
+            dContainer.removeComponent(ditem);
+            ditem.destroy();
+        }
+        
+        delete this.displayItem;
+    };
+
+    thi$.getDItemDef = function(m){
+        var M = this.def, dItemDef = M.dItemDef,
+        b = (M.showTips !== false),
+
+        tdef = {
+            classType: "js.swt.ModelItem",
+            className: DOM.combineClassName(M.className, "dItem"),
+            stateless: true,
+
+            showTips: b,
+            useInput: this.useInput,
+            
+            rigid_w: false, rigid_h: false,
+            
+            layout: {align_x: 0.0, align_y: 0.5}
+        };
+
+        if(Class.isObject(dItemDef)){
+            tdef = System.objectCopy(dItemDef, tdef, true);
+        }
+
+        tdef.model = m;
+        return tdef;
+    };
+
+    var _createDisplayItem = function(model){
+        var R = this.Runtime(), M = this.def, 
+        dItemDef = this.getDItemDef(model),
+        displayItem, b, tip;
+        
+        dItemDef.css = DOM.toCssText(this._latestStyles),
+        displayItem = this.displayItem =
+            new (Class.forName(dItemDef.classType))(dItemDef, R),
+        
+        b = (M.showTips !== false);
+        tip = M.displayTip;
+        if (b && (typeof tip === "string")){
+            displayItem.setToolTipText(tip);
+        }
+
+        if(this.editable){
+            //displayItem.attachEvent("dblclick", 0, this, _onEdit);
+            displayItem.attachEvent("click", 0, this, _onEdit);
+        }
+        
+        this.dItemContainer.addComponent(displayItem);
+        
+        if(displayItem.isDOMElement() 
+           && ((!isNaN(this._latestWidth) && this._latestWidth > 0) 
+               || (!isNaN(this._latestHeight) && this._latestHeight > 0))){
+            displayItem.setSize(this._latestWidth, this._latestHeight, 3);
+        }
+    };
+    
+    thi$.rectifyModel = function(m){
+        // Implement if need.
+        return m;  
+    };
+    
+    /**
+     * The <em>displayItem</em> will be removed first and then added again 
+     * when call this method. If not, there are something wrong when do edit.
+     * 
+     * @param model: {dname: xxx, value: xxx} or {img: xxx, value: xxx}
+     */
+    var _setSelected = function(model) {
+        if(!model)
+            return;
+        
+        _removeDisplayItem.call(this);
+        
+        // For bug #114049 (http://redmine.jinfonet.com.cn/issues/114049)
+        // 
+        // Sometimes, the model to select is from the options directly. If we 
+        // rectifying it directly, the oringinal item in the options will also 
+        // be changed. That isn't right. So we copy it first.
+        var m = System.objectCopy(model, {}, true);
+        m = this.rectifyModel(m);
+        _createDisplayItem.call(this, m);
+    };
+    
+    var _wrapText = function(text, startSymbol, endSymbol /* Optional */){
+        if(typeof text !== "string")
+            return null;
+        
+        var buf = new js.lang.StringBuffer(), symbol;
+        if(typeof startSymbol === "string"){
+            symbol = startSymbol;
+            
+            buf.append(startSymbol);
+        }
+        
+        buf.append(text);
+        
+        if(typeof endSymbol === "string"){
+            symbol = endSymbol;
+        }
+        
+        if(typeof symbol === "string"){
+            buf.append(symbol);
+        }
+        
+        return buf.toString();
+    };
+    
+    var _joinTexts = function(texts){
+        if(!texts || texts.length == 0)
+            return "";
+        
+        var buf = new js.lang.StringBuffer(), text;
+        for(var i = 0, len = texts.length; i < len; i++){
+            if(i > 0){
+                buf.append(",");
+            }
+            
+            text = texts[i];
+            text = _wrapText.call(this, text, '\"');
+            buf.append(text);
+        }
+        
+        return buf.toString();
+    };
+    
+    var _splitText = function(text){
+        if(typeof text !== "string")
+            return null;
+        
+        var regExp = /("[^"]+")/g, matches = text.match(regExp);
+        if(!matches || matches.length == 0)
+            return null;
+        
+        var len = matches.length, segs = [], seg;
+        for(var i = 0; i < len; i++){
+            seg = matches[i];
+            seg = seg.replace(/"/g, "");
+            
+            segs[i] = seg;
+        }
+        return segs;
+    };
+    
+    var _setSelectedValues = function(values){
+        values = Class.isArray(values) ? values : [];
+        this._local.selectedValues = LList.$decorate(values);      
+    };
+    
+    var _select = function(model){
+        this._local.latestModel = model;
+        _setSelected.call(this, model);
+    };
+    
+    thi$.showSubview = function(b){
+        var rst = false;
+        if(b === true){
+            rst = true;
+            
+            if(this.subview){
+                if(this.subview.isShown()){
+                    this.subview.hide("hide", {ignore: true});
+                    
+                    this._local.expectedOp = 1; 
+                    this.setHover(false);
+                }
+                
+                _showSubview.call(this, true);
+            }else{
+                _onDropDown.call(this);
+            }
+        }else{
+            if(this.subview){
+                _showSubview.call(this, false);
+            }
+        }
+        
+        return rst;
+    };
+    
+    var _showSubview = function(b){
+        if(!this.subview){
+            return;
+        }
+        
+        this._local.expectedOp = b ? 0 : 1;
+        var isShown = this.subview.isShown();
+        if(isShown == b){
+            return;
+        }
+        
+        if(b){
+            if(this.isShowBtnByHover()){
+                this.showBtnDropDown(true);
+            }
+            
+            var w = DOM.outerWidth(this.view, true);
+            this.subview.setMinimumSize(w);
+            this.subview.showBy(this.view);
+        }else{
+            this.subview.hide();
+        }
+    };
+    
+    thi$.showBtnDropDown = function(b){
+        var btn = this.btnDropDown; 
+        if(btn.isVisible() === b 
+           || (b && this._inputView)){
+            return;
+        }
+        
+        btn.setVisible(b);
+        btn.display(b);
+        
+        if(this.isDOMElement()){
+            btn.def.prefSize = null;
+            this.doLayout(true);   
+        }     
+    };
+    
+    var _onDropDown = function(e){
+        if(this._inputView){
+            this.doEdit();
+        }
+
+        this._local.latestModel 
+            = this.displayItem ? this.displayItem.model : null;
+        
+        var M = this.def;
+        if(!this.subview){
+            //var w = DOM.outerWidth(this.view, true);
+            //M.subview.width = w;
+            _createSubview.call(this, M);
+
+            var tmp = this._local.subviewRoot;
+            if(tmp){
+                this.subview.rootLayer(tmp);
+                delete this._local.subviewRoot;
+            }
+        }
+
+        var show = (this._local.expectedOp == 0 ? false : true);
+        _showSubview.call(this, show);
+    };
+    
+    var _onMouseOver = function(e){
+        if(this.subview && this.subview.isShown()){
+            return;
+        }
+        
+        if(this.isShowBtnByHover()){
+            this.showBtnDropDown(true);
+        }
+        
+        if(this.hasEffect()){
+            this.setHover(true);
+        }
+    };
+    
+    var _onMouseOut = function(e){
+        if(this.subview && this.subview.isShown()){
+            return;
+        }
+
+        if(this.hasEffect()){
+            this.setHover(false);
+        }
+
+        if(this.isShowBtnByHover()){
+            this.showBtnDropDown(false);
+        }
+    };
+    
+    // When we want to select some non-existent items from the ComboBox's list
+    // by invoking setSelectedValues() or setSelectedIndexes(), we will build
+    // a model object as the selected with the same rules as those two methods
+    // implementation:
+    // a)If invoked the setSelectedValues(), use the specified values
+    //   as value to build a model object.
+    // b)If no model object can be returned, use the default model.
+    var _buildSelectedModel = function(cInfo){
+        var m;
+        if(cInfo && cInfo.values){
+            var set = cInfo.values, dname, v;
+            if(set.length > 0){
+                if(this.multiEnable){
+                    dname = _joinTexts.call(this, set);
+                    v = set;
+                }else{
+                    dname = v = set[0];
+                }
+                
+                m = {dname: dname, value: v};
+            }
+        }else{
+            // Whether we should use the first item as selected??
+            // if(cInfo && cInfo.indexes){
+            //     var ms = this.findItemModelsByIndex([0]);
+            //     m = ms ? ms[0] : undefined;
+            // }
+        }
+        
+        return m || {dname: "", value: "", isDefault: true};
+    };
+    
+    /**
+     * A temporary solution to make user can custom the display value by
+     * overriding this method.
+     */
+    thi$.extractSelectedModel = function(event){
+        var data = event.getData(), models = data.models, 
+        cInfo = data.callbackInfo,
+        len = models ? models.length : 0,
+        selectedModel;
+        
+        if (len == 0){
+            selectedModel = _buildSelectedModel.call(this, cInfo);
+        } else if (this.multiEnable){
+            var dnames = LList.$decorate([]), values = LList.$decorate([]), 
+            m, dname, v;
+            for(var i = 0; i < len; i++){
+                m = models[i];
+                dname = m.dname;
+                v = m.value;
+                if(dname !== undefined && dname !== null 
+                   && !dnames.contains(dname)){
+                    dnames.addLast(dname);
+                }
+                
+                if(v !== undefined && v !== null 
+                   && !values.contains(v)){
+                    values.push(v);
+                }
+            }
+            
+            dname = _joinTexts.call(this, dnames);
+            selectedModel = {dname: dname, value: values};
+        } else {
+            selectedModel = models[0];
+        }
+        
+        return selectedModel;
+    };
+    
+    thi$.selectedChanged = function(event){
+        var data = event.getData(), cInfo = data.callbackInfo,
+        m = this.extractSelectedModel(event), vs;
+        if(!m.value && m.isDefault === true){
+            vs = [];
+        }else{
+            vs = this.multiEnable ? m.value : [m.value];
+        }
+
+        this._local.selectedValues = LList.$decorate(vs);
+        _select.call(this, m);
+        
+        if(!this.multiEnable){
+            //If it isn't single selection, hide the dropdown list.
+            _showSubview.call(this, false);
+        }
+        
+        if((event.getType() === "click") 
+            || (cInfo && cInfo.notify === true)){
+            this.onSelectedChanged(event.getEventTarget(), "ItemMarked");       
+        }
+    };
+    
+    /**
+     * In some special cases, make the combobox be in editable state immediately.
+     * 
+     * @param force: {Boolean} Indicate to force the combobox be in editable state
+     *        even if it isn't editiable now.
+     */
+    thi$.activeEdit = function(force){
+        if(force === true || this.editable){
+            _onEdit.call(this, new Event("activeEdit"));
+        }
+    };
+    
+    var _onListEvent = function(e){
+        this.fireEvent(e);
+    };
+    
+    var _onListSubmit = function(){
+        _showSubview.call(this, false);
+    };
+    
+    var _createSubview = function(def){
+        var theDef = def.subview,
+        ds = this._local.itemDefs,
+        ms = this._local.itemModels;
+
+        if(Class.isArray(ds) && ds.length > 0){
+            theDef.itemDefs = ds;
+        }else if(Class.isArray(ms) && ms.length > 0){
+            theDef.itemModels = ms;
+        } 
+        
+        var subview = this.subview = new DDList(theDef, this.Runtime());
+        subview.setPeerComponent(this);
+        subview.setAdjustPosToFit(false);
+        
+        subview.attachEvent(List.EVT_READY, 4, this, _onListEvent);
+        subview.attachEvent(List.EVT_ACK_ITEMSADDED, 4, this, _onListEvent);
+        subview.attachEvent(List.EVT_ACK_ITEMSREMOVED, 4, this, _onListEvent);
+        subview.attachEvent(DDList.EVT_SUBMITVALUES, 4, this, _onListSubmit);
+    };
+    
+    var _onLayerRemoved = function(e){
+        var type = e.getType(), evt = e.getData(),
+        eType = evt ? ((evt instanceof js.util.Event) 
+                       ? evt.getType() : evt.type) : undefined,
+        el = evt ? evt.srcElement : undefined,
+        trigger = (this.def.wholeTrigger === true 
+                   ? this : this.btnDropDown);
+        
+        this.notifyPeer("js.awt.event.LayerEvent", e);
+        
+        if(type == "afterRemoveLayer"){
+            if(eType == "hide" && evt && evt.ignore === true){
+                return;
+            }
+
+            if(eType == "hide" || eType == "message"  
+               || (el && !trigger.contains(el, true))){
+                this._local.expectedOp = 1; 
+                this.setHover(false);
+                
+                if(this.isShowBtnByHover()){
+                    this.showBtnDropDown(false);
+                }
+            }
+        }
+    };
+    
+    // If combobox is in edit, quit the editing status.
+    // Add by mingfa.pan, 04/11/2013
+    var _quitEdit = function(){
+        var iptView = this._inputView;
+        if(!this.editable || !iptView){
+            return;
+        }
+        
+        iptView.detachEvent(js.swt.TextField.EVT_SUBMIT, 4, this, this.doEdit);
+
+        this.dItemContainer.removeComponent(iptView);
+        iptView.destroy();
+        delete this._inputView;
+        
+        _select.call(this, this._local.latestModel);
+    };
+    
+    // Initialize selecteions
+    var _preSelect = function(useDefault){
+        var ds = this._local.itemDefs, 
+        ms = this._local.itemModels, 
+        useDs = false, set;
+        
+        if(Class.isArray(ds) && ds.length > 0){
+            useDs = true;
+            set = ds;
+        }else if(Class.isArray(ms) && ms.length > 0){
+            useDs = false;
+            set = ms;
+        }
+
+        var len = set ? set.length : 0, 
+        dnames = [], values = LList.$decorate([]), 
+        tmp, m;
+        for(var i = 0; i < len; i++){
+            tmp = set[i];
+            tmp = useDs ? tmp.model : tmp;
+            if(tmp && (tmp.marked === true)){
+                if(!this.multiEnable){
+                    m = tmp;
+                    values.push(m.value);
+                    break;
+                }
+                
+                dnames.push(tmp.dname);
+                if(!values.contains(tmp.value)){
+                    values.push(tmp.value);
+                }
+            }
+        }
+        
+        if(this.multiEnable && (dnames.length > 0)){
+            var dname = _joinTexts.call(this, dnames);
+            m = {dname: dname, value: values};
+        }
+        
+        // If combobox is in edit, quit the editing status.
+        // Add by mingfa.pan, 04/11/2013
+        _quitEdit.call(this);
+
+        if(!Class.isObject(m) && useDefault === true){
+            m = CLASS.DEFAULTMODEL;
+            values = [];
+        }
+        
+        if(Class.isObject(m)){
+            _select.call(this, m);
+            _setSelectedValues.call(this, values);
+        }
+    };
+    
+    var _preInit = function(def){
+        if(def && def.subview){
+            this._local = this._local || {};
+            this._local.subviewRoot = def.subview.root;
+            delete def.subview.root;
+        }
+
+        def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
+        def.layout = def.layout 
+            || {gap: 0, align_x: 0.0, align_y: 0.5};
+        
+        def.items = ["dItemContainer", "btnDropDown"];
+        
+        var tmp = {className: DOM.combineClassName(def.className, "dItemContainer")};
+        def.dItemContainer = System.objectCopy(dItemContainerDef, tmp, true);
+
+        tmp = {className: DOM.combineClassName(def.className, "dropdown")};
+        def.btnDropDown = System.objectCopy(btnDropDownDef, tmp, true);
+
+        return def;
+    };
+    
+    thi$._init = function(def){
+        if(typeof def !== "object") return;
+        
+        def = _preInit.call(this, def);
+        arguments.callee.__super__.apply(this, arguments);
+        
+        // 0: Expect hide subview
+        // 1: Expect popup subview
+        this._local.expectedOp = 1;
+        this._local.msgType = "js.swt.event.SelectedChanged";
+        
+        this.useInput = (def.useInput === true);
+        this.editable = (!this.useInput && def.editable === true);
+        this.multiEnable = (def.subview.multiEnable === true);
+        this.setDisplayItemStyles(def.displayItemStyles);
+        
+        var ds = def.subview.itemDefs, 
+        ms = def.subview.itemModels;
+        if(Class.isArray(ds) && ds.length > 0){
+            this._local.itemDefs = ds;
+        }else if(Class.isArray(ms) && ms.length > 0){
+            this._local.itemModels = ms;
+        }
+        
+        _preSelect.call(this, true);
+        
+        if(def.initDDList === true){
+            _createSubview.call(this, def);
+        }
+        
+        if(this.isShowBtnByHover()){
+            this.showBtnDropDown(false);
+        }
+
+        // Register to listen the events and messages
+        var M = this.def;
+        if(M.wholeTrigger === true){
+            this.attachEvent("click", 0, this, _onDropDown);       
+        }else{
+            Event.attachEvent(this.btnDropDown.view, "click", 0, 
+                              this, _onDropDown);
+        }
+        
+        if(M.effect === true || M.showBtnByHover === true){
+            this.attachEvent("mouseover", 0, this, _onMouseOver);
+            this.attachEvent("mouseout", 0, this, _onMouseOut);
+        }
+        
+        MQ.register("js.swt.event.SelectChangedEvent", 
+                    this, this.selectedChanged);
+        MQ.register("js.swt.event.ControllerEvent",
+                    this, _onController);
+        MQ.register("js.awt.event.LayerEvent", 
+                    this, _onLayerRemoved);
+        
+    }.$override(this._init);
+    
+    this._init.apply(this, arguments);
+
+}.$extend(js.awt.HBox);
+
+js.swt.ComboBox.DEFAULTMODEL = {dname: "", value: ""};
+js.swt.ComboBox.DEFAULTDEF = function(){
+    return {
+        classType: "js.swt.ComboBox",
+        className: "jsvm_comboBox",
+        
+        wholeTrigger: false,
+        editable: false,
+        effect: false,
+        
+        showTips: true,
+        displayTip: undefined,
+        
+        initDDList: false,
+        displayItemStyles: undefined,
+        
+        subview: {
+            multiEnable: false,
+            
+            distinct: false,
+            showItemTip: true,
+            
+            hauto: true,
+            vauto: false,
+
+            searchIfAllowed: false,     
+            lazy: false,
+            
+            itemModels: [],
+            itemDefs: []
+        }
+    };
+};
+
+/**
+
+ Copyright 2010-2013, The JSVM Project. 
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without modification, 
+ are permitted provided that the following conditions are met:
+ 
+ 1. Redistributions of source code must retain the above copyright notice, 
+ this list of conditions and the following disclaimer.
+ 
+ 2. Redistributions in binary form must reproduce the above copyright notice, 
+ this list of conditions and the following disclaimer in the 
+ documentation and/or other materials provided with the distribution.
+ 
+ 3. Neither the name of the JSVM nor the names of its contributors may be 
+ used to endorse or promote products derived from this software 
+ without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
+ OF THE POSSIBILITY OF SUCH DAMAGE.
+
+ *
+ * File: ScrollPane.js
+ * Create: 2013/06/06 03:42:53
+ * Author: Pan Mingfa
+ * Contact: jsvm.prj@gmail.com
+ * License: BSD 3-Clause License
+ * Source code availability: https://github.com/jsvm/JSVM
+ */
+
+$package("js.swt");
+
+/**
+ * A ScrollPane is a container that allows multiple components to be laid out 
+ * horizontally. The components will not wrap so.
+ */
+js.swt.ScrollPane = function(def, Runtime){
+    var CLASS = js.swt.ScrollPane,
+    thi$ = CLASS.prototype;
+    
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+    System = J$VM.System, MQ = J$VM.MQ;
+    
+    thi$.isHScroll = function(){
+        return this.def.layout.axis == 0;  
+    };
+    
+    /**
+     * Judge whether one component can stretch automatically accoring to the
+     * runtime available space.
+     */
+    thi$.isAutostretch = function(){
+        return this.def.autostretch === true;  
+    };
+    
+    /**
+     * Set the possible minimum and maximum space for a component when it is
+     * stretched. It won't be used until the current ScrollPane is autostretch.
+     * 
+     * @param min: {Number} The possible minimum space for a component.
+     * @param max: {Number} The possible maximum space for a component. 
+     */
+    thi$.setStretchRange = function(min, max){
+        var M = this.def, r = M.stretchRange = M.stretchRange || {};
+        if(Class.isNumber(min)){
+            r.min = min;
+        }
+        
+        if(Class.isNumber(max)){
+            r.max = max;
+        }
+    };
+    
+    /**
+     * Return the possible stretch range.
+     */
+    thi$.getStretchRange = function(){
+        return this.def.stretchRange;  
+    };
+    
+    /**
+     * After add a comp to ScrollPane, it is not right to do layout directly.
+     * And we recommand to drive its container to do layout first, then its
+     * container can cause it to do layout.
+     * 
+     * @param comp: {Component} A component to add.
+     * @param notify: {Boolean} Indicate to notify the operation to its peer 
+     *        component. Default is true.
+     * @param fireLayout: {Boolean} Indicate to fire an event for the operation 
+     *        to drive its container to do layout. Default is false.
+     */
+    var _addComp = function(comp, notify, fireLayout){
+        this.cache[comp.uuid()] = comp;
+        
+        if(typeof comp.hoverCtrl == "function"){
+            comp.hoverCtrl(false);
+        }
+        
+        if(notify !== false){
+            this.notifyPeer(
+                "js.awt.event.ItemEvent", new Event("add", "", comp));
+        }
+        
+        if(fireLayout === true){
+            this.fireEvent(new Event(CLASS.SCROLLPANEEVENT, {type: "add"}));
+        }
+        
+        return comp;
+    };
+    
+    /**
+     * @see js.awt.Container #insertComponent
+     */
+    thi$.insertComponent = function(index, comp, constraints, notify, fireLayout){
+        comp = arguments.callee.__super__.apply(this, [index, comp, constraints]);  
+        return _addComp.call(this, comp, notify, fireLayout);
+        
+    }.$override(this.insertComponent);
+    
+    /**
+     * Remove an item from current ScrollPane.
+     * 
+     * @param comp: {Component} A component to remove.
+     * @param notify: {Boolean} Indicate to notify the operation to its peer 
+     *        component. Default is true.
+     * @param fireLayout: {Boolean} Indicate to fire an event for the operation 
+     *        to drive its container to do layout. Default is false.
+     * 
+     * @see js.awt.Container #removeComponent
+     */
+    thi$.removeComponent = function(comp, notify, fireLayout){
+        if(!comp) return;
+        
+        var items = this.items(), index = items.indexOf(comp.id);
+        comp = arguments.callee.__super__.apply(this, [comp]);
+        
+        if(this.cache){
+            delete this.cache[comp.uuid()];
+        }
+        
+        if(notify !== false){
+            this.notifyPeer(
+                "js.awt.event.ItemEvent", new Event("remove", "", comp));
+        }
+        
+        items = this.items();
+        index = index >= items.length ? items.length - 1 : index;
+        if(index >= 0){
+            comp = this[items[index]];
+            this.activateComponent(comp);
+        }
+        
+        if(fireLayout === true){
+            this.fireEvent(new Event(CLASS.SCROLLPANEEVENT, {type: "remove"}));
+        }
+        
+    }.$override(this.removeComponent);
+    
+    /**
+     * @see js.awt.Container #activeComponent
+     */
+    thi$.activeComponent = function(comp){
+        if(!comp) return;
+        
+        var items = this.items0(), id;
+        for(var i=0, len=items.length; i<len; i++){
+            id = items[i];
+            if(this[id] == comp){
+                this[id].setTriggered(true); 
+
+                this._local.active = comp;
+                this.notifyPeer(
+                    "js.awt.event.ItemEvent", new Event("active", "", comp));
+            }else{
+                this[id].setTriggered(false);
+            }
+        }
+        
+    }.$override(this.activeComponent);
+    
+    /**
+     * Scroll to the next position
+     */
+    thi$.scrollNext = function(){
+        var el = this.view, p, v;
+        if(this.isHScroll()){
+            p = el.scrollLeft + this._local.itemMeasure;
+            v = el.scrollWidth;
+            p = p > v ? v : p;
+            el.scrollLeft = p;
+        }else{
+            p = el.scrollTop + this._local.itemMeasure;
+            v = el.scrollHeight;
+            p = p > v ? v : p;
+            el.scrollTop = p;
+        }
+    };
+    
+    /**
+     * Scroll to the previous position
+     */
+    thi$.scrollPrevious = function(){
+        var el = this.view, p;
+        if(this.isHScroll()){
+            p = el.scrollLeft - this._local.itemMeasure;
+            p = p < 0 ? 0 : p;
+            el.scrollLeft = p;
+        }else{
+            p = el.scrollTop - this._local.itemMeasure;
+            p = p < 0 ? 0 : p;
+            el.scrollTop = p;
+        }
+    };
+    
+    /**
+     * Scroll to the first position.
+     */
+    thi$.scrollFirst = function(){
+        if(this.isHScroll()){
+            this.view.scrollLeft = 0;
+        }else{
+            this.view.scrollTop = 0;
+        }
+    };
+    
+    /**
+     * Scroll to the last position.
+     */
+    thi$.scrollLast = function(){
+        if(this.isHScroll()){
+            this.view.scrollLeft = this.view.scrollWidth;
+        }else{
+            this.view.scrollTop = this.view.scrollHeight;
+        }
+    };
+    
+    /**
+     * @see js.awt.Movable #isMoverSpot
+     */
+    thi$.isMoverSpot = function(el, x, y){
+        var uuid = el.uuid, item = this.cache[uuid];
+        if(item && item.isMoverSpot(el, x, y)){
+            this.activateComponent.$delay(this, 1, item);
+            return true;
+        }
+        
+        return false;
+    };
+    
+    /**
+     * @see js.awt.Movable #getMoveObject
+     */
+    thi$.getMoveObject = function(e){
+        var moveObj = this.moveObj;
+        if(!moveObj){
+            var M = this.def, el = e.srcElement, uuid = el.uuid, 
+            item = this.cache[uuid], absXY = DOM.absXY(item.view),
+            def = System.objectCopy(item.def, {}, true);
+            
+            if(M.moveObjClz){
+                def.classType = M.moveObjClz;
+            }
+            
+            moveObj = this.moveObj 
+                = new (Class.forName(def.classType))(def, this.Runtime(), item.cloneView());
+            moveObj.setMovingPeer(this);
+            moveObj.appendTo(document.body);
+            moveObj.setPosition(absXY.x, absXY.y);
+        }
+        
+        return moveObj;
+    };
+    
+    thi$.getGap = function(){
+        var def = this.layout.def, gap;
+        if(this.isHScroll()){
+            gap = def.hgap || 0;
+        }else{
+            gap = def.vgap || 0;
+        }
+        
+        return gap;
+    };
+    
+    var _getIdealMeasure = function(){
+        var items = this.items0(), n = items.length, measure;
+        if(n == 0){
+            return measure;
+        }
+        
+        var bounds = this.getBounds(), MBP = bounds.MBP,
+        maxSize = this.getMaximumSize(), range = this.getStretchRange(),
+        min = range.min, max = range.max, gap = this.getGap(), ameasure;
+        
+        if(this.isHScroll()){
+            ameasure = maxSize.width;
+            if(!Class.isNumber(ameasure)){
+                return measure;
+            }
+            
+            ameasure = ameasure - gap * (n - 1) - MBP.BPW;
+            measure = Math.floor(ameasure / n); //ceil
+        }else{
+            ameasure = maxSize.height;
+            if(!Class.isNumber(ameasure)){
+                return measure;
+            }
+            
+            ameasure = ameasure - gap * (n - 1) - MBP.BPH;
+            measure = Math.floor(ameasure / n); //ceil
+        }
+        
+        if(Class.isNumber(min) && measure >= min 
+           && Class.isNumber(max) && measure <= max){
+            // Keep measure
+        }else if(Class.isNumber(max) && measure > max){
+            measure = max;
+        }else if(Class.isNumber(min) && measure < min){
+            measure = min;
+        }else{
+            measure = undefined;
+        }
+        
+        return measure;
+    };
+    
+    var _stretch = function(){
+        if(!this.isAutostretch()){
+            return;
+        }
+        
+        var items = this.items0(), n = items.length, 
+        measure = _getIdealMeasure.call(this),
+        isHScroll = this.isHScroll(),
+        bounds = this.getBounds(), 
+        rigid, w, h, comp, d;
+        
+        if(!Class.isNumber(measure)){
+            return;
+        }
+        
+        if(isHScroll){
+            w = measure;
+        }else{
+            h = measure;
+        }
+        
+        for(var i = 0; i < n; i++){
+            comp = this[items[i]];
+            if(!comp.isVisible()) continue;
+            
+            d = comp.getPreferredSize();
+            if(isHScroll){
+                rigid = comp.isRigidHeight();
+                h = rigid ? d.height : bounds.innerHeight;
+            }else{
+                rigid = comp.isRigidWidth();
+                w = rigid ? d.width : bounds.innerWidth; 
+            }
+            
+            // comp.setSize(w, h, 0x04);
+            comp.setPreferredSize(w, h);
+        }
+    };
+    
+    var _getVisibleCount = function(){
+        var items = this.items0(), n = items.length, vCnt = 0,
+        comp;
+
+        for(var i = 0; i < n; i++){
+            comp = this[items[i]];
+            if(!comp.isVisible()) continue;
+
+            ++vCnt;
+        }
+
+        return vCnt;        
+    };
+    
+    var _getIdealSize = function(){
+        var D = this.getBounds(), gap = this.getGap(), 
+        vCnt = _getVisibleCount.call(this), 
+        measure = _getIdealMeasure.call(this), idealSize;
+        
+        if(Class.isNumber(measure)){
+            idealSize = {};
+            
+            if(this.isHScroll()){
+                idealSize.width = measure * vCnt + gap * (vCnt - 1) + D.MBP.BPW;
+                idealSize.height = D.height;
+            }else{
+                idealSize.width = D.width;
+                idealSize.height = measure * vCnt + gap * (vCnt - 1) + D.MBP.BPH;
+            }
+        }
+        
+        return idealSize;
+    };
+    
+    var _getIdealSize$ = function(){
+        var items = this.items0(), n = items.length, D = this.getBounds(),
+        gap = this.getGap(), isH = this.isHScroll(), vCnt = 0,
+        comp, rigid, s, w = 0, h = 0;
+
+        for(var i = 0; i < n; i++){
+            comp = this[items[i]];
+            if(!comp.isVisible()) continue;
+
+            s = comp.getPreferredSize();            
+            if(isH){
+                w += s.width;
+            }else{
+                h += s.height;
+            }
+            
+            ++vCnt;
+        }
+        
+        if(isH){
+            w += gap * (vCnt - 1) + D.MBP.BPW;
+            h = D.height;
+        }else{
+            w = D.width;
+            h += gap * (vCnt - 1) + D.MBP.BPH;
+        }
+        
+        return {width: w, height: h};
+    };
+    
+    thi$.getIdealSize = function(){
+        var items = this.items0(), n = items.length, idealSize;
+        if(n > 0){
+            if(this.isAutostretch()){
+                idealSize = _getIdealSize.call(this);
+            }
+            
+            if(!idealSize){
+                idealSize = _getIdealSize$.call(this);                
+            }
+        }
+        
+        if(!idealSize){
+            idealSize = this.getPreferredSize();
+        }
+        
+        return idealSize;
+        
+    };
+    
+    /**
+     * @see js.awt.Container #getPreferredSize
+     */
+    thi$.getPreferredSize = function(){
+        var cnt = _getVisibleCount.call(this);
+        if(cnt == 0){
+            return arguments.callee.__super__.apply(this, arguments);            
+        }
+        
+        var size = this.getIdealSize(), max = this.getMaximumSize(),
+        prefSize;
+        
+        if(this.isHScroll()){
+            this._local.itemMeasure = size.width / cnt;
+            
+            prefSize = {
+                width: Math.min(size.width, max.width),
+                height: size.height
+            };    
+        }else{
+            this._local.itemMeasure = size.height / cnt;
+            
+            prefSize = {
+                width: size.width,
+                height: Math.min(size.height, max.height)
+            };
+        }
+        
+        return prefSize;
+        
+    }.$override(this.getPreferredSize);
+    
+    thi$.doLayout = function(force){
+        if(this.isDOMElement() && this.needLayout(force)){
+            _stretch.call(this);
+        }
+
+        return arguments.callee.__super__.apply(this, arguments);        
+        
+    }.$override(this.doLayout);
+    
+    var _onclick = function(e){
+        var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
+        eType, evt;
+
+        if(item){
+            eType = e.getType();
+
+            if(eType == "click"){
+                e.setEventTarget(item);
+                
+                evt = new Event(el === item.ctrl 
+                    ? "ctrlclick" : "itemclick", "", item);
+                this.notifyPeer("js.awt.event.ItemEvent", evt);
+                
+            }else if(eType == "dblclick"){
+                e.cancelBubble();
+                
+                if(item.isEditable && item.isEditable()) {
+                    item.editLabel();
+                }
+            }
+        }
+
+        return e.cancelDefault();
+    };
+    
+    var _onitemtextchange = function(e){
+        var item = e.getEventTarget(), d;
+        item.def.prefSize = undefined;
+        this.doLayout(true);
+        
+        if(e.getType() == "edit"){
+            this.notifyPeer(
+                "js.awt.event.ItemEvent", 
+                new Event("textchanged", "", item));
+        }
+    };
+
+    var _onmouseover = function(e){
+        // hoverOnCtrl: indicate whether the ctrl should hovered if
+        // and only if the mouse is over the ctrl other than whole
+        // component. Default is true.
+        var hoverOnCtrl = (this.def.hoverOnCtrl !== false),
+        from = e.fromElement, to = e.toElement, 
+        fid = from ? from.uuid : undefined, 
+        tid = to ? to.uuid : undefined,
+        fitem, titem, cache = this.cache;
+
+        if(fid !== tid){
+            fitem = cache[fid];
+            titem = cache[tid];
+            if(fitem && fitem.isHover()){
+                fitem.setHover(false);
+                
+                if(typeof fitem.hoverCtrl == "function"){
+                    fitem.hoverCtrl(false);
+                }
+            }
+            if(titem && !titem.isHover()){
+                titem.setHover(true, e);
+                
+                if((!hoverOnCtrl || to == titem.ctrl) 
+                    && (typeof titem.hoverCtrl == "function")){
+                    titem.hoverCtrl(true);
+                }
+            }
+        }else{
+            titem = cache[tid];
+            if(titem && titem.isHover() 
+                && (typeof titem.hoverCtrl == "function")){
+                if(!hoverOnCtrl || to == titem.ctrl){
+                    titem.hoverCtrl(true);
+                }else{
+                    titem.hoverCtrl(false);
+                }
+            }
+        }
+    };
+    
+    /**
+     * Judge whether the specified item can be dropped. If true
+     * calculate and return the index.
+     * 
+     * @param item: {Component} The specified item to drop
+     * @param xy: {Object} The current mouse position
+     */
+    thi$.acceptInsert = function(item, xy){
+        var mvId = item.id, items = this.items0(),
+        insert, tmp;
+
+        for(var i=0, len=items.length; i<len; i++){
+            tmp = this[items[i]];
+            
+            if(tmp.id == mvId) continue;
+            
+            if(tmp.inside(xy.x, xy.y)){
+                tmp.setActivated(true);
+                insert = items.indexOf(tmp.id);
+            }else{
+                tmp.setActivated(false);
+            }
+        }            
+        
+        return insert;
+    };
+
+    /**
+     * Show a custom indicator to indicate where to insert item.
+     * 
+     * @param b: {Boolean} true to show indicator, false to hide.
+     * @param insert: {Number} The index of inserting position.
+     */
+    thi$.showIndicator = function(b, insert){
+        //Do nothing
+    };
+    
+    var _ondrag = function(e){
+        var eType = e.getType(), moveObj = e.getEventTarget(),
+        xy = e.eventXY(), mvId = moveObj.id, item = this[mvId],
+
+        items = this.items0(), p0 = items.indexOf(mvId), 
+        p1, insert, changed = false;
+
+        switch(eType){
+        case "mousemove":
+            p1 = this.acceptInsert(item, xy);
+            this._local.insert = Class.isNumber(p1) ? p1 : p0;
+
+            this.showIndicator(true, this._local.insert);
+            break;
+        case "mouseup":
+            p1 = this._local.insert;
+            insert = this[items[p1]];
+
+            if(p0 > p1){
+                // Insert before p1
+                items.remove0(p0);
+                items.add(p1, mvId);
+                this.view.removeChild(item.view);
+                this.view.insertBefore(item.view, insert.view);
+                
+                changed = true;
+            }else if(p0 < p1){
+                // Insert after p1
+                items.add(p1+1, mvId);
+                items.remove0(p0);
+                this.view.removeChild(item.view);
+                this.view.insertBefore(item.view, insert.view.nextSibling);
+                
+                changed = true;
+            }
+            
+            if(changed){
+                this.def.items = System.arrayCopy(
+                    items, 0, 
+                    js.util.LinkedList.$decorate([]), 0, items.length);
+                this.doLayout(true);
+                this.notifyPeer("js.awt.event.ItemEvent", 
+                                new Event("orderchanged","", this));
+            }
+            
+            if(insert){
+                insert.setActivated(false);
+            }
+            
+            this.showIndicator(false);
+            delete this._local.insert;
+
+            break;
+        }
+    };
+
+    /**
+     * @see js.awt.Component
+     */
+    thi$.destroy = function(){
+        delete this.cache;
+        delete this._local.insert;
+        
+        this.detachEvent("mouseover", 0, this, _onmouseover);
+        this.detachEvent("mouseout",  0, this, _onmouseover);
+        this.detachEvent("click",     0, this, _onclick);
+        this.detachEvent("dblclick",  0, this, _onclick);
+        
+        MQ.cancel("js.awt.event.ItemTextEvent", this, _onitemtextchange);
+        if(this.isMovable()){
+            MQ.cancel("js.awt.event.MovingEvent", this, _ondrag);
+        }
+
+        arguments.callee.__super__.apply(this, arguments);
+
+    }.$override(this.destroy);
+    
+    thi$._init = function(def, Runtime){
+        if(typeof def !== "object") return;
+        
+        var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true),
+        hscroll = (newDef.layout.axis == 0), mover, M;
+        
+        newDef.classType = newDef.classType || "js.swt.ScrollPane";
+        newDef.className = newDef.className 
+            || (hscroll ? "jsvm_hscroll" : "jsvm_vscroll");
+        newDef.moveObjClz = newDef.moveObjClz || "js.awt.Item";
+        
+        mover = newDef.mover = newDef.mover || {};
+        mover.longpress = mover.longpress || 250;
+        mover.freedom = Class.isNumber(mover.freedom) 
+            ? mover.freedom : (hscroll ? 1 : 2);
+        
+        arguments.callee.__super__.apply(this, [newDef, Runtime]);
+        
+        this.cache = {};
+        
+        this.attachEvent("mouseover", 0, this, _onmouseover);
+        this.attachEvent("mouseout",  0, this, _onmouseover);
+        this.attachEvent("click",     0, this, _onclick);
+        this.attachEvent("dblclick",  0, this, _onclick);
+        
+        MQ.register("js.awt.event.ItemTextEvent", this, _onitemtextchange);
+        if(this.isMovable()){
+            MQ.register("js.awt.event.MovingEvent", this, _ondrag);
+        }
+        
+    }.$override(this._init);
+    
+    this._init.apply(this, arguments);
+    
+}.$extend(js.awt.Container);
+
+js.swt.ScrollPane.SCROLLPANEEVENT = "js.awt.event.ScrollPaneEvent";
+js.swt.ScrollPane.DEFAULTDEF = function(){
+    return {
+        classType: "js.swt.ScrollPane",
+        
+        layout: {
+            classType: "js.awt.FlowLayout",
+            hgap: 0,
+            vgap: 0,
+            axis: 0,
+            
+            align_x: 0.0,
+            align_y: 0.0
+        },
+        
+        rigid_w: false,
+        rigid_h: false,
+        
+        movable: true
+    };
+};
 

@@ -86,7 +86,6 @@
             "js/awt/FlowLayout.js",
             "js/awt/GridLayout.js",
             "js/awt/Element.js",
-            "js/awt/BaseComponent.js",
             "js/awt/Component.js",
             "js/awt/Containable.js",
             "js/awt/Container.js",

@@ -193,7 +193,7 @@ js.awt.Element = function(def, Runtime){
      * @param h, height
      */
     thi$.setSize = function(w, h, fire){
-        var M = this.def, ele = this.veiw, bounds;
+        var M = this.def, ele = this.view, bounds;
 
         if(ele){
             bounds = this.getBounds();
@@ -875,12 +875,12 @@ js.awt.Element = function(def, Runtime){
         return this.def.classType;
     };
 
-    thi$._init = function(def, Runtime){
+    thi$._init = function(def, Runtime, view){
         if(!Class.isObject(def)) return;
         
         def.classType = def.classType || "js.awt.Element";
-        this.uuid(def.uuid);
-        this.id = def.id || this.uuid();
+        var id = this.uuid(def.uuid);
+        this.id = def.id || (view ? (view.id || id) : id); 
 
         arguments.callee.__super__.apply(this, arguments);
 

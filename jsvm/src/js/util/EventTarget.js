@@ -22,7 +22,7 @@ js.util.EventTarget = function (def, Runtime){
     }
     CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, 
+    var Class = js.lang.Class, Event = js.util.Event,
         List = js.util.LinkedList;
 
     var _getListeners = function(eventType){
@@ -105,23 +105,23 @@ js.util.EventTarget = function (def, Runtime){
      * @see dispatchEvent(evt);
      */
     thi$.fireEvent = function(evt, bubble){
-        var eType, isEventObj;
-        
-        if(evt.instanceOf && evt.instanceOf(Event)){
-            isEventObj = true;
-            eType = evt.getType();
-        }else if(Class.isString(evt)) {
+        var eType, isEvent, handlers;
+
+        if(Class.isString(evt)){
             eType = evt;
+        }else if(evt instanceof Event){
+            eType = evt.getType();
+            isEvent = true;
         }
 
-        var listeners = this["on"+eType];
-        switch(Class.typeOf(listeners)){
+        handlers = this["on"+eType];
+        switch(Class.typeOf(handlers)){
         case "function":
-            listeners.call(this, evt);
+            handlers.call(this, evt);
             break;
         case "array":
-            for(var i=0, len=listeners.length; i<len; i++){
-                listeners[i](evt);
+            for(var i=0, len=handlers.length; i<len; i++){
+                handlers[i].call(this, evt);
             }
             break;
         default:
@@ -129,10 +129,9 @@ js.util.EventTarget = function (def, Runtime){
         }
 
         // Bubble event
-        if(isEventObj && (bubble === true && evt._bubble === true)){
+        if(isEvent && (bubble === true && evt._bubble === true)){
             var src = this.view || evt.srcElement,
-                ele = src ? src.parentNode : null,
-                target = J$VM.DOM.getComponent(ele);
+                target = J$VM.DOM.getComponent(src ? src.parentNode : null);
             if(target && target.fireEvent){
                 target.fireEvent(evt, bubble);
             }
@@ -150,15 +149,6 @@ js.util.EventTarget = function (def, Runtime){
         return cap;
     };
     
-    /**
-     * Return event target with specified uuid
-     * 
-     * @link js.lang.Object#getObject
-     */
-    thi$.getEventTarget = function(uuid){
-        return this.getObject(uuid);
-    };
-
     thi$.destroy = function(){
         var eType, handlers = this.__handlers__;
 
@@ -183,10 +173,10 @@ js.util.EventTarget = function (def, Runtime){
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
-        if(def === undefined) return;
+        if(!Class.isObject(def)) return;
+        // TODO ?
 
         arguments.callee.__super__.apply(this, arguments);
-
     }.$override(this._init);
     
     this._init.apply(this, arguments);
