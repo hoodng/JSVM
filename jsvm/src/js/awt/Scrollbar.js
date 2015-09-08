@@ -145,7 +145,7 @@ js.awt.Scrollbar = function (def, Runtime){
     };
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.destroy = function(){
         var brace, scroll = false;

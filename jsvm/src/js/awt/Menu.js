@@ -197,7 +197,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	}.$override(this.hide);
 
 	/**
-	 * @see js.awt.BaseComponent
+	 * @see js.awt.Component
 	 * @see js.awt.Component
 	 */
 	thi$.repaint = function(){
@@ -227,8 +227,8 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			M.z = this.getStyle("z-index");
 
 			// For shadow
-			if(M.shadow === true && !this.shadowSettled()){
-				this.setShadowy(true);
+			if(M.shadow){
+				this.showShadow(true, M.shadowClassName);
 			}
 
 			// For floating layer
@@ -247,10 +247,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			this._local.repaint = true;
 		}
 
-		if(this.shadowSettled()){
-			this.addShadow();
-			this.adjustShadow();
-		}
+        this.adjustLayers("resize");
 
 		if(this.active){
 			this.active.setHover(false);

@@ -322,11 +322,7 @@ js.lang.Class = new function (){
      *
      */
     this.typeOf = function(o){
-        return (o === null) ? "null" :
-            (o === undefined) ? "undefined" :
-            this.isHtmlElement(o) ?
-            "html" + o.tagName.toLowerCase() + "element" :
-            this.isBigInt(o) ? "bigint" : _typeof(o);
+        return _typeof(o);
     };
     
     var _typeof = function(o){
@@ -350,7 +346,7 @@ js.lang.Class = new function (){
      * isNaN(d); //true
      */
     this.isDate = function(o){
-        return (this.typeOf(o) == "date" && !isNaN(o));
+        return this.typeOf(o) === "date" && !isNaN(o);
     };
 
     /**
@@ -373,57 +369,56 @@ js.lang.Class = new function (){
      * Test if the specified object is a string
      */
     this.isString = function(o){
-        return this.typeOf(o) == "string";
+        return this.typeOf(o) === "string";
     };
 
     /**
      * Test if the specified object is a number
      */
     this.isNumber = function(o){
-        return !isNaN(o) && this.typeOf(o) == "number";
+        return this.typeOf(o) === "number" && !isNaN(o);
     };
 
     /**
      * Test if the specified object is an object
      */
     this.isObject = function(o){
-        return this.typeOf(o) == "object";
+        return this.typeOf(o) === "object";
     };
 
     /**
      * Test if the specified object is a pure object other than a Class object.
      */
     this.isPureObject = function(o){
-        return o != undefined && o != null && (typeof o === "object")
-            && (o.constructor === Object);  
+        return this.isObject(o) && (o.constructor === Object);  
     };
 
     /**
      * Test if the specified object is a Boolean
      */
     this.isBoolean = function(o){
-        return this.typeOf(o) == "boolean";
+        return this.typeOf(o) === "boolean";
     };
 
     /**
      * Test if the specified object is null
      */
     this.isNull = function(o){
-        return this.typeOf(o) == "null";
+        return this.typeOf(o) === "null";
     };
 
     /**
      * Test if the specified object is undefined
      */
     this.isUndefined = function(o){
-        return this.typeOf(o) == "undefined";
+        return this.typeOf(o) === "undefined";
     };
 
     /**
      * Test if the specified object is a function
      */
     this.isFunction = function(o){
-        return this.typeOf(o) == "function";
+        return this.typeOf(o) === "function";
     };
 
     /**
@@ -438,7 +433,7 @@ js.lang.Class = new function (){
      * Test if the specified object is a html element
      */
     this.isHtmlElement = function(o){
-        return o ? !!o.tagName : false;
+        return this.typeOf(o).indexOf("html") === 0;
     };
 
     /**

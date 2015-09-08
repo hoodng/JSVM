@@ -603,8 +603,7 @@ js.awt.Component = function(def, Runtime, view){
      * of current Component.
      */ 
     thi$.isStyleByState = function(){
-        return !this.isStateless() 
-            && (this.def.styleByState !== false);
+        return !this.isStateless() && this.def.styleByState;
     };
 
     thi$.onStateChanged = function(e){
@@ -826,49 +825,41 @@ js.awt.Component = function(def, Runtime, view){
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, view){
-        if(def == undefined) return;
+        if(!Class.isObject(def)) return;
         
         def.classType = def.classType || "js.awt.Component";
 
         arguments.callee.__super__.apply(this, arguments);
-        
-        var tclazz = def.className;
-        if(tclazz){
-            tclazz = DOM.extractDOMClassName(tclazz);
+
+        var hasView = Class.isHtmlElement(view), clazz;
+        if(!hasView){
+            this.view = view = DOM.createElement(def.viewType || "DIV");
+            view.id = this.id;
+            if(def.css){
+                view.style.cssText = view.style.cssText + def.css;
+            }
+            def.className = def.className || "jsvm__element";
+        }else{
+            this.view = view;
+            def.className = view.clazz || view.className;
         }
 
-        if(view){
-            this.view = view;
-            def.className = view.clazz || def.className;
+        this.className = DOM.extractDOMClassName(def.className);
+        if(this.isStyleByState()){
+            clazz = DOM.stateClassName(def.className, this.getState());
         }else{
-            this.view = view = DOM.createElement(def.viewType || "DIV");
-            def.className = def.className || "jsvm__element";
-            view.clazz = view.className = view.className 
-                + (tclazz ? (" " + tclazz) : "");
+            clazz = this.className;
         }
-        
+        view.clazz = def.className;
+        DOM.setClassName(view, clazz, def.classPrefix);
         view = this.view;
         view.uuid = this.uuid();
-        if(view.tagName != "BODY"){
-            view.id = this.id 
-                || (this.classType() + "." + js.awt.Element.count);            
-        }
-
-
-        this.className = tclazz;
-        if(def.css) view.style.cssText = view.style.cssText + def.css;
+        
+        /*
         if(view.tagName != "BODY" && view.tagName != "CANVAS"
            && view.cloned != "true"){
             _preparegeom.call(this);    
-        }
-
-        if(!this.isStateless()){
-            def.state = def.state || 0;
-            if(this.isStyleByState()){
-                view.className = DOM.stateClassName(
-                    def.className, this.getState());
-            }
-        }
+        }*/
 
         this.setTipText(def.tip);
 

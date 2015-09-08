@@ -98,7 +98,7 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	/**
-	 * @see js.awt.BaseComponent
+	 * @see js.awt.Component
 	 */
 	thi$.getPreferredSize = function(){
 		var M = this.def, prefSize = M.prefSize, G, D,
@@ -323,7 +323,7 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	/**
-	 * @see js.awt.BaseComponent#setToolTipText
+	 * @see js.awt.Component#setToolTipText
 	 *
 	 * @param text
 	 * @param elid, can be branch, marker label and ctrl
@@ -526,7 +526,7 @@ js.awt.Item = function(def, Runtime, view){
 	 * be simple enough. And it must not be resized, moved, floating and
 	 * showing shadow. However it can be disabled.
 	 * 
-	 * @link js.awt.BaseComponent#repaint
+	 * @link js.awt.Component#repaint
 	 * @link js.awt.Component#repaint
 	 */
 	thi$.repaint = function(){

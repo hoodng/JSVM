@@ -74,7 +74,9 @@ js.util.Document = function (){
 	}();
 
 	var userselect = _prefix_+"user-select",
-	userdrag = _prefix_+"user-drag";
+	    userdrag = _prefix_+"user-drag",
+        textastyles = {resize: "none", outline: "none",
+                       overflow: "auto"};
 	
 	/**
 	 * Create a DOM element
@@ -82,23 +84,19 @@ js.util.Document = function (){
 	 */
 	thi$.createElement = function(type){
 		var el = document.createElement(type);
-		this.setStyle(el, userselect, "none");
-		this.setStyle(el, userdrag, "none");
-
 		switch(el.tagName){
-		case "IMG":
-			//this.forbidSelect(el);			
+            case "SCRIPT":
+            case "STYLE":
+            case "LINK":
+            break;
+            
+		    case "INPUT":
+		    case "TEXTAREA":
+            el.className = "jsvm--txt";
 			break;
-		case "INPUT":
-			el.className = "jsvm--font ";
-			this.setStyle(el, userselect, "text");
-			this.applyStyles(el, {resize: "none", outline: "none"});
-			break;
-		case "TEXTAREA":
-			el.className = "jsvm--font ";
-			this.setStyle(el, userselect, "text");
-			this.applyStyles(el, {resize: "none", outline: "none", overflow: "auto"});
-			break;
+            default:
+            el.className = "jsvm--com";
+            break;
 		}
 		return el;
 	};
@@ -679,7 +677,8 @@ js.util.Document = function (){
 		bounds = bounds || this.getBounds(el);
 
 		var BBM = bounds.BBM, styleW, styleH,
-		isCanvas = (el.tagName === "CANVAS");
+		    isCanvas = (el.tagName === "CANVAS"),
+            changed = false;
 
 		if(BBM){
 			styleW = w;
@@ -698,6 +697,7 @@ js.util.Document = function (){
 			}else{
 				el.style.width = styleW + "px";
 			}
+            changed = true;
 		}
 
 		if(Class.isNumber(styleH) && styleH >= 0){
@@ -709,7 +709,13 @@ js.util.Document = function (){
 			}else{
 				el.style.height = styleH + "px";
 			}
+            changed = true;
 		}
+
+        if(!changed) return;
+        
+        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_SIZE);
+        
 	};
 
 	/**
@@ -777,17 +783,25 @@ js.util.Document = function (){
 	 * @param y, top position in pixel
 	 */
 	thi$.setPosition = function(el, x, y, bounds){
+        var changed = false;
+        
 		bounds = bounds || this.getBounds(el);
 
 		if(Class.isNumber(x)){
 			bounds.x = x;
 			el.style.left = x + "px";
+            changed = true;
 		}
 
 		if(Class.isNumber(y)){
 			bounds.y = y;
 			el.style.top =	y + "px";
+            changed = true;
 		}
+
+        if(!changed) return;
+
+        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_POSITION);            
 	};
 
 	/**
@@ -927,7 +941,7 @@ js.util.Document = function (){
 	 */
 	thi$.removeFrom = function(el, parentNode){
 		if(!el) return;
-
+        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_REMOVED);        
 		parentNode = parentNode || el.parentNode;
 		parentNode.removeChild(el);
 	};
@@ -954,27 +968,41 @@ js.util.Document = function (){
 	 * Append the element to the parent node
 	 */
 	thi$.appendTo = function(el, parentNode){
+        if(!el || !parentNode) return;
 		parentNode.appendChild(el);
+        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_APPEND);
 	};
 
 	/**
 	 * Insert the element before refNode
 	 */
-	thi$.insertBefore = function(el, refNode, parentNode){
-		parentNode = parentNode || refNode.parentNode;
-		if(refNode){
-			parentNode.insertBefore(el, refNode);
-		}else{
-			parentNode.appendChild(el);
-		}
+	thi$.insertBefore = function(el, refNode){
+        if(!el || !refNode) return;
+        refNode.parentNode.insertBefore(el, refNode);
+        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_APPEND);        
 	};
 
 	/**
 	 * Insert the element after refNode
 	 */
 	thi$.insertAfter = function(el, refNode){
-		this.insertBefore(el, refNode.nextSibling, refNode.parentNode);
+        if(!el || !refNode) return;
+        var parentNode = refNode.parentNode;
+        refNode = refNode.nextSibling;
+        if(refNode){
+            parentNode.insertBefore(el, refNode);
+        }else{
+            parentNode.appendChild(el);
+        }
+        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_APPEND);        
 	};
+
+    var _fireHtmlEvent = function(el, type){
+        if(!this.isDOMElement(el)) return;
+        var event = self.document.createEvent("Event");
+        event.initEvent(type, true, true);
+        el.dispatchEvent(event);
+    };
 
 	/**
 	 * Check if the child node is the descendence node of this element.<p>
@@ -984,10 +1012,8 @@ js.util.Document = function (){
 	 * @param containSelf, whether contains the scenario of parent == child
 	 */
 	thi$.contains = function(el, child, containSelf){
-		if(el == null || el == undefined ||
-		   child == null || child == undefined){
-			return false;
-		}
+        if(!el || !child) return false;
+
 		if(el.compareDocumentPosition){
 			// W3C
 			var res = el.compareDocumentPosition(child);
@@ -1401,6 +1427,26 @@ js.util.Document = function (){
 	};
 
 
+    thi$.setClassName = function(ele, className, prefix){
+        if(!ele) return;
+        
+        if(!Class.isString(prefix)){
+            prefix = "jsvm--";
+        }
+        
+        switch(Class.typeOf(ele)){
+            case "htmlinputelement":
+            case "htmltextareaelement":
+            prefix = prefix ? prefix+"txt" : "";
+            break;
+            default:
+            prefix = prefix ? prefix+"com" : "";
+            break;
+        }
+
+        ele.className = [prefix, className].join(" ");
+    };
+    
 	var STATEREG = /(\w+)(_\d{1,4})$/;
 
 	thi$.splitClassName = function(className){

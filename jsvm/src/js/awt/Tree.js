@@ -394,7 +394,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			if(!cview){
 				item = new js.awt.TreeItem(itemDef, this.Runtime(), this);
 			}else{
-				// Ref: js.awt.BaseComponent#_init
+				// Ref: js.awt.Component#_init
 				cview.clazz = clazz;
 
 				item = new js.awt.TreeItem(

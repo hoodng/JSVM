@@ -149,7 +149,7 @@ js.swt.HItem = function(def, Runtime){
 	 * The js.swt.HItem is different from the js.awt.Item. It should be the 
 	 * normal component. So it can support resize, move and so on.
 	 * 
-	 * @link js.awt.BaseComponent#repaint
+	 * @link js.awt.Component#repaint
 	 * @link js.awt.Component#repaint
 	 */
 	thi$.repaint = function(){

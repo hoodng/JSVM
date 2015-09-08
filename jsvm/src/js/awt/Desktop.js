@@ -266,6 +266,10 @@ js.awt.Desktop = function (Runtime){
         }
     };
 
+    var _onhtmlevent = function(e){
+        System.err.println(e);
+    };
+
     var apps = {};
 
     thi$.getApps = function(){
@@ -357,7 +361,8 @@ js.awt.Desktop = function (Runtime){
             link = dom.createElement("link");
             link.type = "text/css";
             link.rel = "stylesheet";
-            link.href = DOM.makeUrlPath(J$VM.j$vm_home, "../style/"+theme+"/"+file);
+            link.href = DOM.makeUrlPath(J$VM.j$vm_home,
+                                        "../style/"+theme+"/"+file);
             DOM.insertBefore(link, dom.getElementById("j$vm"));
         }
     };
@@ -412,7 +417,7 @@ js.awt.Desktop = function (Runtime){
     };
     
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.destroy = function(){
         var id, app;
@@ -476,26 +481,46 @@ js.awt.Desktop = function (Runtime){
         var styleText = Class.getResource(
             J$VM.j$vm_home + "../style/jsvm_reset.css", true);
         this.applyCSSCode("jsvm_reset.css", styleText);
-        
-        Event.attachEvent(self, Event.W3C_EVT_RESIZE, 0, this, _onresize);
-        Event.attachEvent(self, Event.W3C_EVT_MESSAGE,0, this, _onmessage);
 
-        Event.attachEvent(dom,  Event.W3C_EVT_KEY_DOWN,   0, this, _onkeyevent);
-        Event.attachEvent(dom,  Event.W3C_EVT_KEY_UP,     0, this, _onkeyevent);
-        
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_MOVE, 0, this, _onmousemove);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OVER, 0, this, _onmouseover);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_OUT,  0, this, _onmouseout);   
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DOWN, 0, this, _onmousedown);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_UP,   0, this, _onmouseup);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_CLICK,0, this, _onclick);
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_DBCLICK,0, this, _onclick);        
-        Event.attachEvent(dom,  Event.W3C_EVT_MOUSE_WHEEL,0, this, _onmousewheel);
-        Event.attachEvent(dom,  Event.W3C_EVT_CONTEXTMENU,0, this, _oncontextmenu);
-        
+        _bindEvents.call(this);
+
         R = Runtime;
 
     }.$override(this._init);
+
+    var _bindEvents = function(){
+        var dom = self.document,
+            EVENTS = [
+                [self, Event.W3C_EVT_RESIZE,        _onresize],
+                [self, Event.W3C_EVT_MESSAGE,       _onmessage],
+
+                [dom,  Event.W3C_EVT_KEY_DOWN,      _onkeyevent],
+                [dom,  Event.W3C_EVT_KEY_UP,        _onkeyevent],
+            
+                [dom,  Event.W3C_EVT_MOUSE_MOVE,    _onmousemove],
+                [dom,  Event.W3C_EVT_MOUSE_OVER,    _onmouseover],
+                [dom,  Event.W3C_EVT_MOUSE_OUT,     _onmouseout],   
+                [dom,  Event.W3C_EVT_MOUSE_DOWN,    _onmousedown],
+                [dom,  Event.W3C_EVT_MOUSE_UP,      _onmouseup],
+                [dom,  Event.W3C_EVT_MOUSE_CLICK,   _onclick],
+                [dom,  Event.W3C_EVT_MOUSE_DBCLICK, _onclick],        
+                [dom,  Event.W3C_EVT_MOUSE_WHEEL,   _onmousewheel],
+                [dom,  Event.W3C_EVT_CONTEXTMENU,   _oncontextmenu],
+
+                [dom,  Event.SYS_EVT_ELE_APPEND,    _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_REMOVED,   _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_POSITION,  _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_SIZE,      _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_ZINDEX,    _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_ATTRS,     _onhtmlevent],
+                [dom,  Event.SYS_EVT_ELE_STYLE,     _onhtmlevent]        
+            ], item;
+
+        for(var i=0, len=EVENTS.length; i<len; i++){
+            item = EVENTS[i];
+            Event.attachEvent(item[0], item[1], 0, this, item[2]);
+        }
+    };
 
     this._init.apply(this, arguments);
 

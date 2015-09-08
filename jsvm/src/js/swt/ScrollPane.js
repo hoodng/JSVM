@@ -676,7 +676,7 @@ js.swt.ScrollPane = function(def, Runtime){
     };
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.destroy = function(){
         delete this.cache;

@@ -264,7 +264,7 @@ js.awt.Container = function (def, Runtime, view){
     
     
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.getPreferredSize = function(nocache){
         var bounds, d;
@@ -289,7 +289,7 @@ js.awt.Container = function (def, Runtime, view){
     }.$override(this.getPreferredSize);
 
     /**
-     *  @see js.awt.BaseComponent
+     *  @see js.awt.Component
      */
     thi$.getMinimumSize = function(nocache){
         return nocache === true ? 
@@ -298,7 +298,7 @@ js.awt.Container = function (def, Runtime, view){
     }.$override(this.getMinimumSize);
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.getMaximumSize = function(nocache){
         return nocache === true ? 

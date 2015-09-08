@@ -432,7 +432,7 @@ js.awt.Element = function(def, Runtime){
      * @param parent, the specified parent
      */
     thi$.appendTo = function(parent){
-        if(this.view && Class.isHtmlElement(parent)){
+        if(this.view){
             DOM.appendTo(this.view, parent);
         }else if (parent.appendChild){
             parent.appendChild(this);
@@ -445,7 +445,7 @@ js.awt.Element = function(def, Runtime){
      * @param parent, the specified parent
      */
     thi$.removeFrom = function(parent){
-        if(this.view && Class.isHtmlElement(parent)){
+        if(this.view){
             DOM.removeFrom(this.view, parent);
         }else if (parent.removeChild){
             parent.removeChild(this);
@@ -459,9 +459,9 @@ js.awt.Element = function(def, Runtime){
      *
      * @param ref, the specified node
      */
-    thi$.insertBefore = function(ref, parent){
-        if(this.view && (ref || Class.isHtmlElement(parent))){
-            DOM.insertBefore(this.view, ref, parent);
+    thi$.insertBefore = function(ref){
+        if(this.view){
+            DOM.insertBefore(this.view, ref);
         }else if (ref.getContainer()){
             ref.getContainer().insertChildBefore(this, ref);
         } 
@@ -473,8 +473,8 @@ js.awt.Element = function(def, Runtime){
      * @param ref, the specified node
      */
     thi$.insertAfter = function(ref){
-        if(this.view && ref){
-            this.insertBefore(ref.nextSibling, ref.parentNode);
+        if(this.view){
+            DOM.insertAfter(this.view, ref);
         }else if (ref.getContainer()){
             ref.getContainer().insertChildAfter(this, ref);
         } 
@@ -856,7 +856,6 @@ js.awt.Element = function(def, Runtime){
         }
     };
     
-
     thi$.destroy = function(){
         if(this.destroied) return;
 
@@ -877,41 +876,47 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$._init = function(def, Runtime){
-        if(def === undefined) return;
-        
-        this.def = def;
-        this.uuid(def.uuid);
-        this.id = def.id || this.uuid();
+        if(!Class.isObject(def)) return;
         
         def.classType = def.classType || "js.awt.Element";
+        this.uuid(def.uuid);
+        this.id = def.id || this.uuid();
 
         arguments.callee.__super__.apply(this, arguments);
+
+        var M = this.def, U = this._local;
 
         this.__buf__ = new js.lang.StringBuffer();
 
         CLASS.count++;
 
-        if(def.movable){
-            this.setMovable(def.movable);
+        if(!this.isStateless()){
+            if(!Class.isNumber(M.state)){
+                M.state = 0;
+            }
         }
 
-        if(def.resizable){
-            this.setResizable(def.resizable, def.resizer);
+        if(M.movable){
+            this.setMovable(true);
         }
 
-        if(def.useUserDefinedTip){
-            this.setUserDefinedTip(true, def.tipDef);
+        if(M.resizable){
+            this.setResizable(true, M.resizer);
+        }
+
+        if(M.useUserDefinedTip){
+            this.setUserDefinedTip(true, M.tipDef);
         }
         
-        if(def.prefSize){
+        if(M.prefSize){
             this.isPreferredSizeSet = true;
         }
         
-        if(def.miniSize){
+        if(M.miniSize){
             this.isMinimumSizeSet = true;
         }
         
-        if(def.maxiSize){
+        if(M.maxiSize){
             this.isMaximumSizeSet = true;
         }        
                 

@@ -4159,7 +4159,7 @@ $package("js.awt");
 $import("js.awt.Element");
 
 /**
- * A BaseComponent is an object having a graphical representation
+ * A Component is an object having a graphical representation
  * that can be displayed in the browser and that can interact with the
  * user.<p>
  * 
@@ -4185,9 +4185,9 @@ $import("js.awt.Element");
  * view.
 
  */
-js.awt.BaseComponent = function(def, Runtime, view){
+js.awt.Component = function(def, Runtime, view){
 
-    var CLASS = js.awt.BaseComponent, thi$ = CLASS.prototype;
+    var CLASS = js.awt.Component, thi$ = CLASS.prototype;
     if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
@@ -4821,7 +4821,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
     thi$._init = function(def, Runtime, view){
         if(def == undefined) return;
         
-        def.classType = def.classType || "js.awt.BaseComponent";
+        def.classType = def.classType || "js.awt.Component";
 
         arguments.callee.__super__.apply(this, arguments);
         
@@ -4917,7 +4917,7 @@ js.awt.BaseComponent = function(def, Runtime, view){
 
 $package("js.awt");
 
-$import("js.awt.BaseComponent");
+$import("js.awt.Component");
 $import("js.awt.Editable");
 $import("js.util.Observer");
 
@@ -5251,7 +5251,7 @@ js.awt.Component = function (def, Runtime, view){
     }.$override(this.repaint);
     
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.doLayout = function(force){
         if(arguments.callee.__super__.apply(this, arguments)){
@@ -5413,7 +5413,7 @@ js.awt.Component = function (def, Runtime, view){
 
     this._init.apply(this, arguments);
     
-}.$extend(js.awt.BaseComponent).$implements(
+}.$extend(js.awt.Component).$implements(
     js.util.Observer, js.awt.Editable, js.awt.PopupLayer);
 
 
@@ -5956,7 +5956,7 @@ js.awt.Container = function (def, Runtime, view){
     
     
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.getPreferredSize = function(nocache){
         var bounds, d;
@@ -5981,7 +5981,7 @@ js.awt.Container = function (def, Runtime, view){
     }.$override(this.getPreferredSize);
 
     /**
-     *  @see js.awt.BaseComponent
+     *  @see js.awt.Component
      */
     thi$.getMinimumSize = function(nocache){
         return nocache === true ? 
@@ -5990,7 +5990,7 @@ js.awt.Container = function (def, Runtime, view){
     }.$override(this.getMinimumSize);
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.getMaximumSize = function(nocache){
         return nocache === true ? 
@@ -6673,7 +6673,7 @@ js.awt.ScrollPane = function (def, Runtime){
     };
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.getPreferredSize = function(){
         var r = _getLayoutSize.call(this), max = this.getMaximumSize();
@@ -6693,7 +6693,7 @@ js.awt.ScrollPane = function (def, Runtime){
     }.$override(this.getPreferredSize);
     
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.doLayout = function(force){
         if(this.isDOMElement() 
@@ -6895,7 +6895,7 @@ js.awt.ScrollPane = function (def, Runtime){
     };
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.destroy = function(){
         delete this.cache;
@@ -7895,7 +7895,7 @@ js.awt.Item = function(def, Runtime, view){
 	System = J$VM.System, MQ = J$VM.MQ;
 
 	/**
-	 * @see js.awt.BaseComponent
+	 * @see js.awt.Component
 	 */
 	thi$.getPreferredSize = function(){
 		if(this.def.prefSize == undefined){
@@ -8104,7 +8104,7 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	/**
-	 * @see js.awt.BaseComponent#setToolTipText
+	 * @see js.awt.Component#setToolTipText
 	 *
 	 * @param text
 	 * @param elid, can be branch, marker label and ctrl
@@ -8127,7 +8127,7 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	/**
-	 * @see js.awt.BaseComponent
+	 * @see js.awt.Component
 	 */
 	thi$.doLayout = function(){
 		var ele = this.label || this.input,
@@ -8149,11 +8149,11 @@ js.awt.Item = function(def, Runtime, view){
 	 * be simple enough. And it must not be resized, moved, floating and
 	 * showing shadow. However it can be disabled.
 	 * 
-	 * @link js.awt.BaseComponent#repaint
+	 * @link js.awt.Component#repaint
 	 * @link js.awt.Component#repaint
 	 */
 	thi$.repaint = function(){
-		var rst = js.awt.BaseComponent.prototype.repaint.apply(this, arguments);
+		var rst = js.awt.Component.prototype.repaint.apply(this, arguments);
 		if(rst){
 			this.showDisableCover(!this.isEnabled());
 		}
@@ -8729,8 +8729,8 @@ js.awt.FlexibleItem = function(def, Runtime){
 	/**
 	 * Specify a component as current item's customized contents.
 	 * 
-	 * @param comp: {Object} A custom component must be an object of the BaseComponent
-	 *		  or BaseComponent's derived class. And it must implement an getValue method
+	 * @param comp: {Object} A custom component must be an object of the Component
+	 *		  or Component's derived class. And it must implement an getValue method
 	 *		  to return the item's value.
 	 */
 	thi$.setCustomComponent = function(comp){
@@ -10537,7 +10537,7 @@ js.awt.MenuSeparator = function(def, Runtime, menu){
 	
 	this._init.apply(this, arguments);
 	
-}.$extend(js.awt.BaseComponent);
+}.$extend(js.awt.Component);
 
 
 /**
@@ -10739,7 +10739,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	}.$override(this.hide);
 
 	/**
-	 * @see js.awt.BaseComponent
+	 * @see js.awt.Component
 	 * @see js.awt.Component
 	 */
 	thi$.repaint = function(){
@@ -11156,7 +11156,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 					tree,
 					this);
 			}else{
-				// Ref: js.awt.BaseComponent#_init
+				// Ref: js.awt.Component#_init
 				cview.clazz = clazz;
 
 				item = new js.awt.TreeItem(
@@ -11948,7 +11948,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			if(!cview){
 				item = new js.awt.TreeItem(itemDef, this.Runtime(), this);
 			}else{
-				// Ref: js.awt.BaseComponent#_init
+				// Ref: js.awt.Component#_init
 				cview.clazz = clazz;
 
 				item = new js.awt.TreeItem(
@@ -14449,7 +14449,7 @@ js.awt.Desktop = function (Runtime){
     };
     
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.destroy = function(){
         var id, app;
@@ -18450,7 +18450,7 @@ js.awt.Scrollbar = function (def, Runtime){
     };
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.destroy = function(){
         var brace, scroll = false;

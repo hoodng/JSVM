@@ -214,8 +214,8 @@ js.awt.FlexibleItem = function(def, Runtime){
 	/**
 	 * Specify a component as current item's customized contents.
 	 * 
-	 * @param comp: {Object} A custom component must be an object of the BaseComponent
-	 *		  or BaseComponent's derived class. And it must implement an getValue method
+	 * @param comp: {Object} A custom component must be an object of the Component
+	 *		  or Component's derived class. And it must implement an getValue method
 	 *		  to return the item's value.
 	 */
 	thi$.setCustomComponent = function(comp){

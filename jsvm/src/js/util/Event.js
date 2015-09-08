@@ -283,13 +283,22 @@ js.util.Event = function (eventType, eventData, eventTarget){
     $.SYS_EVT_SUCCESS       = "success";
     $.SYS_EVT_HTTPERR       = "httperr";
     $.SYS_EVT_TIMEOUT       = "timeout";
+    
     $.SYS_EVT_MOVING        = "moving";
     $.SYS_EVT_MOVED         = "moved";
     $.SYS_EVT_RESIZING      = "resizing";
     $.SYS_EVT_RESIZED       = "resized";
     $.SYS_EVT_ZINDEXCHANGED = "zindexchanged";
     $.SYS_EVT_GEOMCHANGED   = "geomchanged";
-
+    
+    $.SYS_EVT_ELE_APPEND   = "elementappend";
+    $.SYS_EVT_ELE_REMOVED  = "elementremoved";
+    $.SYS_EVT_ELE_POSITION = "positionchanged";
+    $.SYS_EVT_ELE_SIZE     = "sizechanged";
+    $.SYS_EVT_ELE_ZINDEX   = "zindexchanged";
+    $.SYS_EVT_ELE_ATTRS    = "attrschanged";
+    $.SYS_EVT_ELE_STYLE    = "stylechanged";
+    
     // Message of J$VM system
     $.SYS_MSG_CONSOLEINF    = "console_inf";
     $.SYS_MSG_CONSOLEERR    = "console_err";

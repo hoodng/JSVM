@@ -38,7 +38,7 @@ js.awt.Application = function(def, Runtime, entryId){
             if(children.length === 0){
                 this.appendTo(cview);
             }else{
-                this.insertBefore(children[0], cview);
+                this.insertBefore(children[0]);
             }
         }
     };
@@ -102,6 +102,7 @@ js.awt.Application = function(def, Runtime, entryId){
         this.putContextAttr("app", this);
         
         this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
+        
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);
 

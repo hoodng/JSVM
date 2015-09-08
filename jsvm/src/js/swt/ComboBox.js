@@ -39,7 +39,7 @@
 
 $package("js.swt");
 
-$import("js.swt.HItem");
+$import("js.swt.ModelItem");
 
 /**
  * @param def: {
@@ -1142,7 +1142,7 @@ js.swt.ComboBox = function(def, Runtime){
         b = (M.showTips !== false),
 
         tdef = {
-            classType: "js.swt.HItem",
+            classType: "js.swt.ModelItem",
             className: DOM.combineClassName(M.className, "dItem"),
             stateless: true,
 

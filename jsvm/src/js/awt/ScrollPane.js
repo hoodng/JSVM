@@ -256,7 +256,7 @@ js.awt.ScrollPane = function (def, Runtime){
     };
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.getPreferredSize = function(){
         var r = _getLayoutSize.call(this), max = this.getMaximumSize();
@@ -276,7 +276,7 @@ js.awt.ScrollPane = function (def, Runtime){
     }.$override(this.getPreferredSize);
     
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.doLayout = function(force){
         if(this.isDOMElement() 
@@ -478,7 +478,7 @@ js.awt.ScrollPane = function (def, Runtime){
     };
 
     /**
-     * @see js.awt.BaseComponent
+     * @see js.awt.Component
      */
     thi$.destroy = function(){
         delete this.cache;

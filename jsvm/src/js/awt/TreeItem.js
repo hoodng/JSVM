@@ -222,7 +222,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 					tree,
 					this);
 			}else{
-				// Ref: js.awt.BaseComponent#_init
+				// Ref: js.awt.Component#_init
 				cview.clazz = clazz;
 
 				item = new js.awt.TreeItem(
