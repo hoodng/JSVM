@@ -735,6 +735,7 @@ js.util.Document = function (){
         clone.style.display = "";
         outer = this.outerSize(clone);
         mbp = _calcMBP.call(this, clone, mbpinline);
+        mbp.fake = true;
         J$VM.System.objectCopy(outer, mbp);
         body.removeChild(clone);
 
@@ -1143,7 +1144,7 @@ js.util.Document = function (){
         
         bounds = ele.bounds = (ele.bounds || {});
         mbp = bounds.MBP;
-        if(mbp && mbp.valid && !nocache) return bounds;
+        if(mbp && !mbp.fake && !nocache) return bounds;
         
         bounds.MBP = this.MBP(ele, true);
         bounds.BBM = bounds.MBP.BBM;
