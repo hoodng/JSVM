@@ -2436,122 +2436,121 @@ $package("js.awt");
  * of components will stay vertically arranged when the frame is resized.
  * 
  * @param def :{
- *     classType : the layout class
- *     axis: 0(horizontally)|1(vertically), 
- *     gap: 0 
+ *	   classType : the layout class
+ *	   axis: 0(horizontally)|1(vertically), 
+ *	   gap: 0 
  * } 
  */
 js.awt.BoxLayout = function (def){
 
-    var CLASS = js.awt.BoxLayout, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class;
+	var CLASS = js.awt.BoxLayout, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
+	
+	var Class = js.lang.Class;
 
-    thi$.layoutContainer = function(container){
+	thi$.layoutContainer = function(container){
+		var setting = this.def, bounds = container.getBounds(),
+		gap = setting.gap || 0, axis = setting.axis || 0,
+		space = (axis == 0) ? bounds.innerWidth : bounds.innerHeight,
+		xbase = bounds.MBP.paddingLeft, left = 0,
+		ybase = bounds.MBP.paddingTop,	top = 0,
+		comps = this.getLayoutComponents(container), comp,
+		rects = [], d, r, c = 0;
 
-        var setting = this.def, bounds = container.getBounds(),
-        gap = setting.gap || 0, axis = setting.axis || 0,
-        space = (axis == 0) ? bounds.innerWidth : bounds.innerHeight,
-        xbase = bounds.MBP.paddingLeft, left = 0,
-        ybase = bounds.MBP.paddingTop,  top = 0,
-        comps = this.getLayoutComponents(container), comp,
-        rects = [], d, r, c = 0;
+		for(var i=0, len=comps.length; i<len; i++){
+			comp = comps[i];
 
-        for(var i=0, len=comps.length; i<len; i++){
-            comp = comps[i];
+			d = comp.getPreferredSize();
+			r = {};
 
-            d = comp.getPreferredSize();
-            r = {};
+			if(axis == 0){
+				// Horizontally
+				// Calculates the top of every components
+				r.top = (bounds.innerHeight - d.height)*this.getLayoutAlignmentY();
+				if(!comp.isRigidHeight()){
+					r.top = 0;
+					r.height = bounds.innerHeight;
+				}else{
+					r.height = d.height;
+				}
+				// Get width if the component is rigid width
+				r.width = comp.isRigidWidth() ? d.width : null;
+				if(r.width != null) {
+					space -= r.width;
+				}else{
+					c += 1;
+				}
+			}else{
+				// Vertically
+				// Calculates the left of every components
+				r.left = (bounds.innerWidth - d.width)*this.getLayoutAlignmentX();
+				if(!comp.isRigidWidth()){
+					r.left = 0;
+					r.width = bounds.innerWidth;
+				}else{
+					r.width = d.width;
+				}
+				// Get height if the component is rigid height
+				r.height = comp.isRigidHeight() ? d.height : null;
+				if(r.height != null){
+					space -= r.height;
+				}else{
+					c += 1;
+				}
+			}
 
-            if(axis == 0){
-                // Horizontally
-                // Calculates the top of every components
-                r.top = (bounds.innerHeight - d.height)*this.getLayoutAlignmentY();
-                if(!comp.isRigidHeight()){
-                    r.top = 0;
-                    r.height = bounds.innerHeight;
-                }else{
-                    r.height = d.height;
-                }
-                // Get width if the component is rigid width
-                r.width = comp.isRigidWidth() ? d.width : null;
-                if(r.width != null) {
-                    space -= r.width;
-                }else{
-                    c += 1;
-                }
-            }else{
-                // Vertically
-                // Calculates the left of every components
-                r.left = (bounds.innerWidth - d.width)*this.getLayoutAlignmentX();
-                if(!comp.isRigidWidth()){
-                    r.left = 0;
-                    r.width = bounds.innerWidth;
-                }else{
-                    r.width = d.width;
-                }
-                // Get height if the component is rigid height
-                r.height = comp.isRigidHeight() ? d.height : null;
-                if(r.height != null){
-                    space -= r.height;
-                }else{
-                    c += 1;
-                }
-            }
+			r.comp = comp;
+			rects.push(r);
+		}
+		
+		if(rects.length > 1){
+			space -= (rects.length - 1)*gap;
+		}
+		
+		if(c > 1){
+			space = Math.round(space/c);
+		}
 
-            r.comp = comp;
-            rects.push(r);
-        }
-        
-        if(rects.length > 1){
-            space -= (rects.length - 1)*gap;
-        }
-        
-        if(c > 1){
-            space = Math.round(space/c);
-        }
+		if(c == 0){
+			// All components are rigid
+			if(axis == 0){
+				left = Math.round(space*this.getLayoutAlignmentX());
+			}else{
+				top	 = Math.round(space*this.getLayoutAlignmentY());
+			}
+		}
+		
+		for(i=0, len=rects.length; i<len; i++){
+			r = rects[i]; comp = r.comp;
+			if(axis == 0){
+				if(r.width == null) r.width = space;
+				comp.setBounds(xbase+left, ybase+r.top, r.width, r.height, 3);
+				left += r.width + gap;
+			}else{
+				if(r.height== null) r.height= space;
+				comp.setBounds(xbase+r.left, ybase+top, r.width, r.height, 3);
+				top += r.height + gap;
+			}
+		}
 
-        if(c == 0){
-            // All components are rigid
-            if(axis == 0){
-                left = Math.round(space*this.getLayoutAlignmentX());
-            }else{
-                top  = Math.round(space*this.getLayoutAlignmentY());
-            }
-        }
-        
-        for(i=0, len=rects.length; i<len; i++){
-            r = rects[i]; comp = r.comp;
-            if(axis == 0){
-                if(r.width == null) r.width = space;
-                comp.setBounds(xbase+left, ybase+r.top, r.width, r.height, 3);
-                left += r.width + gap;
-            }else{
-                if(r.height== null) r.height= space;
-                comp.setBounds(xbase+r.left, ybase+top, r.width, r.height, 3);
-                top += r.height + gap;
-            }
-        }
+	};
+	
+	thi$._init = function(def){
+		def = def || {};
 
-    };
-    
-    thi$._init = function(def){
-        def = def || {};
+		def.classType = "js.awt.BoxLayout";
+		def.axis = def.axis || 0;
+		def.gap	 = def.gap || 0;
 
-        def.classType = "js.awt.BoxLayout";
-        def.axis = def.axis || 0;
-        def.gap  = def.gap || 0;
+		arguments.callee.__super__.apply(this, arguments);		  
 
-        arguments.callee.__super__.apply(this, arguments);        
-
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.AbsoluteLayout);
 
@@ -3200,7 +3199,7 @@ js.awt.Element = function(def, Runtime){
      * @see setPosition(x, y)
      */
     thi$.setX = function(x, fire){
-        this.setPosition(x, undefined, fire);
+        this.setPosition(x, null, fire);
     };
     
     /**
@@ -3220,7 +3219,7 @@ js.awt.Element = function(def, Runtime){
      * @see setPosition(x, y)
      */
     thi$.setY = function(y, fire){
-        this.setPosition(undefined, y, fire);
+        this.setPosition(null, y, fire);
     };
     
     /**
@@ -3230,9 +3229,7 @@ js.awt.Element = function(def, Runtime){
      * {x, y}
      */
     thi$.getPosition = function(){
-        return {
-            x: this.getX(), y: this.getY()
-        };
+        return {x: this.getX(), y: this.getY()};
     };
     
     /**
@@ -3242,18 +3239,7 @@ js.awt.Element = function(def, Runtime){
      * @param y, the position top
      */
     thi$.setPosition = function(x, y, fire){
-        var M = this.def, ele = this.view, bounds;
-        if(ele){
-            bounds = this.getBounds();
-            DOM.setPosition(ele, x, y, bounds);
-            M.x = bounds.x;
-            M.y = bounds.y;
-        }else{
-            M.x = Class.isNumber(x) ? x : this.getX();
-            M.y = Class.isNumber(y) ? y : this.getY();
-        }
-        
-        this.adjustLayers("move");
+        this.setBounds(x, y, null, null, fire);
     };
 
 
@@ -3298,7 +3284,7 @@ js.awt.Element = function(def, Runtime){
      * @see setSize(w, h)
      */
     thi$.setWidth = function(w, fire){
-        this.setSize(w, undefined, fire);
+        this.setSize(w, null, fire);
     };
     
     /**
@@ -3318,7 +3304,7 @@ js.awt.Element = function(def, Runtime){
      * @see setSize(w, h)
      */
     thi$.setHeight = function(h, fire){
-        this.setSize(undefined, h, fire);
+        this.setSize(null, h, fire);
     };
     
     /**
@@ -3327,9 +3313,7 @@ js.awt.Element = function(def, Runtime){
      * @return an object with {width, height}
      */
     thi$.getSize = function(){
-        return {
-            width: this.getWidth(), height: this.getHeight()
-        };
+        return {width: this.getWidth(), height: this.getHeight()};
     };
     
     /**
@@ -3339,132 +3323,57 @@ js.awt.Element = function(def, Runtime){
      * @param h, height
      */
     thi$.setSize = function(w, h, fire){
-        var M = this.def, ele = this.view, bounds;
-
-        if(ele){
-            bounds = this.getBounds();
-            DOM.setSize(ele, w, h, bounds);
-            M.width = bounds.width;
-            M.height= bounds.height;
-        }else{
-            M.width = Class.isNumber(w) ? w : this.getWidth();
-            M.height= Class.isNumber(h) ? h : this.getHeight();
-        }
-        
-        this.adjustLayers("resize");
+        this.setBounds(null, null, w, h, fire);
     };
 
     thi$.absXY = function(){
-        return {x: 0, y:0};
+        var bounds = this.getBounds();
+        return{x: bounds.absX, y:bounds.absY}
     };
     
     thi$.getBounds = function(){
-        var M = this.def, U = this._local, el = this.view, abs,
-            bounds, pounds, position, margin, border, padding;
-
-        if(DOM.isDOMElement(el)){
-            bounds = DOM.getBounds(el);
-            position = this.getStyle("position");
-            position = position ? position.toLowerCase() : undefined;
-            bounds.offsetX = el.offsetLeft;
-            bounds.offsetY = el.offsetTop;
-
-            if(J$VM.supports.borderEdg && position !== "relative"){
-                pounds = DOM.getBounds(el.parentNode);
-                bounds.offsetX -= pounds.MBP.borderLeftWidth;
-                bounds.offsetY -= pounds.MBP.borderTopWidth;
-            }
-
-            bounds.x = bounds.offsetX - bounds.MBP.marginLeft;
-            bounds.y = bounds.offsetY - bounds.MBP.marginTop;
-            if(position == "relative"){
-                pounds = pounds || DOM.getBounds(el.parentNode);
-                bounds.x -= pounds.MBP.paddingLeft;
-                bounds.y -= pounds.MBP.paddingTop;
-            }
-
-            bounds.clientWidth = el.clientWidth;
-            bounds.clientHeight= el.clientHeight;
-            
-            bounds.scrollWidth = el.scrollWidth;
-            bounds.scrollHeight= el.scrollHeight;
-            bounds.scrollLeft  = el.scrollLeft;
-            bounds.scrollTop   = el.scrollTop;
-            
+        var U = this._local, bounds;
+        
+        if(this.view){
+            bounds = DOM.getBounds(this.view);
         }else{
-            margin = M.margin  || Z4;
-            border = M.border  || Z4;
-            padding= M.padding || Z4;
-            abs = this.absXY();
-
             bounds = {
+                MBP:{},
+                absX: 0,
+                absY: 0,
                 x: this.getX(),
                 y: this.getY(),
-                width:  this.getWidth(),
-                height: this.getHeight(),
-
-                MBP:{
-                    marginTop: margin[0],
-                    marginRight: margin[1],
-                    marginBottom: margin[2],
-                    marginLeft: margin[3],
-
-                    borderTopWidth: border[0],
-                    borderRightWidth: border[1],
-                    borderBottomWidth: border[2],
-                    borderLeftWidth: border[3],
-
-                    paddingTop: padding[0],
-                    paddingRight: padding[1],
-                    paddingBottom: padding[2],
-                    paddingLeft: padding[3],
-
-                    BPW: border[3]+padding[3]+padding[1]+border[1],
-                    BPH: border[0]+padding[0]+padding[2]+border[2]
-                },
-
-                absX : abs.x,
-                absY : abs.y
+                width: this.getWidth(),
+                height:this.getHeight()
             };
-            
-            bounds.offsetX = bounds.x;
-            bounds.offsetY = bounds.y;
-
-            bounds.clienWidth   = bounds.width - bounds.MBP.BPW;
-            bounds.clientHeight = bounds.height- bounds.MBP.BPH;
+            bounds.styleW = bounds.width;
+            bounds.styleH = bounds.height;
         }
 
-        bounds.innerWidth = bounds.width - bounds.MBP.BPW;
-        bounds.innerHeight= bounds.height- bounds.MBP.BPH;
+        bounds.userX = U.userX;
+        bounds.userY = U.userY;
+        bounds.userW = U.userW;
+        bounds.userH = U.userH;
 
-        if(U){
-            bounds.userX = U.userX;
-            bounds.userY = U.userY;
-            bounds.userW = U.userW;
-            bounds.userH = U.userH;
-        }
-        
         return bounds;
     };
 
     thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def, ele = this.view, bounds;
-
-        if(ele){
-            bounds = this.getBounds();
-            DOM.setBounds(ele, x, y, w, h, bounds);
+        var M = this.def, bounds;
+        
+        if(this.isDOMElement()){
+            bounds = DOM.setBounds(this.view, x, y, w, h);
             M.x = bounds.x;
             M.y = bounds.y;
             M.width = bounds.width;
             M.height= bounds.height;
+            this.adjustLayers("geom");
         }else{
             M.x = Class.isNumber(x) ? x : this.getX();
             M.y = Class.isNumber(y) ? y : this.getY();
             M.width = Class.isNumber(w) ? w : this.getWidth();
             M.height= Class.isNumber(h) ? h : this.getHeight();
         }
-
-        this.adjustLayers("resize");        
     };
 
     thi$.getPreferredSize = function(nocache){
@@ -3522,12 +3431,36 @@ js.awt.Element = function(def, Runtime){
      * Return the computed style with the specified style name
      */
     thi$.getStyle = function(sp){
-        var ret;
-        if(this.view){
-            sp = DOM.camelName(sp);
-            ret = DOM.currentStyles(this.view)[sp];
+        if(!this.isDOMElement()) return null;        
+        sp = DOM.camelName(sp);
+        return DOM.currentStyles(this.view)[sp];
+    };
+
+    /**
+     * Return the computed styles set with the specified style names array.<p>
+     * 
+     * @return an object with key are style name and value are style value. 
+     */
+    thi$.getStyles = function(sps){
+        if(!this.isDOMElement()) return null;
+
+        var styles = DOM.currentStyles(this.view),
+            i, len, sp, ret = {};
+        for(i=0, len=sps.length; i<len; i++){
+            sp = DOM.camelName(sps[i]);
+            ret[sp] = styles[sp];
         }
         return ret;
+    };
+
+    /**
+     * Apply a style set to the component.<p>
+     * 
+     * @param styles, an object with key are style name and value 
+     * are style value. 
+     */
+    thi$.applyStyles = function(styles){
+        DOM.applyStyles(this.view, styles);
     };
     
     thi$.defAttr = function(key, val){
@@ -3883,7 +3816,6 @@ js.awt.Element = function(def, Runtime){
         if(!this.needLayout(force)){
             ret = false;
         }else{
-            this.adjustLayers("resize");
             ret = U.didLayout = true;
         }
         
@@ -3895,10 +3827,11 @@ js.awt.Element = function(def, Runtime){
      * 
      */
     thi$.needLayout = function(force){
-        return force === true ? true :
-            (!this.isRigidWidth() || 
-                 !this.isRigidHeight() || 
-                 !this._local.didLayout);
+        var U = this._local, ret = false;
+        if(this.isDOMElement() && DOM.validBounds(this.getBounds())){
+            ret = !U.didLayout || force;
+        }
+        return ret;
     };
     
     /**
@@ -3912,8 +3845,7 @@ js.awt.Element = function(def, Runtime){
     thi$.adjustLayers = function(cmd, show){
         var bounds, z;
         switch(cmd){
-        case "move":
-        case "resize":
+        case "geom":
             bounds = this.getBounds();
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
@@ -4049,10 +3981,6 @@ js.awt.Element = function(def, Runtime){
         if(M.resizable){
             this.setResizable(true, M.resizer);
         }
-
-        if(M.useUserDefinedTip){
-            this.setUserDefinedTip(true, M.tipDef);
-        }
         
         if(M.prefSize){
             this.isPreferredSizeSet = true;
@@ -4080,7 +4008,6 @@ js.awt.Element.count = 0;
 
 
 /**
-
  Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
@@ -4112,14 +4039,21 @@ $import("js.awt.PopupLayer");
  * 
  *     width : outer width of the componet,
  *     height: outer height of the component,
+ * 
  *     miniSize: {width, height},
  *     maxiSize: {width, height},
  *     prefSize: {width, height},
+ * 
  *     rigid_w: true|false
  *     rigid_h: true|false  
+ * 
  *     align_x: 0.0|0.5|1.0
- *     align_y: 0.0|0.5|1.0
- *     
+ *     align_y: 0.0|0.5|1.0,
+ * 
+ *     border: [top, right, bottom, left],
+ *     margin: [top, right, bottom, left],
+ *     padding:[top, right, bottom, left],
+ * 
  *     state : number, see also <code>js.util.State</code>
  *     
  *     mover : {delay, bound ...}, see also <code>js.awt.Movable</code>
@@ -4200,6 +4134,7 @@ js.awt.Component = function(def, Runtime, view){
         if((fire & 0x01) != 0){
             this.onZOrderChanged(fire);
         }
+        
     }.$override(this.setZ);
 
     /**
@@ -4325,59 +4260,6 @@ js.awt.Component = function(def, Runtime, view){
             handler);
     };
     
-    /**
-     * Return the computed styles set with the specified style names array.<p>
-     * 
-     * @return an object with key are style name and value are style value. 
-     */
-    thi$.getStyles = function(sps){
-        var currents = DOM.currentStyles(this.view), 
-            styles = {}, i, len, sp;
-
-        for(i=0, len=sps.length; i<len; i++){
-            sp = DOM.camelName(sps[i]);
-            styles[sp] = currents[sp];
-        }
-        
-        return styles;
-    };
-
-    var SIZEP = /[wW]idth|margin|border|padding/;
-    /**
-     * Apply a style set to the component.<p>
-     * 
-     * @param styles, an object with key are style name and value 
-     * are style value. 
-     */
-    thi$.applyStyles = function(styles){
-        var el = this.view, 
-            w = parseFloat(styles.width), 
-            h = parseFloat(styles.height);
-        
-        delete styles.width;
-        delete styles.height;
-
-        var sizeChanged = function(value, sp){
-            return sp.match(SIZEP) != undefined;
-        }.$some(this, styles);
-
-        DOM.applyStyles(el, styles);
-
-        if(sizeChanged){
-            this.invalidateBounds();
-        }
-        
-        if(!isNaN(w) || !isNaN(h)){
-            this.setSize(w, h);
-        }
-
-        if(sizeChanged && this.repaint()){
-            this.onGeomChanged(0x02);
-            return true;
-        }        
-        
-        return false;
-    };
 
     var DISPLAYS = ["none", "block"];
     /**
@@ -4392,39 +4274,6 @@ js.awt.Component = function(def, Runtime, view){
     }.$override(this.display);
 
     /**
-     * Append the view of this component to the specified parent node.
-     * 
-     * @see removeFrom(parentNode)
-     */
-    thi$.appendTo = function(parentNode){
-        arguments.callee.__super__.apply(this,arguments);
-        if(this.repaint()){
-            this.doLayout(true);
-        }
-    }.$override(this.appendTo);
-    
-    /**
-     * Insert the view of this component before the specified refNode
-     * 
-     * @param refNode
-     */
-    thi$.insertBefore = function(refNode, parentNode){
-        arguments.callee.__super__.apply(this,arguments);
-        if(this.repaint()){
-            this.doLayout(true);
-        }
-    }.$override(this.insertBefore);
-
-    /**
-     * Insert the view of this component after the specified refNode
-     * 
-     * @see insertBefore(refNode, parentNode)
-     */
-    thi$.insertAfter = function(refNode){
-        this.insertBefore(refNode.nextSibling, refNode.parentNode);
-    }.$override(this.insertAfter);
-
-    /**
      * Test whether contains a child node in this component
      * 
      * @param child, a HTMLElement
@@ -4434,111 +4283,6 @@ js.awt.Component = function(def, Runtime, view){
     thi$.contains = function(child, containSelf){
         return DOM.contains(this.view, child, containSelf);
     }.$override(this.contains);
-
-    /**
-     * When this component was add to DOM tree, then invokes
-     * this method. 
-     * 
-     * @param force true/false
-     * 
-     * @return Must return true if did repaint.
-     * 
-     * Notes: Sub class should override this method
-     */
-    thi$.repaint = function(){
-        var M = this.def, U = this._local, ele, bounds;
-        if(!this.isDOMElement()) return false;
-        
-        if(this._geometric) {
-            this._geometric();
-        }
-        
-        ele = this.view;
-        bounds = this.getBounds();
-
-        if(M.x != bounds.x || M.y != bounds.y){
-            DOM.setPosition(ele, M.x, M.y, bounds);
-        }
-
-        if(M.width != bounds.width || M.height != bounds.height){
-            DOM.setSize(ele, M.width, M.height, bounds);
-        }
-
-        ele.style.zIndex = M.z;
-
-        if(M.isfloating){
-            this.setFloating(true);
-        }
-
-        if(!this.isEnabled()){
-            this.showDisableCover(true);
-        }
-
-        if(M.outline){
-            this.showOutline(true, M.outlineClassName);
-        }
-        
-        if(M.shadow){
-            this.showShadow(true, M.shadowClassName);
-        }
-
-        this.adjustLayers("resize");
-        return true;
-    };
-    
-    var _geometric = function(){
-        var M = this.def, U = this._local, bounds = this.getBounds();
-        
-        if(!Class.isNumber(M.x)){
-            M.x = bounds.x;
-        }
-        U.userX = M.x; 
-
-        if(!Class.isNumber(M.y)){
-            M.y = bounds.y;
-        }
-        U.userY = M.y;
-
-        if(!Class.isNumber(M.width)){
-            M.width = bounds.width;
-            if(!bounds.BBM){
-                M.width -= bounds.MBP.BPW;
-            }
-        }
-        U.userW = M.width;
-
-        if(!Class.isNumber(M.height)){
-            M.height= bounds.height;
-            if(!bounds.BBM){
-                M.height -= bounds.MBP.BPH;
-            }
-        }
-        U.userH = M.height;
-
-        if(!Class.isNumber(M.z)){
-            var z = parseInt(this.getStyle("z-index"));
-            M.z = Class.isNumber(z) ? z : 0;
-        }
-    };
-
-    /**
-     * When parent size changed will ask every children component
-     * doLayout.
-     * 
-     * @return Must return true if did layout
-     * 
-     * Notes: Sub class should override this method
-     */
-    thi$.doLayout = function(force){
-        var ret = true;
-        if(!this.isDOMElement() ||
-           (this.getStyle("display") === "none") ||
-                    !arguments.callee.__super__.apply(this, arguments)){
-            ret = false;
-        }
-        this.adjustController();
-        return ret;
-    }.$override(this.doLayout);
 
     thi$.setController = function(ctrl){
         this.controller = ctrl;
@@ -4627,6 +4371,7 @@ js.awt.Component = function(def, Runtime, view){
         if((fire & 0x02) != 0){
             this.doLayout(true);
         }
+        this.autoResizeContainer();
     };
     
     thi$.appendStyleClass = function(className){
@@ -4688,13 +4433,16 @@ js.awt.Component = function(def, Runtime, view){
     };
 
     thi$.onStateChanged = function(e){
+        var M = this.def, clazz;
+
         if(this.isStyleByState()){
-            this.view.className = DOM.stateClassName(
-                this.def.className || this.className, this.getState());
-        }        
+            clazz = DOM.stateClassName(M.className || this.className,
+                                       this.getState());
+            DOM.setClassName(this.view, clazz, M.classPrefix);
+        }
         
-        if(this.view.parentNode){
-            this.showDisableCover(!this.isEnabled());
+        if(this.isDOMElement()){
+            this.showDisableCover(!this.isEnabled());            
         }
     };
 
@@ -4703,9 +4451,10 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.cloneView = function(){
         var ele = this.view, view = ele.cloneNode(true);
-        //DOM.removeFun(view);
-        view.bounds = {BBM:ele.bounds.BBM, MBP:ele.bounds.MBP};
         view.cloned = "true";
+        if(ele.bounds){
+            view.bounds = {BBM:ele.bounds.BBM, MBP:ele.bounds.MBP};            
+        }
         return view;
     };
 
@@ -4740,120 +4489,61 @@ js.awt.Component = function(def, Runtime, view){
      * }
      */
     thi$.MBP = function(){
-        var G = this.getGeometric(this.className);
-        return System.objectCopy(G.bounds.MBP, {});
+        return DOM.BMP(this.view);
     };
     
     thi$.getGeometric = function(className){
-        className  = className || this.className;
-        return CLASS.G[className];
-    };
-
-    var _getBounds = function(){
-        var cssText = this.def.css, rst = {},
-        ele = this.view.cloneNode(false);
-
-        // The clean bounds should be generated only with the css file
-        // and style tags. The css fragment in the def shouldn't parse
-        // into the cached bounds. Otherwise, it may pollute and influence
-        // other object instances.
-        if(cssText){
-            ele.style.cssText = "";
-        }
-
-        // When we append an DOM element to body, if it didn't set any
-        // "position" or set the position as "absolute" but no "top" and 
-        // "left" that element also be place at the bottom of body other
-        // than the (0, 0) position. Then it may extend the body's size 
-        // and trigger window's "resize" event.
-        ele.style.position = "absolute";
-        ele.style.top = "-10000px";
-        ele.style.left = "-10000px";
-
-        ele.style.whiteSpace = "nowrap";
-        ele.style.visibility = "hidden";
-
-        DOM.appendTo(ele, document.body);
-        rst.bounds = DOM.getBounds(ele);
-
-        if(cssText){
-            ele.style.cssText += cssText;
-
-            ele.bounds = null;
-            rst.vbounds = DOM.getBounds(ele);
-        }else{
-            rst.vbounds = rst.bounds;
-        }
-
-        DOM.remove(ele, true);
-        
-        return rst;
-    };
-
-    var _preparegeom = function(){
+        var G, bounds;
         CLASS.G = CLASS.G || {};
-
-        var className = this.className, G = CLASS.G[className], 
-        M = this.def, bounds, styleW, styleH, rst,
-        buf = new js.lang.StringBuffer();
-        if(!G){
-            G = {};
-            rst = _getBounds.call(this, M.css);
-            G.bounds = rst.bounds;
-            CLASS.G[className] = G;
-            
-            bounds = rst.vbounds;
-        }else{
-            if(!M.css){ // Use the cached bounds directly
-                bounds = G.bounds;
-            }else{ // Get bounds with the definition's css text
-                rst = _getBounds.call(this);
-                bounds = rst.vbounds;
+        G = CLASS.G[className];
+        if(!className){
+            className = this.className;
+            G = CLASS.G[className];
+            if(!G){
+                G = CLASS.G[className] = {};
+                bounds = _geometric.call(this);
+                G.bounds = System.objectCopy(bounds, {}, true);
             }
         }
+        return G;
+    };
 
-        // TODO: Cache the initial bounds
-        this._local.vbounds = System.objectCopy(bounds, {});
+    var _geometric = function(){
+        var M = this.def, U = this._local, ele = this.view,
+            styles, bounds;
 
-        // Copy the MBP to avoid some object's change pollute and 
-        // influence other object instance with the same className. 
-        // With copying, the old "NUCG" property should be discarded.
-        bounds = this.view.bounds = {
-            BBM: bounds.BBM, 
-            MBP: System.objectCopy(bounds.MBP, {})
-        };
-
-        // Hande the x, y, width, height of definition
-        if(Class.isNumber(M.x)){
-            buf.append("left:").append(M.x).append("px;");
+        if(Class.isArray(M.margin)){
+            styles = DOM.extractMBP("margin", M.margin, styles);
+        }
+        if(Class.isArray(M.border)){
+            styles = DOM.extractMBP("border", M.border, styles);
+        }
+        if(Class.isArray(M.padding)){
+            styles = DOM.extractMBP("padding", M.padding, styles);
+        }
+        if(Class.isNumber(M.z)){
+            styles = styles || {};
+            styles.zIndex = M.z;
+        }
+        if(styles){
+            DOM.applyStyles(ele, styles);
         }
 
-        if(Class.isNumber(M.y)){
-            buf.append("top:").append(M.y).append("px;");
+        // Extract original geometric.
+        bounds = DOM.getBounds(ele);
+        if(DOM.validBounds(bounds)){
+            M.x = !Class.isNumber(M.x) ? bounds.x : M.x;
+            M.y = !Class.isNumber(M.y) ? bounds.y : M.y;
+            M.width = !Class.isNumber(M.width) ? bounds.styleW : M.width;
+            M.height= !Class.isNumber(M.height)? bounds.styleH : M.height;
         }
 
-        if(Class.isNumber(M.width)){
-            styleW = M.width;
-            if(!bounds.BBM){
-                styleW -= bounds.MBP.BPW;
-            }
-            buf.append("width:").append(styleW).append("px;");
-        }
-
-        if(Class.isNumber(M.height)){
-            styleH = M.height;
-            if(!bounds.BBM){
-                styleH -= bounds.MBP.BPH;
-            }
-            buf.append("height:").append(styleH).append("px;");
-        }
-
-        buf.append(this.view.style.cssText);
-
-        this.view.style.cssText = buf.toString(); 
+        DOM.setBounds(ele, M.x, M.y, M.width, M.height, bounds);
+        return bounds;
     };
 
     thi$.invalidateBounds = function(){
+        /*
         this.view.bounds = null;
         
         // If the preferred size is not from the definition, it will be calcualted
@@ -4862,6 +4552,7 @@ js.awt.Component = function(def, Runtime, view){
         if(!this.isPreferredSizeSet){
             this.def.prefSize = null;
         }
+        */
     };
     
     /**
@@ -4870,6 +4561,7 @@ js.awt.Component = function(def, Runtime, view){
      * component which take charge of the change and redo layout.
      */
     thi$.invalidParentLayout = function() {
+        /*
         var target = this.getContainer();
         while(target && !target.handleLayoutInvalid) {
             if (target.getContainer && target.getContainer()) {
@@ -4880,12 +4572,89 @@ js.awt.Component = function(def, Runtime, view){
         }
         if (target && target.handleLayoutInvalid) {
             target.handleLayoutInvalid();
+        }*/
+    };
+
+    /**
+     * When this component was add to DOM tree, then invokes
+     * this method. 
+     * 
+     * @param force true/false
+     * 
+     * @return Must return true if did repaint.
+     * 
+     * Notes: Sub class should override this method
+     */
+    thi$.repaint = function(){
+        var ret = false;
+        if(this.isDOMElement() &&
+           this.getAttribute("repaint") !== "true"){
+            _repaint.call(this);
+            ret = true;
         }
+        return ret;
+    };
+    
+    /**
+     * When parent size changed will ask every children component
+     * doLayout.
+     * 
+     * @return Must return true if did layout
+     * 
+     * Notes: Sub class should override this method
+     */
+    thi$.doLayout = function(force){
+        var ret = false;
+        if(arguments.callee.__super__.apply(this, arguments)){
+            this.adjustController();            
+            ret = true;
+        }
+        return ret;
+    }.$override(this.doLayout);
+
+    var _repaint = function(){
+        var M = this.def, U = this._local, bounds;
+
+        this.getGeometric();
+        bounds = this.getBounds();
+        U.userX = bounds.x;
+        U.userY = bounds.y;
+        U.userW = bounds.width;
+        U.userH = bounds.height;
+        
+        if(M.isfloating){
+            this.setFloating(true);
+        }
+
+        if(!this.isEnabled()){
+            this.showDisableCover(true);
+        }
+
+        if(M.outline){
+            this.showOutline(true, M.outlineClassName);
+        }
+        
+        if(M.shadow){
+            this.showShadow(true, M.shadowClassName);
+        }
+
+        if(M.useUserDefinedTip){
+            this.setUserDefinedTip(true, M.tipDef);
+        }
+
+        this.setTipText(M.tip);
+        
+        this.adjustLayers("geom");
+        
+        this.setAttribute("repaint", "true");
     };
 
     thi$.onelementappend = function(e){
-        //System.err.println(e);
-        e.cancelDefault();
+        var U = this._local, bounds;
+        if(e && e.srcElement !== this.view) return;
+        if(this.repaint()){
+            this.doLayout(true);
+        }
     };
     
     thi$.destroy = function(){
@@ -4943,19 +4712,9 @@ js.awt.Component = function(def, Runtime, view){
             DOM.setClassName(view, clazz, def.classPrefix);
         }
 
-        /*
-        if(view.tagName != "BODY" && view.tagName != "CANVAS"
-           && view.cloned != "true"){
-            _preparegeom.call(this);    
-        }*/
-
-        this.setTipText(def.tip);
-
-        this._geometric = function(){
-            var o = _geometric.call(this);
-            delete this._geometric;
-            return o;
-        };
+        if(this.isDOMElement() && view != document.body){
+            this.onelementappend();
+        }
         
     }.$override(this._init);
     
@@ -8843,18 +8602,21 @@ js.awt.FlexibleItem = function(def, Runtime){
 $package("js.awt");
 
 /**
- * Define Label component
+ * Define Label component:
  * 
- * @param def:{
- *			  className: required, css: optional,
+ * @param {Object} def Definition of the label.
+ *		
+ *		  @example
+ *		  {
+ *			  className: required, 
+ *			  css: optional,
  * 
  *			  text: optional,
  * 
  *			  editable:optional 
- * }
+ *		  }
  */
 js.awt.Label = function(def, Runtime) {
-	
 	var CLASS = js.awt.Label, thi$ = CLASS.prototype;
 	if(CLASS.__defined__){
 		this._init.apply(this, arguments);
@@ -8862,25 +8624,63 @@ js.awt.Label = function(def, Runtime) {
 	}
 	CLASS.__defined__ = true;
 	
-	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System, MQ = J$VM.MQ;
+	var Class = js.lang.Class, Event = js.util.Event, 
+	DOM = J$VM.DOM,	System = J$VM.System, MQ = J$VM.MQ,
 
+	StringClass = js.lang.String,
+
+	textSps = [
+		"font-family", "font-size", "font-style",
+		"font-weight", "text-decoration", "text-align",
+		"font-weight", "line-height"
+	];
+
+	/**
+	 * Judge whethe the current label can be wrodwrap.
+	 * 
+	 * @return {Boolean}
+	 */
+	thi$.canWordwrap = function(){
+		return this.def.wordwrap === true;	
+	};
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#getPreferredSize
+	 */
 	thi$.getPreferredSize = function(){
-		if(this.def.prefSize == undefined 
-		   && this.isDOMElement()){
-			
-			var textSize = DOM.getTextSize(this.view),
-			d = this.getBounds(),
-			w = textSize.width + d.MBP.BPW,
-			h = textSize.height+ d.MBP.BPH;
+		var M = this.def, styles, args, textSize, d, w, h;
+		if((!this.isPreferredSizeSet || !M.prefSize)
+			&& this.isDOMElement()){
+
+			d = this.getBounds();
+
+			if(!this.canWordwrap()){
+				styles = DOM.getStyles(this.view, textSps);
+
+				args = [M.text, styles];
+				textSize = DOM.getStringSize.apply(DOM, args);
+
+				w = textSize.width + d.MBP.BPW;
+				h = textSize.height + d.MBP.BPH;
+
+			}else{
+				w = d.width;
+				h = d.height;
+			}
 
 			this.setPreferredSize(w, h);
 		}
-		
-		return this.def.prefSize;
+
+		return M.prefSize;
 
 	}.$override(this.getPreferredSize);
 	
+	/**
+	 * Return the text contents of current label.
+	 * 
+	 * @return {String}
+	 */
 	thi$.getText = function() {
 		return this.def.text;
 	};
@@ -8888,13 +8688,16 @@ js.awt.Label = function(def, Runtime) {
 	/**
 	 * Sets lable text, only and only if encode == false, the text
 	 * won't be encoded for html.
+	 * 
+	 * @param {String} text Text contents
+	 * @param {Boolean} encode
 	 */
 	thi$.setText = function(text, encode) {
-		this.def.text = text || "";
+		text = this.def.text = text || "";
 
-		var view = this.view, M = this.def, 
-		v = (encode == false) ? 
-			M.text : js.lang.String.encodeHtml(M.text),
+		var M = this.def, view = this.view,
+		v = (encode == false) ? text
+			: StringClass.encodeHtml(text, undefined, this.canWordwrap()),
 		tmpEle, oTextNode;
 
 		/*
@@ -8916,30 +8719,45 @@ js.awt.Label = function(def, Runtime) {
 		}
 
 		if(!this.isPreferredSizeSet){
-			this.def.prefSize = undefined;
-			this.getPreferredSize();
+			M.prefSize = undefined;
 		}
 	};
 
+	/**
+	 * Sets the email string to show with the "mailto" protocol.
+	 * 
+	 * @param {String} text The email address to set.
+	 */
 	thi$.setEMail = function(text) {
-		this.def.text = text || "";
-		var mail = document.createElement("A"),
-		str = js.lang.String.encodeHtml(this.def.text);
+		text = this.def.text = text || "";
+		
+		var str = StringClass.encodeHtml(text, undefined, this.canWordwrap()),
+		mail = document.createElement("A");
 		mail.href = "mailto:" + str;
 		this.view.appendChild(mail);
 		mail.innerHTML = str;
 
 		if(!this.isPreferredSizeSet){
 			this.def.prefSize = undefined;
-			this.getPreferredSize();
 		}
 
 	};
 
+	/**
+	 * Judge whether the current label can be editable.
+	 * 
+	 * @return {Boolean}
+	 */
 	thi$.isEditable = function(){
 		return this.def.editable || false;
 	};
 
+	/**
+	 * Enable / disable to edit the current label. If true, editing by
+	 * double click will be supported.
+	 * 
+	 * @param {Boolean} b
+	 */
 	thi$.setEditable = function(b) {
 		b = b || false;
 
@@ -8970,6 +8788,7 @@ js.awt.Label = function(def, Runtime) {
 		var data = e.getData(); 
 		this.setText(data.text, undefined, true);
 		e.getEventTarget().destroy();
+
 		MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
 
 		this.notifyContainer(
@@ -8980,83 +8799,88 @@ js.awt.Label = function(def, Runtime) {
 	};
 
 	/**
-	 * @param keyword: The keyword of the <em>RegExp</em> object which is used 
-	 *		  to matched.
-	 * @param mode: "global|insensitive|wholeword".
-	 * @param highlightClass: the style class name for highlighting text.
+	 * Highlight all the matched in the current label with the given searching
+	 * keyword and control mode.
+	 * 
+	 * @param {String} keyword The keyword of the <em>RegExp</em> object 
+	 *		  which is used to matched.
+	 * @param {String} mode "global|insensitive|wholeword".
+	 * @param {String} highlightClass The style class for highlighting text.
 	 */
 	thi$.highlightAll = function(keyword, mode, highlightClass) {
-		var text = this.getText();
+		var text = this.getText(), can = this.canWordwrap(), 
+		kit, pattern, className, newText;
 		if (!keyword || !mode || !text)
 			return;
 
-		text = js.lang.String.encodeHtml(text);
-		//J$VM.System.out.println("Text:" + text);
-		keyword = js.lang.String.encodeHtml(keyword);
+		text = StringClass.encodeHtml(text, undefined, can);
+		keyword = StringClass.encodeHtml(keyword, undefined, can);
 
-		var kit = Class.forName("js.swt.SearchKit"),
+		kit = Class.forName("js.swt.SearchKit");
 		pattern = kit.buildRegExp(keyword, mode);
 		if(!pattern){
 			return;
 		}
 		
-		var className = highlightClass;
+		className = highlightClass;
 		if (!className) {
-			className = this.__buf__.clear().append(this.def.className)
-				.append("_").append("highlight").toString();
+			className = DOM.combineClassName(this.className, "highlight");
 		}
 
-		var newText = text.replace(
+		this.view.innerHTML = text.replace(
 			pattern, 
 			function(m) {
 				return "<span class=\"" + className + "\">" + m + "</span>";
 			});
-
-		this.view.innerHTML = newText;
-		newText = null;
 	};
 	
 	/**
-	 * @param matches: <em>Array</em>, each element in it is a object maintained 
-	 *		  each match's start index and its length. Its structure is as follow:
+	 * Highlight all the matches in the current label accordig to the specified
+	 * matched result.
+	 * 
+	 * @param {Array} matches Each element in it is a object maintained each
+	 *		  match's start index and its length. 
+	 * 
+	 *		  @example Its structure is as follow:
 	 *		  [
 	 *			{start: m, length: x},
 	 *			...
 	 *			{start: n, length: x}	  
 	 *		  ]
 	 *
-	 * @param highlightClass: the style class name for highlighting text.
+	 * @param {String} highlightClass The style class for highlighting text.
 	 */
 	thi$.highlightMatches = function(matches, highlightClass) {
-		var text = this.getText();
-		if (!C.isString(text)) return;
-
-		var className = highlightClass;
-		if (!className) {
-			className = this.__buf__.clear().append(this.def.className)
-				.append("_").append("highlight").toString();
+		var text = this.getText(), can = this.canWordwrap(), className, 
+		rpSeg, subStr, i, mCnt, aMatches, vernier = 0;
+		if (!Class.isString(text) || text.length == 0){
+			return;
 		}
 
-		var rpSeg = new js.lang.StringBuffer(), subStr = null,
-		mCnt = matches ? matches.length : 0, aMatches = null,
+		className = highlightClass 
+			|| DOM.combineClassName(this.className, "highlight");
+
+		rpSeg = new js.lang.StringBuffer();
+		mCnt = matches ? matches.length : 0;
 		vernier = 0;
 		
-		for(var i = 0; i < mCnt; i++){
+		for(i = 0; i < mCnt; i++){
 			aMatches = matches[i];
 			if(aMatches.start > vernier){
 				subStr = text.substring(vernier, aMatches.start);
-				subStr = js.lang.String.encodeHtml(subStr);
+				subStr = StringClass.encodeHtml(subStr, undefined, can);
 				rpSeg.append(subStr);
 				
 				subStr = text.substr(aMatches.start, aMatches.length);
-				subStr = js.lang.String.encodeHtml(subStr);
+				subStr = StringClass.encodeHtml(subStr, undefined, can);
 				subStr = "<span class=\"" + className + "\">" + subStr + "</span>";
 				rpSeg.append(subStr);
 				
 				vernier = aMatches.start + aMatches.length;
+
 			}else if(aMatches.start == vernier){
 				subStr = text.substr(aMatches.start, aMatches.length);
-				subStr = js.lang.String.encodeHtml(subStr);
+				subStr = StringClass.encodeHtml(subStr, undefined, can);
 				subStr = "<span class=\"" + className + "\">" + subStr + "</span>";
 				rpSeg.append(subStr);
 				
@@ -9068,7 +8892,7 @@ js.awt.Label = function(def, Runtime) {
 		
 		if(vernier <= text.length){
 			subStr = text.substr(vernier);
-			subStr = js.lang.String.encodeHtml(subStr);
+			subStr = StringClass.encodeHtml(subStr, undefined, can);
 			rpSeg.append(subStr);
 		}
 
@@ -9076,23 +8900,34 @@ js.awt.Label = function(def, Runtime) {
 		rpSeg = null;
 	};
 
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#doLayout
+	 */
 	thi$.doLayout = function(){
 		if(arguments.callee.__super__.apply(this, arguments)){
-			this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
+			if(!this.canWordwrap()){
+				this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
+			}
+
 			return true;			
 		}
 
 		return false;
-	}.$override(this.doLayout);
 
+	}.$override(this.doLayout);
 	
 	thi$._init = function(def, Runtime) {
 		if(def == undefined) return;
 
 		def.classType = def.classType || "js.awt.Label";
 		def.className = def.className || "jsvm_label";
-		def.css = (def.css || "") + "margin:0px;white-space:nowrap;";
-		def.text = typeof def.text == "string" ? def.text : "Label";
+		def.wordwrap = (def.wordwrap === true);
+
+		def.css = (def.css || "") + "margin:0px;" 
+			+ (def.wordwrap ? "white-space:normal;" : "white-space:nowrap;");
+
+		def.text = (typeof def.text == "string") ? def.text : "Label";
 		def.viewType = "SPAN";
 
 		arguments.callee.__super__.apply(this, arguments);
@@ -9305,34 +9140,8 @@ js.awt.Icon.DEFAULTDEF = function(){
 
 
 /**
-
- Copyright 2010-2011, The JSVM Project.
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
-
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Pan mingfa
@@ -9430,7 +9239,7 @@ js.awt.Button = function(def, Runtime){
 		return this._local.mousedown === true;
 	};
 
-	thi$.setToolTipText = function(s){
+	thi$.setTipText = function(s){
 		arguments.callee.__super__.apply(this, arguments);
 
 		if(this.icon) {
@@ -9440,70 +9249,84 @@ js.awt.Button = function(def, Runtime){
 			DOM.setAttribute(this.label, "title", s);
 		}
 
-	}.$override(this.setToolTipText);
+	}.$override(this.setTipText);
 
 	/**
 	 * @see js.awt.Component
 	 */
 	thi$.repaint = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
-			this.doLayout(true);
+        var M = this.def;
+        
+		arguments.callee.__super__.apply(this, arguments);
+        
+        if(this.icon){
+			this.setIconImage(this.isTriggered() ? 4 :
+                              (this.isEnabled() ? 0 : 1));
 		}
+
+		if(this.label){
+			this.setText(M.labelText || M.text || M.name || "Button");
+		}
+
+		if(M.effect){
+			this._local.effectClass = M.effectClass;
+			_createEffectLayer.call(this);
+		}
+
 	}.$override(this.repaint);
 
 	/**
 	 * @see js.awt.Component
 	 */
 	thi$.doLayout = function(force){
-		if(arguments.callee.__super__.apply(this, arguments)){
-			var G0 = this.getGeometric(), B = this.getBounds(),
+        if(!arguments.callee.__super__.apply(this, arguments))
+            return;
+
+		var M = this.def, G0 = this.getGeometric(), B = this.getBounds(),
 			BBM = B.BBM, MBP = B.MBP,
 			innerWidth = B.innerWidth, innerHeight= B.innerHeight,
 			xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
-			align_x = this.def.layout.align_x,
-			align_y = this.def.layout.align_y,
-			items = this.def.items, ele, i, len, cwidth = 0, D,
+			align_x = M.layout.align_x,
+			align_y = M.layout.align_y,
+			items = M.items, ele, i, len, cwidth = 0, D,
 			buf = this.__buf__, left, top, uwidth;
 
-			for(i=0, len=items.length; i<len; i++){
-				ele = this[items[i]];
-				D = G0[ele.iid];
-				if(ele.iid == "label"){
-					cwidth += ele.scrollWidth;
-				}else{
-					cwidth += ele.offsetWidth + D.MBP.marginRight;
-				}
+		for(i=0, len=items.length; i<len; i++){
+			ele = this[items[i]];
+			D = G0[ele.iid];
+			if(ele.iid == "label"){
+				cwidth += ele.scrollWidth;
+			}else{
+				cwidth += ele.offsetWidth + D.MBP.marginRight;
 			}
-
-			cwidth = cwidth > innerWidth ? innerWidth : cwidth;
-
-			left = xbase + (innerWidth - cwidth) * align_x;
-			for(i=0, len=items.length; i<len; i++){
-				ele = this[items[i]];
-				D = G0[ele.iid];
-				top = ybase + (innerHeight - D.height) * align_y;
-				buf.clear().append(ele.style.cssText)
-					.append(";left:").append(left).append("px;")
-					.append("top:").append(top).append("px;");
-
-				if(ele.iid === "label"){
-					buf.append("width:").append(cwidth+2).append("px;")
-						.append("white-space:nowrap;overflow:hidden;")
-						.append("text-overflow:ellipsis;");
-				}
-
-				ele.style.cssText = buf.toString();
-
-				uwidth = D.width + D.MBP.marginRight;
-				left   += uwidth;
-				cwidth -= uwidth;
-			}
-
-			_adjustEffectLayer.call(this);
-			return true;
 		}
 
-		return false;
+		cwidth = cwidth > innerWidth ? innerWidth : cwidth;
+
+		left = xbase + (innerWidth - cwidth) * align_x;
+		for(i=0, len=items.length; i<len; i++){
+			ele = this[items[i]];
+			D = G0[ele.iid];
+			top = ybase + (innerHeight - D.height) * align_y;
+            
+			buf.clear().append(ele.style.cssText)
+			.append(";left:").append(left).append("px;")
+			.append("top:").append(top).append("px;");
+
+			if(ele.iid === "label"){
+				buf.append("width:").append(cwidth+2).append("px;")
+				.append("white-space:nowrap;overflow:hidden;")
+				.append("text-overflow:ellipsis;");
+			}
+
+			ele.style.cssText = buf.toString();
+
+			uwidth = D.width + D.MBP.marginRight;
+			left   += uwidth;
+			cwidth -= uwidth;
+		}
+
+		_adjustEffectLayer.call(this);
 
 	}.$override(this.doLayout);
 
@@ -9579,8 +9402,7 @@ js.awt.Button = function(def, Runtime){
 		layer.uuid = this.uuid();
 		layer.className = _getEffectStyleClass.call(this, "normal");
 		layer.style.cssText = "position:absolute;left:0px;top:0px;";
-
-		DOM.appendTo(layer, this.view);
+        this.view.appendChild(layer);
 	};
 
 	var _adjustEffectLayer = function(){
@@ -9648,20 +9470,19 @@ js.awt.Button = function(def, Runtime){
 
 	var _createElements = function(){
 		var G = this.getGeometric(), className = this.className,
-		body = document.body, items = this.def.items,
-		ele, id, iid, viewType, i, len;
+		    items = this.def.items, ele, id, iid, viewType, i, len;
 
 		for(i=0, len=items.length; i<len; i++){
 			id = items[i];
 			iid = id.split(/\d+/g)[0];
 			switch(iid){
-			case "icon":
+			    case "icon":
 				viewType = "IMG";
 				break;
-			case "label":
+			    case "label":
 				viewType = "SPAN";
 				break;
-			default:
+			    default:
 				viewType = "DIV";
 				break;
 			}
@@ -9672,21 +9493,15 @@ js.awt.Button = function(def, Runtime){
 			ele.iid = iid;
 
 			if(!G[iid]){
-				ele.style.cssText =
-					"position:absolute;white-space:nowrap;visibility:hidden;";
-				DOM.appendTo(ele, body);
-				G[iid] = DOM.getBounds(ele);
-				DOM.removeFrom(ele);
-				ele.style.cssText = "";
+                G[iid] = DOM.getBounds(ele);
 			}
-
-			ele.style.cssText ="position:absolute;";
+			ele.style.position ="absolute";
 			DOM.appendTo(ele, this.view);
 		}
 	};
 
 	var _checkItems = function(){
-		var M = this.def, items = M.items;
+		var M = this.def, items = M.items = (M.items || []);
 		if(items.length == 0){
 			if(this.isMarkable()) items.push("marker");
 			if(M.iconImage) items.push("icon");
@@ -9719,18 +9534,13 @@ js.awt.Button = function(def, Runtime){
 		layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.5;
 		layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
 
-		def.items = def.items || [];
-
 		// Create inner elements
-		if(view == undefined){
+		if(!Class.isHtmlElement(view)){
 			_checkItems.call(this);
 			_createElements.call(this);
 		}
 
-		if(!def.items.clear){
-			js.util.LinkedList.$decorate(def.items);
-		}
-		def.items.clear();
+		def.items = [];
 		var uuid = this.uuid(), nodes = this.view.childNodes,
 		id, i, len, node;
 		for(i=0, len=nodes.length; i<len; i++){
@@ -9741,26 +9551,8 @@ js.awt.Button = function(def, Runtime){
 			this[id] = node;
 		}
 
-		if(this.icon){
-			this.setIconImage(this.isTriggered() ? 4 : (this.isEnabled() ? 0 : 1));
-		}
-
-		if(this.label){
-			this.setText(def.labelText || def.text || def.name || "Button");
-		}
-
-		if(def.effect === true){
-			this._local.effectClass = def.effectClass;
-			_createEffectLayer.call(this);
-		}
-
-		// Set Tip
-		var tip = def.tip;
-		if(Class.isString(tip) && tip.length > 0) {
-			this.setToolTipText(tip);
-		}
-
 		this.setAttribute("touchcapture", "true");
+        
 		this.attachEvent("mouseover", 4, this, _onmouseover);
 		this.attachEvent("mouseout",  4, this, _onmouseout);
 		this.attachEvent("mousedown", 4, this, _onmousedown);
@@ -14159,7 +13951,10 @@ js.awt.Desktop = function (Runtime){
         arguments.callee.__super__.call(
             this, b, style || "jsvm_desktop_mask");
         if(b){
-            this.setCoverZIndex(_getMaxZIndex.call(this)+1);
+            // The desktop's cover should be below the first-level dialog.
+            // Assume that at most five levels dialogs can be opened.
+            //this.setCoverZIndex(_getMaxZIndex.call(this)+1);
+            this.setCoverZIndex(this.DM.def.zbase - 5);
         }
     }.$override(this.showCover);
 
@@ -14994,6 +14789,7 @@ js.awt.Window = function (def, Runtime, view){
 		if(title){
 			title.setPeerComponent(this);
 			title.view.uuid = uuid;
+
 			(function(name){
 				 var item = this.title[name];
 				 item.setPeerComponent(this);

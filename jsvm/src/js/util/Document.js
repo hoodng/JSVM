@@ -405,11 +405,11 @@ js.util.Document = function (){
     };
 
     thi$.offsetParent = function(ele){
-        var body = document.body, p = ele.offsetParent;
+        var p = ele.offsetParent, body = document.body;
+
         if(!p || !this.contains(body, p, true)){
             p = body;
         }
-
         return p;
     };
 
@@ -417,23 +417,10 @@ js.util.Document = function (){
      * Returns current styles of the specified element
      *
      */
-    thi$.currentStyles = function(el, isEle){
-        var defaultView = document.defaultView, ret;
-        isEle = isEle === undefined ? this.isDOMElement(el) : isEle;
-
-        if(isEle){
-            if(defaultView && defaultView.getComputedStyle){
-                // W3C
-                ret = defaultView.getComputedStyle(el, null);
-            }else{
-                // IE
-                ret = el.currentStyle;
-            }
-        }else {
-            ret = {};
-        }
-
-        return ret;
+    thi$.currentStyles = function(el){
+        var V = document.defaultView;
+        return (V && V.getComputedStyle) ?
+            V.getComputedStyle(el, null) : (el.currentStyle || el.style);
     };
 
 
@@ -444,43 +431,35 @@ js.util.Document = function (){
      * @param el, the DOM element
      * @param sp, the style property name
      */
-    thi$.getStyle = function(el, sp){
+    thi$.getStyle = function(el, sp, currentStyle){
         if(!el || el === self.document) return null;
 
-        var defaultView = document.defaultView,
-            cs, prop = this.camelName(sp), out;
+        var out;
 
-        if(defaultView && defaultView.getComputedStyle){
-            out = el.style[prop];
-            if(!out) {
-                cs = defaultView.getComputedStyle(el, "");
-                out = cs ? cs[prop] : null;
-            }
+        sp = this.camelName(sp);
+        currentStyle = currentStyle || this.currentStyles(el);
+        out = currentStyle[sp];
 
-            if(prop == "marginRight" && out != "0px" &&
-               !J$VM.supports.reliableMarginRight){
-                var display = el.style.display;
-                el.style.display = 'inline-block';
-                out = defaultView.getComputedStyle(el, "").marginRight;
-                el.style.display = display;
-            }
-            return out;
-        } else {
-            if(sp == "opacity"){
-                if (el.style.filter.match) {
-                    var matches = el.style.filter.match(OPACITYREGX);
-                    if(matches){
-                        var fv = parseFloat(matches[1]);
-                        if(!isNaN(fv)){
-                            return  fv ? fv / 100 : 0;
-                        }
+        if(sp === "marginRight" && out !== "0px" &&
+                    !J$VM.supports.reliableMarginRight){
+            sp = el.style.display;
+            el.style.display = "inline-block";
+            out = this.currentStyles(el).marginRight;
+            el.style.display = sp;
+        }else if(sp === "opacity"){
+            if(el.style.filter.match){
+                out = 1;
+                sp = el.style.filter.match(OPACITYREGX);
+                if(sp){
+                    sp = parseFloat(sp[1]);
+                    if(!isNaN(sp)){
+                        out = sp/100;
                     }
                 }
-                return 1;
             }
-            
-            return el.style[prop] || el.currentStyle[prop];
         }
+
+        return out;
     };
 
     /**
@@ -490,10 +469,12 @@ js.util.Document = function (){
      * @param sps, the array of style property name
      */
     thi$.getStyles = function(el, sps){
-        var styles = {};
-        (function(styles, el, sp){
-             styles[this.camelName(sp)] = this.getStyle(el, sp);
-         }).$forEach(this, sps || [], styles, el);
+        var currentStyle = this.currentStyles(el), styles = {};
+        
+        (function(sp){
+            styles[this.camelName(sp)] =
+                this.getStyle(el, sp, currentStyle);
+        }).$forEach(this, sps || []);
 
         return styles;
     };
@@ -547,11 +528,8 @@ js.util.Document = function (){
      * @param attr: {String} Name of the specified attribute.
      */
     thi$.hasAttribute = function(el, attr){
-        if(el.hasAttribute){
-            return el.hasAttribute(attr);
-        }
-
-        return el.getAttribute(attr) != null;
+        return el.hasAttribute ? el.hasAttribute(attr) :
+            Class.isValid(el.getAttribute(attr));
     };
 
     /**
@@ -631,8 +609,7 @@ js.util.Document = function (){
      * @param value, the opacity will be used
      */
     thi$.setOpacity = function(el, value){
-        var style = el.style,
-        currentStyle = el.currentStyle;
+        var style = el.style, currentStyle = el.currentStyle;
 
         if(J$VM.ie && parseInt(J$VM.ie) < 10) {
             var opacity = isNaN(value) ? "" : "alpha(opacity=" + value * 100 + ")";
@@ -699,77 +676,69 @@ js.util.Document = function (){
      * @param el, the DOM element
      * @param styles, the style set
      */
-    thi$.applyStyles = function(el, styles){
+    thi$.applyStyles = function(ele, styles){
         var mbpchanged = false, sp;
         
         styles = styles || {};
         for(sp in styles){
             mbpchanged = MBPTEST.test(sp);
-            _setStyle.call(this, el, sp, styles[sp]);
+            _setStyle.call(this, ele, sp, styles[sp]);
         }
         
         if(mbpchanged){
-            if(el.bounds){
-                el.bounds.MBP = null;
-            }
-            this.getBounds(el);
+            this.getBounds(ele, true);
         }
     };
 
     thi$.MBPCache = {};
     
-    thi$.MBP = function(ele, mbp){
-        var bounds = ele ? (ele.bounds||{}) : {},
-            styles, mbpinline, clone, body, buf;
+    thi$.MBP = function(ele, nocache){
+        var bounds = ele ? (ele.bounds||{}) : {}, outer,
+            mbp, mbpinline, clone, body;
 
         if(!ele) return null;
 
-        mbp = mbp || bounds.MBP;
-        if(mbp){
-            mbp = this.outerSize(ele, undefined, mbp);
-            if(validMBP(mbp)) return mbp;
+        outer = this.outerSize(ele);
+
+        mbp = bounds.MBP;
+        if(mbp & !nocache){
+            J$VM.System.objectCopy(outer, mbp);
+            return mbp;
         }
 
-        mbpinline = MBPTEST.test(ele.style.cssText);        
-        if(!mbpinline){
+        mbpinline = MBPTEST.test(ele.style.cssText);
+        if(!mbpinline && !nocache){
             mbp = this.MBPCache[ele.clazz || ele.className];
+            mbp = mbp ? J$VM.System.objectCopy(mbp, {}) : null;
             if(mbp){
-                mbp = J$VM.System.objectCopy(mbp, {}, true);
-                mbp = this.outerSize(ele, undefined, mbp);
-                if(validMBP(mbp)) return mbp;
+                J$VM.System.objectCopy(outer, mbp);
+                return mbp;
             }
         }
 
-        if(this.isDOMElement(ele)){
-            mbp = _calcMBP.call(this, ele, mbpinline);
-            mbp = this.outerSize(ele, true, mbp);
-            if(validMBP(mbp)) return mbp;
+        if(this.isDOMElement(ele) && outer.valid){
+            mbp = _calcMBP.call(this, ele,  mbpinline);
+            J$VM.System.objectCopy(outer, mbp);
+            return mbp;
         }
 
         // When the ele is not a DOM element or
         // when the ele or it's ancestors are diplay == none.
         body = self.document.body;
         clone = ele.cloneNode(false);
-        buf = [ele.style.cssText,
-               "position:absolute",
-               "visibility:hidden",
-               "left:-65535px",
-               "top:-65535px"];
-        if(ele.style.display === "none"){
-            // Should consider span or div ?
-            buf.push("display:block");
-        }
-        clone.style.cssText = buf.join(";");
+        clone.style.cssText = [ele.style.cssText,
+            "position:absolute",
+            "visibility:hidden",
+            "left:0px",
+            "top:0px"].join(";");
         body.appendChild(clone);
+        clone.style.display = "";
+        outer = this.outerSize(clone);
         mbp = _calcMBP.call(this, clone, mbpinline);
-        mbp = this.outerSize(clone, true, mbp);
+        J$VM.System.objectCopy(outer, mbp);
         body.removeChild(clone);
 
         return mbp;
-    };
-
-    var validMBP = function(mbp){
-        return mbp && mbp.width > 0 && mbp.height > 0;
     };
     
     var _calcMBP = function(ele, mbpinline){
@@ -912,19 +881,14 @@ js.util.Document = function (){
         return this.MBP(ele).MBP;
     };
 
-    thi$.getBoundRect = function(ele, isEle, rect){
-        var d;
-        isEle = Class.isValid(isEle) ? isEle : this.isDOMElement(ele);        
+    thi$.getBoundRect = function(ele, rect){
+        var r, ftoi = Math.ceil;
         rect = rect || {};
-        if(isEle){
-            d = ele.getBoundingClientRect();
-            rect.left = Math.ceil(d.left);
-            rect.top = Math.ceil(d.top);
-            rect.bottom = Math.ceil(d.bottom);
-            rect.right = Math.ceil(d.right);
-        }else{
-            rect.left = rect.top = rect.bottom = rect.right = 0;
-        }
+        r = ele.getBoundingClientRect();
+        rect.left = ftoi(r.left);
+        rect.top = ftoi(r.top);
+        rect.bottom = ftoi(r.bottom);
+        rect.right = ftoi(r.right);
         return rect;
     };
 
@@ -949,10 +913,10 @@ js.util.Document = function (){
      *
      * @return {width, height}
      */
-    thi$.outerSize = function(el, isEle, rect){
+    thi$.outerSize = function(el, rect){
         rect = rect || {};
         if(el.tagName !== "BODY"){
-            rect = this.getBoundRect(el, isEle, rect);
+            rect = this.getBoundRect(el, rect);
             rect.width = rect.right - rect.left;
             rect.height= rect.bottom- rect.top;
         }else{
@@ -962,6 +926,8 @@ js.util.Document = function (){
             rect.right = rect.width = r.clientWidth;
             rect.bottom= rect.height= r.clientHeight;
         }
+
+        rect.valid = (rect.width * rect.height) > 0;
         return rect;
     };
 
@@ -969,16 +935,16 @@ js.util.Document = function (){
      * Return outer (outer border) width of the element
      *
      */
-    thi$.outerWidth = function(el, isEle){
-        return this.outerSize(el, isEle).width;
+    thi$.outerWidth = function(el){
+        return this.outerSize(el).width;
     };
 
     /**
      * Return outer (outer border) height of the element
      *
      */
-    thi$.outerHeight = function(el, isEle){
-        return this.outerSize(el, isEle).height;
+    thi$.outerHeight = function(el){
+        return this.outerSize(el).height;
     };
 
     /**
@@ -1012,14 +978,13 @@ js.util.Document = function (){
      * @param h height
      * @param bounds @see getBounds(el)
      */
-    thi$.setSize = function(el, w, h, bounds){
-        this.setBounds(el, null, null, w, h, bounds);
-    };
-
-    var _setSize = function(ele, w, h, bounds){
-        var mbp = bounds.MBP, changed = false,
+    thi$.setSize = function(ele, w, h, bounds){
+        var mbp, changed = false,
             canvas = (ele.tagName === "CANVAS");
-        
+
+        bounds = bounds || this.getBounds(ele);
+        mbp = bounds.MBP;
+
         if(w !== bounds.width && Class.isNumber(w)){
             w = mbp.BBM ? w : w - mbp.BPW;
             if(w >= 0){
@@ -1028,7 +993,14 @@ js.util.Document = function (){
                 }else{
                     ele.style.width =  w + "px";
                 }
-                changed = true;
+
+                bounds.width = mbp.width = w;
+                mbp.right = mbp.left + mbp.width;
+                bounds.innerWidth = w > 0 ? bounds.width - mbp.BPW : 0;
+                bounds.styleW = mbp.BBM ? bounds.width : bounds.innerWidth;
+                bounds.offsetWidth = ele.offsetWidth;
+                bounds.clientWidth = ele.clientWidth;
+                bounds.scrollWidth = ele.scrollWidth;
             }
         }
 
@@ -1040,13 +1012,20 @@ js.util.Document = function (){
                 }else{
                     ele.style.height =  h + "px";
                 }
-                changed = true;
+
+                bounds.height = mbp.height = h;
+                mbp.bottom = mbp.top + mbp.height;
+                bounds.innerHeight = h > 0 ? bounds.height - mbp.BPH : 0;
+                bounds.styleH = mbp.BBM ? bounds.height : bounds.innerHeight;
+                bounds.offsetHeight= ele.offsetHeight;
+                bounds.clientHeight = ele.clientHeight;
+                bounds.scrollHeight = ele.scrollHeight;
             }
         }
 
-        return changed;
+        return bounds;
     };
-    
+
     /**
      * Return absolute (x, y) of this element
      *
@@ -1055,8 +1034,8 @@ js.util.Document = function (){
      * @see absX()
      * @see absY()
      */
-    thi$.absXY = function(el, isEle){
-        var r = this.getBoundRect(el, isEle);
+    thi$.absXY = function(el){
+        var r = this.getBoundRect(el);
         return { x: r.left, y: r.top };
     };
 
@@ -1064,16 +1043,16 @@ js.util.Document = function (){
      * Return absolute left (outer border to body's outer border) of this
      * element
      */
-    thi$.absX = function(el, isEle){
-        return this.absXY(el, isEle).x;
+    thi$.absX = function(el){
+        return this.absXY(el).x;
     };
 
     /**
      * Return absolute top (outer border to body's outer border) of this
      * element
      */
-    thi$.absY = function(el, isEle){
-        return this.absXY(el, isEle).y;
+    thi$.absY = function(el){
+        return this.absXY(el).y;
     };
 
     /**
@@ -1111,36 +1090,62 @@ js.util.Document = function (){
      * @param x, left position in pixel
      * @param y, top position in pixel
      */
-    thi$.setPosition = function(el, x, y, bounds){
-        this.setBounds(el, x, y, null, null, bounds);
-    };
+    thi$.setPosition = function(ele, x, y, bounds){
+        var mbp, changed = false;
 
-    var _setCoords = function(ele, x, y, bounds){
-        var mbp = bounds.MBP, changed = false;
+        bounds = bounds || this.getBounds(ele);
+        mbp = bounds.MBP;
 
         if(x !== bounds.x && Class.isNumber(x)){
             ele.style.left = x + "px";
-            changed = true;
+
+            mbp.left += (x - bounds.x);
+            mbp.right = mbp.left + mbp.width;
+            bounds.absX = mbp.left;
+            bounds.x = x;
+            bounds.offsetX = ele.offsetLeft;
+            bounds.scrollLeft  = ele.scrollLeft;
         }
 
         if(y !== bounds.y && Class.isNumber(y)){
             ele.style.top = y + "px";
-            changed = true;
+
+            mbp.top += (y - bounds.y);
+            mbp.bottom = mbp.top + mbp.height;
+            bounds.absY = mbp.top;
+            bounds.y = y;
+            bounds.offsetY = ele.offsetTop;
+            bounds.scrollTop   = ele.scrollTop;
         }
 
-        return changed;
+        return bounds;
     };
-    
+
+    /**
+     * Set box model to this element
+     *
+     * @see getBounds(el);
+     */
+    thi$.setBounds = function(ele, x, y, w, h, bounds){
+        bounds = bounds || this.getBounds(ele);
+        this.setPosition(ele, x, y, bounds);
+        this.setSize(ele, w, h, bounds);
+        return bounds;
+    };
+
     /**
      * Return box model of this element
      */
-    thi$.getBounds = function(ele){
-        var bounds;
+    thi$.getBounds = function(ele, nocache){
+        var bounds, mbp;
         
         if(!ele) return null;
-
+        
         bounds = ele.bounds = (ele.bounds || {});
-        bounds.MBP = this.MBP(ele, bounds.MBP);
+        mbp = bounds.MBP;
+        if(mbp && mbp.valid && !nocache) return bounds;
+        
+        bounds.MBP = this.MBP(ele, true);
         bounds.BBM = bounds.MBP.BBM;
         bounds = _calcCoords.call(this, ele, bounds);
         bounds = _calcSize.call(this, ele, bounds);
@@ -1150,9 +1155,7 @@ js.util.Document = function (){
 
     thi$.validBounds = function(bounds){
         var mbp = bounds ? bounds.MBP : null; 
-        return mbp &&
-            Class.isNumber(bounds.styleW) && bounds.styleW > 0 &&
-            Class.isNumber(bounds.styleH) && bounds.styleH > 0;
+        return mbp && mbp.valid;
     };
 
     var _calcCoords = function(ele, bounds){
@@ -1181,16 +1184,25 @@ js.util.Document = function (){
             bounds.y -= pMBP.paddingTop;
         }
 
+        bounds.scrollLeft  = ele.scrollLeft;
+        bounds.scrollTop   = ele.scrollTop;
+
         return bounds;
     };
 
     var _calcSize = function(ele, bounds){
-        var mbp = bounds.MBP, w, h;
+        var mbp = bounds.MBP;
 
         bounds.width  = mbp.width;
         bounds.height = mbp.height;
-        bounds.innerWidth  = bounds.width - mbp.BPW;
-        bounds.innerHeight = bounds.height- mbp.BPH;
+
+        if(mbp.valid){
+            bounds.innerWidth  = bounds.width - mbp.BPW;
+            bounds.innerHeight = bounds.height- mbp.BPH;
+        }else{
+            bounds.innerWidth  = bounds.width;
+            bounds.innerHeight = bounds.height;
+        }
         
         if(mbp.BBM){
             bounds.styleW = bounds.width;
@@ -1200,32 +1212,15 @@ js.util.Document = function (){
             bounds.styleH = bounds.innerHeight;
         }
 
+        bounds.offsetWidth = ele.offsetWidth;
+        bounds.offsetHeight= ele.offsetHeight;
+
         bounds.clientWidth = ele.clientWidth;
         bounds.clientHeight= ele.clientHeight;
+
         bounds.scrollWidth = ele.scrollWidth;
         bounds.scrollHeight= ele.scrollHeight;
-        bounds.scrollLeft  = ele.scrollLeft;
-        bounds.scrollTop   = ele.scrollTop;
 
-        return bounds;
-    };
-
-    /**
-     * Set box model to this element
-     *
-     * @see getBounds(el);
-     */
-    thi$.setBounds = function(ele, x, y, w, h, bounds){
-        bounds = bounds || this.getBounds(ele);
-        
-        if(_setCoords.call(this, ele, x, y, bounds)){
-            bounds.MBP = this.MBP(ele, bounds.MBP);
-            _calcCoords.call(this, ele, bounds);
-        }
-        if(_setSize.call(this, ele, w, h, bounds)){
-            bounds.MBP = this.MBP(ele, bounds.MBP);
-            _calcSize.call(this, ele, bounds);
-        }
         return bounds;
     };
 
