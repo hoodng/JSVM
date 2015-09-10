@@ -86,7 +86,15 @@ js.awt.TableBody = function(def, Runtime) {
 							tcell.setText(cellData.value);
 						}					
 						tcell.setAttribute(rUuid, rowUuid);
-						tcell.setAttribute(title, cellData.value);
+
+						// for show specify tips
+						var titleValue = cellData.value;
+						if(cellData.tips != undefined && cellData.tips.trim() != "")
+						{
+							titleValue = cellData.tips;
+						}
+						
+						tcell.setAttribute(title, titleValue);
 						tcell.appendTo(trow.view);
 					}
 				}

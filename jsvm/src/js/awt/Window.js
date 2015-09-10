@@ -599,6 +599,7 @@ js.awt.Window = function (def, Runtime, view){
 		if(title){
 			title.setPeerComponent(this);
 			title.view.uuid = uuid;
+
 			(function(name){
 				 var item = this.title[name];
 				 item.setPeerComponent(this);

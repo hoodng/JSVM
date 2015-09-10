@@ -54,7 +54,7 @@ js.awt.Element = function(def, Runtime){
      * @see setPosition(x, y)
      */
     thi$.setX = function(x, fire){
-        this.setPosition(x, undefined, fire);
+        this.setPosition(x, null, fire);
     };
     
     /**
@@ -74,7 +74,7 @@ js.awt.Element = function(def, Runtime){
      * @see setPosition(x, y)
      */
     thi$.setY = function(y, fire){
-        this.setPosition(undefined, y, fire);
+        this.setPosition(null, y, fire);
     };
     
     /**
@@ -84,9 +84,7 @@ js.awt.Element = function(def, Runtime){
      * {x, y}
      */
     thi$.getPosition = function(){
-        return {
-            x: this.getX(), y: this.getY()
-        };
+        return {x: this.getX(), y: this.getY()};
     };
     
     /**
@@ -96,18 +94,7 @@ js.awt.Element = function(def, Runtime){
      * @param y, the position top
      */
     thi$.setPosition = function(x, y, fire){
-        var M = this.def, ele = this.view, bounds;
-        if(ele){
-            bounds = this.getBounds();
-            DOM.setPosition(ele, x, y, bounds);
-            M.x = bounds.x;
-            M.y = bounds.y;
-        }else{
-            M.x = Class.isNumber(x) ? x : this.getX();
-            M.y = Class.isNumber(y) ? y : this.getY();
-        }
-        
-        this.adjustLayers("move");
+        this.setBounds(x, y, null, null, fire);
     };
 
 
@@ -152,7 +139,7 @@ js.awt.Element = function(def, Runtime){
      * @see setSize(w, h)
      */
     thi$.setWidth = function(w, fire){
-        this.setSize(w, undefined, fire);
+        this.setSize(w, null, fire);
     };
     
     /**
@@ -172,7 +159,7 @@ js.awt.Element = function(def, Runtime){
      * @see setSize(w, h)
      */
     thi$.setHeight = function(h, fire){
-        this.setSize(undefined, h, fire);
+        this.setSize(null, h, fire);
     };
     
     /**
@@ -181,9 +168,7 @@ js.awt.Element = function(def, Runtime){
      * @return an object with {width, height}
      */
     thi$.getSize = function(){
-        return {
-            width: this.getWidth(), height: this.getHeight()
-        };
+        return {width: this.getWidth(), height: this.getHeight()};
     };
     
     /**
@@ -193,132 +178,57 @@ js.awt.Element = function(def, Runtime){
      * @param h, height
      */
     thi$.setSize = function(w, h, fire){
-        var M = this.def, ele = this.view, bounds;
-
-        if(ele){
-            bounds = this.getBounds();
-            DOM.setSize(ele, w, h, bounds);
-            M.width = bounds.width;
-            M.height= bounds.height;
-        }else{
-            M.width = Class.isNumber(w) ? w : this.getWidth();
-            M.height= Class.isNumber(h) ? h : this.getHeight();
-        }
-        
-        this.adjustLayers("resize");
+        this.setBounds(null, null, w, h, fire);
     };
 
     thi$.absXY = function(){
-        return {x: 0, y:0};
+        var bounds = this.getBounds();
+        return{x: bounds.absX, y:bounds.absY}
     };
     
     thi$.getBounds = function(){
-        var M = this.def, U = this._local, el = this.view, abs,
-            bounds, pounds, position, margin, border, padding;
-
-        if(DOM.isDOMElement(el)){
-            bounds = DOM.getBounds(el);
-            position = this.getStyle("position");
-            position = position ? position.toLowerCase() : undefined;
-            bounds.offsetX = el.offsetLeft;
-            bounds.offsetY = el.offsetTop;
-
-            if(J$VM.supports.borderEdg && position !== "relative"){
-                pounds = DOM.getBounds(el.parentNode);
-                bounds.offsetX -= pounds.MBP.borderLeftWidth;
-                bounds.offsetY -= pounds.MBP.borderTopWidth;
-            }
-
-            bounds.x = bounds.offsetX - bounds.MBP.marginLeft;
-            bounds.y = bounds.offsetY - bounds.MBP.marginTop;
-            if(position == "relative"){
-                pounds = pounds || DOM.getBounds(el.parentNode);
-                bounds.x -= pounds.MBP.paddingLeft;
-                bounds.y -= pounds.MBP.paddingTop;
-            }
-
-            bounds.clientWidth = el.clientWidth;
-            bounds.clientHeight= el.clientHeight;
-            
-            bounds.scrollWidth = el.scrollWidth;
-            bounds.scrollHeight= el.scrollHeight;
-            bounds.scrollLeft  = el.scrollLeft;
-            bounds.scrollTop   = el.scrollTop;
-            
+        var U = this._local, bounds;
+        
+        if(this.view){
+            bounds = DOM.getBounds(this.view);
         }else{
-            margin = M.margin  || Z4;
-            border = M.border  || Z4;
-            padding= M.padding || Z4;
-            abs = this.absXY();
-
             bounds = {
+                MBP:{},
+                absX: 0,
+                absY: 0,
                 x: this.getX(),
                 y: this.getY(),
-                width:  this.getWidth(),
-                height: this.getHeight(),
-
-                MBP:{
-                    marginTop: margin[0],
-                    marginRight: margin[1],
-                    marginBottom: margin[2],
-                    marginLeft: margin[3],
-
-                    borderTopWidth: border[0],
-                    borderRightWidth: border[1],
-                    borderBottomWidth: border[2],
-                    borderLeftWidth: border[3],
-
-                    paddingTop: padding[0],
-                    paddingRight: padding[1],
-                    paddingBottom: padding[2],
-                    paddingLeft: padding[3],
-
-                    BPW: border[3]+padding[3]+padding[1]+border[1],
-                    BPH: border[0]+padding[0]+padding[2]+border[2]
-                },
-
-                absX : abs.x,
-                absY : abs.y
+                width: this.getWidth(),
+                height:this.getHeight()
             };
-            
-            bounds.offsetX = bounds.x;
-            bounds.offsetY = bounds.y;
-
-            bounds.clienWidth   = bounds.width - bounds.MBP.BPW;
-            bounds.clientHeight = bounds.height- bounds.MBP.BPH;
+            bounds.styleW = bounds.width;
+            bounds.styleH = bounds.height;
         }
 
-        bounds.innerWidth = bounds.width - bounds.MBP.BPW;
-        bounds.innerHeight= bounds.height- bounds.MBP.BPH;
+        bounds.userX = U.userX;
+        bounds.userY = U.userY;
+        bounds.userW = U.userW;
+        bounds.userH = U.userH;
 
-        if(U){
-            bounds.userX = U.userX;
-            bounds.userY = U.userY;
-            bounds.userW = U.userW;
-            bounds.userH = U.userH;
-        }
-        
         return bounds;
     };
 
     thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def, ele = this.view, bounds;
-
-        if(ele){
-            bounds = this.getBounds();
-            DOM.setBounds(ele, x, y, w, h, bounds);
+        var M = this.def, bounds;
+        
+        if(this.isDOMElement()){
+            bounds = DOM.setBounds(this.view, x, y, w, h);
             M.x = bounds.x;
             M.y = bounds.y;
             M.width = bounds.width;
             M.height= bounds.height;
+            this.adjustLayers("geom");
         }else{
             M.x = Class.isNumber(x) ? x : this.getX();
             M.y = Class.isNumber(y) ? y : this.getY();
             M.width = Class.isNumber(w) ? w : this.getWidth();
             M.height= Class.isNumber(h) ? h : this.getHeight();
         }
-
-        this.adjustLayers("resize");        
     };
 
     thi$.getPreferredSize = function(nocache){
@@ -376,12 +286,36 @@ js.awt.Element = function(def, Runtime){
      * Return the computed style with the specified style name
      */
     thi$.getStyle = function(sp){
-        var ret;
-        if(this.view){
-            sp = DOM.camelName(sp);
-            ret = DOM.currentStyles(this.view)[sp];
+        if(!this.isDOMElement()) return null;        
+        sp = DOM.camelName(sp);
+        return DOM.currentStyles(this.view)[sp];
+    };
+
+    /**
+     * Return the computed styles set with the specified style names array.<p>
+     * 
+     * @return an object with key are style name and value are style value. 
+     */
+    thi$.getStyles = function(sps){
+        if(!this.isDOMElement()) return null;
+
+        var styles = DOM.currentStyles(this.view),
+            i, len, sp, ret = {};
+        for(i=0, len=sps.length; i<len; i++){
+            sp = DOM.camelName(sps[i]);
+            ret[sp] = styles[sp];
         }
         return ret;
+    };
+
+    /**
+     * Apply a style set to the component.<p>
+     * 
+     * @param styles, an object with key are style name and value 
+     * are style value. 
+     */
+    thi$.applyStyles = function(styles){
+        DOM.applyStyles(this.view, styles);
     };
     
     thi$.defAttr = function(key, val){
@@ -737,7 +671,6 @@ js.awt.Element = function(def, Runtime){
         if(!this.needLayout(force)){
             ret = false;
         }else{
-            this.adjustLayers("resize");
             ret = U.didLayout = true;
         }
         
@@ -749,10 +682,11 @@ js.awt.Element = function(def, Runtime){
      * 
      */
     thi$.needLayout = function(force){
-        return force === true ? true :
-            (!this.isRigidWidth() || 
-                 !this.isRigidHeight() || 
-                 !this._local.didLayout);
+        var U = this._local, ret = false;
+        if(this.isDOMElement() && DOM.validBounds(this.getBounds())){
+            ret = !U.didLayout || force;
+        }
+        return ret;
     };
     
     /**
@@ -766,8 +700,7 @@ js.awt.Element = function(def, Runtime){
     thi$.adjustLayers = function(cmd, show){
         var bounds, z;
         switch(cmd){
-        case "move":
-        case "resize":
+        case "geom":
             bounds = this.getBounds();
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
@@ -902,10 +835,6 @@ js.awt.Element = function(def, Runtime){
 
         if(M.resizable){
             this.setResizable(true, M.resizer);
-        }
-
-        if(M.useUserDefinedTip){
-            this.setUserDefinedTip(true, M.tipDef);
         }
         
         if(M.prefSize){

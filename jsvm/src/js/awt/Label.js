@@ -38,18 +38,21 @@
 $package("js.awt");
 
 /**
- * Define Label component
+ * Define Label component:
  * 
- * @param def:{
- *			  className: required, css: optional,
+ * @param {Object} def Definition of the label.
+ *		
+ *		  @example
+ *		  {
+ *			  className: required, 
+ *			  css: optional,
  * 
  *			  text: optional,
  * 
  *			  editable:optional 
- * }
+ *		  }
  */
 js.awt.Label = function(def, Runtime) {
-	
 	var CLASS = js.awt.Label, thi$ = CLASS.prototype;
 	if(CLASS.__defined__){
 		this._init.apply(this, arguments);
@@ -57,25 +60,63 @@ js.awt.Label = function(def, Runtime) {
 	}
 	CLASS.__defined__ = true;
 	
-	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System, MQ = J$VM.MQ;
+	var Class = js.lang.Class, Event = js.util.Event, 
+	DOM = J$VM.DOM,	System = J$VM.System, MQ = J$VM.MQ,
 
+	StringClass = js.lang.String,
+
+	textSps = [
+		"font-family", "font-size", "font-style",
+		"font-weight", "text-decoration", "text-align",
+		"font-weight", "line-height"
+	];
+
+	/**
+	 * Judge whethe the current label can be wrodwrap.
+	 * 
+	 * @return {Boolean}
+	 */
+	thi$.canWordwrap = function(){
+		return this.def.wordwrap === true;	
+	};
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#getPreferredSize
+	 */
 	thi$.getPreferredSize = function(){
-		if(this.def.prefSize == undefined 
-		   && this.isDOMElement()){
-			
-			var textSize = DOM.getTextSize(this.view),
-			d = this.getBounds(),
-			w = textSize.width + d.MBP.BPW,
-			h = textSize.height+ d.MBP.BPH;
+		var M = this.def, styles, args, textSize, d, w, h;
+		if((!this.isPreferredSizeSet || !M.prefSize)
+			&& this.isDOMElement()){
+
+			d = this.getBounds();
+
+			if(!this.canWordwrap()){
+				styles = DOM.getStyles(this.view, textSps);
+
+				args = [M.text, styles];
+				textSize = DOM.getStringSize.apply(DOM, args);
+
+				w = textSize.width + d.MBP.BPW;
+				h = textSize.height + d.MBP.BPH;
+
+			}else{
+				w = d.width;
+				h = d.height;
+			}
 
 			this.setPreferredSize(w, h);
 		}
-		
-		return this.def.prefSize;
+
+		return M.prefSize;
 
 	}.$override(this.getPreferredSize);
 	
+	/**
+	 * Return the text contents of current label.
+	 * 
+	 * @return {String}
+	 */
 	thi$.getText = function() {
 		return this.def.text;
 	};
@@ -83,13 +124,16 @@ js.awt.Label = function(def, Runtime) {
 	/**
 	 * Sets lable text, only and only if encode == false, the text
 	 * won't be encoded for html.
+	 * 
+	 * @param {String} text Text contents
+	 * @param {Boolean} encode
 	 */
 	thi$.setText = function(text, encode) {
-		this.def.text = text || "";
+		text = this.def.text = text || "";
 
-		var view = this.view, M = this.def, 
-		v = (encode == false) ? 
-			M.text : js.lang.String.encodeHtml(M.text),
+		var M = this.def, view = this.view,
+		v = (encode == false) ? text
+			: StringClass.encodeHtml(text, undefined, this.canWordwrap()),
 		tmpEle, oTextNode;
 
 		/*
@@ -111,30 +155,45 @@ js.awt.Label = function(def, Runtime) {
 		}
 
 		if(!this.isPreferredSizeSet){
-			this.def.prefSize = undefined;
-			this.getPreferredSize();
+			M.prefSize = undefined;
 		}
 	};
 
+	/**
+	 * Sets the email string to show with the "mailto" protocol.
+	 * 
+	 * @param {String} text The email address to set.
+	 */
 	thi$.setEMail = function(text) {
-		this.def.text = text || "";
-		var mail = document.createElement("A"),
-		str = js.lang.String.encodeHtml(this.def.text);
+		text = this.def.text = text || "";
+		
+		var str = StringClass.encodeHtml(text, undefined, this.canWordwrap()),
+		mail = document.createElement("A");
 		mail.href = "mailto:" + str;
 		this.view.appendChild(mail);
 		mail.innerHTML = str;
 
 		if(!this.isPreferredSizeSet){
 			this.def.prefSize = undefined;
-			this.getPreferredSize();
 		}
 
 	};
 
+	/**
+	 * Judge whether the current label can be editable.
+	 * 
+	 * @return {Boolean}
+	 */
 	thi$.isEditable = function(){
 		return this.def.editable || false;
 	};
 
+	/**
+	 * Enable / disable to edit the current label. If true, editing by
+	 * double click will be supported.
+	 * 
+	 * @param {Boolean} b
+	 */
 	thi$.setEditable = function(b) {
 		b = b || false;
 
@@ -165,6 +224,7 @@ js.awt.Label = function(def, Runtime) {
 		var data = e.getData(); 
 		this.setText(data.text, undefined, true);
 		e.getEventTarget().destroy();
+
 		MQ.cancel("js.awt.event.LabelEditorEvent", this, _onedit);
 
 		this.notifyContainer(
@@ -175,83 +235,88 @@ js.awt.Label = function(def, Runtime) {
 	};
 
 	/**
-	 * @param keyword: The keyword of the <em>RegExp</em> object which is used 
-	 *		  to matched.
-	 * @param mode: "global|insensitive|wholeword".
-	 * @param highlightClass: the style class name for highlighting text.
+	 * Highlight all the matched in the current label with the given searching
+	 * keyword and control mode.
+	 * 
+	 * @param {String} keyword The keyword of the <em>RegExp</em> object 
+	 *		  which is used to matched.
+	 * @param {String} mode "global|insensitive|wholeword".
+	 * @param {String} highlightClass The style class for highlighting text.
 	 */
 	thi$.highlightAll = function(keyword, mode, highlightClass) {
-		var text = this.getText();
+		var text = this.getText(), can = this.canWordwrap(), 
+		kit, pattern, className, newText;
 		if (!keyword || !mode || !text)
 			return;
 
-		text = js.lang.String.encodeHtml(text);
-		//J$VM.System.out.println("Text:" + text);
-		keyword = js.lang.String.encodeHtml(keyword);
+		text = StringClass.encodeHtml(text, undefined, can);
+		keyword = StringClass.encodeHtml(keyword, undefined, can);
 
-		var kit = Class.forName("js.swt.SearchKit"),
+		kit = Class.forName("js.swt.SearchKit");
 		pattern = kit.buildRegExp(keyword, mode);
 		if(!pattern){
 			return;
 		}
 		
-		var className = highlightClass;
+		className = highlightClass;
 		if (!className) {
-			className = this.__buf__.clear().append(this.def.className)
-				.append("_").append("highlight").toString();
+			className = DOM.combineClassName(this.className, "highlight");
 		}
 
-		var newText = text.replace(
+		this.view.innerHTML = text.replace(
 			pattern, 
 			function(m) {
 				return "<span class=\"" + className + "\">" + m + "</span>";
 			});
-
-		this.view.innerHTML = newText;
-		newText = null;
 	};
 	
 	/**
-	 * @param matches: <em>Array</em>, each element in it is a object maintained 
-	 *		  each match's start index and its length. Its structure is as follow:
+	 * Highlight all the matches in the current label accordig to the specified
+	 * matched result.
+	 * 
+	 * @param {Array} matches Each element in it is a object maintained each
+	 *		  match's start index and its length. 
+	 * 
+	 *		  @example Its structure is as follow:
 	 *		  [
 	 *			{start: m, length: x},
 	 *			...
 	 *			{start: n, length: x}	  
 	 *		  ]
 	 *
-	 * @param highlightClass: the style class name for highlighting text.
+	 * @param {String} highlightClass The style class for highlighting text.
 	 */
 	thi$.highlightMatches = function(matches, highlightClass) {
-		var text = this.getText();
-		if (!C.isString(text)) return;
-
-		var className = highlightClass;
-		if (!className) {
-			className = this.__buf__.clear().append(this.def.className)
-				.append("_").append("highlight").toString();
+		var text = this.getText(), can = this.canWordwrap(), className, 
+		rpSeg, subStr, i, mCnt, aMatches, vernier = 0;
+		if (!Class.isString(text) || text.length == 0){
+			return;
 		}
 
-		var rpSeg = new js.lang.StringBuffer(), subStr = null,
-		mCnt = matches ? matches.length : 0, aMatches = null,
+		className = highlightClass 
+			|| DOM.combineClassName(this.className, "highlight");
+
+		rpSeg = new js.lang.StringBuffer();
+		mCnt = matches ? matches.length : 0;
 		vernier = 0;
 		
-		for(var i = 0; i < mCnt; i++){
+		for(i = 0; i < mCnt; i++){
 			aMatches = matches[i];
 			if(aMatches.start > vernier){
 				subStr = text.substring(vernier, aMatches.start);
-				subStr = js.lang.String.encodeHtml(subStr);
+				subStr = StringClass.encodeHtml(subStr, undefined, can);
 				rpSeg.append(subStr);
 				
 				subStr = text.substr(aMatches.start, aMatches.length);
-				subStr = js.lang.String.encodeHtml(subStr);
+				subStr = StringClass.encodeHtml(subStr, undefined, can);
 				subStr = "<span class=\"" + className + "\">" + subStr + "</span>";
 				rpSeg.append(subStr);
 				
 				vernier = aMatches.start + aMatches.length;
+
 			}else if(aMatches.start == vernier){
 				subStr = text.substr(aMatches.start, aMatches.length);
-				subStr = js.lang.String.encodeHtml(subStr);
+				subStr = StringClass.encodeHtml(subStr, undefined, can);
 				subStr = "<span class=\"" + className + "\">" + subStr + "</span>";
 				rpSeg.append(subStr);
 				
@@ -263,7 +328,7 @@ js.awt.Label = function(def, Runtime) {
 		
 		if(vernier <= text.length){
 			subStr = text.substr(vernier);
-			subStr = js.lang.String.encodeHtml(subStr);
+			subStr = StringClass.encodeHtml(subStr, undefined, can);
 			rpSeg.append(subStr);
 		}
 
@@ -271,23 +336,34 @@ js.awt.Label = function(def, Runtime) {
 		rpSeg = null;
 	};
 
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#doLayout
+	 */
 	thi$.doLayout = function(){
 		if(arguments.callee.__super__.apply(this, arguments)){
-			this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
+			if(!this.canWordwrap()){
+				this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
+			}
+
 			return true;			
 		}
 
 		return false;
-	}.$override(this.doLayout);
 
+	}.$override(this.doLayout);
 	
 	thi$._init = function(def, Runtime) {
 		if(def == undefined) return;
 
 		def.classType = def.classType || "js.awt.Label";
 		def.className = def.className || "jsvm_label";
-		def.css = (def.css || "") + "margin:0px;white-space:nowrap;";
-		def.text = typeof def.text == "string" ? def.text : "Label";
+		def.wordwrap = (def.wordwrap === true);
+
+		def.css = (def.css || "") + "margin:0px;" 
+			+ (def.wordwrap ? "white-space:normal;" : "white-space:nowrap;");
+
+		def.text = (typeof def.text == "string") ? def.text : "Label";
 		def.viewType = "SPAN";
 
 		arguments.callee.__super__.apply(this, arguments);

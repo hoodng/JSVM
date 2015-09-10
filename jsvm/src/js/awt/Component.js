@@ -1,5 +1,4 @@
 /**
-
  Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
@@ -31,14 +30,21 @@ $import("js.awt.PopupLayer");
  * 
  *     width : outer width of the componet,
  *     height: outer height of the component,
+ * 
  *     miniSize: {width, height},
  *     maxiSize: {width, height},
  *     prefSize: {width, height},
+ * 
  *     rigid_w: true|false
  *     rigid_h: true|false  
+ * 
  *     align_x: 0.0|0.5|1.0
- *     align_y: 0.0|0.5|1.0
- *     
+ *     align_y: 0.0|0.5|1.0,
+ * 
+ *     border: [top, right, bottom, left],
+ *     margin: [top, right, bottom, left],
+ *     padding:[top, right, bottom, left],
+ * 
  *     state : number, see also <code>js.util.State</code>
  *     
  *     mover : {delay, bound ...}, see also <code>js.awt.Movable</code>
@@ -119,6 +125,7 @@ js.awt.Component = function(def, Runtime, view){
         if((fire & 0x01) != 0){
             this.onZOrderChanged(fire);
         }
+        
     }.$override(this.setZ);
 
     /**
@@ -244,59 +251,6 @@ js.awt.Component = function(def, Runtime, view){
             handler);
     };
     
-    /**
-     * Return the computed styles set with the specified style names array.<p>
-     * 
-     * @return an object with key are style name and value are style value. 
-     */
-    thi$.getStyles = function(sps){
-        var currents = DOM.currentStyles(this.view), 
-            styles = {}, i, len, sp;
-
-        for(i=0, len=sps.length; i<len; i++){
-            sp = DOM.camelName(sps[i]);
-            styles[sp] = currents[sp];
-        }
-        
-        return styles;
-    };
-
-    var SIZEP = /[wW]idth|margin|border|padding/;
-    /**
-     * Apply a style set to the component.<p>
-     * 
-     * @param styles, an object with key are style name and value 
-     * are style value. 
-     */
-    thi$.applyStyles = function(styles){
-        var el = this.view, 
-            w = parseFloat(styles.width), 
-            h = parseFloat(styles.height);
-        
-        delete styles.width;
-        delete styles.height;
-
-        var sizeChanged = function(value, sp){
-            return sp.match(SIZEP) != undefined;
-        }.$some(this, styles);
-
-        DOM.applyStyles(el, styles);
-
-        if(sizeChanged){
-            this.invalidateBounds();
-        }
-        
-        if(!isNaN(w) || !isNaN(h)){
-            this.setSize(w, h);
-        }
-
-        if(sizeChanged && this.repaint()){
-            this.onGeomChanged(0x02);
-            return true;
-        }        
-        
-        return false;
-    };
 
     var DISPLAYS = ["none", "block"];
     /**
@@ -311,39 +265,6 @@ js.awt.Component = function(def, Runtime, view){
     }.$override(this.display);
 
     /**
-     * Append the view of this component to the specified parent node.
-     * 
-     * @see removeFrom(parentNode)
-     */
-    thi$.appendTo = function(parentNode){
-        arguments.callee.__super__.apply(this,arguments);
-        if(this.repaint()){
-            this.doLayout(true);
-        }
-    }.$override(this.appendTo);
-    
-    /**
-     * Insert the view of this component before the specified refNode
-     * 
-     * @param refNode
-     */
-    thi$.insertBefore = function(refNode, parentNode){
-        arguments.callee.__super__.apply(this,arguments);
-        if(this.repaint()){
-            this.doLayout(true);
-        }
-    }.$override(this.insertBefore);
-
-    /**
-     * Insert the view of this component after the specified refNode
-     * 
-     * @see insertBefore(refNode, parentNode)
-     */
-    thi$.insertAfter = function(refNode){
-        this.insertBefore(refNode.nextSibling, refNode.parentNode);
-    }.$override(this.insertAfter);
-
-    /**
      * Test whether contains a child node in this component
      * 
      * @param child, a HTMLElement
@@ -353,111 +274,6 @@ js.awt.Component = function(def, Runtime, view){
     thi$.contains = function(child, containSelf){
         return DOM.contains(this.view, child, containSelf);
     }.$override(this.contains);
-
-    /**
-     * When this component was add to DOM tree, then invokes
-     * this method. 
-     * 
-     * @param force true/false
-     * 
-     * @return Must return true if did repaint.
-     * 
-     * Notes: Sub class should override this method
-     */
-    thi$.repaint = function(){
-        var M = this.def, U = this._local, ele, bounds;
-        if(!this.isDOMElement()) return false;
-        
-        if(this._geometric) {
-            this._geometric();
-        }
-        
-        ele = this.view;
-        bounds = this.getBounds();
-
-        if(M.x != bounds.x || M.y != bounds.y){
-            DOM.setPosition(ele, M.x, M.y, bounds);
-        }
-
-        if(M.width != bounds.width || M.height != bounds.height){
-            DOM.setSize(ele, M.width, M.height, bounds);
-        }
-
-        ele.style.zIndex = M.z;
-
-        if(M.isfloating){
-            this.setFloating(true);
-        }
-
-        if(!this.isEnabled()){
-            this.showDisableCover(true);
-        }
-
-        if(M.outline){
-            this.showOutline(true, M.outlineClassName);
-        }
-        
-        if(M.shadow){
-            this.showShadow(true, M.shadowClassName);
-        }
-
-        this.adjustLayers("resize");
-        return true;
-    };
-    
-    var _geometric = function(){
-        var M = this.def, U = this._local, bounds = this.getBounds();
-        
-        if(!Class.isNumber(M.x)){
-            M.x = bounds.x;
-        }
-        U.userX = M.x; 
-
-        if(!Class.isNumber(M.y)){
-            M.y = bounds.y;
-        }
-        U.userY = M.y;
-
-        if(!Class.isNumber(M.width)){
-            M.width = bounds.width;
-            if(!bounds.BBM){
-                M.width -= bounds.MBP.BPW;
-            }
-        }
-        U.userW = M.width;
-
-        if(!Class.isNumber(M.height)){
-            M.height= bounds.height;
-            if(!bounds.BBM){
-                M.height -= bounds.MBP.BPH;
-            }
-        }
-        U.userH = M.height;
-
-        if(!Class.isNumber(M.z)){
-            var z = parseInt(this.getStyle("z-index"));
-            M.z = Class.isNumber(z) ? z : 0;
-        }
-    };
-
-    /**
-     * When parent size changed will ask every children component
-     * doLayout.
-     * 
-     * @return Must return true if did layout
-     * 
-     * Notes: Sub class should override this method
-     */
-    thi$.doLayout = function(force){
-        var ret = true;
-        if(!this.isDOMElement() ||
-           (this.getStyle("display") === "none") ||
-                    !arguments.callee.__super__.apply(this, arguments)){
-            ret = false;
-        }
-        this.adjustController();
-        return ret;
-    }.$override(this.doLayout);
 
     thi$.setController = function(ctrl){
         this.controller = ctrl;
@@ -546,6 +362,7 @@ js.awt.Component = function(def, Runtime, view){
         if((fire & 0x02) != 0){
             this.doLayout(true);
         }
+        this.autoResizeContainer();
     };
     
     thi$.appendStyleClass = function(className){
@@ -607,13 +424,16 @@ js.awt.Component = function(def, Runtime, view){
     };
 
     thi$.onStateChanged = function(e){
+        var M = this.def, clazz;
+
         if(this.isStyleByState()){
-            this.view.className = DOM.stateClassName(
-                this.def.className || this.className, this.getState());
-        }        
+            clazz = DOM.stateClassName(M.className || this.className,
+                                       this.getState());
+            DOM.setClassName(this.view, clazz, M.classPrefix);
+        }
         
-        if(this.view.parentNode){
-            this.showDisableCover(!this.isEnabled());
+        if(this.isDOMElement()){
+            this.showDisableCover(!this.isEnabled());            
         }
     };
 
@@ -622,9 +442,10 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.cloneView = function(){
         var ele = this.view, view = ele.cloneNode(true);
-        //DOM.removeFun(view);
-        view.bounds = {BBM:ele.bounds.BBM, MBP:ele.bounds.MBP};
         view.cloned = "true";
+        if(ele.bounds){
+            view.bounds = {BBM:ele.bounds.BBM, MBP:ele.bounds.MBP};            
+        }
         return view;
     };
 
@@ -659,120 +480,61 @@ js.awt.Component = function(def, Runtime, view){
      * }
      */
     thi$.MBP = function(){
-        var G = this.getGeometric(this.className);
-        return System.objectCopy(G.bounds.MBP, {});
+        return DOM.BMP(this.view);
     };
     
     thi$.getGeometric = function(className){
-        className  = className || this.className;
-        return CLASS.G[className];
-    };
-
-    var _getBounds = function(){
-        var cssText = this.def.css, rst = {},
-        ele = this.view.cloneNode(false);
-
-        // The clean bounds should be generated only with the css file
-        // and style tags. The css fragment in the def shouldn't parse
-        // into the cached bounds. Otherwise, it may pollute and influence
-        // other object instances.
-        if(cssText){
-            ele.style.cssText = "";
-        }
-
-        // When we append an DOM element to body, if it didn't set any
-        // "position" or set the position as "absolute" but no "top" and 
-        // "left" that element also be place at the bottom of body other
-        // than the (0, 0) position. Then it may extend the body's size 
-        // and trigger window's "resize" event.
-        ele.style.position = "absolute";
-        ele.style.top = "-10000px";
-        ele.style.left = "-10000px";
-
-        ele.style.whiteSpace = "nowrap";
-        ele.style.visibility = "hidden";
-
-        DOM.appendTo(ele, document.body);
-        rst.bounds = DOM.getBounds(ele);
-
-        if(cssText){
-            ele.style.cssText += cssText;
-
-            ele.bounds = null;
-            rst.vbounds = DOM.getBounds(ele);
-        }else{
-            rst.vbounds = rst.bounds;
-        }
-
-        DOM.remove(ele, true);
-        
-        return rst;
-    };
-
-    var _preparegeom = function(){
+        var G, bounds;
         CLASS.G = CLASS.G || {};
-
-        var className = this.className, G = CLASS.G[className], 
-        M = this.def, bounds, styleW, styleH, rst,
-        buf = new js.lang.StringBuffer();
-        if(!G){
-            G = {};
-            rst = _getBounds.call(this, M.css);
-            G.bounds = rst.bounds;
-            CLASS.G[className] = G;
-            
-            bounds = rst.vbounds;
-        }else{
-            if(!M.css){ // Use the cached bounds directly
-                bounds = G.bounds;
-            }else{ // Get bounds with the definition's css text
-                rst = _getBounds.call(this);
-                bounds = rst.vbounds;
+        G = CLASS.G[className];
+        if(!className){
+            className = this.className;
+            G = CLASS.G[className];
+            if(!G){
+                G = CLASS.G[className] = {};
+                bounds = _geometric.call(this);
+                G.bounds = System.objectCopy(bounds, {}, true);
             }
         }
+        return G;
+    };
 
-        // TODO: Cache the initial bounds
-        this._local.vbounds = System.objectCopy(bounds, {});
+    var _geometric = function(){
+        var M = this.def, U = this._local, ele = this.view,
+            styles, bounds;
 
-        // Copy the MBP to avoid some object's change pollute and 
-        // influence other object instance with the same className. 
-        // With copying, the old "NUCG" property should be discarded.
-        bounds = this.view.bounds = {
-            BBM: bounds.BBM, 
-            MBP: System.objectCopy(bounds.MBP, {})
-        };
-
-        // Hande the x, y, width, height of definition
-        if(Class.isNumber(M.x)){
-            buf.append("left:").append(M.x).append("px;");
+        if(Class.isArray(M.margin)){
+            styles = DOM.extractMBP("margin", M.margin, styles);
+        }
+        if(Class.isArray(M.border)){
+            styles = DOM.extractMBP("border", M.border, styles);
+        }
+        if(Class.isArray(M.padding)){
+            styles = DOM.extractMBP("padding", M.padding, styles);
+        }
+        if(Class.isNumber(M.z)){
+            styles = styles || {};
+            styles.zIndex = M.z;
+        }
+        if(styles){
+            DOM.applyStyles(ele, styles);
         }
 
-        if(Class.isNumber(M.y)){
-            buf.append("top:").append(M.y).append("px;");
+        // Extract original geometric.
+        bounds = DOM.getBounds(ele);
+        if(DOM.validBounds(bounds)){
+            M.x = !Class.isNumber(M.x) ? bounds.x : M.x;
+            M.y = !Class.isNumber(M.y) ? bounds.y : M.y;
+            M.width = !Class.isNumber(M.width) ? bounds.styleW : M.width;
+            M.height= !Class.isNumber(M.height)? bounds.styleH : M.height;
         }
 
-        if(Class.isNumber(M.width)){
-            styleW = M.width;
-            if(!bounds.BBM){
-                styleW -= bounds.MBP.BPW;
-            }
-            buf.append("width:").append(styleW).append("px;");
-        }
-
-        if(Class.isNumber(M.height)){
-            styleH = M.height;
-            if(!bounds.BBM){
-                styleH -= bounds.MBP.BPH;
-            }
-            buf.append("height:").append(styleH).append("px;");
-        }
-
-        buf.append(this.view.style.cssText);
-
-        this.view.style.cssText = buf.toString(); 
+        DOM.setBounds(ele, M.x, M.y, M.width, M.height, bounds);
+        return bounds;
     };
 
     thi$.invalidateBounds = function(){
+        /*
         this.view.bounds = null;
         
         // If the preferred size is not from the definition, it will be calcualted
@@ -781,6 +543,7 @@ js.awt.Component = function(def, Runtime, view){
         if(!this.isPreferredSizeSet){
             this.def.prefSize = null;
         }
+        */
     };
     
     /**
@@ -789,6 +552,7 @@ js.awt.Component = function(def, Runtime, view){
      * component which take charge of the change and redo layout.
      */
     thi$.invalidParentLayout = function() {
+        /*
         var target = this.getContainer();
         while(target && !target.handleLayoutInvalid) {
             if (target.getContainer && target.getContainer()) {
@@ -799,12 +563,89 @@ js.awt.Component = function(def, Runtime, view){
         }
         if (target && target.handleLayoutInvalid) {
             target.handleLayoutInvalid();
+        }*/
+    };
+
+    /**
+     * When this component was add to DOM tree, then invokes
+     * this method. 
+     * 
+     * @param force true/false
+     * 
+     * @return Must return true if did repaint.
+     * 
+     * Notes: Sub class should override this method
+     */
+    thi$.repaint = function(){
+        var ret = false;
+        if(this.isDOMElement() &&
+           this.getAttribute("repaint") !== "true"){
+            _repaint.call(this);
+            ret = true;
         }
+        return ret;
+    };
+    
+    /**
+     * When parent size changed will ask every children component
+     * doLayout.
+     * 
+     * @return Must return true if did layout
+     * 
+     * Notes: Sub class should override this method
+     */
+    thi$.doLayout = function(force){
+        var ret = false;
+        if(arguments.callee.__super__.apply(this, arguments)){
+            this.adjustController();            
+            ret = true;
+        }
+        return ret;
+    }.$override(this.doLayout);
+
+    var _repaint = function(){
+        var M = this.def, U = this._local, bounds;
+
+        this.getGeometric();
+        bounds = this.getBounds();
+        U.userX = bounds.x;
+        U.userY = bounds.y;
+        U.userW = bounds.width;
+        U.userH = bounds.height;
+        
+        if(M.isfloating){
+            this.setFloating(true);
+        }
+
+        if(!this.isEnabled()){
+            this.showDisableCover(true);
+        }
+
+        if(M.outline){
+            this.showOutline(true, M.outlineClassName);
+        }
+        
+        if(M.shadow){
+            this.showShadow(true, M.shadowClassName);
+        }
+
+        if(M.useUserDefinedTip){
+            this.setUserDefinedTip(true, M.tipDef);
+        }
+
+        this.setTipText(M.tip);
+        
+        this.adjustLayers("geom");
+        
+        this.setAttribute("repaint", "true");
     };
 
     thi$.onelementappend = function(e){
-        //System.err.println(e);
-        e.cancelDefault();
+        var U = this._local, bounds;
+        if(e && e.srcElement !== this.view) return;
+        if(this.repaint()){
+            this.doLayout(true);
+        }
     };
     
     thi$.destroy = function(){
@@ -862,19 +703,9 @@ js.awt.Component = function(def, Runtime, view){
             DOM.setClassName(view, clazz, def.classPrefix);
         }
 
-        /*
-        if(view.tagName != "BODY" && view.tagName != "CANVAS"
-           && view.cloned != "true"){
-            _preparegeom.call(this);    
-        }*/
-
-        this.setTipText(def.tip);
-
-        this._geometric = function(){
-            var o = _geometric.call(this);
-            delete this._geometric;
-            return o;
-        };
+        if(this.isDOMElement() && view != document.body){
+            this.onelementappend();
+        }
         
     }.$override(this._init);
     

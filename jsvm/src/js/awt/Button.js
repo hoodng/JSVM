@@ -1,32 +1,6 @@
 /**
-
- Copyright 2010-2011, The JSVM Project.
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
-
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Pan mingfa
@@ -124,7 +98,7 @@ js.awt.Button = function(def, Runtime){
 		return this._local.mousedown === true;
 	};
 
-	thi$.setToolTipText = function(s){
+	thi$.setTipText = function(s){
 		arguments.callee.__super__.apply(this, arguments);
 
 		if(this.icon) {
@@ -134,70 +108,84 @@ js.awt.Button = function(def, Runtime){
 			DOM.setAttribute(this.label, "title", s);
 		}
 
-	}.$override(this.setToolTipText);
+	}.$override(this.setTipText);
 
 	/**
 	 * @see js.awt.Component
 	 */
 	thi$.repaint = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
-			this.doLayout(true);
+        var M = this.def;
+        
+		arguments.callee.__super__.apply(this, arguments);
+        
+        if(this.icon){
+			this.setIconImage(this.isTriggered() ? 4 :
+                              (this.isEnabled() ? 0 : 1));
 		}
+
+		if(this.label){
+			this.setText(M.labelText || M.text || M.name || "Button");
+		}
+
+		if(M.effect){
+			this._local.effectClass = M.effectClass;
+			_createEffectLayer.call(this);
+		}
+
 	}.$override(this.repaint);
 
 	/**
 	 * @see js.awt.Component
 	 */
 	thi$.doLayout = function(force){
-		if(arguments.callee.__super__.apply(this, arguments)){
-			var G0 = this.getGeometric(), B = this.getBounds(),
+        if(!arguments.callee.__super__.apply(this, arguments))
+            return;
+
+		var M = this.def, G0 = this.getGeometric(), B = this.getBounds(),
 			BBM = B.BBM, MBP = B.MBP,
 			innerWidth = B.innerWidth, innerHeight= B.innerHeight,
 			xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
-			align_x = this.def.layout.align_x,
-			align_y = this.def.layout.align_y,
-			items = this.def.items, ele, i, len, cwidth = 0, D,
+			align_x = M.layout.align_x,
+			align_y = M.layout.align_y,
+			items = M.items, ele, i, len, cwidth = 0, D,
 			buf = this.__buf__, left, top, uwidth;
 
-			for(i=0, len=items.length; i<len; i++){
-				ele = this[items[i]];
-				D = G0[ele.iid];
-				if(ele.iid == "label"){
-					cwidth += ele.scrollWidth;
-				}else{
-					cwidth += ele.offsetWidth + D.MBP.marginRight;
-				}
+		for(i=0, len=items.length; i<len; i++){
+			ele = this[items[i]];
+			D = G0[ele.iid];
+			if(ele.iid == "label"){
+				cwidth += ele.scrollWidth;
+			}else{
+				cwidth += ele.offsetWidth + D.MBP.marginRight;
 			}
-
-			cwidth = cwidth > innerWidth ? innerWidth : cwidth;
-
-			left = xbase + (innerWidth - cwidth) * align_x;
-			for(i=0, len=items.length; i<len; i++){
-				ele = this[items[i]];
-				D = G0[ele.iid];
-				top = ybase + (innerHeight - D.height) * align_y;
-				buf.clear().append(ele.style.cssText)
-					.append(";left:").append(left).append("px;")
-					.append("top:").append(top).append("px;");
-
-				if(ele.iid === "label"){
-					buf.append("width:").append(cwidth+2).append("px;")
-						.append("white-space:nowrap;overflow:hidden;")
-						.append("text-overflow:ellipsis;");
-				}
-
-				ele.style.cssText = buf.toString();
-
-				uwidth = D.width + D.MBP.marginRight;
-				left   += uwidth;
-				cwidth -= uwidth;
-			}
-
-			_adjustEffectLayer.call(this);
-			return true;
 		}
 
-		return false;
+		cwidth = cwidth > innerWidth ? innerWidth : cwidth;
+
+		left = xbase + (innerWidth - cwidth) * align_x;
+		for(i=0, len=items.length; i<len; i++){
+			ele = this[items[i]];
+			D = G0[ele.iid];
+			top = ybase + (innerHeight - D.height) * align_y;
+            
+			buf.clear().append(ele.style.cssText)
+			.append(";left:").append(left).append("px;")
+			.append("top:").append(top).append("px;");
+
+			if(ele.iid === "label"){
+				buf.append("width:").append(cwidth+2).append("px;")
+				.append("white-space:nowrap;overflow:hidden;")
+				.append("text-overflow:ellipsis;");
+			}
+
+			ele.style.cssText = buf.toString();
+
+			uwidth = D.width + D.MBP.marginRight;
+			left   += uwidth;
+			cwidth -= uwidth;
+		}
+
+		_adjustEffectLayer.call(this);
 
 	}.$override(this.doLayout);
 
@@ -273,8 +261,7 @@ js.awt.Button = function(def, Runtime){
 		layer.uuid = this.uuid();
 		layer.className = _getEffectStyleClass.call(this, "normal");
 		layer.style.cssText = "position:absolute;left:0px;top:0px;";
-
-		DOM.appendTo(layer, this.view);
+        this.view.appendChild(layer);
 	};
 
 	var _adjustEffectLayer = function(){
@@ -342,20 +329,19 @@ js.awt.Button = function(def, Runtime){
 
 	var _createElements = function(){
 		var G = this.getGeometric(), className = this.className,
-		body = document.body, items = this.def.items,
-		ele, id, iid, viewType, i, len;
+		    items = this.def.items, ele, id, iid, viewType, i, len;
 
 		for(i=0, len=items.length; i<len; i++){
 			id = items[i];
 			iid = id.split(/\d+/g)[0];
 			switch(iid){
-			case "icon":
+			    case "icon":
 				viewType = "IMG";
 				break;
-			case "label":
+			    case "label":
 				viewType = "SPAN";
 				break;
-			default:
+			    default:
 				viewType = "DIV";
 				break;
 			}
@@ -366,21 +352,15 @@ js.awt.Button = function(def, Runtime){
 			ele.iid = iid;
 
 			if(!G[iid]){
-				ele.style.cssText =
-					"position:absolute;white-space:nowrap;visibility:hidden;";
-				DOM.appendTo(ele, body);
-				G[iid] = DOM.getBounds(ele);
-				DOM.removeFrom(ele);
-				ele.style.cssText = "";
+                G[iid] = DOM.getBounds(ele);
 			}
-
-			ele.style.cssText ="position:absolute;";
+			ele.style.position ="absolute";
 			DOM.appendTo(ele, this.view);
 		}
 	};
 
 	var _checkItems = function(){
-		var M = this.def, items = M.items;
+		var M = this.def, items = M.items = (M.items || []);
 		if(items.length == 0){
 			if(this.isMarkable()) items.push("marker");
 			if(M.iconImage) items.push("icon");
@@ -413,18 +393,13 @@ js.awt.Button = function(def, Runtime){
 		layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.5;
 		layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
 
-		def.items = def.items || [];
-
 		// Create inner elements
-		if(view == undefined){
+		if(!Class.isHtmlElement(view)){
 			_checkItems.call(this);
 			_createElements.call(this);
 		}
 
-		if(!def.items.clear){
-			js.util.LinkedList.$decorate(def.items);
-		}
-		def.items.clear();
+		def.items = [];
 		var uuid = this.uuid(), nodes = this.view.childNodes,
 		id, i, len, node;
 		for(i=0, len=nodes.length; i<len; i++){
@@ -435,26 +410,8 @@ js.awt.Button = function(def, Runtime){
 			this[id] = node;
 		}
 
-		if(this.icon){
-			this.setIconImage(this.isTriggered() ? 4 : (this.isEnabled() ? 0 : 1));
-		}
-
-		if(this.label){
-			this.setText(def.labelText || def.text || def.name || "Button");
-		}
-
-		if(def.effect === true){
-			this._local.effectClass = def.effectClass;
-			_createEffectLayer.call(this);
-		}
-
-		// Set Tip
-		var tip = def.tip;
-		if(Class.isString(tip) && tip.length > 0) {
-			this.setToolTipText(tip);
-		}
-
 		this.setAttribute("touchcapture", "true");
+        
 		this.attachEvent("mouseover", 4, this, _onmouseover);
 		this.attachEvent("mouseout",  4, this, _onmouseout);
 		this.attachEvent("mousedown", 4, this, _onmousedown);

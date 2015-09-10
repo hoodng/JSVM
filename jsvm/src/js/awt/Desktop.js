@@ -298,7 +298,10 @@ js.awt.Desktop = function (Runtime){
         arguments.callee.__super__.call(
             this, b, style || "jsvm_desktop_mask");
         if(b){
-            this.setCoverZIndex(_getMaxZIndex.call(this)+1);
+            // The desktop's cover should be below the first-level dialog.
+            // Assume that at most five levels dialogs can be opened.
+            //this.setCoverZIndex(_getMaxZIndex.call(this)+1);
+            this.setCoverZIndex(this.DM.def.zbase - 5);
         }
     }.$override(this.showCover);
 

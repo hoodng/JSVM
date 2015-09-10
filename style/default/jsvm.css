@@ -1402,6 +1402,7 @@
 
 .jsvm_comboBox_dItem_label,
 .jsvm_flatCombo_dItem_label {
+    height: 16px;
     color: #000000;
 
     overflow: hidden;
@@ -1663,6 +1664,7 @@
 }
 
 .jsvm_simpleCombo_dItem_label {
+    height: 16px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

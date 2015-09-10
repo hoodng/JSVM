@@ -210,15 +210,17 @@ js.awt.Gridding = function(){
         };
 
         thi$.getMoveObject = function(){
-            var moveObj = this.moveObj, def = this.def;
+            var moveObj = this.moveObj, def = this.def, className;
             if(!moveObj){
+                className = [this.className,
+                             DOM.combineClassName(
+                                 def.blassName, [MOVING[def.dir]])].join(" ");
                 moveObj = this.moveObj = new js.awt.Component({
-                    className: this.className + " "+
-                        DOM.combineClassName(def.blassName, [MOVING[def.dir]]),
+                    className: className,
                     id: this.getID(),
                     stateless: true
                 }, this.Runtime(), this.cloneView());
-                moveObj.view.className = moveObj.className;
+                moveObj.view.className = moveObj.className = className;
                 moveObj.getMovingMsgRecvs = _getMovingMsgRecvs.$bind(this);
                 moveObj.getMovingMsgType = _getMovingMsgType.$bind(this);
                 moveObj.showMoveCover = _showMoveCover.$bind(this);
