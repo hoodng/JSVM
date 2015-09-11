@@ -568,11 +568,9 @@ js.awt.Component = function(def, Runtime, view){
     var _repaint = function(){
         var M = this.def, U = this._local, bounds;
 
-        if(this._geometric){
-            this._geometric();
-        }
+        bounds = this._geometric ?
+            this._geometric() : this.getBounds();
 
-        bounds = this.getBounds();
         U.userX = bounds.x;
         U.userY = bounds.y;
         U.userZ = bounds.MBP.zIndex;
@@ -704,8 +702,8 @@ js.awt.Component = function(def, Runtime, view){
             }
         }else{
             this._geometric = function(){
-                _geometric.call(this);
                 delete this._geometric;
+                return _geometric.call(this);
             };
         }
         
