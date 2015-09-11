@@ -83,13 +83,13 @@ js.awt.Icon = function(def, Runtime){
 	};
 
 	thi$.setToolTipText = function(s){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		DOM.setAttribute(this.imageView, "title", s);
 
 	}.$override(this.setToolTipText);
 
 	thi$.onStateChanged = function(e){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		if(this.useBgImage){
 			this.imageView.src = _buildImageSrc.call(this);
@@ -123,7 +123,7 @@ js.awt.Icon = function(def, Runtime){
 		delete this.imageView;
 		DOM.remove(imageView, true);
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -155,7 +155,7 @@ js.awt.Icon = function(def, Runtime){
 		delete newDef.tip;
 		
 		System.objectCopy(newDef, def, true, true);
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		var useBgImage = this.useBgImage = (def.useBgImage === true),
 		viewType = useBgImage ? "DIV" : "IMG",

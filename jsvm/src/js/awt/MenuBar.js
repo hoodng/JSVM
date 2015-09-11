@@ -223,7 +223,7 @@ js.awt.MenuBar = function (def, Runtime){
 
 		delete this.cache;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 	
@@ -240,7 +240,7 @@ js.awt.MenuBar = function (def, Runtime){
 		layout.align_x = layout.align_x || 0.0;
 		layout.align_y = layout.align_y || 0.5;
 
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 		
 		this.cache = {};
 		

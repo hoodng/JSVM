@@ -160,7 +160,7 @@ js.awt.DTComboBox = function(def, Runtime){
 		if(typeof def !== "object") return;
 		
 		def.stepper = Class.isNumber(def.stepper) ? def.stepper : 1;
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		this.setMsgType("js.awt.event.FieldEvent");
 		this.initialize(def.lower, def.upper);
@@ -676,7 +676,7 @@ js.awt.DatePicker = function(def, Runtime){
 			]
 		};
 		
-		arguments.callee.__super__.apply(this, arguments); 
+		$super(this); 
 		
 		_createElements.call(this, def);
 

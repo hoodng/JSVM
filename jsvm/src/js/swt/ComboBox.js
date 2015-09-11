@@ -797,7 +797,7 @@ js.swt.ComboBox = function(def, Runtime){
     };
 
     thi$.onMoved = function(){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var subview = this.subview;
         if(subview){
@@ -806,7 +806,7 @@ js.swt.ComboBox = function(def, Runtime){
     }.$override(this.onMoved);
     
     thi$.onResized = function(fire){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var subview = this.subview;
         if(subview){
@@ -819,7 +819,7 @@ js.swt.ComboBox = function(def, Runtime){
     };
     
     thi$.onStateChanged = function(e){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.btnDropDown.setState(this.getState());
 
@@ -870,7 +870,7 @@ js.swt.ComboBox = function(def, Runtime){
             subview.destroy();
         }
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
 
@@ -1666,7 +1666,7 @@ js.swt.ComboBox = function(def, Runtime){
         if(typeof def !== "object") return;
         
         def = _preInit.call(this, def);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         // 0: Expect hide subview
         // 1: Expect popup subview

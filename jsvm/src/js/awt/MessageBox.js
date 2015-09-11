@@ -81,7 +81,7 @@ js.awt.MessageBox = function(def, Runtime){
 	 * @see js.awt.Component
 	 */
 	thi$.doLayout = function(force){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			var bounds = this.getBounds(), icon = this.icon, 
 			label = this.label, text = this.text, h, top;
 			
@@ -157,7 +157,7 @@ js.awt.MessageBox = function(def, Runtime){
 		def.classType = def.classType || "js.awt.MessageBox";
 		def.className = def.className || "jsvm_msg";
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		var model = this.def.model || {
 			msgType:	"info",

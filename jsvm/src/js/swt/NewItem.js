@@ -223,7 +223,7 @@ js.swt.NewItem = function(def, Runtime){
 	
 	thi$.onStateChanged = function(state){
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		var items = this.def.items, len = items.length, 
 		id, iid, item;
@@ -255,7 +255,7 @@ js.swt.NewItem = function(def, Runtime){
 			this.detachEvent("mouseout", 0, this, _onEvent);
 		}
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 	}.$override(this.destroy);
 	
@@ -385,7 +385,7 @@ js.swt.NewItem = function(def, Runtime){
 		def.className = def.className || "jsvm_nitem";
 		
 		_preDef.call(this, def);
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		// Init image		
 		this.setIconImage();

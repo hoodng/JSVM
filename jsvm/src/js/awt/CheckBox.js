@@ -83,7 +83,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 			this.mark(!this.isMarked());
 		}
 
-		arguments.callee.__super__.apply(this,arguments);
+		$super(this);
 
 	}.$override(this.notifyPeer);
 	
@@ -92,7 +92,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 			this.detachEvent("click", 4, this, _onclick);
 		} 
 		
-		arguments.callee.__super__.apply(this, arguments);		 
+		$super(this);		 
 		
 	}.$override(this.destroy);
 	
@@ -116,7 +116,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 		layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.0;
 		layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
 		
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 
 		this.mark(def.marked);
 		

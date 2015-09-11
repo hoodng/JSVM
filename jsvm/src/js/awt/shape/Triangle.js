@@ -67,7 +67,7 @@ js.awt.shape.Triangle = function(def, Graphics2D, Renderer){
         def.classType = def.classType || "js.awt.shape.Triangle";
         def.ends = 3;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

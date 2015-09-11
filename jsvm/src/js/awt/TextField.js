@@ -207,7 +207,7 @@ js.awt.TextField = function(def, Runtime){
 			def.viewType = "TEXTAREA";
 		}
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(def.multiline === false){
 			this.view.type = "text";

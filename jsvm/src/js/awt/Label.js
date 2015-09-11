@@ -341,7 +341,7 @@ js.awt.Label = function(def, Runtime) {
 	 * @inheritdoc js.awt.Component#doLayout
 	 */
 	thi$.doLayout = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			if(!this.canWordwrap()){
 				this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
 			}
@@ -366,7 +366,7 @@ js.awt.Label = function(def, Runtime) {
 		def.text = (typeof def.text == "string") ? def.text : "Label";
 		def.viewType = "SPAN";
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		this.setText(this.def.text, true);
 		this.setEditable(this.def.editable);

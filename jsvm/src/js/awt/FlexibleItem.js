@@ -126,7 +126,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 	 * @see js.awt.Item #isMoverSpot
 	 */
 	thi$.isMoverSpot = function(el, x, y){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			var extraCtrls = this._local.extraCtrls,
 			ids = extraCtrls ? extraCtrls.keys() : [], ctrl;
 			for(var i = 0, len = ids; i < len; i++){
@@ -207,7 +207,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 		delete this._local.leftmostCtrl;
 		delete this._local.extraCtrls;
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 	}.$override(this.destroy);
 	
@@ -440,7 +440,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 			_checkItems.call(this, def);
 		}
 		
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 		
 		if(this.isCustomized()){
 			_createCustomComponent.call(this);

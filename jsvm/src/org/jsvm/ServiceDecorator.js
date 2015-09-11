@@ -182,7 +182,7 @@ org.jsvm.ServiceDecorator = function(){
         this.heartbeat.stop();
         this.heartbeat = null;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
 

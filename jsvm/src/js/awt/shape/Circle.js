@@ -73,7 +73,7 @@ js.awt.shape.Circle = function(def, Graphics2D, Renderer){
         def.classType = def.classType || "js.awt.shape.Circle";
         def.type = "circle";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

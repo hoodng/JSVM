@@ -295,7 +295,7 @@ js.awt.Desktop = function (Runtime){
     };
     
     thi$.showCover = function(b, style){
-        arguments.callee.__super__.call(
+        $super(
             this, b, style || "jsvm_desktop_mask");
         if(b){
             // The desktop's cover should be below the first-level dialog.
@@ -443,7 +443,7 @@ js.awt.Desktop = function (Runtime){
         this.LM.destroy();
         this.LM = null;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
 
@@ -459,7 +459,7 @@ js.awt.Desktop = function (Runtime){
                 __contextid__: Runtime.uuid()
             };
 
-        arguments.callee.__super__.apply(this, [def, Runtime, body]);
+        $super(this, def, Runtime, body);
 
         // Popup Layer manager
         var LM = this.LM = new js.awt.LayerManager(

@@ -67,7 +67,7 @@ js.util.Observable = function (def, Runtime){
         this.__observers__ = null;
         this._local = null;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
 

@@ -72,7 +72,7 @@ js.awt.RadioButton = function(def, Runtime) {
      * @see js.awt.Button
      */
     thi$.mark = function(b){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         if(this.isMarked()){
             var group = this.getGroup(), i, len, item;
@@ -97,7 +97,7 @@ js.awt.RadioButton = function(def, Runtime) {
             }
         }
 
-        arguments.callee.__super__.apply(this,arguments);
+        $super(this);
 
     }.$override(this.notifyPeer);
 
@@ -113,7 +113,7 @@ js.awt.RadioButton = function(def, Runtime) {
             delete CLASS.groups[this.def.group];
         }
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy)
 
@@ -131,7 +131,7 @@ js.awt.RadioButton = function(def, Runtime) {
         layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.0;
         layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
         
-        arguments.callee.__super__.apply(this, [def, Runtime, view]);
+        $super(this, def, Runtime, view);
 
         CLASS.groups = CLASS.groups || {};
         var group = CLASS.groups[def.group];

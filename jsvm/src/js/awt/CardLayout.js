@@ -194,7 +194,7 @@ js.awt.CardLayout = function (def){
         def.status = def.status || {};
         def.status.index = def.status.index || 0;
 
-        arguments.callee.__super__.apply(this, arguments);        
+        $super(this);        
 
     }.$override(this._init);
     

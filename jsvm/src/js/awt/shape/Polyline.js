@@ -72,7 +72,7 @@ js.awt.shape.Polyline = function(def, Graphics2D, Renderer){
         def.type = "polyline";
         def.close = "open";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

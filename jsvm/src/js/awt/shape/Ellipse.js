@@ -75,7 +75,7 @@ js.awt.shape.Ellipse = function(def, Graphics2D, Renderer){
         def.classType = def.classType || "js.awt.shape.Ellipse";
         def.type = "ellipse";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

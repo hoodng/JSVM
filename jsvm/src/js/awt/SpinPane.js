@@ -57,7 +57,7 @@ js.awt.SpinPane = function(def, Runtime){
      * @see js.awt.Container
      */    
     thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
 
             _layout.call(this, this.getUBounds());
             return true;
@@ -171,7 +171,7 @@ js.awt.SpinPane = function(def, Runtime){
         def.stateless = true;
         def.pane = def.pane || js.awt.ScrollPane.DEFAULTDEF();
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         _createElements.call(this);
         

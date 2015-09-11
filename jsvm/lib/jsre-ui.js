@@ -242,7 +242,7 @@ js.awt.Cover = function (){
         var cview = this.view, view, uuid, tip;
 
         uuid = this.uuid();
-        view = this._coverView = DOM.createElement("DIV");
+        view = this._coverView = DOM.cloneElement(cview, false);
         view.uuid = [uuid, "cover"].join("-");
         view.id = [this.getID(), "cover"].join("-");
         view.className = selector;
@@ -289,7 +289,8 @@ js.awt.Cover = function (){
         var view = this._coverView;
         if(!view) return;
         bounds = bounds || this.getBounds();
-        DOM.setBounds(view,bounds.x, bounds.y,
+        if(bounds.MBP.fake) return;
+        DOM.setBounds(view, bounds.x, bounds.y,
                       bounds.width, bounds.height);    
     };
 
@@ -2104,7 +2105,7 @@ js.awt.LayoutManager = function (def){
     
     thi$.destroy = function(){
         this.def = null;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
     
     
@@ -2371,7 +2372,7 @@ js.awt.BorderLayout = function (def){
         def.hgap = def.hgap || 0;
         def.vgap = def.vgap || 0;
 
-        arguments.callee.__super__.apply(this, arguments);        
+        $super(this);        
 
     }.$override(this._init);
 
@@ -2546,7 +2547,7 @@ js.awt.BoxLayout = function (def){
 		def.axis = def.axis || 0;
 		def.gap	 = def.gap || 0;
 
-		arguments.callee.__super__.apply(this, arguments);		  
+		$super(this);		  
 
 	}.$override(this._init);
 	
@@ -2751,7 +2752,7 @@ js.awt.CardLayout = function (def){
         def.status = def.status || {};
         def.status.index = def.status.index || 0;
 
-        arguments.callee.__super__.apply(this, arguments);        
+        $super(this);        
 
     }.$override(this._init);
     
@@ -2995,7 +2996,7 @@ js.awt.FlowLayout = function (def){
         def.align_x = def.align_x || 0.0;
         def.align_y = def.align_y || 0.0;
 
-        arguments.callee.__super__.apply(this, arguments);        
+        $super(this);        
 
     }.$override(this._init);
     
@@ -3132,7 +3133,7 @@ js.awt.GridLayout = function (def){
         def = def || {};
 
         def.classType = "js.awt.GridLayout";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         def.gridClass = def.gridClass || "js.awt.Grid";
         this.grid = new (Class.forName(def.gridClass))(def);
 
@@ -3258,10 +3259,12 @@ js.awt.Element = function(def, Runtime){
      * @param z
      */
     thi$.setZ = function(z, fire){
-        var M = this.def, ele = this.view;
-        M.z = Class.isNumber(z) ? z : this.getZ();
-        if(ele){
-            ele.style.zIndex = M.z;
+        var M = this.def, bounds;
+        if(this.isDOMElement()){
+            bounds = DOM.setZ(this.view, z);
+            M.z = bounds.MBP.zIndex;
+        }else{
+            M.z = Class.isNumber(z) ? z : this.getZ();
         }
         
         this.adjustLayers("zorder");        
@@ -3328,7 +3331,7 @@ js.awt.Element = function(def, Runtime){
 
     thi$.absXY = function(){
         var bounds = this.getBounds();
-        return{x: bounds.absX, y:bounds.absY}
+        return{x: bounds.absX, y:bounds.absY};
     };
     
     thi$.getBounds = function(){
@@ -3352,9 +3355,10 @@ js.awt.Element = function(def, Runtime){
 
         bounds.userX = U.userX;
         bounds.userY = U.userY;
+        bounds.userZ = U.userZ;        
         bounds.userW = U.userW;
         bounds.userH = U.userH;
-
+        
         return bounds;
     };
 
@@ -3828,7 +3832,7 @@ js.awt.Element = function(def, Runtime){
      */
     thi$.needLayout = function(force){
         var U = this._local, ret = false;
-        if(this.isDOMElement() && DOM.validBounds(this.getBounds())){
+        if(this.isDOMElement()){
             ret = !U.didLayout || force;
         }
         return ret;
@@ -3931,7 +3935,7 @@ js.awt.Element = function(def, Runtime){
             autofit: autofit,
             hscroll: hscroll,
             vscroll: vscroll
-        }
+        };
     };
     
     thi$.destroy = function(){
@@ -3945,7 +3949,7 @@ js.awt.Element = function(def, Runtime){
         delete this.peer;
         delete this.container;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
 
@@ -3960,7 +3964,7 @@ js.awt.Element = function(def, Runtime){
         var id = this.uuid(def.uuid);
         this.id = def.id || (view ? (view.id || id) : id); 
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var M = this.def, U = this._local;
 
@@ -4099,7 +4103,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.setPosition = function(x, y, fire){
         var M = this.def, U = this._local;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         fire = !Class.isNumber(fire) ? 0 : fire;
 
@@ -4123,7 +4127,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.setZ = function(z, fire){
         var M = this.def, U = this._local;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         fire = !Class.isNumber(fire) ? 0 : fire;
 
@@ -4149,7 +4153,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.setSize = function(w, h, fire){
         var M = this.def, U = this._local;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         fire = !Class.isNumber(fire) ? 0 : fire;
 
@@ -4168,7 +4172,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.setBounds = function(x, y, w, h, fire){
         var M = this.def, U = this._local;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         fire = Class.isNumber(fire) ? fire : 0;
 
@@ -4450,11 +4454,8 @@ js.awt.Component = function(def, Runtime, view){
      * Clone view from the view of this component
      */
     thi$.cloneView = function(){
-        var ele = this.view, view = ele.cloneNode(true);
+        var view = DOM.cloneElement(this.view, true);
         view.cloned = "true";
-        if(ele.bounds){
-            view.bounds = {BBM:ele.bounds.BBM, MBP:ele.bounds.MBP};            
-        }
         return view;
     };
 
@@ -4508,40 +4509,6 @@ js.awt.Component = function(def, Runtime, view){
         return G;
     };
 
-    var _geometric = function(){
-        var M = this.def, U = this._local, ele = this.view,
-            styles, bounds;
-
-        if(Class.isArray(M.margin)){
-            styles = DOM.extractMBP("margin", M.margin, styles);
-        }
-        if(Class.isArray(M.border)){
-            styles = DOM.extractMBP("border", M.border, styles);
-        }
-        if(Class.isArray(M.padding)){
-            styles = DOM.extractMBP("padding", M.padding, styles);
-        }
-        if(Class.isNumber(M.z)){
-            styles = styles || {};
-            styles.zIndex = M.z;
-        }
-        if(styles){
-            DOM.applyStyles(ele, styles);
-        }
-
-        // Extract original geometric.
-        bounds = DOM.getBounds(ele);
-        if(DOM.validBounds(bounds)){
-            M.x = !Class.isNumber(M.x) ? bounds.x : M.x;
-            M.y = !Class.isNumber(M.y) ? bounds.y : M.y;
-            M.width = !Class.isNumber(M.width) ? bounds.styleW : M.width;
-            M.height= !Class.isNumber(M.height)? bounds.styleH : M.height;
-        }
-
-        DOM.setBounds(ele, M.x, M.y, M.width, M.height, bounds);
-        return bounds;
-    };
-
     thi$.invalidateBounds = function(){
         /*
         this.view.bounds = null;
@@ -4587,8 +4554,7 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.repaint = function(){
         var ret = false;
-        if(this.isDOMElement() &&
-           this.getAttribute("repaint") !== "true"){
+        if(this.isDOMElement()){
             _repaint.call(this);
             ret = true;
         }
@@ -4605,7 +4571,7 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.doLayout = function(force){
         var ret = false;
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             this.adjustController();            
             ret = true;
         }
@@ -4615,10 +4581,14 @@ js.awt.Component = function(def, Runtime, view){
     var _repaint = function(){
         var M = this.def, U = this._local, bounds;
 
-        this.getGeometric();
+        if(this._geometric){
+            this._geometric();
+        }
+
         bounds = this.getBounds();
         U.userX = bounds.x;
         U.userY = bounds.y;
+        U.userZ = bounds.MBP.zIndex;
         U.userW = bounds.width;
         U.userH = bounds.height;
         
@@ -4645,8 +4615,28 @@ js.awt.Component = function(def, Runtime, view){
         this.setTipText(M.tip);
         
         this.adjustLayers("geom");
+    };
+
+    var _geometric = function(){
+        var M = this.def, U = this._local, ele = this.view,
+            z, bounds;
+
+        bounds = DOM.getBounds(ele, true);
+        M.x = !Class.isNumber(M.x) ? bounds.x : M.x;
+        M.y = !Class.isNumber(M.y) ? bounds.y : M.y;
+        M.width = !Class.isNumber(M.width) ? bounds.styleW : M.width;
+        M.height= !Class.isNumber(M.height)? bounds.styleH : M.height;
+        M.z = !Class.isNumber(M.z) ? bounds.MBP.zIndex : M.z;
+
+        DOM.setBounds(ele, M.x, M.y, M.width, M.height, bounds);
+        DOM.setZ(ele, M.z, bounds);
+        U.userX = bounds.userX = M.x = bounds.x;
+        U.userY = bounds.userY = M.y = bounds.y;
+        U.userW = bounds.userW = M.width = bounds.width;
+        U.userH = bounds.userH = M.height= bounds.height;
+        U.userZ = bounds.userZ = M.z = bounds.MBP.zIndex;
         
-        this.setAttribute("repaint", "true");
+        return bounds;
     };
 
     thi$.onelementappend = function(e){
@@ -4656,7 +4646,7 @@ js.awt.Component = function(def, Runtime, view){
             this.doLayout(true);
         }
     };
-    
+        
     thi$.destroy = function(){
         if(this.destroied) return;
 
@@ -4676,7 +4666,7 @@ js.awt.Component = function(def, Runtime, view){
         DOM.remove(this.view, true);            
         delete this.view;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -4685,17 +4675,17 @@ js.awt.Component = function(def, Runtime, view){
         
         def.classType = def.classType || "js.awt.Component";
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var preView = Class.isHtmlElement(view), clazz;
-        if(!preView){
-            this.view = view = DOM.createElement(def.viewType || "DIV");
+        if(!preView || (view && view.cloned)){
+            this.view = view = (view || DOM.createElement(def.viewType || "DIV"));
             view.id = this.id;
             if(def.css){
                 view.style.cssText = view.style.cssText + def.css;
             }
             def.className = def.className || "jsvm__element";
-        }else{
+        }else {
             this.view = view;
             def.className = view.clazz || view.className;
         }
@@ -4708,13 +4698,18 @@ js.awt.Component = function(def, Runtime, view){
             clazz = this.className;
         }
         view.clazz = def.className;
-        if(!preView){
+        if(!preView || view.cloned){
             DOM.setClassName(view, clazz, def.classPrefix);
         }
 
         if(this.isDOMElement() && view != document.body){
             this.onelementappend();
         }
+
+        this._geometric = function(){
+            _geometric.call(this);
+            delete this._geometric;
+        };
         
     }.$override(this._init);
     
@@ -4999,39 +4994,14 @@ js.awt.Containable = function(){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -5140,7 +5110,7 @@ js.awt.Container = function (def, Runtime, view){
     };
 
     thi$.removeAll = function(gc){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         if(this.layout){
             this.layout.invalidateLayout();
@@ -5153,7 +5123,7 @@ js.awt.Container = function (def, Runtime, view){
      */
     thi$.activateComponent = function(e){
         if(e == undefined){
-            arguments.callee.__super__.call(this);
+            $super(this);
             return undefined;
         }
 
@@ -5253,7 +5223,7 @@ js.awt.Container = function (def, Runtime, view){
             return false;
         default:
             // Maybe html element
-            return arguments.callee.__super__.call(
+            return $super(
                 this, c, containSelf);
         }
 
@@ -5293,7 +5263,7 @@ js.awt.Container = function (def, Runtime, view){
     thi$.getMinimumSize = function(nocache){
         return nocache === true ? 
             this.layout.minimumLayoutSize(this, nocache) : 
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
     }.$override(this.getMinimumSize);
 
     /**
@@ -5302,14 +5272,14 @@ js.awt.Container = function (def, Runtime, view){
     thi$.getMaximumSize = function(nocache){
         return nocache === true ? 
             this.layout.maximumLayoutSize(this, nocache) : 
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
     }.$override(this.getMaximumSize);
     
     /**
      * @see js.awt.Component
      */
     thi$.repaint = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             var comps = this.items0(), i, len, comp;
             for(i=0, len= comps.length; i<len; i++){
                 comp = this[comps[i]];
@@ -5355,7 +5325,7 @@ js.awt.Container = function (def, Runtime, view){
      * @see js.awt.Component
      */
     thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             this.layoutComponents(force);
             return true;
         }
@@ -5402,7 +5372,7 @@ js.awt.Container = function (def, Runtime, view){
     thi$.destroy = function(){
         if(this.destroied !== true){
             this.removeAll(true);
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
         }
     }.$override(this.destroy);
 
@@ -5415,7 +5385,7 @@ js.awt.Container = function (def, Runtime, view){
         def.classType = def.classType || "js.awt.Container";
         def.className = def.className || "jsvm_container";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var layout = def.layout = (def.layout || {});
         layout.classType = layout.classType || "js.awt.LayoutManager";
@@ -5510,7 +5480,7 @@ js.awt.HBox = function (def, Runtime){
         newDef.layout.axis = 0;
         System.objectCopy(newDef, def, true, true);
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     
@@ -5535,6 +5505,7 @@ js.awt.HBox.DEFAULTDEF = function(){
         rigid_h: true
     };
 };
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -5601,7 +5572,7 @@ js.awt.VBox = function (def, Runtime){
         newDef.layout.axis = 1;
         System.objectCopy(newDef, def, true, true);
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     
@@ -5626,6 +5597,7 @@ js.awt.VBox.DEFAULTDEF = function(){
         rigid_h: false
     };
 };
+
 /**
 
  Copyright 2010-2011, The JSVM Project. 
@@ -5691,7 +5663,7 @@ js.awt.FieldSet = function (def, Runtime){
 		def.className = def.className || "jsvm_fieldset";
 		def.stateless = (def.stateless !== false);
 		def.viewType = "FIELDSET";
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		var legend = this.legend = DOM.createElement("LEGEND");
 		legend.className = this.className + "_legend";
@@ -5809,7 +5781,7 @@ js.awt.ScrollPane = function (def, Runtime){
      * @see js.awt.Container #insertComponent
      */
     thi$.insertComponent = function(index, comp, constraints, notify){
-        comp = arguments.callee.__super__.apply(this, [index, comp, constraints]);
+        comp = $super(this, index, comp, constraints);
         return _addComp.call(this, comp, notify);
         
     }.$override(this.insertComponent);
@@ -5821,7 +5793,7 @@ js.awt.ScrollPane = function (def, Runtime){
         if(!comp) return;
 
         var items = this.items(), index = items.indexOf(comp.id);
-        comp = arguments.callee.__super__.apply(this, [comp]);
+        comp = $super(this, comp);
         
         // While destroying, we may delete the cache first.
         if(this.cache){
@@ -6004,7 +5976,7 @@ js.awt.ScrollPane = function (def, Runtime){
      */
     thi$.doLayout = function(force){
         if(this.isDOMElement() 
-            && arguments.callee.__super__.apply(this, arguments)){
+            && $super(this)){
             var r = _getLayoutSize.call(this), max = this.getMaximumSize(), 
             width, height, oldw = this.getWidth(), oldh = this.getHeight(),
             resized = false;
@@ -6207,7 +6179,7 @@ js.awt.ScrollPane = function (def, Runtime){
     thi$.destroy = function(){
         delete this.cache;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -6225,7 +6197,7 @@ js.awt.ScrollPane = function (def, Runtime){
         mover.freedom = !isNaN(mover.freedom) ? mover.freedom : (hscroll ? 1 : 2);
 
         System.objectCopy(newDef, def, true, true);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.cache = {};
         
@@ -6554,7 +6526,7 @@ js.awt.TabPane = function (def, Runtime){
 	thi$.destroy = function(){
 		delete this.cache;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 
 	}.$override(this.destroy);
@@ -6565,7 +6537,7 @@ js.awt.TabPane = function (def, Runtime){
 		var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
 		System.objectCopy(newDef, def, true, true);
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		this.cache = {};
 
@@ -7471,7 +7443,7 @@ js.awt.Item = function(def, Runtime, view){
 		if(elid){
 			DOM.setAttribute(this[elid], "title", text);
 		}else{
-			arguments.callee.__super__.apply(this, [text]);
+			$super(this, text);
 		}
 	}.$override(this.setToolTipText);
 
@@ -7488,7 +7460,7 @@ js.awt.Item = function(def, Runtime, view){
 	 * @inheritdoc js.awt.Component#onStateChanged
 	 */
 	thi$.onStateChanged = function(){
-		arguments.callee.__super__.apply(this, arguments);		  
+		$super(this);		  
 		
 		if(this.isStrict() && this.icon){
 			this.setIconImage(this.getState());
@@ -7676,7 +7648,7 @@ js.awt.Item = function(def, Runtime, view){
 				this.showDisableCover(!this.isEnabled());
 			}
 		}else{
-			rst = arguments.callee.__super__.apply(this, arguments);
+			rst = $super(this);
 		}
 
 		return rst;
@@ -7696,7 +7668,7 @@ js.awt.Item = function(def, Runtime, view){
 			this.attachEvent("mouseup", 4, this, _onmouseup);
 		}
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -8023,7 +7995,7 @@ js.awt.Item = function(def, Runtime, view){
 		def.classType = def.classType || "js.awt.Item";
 		def.className = def.className || "jsvm_item";
 
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 
 		var M = this.def, uuid = this.uuid(), items, nodes, id, 
 		i, len, node, text, ipt, placeholder;
@@ -8228,7 +8200,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 	 * @see js.awt.Item #isMoverSpot
 	 */
 	thi$.isMoverSpot = function(el, x, y){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			var extraCtrls = this._local.extraCtrls,
 			ids = extraCtrls ? extraCtrls.keys() : [], ctrl;
 			for(var i = 0, len = ids; i < len; i++){
@@ -8309,7 +8281,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 		delete this._local.leftmostCtrl;
 		delete this._local.extraCtrls;
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 	}.$override(this.destroy);
 	
@@ -8542,7 +8514,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 			_checkItems.call(this, def);
 		}
 		
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 		
 		if(this.isCustomized()){
 			_createCustomComponent.call(this);
@@ -8905,7 +8877,7 @@ js.awt.Label = function(def, Runtime) {
 	 * @inheritdoc js.awt.Component#doLayout
 	 */
 	thi$.doLayout = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			if(!this.canWordwrap()){
 				this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
 			}
@@ -8930,7 +8902,7 @@ js.awt.Label = function(def, Runtime) {
 		def.text = (typeof def.text == "string") ? def.text : "Label";
 		def.viewType = "SPAN";
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		this.setText(this.def.text, true);
 		this.setEditable(this.def.editable);
@@ -9027,13 +8999,13 @@ js.awt.Icon = function(def, Runtime){
 	};
 
 	thi$.setToolTipText = function(s){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		DOM.setAttribute(this.imageView, "title", s);
 
 	}.$override(this.setToolTipText);
 
 	thi$.onStateChanged = function(e){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		if(this.useBgImage){
 			this.imageView.src = _buildImageSrc.call(this);
@@ -9067,7 +9039,7 @@ js.awt.Icon = function(def, Runtime){
 		delete this.imageView;
 		DOM.remove(imageView, true);
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -9099,7 +9071,7 @@ js.awt.Icon = function(def, Runtime){
 		delete newDef.tip;
 		
 		System.objectCopy(newDef, def, true, true);
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		var useBgImage = this.useBgImage = (def.useBgImage === true),
 		viewType = useBgImage ? "DIV" : "IMG",
@@ -9240,7 +9212,7 @@ js.awt.Button = function(def, Runtime){
 	};
 
 	thi$.setTipText = function(s){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(this.icon) {
 			DOM.setAttribute(this.icon, "title", s);
@@ -9257,7 +9229,7 @@ js.awt.Button = function(def, Runtime){
 	thi$.repaint = function(){
         var M = this.def;
         
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
         
         if(this.icon){
 			this.setIconImage(this.isTriggered() ? 4 :
@@ -9279,7 +9251,7 @@ js.awt.Button = function(def, Runtime){
 	 * @see js.awt.Component
 	 */
 	thi$.doLayout = function(force){
-        if(!arguments.callee.__super__.apply(this, arguments))
+        if(!$super(this))
             return;
 
 		var M = this.def, G0 = this.getGeometric(), B = this.getBounds(),
@@ -9335,7 +9307,7 @@ js.awt.Button = function(def, Runtime){
 	 * @see js.awt.Component
 	 */
 	thi$.onStateChanged = function(){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(this.icon){
 			this.setIconImage(this.getState());
@@ -9347,7 +9319,7 @@ js.awt.Button = function(def, Runtime){
 			_showEffectLayer.call(this, "normal");
 		}
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.setEnabled);
 
@@ -9518,7 +9490,7 @@ js.awt.Button = function(def, Runtime){
 		this.detachEvent("mousedown", 4, this, _onmousedown);
 		this.detachEvent("mouseup",	  4, this, _onmouseup);
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -9528,7 +9500,7 @@ js.awt.Button = function(def, Runtime){
 		def.classType = def.classType || "js.awt.Button";
 		def.className = def.className || "jsvm_button";
 
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 
 		var layout = def.layout = def.layout || {};
 		layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.5;
@@ -9675,7 +9647,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 			this.mark(!this.isMarked());
 		}
 
-		arguments.callee.__super__.apply(this,arguments);
+		$super(this);
 
 	}.$override(this.notifyPeer);
 	
@@ -9684,7 +9656,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 			this.detachEvent("click", 4, this, _onclick);
 		} 
 		
-		arguments.callee.__super__.apply(this, arguments);		 
+		$super(this);		 
 		
 	}.$override(this.destroy);
 	
@@ -9708,7 +9680,7 @@ js.awt.CheckBox = function(def, Runtime, view) {
 		layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.0;
 		layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
 		
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 
 		this.mark(def.marked);
 		
@@ -9797,7 +9769,7 @@ js.awt.RadioButton = function(def, Runtime) {
      * @see js.awt.Button
      */
     thi$.mark = function(b){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         if(this.isMarked()){
             var group = this.getGroup(), i, len, item;
@@ -9822,7 +9794,7 @@ js.awt.RadioButton = function(def, Runtime) {
             }
         }
 
-        arguments.callee.__super__.apply(this,arguments);
+        $super(this);
 
     }.$override(this.notifyPeer);
 
@@ -9838,7 +9810,7 @@ js.awt.RadioButton = function(def, Runtime) {
             delete CLASS.groups[this.def.group];
         }
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy)
 
@@ -9856,7 +9828,7 @@ js.awt.RadioButton = function(def, Runtime) {
         layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.0;
         layout.align_y = Class.isNumber(layout.align_y) ? layout.align_y : 0.5;
         
-        arguments.callee.__super__.apply(this, [def, Runtime, view]);
+        $super(this, def, Runtime, view);
 
         CLASS.groups = CLASS.groups || {};
         var group = CLASS.groups[def.group];
@@ -9997,7 +9969,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	};
 	
 	thi$.onStateChanged = function(){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(this.isHover()){	 
 			var M = this.def, menu = this.menuContainer(),
@@ -10033,7 +10005,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		if(this.def.beInMenu){
 			peer = this.menuContainer().rootLayer().getPeerComponent();
 		}else{
-			peer = arguments.callee.__super__.apply(this, arguments);
+			peer = $super(this);
 		}
 		
 		return peer;
@@ -10052,7 +10024,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			}
 		}
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 	}.$override(this.doLayout);
 	
@@ -10094,7 +10066,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		}
 		delete this._local.submenu;
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 	
@@ -10117,7 +10089,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			def.css = "position:relative;";
 		}
 		
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 		
 		this.setContainer(menu);
 		menu.cache[this.uuid()] = this;
@@ -10151,7 +10123,7 @@ js.awt.MenuSeparator = function(def, Runtime, menu){
 		def.className = menu.className + "_separator";
 		def.css = "overflow:hidden;width:100%;"; // If not, IE has 13px height
 
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 
 	}.$override(this._init);
 	
@@ -10231,7 +10203,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		var root = this.rootLayer();
 
 		return this == root ?
-			arguments.callee.__super__.apply(this, arguments) :
+			$super(this) :
 			root.getPeerComponent();
 
 	}.$override(this.getPeerComponent);
@@ -10338,7 +10310,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		if(e.getType() === "blur"){
 			b = this.rootLayer().isHideOnBlur();
 		}else{
-			b = arguments.callee.__super__.apply(this, arguments);
+			b = $super(this);
 		}
 
 		return b;
@@ -10355,7 +10327,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			subMenu.hide();
 			item.setHover(false);
 		}
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 	}.$override(this.hide);
 
 	/**
@@ -10507,7 +10479,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		delete this._local.menuView;
 		delete this.cache;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -10520,7 +10492,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		def.isfloating = true;
 		def.PMFlag = def.PMFlag || 0x27;
 
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 
 		_setParentMenu.call(this, parentMenu);
 		_setRootMenu.call(this, rootMenu);
@@ -11017,7 +10989,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	}.$override(this.doLayout);
 
 	thi$.adjustCover = function(bounds){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(this._coverView){
 			this._coverView.style.width = "100%";
@@ -11129,7 +11101,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		this.removeAllNodes();
 		delete this.nodes;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -11150,7 +11122,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			_checkItems.call(this, def);
 		}
 
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 
 		_setParentItem.call(this, parent);
 
@@ -11369,7 +11341,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			event.srcTree = this;
 		}
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 	}.$override(this.notifyPeer);
 
@@ -12194,12 +12166,12 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 	thi$.onResized = function(fire){
 		delete this._local.maxSize;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.onResized);
 
 	thi$.doLayout = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			_setMaxSize.call(this);
 			return true;
 		}
@@ -12426,7 +12398,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		DOM.remove(ele, true);
 
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -12446,7 +12418,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		def.multiEnable = (def.multiEnable === true);
 
 		// Call base _init
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 		
 		this._local.alwaysRemoveChild = def.alwaysRemoveChild;
 
@@ -12515,7 +12487,7 @@ js.awt.AbstractTreeDataProvider = function(Runtime, imageMap, expandMap, dragMap
 		delete this.expandMap;
 		delete this.dragMap;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -12578,7 +12550,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 		var tree = this.movingPeer;
 		tree.clearAllSelected();
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.releaseMoveObject);
 
@@ -12606,7 +12578,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 	}.$override(this.getPreferredSize);
 
 	thi$.repaint = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			var bounds = this.getBounds(), buf = new js.lang.StringBuffer(),
 			left = bounds.MBP.paddingLeft, top = bounds.MBP.paddingTop,
 			width = bounds.innerWidth, icon = this.icon;
@@ -12647,7 +12619,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 		def.css = "position:absolute;";
 		def.stateless = true;
 
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 
 		dataProvider = tree.dataProvider;
 
@@ -12957,7 +12929,7 @@ js.awt.IFrame = function (def, Runtime){
         def.viewType = "IFRAME";
         def.css = "border:0px none;" + (def.css || "");
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.setAttribute("frameBorder", "0");
 
@@ -13129,7 +13101,7 @@ js.awt.VFrame = function(def, Runtime){
         var layout = def.layout = def.layout || {};
         layout.classType = layout.classType || "js.awt.BorderLayout";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         if(def.src){
             this.setSrc(def.src);
@@ -13201,13 +13173,13 @@ js.awt.LayerManager = function(def, Runtime, view){
         System = J$VM.System, MQ = J$VM.MQ;
     
     thi$.removeComponent = function(comp){
-        comp = arguments.callee.__super__.apply(this, arguments);
+        comp = $super(this);
         this.stack.remove(comp); 
     }.$override(this.removeComponent);
     
     thi$.removeAll = function(){
         this.stack.clear();
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.removeAll);
     
     thi$.cleanLayers = function(e){
@@ -13641,7 +13613,7 @@ js.awt.LayerManager = function(def, Runtime, view){
 
     thi$._init = function(def, Runtime, view){
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.stack = js.util.LinkedList.$decorate([]);
         
@@ -13948,7 +13920,7 @@ js.awt.Desktop = function (Runtime){
     };
     
     thi$.showCover = function(b, style){
-        arguments.callee.__super__.call(
+        $super(
             this, b, style || "jsvm_desktop_mask");
         if(b){
             // The desktop's cover should be below the first-level dialog.
@@ -14096,7 +14068,7 @@ js.awt.Desktop = function (Runtime){
         this.LM.destroy();
         this.LM = null;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
 
@@ -14112,7 +14084,7 @@ js.awt.Desktop = function (Runtime){
                 __contextid__: Runtime.uuid()
             };
 
-        arguments.callee.__super__.apply(this, [def, Runtime, body]);
+        $super(this, def, Runtime, body);
 
         // Popup Layer manager
         var LM = this.LM = new js.awt.LayerManager(
@@ -14343,7 +14315,7 @@ js.awt.Window = function (def, Runtime, view){
 	 * @see js.awt.Component
 	 */
 	thi$.needLayout = function(force){
-		return arguments.callee.__super__.apply(this, arguments) || 
+		return $super(this) || 
 			this.isMaximized();		   
 
 	}.$override(this.needLayout);
@@ -14373,14 +14345,14 @@ js.awt.Window = function (def, Runtime, view){
 				if(this.getWidth() != width || this.getHeight() != height){
 					this.setBounds(0, 0, width, height);	
 				}
-				arguments.callee.__super__.apply(this, arguments);	  
+				$super(this);	  
 			}else{
 				ele = this.client.view; 
 				styles = DOM.currentStyles(ele);
 				overflowX = styles.overflowX; 
 				overflowY = styles.overflowY;
 				ele.style.overflow = "hidden";
-				arguments.callee.__super__.apply(this, arguments);
+				$super(this);
 				ele.style.overflowX = overflowX;
 				ele.style.overflowY = overflowY;
 			}
@@ -14501,7 +14473,7 @@ js.awt.Window = function (def, Runtime, view){
 	thi$.isMaximized = function(){
 		if(typeof arguments.callee.__super__ == "function"){
 			// 0.9d
-			return arguments.callee.__super__.call(this);
+			return $super(this);
 		}else{
 			return this.def.winsize == "maximized";
 		}
@@ -14510,7 +14482,7 @@ js.awt.Window = function (def, Runtime, view){
 	thi$.setMaximized = function(b){
 		if(typeof arguments.callee.__super__ == "function"){
 			// 0.9d
-			arguments.callee.__super__.apply(this, arguments);
+			$super(this);
 		}else{
 			this.def.winsize = b ? "maximized" : "normal";
 		}
@@ -14519,7 +14491,7 @@ js.awt.Window = function (def, Runtime, view){
 	thi$.isMinimized = function(){
 		if(typeof arguments.callee.__super__ == "function"){
 			// 0.9d
-			return arguments.callee.__super__.call(this);
+			return $super(this);
 		}else{
 			return this.def.winsize == "minimized";
 		}
@@ -14528,7 +14500,7 @@ js.awt.Window = function (def, Runtime, view){
 	thi$.setMinimized = function(b){
 		if(typeof arguments.callee.__super__ == "function"){
 			// 0.9d
-			arguments.callee.__super__.apply(this, arguments);
+			$super(this);
 		}else{
 			this.def.winsize = b ? "minimized" : "normal";
 		}
@@ -14610,7 +14582,7 @@ js.awt.Window = function (def, Runtime, view){
 
 	thi$.destroy = function(){
 		delete this._local.restricted;
-		arguments.callee.__super__.apply(this,arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -14779,7 +14751,7 @@ js.awt.Window = function (def, Runtime, view){
 
 		def.css = "position:absolute;" + (def.css || "") 
 			+ "overflow:hidden;";
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		// For MoverSpot testing
 		var restricted = this._local.restricted = [];
@@ -14951,13 +14923,6 @@ js.awt.Application = function(def, Runtime, entryId){
         Desktop.unregisterApp(this.getAppID());
     };
 
-    thi$.run = function(fn){
-        if(Class.isFunction(fn)){
-            fn.call(this);
-        }
-        this.startApp();
-    };
-
     thi$.changeTheme = function(theme, old){
         Desktop.updateTheme(theme, old);
     };
@@ -14974,7 +14939,7 @@ js.awt.Application = function(def, Runtime, entryId){
     thi$.destroy = function(){
         this.closeApp();
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
     
@@ -14991,9 +14956,9 @@ js.awt.Application = function(def, Runtime, entryId){
         var entry = self.document.querySelector("[jsvm_entry='"+entryId+"']");
         
         if(entry.getAttribute("jsvm_asapp")){
-            arguments.callee.__super__.call(this, def, Runtime, entry);
+            $super(this, def, Runtime, entry);
         }else{
-            arguments.callee.__super__.call(this, def, Runtime);            
+            $super(this, def, Runtime);            
         }
 
         this._local.entry = entry;
@@ -15017,33 +14982,33 @@ js.awt.Application = function(def, Runtime, entryId){
 
 /**
 
-  Copyright 2010-2011, The JSVM Project.
-  All rights reserved.
+ Copyright 2010-2011, The JSVM Project.
+ All rights reserved.
 
-  Redistribution and use in source and binary forms, with or without modification,
-  are permitted provided that the following conditions are met:
+ Redistribution and use in source and binary forms, with or without modification,
+ are permitted provided that the following conditions are met:
 
-  1. Redistributions of source code must retain the above copyright notice,
-  this list of conditions and the following disclaimer.
+ 1. Redistributions of source code must retain the above copyright notice,
+ this list of conditions and the following disclaimer.
 
-  2. Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the
-  documentation and/or other materials provided with the distribution.
+ 2. Redistributions in binary form must reproduce the above copyright notice,
+ this list of conditions and the following disclaimer in the
+ documentation and/or other materials provided with the distribution.
 
-  3. Neither the name of the JSVM nor the names of its contributors may be
-  used to endorse or promote products derived from this software
-  without specific prior written permission.
+ 3. Neither the name of the JSVM nor the names of its contributors may be
+ used to endorse or promote products derived from this software
+ without specific prior written permission.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-  IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
-  INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-  LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
-  OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
-  OF THE POSSIBILITY OF SUCH DAMAGE.
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+ OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
@@ -15062,70 +15027,71 @@ $import("js.awt.Window");
  */
 js.awt.DialogObject = function (){
 
-    var CLASS = js.awt.DialogObject, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.DialogObject, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM;
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM;
 
-    /**
-     * The data feedback to dialog opener.
-     *
-     * Notes: Sub class should implements this function.
-     */
-    thi$.getDialogData = function(){
-        return {};
-    };
+	/**
+	 * The data feedback to dialog opener.
+	 *
+	 * Notes: Sub class should implements this function.
+	 */
+	thi$.getDialogData = function(){
+		return {};
+	};
 
-    /**
-     * Validate dialog data
-     *
-     * @param okFunc
-     */
-    thi$.validateData = function(okFunc){
-        if(typeof okFunc == "function"){
-            okFunc();
-        }
-    };
+	/**
+	 * Validate dialog data
+	 *
+	 * @param okFunc
+	 */
+	thi$.validateData = function(okFunc){
+		if(typeof okFunc == "function"){
+			okFunc();
+		}
+	};
 
-    /**
-     * The message type is a such a string that identify what message
-     * will be posted to dialog opener.
-     *
-     * Notes: Sub class should implements this function.
-     */
-    thi$.getDialogMsgType = function(){
-        if(!this._local.msgtype){
-            this._local.msgtype = js.lang.Math.uuid();
-        }
+	/**
+	 * The message type is a such a string that identify what message
+	 * will be posted to dialog opener.
+	 *
+	 * Notes: Sub class should implements this function.
+	 */
+	thi$.getDialogMsgType = function(){
+		if(!this._local.msgtype){
+			this._local.msgtype = js.lang.Math.uuid();
+		}
 
-        return this._local.msgtype;
-    };
+		return this._local.msgtype;
+	};
 
-    /**
-     *
-     */
-    thi$.getHelpID = function(){
-        return "";
-    };
+	/**
+	 *
+	 */
+	thi$.getHelpID = function(){
+		return "";
+	};
 
-    /**
-     * Set Dialog window title
-     */
-    thi$.setTitle = function(text){
-        var dialog = this.getPeerComponent();
-        if(dialog instanceof js.awt.Dialog){
-            dialog.setTitle(text);
-        }
-    };
+	/**
+	 * Set Dialog window title
+	 */
+	thi$.setTitle = function(text){
+		var dialog = this.getPeerComponent();
+		if(dialog instanceof js.awt.Dialog){
+			dialog.setTitle(text);
+		}
+	};
 
-    /**
-     * Dialog invoke this method to initialize DialogObject
-     */
-    thi$.initialize = function(){
-    };
+	/**
+	 * Dialog invoke this method to initialize DialogObject
+	 */
+	thi$.initialize = function(){
+
+	};
 
 };
 
@@ -15134,399 +15100,521 @@ js.awt.DialogObject = function (){
  */
 js.awt.Dialog = function (def, Runtime){
 
-    var CLASS = js.awt.Dialog, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.Dialog, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+	System = J$VM.System, MQ = J$VM.MQ,
 
-    thi$.setDialogObject = function(dialogObj, handler){
-        if(!dialogObj || !dialogObj.instanceOf(js.awt.DialogObject))
-            throw "Request a js.awt.DialogObj instance";
+	DlgBtnMap = {
+		btnHelp:   {nlsKey: "btnHelp",	 defaultNLS: "Help"},
+		btnApply:  {nlsKey: "btnApply",	 defaultNLS: "Apply"},
+		btnOK:	   {nlsKey: "btnOK",	 defaultNLS: "OK"},
+		btnCancel: {nlsKey: "btnCancel", defaultNLS: "cancel"}
+	};
 
-        dialogObj.id = "dialogObj";
-        dialogObj.setPeerComponent(this);
-        this.client.addComponent(dialogObj,"center");
+	thi$.setDialogObject = function(dialogObj, handler){
+		if(!dialogObj || !dialogObj.instanceOf(js.awt.DialogObject))
+			throw "Request a js.awt.DialogObj instance";
 
-        if(handler){
-            this._local.handler = handler;
-            MQ.register(dialogObj.getDialogMsgType(), this.getPeerComponent(), handler);
-        }
-    };
+		dialogObj.id = "dialogObj";
+		dialogObj.setPeerComponent(this);
+		this.client.addComponent(dialogObj,"center");
 
-    thi$.getDialogObject = function(){
-        return this.client.dialogObj;
-    };
+		if(handler){
+			this._local.handler = handler;
+			MQ.register(dialogObj.getDialogMsgType(), 
+						this.getPeerComponent(), handler);
+		}
+	};
 
-    thi$.getDialogMsgType = function(){
-        var dialogObj = this.client.dialogObj;
-        return dialogObj ? dialogObj.getDialogMsgType() : null;
-    };
+	thi$.getDialogObject = function(){
+		return this.client.dialogObj;
+	};
 
-    thi$.getDialogDate = function(){
-        var dialogObj = this.client.dialogObj;
-        return dialogObj ? dialogObj.getDialogData() : null;
-    };
+	thi$.getDialogMsgType = function(){
+		var dialogObj = this.client.dialogObj;
+		return dialogObj ? dialogObj.getDialogMsgType() : null;
+	};
 
-    var _showMaskCover = function(b){
-        var peer = this.getPeerComponent();
-        if(this.def.modal === true){
-            if(peer && peer !== this.Runtime()){
-                peer.showMaskCover(b);
-            }
-        }else{
-            var event = this.buildDialogEvent(b ? "show" : "hide", false);
-            this.notifyPeer(event.msgId, event);
-        }
-    };
+	thi$.getDialogDate = function(){
+		var dialogObj = this.client.dialogObj;
+		return dialogObj ? dialogObj.getDialogData() : null;
+	};
 
-    thi$.show = function(){
-        _showMaskCover.call(this, true);
+	var _showMaskCover = function(b){
+		var peer = this.getPeerComponent();
+		if(this.def.modal === true){
+			if(peer && peer !== this.Runtime()){
+				peer.showMaskCover(b);
+			}
+		}else{
+			var event = this.buildDialogEvent(b ? "show" : "hide", false);
+			this.notifyPeer(event.msgId, event);
+		}
+	};
 
-        var x = this.def.x, y = this.def.y,
-            DM = this.Runtime().getDesktop().DM,
-            pox = DM.getBounds();
-        
-        if(x == undefined){
-            x = (pox.width - this.def.width)*0.5;
-            x = x < 0 ? 0:x; 
-        }
-        
-        if(y == undefined){
-            y = (pox.height- this.def.height)*0.5;
-            y = y < 0 ? 0:y;
-        }
+	thi$.show = function(){
+		_showMaskCover.call(this, true);
 
-        DM.addComponent(this);
-        this.getDialogObject().initialize();
-        if(this.btnpane){
-            // Maybe dialogObject modified btnpane,
-            // so need doLayout
-            this.btnpane.doLayout(true);
-        }
-        this.setPosition(x, y);
-    };
+		var x = this.def.x, y = this.def.y,
+		DM = this.Runtime().getDesktop().DM,
+		pox = DM.getBounds();
+		
+		if(x == undefined){
+			x = (pox.width - this.def.width)*0.5;
+			x = x < 0 ? 0:x; 
+		}
+		
+		if(y == undefined){
+			y = (pox.height- this.def.height)*0.5;
+			y = y < 0 ? 0:y;
+		}
 
-    /**
-     * @see js.awt.Cover
-     */
-    thi$.showLoading = function(b){
+		DM.addComponent(this);
+		this.getDialogObject().initialize();
+		if(this.btnpane){
+			// Maybe dialogObject modified btnpane,
+			// so need doLayout
+			this.btnpane.doLayout(true);
+		}
+		this.setPosition(x, y);
+	};
 
-        arguments.callee.__super__.apply(this, arguments);
-        this.btnpane.showLoading(b);
+	/**
+	 * @see js.awt.Cover
+	 */
+	thi$.showLoading = function(b){
 
-    }.$override(this.showLoading);
+		$super(this);
+		this.btnpane.showLoading(b);
 
-    thi$.onbtnHelp = function(button){
-        MQ.post("js.awt.event.ShowHelpEvent",
-                new Event("helpid", this.getDialogObject().getHelpID()));
-    };
+	}.$override(this.showLoading);
 
-    thi$.onbtnApply = function(button){
-        var obj = this.getDialogObject();
-        obj.validateData(
-            function(){
-                var event = this.buildDialogEvent("apply");
-                this.notifyPeer(event.msgId, event, true);
-            }.$bind(this));
-    };
+	thi$.onbtnHelp = function(button){
+		MQ.post("js.awt.event.ShowHelpEvent",
+				new Event("helpid", this.getDialogObject().getHelpID()));
+	};
 
-    thi$.onbtnOK = function(button){
-        var obj = this.getDialogObject();
-        obj.validateData(
-            function(){
-                var event = this.buildDialogEvent("ok");
-                this.notifyPeer(event.msgId, event, true);
-                this.close();
-            }.$bind(this));
-    };
+	thi$.onbtnApply = function(button){
+		var obj = this.getDialogObject();
+		obj.validateData(
+			function(){
+				var event = this.buildDialogEvent("apply");
+				this.notifyPeer(event.msgId, event, true);
+			}.$bind(this));
+	};
 
-    thi$.onbtnCancel = function(button){
-        var event = this.buildDialogEvent("cancel", false);
-        this.notifyPeer(event.msgId, event, true);
-        this.close();
-    };
+	thi$.onbtnOK = function(button){
+		var obj = this.getDialogObject();
+		obj.validateData(
+			function(){
+				var event = this.buildDialogEvent("ok");
+				this.notifyPeer(event.msgId, event, true);
+				this.close();
+			}.$bind(this));
+	};
 
-    /**
-     * Handler for buttons except "btnOK", "btnCancel", "btnApply",
-     * "btnClose", "btnHelp".
-     * 
-     * Subclass and the dialog instance ojbect can override it if
-     * need.
-     */
-    thi$.onbtnDispatcher = function(button){
-        var btnId = button.id || "", idx = btnId.indexOf("btn"),
-            cmd, event;
+	thi$.onbtnCancel = function(button){
+		var event = this.buildDialogEvent("cancel", false);
+		this.notifyPeer(event.msgId, event, true);
+		this.close();
+	};
 
-        if(idx >= 0){
-            cmd = btnId.substr(idx + 3);
-            cmd = cmd.toLowerCase();
-        }
+	/**
+	 * Handler for buttons except "btnOK", "btnCancel", "btnApply",
+	 * "btnClose", "btnHelp".
+	 * 
+	 * Subclass and the dialog instance ojbect can override it if
+	 * need.
+	 */
+	thi$.onbtnDispatcher = function(button){
+		var btnId = button.id || "", idx = btnId.indexOf("btn"),
+		cmd, event;
 
-        event = this.buildDialogEvent(cmd || btnId, true);
-        this.notifyPeer(event.msgId, event, true);
-        this.close();
-    };
+		if(idx >= 0){
+			cmd = btnId.substr(idx + 3);
+			cmd = cmd.toLowerCase();
+		}
 
-    thi$.buildDialogEvent = function(type, hasData){
-        var dialogObj = this.client.dialogObj,
-            msgId = dialogObj.getDialogMsgType(),
-            data, event;
+		event = this.buildDialogEvent(cmd || btnId, true);
+		this.notifyPeer(event.msgId, event, true);
+		this.close();
+	};
 
-        if(hasData !== false){
-            data = dialogObj.getDialogData();
-        }
-        event = new Event(type, data, this);
-        event.msgId = msgId;
+	thi$.buildDialogEvent = function(type, hasData){
+		var dialogObj = this.client.dialogObj,
+		msgId = dialogObj.getDialogMsgType(),
+		data, event;
 
-        return event;
-    };
+		if(hasData !== false){
+			data = dialogObj.getDialogData();
+		}
+		event = new Event(type, data, this);
+		event.msgId = msgId;
 
-    thi$.onbtnClose = function(button){
-        var event = this.buildDialogEvent("close", false);
-        this.notifyPeer(event.msgId, event, true);
+		return event;
+	};
 
-        arguments.callee.__super__.apply(this, arguments);
+	thi$.onbtnClose = function(button){
+		var event = this.buildDialogEvent("close", false);
+		this.notifyPeer(event.msgId, event, true);
 
-    }.$override(this.onbtnClose);
+		$super(this);
 
-    thi$.close = function(){
-        var peer = this.getPeerComponent(),
-            handler = this._local.handler;
+	}.$override(this.onbtnClose);
 
-        if(typeof handler == "function"){
-            MQ.cancel(this.getDialogMsgType(), peer, handler);
-            delete this._local.handler;
-        }
+	thi$.close = function(){
+		var peer = this.getPeerComponent(),
+		handler = this._local.handler;
 
-        _showMaskCover.call(this, false);
+		if(typeof handler == "function"){
+			MQ.cancel(this.getDialogMsgType(), peer, handler);
+			delete this._local.handler;
+		}
 
-        arguments.callee.__super__.apply(this, arguments);
+		_showMaskCover.call(this, false);
 
-    }.$override(this.close);
+		$super(this);
 
-    thi$.destroy = function(){
-        var dialogObj = this.client.dialogObj;
-        if(dialogObj){
-            dialogObj.setPeerComponent(null);
-        }
+	}.$override(this.close);
 
-        delete this.opener;
+	thi$.destroy = function(){
+		var dialogObj = this.client.dialogObj;
+		if(dialogObj){
+			dialogObj.setPeerComponent(null);
+		}
 
-        arguments.callee.__super__.apply(this, arguments);
+		delete this.opener;
 
-    }.$override(this.destroy);
+		$super(this);
 
-    thi$._init = function(def, Runtime){
-        if(def == undefined) return;
+	}.$override(this.destroy);
 
-        var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
+	var _preBtnpaneDef = function(def, R){
+		var tdef = def.btnpane = def.btnpane 
+			|| {classType: js.awt.HBox}, 
+		items = tdef.items = tdef.items 
+			|| ["btnApply", "btnOK", "btnCancel"],
+		iid, idef, tmp, layout = tdef.layout;
 
-        var btnpaneDef = newDef.btnpane, item;
-        btnpaneDef.className = btnpaneDef.className || newDef.className + "_btnpane";
-        (function(name){
-            if(name.indexOf("btn") == 0){
-                item = btnpaneDef[name];
-                item.className = item.className || btnpaneDef.className + "_button";
-            }
-        }).$forEach(this, btnpaneDef.items);
+		for(var i = 0, len = items.length; i < len; i++){
+			iid = items[i];
 
-        System.objectCopy(newDef, def, true, true);
-        arguments.callee.__super__.apply(this, arguments);
+			switch(iid){
+			case "btnHelp":
+			case "btnApply":
+			case "btnOK":
+			case "btnCancel":
+				idef = {
+					classType: "js.awt.Button",
+					className: "jsvm_button",
 
-        // For MoverSpot testing
-        var restricted = this._local.restricted;
+					effect: true,
+					rigid_w: true, rigid_h: true
+				};
 
-        if(this.btnpane){
-            (function(name){
-                if(name.indexOf("btn") == 0){
-                    item = this.btnpane[name];
-                    item.setPeerComponent(this);
-                    restricted.push(item);
-                }
-            }).$forEach(this, this.btnpane.def.items);
-        }
+				tmp = DlgBtnMap[iid];
+				idef.labelText = R.nlsText(tmp.nlsKey, tmp.defaultNLS);
+				break;
+			default:
+				break;
+			}
 
-        restricted.push(this.client);
+			if(idef){
+				if(Class.isObject(tdef[iid])){
+					idef = System.objectCopy(tdef[iid], idef);
+				}
 
-    }.$override(this._init);
+				tdef[iid] = idef;
+			}
+		}
 
-    this._init.apply(this, arguments);
+		tdef.layout = {
+			gap: 4, 
+			align_x: 1.0,
+			align_y: 0.5
+		};
+
+		if(layout){
+			tdef.layout = System.objectCopy(layout, tdef.layout);
+		}
+
+		return tdef;
+	};
+
+	var _preDef = function(def, R){
+		var items = def.items = def.items || [ "title", "client", "btnpane"],
+		iid, idef, theDef;
+		for(var i = 0, len = items.length; i < len; i++){
+			iid = items[i];
+			switch(iid){
+			case "title":
+				idef = def[iid] = def[iid] || {};
+				idef.items = idef.items || ["labTitle", "btnHelp", "btnClose"];
+
+				idef.rigid_w = (idef.rigid_w === true);
+				idef.rigid_h = (idef.rigid_h !== false);
+				idef.constraints = idef.constraints || "north";
+
+				// Handle the title text
+				idef = idef["labTitle"];
+				if(idef){
+					if(Class.isString(def.titleText)){
+						idef.text = def.titleText;
+					}else{
+						idef.text = Class.isString(idef.text) 
+							? idef.text : "J$VM";
+					}
+				}
+
+				break;
+
+			case "client":
+				idef = def[iid] = def[iid] || {
+					classType: "js.awt.Container",
+
+					layout:{
+						classType: "js.awt.BorderLayout"
+					}
+				};
+
+				idef.rigid_w = (idef.rigid_w === true);
+				idef.rigid_h = (idef.rigid_h === true);
+				idef.constraints = idef.constraints || "center";
+				break;
+
+			case "btnpane":
+				idef = def[iid] = def[iid] 
+					= _preBtnpaneDef.apply(this, arguments);
+
+				idef.rigid_w = (idef.rigid_w === true);
+				idef.rigid_h = (idef.rigid_h !== false);
+				idef.constraints = idef.constraints || "south";
+			}
+		}
+
+		def.modal = (def.modal !== false);
+		return def;
+	};
+
+	thi$._init = function(def, Runtime){
+		if(def == undefined) return;
+
+		def.classType = def.classType || "js.awt.Dialog";
+		def.className = def.className || "jsvm_dlg";
+		
+		_preDef.apply(this, arguments);
+
+		var tdef = def.btnpane, item;
+		if(tdef){
+			tdef.className = tdef.className 
+				|| DOM.combineClassName(def.className, "btnpane");
+
+			(function(name){
+				 if(name.indexOf("btn") == 0){
+					 item = tdef[name];
+					 item.className = item.className 
+						 || DOM.combine(tdef.className, "button");
+				 }
+			 }).$forEach(this, tdef.items);
+		}
+		$super(this);
+
+		// For MoverSpot testing
+		var restricted = this._local.restricted,
+		btnpane = this.btnpane;
+
+		restricted.push(this.client);
+
+		if(btnpane){
+			(function(name){
+				 if(name.indexOf("btn") == 0){
+					 item = this.btnpane[name];
+					 item.setPeerComponent(this);
+					 restricted.push(item);
+				 }
+			 }).$forEach(this, btnpane.def.items);
+		}
+
+	}.$override(this._init);
+
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Window);
 
 js.awt.AbstractDialogObject = function(def, Runtime){
+	var CLASS = js.awt.AbstractDialogObject, 
+	thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var CLASS = js.awt.AbstractDialogObject, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM;
+	/**
+	 * The message type is a such a string that identify what message
+	 * will be posted to dialog opener.
+	 *
+	 * Notes: Sub class should implements this function.
+	 */
+	thi$.getDialogMsgType = function(){
+		if(!this._local.msgtype){
+			this._local.msgtype = js.lang.Math.uuid();
+		}
 
-    /**
-     * The message type is a such a string that identify what message
-     * will be posted to dialog opener.
-     *
-     * Notes: Sub class should implements this function.
-     */
-    thi$.getDialogMsgType = function(){
-        if(!this._local.msgtype){
-            this._local.msgtype = js.lang.Math.uuid();
-        }
+		return this._local.msgtype;
 
-        return this._local.msgtype;
+	}.$override(this.getDialogMsgType);
 
-    }.$override(this.getDialogMsgType);
-
-    this._init.apply(this, arguments);
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 
 js.awt.Dialog.DEFAULTDEF = function(){
-    var R = J$VM.Runtime;
-    return {
-        classType : "js.awt.Dialog",
-        className : "jsvm_dlg",
+	var R = J$VM.Runtime;
+	return {
+		classType : "js.awt.Dialog",
+		className : "jsvm_dlg",
 
-        items: [ "title", "client", "btnpane"],
+		items: [ "title", "client", "btnpane"],
 
-        title: {
-            classType: "js.awt.HBox",
-            constraints: "north",
+		title: {
+			classType: "js.awt.HBox",
+			constraints: "north",
 
-            items:["labTitle", "btnHelp", "btnClose"],
+			items:["labTitle", "btnHelp", "btnClose"],
 
-            labTitle:{
-                classType: "js.awt.Label",
-                text : "Dialog",
-                rigid_w: false,
-                rigid_h: false
-            },
+			labTitle:{
+				classType: "js.awt.Label",
+				text : "Dialog",
+				rigid_w: false,
+				rigid_h: false
+			},
 
-            btnHelp:{
-                classType: "js.awt.Button",
-                className: "jsvm_title_button",
-                iconImage: "dialog_help.png"
-            },
+			btnHelp:{
+				classType: "js.awt.Button",
+				className: "jsvm_title_button",
+				iconImage: "dialog_help.png"
+			},
 
-            btnClose:{
-                classType: "js.awt.Button",
-                className: "jsvm_title_button",
-                iconImage: "close.png"
-            }
-        },
+			btnClose:{
+				classType: "js.awt.Button",
+				className: "jsvm_title_button",
+				iconImage: "close.png"
+			}
+		},
 
-        client:{
-            classType: "js.awt.Container",
-            constraints: "center",
+		client:{
+			classType: "js.awt.Container",
+			constraints: "center",
 
-            layout:{
-                classType: "js.awt.BorderLayout"
-            }
-        },
+			layout:{
+				classType: "js.awt.BorderLayout"
+			}
+		},
 
-        btnpane:{
-            classType: "js.awt.HBox",
-            constraints: "south",
+		btnpane:{
+			classType: "js.awt.HBox",
+			constraints: "south",
 
-            items:["btnApply", "btnOK", "btnCancel"],
+			items:["btnApply", "btnOK", "btnCancel"],
 
-            btnApply:{
-                classType: "js.awt.Button",
-                className: "jsvm_button",
-                labelText: R.nlsText("btnApply", "Apply"),
-                effect: true
-            },
+			btnApply:{
+				classType: "js.awt.Button",
+				className: "jsvm_button",
+				labelText: R.nlsText("btnApply", "Apply"),
+				effect: true
+			},
 
-            btnOK:{
-                classType: "js.awt.Button",
-                className: "jsvm_button",
-                labelText: R.nlsText("btnOK", "OK"),
-                effect: true
-            },
+			btnOK:{
+				classType: "js.awt.Button",
+				className: "jsvm_button",
+				labelText: R.nlsText("btnOK", "OK"),
+				effect: true
+			},
 
-            btnCancel:{
-                classType: "js.awt.Button",
-                className: "jsvm_button",
-                labelText: R.nlsText("btnCancel", "Cancel"),
-                effect: true
-            },
+			btnCancel:{
+				classType: "js.awt.Button",
+				className: "jsvm_button",
+				labelText: R.nlsText("btnCancel", "Cancel"),
+				effect: true
+			},
 
-            layout:{
-                gap: 4,
-                align_x : 1.0,
-                align_y : 0.0
-            }
-        },
+			layout:{
+				gap: 4,
+				align_x : 1.0,
+				align_y : 0.0
+			}
+		},
 
-        modal: true
-    };
+		modal: true
+	};
 };
 
 J$VM.Factory.registerClass(js.awt.Dialog.DEFAULTDEF());
 
 js.awt.Dialog.MSGDIALOGDEF = function(){
-    var R = J$VM.Runtime;
-    return{
-        classType : "js.awt.Dialog",
-        className : "jsvm_msg",
+	var R = J$VM.Runtime;
+	return{
+		classType : "js.awt.Dialog",
+		className : "jsvm_msg",
 
-        items: [ "title", "client", "btnpane"],
+		items: [ "title", "client", "btnpane"],
 
-        title: {
-            classType: "js.awt.HBox",
-            constraints: "north",
+		title: {
+			classType: "js.awt.HBox",
+			constraints: "north",
 
-            items:["labTitle"],
+			items:["labTitle"],
 
-            labTitle:{
-                classType: "js.awt.Label",
-                text : "Dialog"
-            }
-        },
+			labTitle:{
+				classType: "js.awt.Label",
+				text : "Dialog"
+			}
+		},
 
-        client:{
-            classType: "js.awt.Container",
-            constraints: "center",
-            layout:{
-                classType: "js.awt.BorderLayout",
-                hgap: 0,
-                vgap: 0
-            }
-        },
+		client:{
+			classType: "js.awt.Container",
+			constraints: "center",
+			layout:{
+				classType: "js.awt.BorderLayout",
+				hgap: 0,
+				vgap: 0
+			}
+		},
 
-        btnpane:{
-            classType: "js.awt.HBox",
-            constraints: "south",
+		btnpane:{
+			classType: "js.awt.HBox",
+			constraints: "south",
 
-            items:["btnOK"],
+			items:["btnOK"],
 
-            btnOK:{
-                classType: "js.awt.Button",
-                className: "jsvm_button",
-                labelText: R.nlsText("btnOK", "OK"),
-                effect: true
-            },
+			btnOK:{
+				classType: "js.awt.Button",
+				className: "jsvm_button",
+				labelText: R.nlsText("btnOK", "OK"),
+				effect: true
+			},
 
-            layout:{
-                gap: 4,
-                align_x : 1.0,
-                align_y : 0.0
-            }
-        },
+			layout:{
+				gap: 4,
+				align_x : 1.0,
+				align_y : 0.0
+			}
+		},
 
-        modal: false,
-        width: 400,
-        height:300,
-        prefSize:{width: 400, height:300}
-    };
+		modal: false,
+		width: 400,
+		height:300,
+		prefSize:{width: 400, height:300}
+	};
 };
 
 J$VM.Factory.registerClass(js.awt.Dialog.MSGDIALOGDEF());
@@ -15615,7 +15703,7 @@ js.awt.MessageBox = function(def, Runtime){
 	 * @see js.awt.Component
 	 */
 	thi$.doLayout = function(force){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			var bounds = this.getBounds(), icon = this.icon, 
 			label = this.label, text = this.text, h, top;
 			
@@ -15691,7 +15779,7 @@ js.awt.MessageBox = function(def, Runtime){
 		def.classType = def.classType || "js.awt.MessageBox";
 		def.className = def.className || "jsvm_msg";
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		var model = this.def.model || {
 			msgType:	"info",
@@ -17418,7 +17506,7 @@ js.awt.Slider = function(def, Runtime){
      * @see js.awt.Container
      */
     thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             var bounds = this.getUBounds();
             
             if(this.offset){
@@ -17633,7 +17721,7 @@ js.awt.Slider = function(def, Runtime){
      * @see js.awt.Movable
      */
     thi$.setMovable = function(b){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         if(b === true){
             MQ.register(this.slipper.getMovingMsgType(), this, _onmoving);
         }else{
@@ -17719,7 +17807,7 @@ js.awt.Slider = function(def, Runtime){
     thi$.destroy = function(){
         MQ.cancel("js.awt.event.SliderMovingEvent", this, _onmoving);
         MQ.cancel(this.slipper.getSizingMsgType(), this, _onsizing);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime){
@@ -17733,7 +17821,7 @@ js.awt.Slider = function(def, Runtime){
         def.duration = Class.isNumber(def.duration) ? def.duration : 1;
         def.tracemouse = Class.isNumber(def.tracemouse) ? def.tracemouse : 0;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         _createElements.call(this);
 
@@ -17802,7 +17890,7 @@ js.awt.Slipper = function(def, Runtime){
      */    
     thi$.doLayout = function(force){
         if(this._local.doneLayout !== true &&
-           arguments.callee.__super__.apply(this, arguments)){
+           $super(this)){
 
             _layout.call(this, this.getUBounds());
             return true;
@@ -17920,7 +18008,7 @@ js.awt.Slipper = function(def, Runtime){
     
     thi$.destroy = function(){
         MQ.cancel(this.getSizingMsgType(), this, _onsizing);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
@@ -17930,7 +18018,7 @@ js.awt.Slipper = function(def, Runtime){
         def.className = def.className || "jsvm_slipper";
         def.stateless = true;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         _createElements.call(this);
         
@@ -18116,7 +18204,7 @@ js.awt.Scrollbar = function (def, Runtime){
             Event.detachEvent(this.view, "scroll", 1, this, _onscroll);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -18133,7 +18221,7 @@ js.awt.Scrollbar = function (def, Runtime){
             : "overflow-x:hidden;overflow-y:scroll;";
         def.css = css + (def.css || "");
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var U = this._local;
         U.scroll = {Xw:0, Yw: 0};
@@ -18276,7 +18364,7 @@ js.swt.TextField = function(def){
     };
     
     thi$.setEnabled = function(b){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         this.textField.disabled = !b;
         
     }.$override(this.setEnabled);
@@ -18287,7 +18375,7 @@ js.swt.TextField = function(def){
     };
     
     thi$.setToolTipText = function(s){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var rview = this.textField;
         if(rview){
@@ -18297,7 +18385,7 @@ js.swt.TextField = function(def){
     }.$override(this.setToolTipText);
     
     thi$.delToolTipText = function(){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var rview = this.textField;
         if(rview){
@@ -18448,7 +18536,7 @@ js.swt.TextField = function(def){
     };
     
     thi$.doLayout = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             _layout.call(this);
             return true;
         }
@@ -18467,7 +18555,7 @@ js.swt.TextField = function(def){
         delete this._latestValue;
         delete this._curValue; 
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
     
     var _onselectstart = function(e) {
@@ -18698,7 +18786,7 @@ js.swt.TextField = function(def){
         
         def.classType = def.classType || "js.swt.TextField";
         def.className = def.className || "jsvm_textfield";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this.isPassword = (def.isPassword === true);
         _createInput.call(this, def);
@@ -18862,7 +18950,7 @@ js.swt.ListItem = function(def, Runtime, view){
 	};
 	
 	thi$.mark = function(b){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		this.model.marked = this.isMarked();
 	}.$override(this.mark);
 	
@@ -18900,7 +18988,7 @@ js.swt.ListItem = function(def, Runtime, view){
 	};
 	
 	thi$.cloneView = function(){
-		var v = arguments.callee.__super__.apply(this, arguments);
+		var v = $super(this);
 		DOM.removeFun(v);
 		
 		return v;
@@ -18940,7 +19028,7 @@ js.swt.ListItem = function(def, Runtime, view){
 		this.model = newDef.model;
 		
 		newDef = _preInit.call(this, newDef);
-		arguments.callee.__super__.apply(this, [newDef, Runtime, view]);
+		$super(this, newDef, Runtime, view);
 		
 		var m = this.model;
 		if(newDef.showTips && m){
@@ -19098,7 +19186,7 @@ js.swt.HItem = function(def, Runtime){
 	 * @inheritdoc js.awt.Component#onStateChanged
 	 */
 	thi$.onStateChanged = function(){
-		arguments.callee.__super__.apply(this, arguments);		  
+		$super(this);		  
 		
 		if(this.icon){
 			this.setIconImage(this.getState());
@@ -19247,7 +19335,7 @@ js.swt.HItem = function(def, Runtime){
 			this.detachEvent("mouseup", 4, this, _onmouseup);
 		}
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -19334,7 +19422,7 @@ js.swt.HItem = function(def, Runtime){
 		}
 
 		def = _preDef.call(this, def, Runtime);
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(def.stateless !== true){
 			this.attachEvent("mouseover", 4, this, _onHover);
@@ -20605,18 +20693,18 @@ js.swt.List = function(def, runtime){
     
     thi$.onResized = function(){
         this._isLayoutDirty = true;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.onResized);
     
     thi$.onGeomChanged = function(){
         this._isLayoutDirty = true;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.onGeomChanged);
     
     thi$.doLayout = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             _layout.call(this);
             return true;
         }
@@ -20947,7 +21035,7 @@ js.swt.List = function(def, runtime){
         DOM.remove(this.listView, true);
         delete this.listView;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
 
@@ -21136,7 +21224,7 @@ js.swt.List = function(def, runtime){
 
         def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);       
         def.className = def.className || "jsvm_list";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this._isReady = false;
         this._isLayoutDirty = false;
@@ -21727,7 +21815,7 @@ js.swt.DropdownList = function(def, Runtime){
         if(this._local.optimalSize){
             return this._local.optimalSize;
         }else{
-            return arguments.callee.__super__.apply(this, arguments);
+            return $super(this);
         }
     }.$override(this.getPreferredSize);
 
@@ -22110,7 +22198,7 @@ js.swt.DropdownList = function(def, Runtime){
         // only if some items are changed (Added and removed).
         var s = _layout.call(this);
         if(s){
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
             _rectifyListSize.call(this, s);
         }
     }.$override(this.doLayout);
@@ -22202,7 +22290,7 @@ js.swt.DropdownList = function(def, Runtime){
 
         // Force the DropdownList's nofly area
         // as horizontal breakthrough.
-        arguments.callee.__super__.apply(this, [x, y, false, m]);
+        $super(this, x, y, false, m);
         
         // Re-highlight the current selected item
         _reStyleSelected.call(this);
@@ -22223,7 +22311,7 @@ js.swt.DropdownList = function(def, Runtime){
 
         // Force the DropdownList's nofly area
         // as horizontal breakthrough.
-        arguments.callee.__super__.apply(this, [by, false, m]);
+        $super(this, by, false, m);
 
         // Re-highlight the current selected item
         _reStyleSelected.call(this);
@@ -22235,7 +22323,7 @@ js.swt.DropdownList = function(def, Runtime){
             this.list.setPeerComponent(peer);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.setPeerComponent);
 
@@ -22287,7 +22375,7 @@ js.swt.DropdownList = function(def, Runtime){
         delete this._local.runtimeBounds;
         delete this._local.runtimeArea;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
 
     /**
@@ -22519,7 +22607,7 @@ js.swt.DropdownList = function(def, Runtime){
 
         def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
         def.className = def.className || "jsvm_dropdownList";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this._isLayoutDirty = true;
         this._local.root = this;
@@ -23393,7 +23481,7 @@ js.swt.ComboBox = function(def, Runtime){
     };
 
     thi$.onMoved = function(){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var subview = this.subview;
         if(subview){
@@ -23402,7 +23490,7 @@ js.swt.ComboBox = function(def, Runtime){
     }.$override(this.onMoved);
     
     thi$.onResized = function(fire){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var subview = this.subview;
         if(subview){
@@ -23415,7 +23503,7 @@ js.swt.ComboBox = function(def, Runtime){
     };
     
     thi$.onStateChanged = function(e){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.btnDropDown.setState(this.getState());
 
@@ -23466,7 +23554,7 @@ js.swt.ComboBox = function(def, Runtime){
             subview.destroy();
         }
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
 
@@ -24262,7 +24350,7 @@ js.swt.ComboBox = function(def, Runtime){
         if(typeof def !== "object") return;
         
         def = _preInit.call(this, def);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         // 0: Expect hide subview
         // 1: Expect popup subview
@@ -24482,7 +24570,7 @@ js.swt.ScrollPane = function(def, Runtime){
      * @see js.awt.Container #insertComponent
      */
     thi$.insertComponent = function(index, comp, constraints, notify, fireLayout){
-        comp = arguments.callee.__super__.apply(this, [index, comp, constraints]);  
+        comp = $super(this, index, comp, constraints);  
         return _addComp.call(this, comp, notify, fireLayout);
         
     }.$override(this.insertComponent);
@@ -24502,7 +24590,7 @@ js.swt.ScrollPane = function(def, Runtime){
         if(!comp) return;
         
         var items = this.items(), index = items.indexOf(comp.id);
-        comp = arguments.callee.__super__.apply(this, [comp]);
+        comp = $super(this, comp);
         
         if(this.cache){
             delete this.cache[comp.uuid()];
@@ -24823,7 +24911,7 @@ js.swt.ScrollPane = function(def, Runtime){
     thi$.getPreferredSize = function(){
         var cnt = _getVisibleCount.call(this);
         if(cnt == 0){
-            return arguments.callee.__super__.apply(this, arguments);            
+            return $super(this);            
         }
         
         var size = this.getIdealSize(), max = this.getMaximumSize(),
@@ -24854,7 +24942,7 @@ js.swt.ScrollPane = function(def, Runtime){
             _stretch.call(this);
         }
 
-        return arguments.callee.__super__.apply(this, arguments);        
+        return $super(this);        
         
     }.$override(this.doLayout);
     
@@ -25047,7 +25135,7 @@ js.swt.ScrollPane = function(def, Runtime){
             MQ.cancel("js.awt.event.MovingEvent", this, _ondrag);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -25067,7 +25155,7 @@ js.swt.ScrollPane = function(def, Runtime){
         mover.freedom = Class.isNumber(mover.freedom) 
             ? mover.freedom : (hscroll ? 1 : 2);
         
-        arguments.callee.__super__.apply(this, [newDef, Runtime]);
+        $super(this, newDef, Runtime);
         
         this.cache = {};
         

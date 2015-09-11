@@ -176,7 +176,7 @@ js.awt.BorderLayout = function (def){
         def.hgap = def.hgap || 0;
         def.vgap = def.vgap || 0;
 
-        arguments.callee.__super__.apply(this, arguments);        
+        $super(this);        
 
     }.$override(this._init);
 

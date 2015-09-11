@@ -153,7 +153,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
     }.$override(this.getLayoutComponents);
     
     thi$.doLayout = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             var bounds = this.getBounds(), MBP = bounds.MBP;
             this.map.setSize(bounds.innerWidth, bounds.innerHeight, 7);
             this.g2d.setSize(bounds.innerWidth, bounds.innerHeight, 7);
@@ -540,7 +540,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
 
         _initDef.call(this, def);
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel";
         this.attachEvent(mousewheel, 0, this, _onmousewheel);

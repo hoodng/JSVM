@@ -77,7 +77,7 @@ js.awt.GraphicGroup = function(def, Graphics2D){
 
         def.classType = def.classType || "js.awt.GraphicGroup";
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this._init);
 

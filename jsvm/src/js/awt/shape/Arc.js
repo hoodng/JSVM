@@ -86,7 +86,7 @@ js.awt.shape.Arc = function(def, Graphics2D, Renderer){
         def.type = "arc";
         def.close = "open";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

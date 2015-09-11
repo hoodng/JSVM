@@ -466,7 +466,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 	}.$override(this.doLayout);
 
 	thi$.adjustCover = function(bounds){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(this._coverView){
 			this._coverView.style.width = "100%";
@@ -578,7 +578,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 		this.removeAllNodes();
 		delete this.nodes;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -599,7 +599,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
 			_checkItems.call(this, def);
 		}
 
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 
 		_setParentItem.call(this, parent);
 

@@ -86,7 +86,7 @@ js.awt.shape.Sector = function(def, Graphics2D, Renderer){
         def.type = "sector";
         def.close = def.close || "center";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

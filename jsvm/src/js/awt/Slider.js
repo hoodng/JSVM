@@ -266,7 +266,7 @@ js.awt.Slider = function(def, Runtime){
      * @see js.awt.Container
      */
     thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             var bounds = this.getUBounds();
             
             if(this.offset){
@@ -481,7 +481,7 @@ js.awt.Slider = function(def, Runtime){
      * @see js.awt.Movable
      */
     thi$.setMovable = function(b){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         if(b === true){
             MQ.register(this.slipper.getMovingMsgType(), this, _onmoving);
         }else{
@@ -567,7 +567,7 @@ js.awt.Slider = function(def, Runtime){
     thi$.destroy = function(){
         MQ.cancel("js.awt.event.SliderMovingEvent", this, _onmoving);
         MQ.cancel(this.slipper.getSizingMsgType(), this, _onsizing);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime){
@@ -581,7 +581,7 @@ js.awt.Slider = function(def, Runtime){
         def.duration = Class.isNumber(def.duration) ? def.duration : 1;
         def.tracemouse = Class.isNumber(def.tracemouse) ? def.tracemouse : 0;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         _createElements.call(this);
 
@@ -650,7 +650,7 @@ js.awt.Slipper = function(def, Runtime){
      */    
     thi$.doLayout = function(force){
         if(this._local.doneLayout !== true &&
-           arguments.callee.__super__.apply(this, arguments)){
+           $super(this)){
 
             _layout.call(this, this.getUBounds());
             return true;
@@ -768,7 +768,7 @@ js.awt.Slipper = function(def, Runtime){
     
     thi$.destroy = function(){
         MQ.cancel(this.getSizingMsgType(), this, _onsizing);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
@@ -778,7 +778,7 @@ js.awt.Slipper = function(def, Runtime){
         def.className = def.className || "jsvm_slipper";
         def.stateless = true;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         _createElements.call(this);
         

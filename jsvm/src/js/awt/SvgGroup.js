@@ -120,12 +120,12 @@ js.awt.SvgGroup = function(def, Graphics2D){
             layer.putImageData(true, image, x, y);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.nondirtyReturn);
 
     thi$.setPosition = function(x, y){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.fireEvent(new Event(
             G.Events.TRANS_CHANGED, {}, this), true);
@@ -133,14 +133,14 @@ js.awt.SvgGroup = function(def, Graphics2D){
     }.$override(this.setPosition);
 
     thi$.setSize = function(w, h){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         _setSize.call(this, w, h);
 
     }.$override(this.setSize);
 
     thi$.setBounds = function(x, y, w, h){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         _setSize.call(this, w, h);
         
@@ -166,7 +166,7 @@ js.awt.SvgGroup = function(def, Graphics2D){
         delete this.relCanvas;
         delete this.hitCanvas;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
 
@@ -175,7 +175,7 @@ js.awt.SvgGroup = function(def, Graphics2D){
 
         def.classType = def.classType || "js.awt.SvgGroup";
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var U = this._local;
 

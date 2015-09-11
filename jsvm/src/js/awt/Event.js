@@ -76,7 +76,7 @@ js.awt.Event = function(e){
 
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.cancelBubble);
 
@@ -94,7 +94,7 @@ js.awt.Event = function(e){
 
         }
 
-        return arguments.callee.__super__.apply(this, arguments);
+        return $super(this);
 
     }.$override(this.cancelDefault);
 
@@ -109,7 +109,7 @@ js.awt.Event = function(e){
     thi$._init = function(e){
         var _e = this._event = e || window.event;
 
-        arguments.callee.__super__.call(this, _e.type, _e);
+        $super(this, _e.type, _e);
 
         var ie = (_e.stopPropagation == undefined),
             ff = (J$VM.firefox != undefined),

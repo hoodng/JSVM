@@ -68,7 +68,7 @@ js.awt.shape.Pentagon = function(def, Graphics2D, Renderer){
         def.ends = 5;
         //def.rscale = 0.375;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

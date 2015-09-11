@@ -106,7 +106,7 @@ js.awt.shape.Image = function(def, Graphics2D, Renderer){
         def.classType = def.classType || "js.awt.shape.Image";
         def.type = "image";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

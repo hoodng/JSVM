@@ -99,7 +99,7 @@ js.awt.Button = function(def, Runtime){
 	};
 
 	thi$.setTipText = function(s){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(this.icon) {
 			DOM.setAttribute(this.icon, "title", s);
@@ -116,7 +116,7 @@ js.awt.Button = function(def, Runtime){
 	thi$.repaint = function(){
         var M = this.def;
         
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
         
         if(this.icon){
 			this.setIconImage(this.isTriggered() ? 4 :
@@ -138,7 +138,7 @@ js.awt.Button = function(def, Runtime){
 	 * @see js.awt.Component
 	 */
 	thi$.doLayout = function(force){
-        if(!arguments.callee.__super__.apply(this, arguments))
+        if(!$super(this))
             return;
 
 		var M = this.def, G0 = this.getGeometric(), B = this.getBounds(),
@@ -194,7 +194,7 @@ js.awt.Button = function(def, Runtime){
 	 * @see js.awt.Component
 	 */
 	thi$.onStateChanged = function(){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(this.icon){
 			this.setIconImage(this.getState());
@@ -206,7 +206,7 @@ js.awt.Button = function(def, Runtime){
 			_showEffectLayer.call(this, "normal");
 		}
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.setEnabled);
 
@@ -377,7 +377,7 @@ js.awt.Button = function(def, Runtime){
 		this.detachEvent("mousedown", 4, this, _onmousedown);
 		this.detachEvent("mouseup",	  4, this, _onmouseup);
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -387,7 +387,7 @@ js.awt.Button = function(def, Runtime){
 		def.classType = def.classType || "js.awt.Button";
 		def.className = def.className || "jsvm_button";
 
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 
 		var layout = def.layout = def.layout || {};
 		layout.align_x = Class.isNumber(layout.align_x) ? layout.align_x : 0.5;

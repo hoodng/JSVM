@@ -97,7 +97,7 @@ js.awt.shape.RPolygon = function(def, Graphics2D, Renderer){
         def.classType = def.classType || "js.awt.shape.RPolygon";
         def.type = "polygon";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var tmp;
 

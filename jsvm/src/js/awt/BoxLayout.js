@@ -153,7 +153,7 @@ js.awt.BoxLayout = function (def){
 		def.axis = def.axis || 0;
 		def.gap	 = def.gap || 0;
 
-		arguments.callee.__super__.apply(this, arguments);		  
+		$super(this);		  
 
 	}.$override(this._init);
 	

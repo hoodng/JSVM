@@ -69,7 +69,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		var root = this.rootLayer();
 
 		return this == root ?
-			arguments.callee.__super__.apply(this, arguments) :
+			$super(this) :
 			root.getPeerComponent();
 
 	}.$override(this.getPeerComponent);
@@ -176,7 +176,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		if(e.getType() === "blur"){
 			b = this.rootLayer().isHideOnBlur();
 		}else{
-			b = arguments.callee.__super__.apply(this, arguments);
+			b = $super(this);
 		}
 
 		return b;
@@ -193,7 +193,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			subMenu.hide();
 			item.setHover(false);
 		}
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 	}.$override(this.hide);
 
 	/**
@@ -345,7 +345,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		delete this._local.menuView;
 		delete this.cache;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -358,7 +358,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		def.isfloating = true;
 		def.PMFlag = def.PMFlag || 0x27;
 
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 
 		_setParentMenu.call(this, parentMenu);
 		_setRootMenu.call(this, rootMenu);

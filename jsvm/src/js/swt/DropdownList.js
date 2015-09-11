@@ -461,7 +461,7 @@ js.swt.DropdownList = function(def, Runtime){
         if(this._local.optimalSize){
             return this._local.optimalSize;
         }else{
-            return arguments.callee.__super__.apply(this, arguments);
+            return $super(this);
         }
     }.$override(this.getPreferredSize);
 
@@ -844,7 +844,7 @@ js.swt.DropdownList = function(def, Runtime){
         // only if some items are changed (Added and removed).
         var s = _layout.call(this);
         if(s){
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
             _rectifyListSize.call(this, s);
         }
     }.$override(this.doLayout);
@@ -936,7 +936,7 @@ js.swt.DropdownList = function(def, Runtime){
 
         // Force the DropdownList's nofly area
         // as horizontal breakthrough.
-        arguments.callee.__super__.apply(this, [x, y, false, m]);
+        $super(this, x, y, false, m);
         
         // Re-highlight the current selected item
         _reStyleSelected.call(this);
@@ -957,7 +957,7 @@ js.swt.DropdownList = function(def, Runtime){
 
         // Force the DropdownList's nofly area
         // as horizontal breakthrough.
-        arguments.callee.__super__.apply(this, [by, false, m]);
+        $super(this, by, false, m);
 
         // Re-highlight the current selected item
         _reStyleSelected.call(this);
@@ -969,7 +969,7 @@ js.swt.DropdownList = function(def, Runtime){
             this.list.setPeerComponent(peer);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.setPeerComponent);
 
@@ -1021,7 +1021,7 @@ js.swt.DropdownList = function(def, Runtime){
         delete this._local.runtimeBounds;
         delete this._local.runtimeArea;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
 
     /**
@@ -1253,7 +1253,7 @@ js.swt.DropdownList = function(def, Runtime){
 
         def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
         def.className = def.className || "jsvm_dropdownList";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this._isLayoutDirty = true;
         this._local.root = this;

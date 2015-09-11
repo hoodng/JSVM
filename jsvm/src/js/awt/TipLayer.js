@@ -67,7 +67,7 @@ js.awt.TipLayer = function(def, Runtime){
 		
 	thi$.doLayout = function(force){
 	    var tipObj, bounds, MBP;
-        if(!arguments.callee.__super__.apply(this, arguments))
+        if(!$super(this))
             return false;
         
 		tipObj = this.tipObj;
@@ -88,7 +88,7 @@ js.awt.TipLayer = function(def, Runtime){
 	
 	thi$.destroy = function(){
 		this.releaseTipObject();
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 	}.$override(this.destroy);
 	
 	thi$._init = function(def, Runtime){
@@ -102,7 +102,7 @@ js.awt.TipLayer = function(def, Runtime){
 		def.isfloating = true;
 		def.stateless = true;
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 	}.$override(this._init);
 	

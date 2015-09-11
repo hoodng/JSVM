@@ -127,7 +127,7 @@ js.swt.ScrollPane = function(def, Runtime){
      * @see js.awt.Container #insertComponent
      */
     thi$.insertComponent = function(index, comp, constraints, notify, fireLayout){
-        comp = arguments.callee.__super__.apply(this, [index, comp, constraints]);  
+        comp = $super(this, index, comp, constraints);  
         return _addComp.call(this, comp, notify, fireLayout);
         
     }.$override(this.insertComponent);
@@ -147,7 +147,7 @@ js.swt.ScrollPane = function(def, Runtime){
         if(!comp) return;
         
         var items = this.items(), index = items.indexOf(comp.id);
-        comp = arguments.callee.__super__.apply(this, [comp]);
+        comp = $super(this, comp);
         
         if(this.cache){
             delete this.cache[comp.uuid()];
@@ -468,7 +468,7 @@ js.swt.ScrollPane = function(def, Runtime){
     thi$.getPreferredSize = function(){
         var cnt = _getVisibleCount.call(this);
         if(cnt == 0){
-            return arguments.callee.__super__.apply(this, arguments);            
+            return $super(this);            
         }
         
         var size = this.getIdealSize(), max = this.getMaximumSize(),
@@ -499,7 +499,7 @@ js.swt.ScrollPane = function(def, Runtime){
             _stretch.call(this);
         }
 
-        return arguments.callee.__super__.apply(this, arguments);        
+        return $super(this);        
         
     }.$override(this.doLayout);
     
@@ -692,7 +692,7 @@ js.swt.ScrollPane = function(def, Runtime){
             MQ.cancel("js.awt.event.MovingEvent", this, _ondrag);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -712,7 +712,7 @@ js.swt.ScrollPane = function(def, Runtime){
         mover.freedom = Class.isNumber(mover.freedom) 
             ? mover.freedom : (hscroll ? 1 : 2);
         
-        arguments.callee.__super__.apply(this, [newDef, Runtime]);
+        $super(this, newDef, Runtime);
         
         this.cache = {};
         

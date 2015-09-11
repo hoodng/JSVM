@@ -147,7 +147,7 @@ js.awt.VFrame = function(def, Runtime){
         var layout = def.layout = def.layout || {};
         layout.classType = layout.classType || "js.awt.BorderLayout";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         if(def.src){
             this.setSrc(def.src);

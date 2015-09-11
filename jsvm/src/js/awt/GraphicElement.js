@@ -101,7 +101,7 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
             renderer.drawShape(layer.getContext(true), this, true);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.drawing);
 
@@ -109,11 +109,11 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
     thi$.defAttr = function(key, val){
         var v, p;
         if(Class.isValid(val)){
-            v = arguments.callee.__super__.apply(this, arguments);
+            v = $super(this);
             this.fireEvent(new Event(
                 G.Events.ATTRS_CHANGED, {}, this), true);
         }else{
-            v = arguments.callee.__super__.call(this, key);
+            v = $super(this, key);
             if(Class.isValid(v)){
                 p = this.getContainer();
                 v = p ? p.defAttr(key) : null;
@@ -271,7 +271,7 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
             G2D.checkAttachEvent(eType);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.attachEvent);
 
@@ -288,13 +288,13 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
             break;
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.fireEvent);
 
     thi$.destroy = function(){
         delete this.G2D;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
 
     thi$._init = function(def, Graphics2D, Renderder){
@@ -318,7 +318,7 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
         ckey.uuid = ckey.toString("uuid");
         this.uuid(ckey.uuid);
 
-        arguments.callee.__super__.call(this, def, Graphics2D.Runtime());
+        $super(this, def, Graphics2D.Runtime());
 
         this.G2D = Graphics2D;
 

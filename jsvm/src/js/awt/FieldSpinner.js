@@ -150,7 +150,7 @@ js.awt.FieldSpinner = function(def, Runtime){
         def.classType = def.classType || "js.awt.FieldSpinner";
         def.className = def.className || "jsvm_fieldspinner";
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         _createElements.call(this, def);
         

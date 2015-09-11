@@ -409,7 +409,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
         this.applyStyles({overflowX: "hidden", overflowY: "hidden"});
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this.applyStyles(overflow);
 
@@ -420,7 +420,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
      */
     thi$.doLayout = function(){
         var ret = false, bounds, MBP, w, h;
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             if(!this._local.paper){
                 bounds = this.getBounds(); MBP = bounds.MBP;
                 w = bounds.width - (MBP.borderLeftWidth + MBP.borderRightWidth),
@@ -467,7 +467,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
             Event.detachEvent(this.view, eType, 0, this, _onmouseevents);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
 
@@ -481,7 +481,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
             classType: "js.awt.AbsoluteLayout"
         };
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var U = this._local;
         U.events = {};

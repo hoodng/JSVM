@@ -92,7 +92,7 @@ js.awt.GraphicLayer = function(def, Graphics2D){
 
         def.classType = def.classType || "js.awt.GraphicLayer";
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var U = this._local;
         U.shapes = {}; // For caching shapes

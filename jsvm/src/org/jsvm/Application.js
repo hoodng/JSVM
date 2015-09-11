@@ -34,7 +34,7 @@ org.jsvm.Application = function(def, Runtime, entryId){
 	 * the cross-window message.
 	 */
 	thi$.startApp = function(doLoadedNotify){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         		
 	}.$override(this.startApp);
 
@@ -43,7 +43,7 @@ org.jsvm.Application = function(def, Runtime, entryId){
 	 */ 
 	thi$.closeApp = function(){
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
 	}.$override(this.closeApp);
 
@@ -86,7 +86,7 @@ org.jsvm.Application = function(def, Runtime, entryId){
     thi$._init = function(def, Runtime, entryId){
         if(def == undefined) return;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         Service = Runtime.getService();
         

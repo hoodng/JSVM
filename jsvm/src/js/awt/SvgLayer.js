@@ -158,7 +158,7 @@ js.awt.SvgLayer = function(def, Graphics2D){
      * @param y, the position top
      */
     thi$.setPosition = function(x, y, fire){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var buf = this.relCanvas;
 
@@ -178,7 +178,7 @@ js.awt.SvgLayer = function(def, Graphics2D){
      * @param h, height
      */
     thi$.setSize = function(w, h, fire){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         _setSize.call(this, w, h, fire);
 
@@ -193,7 +193,7 @@ js.awt.SvgLayer = function(def, Graphics2D){
      * @param h, height
      */
     thi$.setBounds = function(x, y, w, h, fire){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         _setSize.call(this, w, h, fire);
         
@@ -218,7 +218,7 @@ js.awt.SvgLayer = function(def, Graphics2D){
         delete this.relCanvas;
         delete this.hitCanvas;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
 
@@ -227,7 +227,7 @@ js.awt.SvgLayer = function(def, Graphics2D){
 
         def.classType = def.classType || "js.awt.SvgLayer";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var U = this._local;
 

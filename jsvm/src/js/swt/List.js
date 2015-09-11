@@ -1250,18 +1250,18 @@ js.swt.List = function(def, runtime){
     
     thi$.onResized = function(){
         this._isLayoutDirty = true;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.onResized);
     
     thi$.onGeomChanged = function(){
         this._isLayoutDirty = true;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.onGeomChanged);
     
     thi$.doLayout = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             _layout.call(this);
             return true;
         }
@@ -1592,7 +1592,7 @@ js.swt.List = function(def, runtime){
         DOM.remove(this.listView, true);
         delete this.listView;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
 
@@ -1781,7 +1781,7 @@ js.swt.List = function(def, runtime){
 
         def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);       
         def.className = def.className || "jsvm_list";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this._isReady = false;
         this._isLayoutDirty = false;

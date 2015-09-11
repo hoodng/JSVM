@@ -57,13 +57,13 @@ js.awt.LayerManager = function(def, Runtime, view){
         System = J$VM.System, MQ = J$VM.MQ;
     
     thi$.removeComponent = function(comp){
-        comp = arguments.callee.__super__.apply(this, arguments);
+        comp = $super(this);
         this.stack.remove(comp); 
     }.$override(this.removeComponent);
     
     thi$.removeAll = function(){
         this.stack.clear();
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.removeAll);
     
     thi$.cleanLayers = function(e){
@@ -497,7 +497,7 @@ js.awt.LayerManager = function(def, Runtime, view){
 
     thi$._init = function(def, Runtime, view){
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.stack = js.util.LinkedList.$decorate([]);
         

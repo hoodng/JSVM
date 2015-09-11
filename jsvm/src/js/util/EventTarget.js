@@ -175,7 +175,7 @@ js.util.EventTarget = function (def, Runtime){
     thi$._init = function(def, Runtime){
         if(!Class.isObject(def)) return;
         // TODO ?
-        $super(this);
+        $super(this, def, Runtime);
     }.$override(this._init);
     
     this._init.apply(this, arguments);

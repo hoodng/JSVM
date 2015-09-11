@@ -67,7 +67,7 @@ js.awt.Application = function(def, Runtime, entryId){
     thi$.destroy = function(){
         this.closeApp();
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
     
@@ -84,9 +84,9 @@ js.awt.Application = function(def, Runtime, entryId){
         var entry = self.document.querySelector("[jsvm_entry='"+entryId+"']");
         
         if(entry.getAttribute("jsvm_asapp")){
-            arguments.callee.__super__.call(this, def, Runtime, entry);
+            $super(this, def, Runtime, entry);
         }else{
-            arguments.callee.__super__.call(this, def, Runtime);            
+            $super(this, def, Runtime);            
         }
 
         this._local.entry = entry;

@@ -68,7 +68,7 @@ js.awt.shape.Square = function(def, Graphics2D, Renderer){
         def.ends = 4;
         def.offset = 45;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

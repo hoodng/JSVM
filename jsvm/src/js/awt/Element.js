@@ -803,7 +803,7 @@ js.awt.Element = function(def, Runtime){
         delete this.peer;
         delete this.container;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
 
@@ -818,7 +818,7 @@ js.awt.Element = function(def, Runtime){
         var id = this.uuid(def.uuid);
         this.id = def.id || (view ? (view.id || id) : id); 
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var M = this.def, U = this._local;
 

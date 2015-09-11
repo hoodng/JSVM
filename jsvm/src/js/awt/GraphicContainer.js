@@ -102,7 +102,7 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
      * @see js.awt.Containable
      */
     thi$._insert = function(){
-        var ele = arguments.callee.__super__.apply(this, arguments);
+        var ele = $super(this);
 
         if(ele.instanceOf(js.awt.GraphicElement)){
             var cache = this.getLayer().cachedShapes();
@@ -120,7 +120,7 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
      * @see js.awt.Containable
      */
     thi$.removeChild = function(){
-        var ele = arguments.callee.__super__.apply(this, arguments);
+        var ele = $super(this);
 
         if(ele && ele.instanceOf(js.awt.GraphicElement)){
             var layer = this.getLayer(), cache = layer ? layer.cachedShapes() : null;
@@ -153,7 +153,7 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
             }
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this.fireEvent(new Event(
             G.Events.ITEMS_CHANGED,{}, this), true);
@@ -162,7 +162,7 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
     
     thi$.destroy = function(){
         this.removeAll(true);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
 
@@ -174,7 +174,7 @@ js.awt.GraphicContainer = function(def, Grahpics2D){
         var tmp = def.zorder;
         def.zorder = Class.isBoolean(tmp) ? tmp : true;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
 

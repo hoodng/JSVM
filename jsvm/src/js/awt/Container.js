@@ -116,7 +116,7 @@ js.awt.Container = function (def, Runtime, view){
     };
 
     thi$.removeAll = function(gc){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         if(this.layout){
             this.layout.invalidateLayout();
@@ -129,7 +129,7 @@ js.awt.Container = function (def, Runtime, view){
      */
     thi$.activateComponent = function(e){
         if(e == undefined){
-            arguments.callee.__super__.call(this);
+            $super(this);
             return undefined;
         }
 
@@ -229,7 +229,7 @@ js.awt.Container = function (def, Runtime, view){
             return false;
         default:
             // Maybe html element
-            return arguments.callee.__super__.call(
+            return $super(
                 this, c, containSelf);
         }
 
@@ -269,7 +269,7 @@ js.awt.Container = function (def, Runtime, view){
     thi$.getMinimumSize = function(nocache){
         return nocache === true ? 
             this.layout.minimumLayoutSize(this, nocache) : 
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
     }.$override(this.getMinimumSize);
 
     /**
@@ -278,14 +278,14 @@ js.awt.Container = function (def, Runtime, view){
     thi$.getMaximumSize = function(nocache){
         return nocache === true ? 
             this.layout.maximumLayoutSize(this, nocache) : 
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
     }.$override(this.getMaximumSize);
     
     /**
      * @see js.awt.Component
      */
     thi$.repaint = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             var comps = this.items0(), i, len, comp;
             for(i=0, len= comps.length; i<len; i++){
                 comp = this[comps[i]];
@@ -331,7 +331,7 @@ js.awt.Container = function (def, Runtime, view){
      * @see js.awt.Component
      */
     thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             this.layoutComponents(force);
             return true;
         }
@@ -378,7 +378,7 @@ js.awt.Container = function (def, Runtime, view){
     thi$.destroy = function(){
         if(this.destroied !== true){
             this.removeAll(true);
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
         }
     }.$override(this.destroy);
 
@@ -391,7 +391,7 @@ js.awt.Container = function (def, Runtime, view){
         def.classType = def.classType || "js.awt.Container";
         def.className = def.className || "jsvm_container";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var layout = def.layout = (def.layout || {});
         layout.classType = layout.classType || "js.awt.LayoutManager";

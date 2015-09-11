@@ -456,7 +456,7 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
             this.zoom(mapinfo.zoom, cx, cy, rBase, bBase);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.onResized);
 
@@ -610,7 +610,7 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         if(typeof def !== "object") return;
 
         def.css = def.css || "background-color:#e0e0e0;";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this.view.style.overflow = "hidden";
         this.tileservice = def.tileservice || TileServices["MapBoxTer"];

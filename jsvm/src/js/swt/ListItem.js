@@ -123,7 +123,7 @@ js.swt.ListItem = function(def, Runtime, view){
 	};
 	
 	thi$.mark = function(b){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		this.model.marked = this.isMarked();
 	}.$override(this.mark);
 	
@@ -161,7 +161,7 @@ js.swt.ListItem = function(def, Runtime, view){
 	};
 	
 	thi$.cloneView = function(){
-		var v = arguments.callee.__super__.apply(this, arguments);
+		var v = $super(this);
 		DOM.removeFun(v);
 		
 		return v;
@@ -201,7 +201,7 @@ js.swt.ListItem = function(def, Runtime, view){
 		this.model = newDef.model;
 		
 		newDef = _preInit.call(this, newDef);
-		arguments.callee.__super__.apply(this, [newDef, Runtime, view]);
+		$super(this, newDef, Runtime, view);
 		
 		var m = this.model;
 		if(newDef.showTips && m){

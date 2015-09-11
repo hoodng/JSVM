@@ -137,7 +137,7 @@ js.swt.HItem = function(def, Runtime){
 	 * @inheritdoc js.awt.Component#onStateChanged
 	 */
 	thi$.onStateChanged = function(){
-		arguments.callee.__super__.apply(this, arguments);		  
+		$super(this);		  
 		
 		if(this.icon){
 			this.setIconImage(this.getState());
@@ -286,7 +286,7 @@ js.swt.HItem = function(def, Runtime){
 			this.detachEvent("mouseup", 4, this, _onmouseup);
 		}
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -373,7 +373,7 @@ js.swt.HItem = function(def, Runtime){
 		}
 
 		def = _preDef.call(this, def, Runtime);
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(def.stateless !== true){
 			this.attachEvent("mouseover", 4, this, _onHover);

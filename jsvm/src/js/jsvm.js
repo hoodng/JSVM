@@ -327,11 +327,12 @@ J$VM = new function (){
             this.__super__ = func;
             return this;
         };
-        
+
         $super = function(thisObj){
-            var args = arguments.length > 1 ? slice.call(arguments, 1) :
-                slice.call($super.caller.arguments);
-            $super.caller.__super__.apply(thisObj, args);
+            var caller = self.$super.caller, args;
+            args = arguments.length > 1 ? slice.call(arguments, 1) :
+                slice.call(caller.arguments);
+            return caller.__super__.apply(thisObj, args);
         };
 
         /**

@@ -120,7 +120,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	};
 	
 	thi$.onStateChanged = function(){
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		if(this.isHover()){	 
 			var M = this.def, menu = this.menuContainer(),
@@ -156,7 +156,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		if(this.def.beInMenu){
 			peer = this.menuContainer().rootLayer().getPeerComponent();
 		}else{
-			peer = arguments.callee.__super__.apply(this, arguments);
+			peer = $super(this);
 		}
 		
 		return peer;
@@ -175,7 +175,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			}
 		}
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 	}.$override(this.doLayout);
 	
@@ -217,7 +217,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		}
 		delete this._local.submenu;
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 	
@@ -240,7 +240,7 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			def.css = "position:relative;";
 		}
 		
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 		
 		this.setContainer(menu);
 		menu.cache[this.uuid()] = this;
@@ -274,7 +274,7 @@ js.awt.MenuSeparator = function(def, Runtime, menu){
 		def.className = menu.className + "_separator";
 		def.css = "overflow:hidden;width:100%;"; // If not, IE has 13px height
 
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 
 	}.$override(this._init);
 	

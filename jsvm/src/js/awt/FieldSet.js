@@ -63,7 +63,7 @@ js.awt.FieldSet = function (def, Runtime){
 		def.className = def.className || "jsvm_fieldset";
 		def.stateless = (def.stateless !== false);
 		def.viewType = "FIELDSET";
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		var legend = this.legend = DOM.createElement("LEGEND");
 		legend.className = this.className + "_legend";

@@ -71,7 +71,7 @@ js.awt.shape.Line = function(def, Graphics2D, Renderer){
         def.type = "line";
         def.close = "open";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

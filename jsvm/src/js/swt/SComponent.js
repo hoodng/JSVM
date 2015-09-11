@@ -137,7 +137,7 @@ js.swt.SComponent = function(def, Runtime){
      * @inheritdoc js.awt.Component#doLayout
      */
     thi$.doLayout = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             var bounds = this.getBounds(), MBP = bounds.MBP,
             w = bounds.innerWidth, h = bounds.innerHeight,
             x = MBP.paddingLeft, y = MBP.paddingTop,
@@ -268,7 +268,7 @@ js.swt.SComponent = function(def, Runtime){
         def.classType = def.classType || "js.swt.SComponent";
         def.className = def.className || "jsvm_scomp";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         // Init the view component
         var vdef = def.vcomp = def.vcomp || {}, vcomp;

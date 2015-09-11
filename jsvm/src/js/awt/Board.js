@@ -346,7 +346,7 @@ js.awt.Board = function(def, Runtime){
 	};
 	
 	thi$.doLayout = function(force){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			var s = _layout.call(this);
 			this.setPreferredSize(s.width, s.height);
 			this.setSize(s.width, s.height);
@@ -364,7 +364,7 @@ js.awt.Board = function(def, Runtime){
 		def.classType = def.classType || "js.awt.Board";
 		def.className = def.className || "jsvm_board";
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		this.setData(def.data);
 		

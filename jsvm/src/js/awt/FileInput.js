@@ -126,7 +126,7 @@ js.awt.FileInput = function(def, Runtime){
 	};
 	
 	thi$.setVisible = function(b){
-		arguments.callee.__super__.apply(this, arguments);		
+		$super(this);		
 		
 		var formPane = this.formPane;
 		if(!b){
@@ -156,11 +156,11 @@ js.awt.FileInput = function(def, Runtime){
 	thi$.destroy = function(){
 		this.formPane.fileName.setValue("");
 		this.file.value = "";
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 	}.$override(this.destroy);
 	
 	thi$.doLayout = function(force){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			if(J$VM.firefox){
 				var size = 1 ; 
 				//var size = this.getWidth()/this._local.charsize;
@@ -219,7 +219,7 @@ js.awt.FileInput = function(def, Runtime){
 			};
 		def.id = def.id || "openFile";
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 		var model = this.model = def.model || 
 			{action: "",method: "POST",enctype : "multipart/form-data", encoding: "multipart/form-data"};

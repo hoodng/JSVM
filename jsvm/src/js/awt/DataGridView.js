@@ -34,7 +34,7 @@ js.awt.DataGridRowCell = function (def, Runtime) {
             ele.destroy(true);
         }
         delete this.ele;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 	}.$override(this.destroy);
 
     var _mouseup=function(e){
@@ -149,7 +149,7 @@ js.awt.DataGridRowCell = function (def, Runtime) {
     };
 
     thi$.doLayout=function(e){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
             if(this.def.cType==="color" && this.ele){
                 var bounds = this.getBounds(),
@@ -172,7 +172,7 @@ js.awt.DataGridRowCell = function (def, Runtime) {
             classType:"js.awt.BorderLayout",
             align_x:0.5
         };
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
         if(def.id.indexOf("dgv_head")>=0)
             _createHeadElement.$bind(this).call(this,def);
         else
@@ -202,11 +202,11 @@ js.awt.DataGridRow=function(def, Runtime) {
 			align_x : 0.0,
 			align_y : 0.5
 		};
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 	}.$override(this._init);
 
     thi$.doLayout=function(e){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
 //            System.err.println("row"+this.getBounds().width);
 //            var all=this.getAllComponents();
 //            for (var i in all)
@@ -231,7 +231,7 @@ js.awt.DataGridRowHodler=function(def, Runtime) {
     var Class = js.lang.Class, System = J$VM.System;
 
     thi$.destroy = function() {
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
 
     thi$.refresh=function(){
@@ -239,7 +239,7 @@ js.awt.DataGridRowHodler=function(def, Runtime) {
     };
 
     thi$.doLayout=function(e){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             var p=this.getPeerComponent();
             if(p.cells){
                 var r= p.cells.length || 1,h=p.rows_h*r,max= p.def.height- p.head_h;
@@ -264,7 +264,7 @@ js.awt.DataGridRowHodler=function(def, Runtime) {
 //        var cells=this.getPeerComponent().cells;
 //        for(var i in cells)
 //            cells[i].setWidth(this.getBounds().width);
-//        arguments.callee.__super__.apply(this, arguments);
+//        $super(this);
 //    }.$override(this.onResized);
 
     thi$._init = function(def, Runtime) {
@@ -276,7 +276,7 @@ js.awt.DataGridRowHodler=function(def, Runtime) {
             align_x : 0,
             align_y : 0
         };
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this._init);
 
     this._init.apply(this, arguments);
@@ -440,7 +440,7 @@ js.awt.DataGridView=function(def, Runtime,model) {
         delete this.rows_h;
         delete this.head_h;
         MQ.cancel("headCheckValueChange",this,_checkValueChange);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 	}.$override(this.destroy);
 
     var _checkValueChange=function(e){
@@ -452,7 +452,7 @@ js.awt.DataGridView=function(def, Runtime,model) {
 
     thi$.doLayout=function (e){
 
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
 //            delete this.head.prefSize;
 //            System.err.println(this.head.getPreferredSize().width);
             if(this.head){
@@ -553,7 +553,7 @@ js.awt.DataGridView=function(def, Runtime,model) {
             rigid_w:false,
             rigid_h:true
         };
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
         this.cells=[];
         this.h_gridLine=[];
         _createHeads.call(this,def.model);

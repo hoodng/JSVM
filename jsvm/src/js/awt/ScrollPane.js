@@ -85,7 +85,7 @@ js.awt.ScrollPane = function (def, Runtime){
      * @see js.awt.Container #insertComponent
      */
     thi$.insertComponent = function(index, comp, constraints, notify){
-        comp = arguments.callee.__super__.apply(this, [index, comp, constraints]);
+        comp = $super(this, index, comp, constraints);
         return _addComp.call(this, comp, notify);
         
     }.$override(this.insertComponent);
@@ -97,7 +97,7 @@ js.awt.ScrollPane = function (def, Runtime){
         if(!comp) return;
 
         var items = this.items(), index = items.indexOf(comp.id);
-        comp = arguments.callee.__super__.apply(this, [comp]);
+        comp = $super(this, comp);
         
         // While destroying, we may delete the cache first.
         if(this.cache){
@@ -280,7 +280,7 @@ js.awt.ScrollPane = function (def, Runtime){
      */
     thi$.doLayout = function(force){
         if(this.isDOMElement() 
-            && arguments.callee.__super__.apply(this, arguments)){
+            && $super(this)){
             var r = _getLayoutSize.call(this), max = this.getMaximumSize(), 
             width, height, oldw = this.getWidth(), oldh = this.getHeight(),
             resized = false;
@@ -483,7 +483,7 @@ js.awt.ScrollPane = function (def, Runtime){
     thi$.destroy = function(){
         delete this.cache;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -501,7 +501,7 @@ js.awt.ScrollPane = function (def, Runtime){
         mover.freedom = !isNaN(mover.freedom) ? mover.freedom : (hscroll ? 1 : 2);
 
         System.objectCopy(newDef, def, true, true);
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.cache = {};
         

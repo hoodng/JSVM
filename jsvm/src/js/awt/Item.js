@@ -332,7 +332,7 @@ js.awt.Item = function(def, Runtime, view){
 		if(elid){
 			DOM.setAttribute(this[elid], "title", text);
 		}else{
-			arguments.callee.__super__.apply(this, [text]);
+			$super(this, text);
 		}
 	}.$override(this.setToolTipText);
 
@@ -349,7 +349,7 @@ js.awt.Item = function(def, Runtime, view){
 	 * @inheritdoc js.awt.Component#onStateChanged
 	 */
 	thi$.onStateChanged = function(){
-		arguments.callee.__super__.apply(this, arguments);		  
+		$super(this);		  
 		
 		if(this.isStrict() && this.icon){
 			this.setIconImage(this.getState());
@@ -537,7 +537,7 @@ js.awt.Item = function(def, Runtime, view){
 				this.showDisableCover(!this.isEnabled());
 			}
 		}else{
-			rst = arguments.callee.__super__.apply(this, arguments);
+			rst = $super(this);
 		}
 
 		return rst;
@@ -557,7 +557,7 @@ js.awt.Item = function(def, Runtime, view){
 			this.attachEvent("mouseup", 4, this, _onmouseup);
 		}
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -884,7 +884,7 @@ js.awt.Item = function(def, Runtime, view){
 		def.classType = def.classType || "js.awt.Item";
 		def.className = def.className || "jsvm_item";
 
-		arguments.callee.__super__.apply(this, [def, Runtime, view]);
+		$super(this, def, Runtime, view);
 
 		var M = this.def, uuid = this.uuid(), items, nodes, id, 
 		i, len, node, text, ipt, placeholder;

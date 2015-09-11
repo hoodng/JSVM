@@ -1124,7 +1124,7 @@ js.swt.EditableFrame = function(def, Runtime){
 	};
 	
 	thi$.repaint = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			if(!this._local.setup){
 				this.setup();
 				
@@ -1153,7 +1153,7 @@ js.swt.EditableFrame = function(def, Runtime){
 		delete this._local.contents;
 		delete this._local.iframeHTML;
 
-		arguments.callee.__super__.apply(this, arguments);		  
+		$super(this);		  
 		
 	}.$override(this.destroy);
 	
@@ -1182,7 +1182,7 @@ js.swt.EditableFrame = function(def, Runtime){
 		
 		def.viewType = "iframe";
 		def.editable = (def.editable !== false); // Default is editable
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		this._local.loaded = false;
 		this._local.contents = undefined;

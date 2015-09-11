@@ -153,7 +153,7 @@ js.awt.Window = function (def, Runtime, view){
 	 * @see js.awt.Component
 	 */
 	thi$.needLayout = function(force){
-		return arguments.callee.__super__.apply(this, arguments) || 
+		return $super(this) || 
 			this.isMaximized();		   
 
 	}.$override(this.needLayout);
@@ -183,14 +183,14 @@ js.awt.Window = function (def, Runtime, view){
 				if(this.getWidth() != width || this.getHeight() != height){
 					this.setBounds(0, 0, width, height);	
 				}
-				arguments.callee.__super__.apply(this, arguments);	  
+				$super(this);	  
 			}else{
 				ele = this.client.view; 
 				styles = DOM.currentStyles(ele);
 				overflowX = styles.overflowX; 
 				overflowY = styles.overflowY;
 				ele.style.overflow = "hidden";
-				arguments.callee.__super__.apply(this, arguments);
+				$super(this);
 				ele.style.overflowX = overflowX;
 				ele.style.overflowY = overflowY;
 			}
@@ -311,7 +311,7 @@ js.awt.Window = function (def, Runtime, view){
 	thi$.isMaximized = function(){
 		if(typeof arguments.callee.__super__ == "function"){
 			// 0.9d
-			return arguments.callee.__super__.call(this);
+			return $super(this);
 		}else{
 			return this.def.winsize == "maximized";
 		}
@@ -320,7 +320,7 @@ js.awt.Window = function (def, Runtime, view){
 	thi$.setMaximized = function(b){
 		if(typeof arguments.callee.__super__ == "function"){
 			// 0.9d
-			arguments.callee.__super__.apply(this, arguments);
+			$super(this);
 		}else{
 			this.def.winsize = b ? "maximized" : "normal";
 		}
@@ -329,7 +329,7 @@ js.awt.Window = function (def, Runtime, view){
 	thi$.isMinimized = function(){
 		if(typeof arguments.callee.__super__ == "function"){
 			// 0.9d
-			return arguments.callee.__super__.call(this);
+			return $super(this);
 		}else{
 			return this.def.winsize == "minimized";
 		}
@@ -338,7 +338,7 @@ js.awt.Window = function (def, Runtime, view){
 	thi$.setMinimized = function(b){
 		if(typeof arguments.callee.__super__ == "function"){
 			// 0.9d
-			arguments.callee.__super__.apply(this, arguments);
+			$super(this);
 		}else{
 			this.def.winsize = b ? "minimized" : "normal";
 		}
@@ -420,7 +420,7 @@ js.awt.Window = function (def, Runtime, view){
 
 	thi$.destroy = function(){
 		delete this._local.restricted;
-		arguments.callee.__super__.apply(this,arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -589,7 +589,7 @@ js.awt.Window = function (def, Runtime, view){
 
 		def.css = "position:absolute;" + (def.css || "") 
 			+ "overflow:hidden;";
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		// For MoverSpot testing
 		var restricted = this._local.restricted = [];

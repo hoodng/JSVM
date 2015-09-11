@@ -90,7 +90,7 @@ js.awt.shape.Text = function(def, Graphics2D, Renderer){
         
         def.textBaseline = def.textBaseline || "top";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

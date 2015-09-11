@@ -111,7 +111,7 @@ js.awt.TableBody = function(def, Runtime) {
 		delete this.grid;
 		delete this.def.cache;
 		delete this.def.data;
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 	}.$override(this.destroy);
    
 	thi$._init = function(def, Runtime) {
@@ -120,7 +120,7 @@ js.awt.TableBody = function(def, Runtime) {
 		def.className = def.className || "jsvm_table";
 		def.viewType = "TABLE";
 		this.def = def;
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		this.grid = new (Class.forName("js.awt.Grid"))(def);
 		var bounds = def.bounds;
 		this.grid.layout(bounds.left, bounds.top, bounds.width, bounds.height);
@@ -143,7 +143,7 @@ js.awt.TableBody.TBody = function(def, Runtime) {
 		if (def == undefined)
 			return;
 		def.viewType = "TBODY";
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 	}.$override(this._init);
 	this._init.apply(this, arguments);
 }.$extend(js.awt.Component);
@@ -162,7 +162,7 @@ js.awt.TableBody.Row = function(def, Runtime) {
 		def.classType = def.classType || "js.awt.TableBody.Row";
 		def.className = def.className || "jsvm_table_row";
 		def.viewType = "TR";
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		var ele = this.view;
 		ele.uuid = this.uuid();
 	}.$override(this._init);
@@ -187,7 +187,7 @@ js.awt.TableBody.Cell = function(def, Runtime) {
 		def.classType = def.classType || "js.awt.TableBody.Cell";
 		def.className = def.className || "jsvm_table_cell";
 		def.viewType = "TD";
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		//var ele = this.view;
 		//ele.setAttribute("rowspan", "" + def.rowSpan);
 		//ele.setAttribute("colspan", "" + def.colSpan);
@@ -229,7 +229,7 @@ js.awt.Table = function(def, Runtime) {
 			delete this.lastHeaderItem;
 		if(this.curRow)
 			delete this.curRow;
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 	}.$override(this.destroy);
 
 	thi$.setTableBody = function(data){
@@ -425,7 +425,7 @@ js.awt.Table = function(def, Runtime) {
 				constraints:{rowIndex: 1, colIndex: 0}
 		};
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		var headerHolder = this['headerHolder'];
 		var bodyHolder = this['bodyHolder']; 
 		headerHolder.attachEvent('click', 0, this, _onSort);

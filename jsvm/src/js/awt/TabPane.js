@@ -282,7 +282,7 @@ js.awt.TabPane = function (def, Runtime){
 	thi$.destroy = function(){
 		delete this.cache;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 
 	}.$override(this.destroy);
@@ -293,7 +293,7 @@ js.awt.TabPane = function (def, Runtime){
 		var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
 		System.objectCopy(newDef, def, true, true);
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		this.cache = {};
 

@@ -195,7 +195,7 @@ js.awt.LabelEditor = function(label, listener) {
 	};
 	
 	thi$._init = function(label, listener) {
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		this.listener = listener;
 		this.label = label;

@@ -70,7 +70,7 @@ js.awt.SuffuseLayout = function (def){
         def = def || {};
         
         def.classType = "js.awt.SuffuseLayout";
-        arguments.callee.__super__.apply(this, arguments);        
+        $super(this);        
 
     }.$override(this._init);
     

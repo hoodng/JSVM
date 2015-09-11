@@ -160,7 +160,7 @@ js.awt.Scrollbar = function (def, Runtime){
             Event.detachEvent(this.view, "scroll", 1, this, _onscroll);
         }
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -177,7 +177,7 @@ js.awt.Scrollbar = function (def, Runtime){
             : "overflow-x:hidden;overflow-y:scroll;";
         def.css = css + (def.css || "");
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var U = this._local;
         U.scroll = {Xw:0, Yw: 0};

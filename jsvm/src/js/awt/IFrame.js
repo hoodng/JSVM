@@ -111,7 +111,7 @@ js.awt.IFrame = function (def, Runtime){
         def.viewType = "IFRAME";
         def.css = "border:0px none;" + (def.css || "");
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.setAttribute("frameBorder", "0");
 

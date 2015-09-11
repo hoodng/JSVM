@@ -124,7 +124,7 @@ js.awt.GridLayout = function (def){
         def = def || {};
 
         def.classType = "js.awt.GridLayout";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         def.gridClass = def.gridClass || "js.awt.Grid";
         this.grid = new (Class.forName(def.gridClass))(def);
 

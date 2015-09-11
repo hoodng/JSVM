@@ -126,7 +126,7 @@ js.swt.TextField = function(def){
     };
     
     thi$.setEnabled = function(b){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         this.textField.disabled = !b;
         
     }.$override(this.setEnabled);
@@ -137,7 +137,7 @@ js.swt.TextField = function(def){
     };
     
     thi$.setToolTipText = function(s){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var rview = this.textField;
         if(rview){
@@ -147,7 +147,7 @@ js.swt.TextField = function(def){
     }.$override(this.setToolTipText);
     
     thi$.delToolTipText = function(){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         var rview = this.textField;
         if(rview){
@@ -298,7 +298,7 @@ js.swt.TextField = function(def){
     };
     
     thi$.doLayout = function(){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             _layout.call(this);
             return true;
         }
@@ -317,7 +317,7 @@ js.swt.TextField = function(def){
         delete this._latestValue;
         delete this._curValue; 
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
     
     var _onselectstart = function(e) {
@@ -548,7 +548,7 @@ js.swt.TextField = function(def){
         
         def.classType = def.classType || "js.swt.TextField";
         def.className = def.className || "jsvm_textfield";
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         this.isPassword = (def.isPassword === true);
         _createInput.call(this, def);

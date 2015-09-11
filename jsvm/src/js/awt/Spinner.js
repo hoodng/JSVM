@@ -104,7 +104,7 @@ js.awt.Spinner = function(def, Runtime){
     
     thi$.setPos = function(index){
         index = Class.isNumber(index) ? index : 0;
-        arguments.callee.__super__.call(this, index);
+        $super(this, index);
 
     }.$override(this.setPos);
 
@@ -124,7 +124,7 @@ js.awt.Spinner = function(def, Runtime){
      * @see js.awt.Container
      */    
     thi$.doLayout = function(force){
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
 
             _layout.call(this, this.getUBounds());
             return true;
@@ -287,7 +287,7 @@ js.awt.Spinner = function(def, Runtime){
     thi$.destroy = function(){
         delete this.cache;
 
-        arguments.callee.__super__.apply(this,arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -300,7 +300,7 @@ js.awt.Spinner = function(def, Runtime){
         def.cyclic = def.cyclic || false;
         def.stateless = true;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         _createElements.call(this);
 

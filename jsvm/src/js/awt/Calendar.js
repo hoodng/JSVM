@@ -220,7 +220,7 @@ js.awt.Calendar = function(def, Runtime){
         this.detachEvent("mouseout",  0, this, _onmouseover);
         this.detachEvent("click",     0, this, _onclick);
 
-        arguments.callee.__super__.apply(this, arguments);        
+        $super(this);        
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
@@ -236,7 +236,7 @@ js.awt.Calendar = function(def, Runtime){
             colNum: 7
         };
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         _createElements.call(this, this.def);
         
@@ -293,7 +293,7 @@ js.awt.CalendarBaseCell = function(def, Runtime){
      * @see js.awt.CalendarCell
      */
     thi$.setDate = function(date, className){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         if(Class.isString(className)){
             this.clearStyleClass();
@@ -308,7 +308,7 @@ js.awt.CalendarBaseCell = function(def, Runtime){
      * @see js.awt.CalendarCell
      */
     thi$.setWeek = function(week){
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
         this.appendStyleClass("weekcell");
         
@@ -328,7 +328,7 @@ js.awt.CalendarBaseCell = function(def, Runtime){
         def.text = def.text || " ";
         def.stateless = true;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
 

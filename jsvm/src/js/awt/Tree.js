@@ -198,7 +198,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 			event.srcTree = this;
 		}
 		
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		
 	}.$override(this.notifyPeer);
 
@@ -1023,12 +1023,12 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 	thi$.onResized = function(fire){
 		delete this._local.maxSize;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.onResized);
 
 	thi$.doLayout = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			_setMaxSize.call(this);
 			return true;
 		}
@@ -1255,7 +1255,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		DOM.remove(ele, true);
 
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -1275,7 +1275,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		def.multiEnable = (def.multiEnable === true);
 
 		// Call base _init
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 		
 		this._local.alwaysRemoveChild = def.alwaysRemoveChild;
 
@@ -1344,7 +1344,7 @@ js.awt.AbstractTreeDataProvider = function(Runtime, imageMap, expandMap, dragMap
 		delete this.expandMap;
 		delete this.dragMap;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -1407,7 +1407,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 		var tree = this.movingPeer;
 		tree.clearAllSelected();
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.releaseMoveObject);
 
@@ -1435,7 +1435,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 	}.$override(this.getPreferredSize);
 
 	thi$.repaint = function(){
-		if(arguments.callee.__super__.apply(this, arguments)){
+		if($super(this)){
 			var bounds = this.getBounds(), buf = new js.lang.StringBuffer(),
 			left = bounds.MBP.paddingLeft, top = bounds.MBP.paddingTop,
 			width = bounds.innerWidth, icon = this.icon;
@@ -1476,7 +1476,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 		def.css = "position:absolute;";
 		def.stateless = true;
 
-		arguments.callee.__super__.apply(this, [def, Runtime]);
+		$super(this, def, Runtime);
 
 		dataProvider = tree.dataProvider;
 

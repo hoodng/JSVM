@@ -175,7 +175,7 @@ js.awt.LayoutManager = function (def){
     
     thi$.destroy = function(){
         this.def = null;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
     
     

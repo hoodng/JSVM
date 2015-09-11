@@ -200,7 +200,7 @@ js.awt.Gridding = function(){
                 width = bounds.width;
             }
 
-            arguments.callee.__super__.call(
+            $super(
                 this, x, y, width, height);
 
         }.$override(this.setBounds);

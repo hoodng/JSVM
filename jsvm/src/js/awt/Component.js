@@ -90,7 +90,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.setPosition = function(x, y, fire){
         var M = this.def, U = this._local;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         fire = !Class.isNumber(fire) ? 0 : fire;
 
@@ -114,7 +114,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.setZ = function(z, fire){
         var M = this.def, U = this._local;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         fire = !Class.isNumber(fire) ? 0 : fire;
 
@@ -140,7 +140,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.setSize = function(w, h, fire){
         var M = this.def, U = this._local;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         fire = !Class.isNumber(fire) ? 0 : fire;
 
@@ -159,7 +159,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.setBounds = function(x, y, w, h, fire){
         var M = this.def, U = this._local;
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         fire = Class.isNumber(fire) ? fire : 0;
 
@@ -558,7 +558,7 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.doLayout = function(force){
         var ret = false;
-        if(arguments.callee.__super__.apply(this, arguments)){
+        if($super(this)){
             this.adjustController();            
             ret = true;
         }
@@ -653,7 +653,7 @@ js.awt.Component = function(def, Runtime, view){
         DOM.remove(this.view, true);            
         delete this.view;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this.destroy);
     
@@ -662,7 +662,7 @@ js.awt.Component = function(def, Runtime, view){
         
         def.classType = def.classType || "js.awt.Component";
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
         var preView = Class.isHtmlElement(view), clazz;
         if(!preView || (view && view.cloned)){

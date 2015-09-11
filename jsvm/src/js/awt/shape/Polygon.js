@@ -71,7 +71,7 @@ js.awt.shape.Polygon = function(def, Graphics2D, Renderer){
         def.classType = def.classType || "js.awt.shape.Polygon";
         def.type = "polygon";
 
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
 
     }.$override(this._init);
     

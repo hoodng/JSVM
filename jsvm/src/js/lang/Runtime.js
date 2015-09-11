@@ -517,7 +517,7 @@ js.lang.Runtime = function(System){
         procs = null;
         scopes= null;
         
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
         
     }.$override(this.destroy);
 

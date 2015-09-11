@@ -233,7 +233,7 @@ js.awt.FlowLayout = function (def){
         def.align_x = def.align_x || 0.0;
         def.align_y = def.align_y || 0.0;
 
-        arguments.callee.__super__.apply(this, arguments);        
+        $super(this);        
 
     }.$override(this._init);
     

@@ -208,7 +208,7 @@ js.awt.Dialog = function (def, Runtime){
 	 */
 	thi$.showLoading = function(b){
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 		this.btnpane.showLoading(b);
 
 	}.$override(this.showLoading);
@@ -282,7 +282,7 @@ js.awt.Dialog = function (def, Runtime){
 		var event = this.buildDialogEvent("close", false);
 		this.notifyPeer(event.msgId, event, true);
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.onbtnClose);
 
@@ -297,7 +297,7 @@ js.awt.Dialog = function (def, Runtime){
 
 		_showMaskCover.call(this, false);
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.close);
 
@@ -309,7 +309,7 @@ js.awt.Dialog = function (def, Runtime){
 
 		delete this.opener;
 
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 	}.$override(this.destroy);
 
@@ -441,7 +441,7 @@ js.awt.Dialog = function (def, Runtime){
 				 }
 			 }).$forEach(this, tdef.items);
 		}
-		arguments.callee.__super__.apply(this, arguments);
+		$super(this);
 
 		// For MoverSpot testing
 		var restricted = this._local.restricted,

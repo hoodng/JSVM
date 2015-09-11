@@ -1035,7 +1035,7 @@ js.awt.GridEx = function(def){
         this.def_cellsize = null;
         this.min_cellsize = null;
         this.peer = null;
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this.destroy);
 
     thi$._init = function(def){
