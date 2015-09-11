@@ -235,6 +235,13 @@
     border-radius: 5px;
 }
 
+.rpt_dragObject {  
+      filter:alpha(opacity=50);  
+      -moz-opacity:0.5;  
+      -khtml-opacity: 0.5;  
+      opacity: 0.5;
+} 
+
 /*** New Filter style Begin ****/
 .filter_body {
     width: 140px;

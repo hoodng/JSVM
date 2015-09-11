@@ -220,7 +220,6 @@ js.awt.Gridding = function(){
                     id: this.getID(),
                     stateless: true
                 }, this.Runtime(), this.cloneView());
-                moveObj.view.className = moveObj.className = className;
                 moveObj.getMovingMsgRecvs = _getMovingMsgRecvs.$bind(this);
                 moveObj.getMovingMsgType = _getMovingMsgType.$bind(this);
                 moveObj.showMoveCover = _showMoveCover.$bind(this);

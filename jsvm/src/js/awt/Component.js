@@ -441,11 +441,8 @@ js.awt.Component = function(def, Runtime, view){
      * Clone view from the view of this component
      */
     thi$.cloneView = function(){
-        var ele = this.view, view = ele.cloneNode(true);
+        var view = DOM.cloneElement(this.view, true);
         view.cloned = "true";
-        if(ele.bounds){
-            view.bounds = {BBM:ele.bounds.BBM, MBP:ele.bounds.MBP};            
-        }
         return view;
     };
 
@@ -499,40 +496,6 @@ js.awt.Component = function(def, Runtime, view){
         return G;
     };
 
-    var _geometric = function(){
-        var M = this.def, U = this._local, ele = this.view,
-            styles, bounds;
-
-        if(Class.isArray(M.margin)){
-            styles = DOM.extractMBP("margin", M.margin, styles);
-        }
-        if(Class.isArray(M.border)){
-            styles = DOM.extractMBP("border", M.border, styles);
-        }
-        if(Class.isArray(M.padding)){
-            styles = DOM.extractMBP("padding", M.padding, styles);
-        }
-        if(Class.isNumber(M.z)){
-            styles = styles || {};
-            styles.zIndex = M.z;
-        }
-        if(styles){
-            DOM.applyStyles(ele, styles);
-        }
-
-        // Extract original geometric.
-        bounds = DOM.getBounds(ele);
-        if(DOM.validBounds(bounds)){
-            M.x = !Class.isNumber(M.x) ? bounds.x : M.x;
-            M.y = !Class.isNumber(M.y) ? bounds.y : M.y;
-            M.width = !Class.isNumber(M.width) ? bounds.styleW : M.width;
-            M.height= !Class.isNumber(M.height)? bounds.styleH : M.height;
-        }
-
-        DOM.setBounds(ele, M.x, M.y, M.width, M.height, bounds);
-        return bounds;
-    };
-
     thi$.invalidateBounds = function(){
         /*
         this.view.bounds = null;
@@ -578,8 +541,7 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.repaint = function(){
         var ret = false;
-        if(this.isDOMElement() &&
-           this.getAttribute("repaint") !== "true"){
+        if(this.isDOMElement()){
             _repaint.call(this);
             ret = true;
         }
@@ -606,10 +568,14 @@ js.awt.Component = function(def, Runtime, view){
     var _repaint = function(){
         var M = this.def, U = this._local, bounds;
 
-        this.getGeometric();
+        if(this._geometric){
+            this._geometric();
+        }
+
         bounds = this.getBounds();
         U.userX = bounds.x;
         U.userY = bounds.y;
+        U.userZ = bounds.MBP.zIndex;
         U.userW = bounds.width;
         U.userH = bounds.height;
         
@@ -636,8 +602,28 @@ js.awt.Component = function(def, Runtime, view){
         this.setTipText(M.tip);
         
         this.adjustLayers("geom");
+    };
+
+    var _geometric = function(){
+        var M = this.def, U = this._local, ele = this.view,
+            z, bounds;
+
+        bounds = DOM.getBounds(ele, true);
+        M.x = !Class.isNumber(M.x) ? bounds.x : M.x;
+        M.y = !Class.isNumber(M.y) ? bounds.y : M.y;
+        M.width = !Class.isNumber(M.width) ? bounds.styleW : M.width;
+        M.height= !Class.isNumber(M.height)? bounds.styleH : M.height;
+        M.z = !Class.isNumber(M.z) ? bounds.MBP.zIndex : M.z;
+
+        DOM.setBounds(ele, M.x, M.y, M.width, M.height, bounds);
+        DOM.setZ(ele, M.z, bounds);
+        U.userX = bounds.userX = M.x = bounds.x;
+        U.userY = bounds.userY = M.y = bounds.y;
+        U.userW = bounds.userW = M.width = bounds.width;
+        U.userH = bounds.userH = M.height= bounds.height;
+        U.userZ = bounds.userZ = M.z = bounds.MBP.zIndex;
         
-        this.setAttribute("repaint", "true");
+        return bounds;
     };
 
     thi$.onelementappend = function(e){
@@ -647,7 +633,7 @@ js.awt.Component = function(def, Runtime, view){
             this.doLayout(true);
         }
     };
-    
+        
     thi$.destroy = function(){
         if(this.destroied) return;
 
@@ -679,14 +665,14 @@ js.awt.Component = function(def, Runtime, view){
         arguments.callee.__super__.apply(this, arguments);
 
         var preView = Class.isHtmlElement(view), clazz;
-        if(!preView){
-            this.view = view = DOM.createElement(def.viewType || "DIV");
+        if(!preView || (view && view.cloned)){
+            this.view = view = (view || DOM.createElement(def.viewType || "DIV"));
             view.id = this.id;
             if(def.css){
                 view.style.cssText = view.style.cssText + def.css;
             }
             def.className = def.className || "jsvm__element";
-        }else{
+        }else {
             this.view = view;
             def.className = view.clazz || view.className;
         }
@@ -699,13 +685,18 @@ js.awt.Component = function(def, Runtime, view){
             clazz = this.className;
         }
         view.clazz = def.className;
-        if(!preView){
+        if(!preView || view.cloned){
             DOM.setClassName(view, clazz, def.classPrefix);
         }
 
         if(this.isDOMElement() && view != document.body){
             this.onelementappend();
         }
+
+        this._geometric = function(){
+            _geometric.call(this);
+            delete this._geometric;
+        };
         
     }.$override(this._init);
     

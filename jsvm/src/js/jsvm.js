@@ -311,12 +311,12 @@ J$VM = new function (){
          *     this.fun = function(txt){
          *
          *          // You can call super do A before do B
-         *          arguments.callee.__super__.apply(this, arguments);
+         *          $super(this);
          *
          *          // do B thing
          *
          *          // Or you can call super do A after do B
-         *          arguments.callee.__super__.apply(this, arguments);
+         *          $super(this);
          *
          *      }.$override(this.fun);
          *
@@ -326,6 +326,12 @@ J$VM = new function (){
         this.$override = function(func){
             this.__super__ = func;
             return this;
+        };
+        
+        $super = function(thisObj){
+            var args = arguments.length > 1 ? slice.call(arguments, 1) :
+                slice.call($super.caller.arguments);
+            $super.caller.__super__.apply(thisObj, args);
         };
 
         /**
@@ -548,9 +554,9 @@ J$VM = new function (){
 
         thi$[fnName] = function(){
             debugger;
-            arguments.callee.__super__.apply(this, arguments);
+            $super(this);
         }.$override(thi$[fnName]);
-
+        
     };
     
     var Q = new function(){

@@ -359,6 +359,12 @@ js.util.Document = function (){
         return el;
     };
 
+    thi$.cloneElement = function(ele, deep){
+        var view = (ele != self.document.body) ?
+            ele.cloneNode(deep) : this.createElement("DIV");
+        // TODO: bounds ?
+        return view;
+    };
 
     /**
      * Convert hyphen style name to camel style name
@@ -716,7 +722,7 @@ js.util.Document = function (){
             }
         }
 
-        if(this.isDOMElement(ele) && outer.valid){
+        if(this.isDOMElement(ele)){
             mbp = _calcMBP.call(this, ele,  mbpinline);
             J$VM.System.objectCopy(outer, mbp);
             return mbp;
@@ -726,16 +732,13 @@ js.util.Document = function (){
         // when the ele or it's ancestors are diplay == none.
         body = self.document.body;
         clone = ele.cloneNode(false);
-        clone.style.cssText = [ele.style.cssText,
-            "position:absolute",
-            "visibility:hidden",
-            "left:0px",
-            "top:0px"].join(";");
+        clone.style.cssText = [
+            ele.style.cssText,
+            "visibility:hidden"].join(";");
         body.appendChild(clone);
         clone.style.display = "";
         outer = this.outerSize(clone);
         mbp = _calcMBP.call(this, clone, mbpinline);
-        mbp.fake = true;
         J$VM.System.objectCopy(outer, mbp);
         body.removeChild(clone);
 
@@ -755,7 +758,9 @@ js.util.Document = function (){
             mbp.BBM = J$VM.supports.borderBox;
             break;
         }
-        
+
+        var z = parseInt(styles.zIndex);
+        mbp.zIndex = isNaN(z) ? 0 : z;
         margin(styles, mbp);
         border(styles, mbp);
         padding(styles,mbp);
@@ -784,26 +789,6 @@ js.util.Document = function (){
         {style: "borderLeftStyle", border:"borderLeftWidth",
          margin: "marginLeft", padding:"paddingLeft"}
     ];
-
-    /**
-     * @param {String} type, margin | border | padding
-     * @param {Array} def, [top, right, bottom, left]
-     * @param {Object} styles
-     * 
-     * @return {Object} styles
-     */
-    thi$.extractMBP = function(type, def, styles){
-        var v, op;
-        styles = styles || {};
-        for(var i=0; i<4; i++){
-            op = MBPSTYLES[i];
-            v = def[i];
-            if(Class.isNumber(v)){
-                styles[op[type]] = v+"px";
-            }
-        }
-        return styles;
-    }
 
     var parseNumber = function(value){
         var i = Class.isValid(value) ? parseInt(value) : 0;
@@ -928,7 +913,7 @@ js.util.Document = function (){
             rect.bottom= rect.height= r.clientHeight;
         }
 
-        rect.valid = (rect.width * rect.height) > 0;
+        rect.valid = (rect.width + rect.height) > 0;
         return rect;
     };
 
@@ -980,13 +965,14 @@ js.util.Document = function (){
      * @param bounds @see getBounds(el)
      */
     thi$.setSize = function(ele, w, h, bounds){
-        var mbp, changed = false,
+        var mbp, v, changed = false,
             canvas = (ele.tagName === "CANVAS");
 
         bounds = bounds || this.getBounds(ele);
         mbp = bounds.MBP;
 
         if(w !== bounds.width && Class.isNumber(w)){
+            v = w;
             w = mbp.BBM ? w : w - mbp.BPW;
             if(w >= 0){
                 if(canvas){
@@ -995,9 +981,9 @@ js.util.Document = function (){
                     ele.style.width =  w + "px";
                 }
 
-                bounds.width = mbp.width = w;
+                bounds.width = mbp.width = v;
                 mbp.right = mbp.left + mbp.width;
-                bounds.innerWidth = w > 0 ? bounds.width - mbp.BPW : 0;
+                bounds.innerWidth = v > 0 ? bounds.width - mbp.BPW : 0;
                 bounds.styleW = mbp.BBM ? bounds.width : bounds.innerWidth;
                 bounds.offsetWidth = ele.offsetWidth;
                 bounds.clientWidth = ele.clientWidth;
@@ -1006,6 +992,7 @@ js.util.Document = function (){
         }
 
         if(h !== bounds.height && Class.isNumber(h)){
+            v = h;
             h = mbp.BBM ? h : h - mbp.BPH;
             if(h >= 0){
                 if(canvas){
@@ -1014,9 +1001,9 @@ js.util.Document = function (){
                     ele.style.height =  h + "px";
                 }
 
-                bounds.height = mbp.height = h;
+                bounds.height = mbp.height = v;
                 mbp.bottom = mbp.top + mbp.height;
-                bounds.innerHeight = h > 0 ? bounds.height - mbp.BPH : 0;
+                bounds.innerHeight = v > 0 ? bounds.height - mbp.BPH : 0;
                 bounds.styleH = mbp.BBM ? bounds.height : bounds.innerHeight;
                 bounds.offsetHeight= ele.offsetHeight;
                 bounds.clientHeight = ele.clientHeight;
@@ -1122,6 +1109,18 @@ js.util.Document = function (){
         return bounds;
     };
 
+    thi$.setZ = function(ele, z, bounds){
+        var mbp;
+        
+        bounds = bounds || this.getBounds(ele);
+        mbp = bounds.MBP;
+        
+        ele.style.zIndex = z;
+        mbp.zIndex = z;
+
+        return bounds;
+    };
+
     /**
      * Set box model to this element
      *
@@ -1169,7 +1168,7 @@ js.util.Document = function (){
 
         bounds.x = bounds.offsetX - mbp.marginLeft;
         bounds.y = bounds.offsetY - mbp.marginTop;
-
+        
         if(!this.isDOMElement(ele)) return bounds;
 
         position = this.getStyle(ele, "position");
@@ -1345,9 +1344,13 @@ js.util.Document = function (){
     /**
      * Insert the element before refNode
      */
-    thi$.insertBefore = function(el, refNode){
-        if(!el || !refNode) return;
-        refNode.parentNode.insertBefore(el, refNode);
+    thi$.insertBefore = function(el, refNode, parentNode){
+        if(!el || (!refNode && !parentNode)) return;
+        if(refNode){
+            refNode.parentNode.insertBefore(el, refNode);
+        }else{
+            parentNode.appendChild(el);
+        }
         _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_APPEND);        
     };
 

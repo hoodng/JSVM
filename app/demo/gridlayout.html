@@ -180,9 +180,9 @@ js.awt.Gridding.$decorate(panel);
     },R));
 */
 
-this.addComponent(panel);
-
 panel.initGridding(panel.layout.grid, {close:true});
+
+this.addComponent(panel);
 
 panel.onGridChanged = function(){
     this.doLayout(true);

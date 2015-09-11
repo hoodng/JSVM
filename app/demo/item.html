@@ -1,151 +1,172 @@
-<!DOCTYPE HTML>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/jsre-ui.js" ></script>
-<style>
+<html class="jsvm--full-h">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">  
+    <title>J$VM Demo</title>
 
-.panel_0 {
-    left: 100px;
-    top: 100px;
-    width: 400px;
-    height:300px;
-    border: 2px solid red;
-    padding: 5px;
-    background-color: #CCCCCC;
-}
+    <script id="j$vm" type="text/javascript" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin"
+            crs="../../jsvm/" 
+            classpath="lib/jsre-ui.jz;
+                       lib/jsre-gks.jz;
+                       lib/service.jz;
+                       "></script> 
+    <style>
+     .testItem {
+         position: absolute;
 
-.bt_0{
-   width: 60px;
-   height: 30px;
-   background-color: #FFFFFF;
-   border: 1px solid blue;
-}
+         margin: 3px;
+         padding: 4px;
+     }
 
-.labButton_0{
-    background-color:#CCCCCC;
-    color:white;
-    cursor:pointer;
-    font-weight: bold;
-    text-align : center;
-    width: 90px;
-    height:16px;
-}
+     .jitem {
+         width: 100px;
+         height: 20px;
 
-.card1_0, .card2_0, .card3_0, .card4_0 {
-    width: 60px;
-    height:60px;
-}
+         border: 1px solid red;
+         padding: 1px;
+     }
+     
+    </style>
+  </head>
 
-.card1_0 {
-    left: 0px;
-    border: 2px solid red;
-}
+  <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm--font jsvm__body" 
+        jsvm_entry="demo">
+    <div id="container" style="position:absolute;width:100%;height:100%;overflow:auto;">
+    </div>
+  </body>
 
-.card2_0 {
-    left: 60px;
-    border: 2px solid green;
-}
+  <script type="text/javascript">
+   J$VM.exec("JDemo", function(entryId){
+       var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM, MQ = J$VM.MQ,
+           System = J$VM.System, Desktop = this.getDesktop(),
+           
+           div = document.getElementById("container");
+       
+       // step 1: Initialize Runtime env sepcially for application
+       var env = {
+           prefer: {dashboard:{theme: "default"}},
+           theme: "default"
+       };
+       this.initialize(env);
+       
+       // step 2: Register css files
+       Desktop.registerStyleFiles(["common.css", "wrptstudio.css", "report.css"]);
 
-.card3_0 {
-    left: 120px;
-    border: 2px solid blue;
-}
+       /*********** Demo cases  *********/
+       var R = this, def, item, ritem, i, cnt = 1000, start, end,
+           Item = Class.forName("js.awt.Item");
+   
+       var testItem = function(){
+           start = performance.now();
+           for(i = 0; i < cnt; i++){
+               def = {
+                   classType: "js.awt.Item",
+                   className: "jsvm_listItem",
+                   css: "position:relative;",
 
-.card4_0 {
-    left: 180px;
-    border: 2px solid red;
-}
+                   markable: true,
+                   labelText: "This is item" + i,
+                   controlled: true
+               };
+               item = new Item(def, this);
+               item.appendTo(div);
+           }
+           end = performance.now();
+           System.err.println("Item Cost: " + (end - start));
+       };
 
+       var testItemByClone = function(){
+           start = performance.now();
+           def = {
+               classType: "js.awt.Item",
+               className: "jsvm_listItem",
+               css: "position:relative;",
 
-.simple {
-    position: absolute;
-    left: 0px;
-    top : 0px;
-    width: 100px;
-    height: 200px;
-    border: 2px solid red;
-    padding: 3px;
-    margin: 4px;
-}
+               markable: true,
+               labelText: "This is item" + i,
+               controlled: true
+           };
+           ritem = new Item(def, this);
 
-.jsvm_item,
-.jsvm_item_0 {
-    position: absolute;
-    width: 50%;
-    height: 22px;
-    padding: 2px;
-    border: 1px solid blue;
-}
+           for(i = 0; i < cnt; i++){
+               def = {
+                   classType: "js.awt.Item",
+                   className: "jsvm_listItem",
+                   css: "position:relative;",
 
-.jsvm_item_marker {
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
-}
-
-.jsvm_item_icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
-}
-
-.jsvm_item_label {
-    height: 16px;
-    line-height: 16px;
-    text-overflow:ellipsis;
-    overflow:hidden;
-}
-
-.jsvm_item_input {
-    height: 16px;
-    line-height: 16px;
-    text-overflow:ellipsis;
-    overflow:hidden;
-    border: 0px none;
-}
-
-.jsvm_item_ctrl {
-    width: 16px;
-    height: 16px;
-    margin-left: 2px;
-}
-
-</style>
-</head>
-<body>
+                   markable: true,
+                   labelText: "This is item" + i,
+                   controlled: true
+               };
+               item = new Item(def, this, ritem.cloneView());
+               item.appendTo(div);
+           }
+           end = performance.now();
+           System.err.println("Item by Clone Cost: " + (end - start));
+       };
 
 
-</body>
+       var testStrictItem = function(){
+           start = performance.now();
+           for(i = 0; i < cnt; i++){
+               def = {
+                   classType: "js.awt.Item",
+                   className: "jsvm_listItem",
+                   css: "position:relative;",
 
+                   strict: true,
 
-<script type="text/javascript">
+                   markable: true,
+                   labelText: "This is item" + i,
+                   controlled: true
+               };
+               item = new Item(def, this);
+               item.appendTo(div);
+           }
+           end = performance.now();
+           System.err.println("StrictItem Cost: " + (end - start));
+       };
 
-J$VM.exec("Demo",function(System){
+       var testStrictItemByClone = function(){
+           start = performance.now();
+           def = {
+               classType: "js.awt.Item",
+               className: "jsvm_listItem",
+               css: "position:relative;",
 
-    this.prefer({theme: "default"});
-    
-    var item = new js.awt.Item({
-        markable: true,
-        controlled: true,
-        iconImage: "folder.gif",
-        labelText: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    }, this);
+               strict: true,
 
-    item.appendTo(this.view);
-    var prefSize = item.getPreferredSize();
-    var bounds = item.getBounds();
+               markable: true,
+               labelText: "This is item",
+               controlled: true
+           };
+           ritem = new Item(def, this);
 
-    System.err.println("prefSize: "+JSON.stringify(prefSize));
-    System.err.println("bounds: "+JSON.stringify(bounds));
-    item.setWidth(prefSize.width, 3);
-    
-    //item.doLayout();
-    //item.setWidth(200, 3);
+           for(i = 0; i < cnt; i++){
+               def = {
+                   classType: "js.awt.Item",
+                   className: "jsvm_listItem",
+                   css: "position:relative;",
 
-});
-</script>
+                   strict: true,
+
+                   markable: true,
+                   labelText: "This is item" + i,
+                   controlled: true
+               };
+               item = new Item(def, this, ritem.cloneView());
+               item.appendTo(div);
+           }
+           end = performance.now();
+           System.err.println("StrictItem by Clone Cost: " + (end - start));
+       };
+
+       // testItem();
+       // testItemByClone();
+       testStrictItem();
+       // testStrictItemByClone();
+   });
+  </script>
+
 </html>
+

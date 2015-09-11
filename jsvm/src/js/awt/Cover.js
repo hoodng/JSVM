@@ -44,7 +44,7 @@ js.awt.Cover = function (){
         var cview = this.view, view, uuid, tip;
 
         uuid = this.uuid();
-        view = this._coverView = DOM.createElement("DIV");
+        view = this._coverView = DOM.cloneElement(cview, false);
         view.uuid = [uuid, "cover"].join("-");
         view.id = [this.getID(), "cover"].join("-");
         view.className = selector;
@@ -91,7 +91,8 @@ js.awt.Cover = function (){
         var view = this._coverView;
         if(!view) return;
         bounds = bounds || this.getBounds();
-        DOM.setBounds(view,bounds.x, bounds.y,
+        if(bounds.MBP.fake) return;
+        DOM.setBounds(view, bounds.x, bounds.y,
                       bounds.width, bounds.height);    
     };
 

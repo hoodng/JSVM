@@ -167,16 +167,15 @@ js.util.EventTarget = function (def, Runtime){
             }
             this.view.__handlers__ = null;          
         }
-        
-        arguments.callee.__super__.apply(this, arguments);
+
+        $super(this);
 
     }.$override(this.destroy);
 
     thi$._init = function(def, Runtime){
         if(!Class.isObject(def)) return;
         // TODO ?
-
-        arguments.callee.__super__.apply(this, arguments);
+        $super(this);
     }.$override(this._init);
     
     this._init.apply(this, arguments);

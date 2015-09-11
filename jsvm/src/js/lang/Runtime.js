@@ -66,6 +66,7 @@ js.lang.Runtime = function(System){
     };
 
     var _newScope = function(entryId){
+
         var runtimeScope = function(){
 
             this.getEntryID = function(){
@@ -73,16 +74,46 @@ js.lang.Runtime = function(System){
             };
 
             this.createApp = function(def){
-                def = def || {};
-                def.classType = def.classType || "js.awt.Application";
-                var appClass = Class.forName(def.classType), app;
-                app = this.Application = new (appClass)(def, this, entryId);
-                this.getDesktop().registerApp(entryId, app);
+                var app = new appPromise(this);
+                _createApp.$delay(this, 0, entryId, def, app);
                 return app;
             };
 
             this.getApp = function(){
                 return this.Application;
+            };
+            
+            var _createApp = function(entryId, def, promise){
+                def = def || {};
+                def.classType = def.classType || "js.awt.Application";
+                var appClass = Class.forName(def.classType), app;
+                app = new (appClass)(def, this, entryId);
+                promise.done(app);
+            };
+
+            var appPromise = function(runtime){
+                var tasks = [];
+
+                this.startApp = function(){
+                    this.run();
+                };
+                
+                this.run = function(fn){
+                    if(Class.isFunction(fn)){
+                        tasks.push(fn);
+                    }
+                    return this;
+                };
+
+                this.done = function(app){
+                    runtime.Application = app;
+                    runtime.getDesktop().registerApp(
+                        runtime.getEntryID(), app);
+                    app.startApp();
+                    while(tasks.length > 0){
+                        tasks.shift().call(app);
+                    }
+                };
             };
         };
 
@@ -93,7 +124,7 @@ js.lang.Runtime = function(System){
         runtimeScope.putContextAttr("runtime", runtimeScope);
         return runtimeScope;
     };
-
+    
     /**
      * Test if this J$VM is embedded in a iframe 
      */

@@ -51,13 +51,6 @@ js.awt.Application = function(def, Runtime, entryId){
         Desktop.unregisterApp(this.getAppID());
     };
 
-    thi$.run = function(fn){
-        if(Class.isFunction(fn)){
-            fn.call(this);
-        }
-        this.startApp();
-    };
-
     thi$.changeTheme = function(theme, old){
         Desktop.updateTheme(theme, old);
     };

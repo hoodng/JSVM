@@ -113,10 +113,12 @@ js.awt.Element = function(def, Runtime){
      * @param z
      */
     thi$.setZ = function(z, fire){
-        var M = this.def, ele = this.view;
-        M.z = Class.isNumber(z) ? z : this.getZ();
-        if(ele){
-            ele.style.zIndex = M.z;
+        var M = this.def, bounds;
+        if(this.isDOMElement()){
+            bounds = DOM.setZ(this.view, z);
+            M.z = bounds.MBP.zIndex;
+        }else{
+            M.z = Class.isNumber(z) ? z : this.getZ();
         }
         
         this.adjustLayers("zorder");        
@@ -183,7 +185,7 @@ js.awt.Element = function(def, Runtime){
 
     thi$.absXY = function(){
         var bounds = this.getBounds();
-        return{x: bounds.absX, y:bounds.absY}
+        return{x: bounds.absX, y:bounds.absY};
     };
     
     thi$.getBounds = function(){
@@ -207,9 +209,10 @@ js.awt.Element = function(def, Runtime){
 
         bounds.userX = U.userX;
         bounds.userY = U.userY;
+        bounds.userZ = U.userZ;        
         bounds.userW = U.userW;
         bounds.userH = U.userH;
-
+        
         return bounds;
     };
 
@@ -683,7 +686,7 @@ js.awt.Element = function(def, Runtime){
      */
     thi$.needLayout = function(force){
         var U = this._local, ret = false;
-        if(this.isDOMElement() && DOM.validBounds(this.getBounds())){
+        if(this.isDOMElement()){
             ret = !U.didLayout || force;
         }
         return ret;
@@ -786,7 +789,7 @@ js.awt.Element = function(def, Runtime){
             autofit: autofit,
             hscroll: hscroll,
             vscroll: vscroll
-        }
+        };
     };
     
     thi$.destroy = function(){
