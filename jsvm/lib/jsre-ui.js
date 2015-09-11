@@ -4455,7 +4455,7 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.cloneView = function(){
         var view = DOM.cloneElement(this.view, true);
-        view.cloned = "true";
+        view.cloned = true;
         return view;
     };
 
@@ -4617,24 +4617,32 @@ js.awt.Component = function(def, Runtime, view){
         this.adjustLayers("geom");
     };
 
-    var _geometric = function(){
+    var _geometric = function(isNative){
         var M = this.def, U = this._local, ele = this.view,
             z, bounds;
 
         bounds = DOM.getBounds(ele, true);
-        M.x = !Class.isNumber(M.x) ? bounds.x : M.x;
-        M.y = !Class.isNumber(M.y) ? bounds.y : M.y;
-        M.width = !Class.isNumber(M.width) ? bounds.styleW : M.width;
-        M.height= !Class.isNumber(M.height)? bounds.styleH : M.height;
-        M.z = !Class.isNumber(M.z) ? bounds.MBP.zIndex : M.z;
+        if(!isNative){
+            M.x = !Class.isNumber(M.x) ? bounds.x : M.x;
+            M.y = !Class.isNumber(M.y) ? bounds.y : M.y;
+            M.z = !Class.isNumber(M.z) ? bounds.MBP.zIndex : M.z;
+            M.width = !Class.isNumber(M.width) ? bounds.styleW : M.width;
+            M.height= !Class.isNumber(M.height)? bounds.styleH : M.height;
+        }else{
+            M.x = bounds.x;
+            M.y = bounds.y;
+            M.z = bounds.MBP.zIndex;
+            M.width = bounds.width;
+            M.height= bounds.height;
+        }
 
         DOM.setBounds(ele, M.x, M.y, M.width, M.height, bounds);
         DOM.setZ(ele, M.z, bounds);
         U.userX = bounds.userX = M.x = bounds.x;
         U.userY = bounds.userY = M.y = bounds.y;
+        U.userZ = bounds.userZ = M.z = bounds.MBP.zIndex;
         U.userW = bounds.userW = M.width = bounds.width;
         U.userH = bounds.userH = M.height= bounds.height;
-        U.userZ = bounds.userZ = M.z = bounds.MBP.zIndex;
         
         return bounds;
     };
@@ -4679,7 +4687,8 @@ js.awt.Component = function(def, Runtime, view){
 
         var preView = Class.isHtmlElement(view), clazz;
         if(!preView || (view && view.cloned)){
-            this.view = view = (view || DOM.createElement(def.viewType || "DIV"));
+            this.view = view = (view ||
+                    DOM.createElement(def.viewType || "DIV"));
             view.id = this.id;
             if(def.css){
                 view.style.cssText = view.style.cssText + def.css;
@@ -4702,14 +4711,16 @@ js.awt.Component = function(def, Runtime, view){
             DOM.setClassName(view, clazz, def.classPrefix);
         }
 
-        if(this.isDOMElement() && view != document.body){
-            this.onelementappend();
+        if(this.isDOMElement()){
+            if(view !== document.body){
+                _geometric.call(this, true);
+            }
+        }else{
+            this._geometric = function(){
+                _geometric.call(this);
+                delete this._geometric;
+            };
         }
-
-        this._geometric = function(){
-            _geometric.call(this);
-            delete this._geometric;
-        };
         
     }.$override(this._init);
     
@@ -14140,13 +14151,13 @@ js.awt.Desktop = function (Runtime){
                 [dom,  Event.W3C_EVT_MOUSE_WHEEL,   _onmousewheel],
                 [dom,  Event.W3C_EVT_CONTEXTMENU,   _oncontextmenu],
 
-                [dom,  Event.SYS_EVT_ELE_APPEND,    _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_REMOVED,   _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_POSITION,  _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_SIZE,      _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_ZINDEX,    _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_ATTRS,     _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_STYLE,     _onhtmlevent]        
+                [dom,  Event.SYS_EVT_ELE_APPEND,    _onhtmlevent]
+              //[dom,  Event.SYS_EVT_ELE_REMOVED,   _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_POSITION,  _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_SIZE,      _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_ZINDEX,    _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_ATTRS,     _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_STYLE,     _onhtmlevent]        
             ], item;
 
         for(var i=0, len=EVENTS.length; i<len; i++){
@@ -14916,11 +14927,12 @@ js.awt.Application = function(def, Runtime, entryId){
     };
 
     thi$.closeApp = function(){
-        var cview = this._local.entry;
+        var U = this._local, cview = U.entry;
         if(this.view != cview){
             this.removeFrom(cview);
         }
         Desktop.unregisterApp(this.getAppID());
+        U.closed = true;
     };
 
     thi$.changeTheme = function(theme, old){
@@ -14937,10 +14949,11 @@ js.awt.Application = function(def, Runtime, entryId){
     };
 
     thi$.destroy = function(){
-        this.closeApp();
-        
+        var U = this._local;
+
+        if(!U.closed)this.closeApp();
+
         $super(this);
-        
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, entryId){

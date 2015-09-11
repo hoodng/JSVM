@@ -515,13 +515,13 @@ js.awt.Desktop = function (Runtime){
                 [dom,  Event.W3C_EVT_MOUSE_WHEEL,   _onmousewheel],
                 [dom,  Event.W3C_EVT_CONTEXTMENU,   _oncontextmenu],
 
-                [dom,  Event.SYS_EVT_ELE_APPEND,    _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_REMOVED,   _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_POSITION,  _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_SIZE,      _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_ZINDEX,    _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_ATTRS,     _onhtmlevent],
-                [dom,  Event.SYS_EVT_ELE_STYLE,     _onhtmlevent]        
+                [dom,  Event.SYS_EVT_ELE_APPEND,    _onhtmlevent]
+              //[dom,  Event.SYS_EVT_ELE_REMOVED,   _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_POSITION,  _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_SIZE,      _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_ZINDEX,    _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_ATTRS,     _onhtmlevent],
+              //[dom,  Event.SYS_EVT_ELE_STYLE,     _onhtmlevent]        
             ], item;
 
         for(var i=0, len=EVENTS.length; i<len; i++){

@@ -42,7 +42,6 @@ org.jsvm.Application = function(def, Runtime, entryId){
 	 * Close down current application to clean the context env.
 	 */ 
 	thi$.closeApp = function(){
-
         $super(this);
         
 	}.$override(this.closeApp);

@@ -44,11 +44,12 @@ js.awt.Application = function(def, Runtime, entryId){
     };
 
     thi$.closeApp = function(){
-        var cview = this._local.entry;
+        var U = this._local, cview = U.entry;
         if(this.view != cview){
             this.removeFrom(cview);
         }
         Desktop.unregisterApp(this.getAppID());
+        U.closed = true;
     };
 
     thi$.changeTheme = function(theme, old){
@@ -65,10 +66,11 @@ js.awt.Application = function(def, Runtime, entryId){
     };
 
     thi$.destroy = function(){
-        this.closeApp();
-        
+        var U = this._local;
+
+        if(!U.closed)this.closeApp();
+
         $super(this);
-        
     }.$override(this.destroy);
     
     thi$._init = function(def, Runtime, entryId){

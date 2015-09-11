@@ -707,13 +707,13 @@ js.util.Document = function (){
         outer = this.outerSize(ele);
 
         mbp = bounds.MBP;
-        if(mbp & !nocache){
+        if(mbp && !nocache || (mbp && ele.cloned)){
             J$VM.System.objectCopy(outer, mbp);
             return mbp;
         }
 
         mbpinline = MBPTEST.test(ele.style.cssText);
-        if(!mbpinline && !nocache){
+        if(!mbpinline){
             mbp = this.MBPCache[ele.clazz || ele.className];
             mbp = mbp ? J$VM.System.objectCopy(mbp, {}) : null;
             if(mbp){
@@ -739,6 +739,7 @@ js.util.Document = function (){
         clone.style.display = "";
         outer = this.outerSize(clone);
         mbp = _calcMBP.call(this, clone, mbpinline);
+        mbp.fake = true;
         J$VM.System.objectCopy(outer, mbp);
         body.removeChild(clone);
 
@@ -1143,7 +1144,7 @@ js.util.Document = function (){
         
         bounds = ele.bounds = (ele.bounds || {});
         mbp = bounds.MBP;
-        if(mbp && !mbp.fake && !nocache) return bounds;
+        if(mbp && !nocache) return bounds;
         
         bounds.MBP = this.MBP(ele, true);
         bounds.BBM = bounds.MBP.BBM;
@@ -1309,7 +1310,7 @@ js.util.Document = function (){
      */
     thi$.removeFrom = function(el, parentNode){
         if(!el) return;
-        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_REMOVED);        
+        //_fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_REMOVED);        
         parentNode = parentNode || el.parentNode;
         parentNode.removeChild(el);
     };
@@ -2022,19 +2023,19 @@ js.util.Document = function (){
     };
 
     thi$.inside = function(x, y, bounds){
-        var d = bounds, MBP = d.MBP, minX, minY, maxX, maxY;
-        minX = d.absX + MBP.borderLeftWidth;
-        maxX = minX + d.clientWidth;
-        minY = d.absY + MBP.borderTopWidth;
-        maxY = minY + d.clientHeight;
+        var mbp = bounds.MBP, minX, minY, maxX, maxY;
+        minX = bounds.absX + mbp.borderLeftWidth;
+        maxX = minX + bounds.clientWidth;
+        minY = bounds.absY + mbp.borderTopWidth;
+        maxY = minY + bounds.clientHeight;
         return x > minX && x < maxX && y > minY && y < maxY;
     };
 
     thi$.relative = function(x, y, bounds){
-        var d = bounds, MBP = d.MBP;
+        var mbp = bounds.MBP;
         return {
-            x: x - d.absX - MBP.borderLeftWidth,
-            y: y - d.absY - MBP.borderTopWidth
+            x: x - bounds.absX - mbp.borderLeftWidth,
+            y: y - bounds.absY - mbp.borderTopWidth
         };
     };
 
