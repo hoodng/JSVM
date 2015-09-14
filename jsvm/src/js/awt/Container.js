@@ -130,12 +130,11 @@ js.awt.Container = function (def, Runtime, view){
     thi$.activateComponent = function(e){
         if(e == undefined){
             $super(this);
-            return undefined;
         }
 
         var id, comp;
         if(e instanceof Event){
-            id = arguments[1].id;
+            id = e.getEventTarget().id;
         }else if(e instanceof js.awt.Element){
             id = e.id;
         }else{
@@ -241,44 +240,37 @@ js.awt.Container = function (def, Runtime, view){
     /**
      * @see js.awt.Component
      */
-    thi$.getPreferredSize = function(nocache){
-        var bounds, d;
-        if(nocache === true){
-            bounds = this.getBounds();
-            d = this.layout.preferredLayoutSize(this, true);
-            return {
-                width: this.isRigidWidth() ? bounds.width : d.width,
-                height:this.isRigidHeight()? bounds.height: d.height
-            };
-        }else {
-            if(!this.def.prefSize){
-                bounds = this.getBounds();
-                d = this.layout.preferredLayoutSize(this, true);
-                this.setPreferredSize(
-                    this.isRigidWidth() ? bounds.width : d.width,
-                    this.isRigidHeight()? bounds.height: d.height
-                );
-            }
-            return this.def.prefSize;
+    thi$.getPreferredSize = function(){
+        var size = this.def.prefSize;
+        if(!size){
+            return this.layout.preferredLayoutSize(this);
+        }else{
+            return $super(this);
         }
     }.$override(this.getPreferredSize);
 
     /**
      *  @see js.awt.Component
      */
-    thi$.getMinimumSize = function(nocache){
-        return nocache === true ? 
-            this.layout.minimumLayoutSize(this, nocache) : 
-            $super(this);
+    thi$.getMinimumSize = function(){
+        var size = this.def.miniSize;
+        if(!size){
+            return this.layout.minimumLayoutSize(this);
+        }else{
+            return $super(this);
+        }
     }.$override(this.getMinimumSize);
 
     /**
      * @see js.awt.Component
      */
     thi$.getMaximumSize = function(nocache){
-        return nocache === true ? 
-            this.layout.maximumLayoutSize(this, nocache) : 
-            $super(this);
+        var size = this.def.maxiSize;
+        if(!size){
+            return this.layout.maximumLayoutSize(this);
+        }else{
+            return $super(this);
+        }
     }.$override(this.getMaximumSize);
     
     /**
@@ -313,7 +305,7 @@ js.awt.Container = function (def, Runtime, view){
         if(!this.isAutoFit()) return;
         
         var bounds = this.getBounds(), 
-        prefer = this.getPreferredSize(true/*nocache*/),
+        prefer = this.getPreferredSize(),
         w = bounds.userW, h = bounds.userH;
 
         w = (prefer.width > w) ? prefer.width : w;
@@ -323,7 +315,7 @@ js.awt.Container = function (def, Runtime, view){
         if(container){
             container.doLayout();
         }else{
-            this.setSize(w, h);            
+            this.setSize(w, h);    
         }
     };
 
@@ -347,12 +339,12 @@ js.awt.Container = function (def, Runtime, view){
      */
     thi$._addComps = function(def){
         var comps = def.items, R = this.Runtime(),
-            oriComps = this._local.items,
+            oriComps = this._local.items, view = this.view,
             absLayout = this.layout instanceof js.awt.AbsoluteLayout;
         
         def.items = [];
         List.$decorate(def.items);
-
+        this.view = self.document.createDocumentFragment();
         for(var i=0, len=comps.length; i<len; i++){
             var compid = comps[i], compDef = def[compid];
             if(Class.isObject(compDef)){
@@ -370,6 +362,8 @@ js.awt.Container = function (def, Runtime, view){
                 this.appendChild(comp);
             }
         }
+        view.appendChild(this.view);
+        this.view = view;
     };
     
     /**

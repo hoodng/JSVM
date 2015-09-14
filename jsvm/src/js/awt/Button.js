@@ -272,7 +272,9 @@ js.awt.Button = function(def, Runtime){
 		}
 	};
 
-	var _onmousedown = function(e){
+	thi$.onmousedown = function(e){
+        e.cancelBubble();
+
 		_showEffectLayer.call(this, "trigger");
 
 		this._local.mousedown = true;
@@ -280,9 +282,11 @@ js.awt.Button = function(def, Runtime){
 
 		e.setEventTarget(this);
 		this.notifyPeer(this.getMsgType(), e);
-	};
 
-	var _onmouseup = function(e){
+	}.$override(this.onmousedown);
+
+	thi$.onmouseup = function(e){
+        e.cancelBubble();
 		if(this._local.mousedown === true){
 			delete this._local.mousedown;
 
@@ -297,13 +301,15 @@ js.awt.Button = function(def, Runtime){
 			e.setEventTarget(this);
 			this.notifyPeer(this.getMsgType(), e);
 		}
-	};
+	}.$override(this.onmouseup);
 
 	thi$.onHover = function(b, eType){
 		// Do something if need.
 	};
 
-	var _onmouseover = function(e){
+	thi$.onmouseover = function(e){
+        e.cancelBubble();
+
 		if(this.contains(e.toElement, true)
 		   && !this.isHover()){
 			this.setHover(true);
@@ -311,9 +317,11 @@ js.awt.Button = function(def, Runtime){
 
 			this.onHover(true, e.getType());
 		}
-	};
+	}.$override(this.onmouseover);
 
-	var _onmouseout = function(e){
+	thi$.onmouseout = function(e){
+        e.cancelBubble();
+
 		if(!this.contains(e.toElement, true)
 		   && this.isHover()){
 			delete this._local.mousedown;
@@ -325,7 +333,7 @@ js.awt.Button = function(def, Runtime){
 
 			this.onHover(false, e.getType());
 		}
-	};
+	}.$override(this.onmouseout);
 
 	var _createElements = function(){
 		var G = this.getGeometric(), className = this.className,
@@ -372,11 +380,6 @@ js.awt.Button = function(def, Runtime){
 		DOM.remove(this._effectLayer, true);
 		delete this._effectLayer;
 
-		this.detachEvent("mouseover", 4, this, _onmouseover);
-		this.detachEvent("mouseout",  4, this, _onmouseout);
-		this.detachEvent("mousedown", 4, this, _onmousedown);
-		this.detachEvent("mouseup",	  4, this, _onmouseup);
-
 		$super(this);
 
 	}.$override(this.destroy);
@@ -412,11 +415,6 @@ js.awt.Button = function(def, Runtime){
 
 		this.setAttribute("touchcapture", "true");
         
-		this.attachEvent("mouseover", 4, this, _onmouseover);
-		this.attachEvent("mouseout",  4, this, _onmouseout);
-		this.attachEvent("mousedown", 4, this, _onmousedown);
-		this.attachEvent("mouseup",	  4, this, _onmouseup);
-
 	}.$override(this._init);
 
 	this._init.apply(this, arguments);

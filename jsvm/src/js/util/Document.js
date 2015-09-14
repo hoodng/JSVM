@@ -360,9 +360,18 @@ js.util.Document = function (){
     };
 
     thi$.cloneElement = function(ele, deep){
-        var view = (ele != self.document.body) ?
-            ele.cloneNode(deep) : this.createElement("DIV");
-        // TODO: bounds ?
+        var view;
+        switch(Class.typeOf(ele)){
+            case "htmlbodyelement":
+            case "htmliframeelement":
+            view = this.createElement("DIV");
+            break;
+            default:
+            if(ele){
+                view = ele.cloneNode(deep);
+            }
+            break;
+        }
         return view;
     };
 
@@ -690,10 +699,8 @@ js.util.Document = function (){
             mbpchanged = MBPTEST.test(sp);
             _setStyle.call(this, ele, sp, styles[sp]);
         }
-        
-        if(mbpchanged){
-            this.getBounds(ele, true);
-        }
+
+        return this.getBounds(ele, mbpchanged);
     };
 
     thi$.MBPCache = {};
@@ -788,7 +795,7 @@ js.util.Document = function (){
         return mbp;
     };
 
-    var MBPTEST = /margin|border|padding/;
+    var MBPTEST = /margin|border|padding|top|right|bottom|left|width|height/;
 
     var MBPSTYLES = [
         {style: "borderTopStyle", border:"borderTopWidth",

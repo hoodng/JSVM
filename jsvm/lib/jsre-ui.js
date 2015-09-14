@@ -654,17 +654,7 @@ js.awt.Movable = function (){
         var M = this.def;
         b = b || false;
         M.movable = b;
-        if(b){
-            var mover = M.mover = M.mover || {};
-            mover.bound = 
-                Class.isNumber(mover.bound) ? mover.bound : 20;
-            mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
-            mover.br = Class.isNumber(mover.br) ? mover.br : 0;
-            mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
-            mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
-            mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
-            mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
-        }
+        this.getMovingConstraints();
     };
 
 };
@@ -896,6 +886,7 @@ js.awt.Resizable = function(){
         var sizeObj = this.sizeObj, bounds, def;
         if(!sizeObj){
             bounds = this.getBounds();
+
             def = {
                 classType: "js.awt.Component",
                 className: DOM.combineClassName(
@@ -947,14 +938,7 @@ js.awt.Resizable = function(){
         resizer = Class.isNumber(resizer) ? (resizer & 0x0FF) : 255;
         M.resizable = b;
         M.resizer = resizer;
-        if(b){
-            var mover = M.mover = M.mover || {};
-            mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
-            mover.br = Class.isNumber(mover.br) ? mover.br : 0;
-            mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
-            mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
-            mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
-        }
+        this.getMovingConstraints();
     };
 };
 
@@ -1725,39 +1709,14 @@ js.awt.ToolTip = function(){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -1930,39 +1889,14 @@ js.awt.ZOrderManager = function(){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -2029,12 +1963,12 @@ js.awt.LayoutManager = function (def){
      * 
      * Notes: Every layout should override this method
      */
-    thi$.getLayoutSize = function(container, fn, nocache){
+    thi$.getLayoutSize = function(container, fn){
         var bounds = container.getBounds(),
             ret ={width:0, height:0};
 
         _calcSize.$forEach(
-            this, this.getLayoutComponents(container), fn, nocache, ret);
+            this, this.getLayoutComponents(container), fn, ret);
 
         ret.width += bounds.MBP.BW;
         ret.height+= bounds.MBP.BH;
@@ -2042,8 +1976,8 @@ js.awt.LayoutManager = function (def){
         return ret;
     };
 
-    var _calcSize = function(fn, nocache, max, comp){
-        var d = comp[fn](nocache);
+    var _calcSize = function(fn, max, comp){
+        var d = comp[fn]();
         max.width = Math.max(max.width, (comp.getX() + d.width));
         max.height= Math.max(max.height,(comp.getY() + d.height));
     };
@@ -2056,8 +1990,8 @@ js.awt.LayoutManager = function (def){
      *  
      * @see #minimumLayoutSize
      */
-    thi$.preferredLayoutSize = function(container, nocache){
-        return this.getLayoutSize(container, "getPreferredSize", nocache);  
+    thi$.preferredLayoutSize = function(container){
+        return this.getLayoutSize(container, "getPreferredSize");  
     };
 
     /** 
@@ -2066,8 +2000,8 @@ js.awt.LayoutManager = function (def){
      * @param container the component to be laid out
      * @see #preferredLayoutSize
      */
-    thi$.minimumLayoutSize = function(container, nocache){
-        return this.getLayoutSize(container, "getMinimumSize", nocache);
+    thi$.minimumLayoutSize = function(container){
+        return this.getLayoutSize(container, "getMinimumSize");
     };
     
     /** 
@@ -2075,8 +2009,8 @@ js.awt.LayoutManager = function (def){
      * given the components it contains.
      * @see java.awt.Component#getMaximumSize
      */
-    thi$.maximumLayoutSize = function(container, nocache){
-        return this.getLayoutSize(container, "getMaximumSize", nocache);
+    thi$.maximumLayoutSize = function(container){
+        return this.getLayoutSize(container, "getMaximumSize");
     };
     
     /**
@@ -2196,39 +2130,14 @@ js.awt.AbsoluteLayout = function (def){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -3180,8 +3089,7 @@ js.awt.Element = function(def, Runtime){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, 
-        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ, 
-        Z4 = [0,0,0,0];
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
     
     /**
      * Return the position left of the component.<p>
@@ -3200,7 +3108,7 @@ js.awt.Element = function(def, Runtime){
      * @see setPosition(x, y)
      */
     thi$.setX = function(x, fire){
-        this.setPosition(x, null, fire);
+        return this.setPosition(x, null, fire);
     };
     
     /**
@@ -3220,7 +3128,7 @@ js.awt.Element = function(def, Runtime){
      * @see setPosition(x, y)
      */
     thi$.setY = function(y, fire){
-        this.setPosition(null, y, fire);
+        return this.setPosition(null, y, fire);
     };
     
     /**
@@ -3240,9 +3148,35 @@ js.awt.Element = function(def, Runtime){
      * @param y, the position top
      */
     thi$.setPosition = function(x, y, fire){
-        this.setBounds(x, y, null, null, fire);
+        var M = this.def, bounds, changed = false;
+        if(this.view){
+            bounds = DOM.setPosition(this.view, x, y);
+        }else{
+            bounds = {x: x, y: y};
+        }
+
+        changed = _updateCoords.call(this, M, bounds, fire);
+        if(changed){
+            this.adjustLayers("coord", bounds);
+        }
+        
+        return changed;
     };
 
+    var _updateCoords = function(M, bounds, fire){
+        var U = this._local, changed = false;
+        if(M.x !== bounds.x || M.y !== bounds.y ){
+            M.x = bounds.x;
+            M.y = bounds.y;
+            changed = true;
+        }
+
+        if((fire & 0x04)){
+            U.userX = M.x;
+            U.userY = M.y;
+        }
+        return changed;
+    }
 
     /**
      * Return z-index of the component.<p>
@@ -3259,15 +3193,31 @@ js.awt.Element = function(def, Runtime){
      * @param z
      */
     thi$.setZ = function(z, fire){
-        var M = this.def, bounds;
-        if(this.isDOMElement()){
+        var M = this.def, bounds, changed = false;
+        if(this.view){
             bounds = DOM.setZ(this.view, z);
-            M.z = bounds.MBP.zIndex;
         }else{
-            M.z = Class.isNumber(z) ? z : this.getZ();
+            bounds = {MBP:{zIndex:z}};
+        }
+
+        changed = _updateZ.call(this, M, bounds, fire);
+        if(changed){
+            this.adjustLayers("zorder", bounds);            
         }
         
-        this.adjustLayers("zorder");        
+        return changed;
+    };
+
+    var _updateZ = function(M, bounds, fire){
+        var U = this._local, changed = false;
+        if(M.z !== bounds.MBP.zIndex){
+            M.z = bounds.MBP.zIndex;
+            changed = true;
+        }
+        if((fire & 0x04)){
+            U.userZ = M.z;
+        }
+        return changed;
     };
     
     /**
@@ -3287,7 +3237,7 @@ js.awt.Element = function(def, Runtime){
      * @see setSize(w, h)
      */
     thi$.setWidth = function(w, fire){
-        this.setSize(w, null, fire);
+        return this.setSize(w, null, fire);
     };
     
     /**
@@ -3307,7 +3257,7 @@ js.awt.Element = function(def, Runtime){
      * @see setSize(w, h)
      */
     thi$.setHeight = function(h, fire){
-        this.setSize(null, h, fire);
+        return this.setSize(null, h, fire);
     };
     
     /**
@@ -3326,22 +3276,55 @@ js.awt.Element = function(def, Runtime){
      * @param h, height
      */
     thi$.setSize = function(w, h, fire){
-        this.setBounds(null, null, w, h, fire);
+        var M = this.def, bounds, changed = false;
+        if(this.view){
+            bounds = DOM.setSize(this.view, w, h);
+        }else{
+            bounds = {width: w, height: h};
+        }
+        
+        changed = _updateSize.call(this, M, bounds, fire);
+        if(changed){
+            this.adjustLayers("sized", bounds);
+            if(fire & 0x01){
+                this.doLayout(true, bounds);
+            }
+        }
+        
+        return changed;
     };
+
+    var _updateSize = function(M, bounds, fire){
+        var U = this._local, changed = false;
+        
+        if(M.width !== bounds.width ||
+           M.height !== bounds.height){
+            M.width = bounds.width;
+            M.height= bounds.height;
+            changed = true;
+        }
+
+        if((fire & 0x04)){
+            U.userW = M.width;
+            U.userH = M.height;
+        }
+        
+        return changed;
+    }
 
     thi$.absXY = function(){
         var bounds = this.getBounds();
         return{x: bounds.absX, y:bounds.absY};
     };
     
-    thi$.getBounds = function(){
+    thi$.getBounds = function(nocache){
         var U = this._local, bounds;
         
         if(this.view){
-            bounds = DOM.getBounds(this.view);
+            bounds = DOM.getBounds(this.view, nocache);
         }else{
             bounds = {
-                MBP:{},
+                MBP:{zIndex:this.getZ()},
                 absX: 0,
                 absY: 0,
                 x: this.getX(),
@@ -3355,7 +3338,7 @@ js.awt.Element = function(def, Runtime){
 
         bounds.userX = U.userX;
         bounds.userY = U.userY;
-        bounds.userZ = U.userZ;        
+        bounds.userZ = U.userZ;
         bounds.userW = U.userW;
         bounds.userH = U.userH;
         
@@ -3363,81 +3346,96 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def, bounds;
+        var M = this.def, bounds, coord, sized;
         
-        if(this.isDOMElement()){
+        if(this.view){
             bounds = DOM.setBounds(this.view, x, y, w, h);
-            M.x = bounds.x;
-            M.y = bounds.y;
-            M.width = bounds.width;
-            M.height= bounds.height;
-            this.adjustLayers("geom");
         }else{
-            M.x = Class.isNumber(x) ? x : this.getX();
-            M.y = Class.isNumber(y) ? y : this.getY();
-            M.width = Class.isNumber(w) ? w : this.getWidth();
-            M.height= Class.isNumber(h) ? h : this.getHeight();
+            bounds = {x: x, y: y, width: w, height: h}
         }
+
+        coord = _updateCoords.call(this, M, bounds, fire);
+        sized = _updateSize.call(this, M, bounds, fire);
+        if(coord || sized){
+            this.adjustLayers("geom", bounds);
+            if(sized && (fire & 0x01)){
+                this.doLayout(true, bounds);
+            }
+        }
+
+        return (coord || sized);
     };
 
-    thi$.getPreferredSize = function(nocache){
-        var d, ret = this.def.prefSize;
-        if(nocache === true || !ret){
-            d = this.getBounds();
-            this.setPreferredSize(d.width, d.height);
-            ret = this.def.prefSize;
+    thi$.getPreferredSize = function(){
+        var size = this.def.prefSize, bounds = this.getBounds();
+        if(!size){
+            return {width: bounds.width, height: bounds.height};
+        }else{
+            return checkSize0(size, bounds.width, bounds.height);
         }
-        return ret;
     };
     
     thi$.setPreferredSize = function(w, h){
-        this.def.prefSize = {
-            width: w > 0 ? w : 0, 
-            height:h > 0 ? h : 0
-        };
+        var M = this.def, size = M.prefSize = (M.prefSize || {});
+        return checkSize1(size, w, h);        
     };
     
-    thi$.getMinimumSize = function(nocache){
-        var d, ret = this.def.miniSize;
-        if(nocache === true || !ret){
-            d = this.getBounds();
-            this.setMinimumSize(
-                this.isRigidWidth() ? d.width : d.MBP.BPW+1, 
-                this.isRigidHeight()? d.height: d.MBP.BPH+1);
-            ret = this.def.miniSize;
+    thi$.getMinimumSize = function(){
+        var size = this.def.miniSize, bounds = this.getBounds();
+        
+        if(!size){
+            return {width: bounds.MBP.BPW+1, height:bounds.MBP.BPH+1};
+        }else{
+            return checkSize0(size, bounds.MBP.BPW+1, bounds.MBP.BPH+1);
         }
-        return ret;
     };
     
     thi$.setMinimumSize = function(w, h){
-        this.def.miniSize = {
-            width: w, height:h
-        };
+        var M = this.def, size = M.miniSize = (M.miniSize || {});
+        return checkSize1(size, w, h);
     };
     
     thi$.getMaximumSize = function(nocache){
-        var d, ret = this.def.maxiSize;
-        if(nocache === true || !ret){
-            d = this.getBounds();
-            this.setMaximumSize(0xFFFF, 0xFFFF);
-            ret = this.def.maxiSize;
+        var size = this.def.maxiSize, bounds = this.getBounds();
+        
+        if(!size){
+            return { width: 0xFFFF, height:0xFFFF };
+        }else{
+            return checkSize0(size, 0xFFFF, 0xFFFF);
         }
-        return ret;
     };
     
     thi$.setMaximumSize = function(w, h){
-        this.def.maxiSize = {
-            width: w, height:h
-        };
+        var M = this.def, size = M.maxiSize = (M.maxiSize || {});
+        return checkSize1(size, w, h);
+    };
+
+    var checkSize0 = function(size, w, h){
+        if(!Class.isNumber(size.width)){
+            size.width = w;
+        }
+        if(!Class.isNumber(size.height)){
+            size.height= h;
+        }
+        return size;
+    };
+
+    var checkSize1 = function(size, w, h){
+        if(Class.isNumber(w)){
+            size.width = w;
+        }
+        if(Class.isNumber(h)){
+            size.height= h;
+        }
+        return size;
     };
 
     /**
      * Return the computed style with the specified style name
      */
     thi$.getStyle = function(sp){
-        if(!this.isDOMElement()) return null;        
-        sp = DOM.camelName(sp);
-        return DOM.currentStyles(this.view)[sp];
+        if(!this.view) return null;
+        return DOM.currentStyles(this.view)[DOM.camelName(sp)];
     };
 
     /**
@@ -3446,7 +3444,7 @@ js.awt.Element = function(def, Runtime){
      * @return an object with key are style name and value are style value. 
      */
     thi$.getStyles = function(sps){
-        if(!this.isDOMElement()) return null;
+        if(!this.view) return {};
 
         var styles = DOM.currentStyles(this.view),
             i, len, sp, ret = {};
@@ -3464,7 +3462,17 @@ js.awt.Element = function(def, Runtime){
      * are style value. 
      */
     thi$.applyStyles = function(styles){
-        DOM.applyStyles(this.view, styles);
+        var M = this.def, coord, sized, fire = 0x0F,
+            bounds = DOM.applyStyles(this.view, styles);
+
+        coord = _updateCoords.call(this, M, bounds, fire);
+        sized = _updateSize.call(this, M, bounds, fire);
+        if(coord || sized){
+            this.adjustLayers("geom", bounds);
+            if(sized && (fire & 0x01)){
+                this.doLayout(true, bounds);
+            }
+        }
     };
     
     thi$.defAttr = function(key, val){
@@ -3777,10 +3785,21 @@ js.awt.Element = function(def, Runtime){
         return this.def.sync || false;
     };
 
-    thi$.display = function(show){
-        this.setVisible(show||false);
-    };
+    var DISPLAYS = ["none", "block", "inline"];
 
+    thi$.display = function(show){
+        var disp;
+        show = Class.isBoolean(show) ? (show ? 1:0) :
+        Class.isNumber(show) ? show : 0;
+        this.setVisible(show !== 0);
+        
+        if(this.view){
+            disp = DISPLAYS[show];
+            this.view.style.display = disp;
+            this.adjustLayers("display", null, disp);
+        }
+    };
+    
     /**
      * Gets the attribute with specified name
      * 
@@ -3814,12 +3833,30 @@ js.awt.Element = function(def, Runtime){
     thi$.isDOMElement = function(){
         return DOM.isDOMElement(this.view);
     };
+
+    thi$.onresize = function(e){
+        var U = this._local, userW = U.userW, userH = U.userH,
+            bounds = this.getBounds(true);
+
+        if(userW != bounds.width || userH != bounds.height){
+            this.adjustLayers("sized", bounds);
+            this.doLayout(true, bounds);
+        }
+    };
     
-    thi$.doLayout = function(force){
+    thi$.doLayout = function(force, bounds){
         var U = this._local, ret = true;
         if(!this.needLayout(force)){
             ret = false;
         }else{
+            bounds = bounds || this.getBounds(true);
+            
+            U.userX = bounds.x;
+            U.userY = bounds.y;
+            U.userZ = bounds.MBP.zIndex;
+            U.userW = bounds.width;
+            U.userH = bounds.height;
+
             ret = U.didLayout = true;
         }
         
@@ -3846,27 +3883,28 @@ js.awt.Element = function(def, Runtime){
         this._local.didLayout = false;
     };
     
-    thi$.adjustLayers = function(cmd, show){
-        var bounds, z;
+    thi$.adjustLayers = function(cmd, bounds, show){
         switch(cmd){
-        case "geom":
-            bounds = this.getBounds();
+            case "coord":
+            case "sized":
+            case "geom":
+            bounds = bounds || this.getBounds();
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
             this.adjustOutline(bounds);
             break;
-        case "zorder":
-            z = this.getZ();
+            case "zorder":
+            var z = this.getZ();
             this.setShadowZIndex(z);
             this.setCoverZIndex(z);
             this.setOutlineZIndex(z);
             break;
-        case "display":
+            case "display":
             this.setShadowDisplay(show);
             this.setCoverDisplay(show);
             this.setOutlineDisplay(show);            
             break;
-        case "remove":
+            case "remove":
             this.removeShadow();
             this.removeCover();
             this.removeOutline();
@@ -3899,7 +3937,25 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.getMovingConstraints = function(){
-        return this.def.mover;
+        var mover = this.def.mover;
+        if(!mover){
+            mover = this.def.mover = {
+                bound: 20,
+                bt: 1, br: 0, bb: 0, bl: 1,
+                grid: 1,
+                freedom: 3
+            };
+        }else {
+            mover.bound = 
+                Class.isNumber(mover.bound) ? mover.bound : 20;
+            mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
+            mover.br = Class.isNumber(mover.br) ? mover.br : 0;
+            mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
+            mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
+            mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
+            mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
+        }
+        return mover;
     };
 
     var isScroll = {auto: true, visible: true, scroll: true};
@@ -3986,18 +4042,6 @@ js.awt.Element = function(def, Runtime){
             this.setResizable(true, M.resizer);
         }
         
-        if(M.prefSize){
-            this.isPreferredSizeSet = true;
-        }
-        
-        if(M.miniSize){
-            this.isMinimumSizeSet = true;
-        }
-        
-        if(M.maxiSize){
-            this.isMaximumSizeSet = true;
-        }        
-                
     }.$override(this._init);
     
     this._init.apply(this, arguments);
@@ -4101,21 +4145,9 @@ js.awt.Component = function(def, Runtime, view){
      *                   4: set this position as original position
      */
     thi$.setPosition = function(x, y, fire){
-        var M = this.def, U = this._local;
-
-        $super(this);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userX = M.x;
-            U.userY = M.y;
+        if($super(this) && (fire & 0x01)){
+            this.onMoved(fire);
         }
-
-        if((fire & 0x01) != 0){
-            this.onMoved(fire);            
-        }
-
     }.$override(this.setPosition);
     
     /**
@@ -4125,20 +4157,9 @@ js.awt.Component = function(def, Runtime, view){
      * @param fire
      */
     thi$.setZ = function(z, fire){
-        var M = this.def, U = this._local;
-        
-        $super(this);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userZ = M.z;
-        }
-
-        if((fire & 0x01) != 0){
+        if($super(this) && (fire & 0x01)){
             this.onZOrderChanged(fire);
         }
-        
     }.$override(this.setZ);
 
     /**
@@ -4151,43 +4172,16 @@ js.awt.Component = function(def, Runtime, view){
      *                   4: set this size as original size
      */
     thi$.setSize = function(w, h, fire){
-        var M = this.def, U = this._local;
-
-        $super(this);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userW = M.width;
-            U.userH = M.height;
-        }
-
-        if((fire & 0x01) != 0){
+        if($super(this) && (fire & 0x01)){
             this.onResized(fire);
         }
-        
     }.$override(this.setSize);
     
 
     thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def, U = this._local;
-
-        $super(this);
-
-        fire = Class.isNumber(fire) ? fire : 0;
-
-        if((fire & 0x04) != 0){
-            U.userX = M.x;
-            U.userY = M.y;
-
-            U.userW = M.width;
-            U.userH = M.height;
-        }
-
-        if((fire & 0x01) != 0){
+        if($super(this) && (fire & 0x01)){
             this.onGeomChanged(fire);
         }
-
     }.$override(this.setBounds);
     
     /**
@@ -4264,19 +4258,6 @@ js.awt.Component = function(def, Runtime, view){
             handler);
     };
     
-
-    var DISPLAYS = ["none", "block"];
-    /**
-     * Sets style.display = none/blcok
-     */
-    thi$.display = function(show){
-        var disp;
-        show = show ? 1 : 0;
-        disp = DISPLAYS[show];
-        this.view.style.display = disp;
-        this.adjustLayers("display", disp);
-    }.$override(this.display);
-
     /**
      * Test whether contains a child node in this component
      * 
@@ -4303,12 +4284,12 @@ js.awt.Component = function(def, Runtime, view){
         return ctrl;
     };
     
-    thi$.adjustController = function(){
-        var ctrl = this.controller, bounds, counds, x, y, w, h;
+    thi$.adjustController = function(bounds){
+        var ctrl = this.controller, counds, x, y, w, h;
         if(!ctrl) return;
 
         ctrl.appendTo(this.view); // Keep controller alwasy on top
-        bounds = this.getBounds();
+        bounds = bounds || this.getBounds();
         counds = ctrl.getBounds();
         w = ctrl.isRigidWidth() ? counds.width : bounds.innerWidth;
         h = ctrl.isRigidHeight()? counds.height: bounds.innerHeight;
@@ -4350,9 +4331,6 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onResized = function(fire){
-        if((fire & 0x02) != 0){
-            this.doLayout(true);
-        }
         this.autoResizeContainer();
     };
 
@@ -4372,9 +4350,6 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onGeomChanged = function(fire){
-        if((fire & 0x02) != 0){
-            this.doLayout(true);
-        }
         this.autoResizeContainer();
     };
     
@@ -4528,7 +4503,6 @@ js.awt.Component = function(def, Runtime, view){
      * component which take charge of the change and redo layout.
      */
     thi$.invalidParentLayout = function() {
-        /*
         var target = this.getContainer();
         while(target && !target.handleLayoutInvalid) {
             if (target.getContainer && target.getContainer()) {
@@ -4539,7 +4513,7 @@ js.awt.Component = function(def, Runtime, view){
         }
         if (target && target.handleLayoutInvalid) {
             target.handleLayoutInvalid();
-        }*/
+        }
     };
 
     /**
@@ -4569,10 +4543,10 @@ js.awt.Component = function(def, Runtime, view){
      * 
      * Notes: Sub class should override this method
      */
-    thi$.doLayout = function(force){
+    thi$.doLayout = function(force, bounds){
         var ret = false;
         if($super(this)){
-            this.adjustController();            
+            this.adjustController(bounds);            
             ret = true;
         }
         return ret;
@@ -4581,11 +4555,9 @@ js.awt.Component = function(def, Runtime, view){
     var _repaint = function(){
         var M = this.def, U = this._local, bounds;
 
-        if(this._geometric){
-            this._geometric();
-        }
+        bounds = this._geometric ?
+            this._geometric() : this.getBounds();
 
-        bounds = this.getBounds();
         U.userX = bounds.x;
         U.userY = bounds.y;
         U.userZ = bounds.MBP.zIndex;
@@ -4613,8 +4585,6 @@ js.awt.Component = function(def, Runtime, view){
         }
 
         this.setTipText(M.tip);
-        
-        this.adjustLayers("geom");
     };
 
     var _geometric = function(isNative){
@@ -4653,6 +4623,22 @@ js.awt.Component = function(def, Runtime, view){
         if(this.repaint()){
             this.doLayout(true);
         }
+    };
+
+    thi$.onmousedown = function(e){
+        this.activateComponent(e);
+    };
+
+    thi$.onmouseup = function(e){
+
+    };
+
+    thi$.onmouseover = function(e){
+
+    };
+
+    thi$.onmouseout = function(e){
+
     };
         
     thi$.destroy = function(){
@@ -4717,8 +4703,8 @@ js.awt.Component = function(def, Runtime, view){
             }
         }else{
             this._geometric = function(){
-                _geometric.call(this);
                 delete this._geometric;
+                return _geometric.call(this);
             };
         }
         
@@ -4732,39 +4718,14 @@ js.awt.Component = function(def, Runtime, view){
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -5135,12 +5096,11 @@ js.awt.Container = function (def, Runtime, view){
     thi$.activateComponent = function(e){
         if(e == undefined){
             $super(this);
-            return undefined;
         }
 
         var id, comp;
         if(e instanceof Event){
-            id = arguments[1].id;
+            id = e.getEventTarget().id;
         }else if(e instanceof js.awt.Element){
             id = e.id;
         }else{
@@ -5246,44 +5206,37 @@ js.awt.Container = function (def, Runtime, view){
     /**
      * @see js.awt.Component
      */
-    thi$.getPreferredSize = function(nocache){
-        var bounds, d;
-        if(nocache === true){
-            bounds = this.getBounds();
-            d = this.layout.preferredLayoutSize(this, true);
-            return {
-                width: this.isRigidWidth() ? bounds.width : d.width,
-                height:this.isRigidHeight()? bounds.height: d.height
-            };
-        }else {
-            if(!this.def.prefSize){
-                bounds = this.getBounds();
-                d = this.layout.preferredLayoutSize(this, true);
-                this.setPreferredSize(
-                    this.isRigidWidth() ? bounds.width : d.width,
-                    this.isRigidHeight()? bounds.height: d.height
-                );
-            }
-            return this.def.prefSize;
+    thi$.getPreferredSize = function(){
+        var size = this.def.prefSize;
+        if(!size){
+            return this.layout.preferredLayoutSize(this);
+        }else{
+            return $super(this);
         }
     }.$override(this.getPreferredSize);
 
     /**
      *  @see js.awt.Component
      */
-    thi$.getMinimumSize = function(nocache){
-        return nocache === true ? 
-            this.layout.minimumLayoutSize(this, nocache) : 
-            $super(this);
+    thi$.getMinimumSize = function(){
+        var size = this.def.miniSize;
+        if(!size){
+            return this.layout.minimumLayoutSize(this);
+        }else{
+            return $super(this);
+        }
     }.$override(this.getMinimumSize);
 
     /**
      * @see js.awt.Component
      */
     thi$.getMaximumSize = function(nocache){
-        return nocache === true ? 
-            this.layout.maximumLayoutSize(this, nocache) : 
-            $super(this);
+        var size = this.def.maxiSize;
+        if(!size){
+            return this.layout.maximumLayoutSize(this);
+        }else{
+            return $super(this);
+        }
     }.$override(this.getMaximumSize);
     
     /**
@@ -5318,7 +5271,7 @@ js.awt.Container = function (def, Runtime, view){
         if(!this.isAutoFit()) return;
         
         var bounds = this.getBounds(), 
-        prefer = this.getPreferredSize(true/*nocache*/),
+        prefer = this.getPreferredSize(),
         w = bounds.userW, h = bounds.userH;
 
         w = (prefer.width > w) ? prefer.width : w;
@@ -5328,7 +5281,7 @@ js.awt.Container = function (def, Runtime, view){
         if(container){
             container.doLayout();
         }else{
-            this.setSize(w, h);            
+            this.setSize(w, h);    
         }
     };
 
@@ -5352,12 +5305,12 @@ js.awt.Container = function (def, Runtime, view){
      */
     thi$._addComps = function(def){
         var comps = def.items, R = this.Runtime(),
-            oriComps = this._local.items,
+            oriComps = this._local.items, view = this.view,
             absLayout = this.layout instanceof js.awt.AbsoluteLayout;
         
         def.items = [];
         List.$decorate(def.items);
-
+        this.view = self.document.createDocumentFragment();
         for(var i=0, len=comps.length; i<len; i++){
             var compid = comps[i], compDef = def[compid];
             if(Class.isObject(compDef)){
@@ -5375,6 +5328,8 @@ js.awt.Container = function (def, Runtime, view){
                 this.appendChild(comp);
             }
         }
+        view.appendChild(this.view);
+        this.view = view;
     };
     
     /**
@@ -5490,8 +5445,8 @@ js.awt.HBox = function (def, Runtime){
         var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
         newDef.layout.axis = 0;
         System.objectCopy(newDef, def, true, true);
-        
-        $super(this);
+
+        $super(this, def, Runtime);
 
     }.$override(this._init);
     
@@ -7223,15 +7178,14 @@ js.awt.Item = function(def, Runtime, view){
 	 * @see js.awt.Component
 	 */
 	thi$.getPreferredSize = function(){
-		var M = this.def, prefSize = M.prefSize, G, D,
-		nodes, ele1, ele0, width;
+		var M = this.def, prefSize = M.prefSize, bounds = this.getBounds(),
+		D, nodes, ele1, ele0, width;
 
 		if(this.isPreferredSizeSet && prefSize){
 			return prefSize;
 		}
 
 		if(!this.isStrict()){
-			G = this.getGeometric();
 			nodes = this.view.childNodes;
 			ele1 = nodes[nodes.length-2];
 			ele0 = nodes[nodes.length -1];
@@ -7253,21 +7207,16 @@ js.awt.Item = function(def, Runtime, view){
 					width = ele1.offsetLeft + ele1.scrollWidth;
 				}
 
-				width += G.ctrl.MBP.marginLeft + G.ctrl.width;
+				D = DOM.getBounds(this.ctrl);
+				width += D.MBP.marginLeft + D.width;
 			}
-			width += G.bounds.MBP.BPW;
+			width += bounds.MBP.BPW;
 
-			this.setPreferredSize(
-				width,
-				G.bounds.height - (G.bounds.BBM ? 0 : G.bounds.MBP.BPH));
+			this.setPreferredSize(width, bounds.innerHeight);
 			prefSize = M.prefSize;
-
 		}else{
-			D = this.getBounds();
-			prefSize = {
-				width: D.width,
-				height: D.height
-			};
+			bounds = this.getBounds();
+			prefSize = {width: bounds.width, height: bounds.height};
 		}
 
 		return prefSize;
@@ -7487,8 +7436,8 @@ js.awt.Item = function(def, Runtime, view){
 			return false;
 		}
 
-		var M = this.def, G = this.getGeometric(), bounds = this.getBounds(),
-		MBP = bounds.MBP, xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
+		var M = this.def, G = {}, bounds = this.getBounds(), MBP = bounds.MBP,
+		xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
 		left = 0, top, space = bounds.innerWidth, layout = M.layout || {},
 		gap = layout.gap || 0, hAlign = layout.align_x, vAlign = layout.align_y,
 		ctrlAlign = M.ctrlAlign, items = M.items, len = items.length, 
@@ -7887,20 +7836,28 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	var _createElements = function(){
-		var M = this.def, items = M.items, G = this.getGeometric(),
-		bounds = G.bounds, MBP = bounds.MBP, xbase = MBP.paddingLeft,
-		ybase = MBP.paddingTop, left = xbase, top, height, innerHeight,
-		D, ele, id ,iid, viewType, i, len, buf = this.__buf__, 
-		strict = this.isStrict(), uuid = this.uuid();
+		var M = this.def, items = M.items, G = {}, bounds,
+		MBP, xbase, ybase, left, top, height, innerHeight,
+		D, ele, id ,iid, viewType, i, len, 
+		buf = this.__buf__, uuid = this.uuid(),
+		strict = this.isStrict();
 
 		// For the iterable items, rectify the Box-model compatibility 
 		// differences in advance.
 		if(!strict){
-			height = bounds.BBM ? bounds.height : bounds.height - MBP.BPH;
-			innerHeight = height - MBP.BPH;
-			
-			this.view.style.height = bounds.BBM ?
-				(height + "px") : (innerHeight+"px");
+			bounds = DOM.getBounds(this.view);
+
+			if(!bounds.BBM){
+				DOM.setSize(this.view, undefined, bounds.innerHeight);
+				bounds = DOM.getBounds(this.view);				  
+			}
+
+			MBP = bounds.MBP;
+			xbase = MBP.paddingLeft;
+			ybase = MBP.paddingTop;
+			left = xbase;
+
+			innerHeight = bounds.innerHeight;
 		}		 
 		
 		for(i = 0, len = items.length; i < len; i++){
@@ -7927,23 +7884,16 @@ js.awt.Item = function(def, Runtime, view){
 			ele.iid = iid;
 
 			buf.clear();
-			buf.append("position:absolute;");
+			buf.append("position:absolute;display:block;");
 
 			// For the iterable items, do the layout things ahead
 			if(!strict){
 				if(!G[iid]){
-					ele.style.cssText =
-						"position:absolute;white-space:nowrap;visibility:hidden;";
-					DOM.appendTo(ele, document.body);
+					ele.style.cssText = "display:block;";
 					G[iid] = DOM.getBounds(ele);
-					DOM.removeFrom(ele);
-					ele.style.cssText = "";
-				}else{
-					ele.bounds = G[iid];
 				}
 
 				D = G[iid];
-
 				top = ybase + (innerHeight - D.height) * 0.5;
 				buf.append("top:").append(top).append("px;");
 
@@ -7952,7 +7902,7 @@ js.awt.Item = function(def, Runtime, view){
 					left += D.MBP.marginLeft + D.width + D.MBP.marginRight;
 				}else{
 					buf.append("right:")
-						.append(G.bounds.MBP.paddingRight).append("px;");
+						.append(bounds.MBP.paddingRight).append("px;");
 				}
 			}
 
@@ -9396,7 +9346,9 @@ js.awt.Button = function(def, Runtime){
 		}
 	};
 
-	var _onmousedown = function(e){
+	thi$.onmousedown = function(e){
+        e.cancelBubble();
+
 		_showEffectLayer.call(this, "trigger");
 
 		this._local.mousedown = true;
@@ -9404,9 +9356,11 @@ js.awt.Button = function(def, Runtime){
 
 		e.setEventTarget(this);
 		this.notifyPeer(this.getMsgType(), e);
-	};
 
-	var _onmouseup = function(e){
+	}.$override(this.onmousedown);
+
+	thi$.onmouseup = function(e){
+        e.cancelBubble();
 		if(this._local.mousedown === true){
 			delete this._local.mousedown;
 
@@ -9421,13 +9375,15 @@ js.awt.Button = function(def, Runtime){
 			e.setEventTarget(this);
 			this.notifyPeer(this.getMsgType(), e);
 		}
-	};
+	}.$override(this.onmouseup);
 
 	thi$.onHover = function(b, eType){
 		// Do something if need.
 	};
 
-	var _onmouseover = function(e){
+	thi$.onmouseover = function(e){
+        e.cancelBubble();
+
 		if(this.contains(e.toElement, true)
 		   && !this.isHover()){
 			this.setHover(true);
@@ -9435,9 +9391,11 @@ js.awt.Button = function(def, Runtime){
 
 			this.onHover(true, e.getType());
 		}
-	};
+	}.$override(this.onmouseover);
 
-	var _onmouseout = function(e){
+	thi$.onmouseout = function(e){
+        e.cancelBubble();
+
 		if(!this.contains(e.toElement, true)
 		   && this.isHover()){
 			delete this._local.mousedown;
@@ -9449,7 +9407,7 @@ js.awt.Button = function(def, Runtime){
 
 			this.onHover(false, e.getType());
 		}
-	};
+	}.$override(this.onmouseout);
 
 	var _createElements = function(){
 		var G = this.getGeometric(), className = this.className,
@@ -9496,11 +9454,6 @@ js.awt.Button = function(def, Runtime){
 		DOM.remove(this._effectLayer, true);
 		delete this._effectLayer;
 
-		this.detachEvent("mouseover", 4, this, _onmouseover);
-		this.detachEvent("mouseout",  4, this, _onmouseout);
-		this.detachEvent("mousedown", 4, this, _onmousedown);
-		this.detachEvent("mouseup",	  4, this, _onmouseup);
-
 		$super(this);
 
 	}.$override(this.destroy);
@@ -9536,11 +9489,6 @@ js.awt.Button = function(def, Runtime){
 
 		this.setAttribute("touchcapture", "true");
         
-		this.attachEvent("mouseover", 4, this, _onmouseover);
-		this.attachEvent("mouseout",  4, this, _onmouseout);
-		this.attachEvent("mousedown", 4, this, _onmousedown);
-		this.attachEvent("mouseup",	  4, this, _onmouseup);
-
 	}.$override(this._init);
 
 	this._init.apply(this, arguments);
@@ -13662,44 +13610,14 @@ js.awt.Desktop = function (Runtime){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
         System = J$VM.System, MQ =J$VM.MQ, R;
 
-
-    var _notifyComps = function(msgid, e){
-        var comps = this.getAllComponents(),
-            len = comps ? comps.length : 0,
-            i, comp, recs = [];
-
-        for(i = 0; i < len; i++){
-            comp = comps[i];
-            recs.push(comp.uuid());
-        }
-
-        if(recs.length > 0){
-            MQ.post(msgid, e, recs);
-        }
-    };
-
-    var bodyW, bodyH;
-    var _onresize = function(e){
+    this.onresize = function(e){
         System.updateLastAccessTime();
-
-        var bounds = DOM.getBounds(document.body), evt;
-        if(bounds.width != bodyW || bounds.height != bodyH){
-            evt = new Event(Event.W3C_EVT_RESIZE,
-                            {owidth: bodyW, oheight: bodyH,
-                             width: bounds.width, height: bounds.height});
-            
-            _notifyComps.call(this, "js.awt.event.WindowResized", evt);
-
-            this.LM.clearStack(e);
-
-            bodyW = bounds.width;
-            bodyH = bounds.height;
-
-            for(var appid in apps){
-                this.getApp(appid).fireEvent(e);
-            }
+        $super(this);
+        this.LM.clearStack(e);
+        for(var appid in apps){
+            this.getApp(appid).fireEvent(e);
         }
-    };
+    }.$override(this.onresize);
 
     var _onkeyevent = function(e){
         System.updateLastAccessTime();
@@ -14135,7 +14053,7 @@ js.awt.Desktop = function (Runtime){
     var _bindEvents = function(){
         var dom = self.document,
             EVENTS = [
-                [self, Event.W3C_EVT_RESIZE,        _onresize],
+                [self, Event.W3C_EVT_RESIZE,        this.onresize],
                 [self, Event.W3C_EVT_MESSAGE,       _onmessage],
 
                 [dom,  Event.W3C_EVT_KEY_DOWN,      _onkeyevent],
@@ -14536,46 +14454,55 @@ js.awt.Window = function (def, Runtime, view){
 		}
 	};
 	
-	var _onmouseover = function(e){
-		var title = this.title;
-		if(!title) return;
+    thi$.onmouseover = function(e){
+        e.cancelBubble();
+        var title = this.title, ele, xy, style;
+        if(!title) return;
 
-		var eType = e.getType(), ele = e.toElement,	 
-		xy = this.relative(e.eventXY()), style = this.getTitleStyle();
+        ele = e.toElement;
+        xy = this.relative(e.eventXY());
+        style = this.getTitleStyle();
 
-		switch(eType){
-		case "mouseover":
-			if(this.contains(ele, true) && xy.y < 50){
+		if(this.contains(ele, true) && xy.y < 50){
 
-				if(style.tstyle === 3){
-					title.setVisible(true);
-				}
-
-				if(style.bstyle === 3){
-					if(title.contains(ele, true)){
-						this.showtitlebutton(true);
-					}else{
-						this.showtitlebutton(false);
-					}
-				}
+			if(style.tstyle === 3){
+				title.setVisible(true);
 			}
-			this.setHover(true);
-			break;
-		case "mouseout":
-			if(!this.contains(ele, true) && ele !== this._coverView){
 
-				if(style.tstyle === 3){
-					title.setVisible(false);
-				}
-
-				if(style.bstyle === 3){
+			if(style.bstyle === 3){
+				if(title.contains(ele, true)){
+					this.showtitlebutton(true);
+				}else{
 					this.showtitlebutton(false);
 				}
 			}
-			this.setHover(false);
-			break;
 		}
-	};
+		this.setHover(true);
+
+    }.$override(this.onmouseover);
+
+    thi$.onmouseout = function(e){
+        e.cancelBubble();
+        var title = this.title, ele, xy, style;
+        if(!title) return;
+
+        ele = e.toElement;
+        xy = this.relative(e.eventXY());
+        style = this.getTitleStyle();
+
+		if(!this.contains(ele, true) && ele !== this._coverView){
+
+			if(style.tstyle === 3){
+				title.setVisible(false);
+			}
+
+			if(style.bstyle === 3){
+				this.showtitlebutton(false);
+			}
+		}
+		this.setHover(false);
+
+    }.$override(this.onmouseout);
 
 	thi$.showtitlebutton = function(b){
 		var title = this.title, items = title.items0(), item;
@@ -14797,9 +14724,6 @@ js.awt.Window = function (def, Runtime, view){
 		this.client.view.uuid = uuid;
 		//restricted.push(this.client); 
 
-		this.attachEvent("mouseover", 4, this, _onmouseover);
-		this.attachEvent("mouseout",  4, this, _onmouseover);
-
 		MQ.register("js.awt.event.ButtonEvent",
 					this, js.awt.Button.eventDispatcher);
 		
@@ -14939,15 +14863,6 @@ js.awt.Application = function(def, Runtime, entryId){
         Desktop.updateTheme(theme, old);
     };
 
-    var _onresize = function(e){
-        if(Class.isFunction(this.onresize)){
-            this.onresize(e);
-        }else{
-            this.doLayout(true);
-        }
-        return e.cancelBubble();
-    };
-
     thi$.destroy = function(){
         var U = this._local;
 
@@ -14978,8 +14893,6 @@ js.awt.Application = function(def, Runtime, entryId){
 
         this.putContextAttr("appid", this.getAppID());
         this.putContextAttr("app", this);
-        
-        this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
         
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);
@@ -15635,39 +15548,14 @@ J$VM.Factory.registerClass(js.awt.Dialog.MSGDIALOGDEF());
 
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -15769,19 +15657,19 @@ js.awt.MessageBox = function(def, Runtime){
 		var icon, label, text, R = this.Runtime();
 
 		icon = this.icon = DOM.createElement("IMG");
-		icon.className = "msg_icon";
+        DOM.setClassName(icon, "msg_icon");
 		icon.src = R.imagePath() + icons[model.msgType];
 		this.view.appendChild(icon);
 
 		if(model.msgSubject){
 			label = this.label = DOM.createElement("SPAN");
-			label.className = label.className + " msg_subject";
+            DOM.setClassName(label, "msg_subject");
 			label.innerHTML = model.msgSubject;
 			this.view.appendChild(label);
 		}
 
 		text = this.text = DOM.createElement("TEXTAREA");
-		text.className = text.className + " msg_content";
+        DOM.setClassName(text, "msg_content");
 		text.readOnly = "true";
 		text.innerHTML = model.msgContent || "";
 		this.view.appendChild(text);

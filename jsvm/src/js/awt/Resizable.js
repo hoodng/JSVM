@@ -224,6 +224,7 @@ js.awt.Resizable = function(){
         var sizeObj = this.sizeObj, bounds, def;
         if(!sizeObj){
             bounds = this.getBounds();
+
             def = {
                 classType: "js.awt.Component",
                 className: DOM.combineClassName(

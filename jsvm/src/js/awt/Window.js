@@ -363,46 +363,55 @@ js.awt.Window = function (def, Runtime, view){
 		}
 	};
 	
-	var _onmouseover = function(e){
-		var title = this.title;
-		if(!title) return;
+    thi$.onmouseover = function(e){
+        e.cancelBubble();
+        var title = this.title, ele, xy, style;
+        if(!title) return;
 
-		var eType = e.getType(), ele = e.toElement,	 
-		xy = this.relative(e.eventXY()), style = this.getTitleStyle();
+        ele = e.toElement;
+        xy = this.relative(e.eventXY());
+        style = this.getTitleStyle();
 
-		switch(eType){
-		case "mouseover":
-			if(this.contains(ele, true) && xy.y < 50){
+		if(this.contains(ele, true) && xy.y < 50){
 
-				if(style.tstyle === 3){
-					title.setVisible(true);
-				}
-
-				if(style.bstyle === 3){
-					if(title.contains(ele, true)){
-						this.showtitlebutton(true);
-					}else{
-						this.showtitlebutton(false);
-					}
-				}
+			if(style.tstyle === 3){
+				title.setVisible(true);
 			}
-			this.setHover(true);
-			break;
-		case "mouseout":
-			if(!this.contains(ele, true) && ele !== this._coverView){
 
-				if(style.tstyle === 3){
-					title.setVisible(false);
-				}
-
-				if(style.bstyle === 3){
+			if(style.bstyle === 3){
+				if(title.contains(ele, true)){
+					this.showtitlebutton(true);
+				}else{
 					this.showtitlebutton(false);
 				}
 			}
-			this.setHover(false);
-			break;
 		}
-	};
+		this.setHover(true);
+
+    }.$override(this.onmouseover);
+
+    thi$.onmouseout = function(e){
+        e.cancelBubble();
+        var title = this.title, ele, xy, style;
+        if(!title) return;
+
+        ele = e.toElement;
+        xy = this.relative(e.eventXY());
+        style = this.getTitleStyle();
+
+		if(!this.contains(ele, true) && ele !== this._coverView){
+
+			if(style.tstyle === 3){
+				title.setVisible(false);
+			}
+
+			if(style.bstyle === 3){
+				this.showtitlebutton(false);
+			}
+		}
+		this.setHover(false);
+
+    }.$override(this.onmouseout);
 
 	thi$.showtitlebutton = function(b){
 		var title = this.title, items = title.items0(), item;
@@ -623,9 +632,6 @@ js.awt.Window = function (def, Runtime, view){
 		this.client.setPeerComponent(this);
 		this.client.view.uuid = uuid;
 		//restricted.push(this.client); 
-
-		this.attachEvent("mouseover", 4, this, _onmouseover);
-		this.attachEvent("mouseout",  4, this, _onmouseover);
 
 		MQ.register("js.awt.event.ButtonEvent",
 					this, js.awt.Button.eventDispatcher);

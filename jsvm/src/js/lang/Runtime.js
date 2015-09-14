@@ -84,7 +84,7 @@ js.lang.Runtime = function(System){
             };
             
             var _createApp = function(entryId, def, promise){
-                def = def || {};
+                def = def || {zorder: true};
                 def.classType = def.classType || "js.awt.Application";
                 var appClass = Class.forName(def.classType), app;
                 app = new (appClass)(def, this, entryId);

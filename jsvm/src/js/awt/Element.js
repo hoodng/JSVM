@@ -312,77 +312,60 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.getPreferredSize = function(){
-        var M = this.def, size = M.prefSize,
-            bounds = this.getBounds();
-
+        var size = this.def.prefSize, bounds = this.getBounds();
         if(!size){
-            size = {width: bounds.width,
-                    height: bounds.height};
+            return {width: bounds.width, height: bounds.height};
         }else{
-            if(!Class.isNumber(size.width)){
-                size.width = bounds.width;
-            }
-            if(!Class.isNumber(size.height)){
-                size.height= bounds.height;
-            }
+            return checkSize0(size, bounds.width, bounds.height);
         }
-        return size;
     };
     
     thi$.setPreferredSize = function(w, h){
         var M = this.def, size = M.prefSize = (M.prefSize || {});
-        return updateXXXSize(size, w, h);        
+        return checkSize1(size, w, h);        
     };
     
     thi$.getMinimumSize = function(){
-        var M = this.def, size = M.miniSize,
-            bounds = this.getBounds();
+        var size = this.def.miniSize, bounds = this.getBounds();
         
-        if(!size){ size = {};}
-
-        if(!Class.isNumber(size.width)){
-            size.width = this.isRigidWidth() ?
-                bounds.width : bounds.MBP.BPW+1;
+        if(!size){
+            return {width: bounds.MBP.BPW+1, height:bounds.MBP.BPH+1};
+        }else{
+            return checkSize0(size, bounds.MBP.BPW+1, bounds.MBP.BPH+1);
         }
-
-        if(!Class.isNumber(size.height)){
-            size.height= this.isRigidHeight() ?
-                bounds.height: bounds.MBP.BPH+1;
-        }
-
-        return size;
     };
     
     thi$.setMinimumSize = function(w, h){
         var M = this.def, size = M.miniSize = (M.miniSize || {});
-        return updateXXXSize(size, w, h);
+        return checkSize1(size, w, h);
     };
     
     thi$.getMaximumSize = function(nocache){
-        var M = this.def, size = M.maxiSize,
-            bounds = this.getBounds();
+        var size = this.def.maxiSize, bounds = this.getBounds();
         
-        if(!size){ size = {};}
-
-        if(!Class.isNumber(size.width)){
-            size.width = this.isRigidWidth() ?
-                bounds.width : 0xFFFF;
+        if(!size){
+            return { width: 0xFFFF, height:0xFFFF };
+        }else{
+            return checkSize0(size, 0xFFFF, 0xFFFF);
         }
-
-        if(!Class.isNumber(size.height)){
-            size.height= this.isRigidHeight() ?
-                bounds.height: 0xFFFF;
-        }
-        
-        return size;
     };
     
     thi$.setMaximumSize = function(w, h){
         var M = this.def, size = M.maxiSize = (M.maxiSize || {});
-        return updateXXXSize(size, w, h);
+        return checkSize1(size, w, h);
     };
 
-    var updateXXXSize = function(size, w, h){
+    var checkSize0 = function(size, w, h){
+        if(!Class.isNumber(size.width)){
+            size.width = w;
+        }
+        if(!Class.isNumber(size.height)){
+            size.height= h;
+        }
+        return size;
+    };
+
+    var checkSize1 = function(size, w, h){
         if(Class.isNumber(w)){
             size.width = w;
         }
@@ -396,9 +379,8 @@ js.awt.Element = function(def, Runtime){
      * Return the computed style with the specified style name
      */
     thi$.getStyle = function(sp){
-        if(!this.isDOMElement()) return null;        
-        sp = DOM.camelName(sp);
-        return DOM.currentStyles(this.view)[sp];
+        if(!this.view) return null;
+        return DOM.currentStyles(this.view)[DOM.camelName(sp)];
     };
 
     /**
@@ -407,7 +389,7 @@ js.awt.Element = function(def, Runtime){
      * @return an object with key are style name and value are style value. 
      */
     thi$.getStyles = function(sps){
-        if(!this.isDOMElement()) return null;
+        if(!this.view) return {};
 
         var styles = DOM.currentStyles(this.view),
             i, len, sp, ret = {};
@@ -425,7 +407,17 @@ js.awt.Element = function(def, Runtime){
      * are style value. 
      */
     thi$.applyStyles = function(styles){
-        DOM.applyStyles(this.view, styles);
+        var M = this.def, coord, sized, fire = 0x0F,
+            bounds = DOM.applyStyles(this.view, styles);
+
+        coord = _updateCoords.call(this, M, bounds, fire);
+        sized = _updateSize.call(this, M, bounds, fire);
+        if(coord || sized){
+            this.adjustLayers("geom", bounds);
+            if(sized && (fire & 0x01)){
+                this.doLayout(true, bounds);
+            }
+        }
     };
     
     thi$.defAttr = function(key, val){
@@ -738,13 +730,13 @@ js.awt.Element = function(def, Runtime){
         return this.def.sync || false;
     };
 
-    var DISPLAYS = ["none", "block", "inline", "inline-block"];
+    var DISPLAYS = ["none", "block", "inline"];
 
     thi$.display = function(show){
         var disp;
         show = Class.isBoolean(show) ? (show ? 1:0) :
-        Class.isNumber(show) ? show: 0;
-        this.setVisible(!(show === 0));
+        Class.isNumber(show) ? show : 0;
+        this.setVisible(show !== 0);
         
         if(this.view){
             disp = DISPLAYS[show];

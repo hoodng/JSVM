@@ -567,6 +567,22 @@ js.awt.Component = function(def, Runtime, view){
             this.doLayout(true);
         }
     };
+
+    thi$.onmousedown = function(e){
+        this.activateComponent(e);
+    };
+
+    thi$.onmouseup = function(e){
+
+    };
+
+    thi$.onmouseover = function(e){
+
+    };
+
+    thi$.onmouseout = function(e){
+
+    };
         
     thi$.destroy = function(){
         if(this.destroied) return;
