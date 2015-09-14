@@ -753,7 +753,16 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.getMovingConstraints = function(){
-        return this.def.mover;
+        var mover = this.def.mover;
+        if(!mover){
+            mover = this.def.mover = {
+                bound: 20,
+                bt: 1, br: 0, bb: 0, bl: 1,
+                grid: 1,
+                freedom: 3
+            };
+        }
+        return mover;
     };
 
     var isScroll = {auto: true, visible: true, scroll: true};

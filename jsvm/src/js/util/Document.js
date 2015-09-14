@@ -698,23 +698,25 @@ js.util.Document = function (){
 
     thi$.MBPCache = {};
     
-    thi$.MBP = function(ele, nocache){
+    thi$.MBP = function(ele, nocache, clazz){
         var bounds = ele ? (ele.bounds||{}) : {}, outer,
             mbp, mbpinline, clone, body;
 
         if(!ele) return null;
 
         outer = this.outerSize(ele);
-
+        clazz = clazz || this.getClassName(ele);
+        
         mbp = bounds.MBP;
-        if(mbp && !nocache || (mbp && ele.cloned)){
+        if(mbp && !nocache && (mbp.clazz === clazz) ||
+           (mbp && ele.cloned)){
             J$VM.System.objectCopy(outer, mbp);
             return mbp;
         }
 
         mbpinline = MBPTEST.test(ele.style.cssText);
         if(!mbpinline){
-            mbp = this.MBPCache[ele.clazz || ele.className];
+            mbp = this.MBPCache[clazz];
             mbp = mbp ? J$VM.System.objectCopy(mbp, {}) : null;
             if(mbp){
                 J$VM.System.objectCopy(outer, mbp);
@@ -723,7 +725,7 @@ js.util.Document = function (){
         }
 
         if(this.isDOMElement(ele)){
-            mbp = _calcMBP.call(this, ele,  mbpinline);
+            mbp = _calcMBP.call(this, ele,  clazz, mbpinline);
             J$VM.System.objectCopy(outer, mbp);
             return mbp;
         }
@@ -738,7 +740,7 @@ js.util.Document = function (){
         body.appendChild(clone);
         clone.style.display = "";
         outer = this.outerSize(clone);
-        mbp = _calcMBP.call(this, clone, mbpinline);
+        mbp = _calcMBP.call(this, clone, clazz, mbpinline);
         mbp.fake = true;
         J$VM.System.objectCopy(outer, mbp);
         body.removeChild(clone);
@@ -746,7 +748,7 @@ js.util.Document = function (){
         return mbp;
     };
     
-    var _calcMBP = function(ele, mbpinline){
+    var _calcMBP = function(ele, clazz, mbpinline){
         var styles = this.currentStyles(ele, true), mbp ={};
 
         // BBM: BorderBoxModel
@@ -767,9 +769,10 @@ js.util.Document = function (){
         padding(styles,mbp);
         mbp.BPW= mbp.BW + mbp.PW;
         mbp.BPH= mbp.BH + mbp.PH;
+        mbp.clazz = clazz
         
         if(!mbpinline){
-            this.MBPCache[ele.clazz || ele.className] =
+            this.MBPCache[clazz] =
                 J$VM.System.objectCopy(mbp, {}, true);
         }
         return mbp;
@@ -1138,15 +1141,16 @@ js.util.Document = function (){
      * Return box model of this element
      */
     thi$.getBounds = function(ele, nocache){
-        var bounds, mbp;
+        var bounds, mbp, clazz;
         
         if(!ele) return null;
-        
+
         bounds = ele.bounds = (ele.bounds || {});
         mbp = bounds.MBP;
-        if(mbp && !nocache) return bounds;
+        clazz = this.getClassName(ele);
+        if(mbp && !nocache && (mbp.clazz === clazz)) return bounds;
         
-        bounds.MBP = this.MBP(ele, true);
+        bounds.MBP = this.MBP(ele, true, clazz);
         bounds.BBM = bounds.MBP.BBM;
         bounds = _calcCoords.call(this, ele, bounds);
         bounds = _calcSize.call(this, ele, bounds);
@@ -1822,27 +1826,28 @@ js.util.Document = function (){
 
         ele.className = [prefix, className].join(" ");
     };
+
+    thi$.getClassName = function(ele){
+        var names = this.splitClassName(ele.className);
+        return names.join(" ");
+    };
     
     var STATEREG = /(\w+)(_\d{1,4})$/;
 
     thi$.splitClassName = function(className){
         className.trim();
 
-        var names = className.split(" "), last = names.pop();
-        if(STATEREG.test(last)){
-            last = RegExp.$1;
-            if(names.length > 0){
-                if(last != names[names.length-1]){
-                    names.push(last);
-                }
-            }else{
-                names.push(last);
+        var names = className.split(" "), map = {}, ret=[], name;
+        while(names.length > 0){
+            name = names.shift();
+            if(STATEREG.test(name)){
+                name = RegExp.$1;
             }
-        }else{
-            names.push(last);
+            if(!map[name]){
+                ret.push(name);
+            }
         }
-        
-        return names;
+        return ret;
     };
 
     var _combineClassName = function(className, ext, separator){
