@@ -34,8 +34,7 @@ js.awt.Element = function(def, Runtime){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, 
-        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ, 
-        Z4 = [0,0,0,0];
+        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
     
     /**
      * Return the position left of the component.<p>
@@ -54,7 +53,7 @@ js.awt.Element = function(def, Runtime){
      * @see setPosition(x, y)
      */
     thi$.setX = function(x, fire){
-        this.setPosition(x, null, fire);
+        return this.setPosition(x, null, fire);
     };
     
     /**
@@ -74,7 +73,7 @@ js.awt.Element = function(def, Runtime){
      * @see setPosition(x, y)
      */
     thi$.setY = function(y, fire){
-        this.setPosition(null, y, fire);
+        return this.setPosition(null, y, fire);
     };
     
     /**
@@ -94,9 +93,35 @@ js.awt.Element = function(def, Runtime){
      * @param y, the position top
      */
     thi$.setPosition = function(x, y, fire){
-        this.setBounds(x, y, null, null, fire);
+        var M = this.def, bounds, changed = false;
+        if(this.view){
+            bounds = DOM.setPosition(this.view, x, y);
+        }else{
+            bounds = {x: x, y: y};
+        }
+
+        changed = _updateCoords.call(this, M, bounds, fire);
+        if(changed){
+            this.adjustLayers("coord", bounds);
+        }
+        
+        return changed;
     };
 
+    var _updateCoords = function(M, bounds, fire){
+        var U = this._local, changed = false;
+        if(M.x !== bounds.x || M.y !== bounds.y ){
+            M.x = bounds.x;
+            M.y = bounds.y;
+            changed = true;
+        }
+
+        if((fire & 0x04)){
+            U.userX = M.x;
+            U.userY = M.y;
+        }
+        return changed;
+    }
 
     /**
      * Return z-index of the component.<p>
@@ -113,15 +138,31 @@ js.awt.Element = function(def, Runtime){
      * @param z
      */
     thi$.setZ = function(z, fire){
-        var M = this.def, bounds;
-        if(this.isDOMElement()){
+        var M = this.def, bounds, changed = false;
+        if(this.view){
             bounds = DOM.setZ(this.view, z);
-            M.z = bounds.MBP.zIndex;
         }else{
-            M.z = Class.isNumber(z) ? z : this.getZ();
+            bounds = {MBP:{zIndex:z}};
+        }
+
+        changed = _updateZ.call(this, M, bounds, fire);
+        if(changed){
+            this.adjustLayers("zorder", bounds);            
         }
         
-        this.adjustLayers("zorder");        
+        return changed;
+    };
+
+    var _updateZ = function(M, bounds, fire){
+        var U = this._local, changed = false;
+        if(M.z !== bounds.MBP.zIndex){
+            M.z = bounds.MBP.zIndex;
+            changed = true;
+        }
+        if((fire & 0x04)){
+            U.userZ = M.z;
+        }
+        return changed;
     };
     
     /**
@@ -141,7 +182,7 @@ js.awt.Element = function(def, Runtime){
      * @see setSize(w, h)
      */
     thi$.setWidth = function(w, fire){
-        this.setSize(w, null, fire);
+        return this.setSize(w, null, fire);
     };
     
     /**
@@ -161,7 +202,7 @@ js.awt.Element = function(def, Runtime){
      * @see setSize(w, h)
      */
     thi$.setHeight = function(h, fire){
-        this.setSize(null, h, fire);
+        return this.setSize(null, h, fire);
     };
     
     /**
@@ -180,22 +221,55 @@ js.awt.Element = function(def, Runtime){
      * @param h, height
      */
     thi$.setSize = function(w, h, fire){
-        this.setBounds(null, null, w, h, fire);
+        var M = this.def, bounds, changed = false;
+        if(this.view){
+            bounds = DOM.setSize(this.view, w, h);
+        }else{
+            bounds = {width: w, height: h};
+        }
+        
+        changed = _updateSize.call(this, M, bounds, fire);
+        if(changed){
+            this.adjustLayers("sized", bounds);
+            if(fire & 0x01){
+                this.doLayout(true, bounds);
+            }
+        }
+        
+        return changed;
     };
+
+    var _updateSize = function(M, bounds, fire){
+        var U = this._local, changed = false;
+        
+        if(M.width !== bounds.width ||
+           M.height !== bounds.height){
+            M.width = bounds.width;
+            M.height= bounds.height;
+            changed = true;
+        }
+
+        if((fire & 0x04)){
+            U.userW = M.width;
+            U.userH = M.height;
+        }
+        
+        return changed;
+    }
 
     thi$.absXY = function(){
         var bounds = this.getBounds();
         return{x: bounds.absX, y:bounds.absY};
     };
     
-    thi$.getBounds = function(){
+    thi$.getBounds = function(nocache){
         var U = this._local, bounds;
         
         if(this.view){
-            bounds = DOM.getBounds(this.view);
+            bounds = DOM.getBounds(this.view, nocache);
         }else{
             bounds = {
-                MBP:{},
+                MBP:{zIndex:this.getZ()},
                 absX: 0,
                 absY: 0,
                 x: this.getX(),
@@ -209,7 +283,7 @@ js.awt.Element = function(def, Runtime){
 
         bounds.userX = U.userX;
         bounds.userY = U.userY;
-        bounds.userZ = U.userZ;        
+        bounds.userZ = U.userZ;
         bounds.userW = U.userW;
         bounds.userH = U.userH;
         
@@ -217,72 +291,105 @@ js.awt.Element = function(def, Runtime){
     };
 
     thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def, bounds;
+        var M = this.def, bounds, coord, sized;
         
-        if(this.isDOMElement()){
+        if(this.view){
             bounds = DOM.setBounds(this.view, x, y, w, h);
-            M.x = bounds.x;
-            M.y = bounds.y;
-            M.width = bounds.width;
-            M.height= bounds.height;
-            this.adjustLayers("geom");
         }else{
-            M.x = Class.isNumber(x) ? x : this.getX();
-            M.y = Class.isNumber(y) ? y : this.getY();
-            M.width = Class.isNumber(w) ? w : this.getWidth();
-            M.height= Class.isNumber(h) ? h : this.getHeight();
+            bounds = {x: x, y: y, width: w, height: h}
         }
+
+        coord = _updateCoords.call(this, M, bounds, fire);
+        sized = _updateSize.call(this, M, bounds, fire);
+        if(coord || sized){
+            this.adjustLayers("geom", bounds);
+            if(sized && (fire & 0x01)){
+                this.doLayout(true, bounds);
+            }
+        }
+
+        return (coord || sized);
     };
 
-    thi$.getPreferredSize = function(nocache){
-        var d, ret = this.def.prefSize;
-        if(nocache === true || !ret){
-            d = this.getBounds();
-            this.setPreferredSize(d.width, d.height);
-            ret = this.def.prefSize;
+    thi$.getPreferredSize = function(){
+        var M = this.def, size = M.prefSize,
+            bounds = this.getBounds();
+
+        if(!size){
+            size = {width: bounds.width,
+                    height: bounds.height};
+        }else{
+            if(!Class.isNumber(size.width)){
+                size.width = bounds.width;
+            }
+            if(!Class.isNumber(size.height)){
+                size.height= bounds.height;
+            }
         }
-        return ret;
+        return size;
     };
     
     thi$.setPreferredSize = function(w, h){
-        this.def.prefSize = {
-            width: w > 0 ? w : 0, 
-            height:h > 0 ? h : 0
-        };
+        var M = this.def, size = M.prefSize = (M.prefSize || {});
+        return updateXXXSize(size, w, h);        
     };
     
-    thi$.getMinimumSize = function(nocache){
-        var d, ret = this.def.miniSize;
-        if(nocache === true || !ret){
-            d = this.getBounds();
-            this.setMinimumSize(
-                this.isRigidWidth() ? d.width : d.MBP.BPW+1, 
-                this.isRigidHeight()? d.height: d.MBP.BPH+1);
-            ret = this.def.miniSize;
+    thi$.getMinimumSize = function(){
+        var M = this.def, size = M.miniSize,
+            bounds = this.getBounds();
+        
+        if(!size){ size = {};}
+
+        if(!Class.isNumber(size.width)){
+            size.width = this.isRigidWidth() ?
+                bounds.width : bounds.MBP.BPW+1;
         }
-        return ret;
+
+        if(!Class.isNumber(size.height)){
+            size.height= this.isRigidHeight() ?
+                bounds.height: bounds.MBP.BPH+1;
+        }
+
+        return size;
     };
     
     thi$.setMinimumSize = function(w, h){
-        this.def.miniSize = {
-            width: w, height:h
-        };
+        var M = this.def, size = M.miniSize = (M.miniSize || {});
+        return updateXXXSize(size, w, h);
     };
     
     thi$.getMaximumSize = function(nocache){
-        var d, ret = this.def.maxiSize;
-        if(nocache === true || !ret){
-            d = this.getBounds();
-            this.setMaximumSize(0xFFFF, 0xFFFF);
-            ret = this.def.maxiSize;
+        var M = this.def, size = M.maxiSize,
+            bounds = this.getBounds();
+        
+        if(!size){ size = {};}
+
+        if(!Class.isNumber(size.width)){
+            size.width = this.isRigidWidth() ?
+                bounds.width : 0xFFFF;
         }
-        return ret;
+
+        if(!Class.isNumber(size.height)){
+            size.height= this.isRigidHeight() ?
+                bounds.height: 0xFFFF;
+        }
+        
+        return size;
     };
     
     thi$.setMaximumSize = function(w, h){
-        this.def.maxiSize = {
-            width: w, height:h
-        };
+        var M = this.def, size = M.maxiSize = (M.maxiSize || {});
+        return updateXXXSize(size, w, h);
+    };
+
+    var updateXXXSize = function(size, w, h){
+        if(Class.isNumber(w)){
+            size.width = w;
+        }
+        if(Class.isNumber(h)){
+            size.height= h;
+        }
+        return size;
     };
 
     /**
@@ -631,10 +738,21 @@ js.awt.Element = function(def, Runtime){
         return this.def.sync || false;
     };
 
-    thi$.display = function(show){
-        this.setVisible(show||false);
-    };
+    var DISPLAYS = ["none", "block", "inline", "inline-block"];
 
+    thi$.display = function(show){
+        var disp;
+        show = Class.isBoolean(show) ? (show ? 1:0) :
+        Class.isNumber(show) ? show: 0;
+        this.setVisible(!(show === 0));
+        
+        if(this.view){
+            disp = DISPLAYS[show];
+            this.view.style.display = disp;
+            this.adjustLayers("display", null, disp);
+        }
+    };
+    
     /**
      * Gets the attribute with specified name
      * 
@@ -668,12 +786,30 @@ js.awt.Element = function(def, Runtime){
     thi$.isDOMElement = function(){
         return DOM.isDOMElement(this.view);
     };
+
+    thi$.onresize = function(e){
+        var U = this._local, userW = U.userW, userH = U.userH,
+            bounds = this.getBounds(true);
+
+        if(userW != bounds.width || userH != bounds.height){
+            this.adjustLayers("sized", bounds);
+            this.doLayout(true, bounds);
+        }
+    };
     
-    thi$.doLayout = function(force){
+    thi$.doLayout = function(force, bounds){
         var U = this._local, ret = true;
         if(!this.needLayout(force)){
             ret = false;
         }else{
+            bounds = bounds || this.getBounds(true);
+            
+            U.userX = bounds.x;
+            U.userY = bounds.y;
+            U.userZ = bounds.MBP.zIndex;
+            U.userW = bounds.width;
+            U.userH = bounds.height;
+
             ret = U.didLayout = true;
         }
         
@@ -700,27 +836,28 @@ js.awt.Element = function(def, Runtime){
         this._local.didLayout = false;
     };
     
-    thi$.adjustLayers = function(cmd, show){
-        var bounds, z;
+    thi$.adjustLayers = function(cmd, bounds, show){
         switch(cmd){
-        case "geom":
-            bounds = this.getBounds();
+            case "coord":
+            case "sized":
+            case "geom":
+            bounds = bounds || this.getBounds();
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
             this.adjustOutline(bounds);
             break;
-        case "zorder":
-            z = this.getZ();
+            case "zorder":
+            var z = this.getZ();
             this.setShadowZIndex(z);
             this.setCoverZIndex(z);
             this.setOutlineZIndex(z);
             break;
-        case "display":
+            case "display":
             this.setShadowDisplay(show);
             this.setCoverDisplay(show);
             this.setOutlineDisplay(show);            
             break;
-        case "remove":
+            case "remove":
             this.removeShadow();
             this.removeCover();
             this.removeOutline();
@@ -858,18 +995,6 @@ js.awt.Element = function(def, Runtime){
             this.setResizable(true, M.resizer);
         }
         
-        if(M.prefSize){
-            this.isPreferredSizeSet = true;
-        }
-        
-        if(M.miniSize){
-            this.isMinimumSizeSet = true;
-        }
-        
-        if(M.maxiSize){
-            this.isMaximumSizeSet = true;
-        }        
-                
     }.$override(this._init);
     
     this._init.apply(this, arguments);

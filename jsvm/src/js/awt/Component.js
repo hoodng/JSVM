@@ -88,21 +88,9 @@ js.awt.Component = function(def, Runtime, view){
      *                   4: set this position as original position
      */
     thi$.setPosition = function(x, y, fire){
-        var M = this.def, U = this._local;
-
-        $super(this);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userX = M.x;
-            U.userY = M.y;
+        if($super(this) && (fire & 0x01)){
+            this.onMoved(fire);
         }
-
-        if((fire & 0x01) != 0){
-            this.onMoved(fire);            
-        }
-
     }.$override(this.setPosition);
     
     /**
@@ -112,20 +100,9 @@ js.awt.Component = function(def, Runtime, view){
      * @param fire
      */
     thi$.setZ = function(z, fire){
-        var M = this.def, U = this._local;
-        
-        $super(this);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userZ = M.z;
-        }
-
-        if((fire & 0x01) != 0){
+        if($super(this) && (fire & 0x01)){
             this.onZOrderChanged(fire);
         }
-        
     }.$override(this.setZ);
 
     /**
@@ -138,43 +115,16 @@ js.awt.Component = function(def, Runtime, view){
      *                   4: set this size as original size
      */
     thi$.setSize = function(w, h, fire){
-        var M = this.def, U = this._local;
-
-        $super(this);
-
-        fire = !Class.isNumber(fire) ? 0 : fire;
-
-        if((fire & 0x04) != 0){
-            U.userW = M.width;
-            U.userH = M.height;
-        }
-
-        if((fire & 0x01) != 0){
+        if($super(this) && (fire & 0x01)){
             this.onResized(fire);
         }
-        
     }.$override(this.setSize);
     
 
     thi$.setBounds = function(x, y, w, h, fire){
-        var M = this.def, U = this._local;
-
-        $super(this);
-
-        fire = Class.isNumber(fire) ? fire : 0;
-
-        if((fire & 0x04) != 0){
-            U.userX = M.x;
-            U.userY = M.y;
-
-            U.userW = M.width;
-            U.userH = M.height;
-        }
-
-        if((fire & 0x01) != 0){
+        if($super(this) && (fire & 0x01)){
             this.onGeomChanged(fire);
         }
-
     }.$override(this.setBounds);
     
     /**
@@ -251,19 +201,6 @@ js.awt.Component = function(def, Runtime, view){
             handler);
     };
     
-
-    var DISPLAYS = ["none", "block"];
-    /**
-     * Sets style.display = none/blcok
-     */
-    thi$.display = function(show){
-        var disp;
-        show = show ? 1 : 0;
-        disp = DISPLAYS[show];
-        this.view.style.display = disp;
-        this.adjustLayers("display", disp);
-    }.$override(this.display);
-
     /**
      * Test whether contains a child node in this component
      * 
@@ -290,12 +227,12 @@ js.awt.Component = function(def, Runtime, view){
         return ctrl;
     };
     
-    thi$.adjustController = function(){
-        var ctrl = this.controller, bounds, counds, x, y, w, h;
+    thi$.adjustController = function(bounds){
+        var ctrl = this.controller, counds, x, y, w, h;
         if(!ctrl) return;
 
         ctrl.appendTo(this.view); // Keep controller alwasy on top
-        bounds = this.getBounds();
+        bounds = bounds || this.getBounds();
         counds = ctrl.getBounds();
         w = ctrl.isRigidWidth() ? counds.width : bounds.innerWidth;
         h = ctrl.isRigidHeight()? counds.height: bounds.innerHeight;
@@ -337,9 +274,6 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onResized = function(fire){
-        if((fire & 0x02) != 0){
-            this.doLayout(true);
-        }
         this.autoResizeContainer();
     };
 
@@ -359,9 +293,6 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onGeomChanged = function(fire){
-        if((fire & 0x02) != 0){
-            this.doLayout(true);
-        }
         this.autoResizeContainer();
     };
     
@@ -515,7 +446,6 @@ js.awt.Component = function(def, Runtime, view){
      * component which take charge of the change and redo layout.
      */
     thi$.invalidParentLayout = function() {
-        /*
         var target = this.getContainer();
         while(target && !target.handleLayoutInvalid) {
             if (target.getContainer && target.getContainer()) {
@@ -526,7 +456,7 @@ js.awt.Component = function(def, Runtime, view){
         }
         if (target && target.handleLayoutInvalid) {
             target.handleLayoutInvalid();
-        }*/
+        }
     };
 
     /**
@@ -556,10 +486,10 @@ js.awt.Component = function(def, Runtime, view){
      * 
      * Notes: Sub class should override this method
      */
-    thi$.doLayout = function(force){
+    thi$.doLayout = function(force, bounds){
         var ret = false;
         if($super(this)){
-            this.adjustController();            
+            this.adjustController(bounds);            
             ret = true;
         }
         return ret;
@@ -598,8 +528,6 @@ js.awt.Component = function(def, Runtime, view){
         }
 
         this.setTipText(M.tip);
-        
-        this.adjustLayers("geom");
     };
 
     var _geometric = function(isNative){

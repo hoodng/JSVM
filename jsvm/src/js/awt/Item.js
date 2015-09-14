@@ -101,15 +101,14 @@ js.awt.Item = function(def, Runtime, view){
 	 * @see js.awt.Component
 	 */
 	thi$.getPreferredSize = function(){
-		var M = this.def, prefSize = M.prefSize, G, D,
-		nodes, ele1, ele0, width;
+		var M = this.def, prefSize = M.prefSize, bounds = this.getBounds(),
+		D, nodes, ele1, ele0, width;
 
 		if(this.isPreferredSizeSet && prefSize){
 			return prefSize;
 		}
 
 		if(!this.isStrict()){
-			G = this.getGeometric();
 			nodes = this.view.childNodes;
 			ele1 = nodes[nodes.length-2];
 			ele0 = nodes[nodes.length -1];
@@ -131,21 +130,16 @@ js.awt.Item = function(def, Runtime, view){
 					width = ele1.offsetLeft + ele1.scrollWidth;
 				}
 
-				width += G.ctrl.MBP.marginLeft + G.ctrl.width;
+				D = DOM.getBounds(this.ctrl);
+				width += D.MBP.marginLeft + D.width;
 			}
-			width += G.bounds.MBP.BPW;
+			width += bounds.MBP.BPW;
 
-			this.setPreferredSize(
-				width,
-				G.bounds.height - (G.bounds.BBM ? 0 : G.bounds.MBP.BPH));
+			this.setPreferredSize(width, bounds.innerHeight);
 			prefSize = M.prefSize;
-
 		}else{
-			D = this.getBounds();
-			prefSize = {
-				width: D.width,
-				height: D.height
-			};
+			bounds = this.getBounds();
+			prefSize = {width: bounds.width, height: bounds.height};
 		}
 
 		return prefSize;
@@ -365,8 +359,8 @@ js.awt.Item = function(def, Runtime, view){
 			return false;
 		}
 
-		var M = this.def, G = this.getGeometric(), bounds = this.getBounds(),
-		MBP = bounds.MBP, xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
+		var M = this.def, G = {}, bounds = this.getBounds(), MBP = bounds.MBP,
+		xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
 		left = 0, top, space = bounds.innerWidth, layout = M.layout || {},
 		gap = layout.gap || 0, hAlign = layout.align_x, vAlign = layout.align_y,
 		ctrlAlign = M.ctrlAlign, items = M.items, len = items.length, 
@@ -765,20 +759,28 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	var _createElements = function(){
-		var M = this.def, items = M.items, G = this.getGeometric(),
-		bounds = G.bounds, MBP = bounds.MBP, xbase = MBP.paddingLeft,
-		ybase = MBP.paddingTop, left = xbase, top, height, innerHeight,
-		D, ele, id ,iid, viewType, i, len, buf = this.__buf__, 
-		strict = this.isStrict(), uuid = this.uuid();
+		var M = this.def, items = M.items, G = {}, bounds,
+		MBP, xbase, ybase, left, top, height, innerHeight,
+		D, ele, id ,iid, viewType, i, len, 
+		buf = this.__buf__, uuid = this.uuid(),
+		strict = this.isStrict();
 
 		// For the iterable items, rectify the Box-model compatibility 
 		// differences in advance.
 		if(!strict){
-			height = bounds.BBM ? bounds.height : bounds.height - MBP.BPH;
-			innerHeight = height - MBP.BPH;
-			
-			this.view.style.height = bounds.BBM ?
-				(height + "px") : (innerHeight+"px");
+			bounds = DOM.getBounds(this.view);
+
+			if(!bounds.BBM){
+				DOM.setSize(this.view, undefined, bounds.innerHeight);
+				bounds = DOM.getBounds(this.view);				  
+			}
+
+			MBP = bounds.MBP;
+			xbase = MBP.paddingLeft;
+			ybase = MBP.paddingTop;
+			left = xbase;
+
+			innerHeight = bounds.innerHeight;
 		}		 
 		
 		for(i = 0, len = items.length; i < len; i++){
@@ -805,23 +807,16 @@ js.awt.Item = function(def, Runtime, view){
 			ele.iid = iid;
 
 			buf.clear();
-			buf.append("position:absolute;");
+			buf.append("position:absolute;display:block;");
 
 			// For the iterable items, do the layout things ahead
 			if(!strict){
 				if(!G[iid]){
-					ele.style.cssText =
-						"position:absolute;white-space:nowrap;visibility:hidden;";
-					DOM.appendTo(ele, document.body);
+					ele.style.cssText = "display:block;";
 					G[iid] = DOM.getBounds(ele);
-					DOM.removeFrom(ele);
-					ele.style.cssText = "";
-				}else{
-					ele.bounds = G[iid];
 				}
 
 				D = G[iid];
-
 				top = ybase + (innerHeight - D.height) * 0.5;
 				buf.append("top:").append(top).append("px;");
 
@@ -830,7 +825,7 @@ js.awt.Item = function(def, Runtime, view){
 					left += D.MBP.marginLeft + D.width + D.MBP.marginRight;
 				}else{
 					buf.append("right:")
-						.append(G.bounds.MBP.paddingRight).append("px;");
+						.append(bounds.MBP.paddingRight).append("px;");
 				}
 			}
 

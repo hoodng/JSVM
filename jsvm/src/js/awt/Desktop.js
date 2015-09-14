@@ -26,44 +26,14 @@ js.awt.Desktop = function (Runtime){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
         System = J$VM.System, MQ =J$VM.MQ, R;
 
-
-    var _notifyComps = function(msgid, e){
-        var comps = this.getAllComponents(),
-            len = comps ? comps.length : 0,
-            i, comp, recs = [];
-
-        for(i = 0; i < len; i++){
-            comp = comps[i];
-            recs.push(comp.uuid());
-        }
-
-        if(recs.length > 0){
-            MQ.post(msgid, e, recs);
-        }
-    };
-
-    var bodyW, bodyH;
-    var _onresize = function(e){
+    this.onresize = function(e){
         System.updateLastAccessTime();
-
-        var bounds = DOM.getBounds(document.body), evt;
-        if(bounds.width != bodyW || bounds.height != bodyH){
-            evt = new Event(Event.W3C_EVT_RESIZE,
-                            {owidth: bodyW, oheight: bodyH,
-                             width: bounds.width, height: bounds.height});
-            
-            _notifyComps.call(this, "js.awt.event.WindowResized", evt);
-
-            this.LM.clearStack(e);
-
-            bodyW = bounds.width;
-            bodyH = bounds.height;
-
-            for(var appid in apps){
-                this.getApp(appid).fireEvent(e);
-            }
+        $super(this);
+        this.LM.clearStack(e);
+        for(var appid in apps){
+            this.getApp(appid).fireEvent(e);
         }
-    };
+    }.$override(this.onresize);
 
     var _onkeyevent = function(e){
         System.updateLastAccessTime();
@@ -499,7 +469,7 @@ js.awt.Desktop = function (Runtime){
     var _bindEvents = function(){
         var dom = self.document,
             EVENTS = [
-                [self, Event.W3C_EVT_RESIZE,        _onresize],
+                [self, Event.W3C_EVT_RESIZE,        this.onresize],
                 [self, Event.W3C_EVT_MESSAGE,       _onmessage],
 
                 [dom,  Event.W3C_EVT_KEY_DOWN,      _onkeyevent],

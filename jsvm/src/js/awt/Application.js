@@ -56,15 +56,6 @@ js.awt.Application = function(def, Runtime, entryId){
         Desktop.updateTheme(theme, old);
     };
 
-    var _onresize = function(e){
-        if(Class.isFunction(this.onresize)){
-            this.onresize(e);
-        }else{
-            this.doLayout(true);
-        }
-        return e.cancelBubble();
-    };
-
     thi$.destroy = function(){
         var U = this._local;
 
@@ -95,8 +86,6 @@ js.awt.Application = function(def, Runtime, entryId){
 
         this.putContextAttr("appid", this.getAppID());
         this.putContextAttr("app", this);
-        
-        this.attachEvent(Event.W3C_EVT_RESIZE, 4, this, _onresize);
         
         MQ.register("js.awt.event.ButtonEvent",
                     this, js.awt.Button.eventDispatcher);

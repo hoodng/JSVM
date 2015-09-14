@@ -63,8 +63,8 @@ js.awt.HBox = function (def, Runtime){
         var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
         newDef.layout.axis = 0;
         System.objectCopy(newDef, def, true, true);
-        
-        $super(this);
+
+        $super(this, def, Runtime);
 
     }.$override(this._init);
     

@@ -710,7 +710,10 @@ js.util.Document = function (){
         mbp = bounds.MBP;
         if(mbp && !nocache && (mbp.clazz === clazz) ||
            (mbp && ele.cloned)){
-            J$VM.System.objectCopy(outer, mbp);
+            if(outer.valid){
+                J$VM.System.objectCopy(outer, mbp);                
+            }
+
             return mbp;
         }
 
@@ -719,36 +722,40 @@ js.util.Document = function (){
             mbp = this.MBPCache[clazz];
             mbp = mbp ? J$VM.System.objectCopy(mbp, {}) : null;
             if(mbp){
-                J$VM.System.objectCopy(outer, mbp);
+                if(outer.valid){
+                    J$VM.System.objectCopy(outer, mbp);
+                }
                 return mbp;
             }
         }
 
         if(this.isDOMElement(ele)){
-            mbp = _calcMBP.call(this, ele,  clazz, mbpinline);
-            J$VM.System.objectCopy(outer, mbp);
+            mbp = _calcMBP.call(this, ele,  clazz, outer, mbpinline);
             return mbp;
         }
 
         // When the ele is not a DOM element or
         // when the ele or it's ancestors are diplay == none.
         body = self.document.body;
-        clone = ele.cloneNode(false);
+        clone = ele.cloneNode(ele.nodeName === "SPAN" ? true : false);
         clone.style.cssText = [
             ele.style.cssText,
             "visibility:hidden"].join(";");
         body.appendChild(clone);
-        clone.style.display = "";
+
+        if(this.getStyle(clone, "display") === "none"){
+            clone.style.display = "";
+        }
+
         outer = this.outerSize(clone);
-        mbp = _calcMBP.call(this, clone, clazz, mbpinline);
+        mbp = _calcMBP.call(this, clone, clazz, outer, mbpinline);
         mbp.fake = true;
-        J$VM.System.objectCopy(outer, mbp);
         body.removeChild(clone);
 
         return mbp;
     };
     
-    var _calcMBP = function(ele, clazz, mbpinline){
+    var _calcMBP = function(ele, clazz, outer, mbpinline){
         var styles = this.currentStyles(ele, true), mbp ={};
 
         // BBM: BorderBoxModel
@@ -770,6 +777,9 @@ js.util.Document = function (){
         mbp.BPW= mbp.BW + mbp.PW;
         mbp.BPH= mbp.BH + mbp.PH;
         mbp.clazz = clazz
+        if(outer.valid){
+            J$VM.System.objectCopy(outer, mbp);
+        }
         
         if(!mbpinline){
             this.MBPCache[clazz] =
