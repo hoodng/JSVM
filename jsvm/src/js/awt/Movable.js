@@ -250,15 +250,7 @@ js.awt.Movable = function (){
         var M = this.def;
         b = b || false;
         M.movable = b;
-        var mover = this.getMovingConstraints();
-        mover.bound = 
-            Class.isNumber(mover.bound) ? mover.bound : 20;
-        mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
-        mover.br = Class.isNumber(mover.br) ? mover.br : 0;
-        mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
-        mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
-        mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
-        mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
+        this.getMovingConstraints();
     };
 
 };
