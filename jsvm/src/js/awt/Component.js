@@ -560,16 +560,27 @@ js.awt.Component = function(def, Runtime, view){
     };
 
     thi$.onmouseup = function(e){
-
     };
 
     thi$.onmouseover = function(e){
-
     };
 
     thi$.onmouseout = function(e){
-
     };
+
+    /*
+    thi$.ondragleave = function(e){
+    };
+
+    thi$.ondragenter = function(e){
+    };
+
+    thi$.ondragover = function(e){
+    };
+
+    thi$.ondrop = function(e){
+    };
+    */
 
     thi$.destroy = function(){
         if(this.destroied) return;

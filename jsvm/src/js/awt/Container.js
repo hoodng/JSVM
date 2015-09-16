@@ -235,8 +235,50 @@ js.awt.Container = function (def, Runtime, view){
         return this[id] != undefined;
 
     }.$override(this.contains);
-    
-    
+
+    /**
+     * @see js.awt.Element#elementFromPoint
+     */
+    thi$.elementFromPoint = function(x, y, nothese){
+        var ret = null, ids, i, comp;
+        if((!nothese || !nothese.$contains(this)) &&
+                this.inside(x, y)){
+            ids = this.items();
+            for(i=ids.length-1; i>=0; i--){
+                comp = this.getElementById(ids[i]);
+                if(nothese && nothese.$contains(comp)) continue;
+                ret = comp.elementFromPoint(x, y, nothese);
+                if(ret) break;
+            }
+            ret = (ret || this); 
+        }
+        return ret;
+    }.$override(this.elementFromPoint);
+
+    /**
+     * @see js.awt.Element#elementsFromPoint
+     */
+    thi$.elementsFromPoint = function(x, y, nothese, result){
+        var ret = null, ids, i, comp;
+
+        result = result || [];
+        if((!nothese || !nothese.$contains(this)) &&
+                this.inside(x, y)){
+
+            result.push(this);
+
+            ids = this.items();
+            for(i=ids.length-1; i>=0; i--){
+                comp = this.getElementById(ids[i]);
+                if(nothese && nothese.$contains(comp)) continue;
+                comp.elementsFromPoint(x, y, nothese, result);
+            }
+        }
+
+        return result;
+
+    }.$override(this.elementsFromPoint);
+
     /**
      * @see js.awt.Component
      */

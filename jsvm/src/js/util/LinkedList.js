@@ -122,7 +122,27 @@ js.util.LinkedList = function (array){
 
 }.$extend(Array);
 
-js.util.LinkedList.newInstance = function(array){
-    var o = js.lang.Class.isArray(array) ? array : [];
-    return js.util.LinkedList.$decorate(o);
-};
+(function(){
+    var $ = js.util.LinkedList;
+
+    $.newInstance = function(array){
+        var o = js.lang.Class.isArray(array) ? array : [];
+        return $.$decorate(o);
+    };
+
+    Array.prototype.$getLinkedList = function(){
+        return $.$decorate(this);
+    };
+
+    Array.prototype.$indexOf = function(e){
+        for(var i=0, len=this.length; i<len; i++){
+            if(this[i] === e) return i;
+        }
+        return -1;
+    };
+    
+    Array.prototype.$contains = function(e){
+        return this.$indexOf(e) != -1;
+    };
+
+})();

@@ -77,7 +77,7 @@ js.awt.Desktop = function (Runtime){
             DOM.setDynamicCursor(ele, DOM.getDynamicCursor(drag.spot));
             
             if(drag.spot >= 8){
-                var hoverEle, moveObj, data;
+                var hoverObj, parent, fmEle, moveObj, data;
 
                 target = null;
                 
@@ -87,27 +87,39 @@ js.awt.Desktop = function (Runtime){
                 // For draging
                 moveObj = drag.target.getMoveObject();
                 data = moveObj.getMovingData();
-                hoverEle = DOM.getElementByXY(
-                    XY.x, XY.y, [moveObj._coverView,moveObj.view],
-                    moveObj.view.parentNode);
+                fmEle = moveObj.view.parentNode;
+                parent = (fmEle === this.view) ? this : DOM.getComponent(fmEle);
+                hoverObj = parent.elementFromPoint(XY.x, XY.y, [drag.target]);
+                if(hoverObj){
+                    if(drag.dropObj !== hoverObj){
+                        fmEle = drag.dropObj ? drag.dropObj.view : null;
 
-                if(hoverEle !== this.view){
-                    if(drag.dropEle !== hoverEle){
-                        target = DOM.getComponent(drag.dropEle);
+                        // drag leave
+                        target = drag.dropObj;
                         fireDragEvent(e, Event.W3C_EVT_DRAGLEAVE, data,
-                                      target, drag.dropEle, hoverEle);
+                            target, fmEle, hoverObj.view);
 
-                        target = DOM.getComponent(hoverEle);
+                        // drag enter
+                        target = hoverObj;
                         fireDragEvent(e, Event.W3C_EVT_DRAGENTER, data,
-                                      target, drag.dropEle, hoverEle);
+                            target, fmEle, hoverObj.view);
 
-                        drag.dropEle = hoverEle;
+                        drag.dropObj = hoverObj;
                     }
 
-                    target = target || DOM.getComponent(hoverEle);
+                    // drag over
+                    target = target || hoverObj;
                     fireDragEvent(e, Event.W3C_EVT_DRAGOVER, data,
-                                  target, drag.dropEle, hoverEle);
-                }                
+                        target, drag.dropObj.view, hoverObj.view);
+
+                }else if(drag.dropObj){
+                    // drag leave
+                    target = drag.dropObj;
+                    fireDragEvent(e, Event.W3C_EVT_DRAGLEAVE, data,
+                        target, drag.dropObj.view, null);
+
+                    drag.dropObj = null;
+                }
             }else{
                 drag.target.processSizing(e, drag.spot);
             }
@@ -205,11 +217,14 @@ js.awt.Desktop = function (Runtime){
 
             if(drag.spot >= 8){
                 var moveObj, data;
-                target = DOM.getComponent(drag.dropEle);
-                moveObj = drag.target.getMoveObject();
-                data = moveObj.getMovingData();
-                fireDragEvent(e, Event.W3C_EVT_DROP, data, target,
-                              drag.dropEle, drag.dropEle);
+                target = drag.dropObj;
+                if(target){
+                    // drag drop
+                    moveObj = drag.target.getMoveObject();
+                    data = moveObj.getMovingData();
+                    fireDragEvent(e, Event.W3C_EVT_DROP, data, target,
+                        target.view, target.view);
+                }
                 
                 drag.target.endMoving(e);
             }else{
@@ -309,7 +324,7 @@ js.awt.Desktop = function (Runtime){
         return e._default;
     };
 
-    var apps = {};
+    var apps = {}, appItems = [].$getLinkedList();
 
     thi$.getApps = function(){
         return apps;
@@ -320,12 +335,34 @@ js.awt.Desktop = function (Runtime){
     }
 
     thi$.registerApp = function(id, app){
+        if(!apps[id]){
+            appItems.push(id);
+        }
         apps[id] = app;
     };
 
     thi$.unregisterApp = function(id){
+        appItems.remove(id);
         delete apps[id];
     };
+
+    thi$.elementFromPoint = function(x, y, nothese){
+        var i, comp, ret = null;
+
+        ret = this.LM.elementFromPoint(x, y, nothese);
+        if(ret) return ret;
+
+        ret = this.DM.elementFromPoint(x, y, nothese);
+        if(ret && (ret !== this.DM)) return ret;
+
+        ret = null;
+        for(i=appItems.length-1; i>=0; i--){
+            comp = this.getApp(appItems[i]);
+            ret = comp.elementFromPoint(x, y, nothese);
+            if(ret) break;
+        }
+        return ret;
+    }.$override(this.elementFromPoint);
     
     thi$.showCover = function(b, style){
         $super(

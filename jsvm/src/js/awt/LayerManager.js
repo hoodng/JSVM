@@ -491,6 +491,17 @@ js.awt.LayerManager = function(def, Runtime, view){
         }
     };
 
+    thi$.elementFromPoint = function(x, y, nothese){
+        var stack = this.stack, comp, ret = null;
+        if(stack.length > 0){
+            comp = stack[stack.length-1];
+            if(!nothese || !nothese.$contains(comp)){
+                ret = comp.elementFromPoint(x, y, nothese);
+            }
+        }
+        return ret;
+    }.$override(this.elementFromPoint);
+
     thi$.destroy = function(){
         this.removeAll(true);
     }.$override(this.destroy);
@@ -499,10 +510,11 @@ js.awt.LayerManager = function(def, Runtime, view){
         
         $super(this);
         
-        this.stack = js.util.LinkedList.$decorate([]);
+        this.stack = [].$getLinkedList();
         
     }.$override(this._init);
     
     this._init.apply(this, arguments);
     
 }.$extend(js.awt.Container);
+

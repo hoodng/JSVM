@@ -2034,44 +2034,6 @@ js.util.Document = function (){
         return ret;
     };
 
-    thi$.getElementByXY = function(x, y, notthese, ele){
-        var children, elem, bounds, i, len;
-        ele = ele || self.document.body;                    
-        if(document.elementsFromPoint){
-            children = document.elementsFromPoint(x, y);
-            for(i=0, len=children.length; i<len; i++){
-                elem = children[i];
-                if(inArray(elem, notthese)) continue;
-                ele = elem;
-                break;
-            }
-        }else{
-            children = ele.children;
-            if(children.length > 0){
-                for(i=children.length-1; i>=0; i--){
-                    elem = children[i];
-                    if(inArray(elem, notthese)) continue;
-                    bounds = this.getBounds(elem);
-                    if(bounds && this.inside(x, y, bounds)){
-                        return this.getElementByXY(x, y, notthese, elem);
-                    }
-                }
-            }
-        }
-        return ele;
-    };
-
-    var inArray = function(ele, array){
-        var ret = false;
-        for(var i=0, len=array.length; i<len; i++){
-            if(ele === array[i]){
-                ret = true;
-                break;
-            }
-        }
-        return ret;
-    };
-
     thi$.getComponent = function(ele, create, Runtime){
         var obj = null, uuid, parent;
         if(!ele || ele === self.document) return obj;

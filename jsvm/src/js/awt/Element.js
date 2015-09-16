@@ -875,22 +875,48 @@ js.awt.Element = function(def, Runtime){
         }
         return idx;
     };
-    
-    thi$.elementsFromPoint = function(x, y, eles){
-        if(DOM.inside(x, y, this.getBounds())){
-            eles = eles || [];
-            eles.push(this);
-            
+
+    /**
+     * Return the <code>js.awt.Element</code> that the point (x, y) 
+     * is inside it.
+     * 
+     * @param {Number} x, the x coordinator of the point.
+     * @param {Number} y, the y coordinator of the point.
+     * @param {Array} nothese, the excludes js.awt.Elements.
+     * 
+     * @return {js.awt.Element} the element found.
+     */
+    thi$.elementFromPoint = function(x, y, nothese){
+        return  (!nothese || !nothese.$contains(this)) ? 
+            (this.inside(x, y) ? this : null) : null;
+    };
+
+    /**
+     * Return all the <code>js.awt.Element</code> which the point (x, y) 
+     * is inside them.
+     * 
+     * @param {Number} x, the x coordinator of the point.
+     * @param {Number} y, the y coordinator of the point.
+     * @param {Array} nothese, the excludes js.awt.Elements.
+     * 
+     * @return {Array} the js.awt.Element array
+     * 
+     */
+    thi$.elementsFromPoint = function(x, y, nothese, result){
+        result = result || [];
+        var ele = this.elementFromPoint(x, y, nothese);
+        if(ele){
+            result.push(ele);
         }
-        return eles;
+        return result;
+    };
+
+    thi$.isDropable = function(data){
+        return this.def.dropable || false;
     };
         
     thi$.getCursor = function(ele){
         return "default";
-    };
-
-    thi$.isDropable = function(data){
-        return false;
     };
 
     thi$.getMovingConstraints = function(){
