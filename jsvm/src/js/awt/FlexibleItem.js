@@ -70,12 +70,16 @@ js.awt.FlexibleItem = function(def, Runtime){
 	 * @see js.awt.Item #getPreferredSize
 	 */
 	thi$.getPreferredSize = function(){
-		if(this.def.prefSize == undefined){
-			var customComp = this.getCustomComponent(),
-			G = this.getGeometric(), nodes = this.view.childNodes,
-			leftmostCtrl = this._local.leftmostCtrl || this.ctrl,
-			len = nodes.length, overline = false, width = 0, preEle, ele, s;
+		var U = this._local, prefSize = this.def.prefSize, customComp, 
+		nodes, leftmostCtrl, len, overline = false, width = 0, preEle,
+		ele, s, w, bounds, D;
+
+		if(!prefSize){
+			customComp = this.getCustomComponent();
+			nodes = this.view.childNodes;
+			leftmostCtrl = U.leftmostCtrl || this.ctrl;
 			
+			len = nodes.length;
 			for(var i = 0; i < len; i++){
 				ele = nodes[i];
 				if(leftmostCtrl && ele == leftmostCtrl){
@@ -105,20 +109,22 @@ js.awt.FlexibleItem = function(def, Runtime){
 				}
 			}
 			
-			var w = this._local.ctrlsWidth, D = G.ctrl;
-			if(!isNaN(s)){
-				width += s;
+			w = U.ctrlsWidth;
+			if(!isNaN(w)){
+				width += w;
 			}
 			
-			if(D){
+			if(this.ctrl){
+				D = DOM.getBounds(this.ctrl);
 				width += D.MBP.marginLeft + D.width + D.MBP.marginRight;
 			}
 			
-			width += G.bounds.MBP.BPW;
-			this.setPreferredSize(width, G.bounds.height);
+			bounds = this.getBounds();
+			width += bounds.MBP.BPW;
+			prefSize = {width: width, height: bounds.height};
 		}
 		
-		return this.def.prefSize;
+		return prefSize;
 		
 	}.$override(this.getPreferredSize);
 	
@@ -158,23 +164,23 @@ js.awt.FlexibleItem = function(def, Runtime){
 		leftmostCtrl = this._local.leftmostCtrl,
 		ele = (customComp && customComp.view) 
 			? customComp.view : (this.input || this.label),
-		leftEle, rightEle, w, width, D;
+		leftEle, rightEle, w, width, bounds, D, MBP, ybase,
+		innerHeight, x, y;
 
 		if(ele){
+			bounds = this.getBounds();
+			MBP = bounds.MBP;
+			innerHeight = bounds.innerHeight;
+
 			leftEle = ele.previousSibling;
 			rightEle = leftmostCtrl || this.ctrl;
-			w = rightEle 
-				? rightEle.offsetLeft : this.getBounds().innerWidth;
+			w = rightEle ? rightEle.offsetLeft : bounds.innerWidth;
 			
 			if(customComp && customComp.view){
-				var G = this.getGeometric(), MBP = G.bounds.MBP,
-				ybase = MBP.paddingTop,
-				h = G.bounds.BBM ? 
-					G.bounds.height : G.bounds.height - MBP.BPH,
-				innerHeight = h - MBP.BPH, x, y;
+				ybase = MBP.paddingTop;
 
 				if(leftEle){
-					D = G[leftEle.id] || DOM.getBounds(leftEle);
+					D = DOM.getBounds(leftEle);
 					x = leftEle.offsetLeft + D.width + D.MBP.marginRight;
 				}else{
 					x = MBP.borderLeftWidth + MBP.paddingRight;
@@ -295,26 +301,27 @@ js.awt.FlexibleItem = function(def, Runtime){
 	};
 
 	var _createExtraCtrls = function(){
-		var M = this.def, buf = this.__buf__,
+		var M = this.def, U = this._local, buf = this.__buf__,
 		ctrls = M.ctrls, len = ctrls.length;
 		if(len == 0){
 			return;
 		}
 
-		var G = this.getGeometric(), ybase = G.bounds.MBP.paddingTop,
-		height = G.bounds.BBM ? 
-			G.bounds.height : G.bounds.height - G.bounds.MBP.BPH,
-		innerHeight = height - G.bounds.MBP.BPH, anchor = this.ctrl,
-		ctrlsWidth = 0, align = 0.5, top = 0, right = 0, 
-		el, iid, D, styleW, styleH;
-		
+		var extraCtrls = U.extraCtrls = new js.util.HashMap(), MBP,
+		bounds = DOM.getBounds(this.view), innerHeight = bounds.innerHeight,
+		ybase = bounds.MBP.paddingTop, anchor = this.ctrl, ctrlsWidth = 0, 
+		align = 0.5, top = 0, right = 0, el, iid, D, w, h, styleW, styleH,
+		ctrl, ctrlId, 
+
+		items = M.items, uuid = this.uuid(), 
+		imagePath = this.Runtime().imagePath();
+
 		if(this.ctrl){
-			right = G.bounds.MBP.paddingRight 
-				+ G.ctrl.MBP.marginLeft + G.ctrl.width + G.ctrl.MBP.marginRight; 
+			D = DOM.getBounds(this.ctrl);
+			right = bounds.MBP.paddingRight 
+				+ D.MBP.marginLeft + D.width + D.MBP.marginRight; 
 		}
 		
-		var extraCtrls = this._local.extraCtrls = new js.util.HashMap(),
-		ctrl, ctrlId, uuid = this.uuid(), items = M.items;
 		for(var i = len - 1; i >= 0; i--){
 			ctrl = ctrls[i];
 			ctrlId = ctrl.id || ("ctrl" + i);
@@ -327,14 +334,15 @@ js.awt.FlexibleItem = function(def, Runtime){
 				el.id = ctrlId;
 				el.iid = iid;
 				el.uuid = uuid;
-				el.className = ctrl.className || (this.className + "_extra");
+				el.className = ctrl.className 
+					|| DOM.combineClassName(this.className, "extra");
 				
 				buf.clear();
 				buf.append("position:absolute;");
 				
 				if(ctrl.image){
 					buf.append("background-image: url(")
-						.append(this.Runtime().imagePath() + ctrl.image).append(");")
+						.append(imagePath + ctrl.image).append(");")
 						.append("background-repeat:no-repeat;background-position:center;");
 				}
 				
@@ -343,20 +351,23 @@ js.awt.FlexibleItem = function(def, Runtime){
 				}				 
 				el.style.cssText = buf.toString();
 				
-				DOM.appendTo(el, document.body);
-				DOM.setSize(el, ctrl.width, ctrl.height);
-				D = G[ctrlId] = DOM.getBounds(el);
-				styleW = DOM.getStyle(el, "width");
-				styleH = DOM.getStyle(el, "height");
-				DOM.removeFrom(el);
-				
-				if(styleW){
-					buf.append("width:").append(styleW).append(";");
+				D = DOM.getBounds(el);
+				MBP = D.MBP;
+
+				w = ctrl.width;
+				if(!Class.isNumber(w)){
+					w = D.innerWidth;
 				}
-				
-				if(styleH){
-					buf.append("height:").append(styleH).append(";");
+
+				h = ctrl.height;
+				if(!Class.isNumber(h)){
+					h = D.innerHeight;
 				}
+
+				DOM.setBounds(el, w, h, D);
+
+				buf.append("width:").append(styleW).append("px;");
+				buf.append("height:").append(styleH).append("px;");
 				
 				align = (ctrl.align && !isNaN(ctrl.align)) ? ctrl.align : align; 
 				top = ybase + (innerHeight - D.height) * align;
@@ -369,7 +380,7 @@ js.awt.FlexibleItem = function(def, Runtime){
 				
 				// The leftmost ctrl which will be used to calculate the lable 
 				// or input width in doLayout
-				this._local.leftmostCtrl = el;
+				U.leftmostCtrl = el;
 
 				items.push(ctrlId);
 				this[ctrlId] = el;
@@ -381,24 +392,24 @@ js.awt.FlexibleItem = function(def, Runtime){
 			}
 			
 			// Cache this value for calculate the prefered size
-			this._local.ctrlsWidth = ctrlsWidth;
+			U.ctrlsWidth = ctrlsWidth;
 		}
 	};
 	
 	var _createCustomComponent = function(){
-		var M = this.def, custom = M.custom,
-		comp = new (Class.forName(custom.classType))(custom, this.Runtime());
+		var R = this.Runtime(), cdef = this.def.custom,
+		comp = new (Class.forName(custom.classType))(custom, R);
 
 		this.setCustomComponent(comp);
 	};
 	
 	var _checkItems = function(def){
-		var items = def.items, custom = def.custom,
-		customized = false;
+		var U = this._local = this._local || {}, items = def.items, 
+		custom = def.custom, customized = false;
 		
 		if(Class.isObject(custom) 
 		   && Class.isString(custom.classType)){
-			customized = this._local.customized = true;
+			customized = U.customized = true;
 		}
 		
 		if(items.length > 0){
@@ -431,9 +442,9 @@ js.awt.FlexibleItem = function(def, Runtime){
 	thi$._init = function(def, Runtime, view){
 		if(typeof def !== "object") return;
 		
-		this._local = this._local || {};
 		def.classType = def.classType || "js.awt.FlexibleItem";
-		def.markable = Class.isBoolean(def.markable) ? def.markable : true;
+		def.markable = def.markable !== false;
+		def.strict = false;
 		
 		if(view == undefined){
 			def.items = js.util.LinkedList.$decorate([]);

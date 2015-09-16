@@ -55,11 +55,20 @@ js.awt.Shadow = function (){
     };
 
     thi$.adjustShadow = function(bounds){
-        var view = this._shadowView;
+        var view = this._shadowView, abs, x, y;
         if(!DOM.isDOMElement(this.view) || !view) return;
         bounds = bounds || this.getBounds();
-        DOM.setBounds(view, bounds.x, bounds.y, 
-                      bounds.width, bounds.height);
+        if(bounds.MBP.fake) return;
+        abs = (bounds.MBP.position === "absolute");
+        if(abs){
+            x = bounds.x;
+            y = bounds.y;
+        }else{
+            x = bounds.absX;
+            y = bounds.absY;
+        }
+        
+        DOM.setBounds(view, x, y, bounds.width, bounds.height);   
     };
 
     thi$.setShadowZIndex = function(z){

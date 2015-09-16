@@ -71,28 +71,34 @@ js.awt.LayoutManager = function (def){
     };
     
     /**
-     * 
      * Notes: Every layout should override this method
      */
     thi$.getLayoutSize = function(container, fn){
-        var bounds = container.getBounds(),
-            ret ={width:0, height:0};
+        var comps = this.getLayoutComponents(container),
+        bounds = container.getBounds(), ret,
+        w = 0, h = 0;
 
-        _calcSize.$forEach(
-            this, this.getLayoutComponents(container), fn, ret);
+        if(comps.length > 0){
+            ret ={x0: undefined, y0: undefined, x1: 0, y1: 0};
+            _calcSize.$forEach(this, comps, fn, ret);
 
-        ret.width += bounds.MBP.BW;
-        ret.height+= bounds.MBP.BH;
+            w = ret.x1 - ret.x0;
+            h = ret.y1 - ret.y0;
+        }
+
+        w += bounds.MBP.BPW;
+        h += bounds.MBP.BPH;
         
-        return ret;
+        return {width: w, height: h};
     };
 
-    var _calcSize = function(fn, max, comp){
-        var d = comp[fn]();
-        max.width = Math.max(max.width, (comp.getX() + d.width));
-        max.height= Math.max(max.height,(comp.getY() + d.height));
+    var _calcSize = function(fn, ret, comp){
+        var d = comp[fn](), xy = comp.absXY(), x = xy.x, y = xy.y;
+        ret.x0 = Class.isNumber(ret.x0) ? Math.min(ret.x0, x) : x;
+        ret.y0 = Class.isNumber(ret.y0) ? Math.min(ret.y0, y) : y;
+        ret.x1 = Math.max(ret.x1, x + d.width);
+        ret.y1 = Math.max(ret.y1, y + d.height);
     };
-
 
     /**
      * Calculates the preferred size dimensions for the specified 

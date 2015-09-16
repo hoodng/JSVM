@@ -1,3 +1,4 @@
+/*global  */
 /**
 
  Copyright 2007-2015, The JSVM Project. 
@@ -231,9 +232,9 @@ js.awt.Element = function(def, Runtime){
         changed = _updateSize.call(this, M, bounds, fire);
         if(changed){
             this.adjustLayers("sized", bounds);
-            if(fire & 0x01){
-                this.doLayout(true, bounds);
-            }
+        }
+        if((fire & 0x01)){
+            this.doLayout(true, bounds);
         }
         
         return changed;
@@ -303,9 +304,9 @@ js.awt.Element = function(def, Runtime){
         sized = _updateSize.call(this, M, bounds, fire);
         if(coord || sized){
             this.adjustLayers("geom", bounds);
-            if(sized && (fire & 0x01)){
-                this.doLayout(true, bounds);
-            }
+        }
+        if((fire & 0x01)){
+            this.doLayout(true, bounds);
         }
 
         return (coord || sized);
@@ -684,7 +685,11 @@ js.awt.Element = function(def, Runtime){
      * Gets container of this component
      */
     thi$.getContainer = function(){
-        return this.container;
+        var container = this.container;
+        if(!container && this.view){
+            container = DOM.getComponent(this.view.parentNode);
+        }
+        return container;
     };
 
     /**
@@ -778,30 +783,14 @@ js.awt.Element = function(def, Runtime){
     thi$.isDOMElement = function(){
         return DOM.isDOMElement(this.view);
     };
-
-    thi$.onresize = function(e){
-        var U = this._local, userW = U.userW, userH = U.userH,
-            bounds = this.getBounds(true);
-
-        if(userW != bounds.width || userH != bounds.height){
-            this.adjustLayers("sized", bounds);
-            this.doLayout(true, bounds);
-        }
-    };
     
     thi$.doLayout = function(force, bounds){
         var U = this._local, ret = true;
         if(!this.needLayout(force)){
             ret = false;
         }else{
+            // Why do need bounds here ?
             bounds = bounds || this.getBounds(true);
-            
-            U.userX = bounds.x;
-            U.userY = bounds.y;
-            U.userZ = bounds.MBP.zIndex;
-            U.userW = bounds.width;
-            U.userH = bounds.height;
-
             ret = U.didLayout = true;
         }
         
@@ -827,6 +816,14 @@ js.awt.Element = function(def, Runtime){
     thi$.forceLayout = function(){
         this._local.didLayout = false;
     };
+
+    var _childrenChanged = function(){
+        var container = this.getContainer();
+        if(container){
+            container.fireEvent(
+                new Event("childrenchanged", null, this));
+        }
+    };
     
     thi$.adjustLayers = function(cmd, bounds, show){
         switch(cmd){
@@ -837,6 +834,7 @@ js.awt.Element = function(def, Runtime){
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
             this.adjustOutline(bounds);
+            _childrenChanged.call(this);
             break;
             case "zorder":
             var z = this.getZ();
@@ -853,6 +851,7 @@ js.awt.Element = function(def, Runtime){
             this.removeShadow();
             this.removeCover();
             this.removeOutline();
+            _childrenChanged.call(this);
             break;
         }
     };
@@ -876,9 +875,22 @@ js.awt.Element = function(def, Runtime){
         }
         return idx;
     };
-
+    
+    thi$.elementsFromPoint = function(x, y, eles){
+        if(DOM.inside(x, y, this.getBounds())){
+            eles = eles || [];
+            eles.push(this);
+            
+        }
+        return eles;
+    };
+        
     thi$.getCursor = function(ele){
         return "default";
+    };
+
+    thi$.isDropable = function(data){
+        return false;
     };
 
     thi$.getMovingConstraints = function(){
@@ -941,7 +953,7 @@ js.awt.Element = function(def, Runtime){
     
     thi$.destroy = function(){
         if(this.destroied) return;
-
+        
         this.removeOutline();
         this.removeCover();
         this.removeShadow();

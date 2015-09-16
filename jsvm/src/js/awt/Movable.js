@@ -46,7 +46,7 @@ js.awt.MoveObject = function(){
      * Notes: Sub class should implements this function.
      */
     thi$.getMovingData = function(){
-        return {};
+        return this;
     };
     
     /**

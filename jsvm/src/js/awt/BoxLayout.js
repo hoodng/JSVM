@@ -43,121 +43,121 @@ $package("js.awt");
  * of components will stay vertically arranged when the frame is resized.
  * 
  * @param def :{
- *	   classType : the layout class
- *	   axis: 0(horizontally)|1(vertically), 
- *	   gap: 0 
+ *     classType : the layout class
+ *     axis: 0(horizontally)|1(vertically), 
+ *     gap: 0 
  * } 
  */
 js.awt.BoxLayout = function (def){
 
-	var CLASS = js.awt.BoxLayout, thi$ = CLASS.prototype;
-	if(CLASS.__defined__){
-		this._init.apply(this, arguments);
-		return;
-	}
-	CLASS.__defined__ = true;
-	
-	var Class = js.lang.Class;
+    var CLASS = js.awt.BoxLayout, thi$ = CLASS.prototype;
+    if(CLASS.__defined__){
+        this._init.apply(this, arguments);
+        return;
+    }
+    CLASS.__defined__ = true;
+    
+    var Class = js.lang.Class;
 
-	thi$.layoutContainer = function(container){
-		var setting = this.def, bounds = container.getBounds(),
-		gap = setting.gap || 0, axis = setting.axis || 0,
-		space = (axis == 0) ? bounds.innerWidth : bounds.innerHeight,
-		xbase = bounds.MBP.paddingLeft, left = 0,
-		ybase = bounds.MBP.paddingTop,	top = 0,
-		comps = this.getLayoutComponents(container), comp,
-		rects = [], d, r, c = 0;
+    thi$.layoutContainer = function(container){
+        var setting = this.def, bounds = container.getBounds(),
+        gap = setting.gap || 0, axis = setting.axis || 0,
+        space = (axis == 0) ? bounds.innerWidth : bounds.innerHeight,
+        xbase = bounds.MBP.paddingLeft, left = 0,
+        ybase = bounds.MBP.paddingTop,  top = 0,
+        comps = this.getLayoutComponents(container), comp,
+        rects = [], d, r, c = 0;
 
-		for(var i=0, len=comps.length; i<len; i++){
-			comp = comps[i];
+        for(var i=0, len=comps.length; i<len; i++){
+            comp = comps[i];
 
-			d = comp.getPreferredSize();
-			r = {};
+            d = comp.getPreferredSize();
+            r = {};
 
-			if(axis == 0){
-				// Horizontally
-				// Calculates the top of every components
-				r.top = (bounds.innerHeight - d.height)*this.getLayoutAlignmentY();
-				if(!comp.isRigidHeight()){
-					r.top = 0;
-					r.height = bounds.innerHeight;
-				}else{
-					r.height = d.height;
-				}
-				// Get width if the component is rigid width
-				r.width = comp.isRigidWidth() ? d.width : null;
-				if(r.width != null) {
-					space -= r.width;
-				}else{
-					c += 1;
-				}
-			}else{
-				// Vertically
-				// Calculates the left of every components
-				r.left = (bounds.innerWidth - d.width)*this.getLayoutAlignmentX();
-				if(!comp.isRigidWidth()){
-					r.left = 0;
-					r.width = bounds.innerWidth;
-				}else{
-					r.width = d.width;
-				}
-				// Get height if the component is rigid height
-				r.height = comp.isRigidHeight() ? d.height : null;
-				if(r.height != null){
-					space -= r.height;
-				}else{
-					c += 1;
-				}
-			}
+            if(axis == 0){
+                // Horizontally
+                // Calculates the top of every components
+                r.top = (bounds.innerHeight - d.height)*this.getLayoutAlignmentY();
+                if(!comp.isRigidHeight()){
+                    r.top = 0;
+                    r.height = bounds.innerHeight;
+                }else{
+                    r.height = d.height;
+                }
+                // Get width if the component is rigid width
+                r.width = comp.isRigidWidth() ? d.width : null;
+                if(r.width != null) {
+                    space -= r.width;
+                }else{
+                    c += 1;
+                }
+            }else{
+                // Vertically
+                // Calculates the left of every components
+                r.left = (bounds.innerWidth - d.width)*this.getLayoutAlignmentX();
+                if(!comp.isRigidWidth()){
+                    r.left = 0;
+                    r.width = bounds.innerWidth;
+                }else{
+                    r.width = d.width;
+                }
+                // Get height if the component is rigid height
+                r.height = comp.isRigidHeight() ? d.height : null;
+                if(r.height != null){
+                    space -= r.height;
+                }else{
+                    c += 1;
+                }
+            }
 
-			r.comp = comp;
-			rects.push(r);
-		}
-		
-		if(rects.length > 1){
-			space -= (rects.length - 1)*gap;
-		}
-		
-		if(c > 1){
-			space = Math.round(space/c);
-		}
+            r.comp = comp;
+            rects.push(r);
+        }
+        
+        if(rects.length > 1){
+            space -= (rects.length - 1)*gap;
+        }
+        
+        if(c > 1){
+            space = Math.round(space/c);
+        }
 
-		if(c == 0){
-			// All components are rigid
-			if(axis == 0){
-				left = Math.round(space*this.getLayoutAlignmentX());
-			}else{
-				top	 = Math.round(space*this.getLayoutAlignmentY());
-			}
-		}
-		
-		for(i=0, len=rects.length; i<len; i++){
-			r = rects[i]; comp = r.comp;
-			if(axis == 0){
-				if(r.width == null) r.width = space;
-				comp.setBounds(xbase+left, ybase+r.top, r.width, r.height, 3);
-				left += r.width + gap;
-			}else{
-				if(r.height== null) r.height= space;
-				comp.setBounds(xbase+r.left, ybase+top, r.width, r.height, 3);
-				top += r.height + gap;
-			}
-		}
+        if(c == 0){
+            // All components are rigid
+            if(axis == 0){
+                left = Math.round(space*this.getLayoutAlignmentX());
+            }else{
+                top  = Math.round(space*this.getLayoutAlignmentY());
+            }
+        }
+        
+        for(i=0, len=rects.length; i<len; i++){
+            r = rects[i]; comp = r.comp;
+            if(axis == 0){
+                if(r.width == null) r.width = space;
+                comp.setBounds(xbase+left, ybase+r.top, r.width, r.height, 3);
+                left += r.width + gap;
+            }else{
+                if(r.height== null) r.height= space;
+                comp.setBounds(xbase+r.left, ybase+top, r.width, r.height, 3);
+                top += r.height + gap;
+            }
+        }
 
-	};
-	
-	thi$._init = function(def){
-		def = def || {};
+    };
+    
+    thi$._init = function(def){
+        def = def || {};
 
-		def.classType = "js.awt.BoxLayout";
-		def.axis = def.axis || 0;
-		def.gap	 = def.gap || 0;
+        def.classType = "js.awt.BoxLayout";
+        def.axis = def.axis || 0;
+        def.gap  = def.gap || 0;
 
-		$super(this);		  
+        $super(this, def);        
 
-	}.$override(this._init);
-	
-	this._init.apply(this, arguments);
+    }.$override(this._init);
+    
+    this._init.apply(this, arguments);
 
 }.$extend(js.awt.AbsoluteLayout);
 

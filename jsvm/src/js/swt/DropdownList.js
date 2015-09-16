@@ -454,15 +454,19 @@ js.swt.DropdownList = function(def, Runtime){
     }.$override(this.getMaximumSize);
 
     thi$.getPreferredSize = function(){
-        if(this.isPreferredSizeSet){
-            return this.def.prefSize;
+        var prefSize = this.def.prefSize, 
+        U = this._local;
+
+        if(!prefSize){
+            if(U.optimalSize){
+                prefSize = U.optimalSize;
+            }else{
+                prefSize = $super(this);
+            }
         }
 
-        if(this._local.optimalSize){
-            return this._local.optimalSize;
-        }else{
-            return $super(this);
-        }
+        return prefSize;
+
     }.$override(this.getPreferredSize);
 
     var _setSearchEnable = function(b){
@@ -1119,8 +1123,6 @@ js.swt.DropdownList = function(def, Runtime){
 
             delete M.width;
             delete M.height;
-
-            this.invalidateBounds();
         }
 
         this._isLayoutDirty = true;

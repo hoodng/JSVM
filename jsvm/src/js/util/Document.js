@@ -935,6 +935,7 @@ js.util.Document = function (){
         }
 
         rect.valid = (rect.width + rect.height) > 0;
+        rect.position = this.getStyle(el, "position");
         return rect;
     };
 
@@ -1165,13 +1166,39 @@ js.util.Document = function (){
         bounds = ele.bounds = (ele.bounds || {});
         mbp = bounds.MBP;
         clazz = this.getClassName(ele);
-        if(mbp && !nocache && (mbp.clazz === clazz)) return bounds;
+        if(mbp && !nocache && (mbp.clazz === clazz)){
+            if(mbp.position === "absolute") {
+                return this.updateBounds(ele, bounds);
+            }
+            nocache = false;
+        }else{
+            nocache = true;
+        }
         
-        bounds.MBP = this.MBP(ele, true, clazz);
+        bounds.MBP = this.MBP(ele, nocache, clazz);
         bounds.BBM = bounds.MBP.BBM;
         bounds = _calcCoords.call(this, ele, bounds);
         bounds = _calcSize.call(this, ele, bounds);
 
+        return this.updateBounds(ele, bounds);
+    };
+
+    thi$.updateBounds = function(ele, bounds){
+        bounds.offsetX = ele.offsetLeft;
+        bounds.offsetY = ele.offsetTop;
+        bounds.offsetWidth = ele.offsetWidth;
+        bounds.offsetHeight= ele.offsetHeight;
+
+        bounds.scrollLeft  = ele.scrollLeft;
+        bounds.scrollTop   = ele.scrollTop;
+        bounds.scrollWidth = ele.scrollWidth;
+        bounds.scrollHeight= ele.scrollHeight;
+
+        bounds.clientWidth = ele.clientWidth;
+        bounds.clientHeight= ele.clientHeight;
+
+        bounds.scroll = this.hasScrollbar(ele, bounds);
+        
         return bounds;
     };
 
@@ -1181,7 +1208,7 @@ js.util.Document = function (){
     };
 
     var _calcCoords = function(ele, bounds){
-        var mbp = bounds.MBP, pMBP, position;
+        var mbp = bounds.MBP, pMBP;
         
         bounds.absX    = mbp.left;
         bounds.absY    = mbp.top;
@@ -1193,21 +1220,17 @@ js.util.Document = function (){
         
         if(!this.isDOMElement(ele)) return bounds;
 
-        position = this.getStyle(ele, "position");
-        if(J$VM.supports.borderEdg && position !== "relative"){
+        if(J$VM.supports.borderEdg && mbp.position !== "relative"){
             pMBP = this.MBP(ele.parentNode);
             bounds.x -= pMBP.borderLeftWidth;
             bounds.y -= pMBP.borderTopWidth;
         }
 
-        if(position === "relative"){
+        if(mbp.position === "relative"){
             pMBP = pMBP || this.MBP(ele.parentNode);
             bounds.x -= pMBP.paddingLeft;
             bounds.y -= pMBP.paddingTop;
         }
-
-        bounds.scrollLeft  = ele.scrollLeft;
-        bounds.scrollTop   = ele.scrollTop;
 
         return bounds;
     };
@@ -1234,15 +1257,6 @@ js.util.Document = function (){
             bounds.styleH = bounds.innerHeight;
         }
 
-        bounds.offsetWidth = ele.offsetWidth;
-        bounds.offsetHeight= ele.offsetHeight;
-
-        bounds.clientWidth = ele.clientWidth;
-        bounds.clientHeight= ele.clientHeight;
-
-        bounds.scrollWidth = ele.scrollWidth;
-        bounds.scrollHeight= ele.scrollHeight;
-
         return bounds;
     };
 
@@ -1254,10 +1268,10 @@ js.util.Document = function (){
      *   vscroll: true/false
      * }
      */
-    thi$.hasScrollbar = function(el){
-        var mbp = this.getBounds(el).MBP,
-        vbw = el.offsetWidth - el.clientWidth - mbp.BW,
-        hbw = el.offsetHeight- el.clientHeight- mbp.BH;
+    thi$.hasScrollbar = function(el, bounds){
+        var mbp = (bounds || this.getBounds(el)).MBP,
+            vbw = el.offsetWidth - el.clientWidth - mbp.BW,
+            hbw = el.offsetHeight- el.clientHeight- mbp.BH;
 
         return {
             vbw: vbw, hbw: hbw,
@@ -1845,8 +1859,13 @@ js.util.Document = function (){
     };
 
     thi$.getClassName = function(ele){
-        var names = this.splitClassName(ele.className);
-        return names.join(" ");
+        var clazz, name;
+        if(!Class.isHtmlElement(ele)){
+            clazz = ele.uuid = (ele.uuid || js.lang.Math.uuid());
+        }else{
+            clazz = this.splitClassName(ele.className).join(" ");
+        }
+        return clazz;
     };
     
     var STATEREG = /(\w+)(_\d{1,4})$/;
@@ -2010,6 +2029,44 @@ js.util.Document = function (){
                     ret = entry.getAttribute("jsvm_entry");
                     break;
                 }
+            }
+        }
+        return ret;
+    };
+
+    thi$.getElementByXY = function(x, y, notthese, ele){
+        var children, elem, bounds, i, len;
+        ele = ele || self.document.body;                    
+        if(document.elementsFromPoint){
+            children = document.elementsFromPoint(x, y);
+            for(i=0, len=children.length; i<len; i++){
+                elem = children[i];
+                if(inArray(elem, notthese)) continue;
+                ele = elem;
+                break;
+            }
+        }else{
+            children = ele.children;
+            if(children.length > 0){
+                for(i=children.length-1; i>=0; i--){
+                    elem = children[i];
+                    if(inArray(elem, notthese)) continue;
+                    bounds = this.getBounds(elem);
+                    if(bounds && this.inside(x, y, bounds)){
+                        return this.getElementByXY(x, y, notthese, elem);
+                    }
+                }
+            }
+        }
+        return ele;
+    };
+
+    var inArray = function(ele, array){
+        var ret = false;
+        for(var i=0, len=array.length; i<len; i++){
+            if(ele === array[i]){
+                ret = true;
+                break;
             }
         }
         return ret;

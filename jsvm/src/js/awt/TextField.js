@@ -178,20 +178,16 @@ js.awt.TextField = function(def, Runtime){
 			new Event("changed", this.getValue(), this));
 	};
 	
-	thi$.getPreferredSize = function(nocache){
-		var ret = this.def.prefSize, d = this.getBounds(), w, h;
-		if(!ret || (!this.isPreferredSizeSet 
-					&& nocache === true)){
-			this.setPreferredSize(d.width, d.height);
-			ret = this.def.prefSize;
-		}else{
-			if(isNaN(ret.width)){
-				ret.width = d.width;
-			}
-			
-			if(isNaN(ret.height)){
-				ret.height = d.height;
-			}
+	thi$.getPreferredSize = function(){
+        var ret = this.def.prefSize || {}, 
+        d = this.getBounds();
+
+		if(isNaN(ret.width)){
+			ret.width = d.width;
+		}
+		
+		if(isNaN(ret.height)){
+			ret.height = d.height;
 		}
 		
 		return ret;

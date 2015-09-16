@@ -124,11 +124,6 @@ js.swt.NewItem = function(def, Runtime){
 			if(M.showTip){
 				this.setToolTipText(model.dname);
 			}
-			
-			if(this.isDOMElement() 
-			   && !this.isPreferredSizeSet){
-				M.prefSize = undefined;
-			}
 		}
 	};
 	
@@ -181,7 +176,7 @@ js.swt.NewItem = function(def, Runtime){
 		comps = this.items0(), comp, layoutDef, axis = 0, 
 		gap = 0, w = 0, h = 0, cnt = 0, d;
 		
-		if(!this.isPreferredSizeSet && !prefSize){
+		if(!prefSize){
 			layoutDef = this.layout.def;
 			axis = layoutDef.axis;
 			gap = layoutDef.gap;
@@ -214,10 +209,10 @@ js.swt.NewItem = function(def, Runtime){
 				h += bounds.MBP.BPH;
 			}
 			
-			this.setPreferredSize(w, h);
+			prefSize = {width: w, height: h};
 		}
 		
-		return M.prefSize;
+		return prefSize;
 		
 	}.$override(this.getPreferredSize);
 	

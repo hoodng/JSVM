@@ -157,9 +157,25 @@ js.awt.Outline = function(){
     };
     
     thi$.adjustOutline = function(bounds){
-        var views = this._outlineView, i, len, line, id, lbounds;
-        if(!DOM.isDOMElement(this.view) || !views) return;
+        var views = this._outlineView, i, len, line, id,
+            lbounds, abs, x, y;
+        if(!views) return;
         bounds = bounds || this.getBounds();
+        if(bounds.MBP.fake) return;
+        abs = (bounds.MBP.position === "absolute");
+        if(abs){
+            x = bounds.x;
+            y = bounds.y;
+        }else{
+            x = bounds.absX;
+            y = bounds.absY;
+        }
+        
+        bounds = {
+            x: x, y: y,
+            width: bounds.width, height: bounds.height
+        };
+        
         for(i=0, len=views.length; i<len; i++){
             line = views[i];
             lbounds = DOM.getBounds(line);

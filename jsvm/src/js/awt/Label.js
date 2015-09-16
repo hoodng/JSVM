@@ -85,11 +85,11 @@ js.awt.Label = function(def, Runtime) {
 	 * @inheritdoc js.awt.Component#getPreferredSize
 	 */
 	thi$.getPreferredSize = function(){
-		var M = this.def, styles, args, textSize, d, w, h;
-		if((!this.isPreferredSizeSet || !M.prefSize)
-			&& this.isDOMElement()){
+        var M = this.def, prefSize = M.prefSize, styles, args, 
+        textSize, d, w, h;
 
-			d = this.getBounds();
+        if(!prefSize){
+            d = this.getBounds();
 
 			if(!this.canWordwrap()){
 				styles = DOM.getStyles(this.view, textSps);
@@ -99,16 +99,15 @@ js.awt.Label = function(def, Runtime) {
 
 				w = textSize.width + d.MBP.BPW;
 				h = textSize.height + d.MBP.BPH;
-
 			}else{
 				w = d.width;
 				h = d.height;
 			}
-
-			this.setPreferredSize(w, h);
+            
+            prefSize = {width: w, height: h};
 		}
 
-		return M.prefSize;
+		return prefSize;
 
 	}.$override(this.getPreferredSize);
 	
@@ -153,10 +152,6 @@ js.awt.Label = function(def, Runtime) {
 			
 			oTextNode.replaceNode(tmpEle.childNodes[0]);
 		}
-
-		if(!this.isPreferredSizeSet){
-			M.prefSize = undefined;
-		}
 	};
 
 	/**
@@ -172,11 +167,6 @@ js.awt.Label = function(def, Runtime) {
 		mail.href = "mailto:" + str;
 		this.view.appendChild(mail);
 		mail.innerHTML = str;
-
-		if(!this.isPreferredSizeSet){
-			this.def.prefSize = undefined;
-		}
-
 	};
 
 	/**

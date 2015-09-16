@@ -208,8 +208,8 @@ js.lang.System = function (env, vm){
             for(var p in src){
                 item = src[p];
                 if(deep === true){
-                    /* check if Object have _transient setting, all memeber in _transient setting
-                     * will not be deep copy */
+                    /* check if Object have _transient setting, all memeber 
+                     * in _transient setting will not be deep copy */
                     if (src._transient && src._transient[p]) {
                         continue;
                     }

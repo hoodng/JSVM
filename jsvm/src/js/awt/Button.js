@@ -114,23 +114,27 @@ js.awt.Button = function(def, Runtime){
 	 * @see js.awt.Component
 	 */
 	thi$.repaint = function(){
-        var M = this.def;
-        
-		$super(this);
-        
-        if(this.icon){
-			this.setIconImage(this.isTriggered() ? 4 :
-                              (this.isEnabled() ? 0 : 1));
+		if($super(this)){
+			var M = this.def;
+
+			if(this.icon){
+				this.setIconImage(this.isTriggered() ? 4 :
+								  (this.isEnabled() ? 0 : 1));
+			}
+
+			if(this.label){
+				this.setText(M.labelText || M.text || M.name || "Button");
+			}
+
+			if(M.effect){
+				this._local.effectClass = M.effectClass;
+				_createEffectLayer.call(this);
+			}
+
+			return true;
 		}
 
-		if(this.label){
-			this.setText(M.labelText || M.text || M.name || "Button");
-		}
-
-		if(M.effect){
-			this._local.effectClass = M.effectClass;
-			_createEffectLayer.call(this);
-		}
+		return false;
 
 	}.$override(this.repaint);
 
@@ -138,54 +142,55 @@ js.awt.Button = function(def, Runtime){
 	 * @see js.awt.Component
 	 */
 	thi$.doLayout = function(force){
-        if(!$super(this))
-            return;
-
-		var M = this.def, G0 = this.getGeometric(), B = this.getBounds(),
-			BBM = B.BBM, MBP = B.MBP,
+		if($super(this)){
+			var M = this.def, layout = M.layout, G0 = {}, 
+			B = this.getBounds(), BBM = B.BBM, MBP = B.MBP, 
 			innerWidth = B.innerWidth, innerHeight= B.innerHeight,
 			xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
-			align_x = M.layout.align_x,
-			align_y = M.layout.align_y,
+			align_x = layout.align_x,	align_y = layout.align_y,
 			items = M.items, ele, i, len, cwidth = 0, D,
 			buf = this.__buf__, left, top, uwidth;
 
-		for(i=0, len=items.length; i<len; i++){
-			ele = this[items[i]];
-			D = G0[ele.iid];
-			if(ele.iid == "label"){
-				cwidth += ele.scrollWidth;
-			}else{
-				cwidth += ele.offsetWidth + D.MBP.marginRight;
-			}
-		}
-
-		cwidth = cwidth > innerWidth ? innerWidth : cwidth;
-
-		left = xbase + (innerWidth - cwidth) * align_x;
-		for(i=0, len=items.length; i<len; i++){
-			ele = this[items[i]];
-			D = G0[ele.iid];
-			top = ybase + (innerHeight - D.height) * align_y;
-            
-			buf.clear().append(ele.style.cssText)
-			.append(";left:").append(left).append("px;")
-			.append("top:").append(top).append("px;");
-
-			if(ele.iid === "label"){
-				buf.append("width:").append(cwidth+2).append("px;")
-				.append("white-space:nowrap;overflow:hidden;")
-				.append("text-overflow:ellipsis;");
+			for(i = 0, len = items.length; i < len; i++){
+				ele = this[items[i]];
+				D = G0[ele.iid] = DOM.getBounds(ele);
+				if(ele.iid == "label"){
+					cwidth += ele.scrollWidth;
+				}else{
+					cwidth += ele.offsetWidth + D.MBP.marginRight;
+				}
 			}
 
-			ele.style.cssText = buf.toString();
+			cwidth = cwidth > innerWidth ? innerWidth : cwidth;
 
-			uwidth = D.width + D.MBP.marginRight;
-			left   += uwidth;
-			cwidth -= uwidth;
+			left = xbase + (innerWidth - cwidth) * align_x;
+			for(i = 0, len = items.length; i < len; i++){
+				ele = this[items[i]];
+				D = G0[ele.iid];
+				top = ybase + (innerHeight - D.height) * align_y;
+				
+				buf.clear().append(ele.style.cssText)
+					.append(";left:").append(left).append("px;")
+					.append("top:").append(top).append("px;");
+
+				if(ele.iid === "label"){
+					buf.append("width:").append(cwidth + 2).append("px;")
+						.append("white-space:nowrap;overflow:hidden;")
+						.append("text-overflow:ellipsis;");
+				}
+
+				ele.style.cssText = buf.toString();
+
+				uwidth = D.width + D.MBP.marginRight;
+				left   += uwidth;
+				cwidth -= uwidth;
+			}
+
+			_adjustEffectLayer.call(this);
+			return true;
 		}
 
-		_adjustEffectLayer.call(this);
+		return false;
 
 	}.$override(this.doLayout);
 
@@ -199,6 +204,7 @@ js.awt.Button = function(def, Runtime){
 		if(this.icon){
 			this.setIconImage(this.getState());
 		}
+
 	}.$override(this.onStateChanged);
 
 	thi$.setEnabled = function(b){
@@ -220,7 +226,7 @@ js.awt.Button = function(def, Runtime){
 			tclazz = DOM.combineClassName("jsvm_btnEffect", style);
 
 			if(this.className){
-				style = "Effect" + "_" + style;
+				style = style + "Effect";
 				tclazz += " " + DOM.combineClassName(this.className, style, "");
 			}
 		}
@@ -261,7 +267,7 @@ js.awt.Button = function(def, Runtime){
 		layer.uuid = this.uuid();
 		layer.className = _getEffectStyleClass.call(this, "normal");
 		layer.style.cssText = "position:absolute;left:0px;top:0px;";
-        this.view.appendChild(layer);
+		this.view.appendChild(layer);
 	};
 
 	var _adjustEffectLayer = function(){
@@ -273,7 +279,7 @@ js.awt.Button = function(def, Runtime){
 	};
 
 	thi$.onmousedown = function(e){
-        e.cancelBubble();
+		e.cancelBubble();
 
 		_showEffectLayer.call(this, "trigger");
 
@@ -286,7 +292,7 @@ js.awt.Button = function(def, Runtime){
 	}.$override(this.onmousedown);
 
 	thi$.onmouseup = function(e){
-        e.cancelBubble();
+		e.cancelBubble();
 		if(this._local.mousedown === true){
 			delete this._local.mousedown;
 
@@ -308,7 +314,7 @@ js.awt.Button = function(def, Runtime){
 	};
 
 	thi$.onmouseover = function(e){
-        e.cancelBubble();
+		e.cancelBubble();
 
 		if(this.contains(e.toElement, true)
 		   && !this.isHover()){
@@ -320,7 +326,7 @@ js.awt.Button = function(def, Runtime){
 	}.$override(this.onmouseover);
 
 	thi$.onmouseout = function(e){
-        e.cancelBubble();
+		e.cancelBubble();
 
 		if(!this.contains(e.toElement, true)
 		   && this.isHover()){
@@ -336,20 +342,20 @@ js.awt.Button = function(def, Runtime){
 	}.$override(this.onmouseout);
 
 	var _createElements = function(){
-		var G = this.getGeometric(), className = this.className,
-		    items = this.def.items, ele, id, iid, viewType, i, len;
+		var className = this.className, items = this.def.items, 
+		ele, id, iid, viewType, i, len;
 
 		for(i=0, len=items.length; i<len; i++){
 			id = items[i];
 			iid = id.split(/\d+/g)[0];
 			switch(iid){
-			    case "icon":
+			case "icon":
 				viewType = "IMG";
 				break;
-			    case "label":
+			case "label":
 				viewType = "SPAN";
 				break;
-			    default:
+			default:
 				viewType = "DIV";
 				break;
 			}
@@ -359,10 +365,8 @@ js.awt.Button = function(def, Runtime){
 			ele.className = DOM.combineClassName(className, id);
 			ele.iid = iid;
 
-			if(!G[iid]){
-                G[iid] = DOM.getBounds(ele);
-			}
 			ele.style.position ="absolute";
+			ele.style.display = "block";
 			DOM.appendTo(ele, this.view);
 		}
 	};
@@ -414,7 +418,7 @@ js.awt.Button = function(def, Runtime){
 		}
 
 		this.setAttribute("touchcapture", "true");
-        
+		
 	}.$override(this._init);
 
 	this._init.apply(this, arguments);

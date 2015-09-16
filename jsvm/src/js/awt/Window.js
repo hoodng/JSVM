@@ -255,13 +255,13 @@ js.awt.Window = function (def, Runtime, view){
 	};
 	
 	thi$.onbtnMax = function(button){
-		var U = this._local;
+		var U = this._local, R = this.Runtime();
 		if(this.isMaximized()){
 			// Restore
 			this.setMaximized(false);
 			_setSizeTo.call(this, "normal");
 			button.setTriggered(false);
-			button.setToolTipText(this.Runtime().nlsText("btnMax_tip"));	
+			button.setTipText(R.nlsText("btnMax_tip"));	
 		}else{
 			if(this.isMinimized()){
 				this.setMovable(U.movable);
@@ -270,7 +270,7 @@ js.awt.Window = function (def, Runtime, view){
 			this.setMaximized(true);
 			_setSizeTo.call(this, "maximized");
 			button.setTriggered(true);
-			button.setToolTipText(this.Runtime().nlsText("btnMin_tip"));
+			button.setTipText(R.nlsText("btnMin_tip"));
 		}
 	};
 	
@@ -307,42 +307,6 @@ js.awt.Window = function (def, Runtime, view){
 			MQ.post(msgId, msgData, [], win, 1);
 		}
 	};
-	
-	thi$.isMaximized = function(){
-		if(typeof arguments.callee.__super__ == "function"){
-			// 0.9d
-			return $super(this);
-		}else{
-			return this.def.winsize == "maximized";
-		}
-	}.$override(this.isMaximized);
-	
-	thi$.setMaximized = function(b){
-		if(typeof arguments.callee.__super__ == "function"){
-			// 0.9d
-			$super(this);
-		}else{
-			this.def.winsize = b ? "maximized" : "normal";
-		}
-	}.$override(this.setMaximized);
-
-	thi$.isMinimized = function(){
-		if(typeof arguments.callee.__super__ == "function"){
-			// 0.9d
-			return $super(this);
-		}else{
-			return this.def.winsize == "minimized";
-		}
-	}.$override(this.isMinimized);
-	
-	thi$.setMinimized = function(b){
-		if(typeof arguments.callee.__super__ == "function"){
-			// 0.9d
-			$super(this);
-		}else{
-			this.def.winsize = b ? "minimized" : "normal";
-		}
-	}.$override(this.setMinimized);
 	
 	thi$.loadUrl = function(url){
 		var client = this.client;

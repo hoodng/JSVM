@@ -351,7 +351,7 @@ js.awt.Component = function(def, Runtime, view){
      * of current Component.
      */ 
     thi$.isStyleByState = function(){
-        return !this.isStateless() && this.def.styleByState;
+        return !this.isStateless() && (this.def.styleByState !== false);
     };
 
     thi$.onStateChanged = function(e){
@@ -364,7 +364,7 @@ js.awt.Component = function(def, Runtime, view){
         }
         
         if(this.isDOMElement()){
-            this.showDisableCover(!this.isEnabled());            
+            this.showDisableCover(!this.isEnabled(), M.disableClassName);
         }
     };
 
@@ -410,34 +410,9 @@ js.awt.Component = function(def, Runtime, view){
     thi$.MBP = function(){
         return DOM.BMP(this.view);
     };
-    
-    thi$.getGeometric = function(className){
-        var G, bounds;
-        CLASS.G = CLASS.G || {};
-        G = CLASS.G[className];
-        if(!className){
-            className = this.className;
-            G = CLASS.G[className];
-            if(!G){
-                G = CLASS.G[className] = {};
-                bounds = _geometric.call(this);
-                G.bounds = System.objectCopy(bounds, {}, true);
-            }
-        }
-        return G;
-    };
 
     thi$.invalidateBounds = function(){
-        /*
-        this.view.bounds = null;
-        
-        // If the preferred size is not from the definition, it will be calcualted
-        // with bounds. And when the bounds is invalidating, the old calculated 
-        // preferred size should be invalidated, too.
-        if(!this.isPreferredSizeSet){
-            this.def.prefSize = null;
-        }
-        */
+        J$VM.System.err.println('The "invalidateBounds" has been discarded.');
     };
     
     /**
@@ -487,14 +462,26 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class should override this method
      */
     thi$.doLayout = function(force, bounds){
-        var ret = false;
+        var ret = false, container;
         if($super(this)){
-            this.adjustController(bounds);            
+            this.adjustController(bounds);
             ret = true;
         }
         return ret;
     }.$override(this.doLayout);
 
+    // Window's resize event 
+    thi$.onresize = function(e){
+        var U = this._local, M = this.def,
+            bounds = this.getBounds(true);
+        if(U.userW !== bounds.width ||
+           U.userH !== bounds.height){
+            this.doLayout(true, bounds);
+            U.userW = M.width = bounds.width;
+            U.userH = M.height= bounds.height;
+        }
+    };
+    
     var _repaint = function(){
         var M = this.def, U = this._local, bounds;
 
@@ -512,7 +499,7 @@ js.awt.Component = function(def, Runtime, view){
         }
 
         if(!this.isEnabled()){
-            this.showDisableCover(true);
+            this.showDisableCover(true, M.disableClassName);
         }
 
         if(M.outline){
@@ -583,7 +570,7 @@ js.awt.Component = function(def, Runtime, view){
     thi$.onmouseout = function(e){
 
     };
-        
+
     thi$.destroy = function(){
         if(this.destroied) return;
 

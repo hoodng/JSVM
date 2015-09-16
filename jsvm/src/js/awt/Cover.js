@@ -25,8 +25,8 @@ js.awt.Cover = function (){
         var view = this._coverView, selector;
 
         selector = DOM.combineClassName(
-            ["jsvm_", className||""].join(" "),
-            ["cover", modify? "cover--"+modify:""]);
+            ["jsvm_", className || this.className].join(" "),
+            ["cover", modify ? "cover--" + modify : ""]);
         
         if(b){
             if(!view){
@@ -88,12 +88,20 @@ js.awt.Cover = function (){
      * Adjust the postion and size of the cover
      */
     thi$.adjustCover = function(bounds){
-        var view = this._coverView;
+        var view = this._coverView, abs, x, y;
         if(!view) return;
         bounds = bounds || this.getBounds();
         if(bounds.MBP.fake) return;
-        DOM.setBounds(view, bounds.x, bounds.y,
-                      bounds.width, bounds.height);    
+        abs = (bounds.MBP.position === "absolute");
+        if(abs){
+            x = bounds.x;
+            y = bounds.y;
+        }else{
+            x = bounds.absX;
+            y = bounds.absY;
+        }
+        
+        DOM.setBounds(view, x, y, bounds.width, bounds.height);   
     };
 
     thi$.setCoverZIndex = function(z){

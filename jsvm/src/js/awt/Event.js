@@ -1,38 +1,13 @@
 /**
 
- Copyright 2010-2011, The JSVM Project.
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
-
- Redistribution and use in source and binary forms, with or without modification,
- are permitted provided that the following conditions are met:
-
- 1. Redistributions of source code must retain the above copyright notice,
- this list of conditions and the following disclaimer.
-
- 2. Redistributions in binary form must reproduce the above copyright notice,
- this list of conditions and the following disclaimer in the
- documentation and/or other materials provided with the distribution.
-
- 3. Neither the name of the JSVM nor the names of its contributors may be
- used to endorse or promote products derived from this software
- without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
- OF THE POSSIBILITY OF SUCH DAMAGE.
 
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -65,17 +40,15 @@ js.awt.Event = function(e){
     thi$.cancelBubble = function(){
         var _e = this._event;
 
-        if(_e.stopPropagation){
-            _e.stopPropagation();
-        }else{
-            try{// Try only for the IE
-                _e.cancelBubble = true;
-            } catch (x) {
-
+        if(!(_e instanceof js.util.Event)){
+            if(_e.stopPropagation){
+                _e.stopPropagation();
+            }else{
+                try{// Try only for the IE
+                    _e.cancelBubble = true;} catch (x) {}
             }
-
         }
-
+        
         $super(this);
 
     }.$override(this.cancelBubble);
@@ -83,17 +56,15 @@ js.awt.Event = function(e){
     thi$.cancelDefault = function(){
         var _e = this._event;
 
-        if(_e.preventDefault){
-            _e.preventDefault();
-        }else{
-            try{// Try only for the IE
-                _e.returnValue = false;
-            } catch (x) {
-
+        if(!(_e instanceof js.util.Event)){
+            if(_e.preventDefault){
+                _e.preventDefault();
+            }else{
+                try{// Try only for the IE
+                    _e.returnValue = false;} catch (x) {}
             }
-
         }
-
+        
         return $super(this);
 
     }.$override(this.cancelDefault);
@@ -106,9 +77,44 @@ js.awt.Event = function(e){
         return Event.W3C_EVT_MOUSE_OUT === type;
     };
 
+    var keys = [
+        "altKey", "ctrlKey", "shiftKey", "metaKey", "keyCode",
+        "button", "pointerId", "pointerType",
+        "clientX", "clientY", "offsetX", "offsetY",
+        "srcElement", "fromElement", "toElement",
+        "_type", "_data", "_target"
+    ], keyslen = keys.length;
+    
+    thi$.clone = function(type, data, target){
+        var evt = new (CLASS)(this), i, key;
+        for(i=0; i<keyslen; i++){
+            key = keys[i];
+            evt[key] = this[key];
+        }
+        
+        if(type){
+            evt.setType(type);            
+        }
+
+        if(data){
+            evt.setData(data);
+        }
+
+        if(target){
+            evt.setEventTarget(target);
+        }
+        
+        return evt;
+    };
+
     thi$._init = function(e){
         var _e = this._event = e || window.event;
 
+        if(e instanceof js.awt.Event){
+            $super(this, _e.type, e._event);
+            return;
+        }
+        
         $super(this, _e.type, _e);
 
         var ie = (_e.stopPropagation == undefined),
@@ -131,9 +137,6 @@ js.awt.Event = function(e){
         this.pointerType = _e.pointerType ||
             (_e.type.startsWith("touch") ? "touch" : "mouse");
 
-        this.pageX = _e.pageX;
-        this.pageY = _e.pageY;
-
         this.clientX = !isNaN(_e.pageX) ? _e.pageX
                      : (_e.clientX + domE.scrollLeft - body.clientLeft);
         this.clientY = !isNaN(_e.pageY) ? _e.pageY
@@ -153,7 +156,7 @@ js.awt.Event = function(e){
              (isOver(_e.type) ? _e.target : undefined));
 
         this.setEventTarget(DOM.getComponent(this.srcElement));
-
+        
     }.$override(this._init);
 
     this._init.apply(this, arguments);

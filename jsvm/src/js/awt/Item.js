@@ -101,45 +101,43 @@ js.awt.Item = function(def, Runtime, view){
 	 * @see js.awt.Component
 	 */
 	thi$.getPreferredSize = function(){
-		var M = this.def, prefSize = M.prefSize, bounds = this.getBounds(),
+		var M = this.def, prefSize = M.prefSize, bounds,
 		D, nodes, ele1, ele0, width;
 
-		if(this.isPreferredSizeSet && prefSize){
-			return prefSize;
-		}
-
-		if(!this.isStrict()){
-			nodes = this.view.childNodes;
-			ele1 = nodes[nodes.length-2];
-			ele0 = nodes[nodes.length -1];
-
-			if(ele0.tagName == "SPAN"){
-				/*
-				 ele0.style.width = "0px";
-				 width = ele0.offsetLeft + ele0.scrollWidth;
-				 */
-				width = ele0.offsetLeft + DOM.getTextSize(ele0).width;
-			}else{
-				if(ele1.tagName == "SPAN"){
-					/*
-					 ele1.style.width = "0px";
-					 width = ele1.offsetLeft + ele1.scrollWidth;
-					 */
-					width = ele1.offsetLeft + DOM.getTextSize(ele1).width;
-				}else{
-					width = ele1.offsetLeft + ele1.scrollWidth;
-				}
-
-				D = DOM.getBounds(this.ctrl);
-				width += D.MBP.marginLeft + D.width;
-			}
-			width += bounds.MBP.BPW;
-
-			this.setPreferredSize(width, bounds.innerHeight);
-			prefSize = M.prefSize;
-		}else{
+		if(!prefSize){
 			bounds = this.getBounds();
-			prefSize = {width: bounds.width, height: bounds.height};
+
+			if(!this.isStrict()){
+				nodes = this.view.childNodes;
+				ele1 = nodes[nodes.length-2];
+				ele0 = nodes[nodes.length -1];
+
+				if(ele0.tagName == "SPAN"){
+					/*
+					 ele0.style.width = "0px";
+					 width = ele0.offsetLeft + ele0.scrollWidth;
+					 */
+					width = ele0.offsetLeft + DOM.getTextSize(ele0).width;
+				}else{
+					if(ele1.tagName == "SPAN"){
+						/*
+						 ele1.style.width = "0px";
+						 width = ele1.offsetLeft + ele1.scrollWidth;
+						 */
+						width = ele1.offsetLeft + DOM.getTextSize(ele1).width;
+					}else{
+						width = ele1.offsetLeft + ele1.scrollWidth;
+					}
+
+					D = DOM.getBounds(this.ctrl);
+					width += D.MBP.marginLeft + D.width;
+				}
+				width += bounds.MBP.BPW;
+
+				prefSize = {width: width, height: bounds.height};
+			}else{
+				prefSize = {width: bounds.width, height: bounds.height};
+			}
 		}
 
 		return prefSize;
@@ -334,7 +332,7 @@ js.awt.Item = function(def, Runtime, view){
 	 * @see js.awt.Movable
 	 */
 	thi$.isMoverSpot = function(el, x, y){
-		return el != this.branch &&	el != this.marker 
+		return el != this.branch && el != this.marker 
 			&& el !== this.ctrl;
 	};
 
@@ -358,7 +356,7 @@ js.awt.Item = function(def, Runtime, view){
 		if(!this.isDOMElement() || !this.needLayout(force)){
 			return false;
 		}
-
+		
 		var M = this.def, G = {}, bounds = this.getBounds(), MBP = bounds.MBP,
 		xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
 		left = 0, top, space = bounds.innerWidth, layout = M.layout || {},
@@ -528,7 +526,8 @@ js.awt.Item = function(def, Runtime, view){
 		if(!this.isStrict()){
 			if(this.isDOMElement()){
 				rst = true;
-				this.showDisableCover(!this.isEnabled());
+				this.showDisableCover(!this.isEnabled(), 
+									  this.def.disableClassName);
 			}
 		}else{
 			rst = $super(this);
@@ -760,8 +759,9 @@ js.awt.Item = function(def, Runtime, view){
 
 	var _createElements = function(){
 		var M = this.def, items = M.items, G = {}, bounds,
-		MBP, xbase, ybase, left, top, height, innerHeight,
-		D, ele, id ,iid, viewType, i, len, 
+		MBP, xbase, ybase, left, top, innerHeight, D, ele,
+		id ,iid, viewType, i, len, 
+
 		buf = this.__buf__, uuid = this.uuid(),
 		strict = this.isStrict();
 

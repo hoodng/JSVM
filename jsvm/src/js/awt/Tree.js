@@ -1480,13 +1480,14 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 
 		dataProvider = tree.dataProvider;
 
-		var item = selected[0], G = item.getGeometric(),
-		icon, label, text = item.getText();
+		var item = selected[0], icon = item ? item.icon : null, 
+        label, text = item.getText(), D;
 		
-		if(item.icon){
-			icon = this.icon = item.icon.cloneNode(true);
+		if(icon){
+            D = DOM.getBounds(icon);
 
-			icon.bounds = G.icon;
+			icon = this.icon = icon.cloneNode(true);
+            icon.bounds = System.objectCopy(D || {}, {}, true);
 			DOM.appendTo(icon, this.view);
 		}
 

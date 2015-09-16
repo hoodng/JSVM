@@ -241,8 +241,9 @@ js.awt.Container = function (def, Runtime, view){
      * @see js.awt.Component
      */
     thi$.getPreferredSize = function(){
-        var size = this.def.prefSize;
-        if(!size){
+        var size = this.def.prefSize, 
+        didLayout = this._local.didLayout;
+        if(!size && didLayout){
             return this.layout.preferredLayoutSize(this);
         }else{
             return $super(this);
@@ -253,8 +254,9 @@ js.awt.Container = function (def, Runtime, view){
      *  @see js.awt.Component
      */
     thi$.getMinimumSize = function(){
-        var size = this.def.miniSize;
-        if(!size){
+        var size = this.def.miniSize, 
+        didLayout = this._local.didLayout;
+        if(!size && didLayout){
             return this.layout.minimumLayoutSize(this);
         }else{
             return $super(this);
@@ -265,8 +267,9 @@ js.awt.Container = function (def, Runtime, view){
      * @see js.awt.Component
      */
     thi$.getMaximumSize = function(nocache){
-        var size = this.def.maxiSize;
-        if(!size){
+        var size = this.def.maxiSize,
+        didLayout = this._local.didLayout;;
+        if(!size && didLayout){
             return this.layout.maximumLayoutSize(this);
         }else{
             return $super(this);
@@ -322,12 +325,11 @@ js.awt.Container = function (def, Runtime, view){
     /**
      * @see js.awt.Component
      */
-    thi$.doLayout = function(force){
+    thi$.doLayout = function(force, bounds, noupdate){
         if($super(this)){
             this.layoutComponents(force);
             return true;
         }
-
         return false;
     }.$override(this.doLayout);
     
