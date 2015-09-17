@@ -3755,7 +3755,7 @@ js.awt.Element = function(def, Runtime){
      */
     thi$.getContainer = function(){
         var container = this.container;
-        if(!container && this.view){
+        if(!container && this.view && this.view.parentNode){
             container = DOM.getComponent(this.view.parentNode);
         }
         return container;
@@ -3886,8 +3886,8 @@ js.awt.Element = function(def, Runtime){
         this._local.didLayout = false;
     };
 
-    var _childrenChanged = function(){
-        var container = this.getContainer();
+    var _childrenChanged = function(container){
+        container = container || this.getContainer();
         if(container){
             container.fireEvent(
                 new Event("childrenchanged", null, this));
@@ -3895,6 +3895,7 @@ js.awt.Element = function(def, Runtime){
     };
     
     thi$.adjustLayers = function(cmd, bounds, show){
+        var container = DOM.getComponent(this.view.parentNode);
         switch(cmd){
             case "coord":
             case "sized":
@@ -3903,7 +3904,9 @@ js.awt.Element = function(def, Runtime){
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
             this.adjustOutline(bounds);
-            _childrenChanged.call(this);
+            if(container){
+                _childrenChanged.call(this, container);                
+            }
             break;
             case "zorder":
             var z = this.getZ();
@@ -3920,7 +3923,10 @@ js.awt.Element = function(def, Runtime){
             this.removeShadow();
             this.removeCover();
             this.removeOutline();
-            _childrenChanged.call(this);
+            this.removeTipLayer();
+            if(container){
+                _childrenChanged.call(this, container);                
+            }
             break;
         }
     };
@@ -3980,7 +3986,7 @@ js.awt.Element = function(def, Runtime){
         return result;
     };
 
-    thi$.isDropable = function(data){
+    thi$.isDropable = function(x, y, data){
         return this.def.dropable || false;
     };
         
@@ -5132,7 +5138,7 @@ js.awt.Container = function (def, Runtime, view){
     };
 
     thi$.removeAll = function(gc){
-        $super(this);
+        $super(this, gc);
 
         if(this.layout){
             this.layout.invalidateLayout();
@@ -11916,7 +11922,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		for(var uuid in cache){
 			item = this.cache[uuid];
 			if((!item.isEnabled()) && item.view.parentNode !== null){
-				item._adjust("move");
+				// item._adjust("move");
+                item.adjustLayers("coor");
 			}
 		}
 	};
@@ -13756,39 +13763,46 @@ js.awt.Desktop = function (Runtime){
                 drag.target.processMoving(e);
                 
                 // For draging
-                moveObj = drag.target.getMoveObject();
+                moveObj = drag.target.getMoveObject(e);
                 data = moveObj.getMovingData();
                 fmEle = moveObj.view.parentNode;
                 parent = (fmEle === this.view) ? this : DOM.getComponent(fmEle);
                 hoverObj = parent.elementFromPoint(XY.x, XY.y, [drag.target]);
                 if(hoverObj){
+
                     if(drag.dropObj !== hoverObj){
                         fmEle = drag.dropObj ? drag.dropObj.view : null;
 
                         // drag leave
                         target = drag.dropObj;
-                        fireDragEvent(e, Event.W3C_EVT_DRAGLEAVE, data,
-                            target, fmEle, hoverObj.view);
-
+                        if(target){
+                            fireDragEvent(e, Event.W3C_EVT_DRAGLEAVE, data,
+                                          target, fmEle, hoverObj.view);
+                        }
+                        
                         // drag enter
                         target = hoverObj;
-                        fireDragEvent(e, Event.W3C_EVT_DRAGENTER, data,
-                            target, fmEle, hoverObj.view);
-
+                        if(target && target.isDropable(XY.x, XY.y, data)){
+                            fireDragEvent(e, Event.W3C_EVT_DRAGENTER, data,
+                                          target, fmEle, hoverObj.view);
+                        }
+                        
                         drag.dropObj = hoverObj;
                     }
 
                     // drag over
                     target = target || hoverObj;
-                    fireDragEvent(e, Event.W3C_EVT_DRAGOVER, data,
-                        target, drag.dropObj.view, hoverObj.view);
-
+                    if(target && target.isDropable(XY.x, XY.y, data)){
+                        fireDragEvent(e, Event.W3C_EVT_DRAGOVER, data,
+                                      target, drag.dropObj.view, hoverObj.view);
+                    }
                 }else if(drag.dropObj){
                     // drag leave
                     target = drag.dropObj;
-                    fireDragEvent(e, Event.W3C_EVT_DRAGLEAVE, data,
-                        target, drag.dropObj.view, null);
-
+                    if(target){
+                        fireDragEvent(e, Event.W3C_EVT_DRAGLEAVE, data,
+                                      target, target.view, null);
+                    }
                     drag.dropObj = null;
                 }
             }else{
@@ -13871,13 +13885,15 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _onmouseup = function(e){
-        var ele, target, drag;
+        var ele, target, drag, XY;
         System.updateLastAccessTime();
         fireDragStart.$clearTimer();
 
         ele = e.srcElement;
         target = e.getEventTarget();
         drag = drags[e.pointerId];
+        XY = e.eventXY();
+        
         if(!drag){
             if(target && target !== this){
                 target.fireEvent(e, true);
@@ -13889,15 +13905,22 @@ js.awt.Desktop = function (Runtime){
             if(drag.spot >= 8){
                 var moveObj, data;
                 target = drag.dropObj;
-                if(target){
-                    // drag drop
-                    moveObj = drag.target.getMoveObject();
-                    data = moveObj.getMovingData();
+                moveObj = drag.target.getMoveObject(e);
+                data = moveObj.getMovingData();
+
+                // drag drop
+                if(target && target.isDropable(XY.x, XY.y, data)){
                     fireDragEvent(e, Event.W3C_EVT_DROP, data, target,
-                        target.view, target.view);
+                                  target.view, target.view);
                 }
+
+                // drag end
+                target = drag.target;
+                fireDragEvent(e, Event.W3C_EVT_DRAGEND, data, target,
+                              target.view, target.view);
                 
                 drag.target.endMoving(e);
+                
             }else{
                 drag.target.endSizing(e, drag.spot);
             }
@@ -13911,22 +13934,30 @@ js.awt.Desktop = function (Runtime){
     };
 
     var fireDragStart = function(id, drag){
+        var target, moveObj, data, e;
         drags[id] = drag;
+        target = drag.target;
         if(drag.spot >= 8){
-            drag.target.startMoving(drag.event);
+            e = drag.event;
+
+            target.startMoving(e);
+
+            // drag start
+            moveObj = target.getMoveObject(e);
+            data = moveObj.getMovingData();
+            fireDragEvent(e, Event.W3C_EVT_DRAGSTART, data, target,
+                          target.view, target.view);
         }else{
-            drag.target.startSizing(drag.event, drag.spot);
+            target.startSizing(drag.event, drag.spot);
         }
     };
 
     var fireDragEvent = function(e, type, data, target, fmEle, toEle){
         var evt;
-        if(target && target.isDropable(data)){
-            evt = e.clone(type, data, target);
-            evt.srcElement = evt.toElement = toEle;
-            evt.fromElement= fmEle;
-            target.fireEvent(evt, true);
-        }
+        evt = e.clone(type, data, target);
+        evt.srcElement = evt.toElement = toEle;
+        evt.fromElement= fmEle;
+        target.fireEvent(evt, true);
     };
 
     var _onmousewheel = function(e){

@@ -1,14 +1,39 @@
 <!DOCTYPE HTML>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+</head>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+  <div id="itemsBox" class="items-box">
+  <div class="item">
+    <span class="jsvm--txt item_text">Item Text</span>
+  </div>
+  </div>
+</body>
 
 <style>
 
+  .items-box {
+  position: absolute;
+  left: 100px;
+  top: 50px;
+  width: 200px;
+  height: 300px;
+  border: 1px solid red;
+  }
+  
+  .item {
+  position: relative;
+  height: 20px;
+  border: 1px solid blue;
+  }
+
+  .item_text{
+  }
+  
 .bt_0, .bt_1{
    width: 60px;
    height: 30px;
@@ -18,19 +43,14 @@
 
 
 </style>
-</head>
-
-<body></body>
 
 <script type="text/javascript">
 
+J$VM.exec("demo", function(entry){
 
-J$VM.exec(
-    "Demo",
-    function(System){
+this.createApp().run(function(){
 
-        this.prefer({theme: "default"});
-        this.setZ(0);
+var R = this.Runtime();
 
         var treeDef = {
             id: "root1",
@@ -77,7 +97,12 @@ J$VM.exec(
 
         J$VM.MQ.register("js.awt.event.TreeItemEvent", this, _onTreeItemEvent);
 
+var box = J$VM.DOM.getComponent(document.getElementById("itemsBox", true, R));
+box.setMovable(true);
+box.setResizable(true, 0xff);
+
     });
+});
 
 </script>
 

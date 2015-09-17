@@ -1,38 +1,13 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.awt");
@@ -52,7 +27,6 @@ js.awt.Font = function(family, size, style, weight, variant){
     
     var Class = js.lang.Class, System = J$VM.System;
 
-    
     thi$.toString = function(){
         var buf = [], v, h;
 
@@ -100,162 +74,171 @@ js.awt.Font = function(family, size, style, weight, variant){
     this._init.apply(this, arguments);
 };
 
-js.awt.Font.Attrs = [
-    "fontStyle", 
-    "fontVariant", 
-    "fontWeight", 
-    "fontSize", 
-    "fontFamily"];
+(function(CLASS){
 
-js.awt.Font.Style = {
-    normal: "normal",
-    italic: "italic",
-    oblique: "oblique"
-};
+    CLASS.Attrs = [
+        "fontStyle", 
+        "fontVariant", 
+        "fontWeight", 
+        "fontSize", 
+        "fontFamily"];
 
-js.awt.Font.Variant = {
-    normal: "normal",
-    "small-caps": "small-caps"
-};
+    CLASS.Style = {
+        normal: "normal",
+        italic: "italic",
+        oblique: "oblique"
+    };
 
-js.awt.Font.Weight = {
-    normal: "normal",
-    bold: "bold",
-    bolder: "bolder",
-    lighter: "ligher",
-    "100": "normal",
-    "200": "normal",
-    "300": "normal",
-    "400": "normal",
-    "500": "normal",
-    "600": "bold",
-    "700": "bold",
-    "800": "bold",
-    "900": "bold"
-};
+    CLASS.Variant = {
+        normal: "normal",
+        "small-caps": "small-caps"
+    };
 
-/**
- * Parse js.awt.Font from css font string which like:
- * 
- * font-style font-variant font-weight font-size/line-height font-family
- *
- * "italic small-caps bold 16px Arial"
- */
-js.awt.Font.parseFont = function(str){
-    var s = str.split(" "), Font = js.awt.Font, 
-        tmp, v, font = new Font();
-    
-    if(s.length > 0){
-        font.fontFamily = s.pop();
-    }
+    CLASS.Weight = {
+        normal: "normal",
+        bold: "bold",
+        bolder: "bolder",
+        lighter: "ligher",
+        "100": "normal",
+        "200": "normal",
+        "300": "normal",
+        "400": "normal",
+        "500": "normal",
+        "600": "bold",
+        "700": "bold",
+        "800": "bold",
+        "900": "bold"
+    };
 
-    if(s.length > 0){
-        tmp = s.pop();
-        tmp = tmp.split("/");
-        font.fontSize = parseInt(tmp[0]);
-        if(tmp.length > 1){
-            font.lineHeight = parseInt(tmp[1]);
+    /**
+     * Parse js.awt.Font from css font string which like:
+     * 
+     * font-style font-variant font-weight font-size/line-height font-family
+     *
+     * "italic small-caps bold 16px Arial"
+     */
+    CLASS.parseFont = function(str){
+        var s = str.split(" "), font = new (CLASS)(),
+            tmp, v;
+        
+        if(s.length > 0){
+            font.fontFamily = s.pop();
         }
-    }
-    
-    if(s.length > 0){
-        tmp = s.pop();
-        if(Font.Weight[tmp]){
-            font.fontWeight = Font.Weight[tmp];
-        }else if (Font.Variant[tmp]){
-            font.fontVariant = tmp;
-        }else if(Font.Style[tmp]){
+
+        if(s.length > 0){
+            tmp = s.pop();
+            tmp = tmp.split("/");
+            font.fontSize = parseInt(tmp[0]);
+            if(tmp.length > 1){
+                font.lineHeight = parseInt(tmp[1]);
+            }
+        }
+        
+        if(s.length > 0){
+            tmp = s.pop();
+            if(CLASS.Weight[tmp]){
+                font.fontWeight = CLASS.Weight[tmp];
+            }else if (CLASS.Variant[tmp]){
+                font.fontVariant = tmp;
+            }else if(CLASS.Style[tmp]){
+                font.fontStyle = tmp;
+            }
+        }
+
+        if(s.length > 0){
+            tmp = s.pop();
+            if (CLASS.Variant[tmp]){
+                font.fontVariant = tmp;
+            }else if(CLASS.Style[tmp]){
+                font.fontStyle = tmp;
+            }
+        }
+
+        if(s.length > 0){
+            tmp = s.pop();
             font.fontStyle = tmp;
         }
-    }
 
-    if(s.length > 0){
-        tmp = s.pop();
-        if (Font.Variant[tmp]){
-            font.fontVariant = tmp;
-        }else if(Font.Style[tmp]){
-            font.fontStyle = tmp;
+        return font;
+    };
+
+    /**
+     * Initialize a font object with the specified font styles.
+     */
+    CLASS.initFont = function(fontStyles){
+        var font;
+        if(typeof fontStyles == "object"){
+            font = new (CLASS)(
+                fontStyles["fontFamily"],
+                fontStyles["fontSize"], 
+                fontStyles["fontStyle"],
+                fontStyles["fontWeight"], 
+                fontStyles["fontVariant"],
+                fontStyles["lineHeight"]);
+        }else{
+            font = new (CLASS)();
         }
-    }
-
-    if(s.length > 0){
-        tmp = s.pop();
-        font.fontStyle = tmp;
-    }
-
-    return font;
-};
-
-/**
- * Initialize a font object with the specified font styles.
- */
-js.awt.Font.initFont = function(fontStyles){
-    var Font = js.awt.Font, font;
-    if(typeof fontStyles == "object"){
-        font = new Font(fontStyles["fontFamily"], fontStyles["fontSize"], 
-                        fontStyles["fontStyle"], fontStyles["fontWeight"], 
-                        fontStyles["fontVariant"], fontStyles["lineHeight"]);
-    }else{
-        font = new Font();
-    }
-    
-    return font;
-};
+        
+        return font;
+    };
 
 
-/**
- * Ref: https://developer.mozilla.org/en-US/docs/CSS/font-weight
- * 
- * 100, 200, 300, 400, 500, 600, 700, 800, 900
- * Numeric font weights for fonts that provide more than just normal and bold. 
- * If the exact weight given is unavailable, then 600-900 use the closest available 
- * darker weight (or, if there is none, the closest available lighter weight), 
- * and 100-500 use the closest available lighter weight (or, if there is none, 
- * the closest available darker weight). This means that for fonts that provide only 
- * normal and bold, 100-500 are normal, and 600-900 are bold.
- */
-js.awt.Font.FFCANVASFONTWEIGHTS = {
-    "normal": "normal",
-    "bold": "bold",
-    "lighter": "lighter",
-    "bolder": "bolder",
-    "100": "normal",
-    "200": "normal",
-    "300": "normal",
-    "400": "normal",
-    "500": "normal",
-    "600": "bold",
-    "700": "bold",
-    "800": "bold",
-    "900": "bold"
-};
+    /**
+     * Ref: https://developer.mozilla.org/en-US/docs/CSS/font-weight
+     * 
+     * 100, 200, 300, 400, 500, 600, 700, 800, 900
+     * Numeric font weights for fonts that provide more than just normal and bold. 
+     * If the exact weight given is unavailable, then 600-900 use the closest available 
+     * darker weight (or, if there is none, the closest available lighter weight), 
+     * and 100-500 use the closest available lighter weight (or, if there is none, 
+     * the closest available darker weight). This means that for fonts that provide only 
+     * normal and bold, 100-500 are normal, and 600-900 are bold.
+     */
+    CLASS.FFCANVASFONTWEIGHTS = {
+        "normal": "normal",
+        "bold": "bold",
+        "lighter": "lighter",
+        "bolder": "bolder",
+        "100": "normal",
+        "200": "normal",
+        "300": "normal",
+        "400": "normal",
+        "500": "normal",
+        "600": "bold",
+        "700": "bold",
+        "800": "bold",
+        "900": "bold"
+    };
 
-/**
- * convert from FontDef.java
- */
-js.awt.Font.STYLE_BOLD = 1 << 0;
-js.awt.Font.STYLE_ITALIC = 1 << 1;
+    /**
+     * convert from FontDef.java
+     */
+    CLASS.STYLE_BOLD = 1 << 0;
 
-js.awt.Font.isFontBold = function(fontStyle){
-    return (fontStyle & js.awt.Font.STYLE_BOLD) != 0;
-};
+    CLASS.STYLE_ITALIC = 1 << 1;
 
-js.awt.Font.isFontItalic = function(fontStyle){
-    return (fontStyle & js.awt.Font.STYLE_ITALIC) != 0;
-};
+    CLASS.isFontBold = function(fontStyle){
+        return (fontStyle & CLASS.STYLE_BOLD) != 0;
+    };
 
-js.awt.Font.getFontStyle = function(isBold,isItalic){
-    var fontStyle = 0;
-    var Font = js.awt.Font;
-    if (isBold) {
-        fontStyle |= Font.STYLE_BOLD;
-    } else {
-        fontStyle &= ~Font.STYLE_BOLD;
-    }
-    if (isItalic) {
-        fontStyle |= Font.STYLE_ITALIC;
-    } else {
-        fontStyle &= ~Font.STYLE_ITALIC;
-    }
-    return fontStyle;
-};
+    CLASS.isFontItalic = function(fontStyle){
+        return (fontStyle & CLASS.STYLE_ITALIC) != 0;
+    };
+
+    CLASS.getFontStyle = function(isBold, isItalic){
+        var fontStyle = 0;
+
+        if (isBold) {
+            fontStyle |= CLASS.STYLE_BOLD;
+        } else {
+            fontStyle &= ~CLASS.STYLE_BOLD;
+        }
+        if (isItalic) {
+            fontStyle |= CLASS.STYLE_ITALIC;
+        } else {
+            fontStyle &= ~CLASS.STYLE_ITALIC;
+        }
+        return fontStyle;
+    };
+
+})(js.awt.Font);

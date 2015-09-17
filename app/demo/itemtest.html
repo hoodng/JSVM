@@ -1,0 +1,149 @@
+<!DOCTYPE HTML>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+</head>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+  <div id="itemsBox" class="jsvm--com items-box">
+
+  <div id="item1" class="item">
+    <div class="item_icon"></div>
+    <div class="jsvm--com item_text">Item Text abc adceffdfadsfdasf adsfasdf</div>
+    <div class="item_ctrl">
+      <div class="ctrl_left"></div>
+      <div class="ctrl_right"></div>
+    </div>
+  </div>
+  <div id="item2" class="item">
+    <div class="item_icon"></div>
+    <div class="item_icon"></div>
+    <div class="jsvm--com item_text">Item Text dfaldskfjdsa dasfkjasdf dasf adsf</div>
+    <div class="item_ctrl">
+      <div class="ctrl_left"></div>
+      <div class="ctrl_right"></div>
+    </div>
+  </div>
+
+  <div id="item3" class="item">
+    <div class="item_icon"></div>
+    <div class="item_icon"></div>
+    <div class="item_icon"></div>
+    <span class="jsvm--com item_text">Item Text dfkadsfads adsfjadsf adfasd dddd</span>
+    <div class="item_ctrl">
+      <div class="ctrl_left"></div>
+      <div class="ctrl_right"></div>
+    </div>
+  </div>
+  
+  </div>
+</body>
+
+<style>
+
+  .items-box {
+  position: absolute;
+  left: 100px;
+  top: 50px;
+  width: 200px;
+  height: 300px;
+  border: 1px solid red;
+  }
+  
+  .item {
+  position: relative;
+  height: 20px;
+  border: 1px solid blue;
+  padding: 4px;
+  }
+
+  .item_icon{
+  position: relative;
+  width:14px;
+  height:14px;
+  float: left;
+  border: 1px solid green;
+  margin-right: 5px;
+  z-index: 1;
+  }
+
+  
+  .item_text{
+  position: relative;
+  display: block;
+  border: 1px solid gray;
+  line-height: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  padding-right: 21px;
+  font-size: 12px;
+  cursor: auto;
+  }
+
+  .item_input{
+  outline: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  }
+  
+  .item_ctrl{
+  position: absolute;
+  width:22px;
+  height:16px;
+  top:4px;
+  right: 4px;
+  /*border: 1px solid green;*/
+  }
+
+  .ctrl_left{
+  position: absolute;
+  width: 6px;
+  height:14px;
+  background-color: #ffffff;
+  border-left: 1px solid gray;
+  border-top: 1px solid #ffffff;
+  border-bottom: 1px solid #ffffff;
+  }
+
+  .ctrl_right{
+  position: absolute;
+  right: 0;
+  width: 14px;
+  height:14px;
+  border: 1px solid green;
+  background-color: #ffffff;
+  }
+  
+  
+  
+.bt_0, .bt_1{
+   width: 60px;
+   height: 30px;
+   background-color: #FFFFFF;
+   border: 1px solid blue;
+}
+
+
+</style>
+
+<script type="text/javascript">
+
+J$VM.exec("demo", function(entry){
+
+this.createApp().run(function(){
+
+var R = this.Runtime();
+var box = J$VM.DOM.getComponent(document.getElementById("itemsBox"), true, R);
+box.setMovable(true);
+box.setResizable(true, 0xff);
+
+    });
+});
+
+</script>
+
+</html>
