@@ -52,7 +52,7 @@ js.lang.Class = new function (){
             clazz = _modules[className] = _checkClass(className);
         } catch (ex) {
             J$VM.System.err.println(
-                "Can't load "+className+" from "+ filePath);
+                "Can't load "+className+" from "+ filePath+"\n"+ex);
         }
 
         return clazz;

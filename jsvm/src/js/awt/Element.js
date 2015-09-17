@@ -686,7 +686,7 @@ js.awt.Element = function(def, Runtime){
      */
     thi$.getContainer = function(){
         var container = this.container;
-        if(!container && this.view){
+        if(!container && this.view && this.view.parentNode){
             container = DOM.getComponent(this.view.parentNode);
         }
         return container;
@@ -817,8 +817,8 @@ js.awt.Element = function(def, Runtime){
         this._local.didLayout = false;
     };
 
-    var _childrenChanged = function(){
-        var container = this.getContainer();
+    var _childrenChanged = function(container){
+        container = container || this.getContainer();
         if(container){
             container.fireEvent(
                 new Event("childrenchanged", null, this));
@@ -826,6 +826,7 @@ js.awt.Element = function(def, Runtime){
     };
     
     thi$.adjustLayers = function(cmd, bounds, show){
+        var container = DOM.getComponent(this.view.parentNode);
         switch(cmd){
             case "coord":
             case "sized":
@@ -834,7 +835,9 @@ js.awt.Element = function(def, Runtime){
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
             this.adjustOutline(bounds);
-            _childrenChanged.call(this);
+            if(container){
+                _childrenChanged.call(this, container);                
+            }
             break;
             case "zorder":
             var z = this.getZ();
@@ -851,7 +854,10 @@ js.awt.Element = function(def, Runtime){
             this.removeShadow();
             this.removeCover();
             this.removeOutline();
-            _childrenChanged.call(this);
+            this.removeTipLayer();
+            if(container){
+                _childrenChanged.call(this, container);                
+            }
             break;
         }
     };
@@ -911,7 +917,7 @@ js.awt.Element = function(def, Runtime){
         return result;
     };
 
-    thi$.isDropable = function(data){
+    thi$.isDropable = function(x, y, data){
         return this.def.dropable || false;
     };
         

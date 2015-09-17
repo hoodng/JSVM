@@ -557,9 +557,8 @@ J$VM = new function (){
             debugger;
             $super(this);
         }.$override(thi$[fnName]);
-        
     };
-    
+
     var Q = new function(){
         var curTask, scheduled;
 

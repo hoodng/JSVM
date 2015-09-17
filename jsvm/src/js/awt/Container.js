@@ -116,7 +116,7 @@ js.awt.Container = function (def, Runtime, view){
     };
 
     thi$.removeAll = function(gc){
-        $super(this);
+        $super(this, gc);
 
         if(this.layout){
             this.layout.invalidateLayout();

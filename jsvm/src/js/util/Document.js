@@ -1407,9 +1407,12 @@ js.util.Document = function (){
 
     var _fireHtmlEvent = function(el, type){
         if(!this.isDOMElement(el)) return;
-        var event = self.document.createEvent("Event");
+        var event = self.document.createEvent("Event"), dispatch;
         event.initEvent(type, true, true);
-        el.dispatchEvent(event);
+        dispatch = el.dispatchEvent || el.fireEvent;
+        if(Class.isFunction(dispatch)){
+            dispatch.call(el, event);
+        }
     };
 
     /**

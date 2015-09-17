@@ -518,89 +518,90 @@ js.awt.Graphics2D = function(def, Runtime, view){
 
 }.$extend(js.awt.Container).$implements(js.awt.Drawable);
 
-var CLASS = js.awt.Graphics2D;
+(function(CLASS){
 
-CLASS.TAGS = {
-    canvas: "js.awt.CanvasLayer",
-    svg: "js.awt.SvgLayer",
-    vml: "js.awt.VmlLayer"
-};
+    CLASS.TAGS = {
+        canvas: "js.awt.CanvasLayer",
+        svg: "js.awt.SvgLayer",
+        vml: "js.awt.VmlLayer"
+    };
 
-CLASS.SHAPES = {
-    arc: "js.awt.shape.Arc",
-    circle: "js.awt.shape.Circle",
-    ellipse: "js.awt.shape.Ellipse",
-    image: "js.awt.shape.Image",
-    line: "js.awt.shape.Line",
-    pentagon: "js.awt.shape.Pentagon",
-    polygon: "js.awt.shape.Polygon",
-    polyline: "js.awt.shape.Polyline",
-    rect: "js.awt.shape.Rect",
-    rpolygon: "js.awt.shape.RPolygon",
-    sector:"js.awt.shape.Sector",
-    square:"js.awt.shape.Square",
-    star:"js.awt.shape.Star",
-    text: "js.awt.shape.Text",
-    triangle: "js.awt.shape.Triangle"
-};
+    CLASS.SHAPES = {
+        arc: "js.awt.shape.Arc",
+        circle: "js.awt.shape.Circle",
+        ellipse: "js.awt.shape.Ellipse",
+        image: "js.awt.shape.Image",
+        line: "js.awt.shape.Line",
+        pentagon: "js.awt.shape.Pentagon",
+        polygon: "js.awt.shape.Polygon",
+        polyline: "js.awt.shape.Polyline",
+        rect: "js.awt.shape.Rect",
+        rpolygon: "js.awt.shape.RPolygon",
+        sector:"js.awt.shape.Sector",
+        square:"js.awt.shape.Square",
+        star:"js.awt.shape.Star",
+        text: "js.awt.shape.Text",
+        triangle: "js.awt.shape.Triangle"
+    };
 
-CLASS.Events = {
-    ATTRS_CHANGED: "attrschanged",
-    ITEMS_CHANGED: "itemschanged",
-    TRANS_CHANGED: "transchanged"
-};
+    CLASS.Events = {
+        ATTRS_CHANGED: "attrschanged",
+        ITEMS_CHANGED: "itemschanged",
+        TRANS_CHANGED: "transchanged"
+    };
 
-CLASS.RAD = "rad";
-CLASS.DEG = "deg";
+    CLASS.RAD = "rad";
+    CLASS.DEG = "deg";
 
-/**
- * @param vs: [[op, x, y],[op, x1, y1]....]
- */
-CLASS.vertices2Rect = function(vs){
-    var i, len, p, x = [], y =[], mx, my, r = {};
-    for(i=0, len=vs.length; i<len; i++){
-        p = vs[i];
-        x.push(p[1]);
-        y.push(p[2]);
-    }
-
-    mx = Math.max.apply(Math, x);
-    my = Math.max.apply(Math, y);
-
-    r.x = Math.min.apply(Math, x);
-    r.y = Math.min.apply(Math, y);
-
-    r.width = mx - r.x;
-    r.height= my - r.y;
-    
-    return r;
-};
-
-CLASS.deg2rad = function(d, u){
-    return (u === undefined || u === this.RAD) ? 
-        d : js.math.Trig.Deg2Rad(d);
-};
-
-CLASS.rad2deg = function(r, u){
-    return (u === undefined || u === this.RAD) ? 
-        js.math.Trig.Rad2Deg(r) : r;
-};
-
-CLASS.getLayerClass = function(gtype){
-    gtype = gtype || "canvas";
-
-    if(!J$VM.supports[gtype]){
-        gtype = "svg";
-        if(!J$VM.supports[gtype]){
-            gtype = "vml";
+    /**
+     * @param vs: [[op, x, y],[op, x1, y1]....]
+     */
+    CLASS.vertices2Rect = function(vs){
+        var i, len, p, x = [], y =[], mx, my, r = {};
+        for(i=0, len=vs.length; i<len; i++){
+            p = vs[i];
+            x.push(p[1]);
+            y.push(p[2]);
         }
-    }
 
-    if(!J$VM.supports[gtype]){
-        throw "Your browser does not support graphic "+gtype;
-    }
+        mx = Math.max.apply(Math, x);
+        my = Math.max.apply(Math, y);
 
-    return this.TAGS[gtype];
-};
+        r.x = Math.min.apply(Math, x);
+        r.y = Math.min.apply(Math, y);
 
-CLASS = undefined;
+        r.width = mx - r.x;
+        r.height= my - r.y;
+        
+        return r;
+    };
+
+    CLASS.deg2rad = function(d, u){
+        return (u === undefined || u === this.RAD) ? 
+            d : js.math.Trig.Deg2Rad(d);
+    };
+
+    CLASS.rad2deg = function(r, u){
+        return (u === undefined || u === this.RAD) ? 
+            js.math.Trig.Rad2Deg(r) : r;
+    };
+
+    CLASS.getLayerClass = function(gtype){
+        gtype = gtype || "canvas";
+
+        if(!J$VM.supports[gtype]){
+            gtype = "svg";
+            if(!J$VM.supports[gtype]){
+                gtype = "vml";
+            }
+        }
+
+        if(!J$VM.supports[gtype]){
+            throw "Your browser does not support graphic "+gtype;
+        }
+
+        return this.TAGS[gtype];
+    };
+
+})(js.awt.Graphics2D);
+

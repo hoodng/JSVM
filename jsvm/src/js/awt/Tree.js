@@ -740,7 +740,8 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 		for(var uuid in cache){
 			item = this.cache[uuid];
 			if((!item.isEnabled()) && item.view.parentNode !== null){
-				item._adjust("move");
+				// item._adjust("move");
+                item.adjustLayers("coor");
 			}
 		}
 	};

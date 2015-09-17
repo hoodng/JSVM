@@ -1,13 +1,13 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project. 
  All rights reserved.
  
  *
  * Author: Hu Dong
- * Contact: jsvm.prj@gmail.com
+ * Contact: hoodng@hotmail.com
  * License: BSD 3-Clause License
- * Source code availability: https://github.com/jsvm/JSVM
+ * Source code availability: https://github.com/hoodng/JSVM
  */
 
 $package("js.net");
@@ -50,7 +50,8 @@ js.net.XHRPool = new function(){
                     pool.push(xhr);
                 }
             }else{
-                xhr = (!ie) ? new Connection(isAsync, true) : new Connection(isAsync);
+                xhr = (!ie) ? new Connection(isAsync, true) :
+                    new Connection(isAsync);
             }
         }
 
@@ -93,7 +94,8 @@ js.net.XHRPool = new function(){
         req._blocking = false;
         req.xhr = xhr;
         data = req.data;
-        req.open(data.method, data.url, data.params, data.withOutCookie);
+        req.open(data.method, data.url, data.params,
+                 data.withOutCookie);
         _schedule(100);
 
     }.$bind(this);
@@ -167,7 +169,8 @@ js.net.HttpURLConnection = function (isAsync, blocking){
     };
 
     thi$.contentType = function(){
-        return this._xhr.contentType || this.getResponseHeader("Content-Type");
+        return this._xhr.contentType ||
+            this.getResponseHeader("Content-Type");
     };
 
     thi$.getResponseHeader = function(key){
@@ -252,7 +255,8 @@ js.net.HttpURLConnection = function (isAsync, blocking){
             break;
         case "POST":
             _url = url;
-            this.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            this.setRequestHeader("Content-Type",
+                                  "application/x-www-form-urlencoded");
             break;
         default:
             // TODO in the furture ?
@@ -274,7 +278,8 @@ js.net.HttpURLConnection = function (isAsync, blocking){
 
                     if(status != 200 && status != 304){
                         _stopTimeout.call(this);
-                        this.fireEvent(new Event(Event.SYS_EVT_HTTPERR, this, this));
+                        this.fireEvent(new Event(
+                            Event.SYS_EVT_HTTPERR, this, this));
                     }
                     break;
                 case 4:
@@ -283,10 +288,12 @@ js.net.HttpURLConnection = function (isAsync, blocking){
                     switch(xhr.status){
                     case 200:
                     case 304:
-                        this.fireEvent(new Event(Event.SYS_EVT_SUCCESS, this, this));
+                        this.fireEvent(new Event(
+                            Event.SYS_EVT_SUCCESS, this, this));
                         break;
                     default:
-                        this.fireEvent(new Event(Event.SYS_EVT_HTTPERR, this, this));
+                        this.fireEvent(new Event(
+                            Event.SYS_EVT_HTTPERR, this, this));
                         break;
                     }
                     break;
@@ -303,13 +310,6 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         _setRequestHeader.call(this, xhr, this._headers);
 
         if(async){
-            if(withOutCookie !== true){
-                try{
-                    xhr.withCredentials = true;                
-                } catch (x) {
-                }
-            }
-            
             xhr.send.$delay(xhr, 0, query);    
         }else{
             xhr.send(query);
@@ -367,15 +367,15 @@ js.net.HttpURLConnection = function (isAsync, blocking){
            params === undefined || 
            typeof params != "object") params={};
         
-        var buf = new js.lang.StringBuffer();
+        var buf = [];
         for(var p in params){
-            buf.append(p).append("=").append(params[p]).append("&");
+            buf.push(p, "=", params[p], "&");
         }
         if(this.isNoCache()){
-            buf.append("__=").append(J$VM.__version__);            
+            buf.push("__=", J$VM.__version__);
         }
 
-        return buf.toString();
+        return buf.join("");
     };
     
     var _setRequestHeader = function(_xhr, map){
