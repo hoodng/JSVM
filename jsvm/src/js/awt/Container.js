@@ -280,16 +280,25 @@ js.awt.Container = function (def, Runtime, view){
     }.$override(this.elementsFromPoint);
 
     /**
-     * @see js.awt.Component
+     * For container, if some children are container, when the parent container
+     * starts to doing layout, the child container's getPreferredSize will be
+     * invoked base on current layout result. However, current child container's
+     * layout didn't be done. The calculated result will be wrong.
+     * 
+     * @method
+     * @inheritdoc js.awt.Component#getPreferredSize
      */
     thi$.getPreferredSize = function(){
-        var size = this.def.prefSize, 
-        didLayout = this._local.didLayout;
-        if(!size && didLayout){
-            return this.layout.preferredLayoutSize(this);
-        }else{
-            return $super(this);
-        }
+        // var size = this.def.prefSize, 
+        // didLayout = this._local.didLayout;
+        // if(!size && didLayout){
+        //     return this.layout.preferredLayoutSize(this);
+        // }else{
+        //     return $super(this);
+        // }
+        
+        return $super(this);
+
     }.$override(this.getPreferredSize);
 
     /**

@@ -91,7 +91,7 @@ js.awt.Cover = function (){
         var view = this._coverView, abs, x, y;
         if(!view) return;
         bounds = bounds || this.getBounds();
-        if(bounds.MBP.fake) return;
+        // if(bounds.MBP.fake) return;
         abs = (bounds.MBP.position === "absolute");
         if(abs){
             x = bounds.x;

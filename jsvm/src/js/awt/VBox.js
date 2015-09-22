@@ -64,7 +64,7 @@ js.awt.VBox = function (def, Runtime){
         newDef.layout.axis = 1;
         System.objectCopy(newDef, def, true, true);
         
-        $super(this, def, Runtime);
+        $super(this);
 
     }.$override(this._init);
     

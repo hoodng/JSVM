@@ -58,7 +58,7 @@ js.awt.Shadow = function (){
         var view = this._shadowView, abs, x, y;
         if(!DOM.isDOMElement(this.view) || !view) return;
         bounds = bounds || this.getBounds();
-        if(bounds.MBP.fake) return;
+        // if(bounds.MBP.fake) return;
         abs = (bounds.MBP.position === "absolute");
         if(abs){
             x = bounds.x;

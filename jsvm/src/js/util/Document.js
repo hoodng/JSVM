@@ -692,15 +692,24 @@ js.util.Document = function (){
      * @param styles, the style set
      */
     thi$.applyStyles = function(ele, styles){
-        var mbpchanged = false, sp;
+        var mbpchanged = false, sp, bounds;
         
         styles = styles || {};
         for(sp in styles){
-            mbpchanged = MBPTEST.test(sp);
+            mbpchanged = mbpchanged || MBPTEST.test(sp);
             _setStyle.call(this, ele, sp, styles[sp]);
         }
 
-        return this.getBounds(ele, mbpchanged);
+        if(!this.isDOMElement(ele)){
+            if(mbpchanged){
+                delete ele.bounds;
+            }
+            bounds = null;
+        }else{
+            bounds = this.getBounds(ele, mbpchanged);
+        }
+
+        return bounds;
     };
 
     thi$.MBPCache = {};
@@ -783,10 +792,8 @@ js.util.Document = function (){
         padding(styles,mbp);
         mbp.BPW= mbp.BW + mbp.PW;
         mbp.BPH= mbp.BH + mbp.PH;
-        mbp.clazz = clazz
-        if(outer.valid){
-            J$VM.System.objectCopy(outer, mbp);
-        }
+        mbp.clazz = clazz;
+        J$VM.System.objectCopy(outer, mbp);
         
         if(!mbpinline){
             this.MBPCache[clazz] =
@@ -933,8 +940,19 @@ js.util.Document = function (){
             rect.right = rect.width = r.clientWidth;
             rect.bottom= rect.height= r.clientHeight;
         }
+        
+        var valid = (rect.width + rect.height) > 0,
+        w, h;
+        if(!valid && this.isDOMElement(el)){
+            w = parseInt(this.getStyle(el, "width"), 10);
+            h = parseInt(this.getStyle(el, "height"), 10);
 
-        rect.valid = (rect.width + rect.height) > 0;
+            if(w == 0 && h == 0){
+                valid = true;
+            }
+        }
+
+        rect.valid = valid;
         rect.position = this.getStyle(el, "position");
         return rect;
     };
@@ -1167,15 +1185,13 @@ js.util.Document = function (){
         mbp = bounds.MBP;
         clazz = this.getClassName(ele);
         if(mbp && !nocache && (mbp.clazz === clazz)){
-            if(mbp.position === "absolute") {
-                return this.updateBounds(ele, bounds);
-            }
             nocache = false;
         }else{
             nocache = true;
         }
         
         bounds.MBP = this.MBP(ele, nocache, clazz);
+        delete bounds.MBP.fake;
         bounds.BBM = bounds.MBP.BBM;
         bounds = _calcCoords.call(this, ele, bounds);
         bounds = _calcSize.call(this, ele, bounds);
@@ -1345,6 +1361,7 @@ js.util.Document = function (){
      */
     thi$.removeFrom = function(el, parentNode){
         if(!el) return;
+
         //_fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_REMOVED);        
         parentNode = parentNode || el.parentNode;
         parentNode.removeChild(el);
@@ -2065,6 +2082,10 @@ js.util.Document = function (){
 
         return obj;
     };
+    
+    thi$.getComponentById = function(id){
+		return this.getComponent(self.document.getElementById(id));
+	};
 
     thi$.inside = function(x, y, bounds){
         var mbp = bounds.MBP, minX, minY, maxX, maxY;

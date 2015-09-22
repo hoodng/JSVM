@@ -122,7 +122,7 @@ js.awt.Element = function(def, Runtime){
             U.userY = M.y;
         }
         return changed;
-    }
+    };
 
     /**
      * Return z-index of the component.<p>
@@ -256,7 +256,7 @@ js.awt.Element = function(def, Runtime){
         }
         
         return changed;
-    }
+    };
 
     thi$.absXY = function(){
         var bounds = this.getBounds();
@@ -297,7 +297,7 @@ js.awt.Element = function(def, Runtime){
         if(this.view){
             bounds = DOM.setBounds(this.view, x, y, w, h);
         }else{
-            bounds = {x: x, y: y, width: w, height: h}
+            bounds = {x: x, y: y, width: w, height: h};
         }
 
         coord = _updateCoords.call(this, M, bounds, fire);
@@ -411,12 +411,15 @@ js.awt.Element = function(def, Runtime){
         var M = this.def, coord, sized, fire = 0x0F,
             bounds = DOM.applyStyles(this.view, styles);
 
-        coord = _updateCoords.call(this, M, bounds, fire);
-        sized = _updateSize.call(this, M, bounds, fire);
-        if(coord || sized){
-            this.adjustLayers("geom", bounds);
-            if(sized && (fire & 0x01)){
-                this.doLayout(true, bounds);
+        if(this.isDOMElement()){
+            coord = _updateCoords.call(this, M, bounds, fire);
+            sized = _updateSize.call(this, M, bounds, fire);
+
+            if(coord || sized){
+                this.adjustLayers("geom", bounds);
+                if(sized && (fire & 0x01)){
+                    this.doLayout(true, bounds);
+                }
             }
         }
     };

@@ -77,7 +77,7 @@ js.awt.ToolTip = function(){
         if(!tipObj || !(tipObj instanceof js.awt.Label)){
             objDef = {
                 classType: "js.awt.Label"
-            }
+            };
             if(Class.isObject(extDef)){
                 System.objectCopy(extDef, objDef);
             }
