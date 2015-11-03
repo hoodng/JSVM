@@ -80,7 +80,7 @@ public class Compiler extends ConsoleApp {
 			optLevel = Integer.parseInt(arguments.get("-O"), 10);
 		} catch (Throwable t) {
 		}
-
+		
 		ctx = Context.enter();
 		ctx.setOptimizationLevel(optLevel);
 		scope = ctx.initStandardObjects();

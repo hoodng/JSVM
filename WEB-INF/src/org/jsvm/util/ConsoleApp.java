@@ -35,13 +35,34 @@ public class ConsoleApp {
 				ret.put(key, tmp);
 				key = null;
 			} else {
-				if (key != null) {
-					ret.put(key, "");
+				if (!isKey(tmp)) {
+					ret.put(key, tmp);
+					key = null;
+				} else {
+					if (key != null) {
+						ret.put(key, "");
+					}
+					key = tmp;
 				}
-				key = tmp;
 			}
 			return parseArgs0(args, index, key, count, ret);
 		}
+	}
+
+	public static boolean isKey(String str) {
+		boolean b = false;
+		b = (str != null) && str.startsWith("-");
+		if (b) {
+			b &= (str.charAt(1) != '"');
+		}
+		if (b) {
+			try {
+				Double.parseDouble(str);
+				b = false;
+			} catch (Throwable t) {
+			}
+		}
+		return b;
 	}
 
 	public static class Logger {
