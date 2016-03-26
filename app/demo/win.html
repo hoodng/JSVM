@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+</head>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+</body>
+<style>
+.panel,
+.panel_0 {
+    left: 100px;
+    top: 100px;
+    width: 400px;
+    height:300px;
+    border: 2px solid red;
+    padding: 5px;
+    background-color: #CCCCCC;
+}
+
+.bt,
+.bt_0{
+   width: 60px;
+   height: 30px;
+   background-color: #FFFFFF;
+   border: 1px solid blue;
+}
+
+.labButton,
+.labButton_0{
+    background-color:#CCCCCC;
+    color:white;
+    cursor:pointer;
+    font-weight: bold;
+    text-align : center;
+    width: 90px;
+    height:16px;
+}
+
+.card1, .card2, .card3, .card4,
+.card1_0, .card2_0, .card3_0, .card4_0 {
+    width: 60px;
+    height:60px;
+}
+
+.card1,
+.card1_0 {
+    left: 0px;
+    border: 2px solid red;
+}
+
+.card2,
+.card2_0 {
+    left: 60px;
+    border: 2px solid green;
+}
+
+.card3,
+.card3_0 {
+    left: 120px;
+    border: 2px solid blue;
+}
+
+.card4,
+.card4_0 {
+    left: 180px;
+    border: 2px solid red;
+}
+
+.demowin_title_button_icon,
+.demowin_title_button_icon_0 {
+    width: 16,
+    height:16
+}
+</style>
+
+<script type="text/javascript">
+
+J$VM.exec("demo", function(entry){
+
+this.createApp().run(function(){
+    var R = this.Runtime();
+
+    var DemoWindow = new js.awt.Window({
+        id: "DemoWindow",
+        css:"background-color:white;border:2px solid #CCCCCC;",
+
+        items:["title","client"],
+        
+        title:{
+            classType: "js.awt.HBox",
+            constraints:"north",
+
+            hovershow: true,
+            hovershowbutton: true,
+
+            items:["labTitle", "btnMax","btnClose"],
+            
+            labTitle:{
+                classType: "js.awt.Label",
+                css:"padding: 0px 2px 0px 4px;",
+                text: "Demo Window"
+            },
+
+            btnMax:{
+                classType: "js.awt.Button",
+                iconImage: "maximize.png"
+            },
+
+            btnClose:{
+                classType: "js.awt.Button",
+                iconImage: "dialog_close.png"
+            }
+        },
+        
+        client:{
+            classType:"js.awt.Component",
+            constraints:"center"
+            
+        },
+        resizer :255,
+        mover:{longpress: 5, bt:1.0, bl:1.0}, movable:true,
+        x:50, y:50,
+        width: 640,
+        height: 480,
+        miniSize:{width: 60, height:30},
+        maxiSize:{width: 800, height:600}
+    },R);
+
+    this.addComponent(DemoWindow);
+
+    
+
+});
+
+});
+</script>
+</html>

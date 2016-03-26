@@ -1,0 +1,87 @@
+<!DOCTYPE HTML>
+<html class="jsvm--full-h">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script id="j$vm" src="../entry/jsvm.jsp" crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;"></script>
+	<script src="../../jsvm/src/js/awt/Gridding.js"></script>
+</head>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+</body>
+
+<style>
+.box1 {
+position: absolute;
+border: 5px solid red;
+
+left: 300px;
+top: 100px;
+
+width:200px;
+height:200px;
+
+overflow: auto;
+}
+
+.box2 {
+position: absolute;
+border: 1px solid blue;
+
+left: 20px;
+top: 20px;
+
+width: 100px;
+height:100px;
+
+}
+
+.box3 {
+position: absolute;
+border: 1px solid green;
+
+left: 600px;
+top: 100px;
+
+width: 100px;
+height:100px;
+
+}
+</style>
+
+<script type="text/javascript">
+
+J$VM.exec("demo",function(entry){
+
+this.createApp().run(function(){
+
+    var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ, R =this.Runtime();
+
+    var box1 = new js.awt.Container(
+        {
+            id: "box1",
+            className: "box1",
+            movable: true,
+            resizable: true
+        }, R);
+
+    this.addComponent(box1);
+    
+    /*
+    var box2 = new js.awt.Container(
+        {
+            id: "box2",
+            className: "box2",
+            movable: true,
+            resizable: true
+        }, R);
+
+    box1.addComponent(box2);
+*/
+
+    box1.showCover(true);
+});
+
+});
+</script>
+</html>

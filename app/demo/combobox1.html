@@ -1,0 +1,92 @@
+<html class="jsvm--full-h">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">  
+  <title>JDemo</title>
+
+  <script id="j$vm" type="text/javascript" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin"
+          crs="../../jsvm/" 
+          classpath="lib/jsre-ui.jz;
+                     lib/jsre-gks.jz;
+                     lib/service.jz;
+                     "></script> 
+
+  <script type="text/javascript" src="../../jsvm/src/js/swt/DropdownList.js"></script> 
+  <script type="text/javascript" src="../../jsvm/src/js/swt/ComboBox.js"></script>
+</head>
+
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm--font jsvm__body" 
+      jsvm_entry="demo">
+    <div id="container" style="position:absolute;width:100%;height:100%;">
+    </div>
+</body>
+
+  <script type="text/javascript">
+  
+    J$VM.exec("JDemo", function(entryId){
+        var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ,
+        System = J$VM.System, Desktop = this.getDesktop(),
+        
+        div = document.getElementById("container");
+        
+        // step 1: Initialize Runtime env sepcially for application
+        var env = {
+            prefer: {dashboard:{theme: "default"}},
+            theme: "default"
+        };
+        this.initialize(env);
+        
+        // step 2: Register css files
+        Desktop.registerStyleFiles(["dashboard.css"]);
+        
+        var ms = [
+            {dname: "true", value: true},
+            {dname: "false", value: false}
+        ],
+        nms = [
+            {dname: "<dlajdadkkdlalkjd></dlajdadkkdlalkjd>", value: {}}
+        ];
+        
+        var createComboBox = function() { 
+            var def = {
+                css: "position:absolute;left:300px;top:150;",
+
+                width: 100,
+                height: 22,
+
+                editable: true,
+                
+                subview: {
+                    hauto: true,
+                    vauto: true,
+
+                    itemModels: ms
+                }
+            };
+
+            var combobox = new js.swt.ComboBox(def, this);
+            combobox.appendTo(div);
+            combobox.doLayout(true);
+
+            combobox.setSelectedIndexes([0]);
+
+            return combobox;
+        };
+        
+        var cbo = createComboBox.call(this);
+        cbo.setPeerComponent(this);
+        
+        J$VM.MQ.register("js.swt.event.SelectedChanged", this, function(e){
+            var m = cbo.getSelectedModel();
+            if(Class.isBoolean(m.value)){
+                cbo.setItemsByModel(nms);
+            }else{
+                cbo.setItemsByModel(ms);
+            }
+        });
+        
+});
+</script>
+
+</html>
+

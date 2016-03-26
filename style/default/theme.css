@@ -1,0 +1,14 @@
+/** 
+ * If a folder constains a theme.css file, then this folder is a theme folder
+ */
+.theme_bar {
+	background-color: #EEEEEE;
+}
+
+.theme_win_title {
+	background-color: #EEEEEE;
+}
+
+.theme_win_background {
+	background-color: #FFFFFF;
+}

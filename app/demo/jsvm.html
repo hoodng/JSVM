@@ -1,0 +1,683 @@
+<html class="jsvm--full-h">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">  
+    <title>J$VM Demo</title>
+
+    <script id="j$vm" type="text/javascript" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin"
+            crs="../../jsvm/" 
+            classpath="lib/jsre-ui.jz;
+                       lib/jsre-gks.jz;
+                       lib/service.jz;
+                       "></script> 
+    <style>
+     .testItem {
+         position: absolute;
+
+         margin: 3px;
+         padding: 4px;
+     }
+
+     .testStrictItem_label {
+         width: auto;
+     }
+
+     .testComp {
+         position: absolute;
+
+         margin: 3px;
+         padding: 4px;
+     }
+
+     .testBtn {
+         position: absolute;
+     }
+
+     .testLabel {
+         position: absolute;
+         overflow: hidden;
+         
+         padding: 0px 5px;
+         text-align: center;
+         
+         border: 1px solid #EEEEEE;
+     }
+
+     .testLabel_highlight{
+         background-color: orange;
+     }
+     
+    </style>
+  </head>
+
+  <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm--font jsvm__body" 
+        jsvm_entry="JDemo">
+    <div style="display:block;"><span></span></div>
+  </body>
+
+  <script type="text/javascript">
+   J$VM.exec("JDemo", function(entryId){
+       var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM, MQ = J$VM.MQ,
+           System = J$VM.System, Desktop = this.getDesktop();
+       
+       // step 1: Initialize Runtime env sepcially for application
+       var env = {
+           prefer: {dashboard:{theme: "default"}},
+           theme: "default"
+       };
+       this.initialize(env);
+
+       this.imagePath("../../../webos/style/default/images/");
+       
+       // step 2: Register css files
+       Desktop.registerStyleFiles(["common.css", "wrptstudio.css", "report.css"]);
+
+       // step 3: Create Application & execute run() or startApp()
+       this.createApp({classType:"com.jinfonet.Application"}).run(function(){
+
+           /*********** Demo cases  *********/
+           var R = this.Runtime(), def, item, comp, box, div = this.view,
+               sps = [
+                   "margin-top", "margin-right", "margin-bottom", "margin-left",
+                   "border-top-width", "border-right-width", "border-bottom-width", "border-left-width",
+                   "padding-top", "padding-right", "padding-bottom", "padding-left"
+               ],
+               styles = {margin: "1px", border: "3px solid green", padding: "2px"};
+
+           var testItem = function(){
+               // js.awt.Item
+               def = {
+                   x: 10, y: 5,
+                   width: 100, height: 20,
+
+                   labelText: "This is a item.",
+                   
+                   state: 0
+               };
+               item = new js.awt.Item(def, R);
+               item.appendTo(div);
+               
+               // strict js.awt.Item 
+               def = {
+                   x: 10, y: 30,
+                   width: 100, height: 20,
+
+                   labelText: "This is a strict Item.",
+                   
+                   resizable: true,
+                   resizer:  0xFF,
+                   
+                   labelRigid: true,
+                   
+                   strict: true,
+                   layout: {
+                       align_x: 0.5
+                   },
+                   
+                   state: 0
+               };
+               item = new js.awt.Item(def, R);
+               item.appendTo(div);
+           };
+           
+           // Test the bounds of component with multiple style classes
+           var testBounds = function(){
+               System.err.println("$$$$$$ Test with Item >>>>>>>>>>>>>>>>>>>");
+               def = {
+                   className: "testItem jsvm_item",
+
+                   x: 10, y: 65,
+                   width: 100, height: 26,
+
+                   labelText: "This is a item."
+               };
+               item = new js.awt.Item(def, R);
+               item.appendTo(div);
+
+               box = item.view.bounds;
+               System.err.println("G[item.className].bounds.MBP === item.view.bounds.MBP: " 
+                                + (js.awt.Component.G[item.className].bounds.MBP 
+                                    === item.view.bounds.MBP));
+               System.err.println("MBP Styles: " + JSON.stringify(item.getStyles(sps)));
+               System.err.println("MBP: " + JSON.stringify(box.MBP));
+               System.err.println("Bounds: " + JSON.stringify(item.getBounds()));
+               System.err.println("Cached Bounds: " + JSON.stringify(js.awt.Component.G[item.className]));
+
+               var styles = {margin: "1px", border: "3px solid green", padding: "2px"};
+               item.applyStyles(styles);
+
+               System.err.println("G[item.className].bounds.MBP === item.view.bounds.MBP: " 
+                                + (js.awt.Component.G[item.className].bounds.MBP 
+                                    === item.view.bounds.MBP));
+               System.err.println("MBP Styles Setten: " + JSON.stringify(styles));
+               System.err.println("MBP Styles: " + JSON.stringify(item.getStyles(sps)));
+               System.err.println("MBP: " + JSON.stringify(item.view.bounds.MBP));
+               System.err.println("Bounds: " + JSON.stringify(item.getBounds()));
+               System.err.println("Cached Bounds: " + JSON.stringify(js.awt.Component.G[item.className]));
+
+
+               System.err.println("$$$$$$ Test with Component >>>>>>>>>>>>>>>>>>>");
+               def = {
+                   className: "testComp jsvm_comp",
+                   css: "border: 1px solid #EEEEEE;",
+
+                   x: 150, y: 5,
+                   width: 100, height: 26
+               };
+               comp = new js.awt.Component(def, R);
+               comp.appendTo(div);
+
+               box = comp.view.bounds;
+               System.err.println("G[comp.className].bounds.MBP === comp.view.bounds.MBP: " 
+                                + (js.awt.Component.G[comp.className].bounds.MBP 
+                                    === comp.view.bounds.MBP));
+               System.err.println("MBP Styles: " + JSON.stringify(comp.getStyles(sps)));
+               System.err.println("MBP: " + JSON.stringify(box.MBP));
+               System.err.println("Bounds: " + JSON.stringify(comp.getBounds()));
+               System.err.println("Cached Bounds: " + JSON.stringify(js.awt.Component.G[comp.className]));
+
+
+               comp.applyStyles(styles);
+               System.err.println("G[comp.className].bounds.MBP === comp.view.bounds.MBP: " 
+                                + (js.awt.Component.G[comp.className].bounds.MBP 
+                                    === comp.view.bounds.MBP));
+               System.err.println("MBP Styles Setten: " + JSON.stringify(styles));
+               System.err.println("MBP Styles: " + JSON.stringify(comp.getStyles(sps)));
+               System.err.println("MBP: " + JSON.stringify(comp.view.bounds.MBP));
+               System.err.println("Bounds: " + JSON.stringify(comp.getBounds()));
+               System.err.println("Cached Bounds: " + JSON.stringify(js.awt.Component.G[comp.className]));
+           };
+
+           // Test about the "NUCG"
+           var testNUCG = function(){
+               System.err.println("$$$$$$ Test with button >>>>>>>>>>>>>>>>>>>>");
+               def = {
+                   className: "testBtn jsvm_button",
+                   css: "border: 2px solid green;",
+                   
+                   labelText: "Button 01",
+
+                   x: 150, y: 45,
+                   width: 100, height: 26
+               };
+               comp = new js.awt.Button(def, R);
+               comp.appendTo(div);
+
+
+               System.err.println("G[comp.className].bounds.MBP === comp.view.bounds.MBP: " 
+                                + (js.awt.Component.G[comp.className].bounds.MBP 
+                                    === comp.view.bounds.MBP));
+               System.err.println("MBP Styles: " + JSON.stringify(comp.getStyles(sps)));
+               System.err.println("MBP: " + JSON.stringify(comp.view.bounds.MBP));
+               System.err.println("Bounds: " + JSON.stringify(comp.getBounds()));
+               System.err.println("Cached Bounds: " + JSON.stringify(js.awt.Component.G[comp.className]));
+               
+
+               def = {
+                   className: "testBtn jsvm_button",
+
+                   labelText: "Button 02",
+                   
+                   x: 150, y: 75,
+                   width: 100, height: 26
+               };
+               comp = new js.awt.Button(def, R);
+               comp.appendTo(div);
+               
+               System.err.println("G[comp.className].bounds.MBP === comp.view.bounds.MBP: " 
+                                + (js.awt.Component.G[comp.className].bounds.MBP 
+                                    === comp.view.bounds.MBP));
+               System.err.println("MBP Styles: " + JSON.stringify(comp.getStyles(sps)));
+               System.err.println("MBP: " + JSON.stringify(comp.view.bounds.MBP));
+               System.err.println("Bounds: " + JSON.stringify(comp.getBounds()));
+               System.err.println("Cached Bounds: " + JSON.stringify(js.awt.Component.G[comp.className]));
+           };
+
+           var testCheckBox = function(){
+               def = {
+                   labelText: "This is a Checkbox",
+
+                   x: 150, y: 110,
+                   width: 120, height: 22
+               };
+               comp = new js.awt.CheckBox(def, R);
+               comp.appendTo(div);
+           };
+
+           var testRender = function(){
+               def = {
+                   css: "position:absolute;",
+
+                   labelText: "This is a Checkbox",
+
+                   x: 150, y: 140,
+                   width: 120, height: 22
+               };
+               comp = new (Class.forName("com.jinfonet.report.render.view.CheckBoxRender"))(def, R);
+               comp.appendTo(div);
+
+               def = {
+                   css: "position:absolute;",
+
+                   x: 150, y: 170,
+                   width: 120, height: 22
+               };
+               comp = new (Class.forName("com.jinfonet.report.render.view.DDListRender"))(def, R);
+               comp.appendTo(div);
+           };
+
+           var testCollapsiblePanel = function(){
+               def = {
+                   className: "panel studioPanel",
+                   css: "position: absolute;",
+                   
+                   x: 10, y: 85,
+                   width: 240, height: 350
+               };
+               
+               comp = new (Class.forName("com.jinfonet.ui.CollapsiblePanel"))(def, R);
+               comp.appendTo(div);
+
+               //comp.title.btnCollapse.setEnabled(false);
+           };
+
+           var testResourcePanel = function(){
+               def = {
+                   className: "panel studioPanel",
+                   css: "position: absolute;",
+                   
+                   x: 10, y: 5,
+                   width: 240, height: 350
+               };
+               
+               comp = new (Class.forName("com.jinfonet.webreport.ResourcePanel"))(def, R);
+               comp.appendTo(div);
+           };
+           
+           var testStrictItem = function(){
+               def = {
+                   // className: "ctrlItem $ctrlItem testStrictItem",
+                   className: "drillItem",
+                   css: "position: absolute;",
+                   
+                   // iconImage: "add2.png",
+                   labelText: "This is a test item.",
+                   // labelRigid: true,
+                   controlled: true,
+                   strict: true,
+                   
+                   x: 10, y: 55,
+                   width: 260
+               };
+               
+               comp = new (Class.forName("js.awt.Item"))(def, R);
+               comp.appendTo(div);
+           };
+
+           var testTextField = function(){
+               def = {
+                   classType: "js.swt.TextField",
+                   css: "position: absolute;",
+
+                   x: 10, y: 5,
+                   width: 100, height: 20
+               };
+               comp = new (Class.forName("js.swt.TextField"))(def, R);
+               comp.appendTo(div);
+           };
+
+           var testMTextField = function(){
+               def = {
+                   classType: "js.swt.TextField",
+                   css: "position: absolute;",
+                   multiline: true,
+
+                   value: "This is a test.",
+                   
+                   x: 10, y: 5,
+                   width: 100, height: 20
+               };
+               comp = new (Class.forName("js.swt.TextField"))(def, R);
+               comp.appendTo(div);
+
+               comp.attachEvent("ValueChanged", 4, this, function(e){
+                   System.err.println("ValueChanged: ");
+                   System.err.println(e.getData());
+                   System.err.println(e.getEventTarget().getValue());
+               });
+
+               comp.attachEvent("SubmitValue", 4, this, function(e){
+                   System.err.println("SubmitValue: ");
+                   System.err.println(e.getData());
+                   System.err.println(e.getEventTarget().getValue());
+               });
+           };
+
+           var testLabel = function(){
+               def = {
+                   classType: "js.awt.Label",
+                   className: "testLabel",
+                   
+                   text: 'Click the "+" icon on the panel above to add filters.',
+
+                   x: 10, y: 5,
+                   width: 0, height: 20
+               };
+               comp = new (Class.forName(def.classType))(def, R);
+               comp.appendTo(div);
+
+               comp.highlightAll("on", "global|insensitive");
+               System.err.println(comp.getPreferredSize());
+
+               // Wordwrap
+               def = {
+                   classType: "js.awt.Label",
+                   className: "testLabel",
+                   wordwrap: true,
+                   
+                   text: 'Click the "+" icon on the panel above to add filters.',
+
+                   x: 10, y: 50,
+                   width: 100, height: 0
+               };
+               comp = new (Class.forName(def.classType))(def, R);
+               comp.appendTo(div);
+
+               comp.highlightAll("on", "global|insensitive");
+               System.err.println(comp.getPreferredSize());
+           };
+
+           var cnt = 1, start, end;
+           var testBtns = function(){
+               start = performance.now();
+               for(i = 0; i < cnt; i++){
+                   def = {
+                       classType: "js.awt.Button",
+                       className: "jsvm_button",
+                       css: "position:relative;",
+
+                       width: 82,
+
+                       iconImage: "add.png",
+                       labelText: "Button " + i,
+                   };
+                   comp = new js.awt.Button(def, R);
+                   comp.appendTo(div);
+               }
+               end = performance.now();
+               System.err.println("Buttons Cost: " + (end - start));
+           };
+
+           var testBtnsByClone = function(){
+               start = performance.now();
+               def = {
+                   classType: "js.awt.Button",
+                   className: "jsvm_button",
+                   css: "position:relative;",
+
+                   width: 82,
+
+                   iconImage: "add.png",
+                   labelText: "Ref Button",
+               };
+               var rbtn = new js.awt.Button(def, R);
+               rbtn.appendTo(div);
+
+               var nodes = rbtn.view.childNodes, ele;
+               System.err.println(nodes);
+               for(var i = 0, len = nodes.length; i < len; i++){
+                   ele = nodes[i];
+                   System.err.println(ele.className + "::" + JSON.stringify(ele.bounds || {}));
+               }
+
+               ele = rbtn.cloneView();
+               nodes = ele.childNodes;
+               System.err.println(nodes);
+               for(var i = 0, len = nodes.length; i < len; i++){
+                   ele = nodes[i];
+                   System.err.println(ele.className + "::" + JSON.stringify(ele.bounds || {}));
+               }
+
+               for(i = 0; i < cnt; i++){
+                   def = {
+                       classType: "js.awt.Button",
+                       className: "jsvm_button",
+                       css: "position:relative;",
+
+                       width: 82,
+
+                       iconImage: "add.png",
+                       labelText: "Button " + i,
+                   };
+                   comp = new js.awt.Button(def, R);
+                   comp.appendTo(div);
+               }
+               end = performance.now();
+               System.err.println("Buttons Cost: " + (end - start));
+           };
+
+           var testFlexibleItem = function(){
+               def = {
+                   classType: "js.awt.FlexibleItem",
+                   className: "jsvm_menu_item",
+
+                   css: "position:absolute;width:200px;top:65px;left:10px;border:1px solid blue;",
+
+                   labelText: "This is item",
+
+                   ctrls: [{
+                       id: "itemDown",
+                       image: "icon_s2_arrow_down.png",
+                       width: 13,
+                       height: 13
+                   }, {
+                       id: "itemUp",
+                       image: "icon_s2_arrow_up.png",
+                       width: 13,
+                       height: 13
+                   }]
+               };
+               item = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+           };
+           
+           var testComboSelector = function(){
+               def = {
+                   classType: "com.jinfonet.ui.ComboSelector",
+                   className: "cboSelector",
+                   css: "position:absolute;",
+
+                   x: 10, y: 5
+               };
+
+               item = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+
+               System.err.println("PreferSize: " + JSON.stringify(item.getPreferredSize()));
+               System.err.println("MiniSize: " + JSON.stringify(item.getMinimumSize()));
+               System.err.println("MaxSize: " + JSON.stringify(item.getMaximumSize()));
+           };
+
+           var testFileInput = function(){
+               def = {
+                   classType: "js.awt.FileInput",
+                   css: "position:absolute;",
+
+                   width: 120, height: 22,
+
+                   x: 10, y: 5
+               };
+
+               item = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+           };
+
+           var testFileInput2 = function(){
+               def = {
+                   classType: "js.awt.HBox",
+                   css: "position:absolute;",
+                   
+                   items: ["fileBox", "btnBrowser"],
+                   fileBox: {
+                       classType: "js.awt.Component",
+
+                       rigid_w: true, rigid_h: false,
+                       width: 1
+                   },
+                   btnBrowser: {
+                       classType: "js.awt.Button",
+                       className: "jsvm_button",
+                       labelText: "Browser...",
+                       
+                       rigid_w: false, rigid_h: false
+                   },
+
+                   width: 200, height: 22,
+                   x: 10, y: 5
+               },
+               item = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+
+               var fileInput = document.createElement("INPUT");
+               fileInput.type = "file";
+               fileInput.style.cssText = "position:relative;width:100%;height:100%;";
+               DOM.appendTo(fileInput, item.fileBox.view);
+
+               item.attachEvent("click", 4, this, function(e){
+                   e.cancelBubble();
+
+                   if(document.createEventObject){
+                       var evt = document.createEventObject(window.event);
+                       fileInput.fireEvent("click", evt);
+                   }else{
+                       var evt = new MouseEvent("click", {
+                           bubbles: false,
+                           cancelable: false
+                       });
+                       fileInput.dispatchEvent(evt);
+                   }
+               });
+           };
+
+           var testFileUploader = function(){
+               def = {
+                   classType: "js.awt.FileUploader",
+                   css: "position:absolute;",
+
+                   fileExts: [".gif", ".jpg", ".png"],
+                   formAction: R.postEntry(),
+
+                   x: 10, y: 5
+               };
+               item = this.uploader = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+               item.onfilechanged = function(e){
+                   System.err.println(e.getData());
+               };
+
+
+               def = {
+                   classType: "js.awt.Button",
+                   css: "position:absolute;",
+
+                   labelText: "Submit",
+
+                   x: 10, y: 30
+               };
+               item = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+               item.attachEvent("click", 4, this, function(e){
+                   this.uploader.submit();
+               });
+           };
+
+           var testCoverEvent = function(){
+               def = {
+                   classType: "js.awt.Button",
+                   css: "position:absolute;",
+
+                   labelText: "Submit",
+
+                   x: 10, y: 30,
+
+                   state: 1
+               };
+               item = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+
+               item.attachEvent("mousedown", 4, this, function(e){
+                   System.err.println(e);
+               });
+
+               item.attachEvent("click", 4, this, function(e){
+                   System.err.println(e);
+               });
+
+               item.attachEvent("cover_mousedown", 4, this, function(e){
+                   System.err.println(e);
+               });
+
+               item.attachEvent("cover_click", 4, this, function(e){
+                   System.err.println(e);
+               });
+           };
+           
+           var testColorSelector = function(){
+               def = {
+                   classType: "com.jinfonet.ui.PaintButton",
+                   css: "position:absolute;",
+                   className: "paintButton paintButton--controlled",
+
+                   compound: true,
+                   controlled: true,
+
+                   x: 10, y: 30
+               };
+               item = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+           };
+
+           var drillExp = ["AND",["EQUALS",{"scope":2,"type":"group","iname":"Customers.Country","dname":"Country","mname":"Country","sql":12,"preci":50,"format":"XXXXXXXXX..."},{"scope":2,"real":["Australia"],"disp":["Australia"]}],["EQUALS",{"scope":2,"type":"others","iname":"Customers.Region","dname":"Region","mname":"Region","sql":12,"preci":50,"format":"XXXXXXXXX..."},{"scope":2,"real":["Asia-Pacific"],"disp":["Asia-Pacific"]}]];
+           var testDrillFilterPanel = function(){
+               def = {
+                   classType: "com.jinfonet.webreport.DrillFilterPanel",
+                   className: "panel studioPanel",
+                   css: "position:absolute;",
+                   
+                   drillExp: drillExp,
+
+                   x: 350, y: 30,
+                   width: 200, height: 240
+               };
+               item = new (Class.forName(def.classType))(def, R);
+               item.appendTo(div);
+           };
+
+           // Execute the test cases
+           // testItem();
+           // testBounds();
+           // testNUCG();
+           // testCheckBox();
+           // testRender();
+           // testCollapsiblePanel();
+           // testResourcePanel();
+           testStrictItem();
+           // testTextField();
+           // testMTextField();
+           // testLabel();
+           // testBtns();
+           // testBtnsByClone();
+           // testFlexibleItem();
+           // testComboSelector();
+           // testFileInput2();
+           // testFileUploader();
+           // testCoverEvent();
+           // testColorSelector();
+           testDrillFilterPanel();
+       });
+
+   });
+  </script>
+
+</html>
+

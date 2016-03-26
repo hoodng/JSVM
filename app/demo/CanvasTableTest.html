@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
+    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
+    <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js"></script>
+    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Drawable.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgRenderer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
+    <!--<script type="text/javascript" src="../../jsvm/src/js/awt/GraphicElement.js"></script>-->
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicGroup.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicLayer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGroup.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasLayer.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgGroup.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgLayer.js"></script>
+
+    <script type="text/javascript" src="../../jsvm/src/js/awt/Grid.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/lang/Object.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasTable.js"></script>
+    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasTableCell.js"></script>
+
+    <script type="text/javascript">
+        J$VM.exec("Demo",function(System){
+            var Class = js.lang.Class, Base64 = Class.forName("js.util.Base64"),
+                    Color = Class.forName("js.awt.Color"),
+                    URI = Class.forName("js.net.URI");
+            new Color(0,0,0,0);
+
+            var G = new (Class.forName("js.awt.Graphics2D"))(
+                    {
+                        id: "MyGraph",
+                        width: J$VM.DOM.getBounds(document.body).width, height:J$VM.DOM.getBounds(document.body).height,
+//                        css: "border: 1px solid red; overflow: auto",
+                        movable: false,
+                        resizable: false,
+                        miniSize:{width: 10, height:10},
+                        angleUnit: "deg",
+                        capture: true,
+                        x:0, y:0,
+                        gType: "canvas"
+                    }, this);
+            G.checkAttachEvent("mousedown", "mouseup","mousemove","mouseover", "mouseout", "click", "dblclick");
+            var table = new (Class.forName("js.awt.CanvasTable"))({
+                position:{x:50,y:50},
+//                BGColor:"#ccc",
+                size:{w: 400,h: 400},
+//                rowHeader:true,
+//                colHeader:true,
+                gridDef:{
+                    rowNum:10,
+                    colNum:10
+//                    cells:[
+//                        {rowIndex:0, colIndex:0, rowSpan:1, colSpan:2},
+//                        {rowIndex:0, colIndex:2, rowSpan:2, colSpan:1},
+//                        {rowIndex:1, colIndex:0, rowSpan:2, colSpan:1},
+//                        {rowIndex:2, colIndex:1, rowSpan:1, colSpan:2}
+//                    ]
+                }
+//                size:{w: G.getWidth(),h: G.getHeight()}
+            },G);
+//            var table = new (Class.forName("js.awt.CanvasTable"))({
+//                cols: 10,rows: 10,rh:50,cw:50,position:{x:0,y:0},size:{w: G.getWidth(),h: G.getHeight()}
+//            },G);
+
+            this.addComponent(G);
+//            G.draw();
+
+            var _onMouseEvents = function(e){
+                var shape = e.getEventTarget();
+                if(shape){
+//                    System.err.println(shape.id+"---"+e.getType()+" "+e._bubble);
+//                    System.err.println(shape.getCurrentCell({x: e.pageX,y: e.pageY}));
+                    shape.fireEvent(e);
+                }
+//                System.err.println(table.getCurrentCell({x: e.pageX,y: e.pageY}));
+            };
+            var count=1;
+            var _onCellDoubleClick = function(e){
+                var cell=table.getCurrentCell({x: e.pageX,y: e.pageY});
+                if(cell){
+//                    System.err.println(cell.getValue());
+//                    cell.setTextStyle({"font":(Class.forName("js.awt.Font")).parseFont("bolder 16px 黑体")});
+                    cell.setValue("动次打次"+(count++));
+                }
+//                G.draw();
+            };
+//            table._body.attachEvent("dblclick", 4, this, _onCellDoubleClick);
+
+
+        });
+    </script>
+</head>
+<body>
+
+</body>
+</html>

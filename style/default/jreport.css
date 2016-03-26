@@ -1,0 +1,108 @@
+/* Override the style of div with "title" id */
+#title {
+    margin: 0;
+}
+
+.vidyoApp,
+.vidyoApp_0, .vidyoApp_32 {
+    padding: 0px; 
+}
+
+.vidyoApp_client,
+.vidyoApp_client_0 {
+    /* border: 1px solid #EEEEEE; */
+}
+
+.dholder {
+    background-color: #FFFFFF;
+}
+
+.ctrlbar {
+    position: relative;
+    top: 2px;
+    left: 2px;
+    
+    width: 114px;
+    height: 24px;
+    background-color: #B0D3F4;
+    border: 1px solid #B0D3F4;
+    
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.vmCtrlbar {
+    position: relative;
+    top: 2px;
+    left: 2px;
+    
+    width: 32px;
+    height: 24px;
+    background-color: #B0D3F4;
+    border: 1px solid #B0D3F4;
+    
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.vmCtrlbar2 {
+    position: relative;
+    top: 2px;
+    left: 2px;
+    
+    width: 58px;
+    height: 24px;
+    background-color: #B0D3F4;
+    border: 1px solid #B0D3F4;
+    
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.ctrlbar_button,
+.ctrlbar_button_0, .ctrlbar_button_1, .ctrlbar_button_2,
+.ctrlbar_button_4, .ctrlbar_button_6,
+.ctrlbar_button_16, .ctrlbar_button_3 {
+    position:relative;
+    left:0px;
+    top: 0px;
+    
+    width: 22px;
+    height: 22px;
+    
+    margin: 0px 3px 0px 3px;
+    
+    float: left;
+    cursor : pointer;
+}
+
+.ctrlbar_button_16{
+    display: none;
+}
+
+.ctrlbar_button_icon {
+    position: absolute;
+
+    width: 16px;
+    height: 16px;
+}
+
+.ctrlbar_button_1 img[class*="ctrlbar_button_icon"],
+.ctrlbar_button_3 img[class*="ctrlbar_button_icon"] {
+    filter: alpha(Opacity = 40);
+    -moz-opacity: 0.4;
+    opacity: 0.4;
+}
+
+.ctrlbar_button_disable {
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
+    background-color: #F5F4EA;
+}

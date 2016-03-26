@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html style="height:100%;">
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script id="j$vm" type="text/javascript" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin"
+            crs="../../jsvm/"
+            classpath="lib/jsre-ui.jz;
+			           lib/jsre-gks.jz;
+			           lib/service.jz;
+			           "></script>
+    <script src="../../jsvm/src/com/jinfonet/util/Tools.js"></script>
+</head>
+<body>
+</body>
+<script type="text/javascript">
+    J$VM.exec("inspector", function (System) {
+        var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ,
+                System = J$VM.System, Desktop = this.getDesktop();
+
+        Desktop.registerStyleFiles(["wrptstudio.css"]);
+        var desk = new (Class.forName("js.awt.Component"))({
+            width: 1000,
+            height: 700
+        });
+        var pnl = new (Class.forName("com.jinfonet.ui.InspectorPanel"))({
+            css: "position:absolute;top:10px;left:100px;border:1px solid red;",
+            className: "inspectorPanel",
+            resizable: true
+        }, this);
+
+        var props = {
+            "InstanceName": "Tabular1",
+            "ObjectType": "jet.report.tabular.JetRptTabular",
+            "groups": ["general","background", "geometry","category(X)Axis","value(Y)Axis","wall", "hint","color", "css","gauge","others", "border"],
+//            "groups": ["geometry","color","others", "border","thresholdLine","wall"],
+            "background": ["PaperBackgroundBorderPenColor", "PaperBackgroundBorderPenEndCaps",
+                "PaperBackgroundBorderPenLineJointRadius", "PaperBackgroundBorderPenOutlined",
+                "PaperBackgroundBorderPenStyle", "PaperBackgroundBorderPenThickness",
+                "PaperBackgroundBorderPenTransparency", "PaperBackgroundBorderStyle",
+                "PaperBackgroundBorderPenVariabledDash", "PaperBackgroundFillPatternColor",
+                "PaperBackgroundFillPatternTransparency", "PaperBackgroundFillPatternType",
+                "PaperBackgroundFillPatternGradientEndColor", "PaperBackgroundFillPatternGradientEndX",
+                "PaperBackgroundFillPatternGradientEndY", "PaperBackgroundFillPatternGradientStartColor",
+                "PaperBackgroundFillPatternGradientStartX", "PaperBackgroundFillPatternGradientStartY",
+                "PaperBackgroundFillPatternGradientStyle", "PaperBackgroundFillPatternImageFile",
+                "PaperBackgroundFillPatternImageHeight", "PaperBackgroundFillPatternImageLayout",
+                "PaperBackgroundFillPatternImageWidth", "PaperBackgroundFillPatternImageX",
+                "PaperBackgroundFillPatternImageY", "PaperBackgroundBottom", "PaperBackgroundLeft",
+                "PaperBackgroundRight", "PaperBackgroundTop", "PaperBackgroundBorderPenLineJointRadius",
+                "PaperBackgroundFillPatternTextureBackColor", "PaperBackgroundFillPatternTextureForeColor",
+                "PaperBackgroundFillPatternTextureStyle"],
+            "hint": ["HintTextPatternColor", "HintTextPatternTransparency", "HintTextPatternType", "HintTextSpecialEffect1",
+                "HintTextFontName", "HintTextRotation", "HintTextSpecialEffect2", "HintTextShearing", "HintTextFontSize",
+                "HintTextStrikethrough", "HintTextFontStyle", "HintTextUnderline", "HintTextPatternGradientEndColor",
+                "HintTextPatternGradientEndX", "HintTextPatternGradientEndY", "HintTextPatternGradientStartColor",
+                "HintTextPatternGradientStartX", "HintTextPatternGradientStartY", "HintTextPatternGradientStyle", "HintTextPenColor",
+                "HintTextPenEndCaps", "HintTextPenLineJoint", "HintTextPenOutlined", "HintTextPenStyle", "HintTextPenThickness",
+                "HintTextPenTransparency", "HintTextPenVariabledDash", "ShowCategoryAndSeries", "ShowTips", "HintTextPatternTextureBackColor",
+                "HintTextPatternTextureForeColor", "HintTextPatternTextureStyle"],
+            "gauge": ["GaugeAlertColor", "GaugeAlertValueMax", "GaugeAlertValueMin", "GaugeDialLineArrowStyle", "GaugeDialCurveStyle",
+                "GaugeErrorColor", "GaugeErrorValueMax", "GaugeErrorValueMin", "GaugeDialCurveIsFill", "GaugeAlertGradientEndColor", "GaugeAlertGradientEndX",
+                "GaugeAlertGradientEndY", "GaugeAlertGradientStartColor", "GaugeAlertGradientStartX", "GaugeAlertGradientStartY", "GaugeAlertGradientStyle",
+                "GaugeAlertType", "GaugeErrorGradientEndColor", "GaugeErrorGradientEndX", "GaugeErrorGradientEndY", "GaugeErrorGradientStartColor",
+                "GaugeErrorGradientStartX", "GaugeErrorGradientStartY", "GaugeErrorGradientStyle", "GaugeErrorType", "GaugeNormalGradientEndColor",
+                "GaugeNormalGradientEndX", "GaugeNormalGradientEndY", "GaugeNormalGradientStartColor", "GaugeNormalGradientStartX", "GaugeNormalGradientStartY",
+                "GaugeNormalGradientStyle", "GaugeNormalType", "GaugeNormalColor", "GaugeNormalValueMax", "GaugeNormalValueMin", "GaugeDialOuterInnerGap",
+                "GaugeDialLineStyle", "RadiusRange", "GaugeDialStartAngle", "GaugeDialStopAngle"],
+            "geometry": ["Height", "Width"],
+            "category(X)Axis": ["AxisXPenColor", "AxisXPenEndCaps", "AxisXPenLineJoint", "AxisXPenOutlined", "AxisXPenStyle", "AxisXPenThickness",
+                "AxisXPenTransparency", "AxisXPenVariabledDash", "DataMappingFile", "AxisXGridPenColor", "AxisXGridPenEndCaps", "AxisXGridPenLineJoint",
+                "AxisXGridPenOutlined", "AxisXGridPenStyle", "AxisXGridPenThickness", "AxisXGridPenTransparency", "AxisXGridPenVariabledDash", "AxisXIncrement",
+                "AxisXLabelAxisGap", "AxisXLabelTextPatternColor", "AxisXLabelEveryNTickMarks", "AxisXLabelTextPatternTransparency", "AxisXLabelTextPatternType",
+                "AxisXLabelTextSpecialEffect1", "AxisXLabelTextFontName", "AxisXLabelFontAutomaticOrientation", "AxisXLabelTextRotation", "AxisXLabelTextSpecialEffect2",
+                "AxisXLabelTextShearing", "AxisXLabelTextFontSize", "AxisXLabelTextStrikethrough", "AxisXLabelTextFontStyle", "AxisXLabelTextUnderline",
+                "AxisXLabelTextPatternGradientEndColor", "AxisXLabelTextPatternGradientEndX", "AxisXLabelTextPatternGradientEndY", "AxisXLabelTextPatternGradientStartColor",
+                "AxisXLabelTextPatternGradientStartX", "AxisXLabelTextPatternGradientStartY", "AxisXLabelTextPatternGradientStyle", "AxisXLabelTextPenColor",
+                "AxisXLabelTextPenEndCaps", "AxisXLabelTextPenLineJoint", "AxisXLabelTextPenOutlined", "AxisXLabelTextPenStyle", "AxisXLabelTextPenThickness",
+                "AxisXLabelTextPenTransparency", "AxisXLabelTextPenVariabledDash", "AxisXLabelPosition", "AxisXLabelTextPatternTextureBackColor",
+                "AxisXLabelTextPatternTextureForeColor", "AxisXLabelTextPatternTextureStyle", "AxisXLabelTextWordWrap", "AxisXTickMarkLength", "AxisXTickMarkPenColor",
+                "AxisXTickMarkPenEndCaps", "AxisXTickMarkPenLineJoint", "AxisXTickMarkPenOutlined", "AxisXTickMarkPenStyle", "AxisXTickMarkPenThickness",
+                "AxisXTickMarkPenTransparency", "AxisXTickMarkPenVariabledDash", "AxisXTickMarkType", "AxisXMaxValue", "AxisXMinValue", "AxisXMinorTickMarkLength",
+                "AxisXMinorTickMarkType", "AxisXNumOfLabels", "AxisXNumOfTickMarks", "AxisXPosition", "AxisXScrollableChart", "AxisXScrollableVisibleValue",
+                "AxisXDisplayAreaPercentage", "ShowAxisX", "AxisXShowLabelTips", "AxisXShowChartInScroll", "AxisXShowGrid", "AxisXShowTickMarkLabels", "AxisXIsBestEffort"],
+            "value(Y)Axis": ["AxisYPenColor", "AxisYPenEndCaps", "AxisYPenLineJoint", "AxisYPenOutlined", "AxisYPenStyle", "AxisYPenThickness",
+                "AxisYPenTransparency", "AxisYPenVariabledDash", "AxisYGridPenColor", "AxisYGridPenEndCaps", "AxisYGridPenLineJoint", "AxisYGridPenOutlined",
+                "AxisYGridPenStyle", "AxisYGridPenThickness", "AxisYGridPenTransparency", "AxisYGridPenVariabledDash", "AxisYIncrement", "AxisYLabelAxisGap",
+                "AxisYLabelTextPatternColor", "AxisYLabelEveryNTickMarks", "AxisYLabelTextPatternTransparency", "AxisYLabelTextPatternType", "AxisYLabelTextSpecialEffect1",
+                "AxisYLabelTextFontName", "AxisYLabelFontAutomaticOrientation", "AxisYLabelTextRotation", "AxisYLabelTextSpecialEffect2", "AxisYLabelTextShearing",
+                "AxisYLabelTextFontSize", "AxisYLabelTextStrikethrough", "AxisYLabelTextFontStyle", "AxisYLabelTextUnderline", "AxisYLabelTextPatternGradientEndColor",
+                "AxisYLabelTextPatternGradientEndX", "AxisYLabelTextPatternGradientEndY", "AxisYLabelTextPatternGradientStartColor", "AxisYLabelTextPatternGradientStartX",
+                "AxisYLabelTextPatternGradientStartY", "AxisYLabelTextPatternGradientStyle", "AxisYLabelTextPenColor", "AxisYLabelTextPenEndCaps", "AxisYLabelTextPenLineJoint",
+                "AxisYLabelTextPenOutlined", "AxisYLabelTextPenStyle", "AxisYLabelTextPenThickness", "AxisYLabelTextPenTransparency", "AxisYLabelTextPenVariabledDash",
+                "AxisYLabelPosition", "AxisYLabelTextPatternTextureBackColor", "AxisYLabelTextPatternTextureForeColor", "AxisYLabelTextPatternTextureStyle",
+                "AxisYLabelTextWordWrap", "AxisYTickMarkLength", "AxisYTickMarkPenColor", "AxisYTickMarkPenEndCaps", "AxisYTickMarkPenLineJoint", "AxisYTickMarkPenOutlined",
+                "AxisYTickMarkPenStyle", "AxisYTickMarkPenThickness", "AxisYTickMarkPenTransparency", "AxisYTickMarkPenVariabledDash", "AxisYTickMarkType", "AxisYMaxValue",
+                "AxisYMinValue", "AxisYMinorTickMarkLength", "AxisYMinorTickMarkType", "AxisYNumOfLabels", "AxisYNumOfTickMarks", "AxisYPosition", "AxisYScrollableChart",
+                "AxisYScrollableVisibleValue", "AxisYDisplayAreaPercentage", "ShowAxisY", "AxisYShowLabelTips", "AxisYShowChartInScroll", "AxisYShowGrid", "AxisYShowTickMarkLabels",
+                "AxisYLabelStartValue", "AxisYIsBestEffort", "AxisYUseLabelStartValue"],
+            "wall": ["WallBorderPenColor", "WallBorderPenEndCaps", "WallBorderPenLineJoint", "WallBorderPenOutlined", "WallBorderPenStyle", "WallBorderPenThickness",
+                "WallBorderPenTransparency", "WallBorderPenVariabledDash", "WallFillPatternColor", "WallFillPatternTransparency", "WallFillPatternType",
+                "WallBoundFillPatternGradientEndColor", "WallFillPatternGradientEndX", "WallFillPatternGradientEndY", "WallFillPatternGradientStartColor",
+                "WallFillPatternGradientStartX", "WallFillPatternGradientStartY", "WallFillPatternGradientStyle", "WallFillPatternImageFile", "WallFillPatternImageHeight",
+                "WallFillPatternImageLayout", "WallFillPatternImageWidth", "WallFillPatternImageX", "WallFillPatternImageY", "ShowWall", "WallFillPatternTextureBackColor",
+                "WallBoundFillPatternTextureForeColor", "WallFillPatternTextureStyle"],
+            "thresholdLine": ["FillThreshold", "FillThreshold2", "FillTransparent", "ShowThresholdLine", "ShowThresholdLine2", "ThresholdLineColor", "ThresholdLineColor2",
+                "ThresholdLineStyle", "ThresholdValue", "ThresholdValue2"],
+            "color": ["Background"],
+            "others": ["Invisible"],
+            "border": ["BorderColor", "BorderWidth", "BottomLine", "LeftLine", "RightLine", "TopLine"],
+            "props": {
+                "Height": {
+                    "t": 13, "a": 0, "v": "3743"
+                }
+                ,
+                "Width": {
+                    "t": 4, "a": 0, "v": "46757"
+                }
+                ,
+                "Background": {
+                    "t": 2, "a": 0, "v": "Transparent"
+                }
+                ,
+                "Invisible": {
+                    "t": 1, "a": 0, "v": "false"
+                }
+                ,
+                "BorderColor": {
+                    "t": 2, "a": 0, "v": "0x000000"
+                }
+                ,
+                "BorderWidth": {
+                    "t": 4, "a": 0, "v": "0"
+                }
+                ,
+                "BottomLine": {
+                    "t": 3, "a": 0, "v": "Solid"
+                }
+                ,
+                "LeftLine": {
+                    "t": 3, "a": 0, "v": "Solid"
+                }
+                ,
+                "RightLine": {
+                    "t": 3, "a": 0, "v": "Solid"
+                }
+                ,
+                "TopLine": {
+                    "t": 3, "a": 0, "v": "Solid"
+                }
+            }
+        };
+
+        btnChange = new (Class.forName("js.awt.Button"))({
+            css: "position:absolute;top:0px;left:0px;",
+            labelText: "GetChangedProperties",
+            effect: false
+        }, this);
+        btnAll = new (Class.forName("js.awt.Button"))({
+            css: "position:absolute;top:30px;left:0px;",
+            labelText: "GetAllProperties",
+            effect: false
+        }, this);
+        btnReset = new (Class.forName("js.awt.Button"))({
+            css: "position:absolute;top:60px;left:0px;",
+            labelText: "ResetAllProperties",
+            effect: false
+        }, this);
+        btnClear = new (Class.forName("js.awt.Button"))({
+            css: "position:absolute;top:90px;left:0px;",
+            labelText: "ClearAllProperties",
+            effect: false
+        }, this);
+        btnAddProperties = new (Class.forName("js.awt.Button"))({
+            css: "position:absolute;top:120px;left:0px;",
+            labelText: "AddProperties",
+            effect: false
+        }, this);
+        Event.attachEvent(btnChange.view, "click", 4, btnChange, function (e) {
+            System.err.println(pnl.getProps(true));
+        });
+        Event.attachEvent(btnAll.view, "click", 4, btnAll, function (e) {
+            System.err.println(pnl.getProps());
+        });
+        Event.attachEvent(btnReset.view, "click", 4, btnReset, function (e) {
+            pnl.resetAll();
+            System.err.println(pnl.getProps(true));
+        });
+        Event.attachEvent(btnClear.view, "click", 4, btnReset, function (e) {
+            pnl.clear();
+        });
+        Event.attachEvent(btnAddProperties.view, "click", 4, btnReset, function (e) {
+            pnl.setProps(props);
+        });
+
+        Desktop.addComponent(desk);
+//
+//        btnChange.appendTo(desk.view);
+//        btnAll.appendTo(desk.view);
+//        btnReset.appendTo(desk.view);
+//        btnClear.appendTo(desk.view);
+//        btnAddProperties.appendTo(desk.view);
+
+        var random = function(){
+            return parseInt(Math.random()*6+2);
+        }
+
+        var gs = props.groups,ps = props.props, pn, g,count=0;
+        for (var i=0;i<gs.length;i++) {
+            g =props[gs[i]];
+            if(g)
+            for(var j=0;j< g.length;j++){
+                pn=g[j];
+                if(ps[pn])
+                    continue;
+                count++;
+                ps[pn]={t:random(),v:"123",a:0};
+            }
+        }
+        pnl.setSize(600,500);
+        pnl.appendTo(desk.view);
+        pnl.setPosition(100,0);
+        pnl.setProps(props);
+    })
+    ;
+</script>
+</html>

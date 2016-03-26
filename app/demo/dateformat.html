@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <script id="j$vm" 
+            src="../../jsvm/jsvm.jsp"
+            classpath="lib/../jsre-ui.js"
+            -DmainClass="org.jsvm.App"></script>
+
+    <style>
+
+    </style>
+</head>
+<body>
+
+
+</body>
+
+
+<script type="text/javascript">
+
+J$VM.exec("org.jsvm.App",function(System){
+    
+    this.initialize();
+
+    var Class = js.lang.Class, System = J$VM.System,
+
+    pattern = "dd/MMM/yy",
+    locale = new (Class.forName("js.util.Locale"))("en", "US"), 
+    symbols = new(Class.forName("js.text.DateFormatSymbols"))(this.getDateSymbolsByLocale(locale)), 
+    DF = new (Class.forName("js.text.SimpleDateFormat"))(pattern, symbols), 
+    d, dstr;
+    
+    System.err.println(new Date());
+    System.err.println("");
+        
+    for (var i = 0; i <= 99; i++) {
+        if (i <= 9) {
+            dstr = "22/May/0" + i;
+        } else {
+            dstr = "22/May/" + i;
+        }
+
+        try {
+            d = DF.parse(dstr);
+            System.err.println(d);
+        } catch (ex) {
+            System.err.println(ex);
+        }
+    }
+    
+    System.err.println("");
+    d = DF.parse("22/Jan/34");
+    System.err.println(d);
+    
+});
+</script>
+</html>

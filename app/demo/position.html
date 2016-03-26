@@ -1,0 +1,84 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>Position (absolute / relative)</title>
+
+  <style>
+      __PSEUDO__ {background-color:gray;}
+      
+      body{
+        margin: 0px;
+        border: 0px none;
+        padding: 0px;
+        
+      }
+      
+      span {
+        cursor: default;
+      }
+  </style>
+
+</head>
+<body>
+    <div id="div1" style="position:absolute;border:5px solid blue;padding:8px;width:200px;height:150px;background:red;top:50px;left:100px;">
+        <div id="div2" style="position:absolute;border:5px solid orange;width:100px;height:50px;background:black;color:white;left:-5px;top:-5px;">
+             position:absolute;
+             left:-5px;
+             top:-5px;
+        </div>
+        <div id="div3" style="position:absolute;border:5px solid black;width:100px;height:50px;background:orange;right:0px;bottom:0px;">
+             position:absolute;
+             right:0px;
+             bottom:0px;
+        </div>
+        
+        <span style="position:absolute;left:-5px;top:175px;">
+            position:absolute;
+            border:5px solid blue;
+            padding:8px;
+        </span>    
+    </div>
+    
+    <div id="div10" style="position:absolute;border:5px solid blue;padding:8px;width:200px;height:150px;background:red;top:300px;left:100px;">
+        <div id="div3" style="position:absolute;border:5px solid black;width:100px;height:50px;background:orange;left:0px;top:0px;">
+             position:absolute;
+             left:0px;
+             top:0px;
+        </div> 
+        
+        <span style="position:absolute;left:-5px;top:175px;">
+            position:absolute;
+            border:5px solid blue;
+            padding:8px;
+        </span>   
+    </div>
+
+    <div id="div11" style="position:relative;border:5px solid blue;padding:8px;width:200px;height:150px;background:red;top:50px;left:350px;">
+        <div id="div22" style="position:relative;border:5px solid orange;padding:8px;width:200px;height:150px;background:black;color:white;left:0px;top:0px;">
+            position:relative;
+            left:0px;
+            top:0px; 
+        </div>
+   
+        position:relative;
+        border:5px solid blue;
+        padding:8px;
+    </div>
+    
+    <div id="div111" style="position:relative;border:5px solid blue;padding:8px;width:200px;height:150px;background:red;top:125px;left:350px;">
+        <div id="div333" style="position:relative;border:5px solid black;padding:8px;width:200px;height:150px;background:orange;left:-8px;top:-8px;">
+            position:relative;
+            left:-8px;
+            top:-8px; 
+        </div>
+          
+        position:relative;
+        border:5px solid blue;
+        padding:8px;    
+    </div>    
+</body>
+</html>
+

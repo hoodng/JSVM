@@ -1,0 +1,1772 @@
+/* Some common styles for panel in webstudio UI */
+.panel {
+    border: 1px solid #D9D9D9;
+    display: block;
+}
+
+.panel_16 {
+    display: none;
+}
+
+.ptitle,
+.panel_title {
+    height: 23px;
+
+    background-image: url("images/title_bg.gif");
+    background-repeat: repeat-x;
+    background-color: #EEEEEE;
+    cursor: pointer;
+}
+
+.ptitle_16,
+.panel_title_16{
+    visibility: hidden;
+}
+
+.ptitle_lead,
+.panel_title_lead {
+    /*
+    background-image: url(images/move.png);
+    background-repeat: no-repeat;
+    */
+
+    width: 5px;
+}
+
+.ptitle_label,
+.panel_title_label {
+    filter: dropshadow(color=white, offx=1, offy=1,positive=1);
+    text-shadow: 1px 1px 1px #FFF;
+
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 1px;
+}
+
+.ptitle_button,
+.panel_title_button {
+    width: 18px;
+    height: 18px;
+    visibility: visible;
+}
+
+.ptitle_button_16,
+.ptitle_button_20
+.panel_title_button_16,
+.panel_title_button_20 {
+    visibility: hidden;
+}
+
+.ptitle_button_cover--disable
+.panel_title_button_cover--disable {
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
+    background-color: #F5F4EA;
+}
+
+.ptitle_button_icon
+.panel_title_button_icon {
+    position: absolute;
+
+    width: 16px;
+    height:16px;
+}
+
+.ptitem_1, .ptitem_3,
+.ptitem_17,
+.panel_titem_1, .panel_titem_3,
+.panel_titem_17 {
+    filter: alpha(opacity=40);
+    -moz-opacity: 0.4;
+    opacity: 0.4;
+}
+
+.ptitem_cover--disable,
+.panel_titem_cover--disable {
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
+    background-color: #F5F4EA;
+}
+
+.pclient,
+.panel_client {
+    padding: 2px 0px;
+    background-color: #FFFFFF;
+    border-top: 1px solid #D9D9D9;
+
+    white-space: nowrap;
+    overflow: auto;
+    display: block;
+}
+
+.pclient_16,
+.panel_client_16 {
+    display: none;
+}
+
+.btnpane {
+    height: 34px;
+
+    background-color: #EEEEEE;
+    overflow: hidden;
+    display: block;
+}
+
+.btnpane_16 {
+    display: none;
+}
+
+/** For message box **/
+.msgbox {
+    overflow: hidden;
+}
+
+.msg_icon {
+    position:absolute;
+    width: 32px;
+    height:32px;
+}
+
+.msg_subject {
+    position:absolute;
+    font-weight:bold;
+    left: 38px;
+    cursor:default;
+}
+
+.msg_content {
+    position:absolute;
+    top: 38px;
+    left: 38px;
+    border:0px none;
+    overflow: auto;
+    background-color: transparent;
+}
+
+.message, .message_2,
+.jsvmconfirm, .jsvmconfirm_2,
+.closeconfirm, .closeconfirm_2 {
+    border:1px solid #e6e6e6;
+    background-color:#FFFFFF;
+
+    /*
+       -moz-border-radius: 5px;
+       -khtml-border-radius: 5px;
+       -webkit-border-radius: 5px;
+       border-radius: 5px;
+     */
+}
+
+.message_title {
+    border: 0px solid;
+    padding-left: 4px;
+}
+
+.message_client {
+    border-width: 4px 12px 12px 12px;
+    border-style: solid;
+    border-color: transparent;
+    overflow : auto;
+}
+
+.message_btnpane {
+    height : 34px;
+    padding: 0px 12px 12px 12px;
+}
+
+.message_cover--mask,
+.jsvmconfirm_cover--mask,
+.closeconfirm_cover--mask {
+    filter: alpha(Opacity = 30);
+    -moz-opacity: 0.3;
+    opacity: 0.3;
+    background-color: #000000;
+}
+
+/* extend jsvm__entry */
+.wrptstudio {
+    overflow: hidden;
+}
+
+.wrptstudio--hidden {
+    display: none;
+}
+
+/* For app */
+.wrptstudio_app {
+    background-color: #F3F3F3;
+}
+
+/* For sideHolder */
+.wrptSideHolder {
+    width: 228px; 
+    display: block;
+}
+
+.wrptSideHolder_16 {
+    display: none; 
+}
+
+/** For Toolbar **/
+.wrptToolbar {
+    height: 24px;
+    padding-left: 3px;
+    padding-right: 12px;
+}
+
+.wrptToolbar_toolbarSideExpand {
+    width: 15px;
+    height: 22px;
+    background-color: transparent;
+    background-image: url(images/switch-panel.png);
+    background-position: 0px -48px;
+    background-repeat: no-repeat;
+    padding: 0px 3px 0px 0px;
+    border: 0px solid;
+    cursor: pointer;
+}
+
+.wrptToolbar_toolbarSideExpand_2 {
+    background-image: url(images/switch-panel.png);
+    background-position: 0px -72px;
+    background-repeat: no-repeat;
+}
+
+.wrptToolbar_toolbarSideExpand_4 {
+    background-image: url(images/switch-panel.png);
+    background-position: 0px 0px;
+    background-repeat: no-repeat;
+}
+
+.wrptToolbar_toolbarSideExpand_6 {
+    background-image: url(images/switch-panel.png);
+    background-position: 0px -24px;
+    background-repeat: no-repeat;
+}
+
+.wrptToolbar_toolbarMenu {
+    width: 54px;
+    padding: 0px 3px;
+}
+
+.wrptToolbar_toolbarMenu_label {
+    width: auto;
+}
+
+.wrptToolbar_toolbarMenu_ctrl {
+    width: 7px;
+    height: 4px;
+    background-image: url("images/arrow1.png");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+}
+
+.wrptToolbar_toolbarLanguage {
+    width: 150px;
+    padding-left: 5px;
+    padding-right: 5px;
+    float: right;
+}
+
+.wrptToolbar_toolbarLanguage_label {
+    text-align: left;
+    width: auto;
+}
+
+.wrptToolbar_toolbarMode {
+    width: 110px;
+    padding-left: 5px;
+    padding-right: 10px;
+    float: right;
+}
+
+.wrptToolbar_toolbarMode_label {
+    text-align: left;
+}
+
+.wrptToolbar_toolbarExit {
+    float: right;
+}
+
+/** For workspace **/
+.wrptstudio_workspace {
+    padding: 0px 0px 0px 3px;
+}
+
+/** For sideArea **/
+.sideArea {
+    width: 228px;
+
+    background-color: #EEEEEE;
+    
+    /*
+    border-width: 0px 1px 0px 0px;
+    border-style: none solid none none;
+    border-color: #D9D9D9;
+    */
+
+    display: block;
+}
+
+.sideArea_16 {
+    display: none;
+}
+
+.wrptInspectorPanel {
+    width: 228px;
+
+    background-color: #FCFCFC;
+    display: block;
+}
+
+.wrptInspectorPanel_16 {
+    display: none;
+}
+
+.wrptInspectorPanel_client {
+    padding: 0px;
+}
+
+/** For CollapsiblePanel, inherit the top common styles **/
+/* extend panel */
+.studioPanel {
+    display: block;
+}
+
+.studioPanel_16 {
+    display: none;
+}
+
+.studioPanel_btnSort {
+    width: 26px;
+}
+
+.studioPanel_client {
+    overflow: hidden;
+}
+
+.studioPanel_titem_cover--disable {
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
+}
+
+.wrptResPanel_tree {
+    border: 0 none;
+    padding: 0;
+    margin: 0;
+}
+
+.wrptCompPanel_tree {
+    border: 0 none;
+    padding: 0;
+    margin: 0;
+}
+
+.topPanel_title {
+    border-top: 0px none;
+}
+
+.ctrlCollapse_icon {
+    width: 14px;
+    height: 16px;
+}
+/** End for CollapsiblePanel  **/
+
+/* For FilterPanel */
+.filterHint {
+    white-space: normal;
+    line-height: 16px;
+
+    padding: 6px 5px;
+    text-align: center;
+
+    display: block;
+}
+
+.filterHint_16 {
+    display: none;
+}
+
+.filterArea {
+    display: block;
+}
+
+.filterArea_16 {
+    display: none;
+}
+
+.filterPanel_navpane {
+    background-color: transparent;
+
+    height: 32px;
+    padding-left: 6px;
+}
+
+.filterPanel_btn {
+    width: 60px;
+    height: 20px;
+}
+
+/* End for FilterPanel*/
+
+/**** For DrillFilterPanel ****/
+.drillList {
+    padding: 4px;
+}
+
+.drillItem {
+    position: relative;
+    height: 26px;
+    border: 1px solid #D9D9D9;
+    border-radius: 6px;
+    padding: 2px;
+    background-color: #D9D9D9;
+    font-weight: bold;
+    cursor: default;
+}
+.drillItem_2 {
+    color: #000000;
+    background-color: #FFFFFF;
+}
+
+.drillItem_ctrl {
+    width: 16px;
+    height: 16px;
+    background-image: url("images/close.gif");
+    background-repeat: no-repeat;
+    background-position:center;
+    cursor: pointer;
+}
+
+/** End for DrillFilterPanel **/
+
+/** For InspectorPanel **/
+.propertySheet {
+    padding: 0;
+    margin: 0;
+}
+
+.propertySheet_normalitem div,
+.propertySheet_groupitem div,
+.propertySheet_headitem div{
+    position: absolute;
+}
+
+.propertySheet_normalitem,
+.propertySheet_groupitem,
+.propertySheet_headitem {
+    border-bottom: 1px solid #BCBCBC;
+    padding: 0;
+    margin: 0;
+    height: 16px;
+    width:100px;
+    overflow: hidden;
+}
+
+.propertySheet_normalitem {
+    padding-left: 19px;
+    background-color: #FFFFFF;
+}
+
+.propertySheet_groupitem {
+    padding-left: 5px;
+    background-color: #FFFFFF;
+}
+
+.propertySheet_headitem {
+    padding-left: 5px;
+    background-color: #EEEEEE;
+}
+
+.propertySheet_split {
+    border-left: 1px solid #D9D9D9;
+    width:6px;
+    background-color: transparent;
+    position: absolute;
+    top: 0px;
+    left: -1px;
+    z-index: 10;
+}
+
+.propertySheet_split_moveObj {
+    border-left: 1px solid orange;
+    position: absolute;
+    top: 0px;
+    left: -1px;
+    z-index: 11;
+}
+
+.propertySheet_groupitem_key,
+.propertySheet_groupitem_key_0,
+.propertySheet_groupitem_key_4{
+    margin: 0;padding:0;
+    width: 100px;
+    height: 16px;
+}
+
+.propertySheet_normalitem_key{
+    margin: 0;
+    padding:0;
+    width: 100px;
+    height: 16px;
+}
+
+.propertySheet_normalitem_key_label{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    height: 14px;
+    display:block;
+    line-height: 14px;
+}
+
+.propertySheet_groupitem_key_label {
+    text-overflow: ellipsis;
+    display: block;
+    overflow: hidden;
+    height: 14px;
+    line-height: 14px;
+}
+
+.propertySheet_groupitem_key_icon {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+}
+
+.propertySheet_normalitem_value {
+    border: 0;
+    padding-left: 5px;
+    width: 100px;
+    height: 16px;
+    position: absolute;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.propertySheet_normalitem_value_input:disabled {
+    background-color: transparent;
+}
+
+.propertySheet_normalitem_value_label {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    height: 14px;
+    line-height: 14px;
+}
+
+.propertySheet_normalitem_value_dItemContainer{
+    padding-left:0px;
+}
+
+.propertySheet_normalitem_value_dItem_sign,
+.propertySheet_normalitem_value_color_item_sign {
+    width: 9px;
+    height: 9px;
+    border: 1px solid #000;
+}
+
+.formulaButton {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #C0C0C0;
+    cursor:pointer;
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.formulaButton_2, .formulaButton_6 {
+    background-color: #A1DCED;
+}
+
+.formulaButton_icon {
+    width: 12px;
+    height: 12px;
+}
+
+/** End for inspectorPanelPanel **/
+
+/** For menu in studio **/
+.menuStudio {
+    border:1px solid #e6e6e6;
+    background-color:#FFFFFF;
+    width:180px;
+}
+
+.menuStudio_item {
+    height: 20px;
+    cursor:default;
+    overflow:hidden;
+    background-color:white;
+}
+
+.menuStudio_item_2 {
+    background-color:#ffdf7c;
+}
+
+.menuStudio_item_1, .menuStudio_item_3 {
+    color:#CCCCCC;
+}
+
+.menuStudio_separator {
+    height: 1px;
+    background-color:white;
+}
+
+.menuStudio_item_marker {
+    width: 0px;
+    height:20px;
+    background-color: white;
+    margin-right: 5px;
+}
+
+.menuStudio_item_icon {
+    width: 0px;
+    height:16px;
+}
+
+.menuStudio_item_label {
+    height: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.menuStudio_item_cover--disable {
+    background: transparent;
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
+}
+
+/** End for menu in studio **/
+
+/***** For QueryFilterDialog ***************/
+.filterBasicPanel, .filterBasicPanel_16{
+    background-color: #FFFFFF;
+    display: block;
+    overflow: auto;
+}
+
+.filterBasicPanel_16 {
+    display: none;
+}
+
+.filteAdvPanel, .filteAdvPanel_16 {
+    display: block;
+}
+
+filteAdvPanel_16 {
+    display: none;
+}
+
+.queryFilter_fieldset {
+    margin: 0px;
+    padding: 15px 5px 5px 5px;
+    border: 1px solid #003066;
+}
+
+.queryFitler_condPanel {
+    border: 1px solid #9A9A9A;
+    background: #FFFFFF;
+    padding: 5px;
+    overflow: auto;
+}
+
+.filterlist_item {
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    padding: 2px;
+    border-top: 1px solid #C6C6C6;
+    background: #EDEDED;
+}
+
+.filterlist_item_icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+}
+
+.filterlist_item_label {
+    height: 20px;
+    line-height: 20px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    cursor: default;
+}
+
+.filterExpItem_iconDelete_img {
+    cursor: pointer;
+}
+
+.queryFilter_fieldset_labText {
+    background: transparent;
+    border: 0px;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 11px;
+}
+
+.filterInspectorDlg {
+    background: #eeeeee;
+}
+
+.webrpt_comboBox {
+    background-color: #FFFFFF;
+}
+
+.webrpt_comboBox_dItem_label {
+    font-size: 11px;
+}
+.filter_btn {
+    background: gray;
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
+
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+}
+
+.filter_btn_16 {
+    display: none;
+}
+
+.filter_poplist {
+    width: 150px;
+    height: 170px;
+}
+/***** End for QueryFilterDialog ***********/
+
+/*****     For FilterExpItem     **/
+.filterExpItem {
+    border: 1px solid #FFFFFF;
+    width: 100%;
+    padding: 2px;
+    height: 20px;
+}
+
+.filterExpItem_8 {
+    border: 1px solid #ffbd69;
+}
+
+.exp_btn {
+    width: 20px;
+    height: 20px;
+}
+
+.exp_btn_16 {
+    display: none;
+}
+
+
+.filterExpGroupItem_contentPanel_defitem {
+    border: 1px solid #FFFFFF;
+}
+
+.filterExpGroupItem_contentPanel_defitem_8 {
+    border: 1px solid #ffbd69;
+}
+/************     End FilterExpItem     ********/
+
+/********** For parameter_dialog *********/
+.parameter_table, .parameter_table_0{
+    border-collapse:collapse;
+    border: 1px solid #CCCCCC;
+}
+
+.parameter_table_headerHolder,
+.parameter_table_headerHolder_0 {
+    Background-color: #ffffff;
+    cursor: pointer;
+    background: url(images/title_background.png) repeat;
+    border-left: 1px solid #CCCCCC;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+.parameter_table_header_label{
+    top: 6px !important;
+    text-indent: 3px;
+    left: 2px;
+}
+
+.parameter_table_row_hover {
+    cursor: pointer;
+    background: #ffdf7c;
+}
+
+.parameter_table_cell_0 {
+    white-space: nowrap;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    height: 20px;
+    line-height: 20px;
+    padding:0;
+    border-right: 1px solid #CCC;
+}
+
+.parameter_table_bodyHolder,
+.parameter_table_bodyHolder_0{
+    Background-color: #ffffff;
+    border: 1px solid #CCCCCC;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 2px;
+}
+
+.parameter_table_body,
+.parameter_table_body_0 {
+    Background-color: #ffffff;
+}
+
+.ptable_head_label,
+.ptable_head_label_0 {
+    left: 2px;
+}
+
+.p_settingpanel,
+.p_settingpanel {
+    background-color: #EEEEEE;
+}
+
+.p_settingpanel_16 {
+    display: none;
+    -moz-opacity: 0;
+    opacity: 0;
+}
+
+.parameterTable,
+.parameterTable_0 {
+    border: 1px solid #CCCCCC;
+    background: url(images/title_background.png) repeat;
+}
+
+.parameter_table_row,
+.parameter_table_row_0 {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #CCC;
+}
+.parameter_table_row_4 {
+    background-color: #ffdf7c;
+    border-bottom: 1px solid #CCC;
+}
+
+
+.parameterTable_view,
+.parameterTable_view_0 {
+    background-color: #FFFFFF;
+}
+
+.parameterTable_th,
+.parameterTable_th_0,
+.parameterTable_name,
+.parameterTable_name_0,
+.parameterTable_value,
+.parameterTable_value_0 {
+    height: 22px;
+    padding: 0 4px;
+    background: url(images/title_background.png) repeat;
+    border-left: 1px solid #CCCCCC;
+}
+
+.parameterTable_name,
+.parameterTable_name_0{
+    border-right: 1px solid #DDDDDD;
+}
+
+.parameterTable_name_label,
+.parameterTable_value_label {
+    height: 16px;
+    line-height: 16px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.parameterTable_row,
+.parameterTable_row_0,
+.parameterTable_row_2 {
+    background-color: #FFFFFF;
+}
+
+.parameterTable_row_4{
+    background-color: #ffdf7c;
+}
+
+.parameterTableItem,
+.parameterTableItem_0, .parameterTableItem_1,
+.parameterTableItem_2, .parameterTableItem_4,
+.parameterTableItem_5, .parameterTableItem_6,
+.parameterTableItem_16, .parameterTableItem_17 {
+    height: 20px;
+    width: 100%;
+    padding: 0px 0px 0px 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    display:block;
+    border-bottom: 1px solid #CCCCCC;
+    border-right: 1px solid #CCCCCC;
+}
+
+.parameterTableItem_16, .parameterTableItem_17,
+.parameterTableItem_20, .parameterTableItem_22 {
+    display:none;
+}
+
+.parameterTableItem_1 {
+    color: gray;
+}
+
+.parameterTableItem_2, .parameterTableItem_6 {
+    background-color:#ffdf7c;
+}
+
+.parameterTableItem_4 {
+    /* background-color:#ffd070;*/
+}
+
+.parameterTableItem_icon,
+.parameterTableItem_icon_0 {
+    width: 16px;
+    height:16px;
+    margin-right:2px;
+}
+
+.parameterTableItem_icon_4 {
+    width: 0px;
+    height:0px;
+}
+
+.parameterTableItem_label,
+.parameterTableItem_label_0 {
+    height: 16px;
+    line-height: 16px;
+    cursor: default;
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+
+/* For param_table_TextField */
+.param_table_textfield,
+.param_table_textfield_0, .param_table_textfield_1 {
+    height: 20px;
+    width: 100%;
+
+    background-color: transparent;
+    padding-left: 4px;
+
+    overflow: hidden;
+    border-bottom: 1px solid #CCC;
+}
+
+.param_table_textfield_input {
+    background-color: transparent;
+}
+
+.param_table_textfield_cover--disable {
+    filter: alpha(Opacity = 50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    background-color: #F5F4EA;
+}
+
+.wizzard_table_row,
+.wizzard_table_row_0{
+    background-color: #FFFFFF;
+}
+
+.wizzard_table_row_4{
+    background-color: #ffdf7c;
+}
+
+.calendarbox, .calendarbox_0 {
+    width: 100%;
+}
+
+.parameComboSelector {
+    width: 100px;
+    height: 20px;
+
+    border: 1px solid #CCCCCC;
+    overflow: hidden;
+    background: #FFFFFF;
+}
+
+.parameComboSelector_16 {
+    display: none;
+}
+
+.parameComboSelector_cover--disable {
+    filter: alpha(Opacity = 45);
+    -moz-opacity: 0.45;
+    opacity: 0.45;
+    background: #F5F4EA;
+}
+
+.parameComboSelector_dBox {
+    padding: 2px;
+    overflow: hidden;
+}
+
+.parameComboSelector_dItem {
+    width: 100%;
+    height: 16px;
+}
+
+.parameComboSelector_dItem_icon {
+    width: 16px;
+    height: 16px;
+}
+
+.parameComboSelector_dItem_label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.parameComboSelector_btnDD {
+    width: 17px;
+    border-left: 1px solid #CCCCCC;
+}
+
+.parameComboSelector_btnDD_icon {
+    width: 16px;
+    height: 16px;
+}
+.param_comboBox {
+    background: #FFFFFF;
+    border: 1px solid #CCC;
+}
+.cascadingTab_comboBox {
+    background: transparent;
+    border-left: 0px;
+    border-bottom: 0px;
+}
+.param_comboBox_dItem_icon {
+    width: 16px;
+    height: 16px;
+}
+
+.prop_combo {
+    background: transparent;
+}
+
+.parambtn {
+    border: 0px;
+}
+
+.exp_label_16 {
+    display: none;
+}
+
+.filter_tree {
+    border: 1px solid #E1E1E1;
+}
+/********** End parameter_dialog *********/
+
+/**********insert Filter Dialog**********/
+.resPanel,
+.resPanel_0 {
+
+}
+
+.resPanel_title,
+.resPanel_title_0, .resPanel_title_16 {
+    height: 22px;
+}
+
+.resPanel_title_16{
+    visibility: hidden;
+}
+
+.resPanel_title_label,
+.resPanel_title_label_0 {
+    color: #000000;
+    /*font-weight: bold;*/
+}
+
+.resPanel_title_button,
+.resPanel_title_button_0,
+.resPanel_title_button_16,
+.resPanel_title_button_20 {
+    width: 18px;
+    height: 18px;
+}
+
+.resPanel_title_button_16,
+.resPanel_title_button_20{
+    visibility: hidden;
+}
+
+.resPanel_title_button_cover--disable{
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
+    background-color: #F5F4EA;
+}
+
+.resPanel_title_button_icon,
+.resPanel_title_button_icon_0 {
+    width: 16px;
+    height:16px;
+}
+
+.jsvm_fileinput_file{
+    background-color:red;
+    filter: alpha(opacity = 0);
+    -moz-opacity: 0;
+    -khtml-opacity: 0;
+    opacity: 0;
+    cursor: default;
+}
+/**********End Filter Dialog ************/
+
+/********** For insert Multimedia Dialog *******/
+.insert_multimedia_16 {
+    display: none;
+}
+/********* End insert_multimedia Dialog *********/
+
+/***** For "Insert Parameter Control" dialog *****/
+.parameterPanel {
+    background-color: #EEEEEE;
+}
+
+.parameterPanel_title {
+    height: 30px;
+    display: block;
+}
+
+.parameterPanel_title_16 {
+    display: none;
+}
+
+.parameterPanel_client {
+    border: 1px solid #8E8E8E;
+}
+
+/* For "Insert Parameter Form Control" dialog */
+.paramFormDlgObj {
+    background-color: #EEEEEE;
+}
+
+.multiParamPanel {
+    display: block;
+}
+
+.multiParamPanel_16 {
+    display: none;
+}
+
+.multiParamPanel_title {
+    height: 30px;
+    display: block;
+
+    background-color: #EEEEEE;
+}
+
+.multiParamPanel_title_16 {
+    display: none;
+}
+
+.multiParamPanel_title span[id="labTitle"],
+.multiParamPanel_title_16 span[id="labTitle"] {
+    color: #000000;
+    font-weight: normal;
+}
+
+.multiParamPanel_client {
+    border: 1px solid #8E8E8E;
+}
+
+.paramInfoPanel {
+    display: block;
+}
+
+.paramInfoPanel_16 {
+    display: none;
+}
+
+.paramInfoBox {
+    margin: 0px;
+    padding: 6px 6px 6px 12px;
+    /* border: 1px solid #ccc; */
+    background-color: #FFFFFF;
+}
+
+.paramInfoBox_legendView {
+    overflow: auto;
+}
+
+.paramInfoItem {
+    height: 20px;
+}
+
+/* For ListItem */
+.rptItem {
+    position: relative;
+
+    width: 100%;
+    height: 20px;
+
+    cursor: pointer;
+    overflow: hidden;
+
+    display: block;
+}
+
+.rptItem_1 {
+    color: #ACA899;
+}
+
+.rptItem_16, .rptItem_20{
+    display: none;
+}
+
+.rptItem_2, .rptItem_6 {
+    background-color: #FFE7A2;
+}
+
+.rptItem_4 {
+    background-color: #FEA046;
+}
+
+.rptItem_marker,
+.rptItem_marker_0,
+.rptItem_marker_1,
+.rptItem_marker_4,
+.rptItem_marker_5 {
+    width: 14px;
+    height: 14px;
+
+    margin-left: 4px;
+    margin-right: 4px;
+}
+
+.rptItem_marker_0 {
+    background-image: url("images/icon-checkbox-normal.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.rptItem_marker_4 {
+    background-image: url("images/icon-checkbox-select.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.rptItem_marker_1 {
+    background-image: url("images/icon-checkbox-normal-dis.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.rptItem_marker_5 {
+    background-image: url("images/icon-checkbox-select-dis.png");
+    background-repeat: no-repeat;
+    background-position:center;
+}
+
+.rptItem_label {
+    height: 16px;
+    line-height: 16px;
+    cursor: default;
+    text-overflow:ellipsis;
+    overflow:hidden;
+}
+
+.rptItem_cover--disable {
+    filter: alpha(Opacity = 50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+    background: #FFFFFF;
+}
+
+/***** End for "Insert Parameter Control" dialog *****/
+
+/************** For Link dialog ***********/
+/* For list table */
+/* | th | th | thn | */
+.listTable {
+    padding: 0 2px;
+    border: 1px solid #CCCCCC;
+}
+
+.listTable_view {
+    background-color: #FFFFFF;
+}
+
+.listTable_th,
+.listTable_thn {
+    height: 22px;
+    padding: 0 4px;
+
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
+
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+}
+
+.listTable_th {
+    border-right: 1px solid #DDDDDD;
+}
+
+.listTable_th_label,
+.listTable_thn_label {
+    height: 16px;
+    line-height: 16px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.listTable_row {
+    background-color: #FFFFFF;
+}
+
+.listTable_row_4, .listTable_row_6 {
+    background-color: #FFDF7C;
+}
+
+/* For Primary & Target Field ComboSelector */
+.tdCbo {
+    width: 100px;
+    height: 20px;
+
+    border: 1px solid #CCCCCC;
+    overflow: hidden;
+}
+
+.atdCbo {
+    width: 100px;
+    height: 20px;
+
+    border: 1px solid #FFFFFF;
+    overflow: hidden;
+}
+
+.tdCbo_2,
+.atdCbo_2 {
+    border: 1px solid #666666;
+}
+
+.tdCbo_dBox,
+.atdCbo_dBox {
+    padding: 2px;
+    overflow: hidden;
+}
+
+
+.tdCbo_dItem,
+.atdCbo_dItem {
+    /* TODO */
+}
+
+.tdCbo_dItem_icon,
+.atdCbo_dItem_icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+}
+
+.tdCbo_dItem_icon_img,
+.atdCbo_dItem_icon_img {
+    width: 16px;
+    height: 16px;
+}
+
+.tdCbo_dItem_label,
+.atdCbo_dItem_label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.tdCbo_btnDD,
+.atdCbo_btnDD {
+    width: 17px;
+    border-left: 1px solid #CCCCCC;
+}
+
+.tdCbo_btnDD_icon,
+.atdCbo_btnDD_icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* For OP ComboBox */
+.tdCombo {
+    width: 100px;
+    height: 20px;
+
+    border: 1px solid #CCCCCC;
+    overflow: hidden;
+}
+
+.tdCombo_2 {
+    border: 1px solid #666666;
+}
+
+.tdCombo_dItemContainer {
+    padding: 2px;
+    overflow: hidden;
+}
+
+.tdCombo_dItem_label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: default;
+}
+
+.tdCombo_dropdown {
+    width: 17px;
+    border-left: 1px solid #CCCCCC;
+}
+
+.tdCombo_dropdown_icon {
+    width: 16px;
+    height: 16px;
+}
+
+/* For ValuePicker */
+.vpicker {
+    padding: 1px;
+
+    width: 100px;
+    height: 20px;
+
+    filter: alpha(Opacity = 65);
+    -moz-opacity: 0.65;
+    opacity: 0.65;
+}
+
+.vpicker_label {
+    padding: 0px 2px;
+    border: 1px solid #C0C0C0;
+    display: block;
+}
+
+.vpicker_btn {
+    width: 16px;
+    height: 16px;
+    text-align: center;
+    border: 1px solid #C0C0C0;
+
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.vpicker_btn_0, .vpicker_btn_2 {
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+*/
+    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
+
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+}
+
+.vpicker_btn_1, .vpicker_btn_3 {
+    color: #ACA899;
+    background: #F5F4EA;
+    border: 1px solid #C9C7BA;
+}
+
+.vpicker_btn_4, .vpicker_btn_6 {
+    background: #FFFFFF;
+}
+
+.vpicker_btn_icon {
+    width: 10px;
+    height: 2px;
+}
+
+.vpicker_btn_effect_normal,
+.vpicker_btn_effect_hover,
+.vpicker_btn_effect_trigger {
+    background-color: transparent;
+    border-width: 1px;
+
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.vpicker_btn_effect_normal {
+    border-style: solid;
+    border-color: transparent;
+}
+
+.vpicker_btn_effect_hover {
+    border-style: solid;
+    border-color: #FAC150;
+}
+
+.vpicker_btn_effect_trigger{
+    border-style: groove;
+    border-color: #FAC150;
+}
+
+/* More button for link dialog */
+.link_button {
+    width: 60px;
+    height: 20px;
+    text-align: center;
+    border: 1px solid #C0C0C0;
+
+    -moz-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.link_button_1 {
+    color: gray;
+}
+
+.link_button_2 {
+    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
+
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+}
+
+.link_button_2, .link_button_6{
+    border: 1px solid #FAC150;
+}
+
+.link_button_1, .link_button_3 {
+    color: #ACA899;
+    background: #F5F4EA;
+    border: 1px solid #C9C7BA;
+}
+
+.link_button_4 {
+    background: #FFFFFF;
+}
+
+.link_button_16 {
+    display: none;
+}
+
+.link_button_label {
+    height: 16px;
+    line-height: 16px;
+    cursor: default;
+}
+
+.link_button_cover--disable {
+    filter: alpha(Opacity = 50);
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+
+    /*modify for avoid blank*/
+    background: rgb(238, 238, 238);
+}
+
+.link_button_ctrl,
+.link_button_ctrl_0,
+.link_button_ctrl_4 {
+    width: 16px;
+    height: 16px;
+    margin-left: 2px;
+}
+
+.link_button_ctrl,
+.link_button_ctrl_0 {
+    background-image: url("images/2-option.gif");
+}
+
+.link_button_ctrl_4 {
+    background-image: url("images/4-option.gif");
+}
+
+/* For link content panel */
+.linkContentPanel {
+    visibility: visible;
+}
+
+.linkContentPanel_16 {
+    visibility: hidden;
+}
+
+.linkCover {
+    background-color: #EEEEEE;
+}
+/************** End for Link dialog ***********/
+
+/********** For Conditional Format Dialog ********/
+.conditionFormatDlg_fieldSet_fontPanel {
+    height: 40px;
+    width: 450px;
+    position: absolute;
+}
+.conditionFormatDlg_fieldSet_sizePanel {
+    height: 40px;
+    width: 450px;
+    position: absolute;
+}
+.conditionFormatDlg_fieldSet_colorPanel {
+    height: 120px;
+    width: 450px;
+    position: absolute;
+}
+.condition_colorComp {
+    height: 18px;
+    width: 18px;
+    border: 1px solid #C1C1C1;
+}
+
+.conditionBtn {
+    border: 0px;
+}
+
+.condition_colorComp_img{
+    height: 16px;
+    width: 16px;
+}
+
+.conditionBtn_icon {
+    padding-left: 1px;
+}
+
+.conditionItem {
+    border: 0px;
+    background: transparent;
+}
+
+.conditionItem_6, .conditionItem_4 {
+    background: #cadef0;
+}
+/*********  End Conditional Format Dialog **********/
+
+/********* For ShowHideObj Dialog *****************/
+.showhideobjdlg {
+    background: #ffffff;
+    overflow-x: hidden;
+}
+
+.showhidedlg_tree {
+    border: 0px;
+}
+
+.showhidedlg_tree_item_16{
+    display: none;
+}
+
+.propbox {
+    background: #ffffff;
+    position: relative;
+}
+
+.cboVisible {
+    background: #fffffff;
+
+}
+.changebybtn {
+    /* position: relative;*/
+}
+
+.visibleitem {
+    position: relative;
+    height: 22px;
+    width: 120px;
+}
+
+.showhidedlg_title {
+    background-image: url(images/title_bg.gif);
+    background-repeat: repeat-x;
+    background-color:#EEEEEE;
+
+    border: 1px solid #BBB;
+    cursor: pointer;
+}
+/********* End ShowHideObj Dialog *****************/
+
+/***********  For Export Dialog   *****************/
+.export_btnMore {
+    border: 0px;
+    background: transparent;
+}
+
+.exportOptionPanel_16 {
+    display: none;
+}
+
+.exportdlg_label {
+    width: 100px;
+    height: 20px;
+}
+
+/***********  End Export Dialog   *****************/
+
+/*********** For ChartFormat Dialog *****************/
+.chartFormatDlg_lstForamt {
+    overflow-x: hidden;
+}
+
+.chartFormatDlg_otherMapping_16 {
+    display: none;
+}
+
+.chartFormatDlg_mappingText_16 {
+    display: none;
+}
+
+.chartFormatDlg_txtProp_16 {
+    display: none;
+}
+/*********** End ChartFormat Dialog *****************/
+
+/*********** For About Dialog **********************/
+.aboutDlg {
+    background: #FFFFFF;
+    overflow: hidden;
+    padding: 1px;
+}
+
+.aboutDlg_fieldLicensed_legend {
+    font-weight: bold;
+}
+
+.aboutDlg_fieldLicensed {
+    height: 100%;
+}
+
+.about_label {
+    position:absolute;
+    width: 100%;
+    height: 100%;
+    top: 14px;
+}
+
+.aboutDlg_lblLicensed {
+    line-height: 18px;
+}
+
+.aboutDlg_iconLogo{
+    height: 100%;
+}
+
+.aboutDlg_iconLogo_img {
+    height:40px;
+    width: 160px;
+}
+/*********** End About Dialog ***********************/

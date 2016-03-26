@@ -1,0 +1,178 @@
+<html class="jsvm--full-h">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">  
+  <title>JDemo</title>
+
+  <script id="j$vm" type="text/javascript" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin"
+          crs="../../jsvm/" 
+          classpath="lib/jsre-ui.jz;
+                     lib/jsre-gks.jz;
+                     lib/service.jz;
+                     "></script> 
+
+  <script type="text/javascript" src="../../jsvm/src/js/swt/DropdownList.js"></script> 
+  <script type="text/javascript" src="../../jsvm/src/js/swt/ComboBox.js"></script>
+  
+  <style>
+  .abc_dItem_sign {
+      width: 9px;
+      height: 9px;
+  }
+  
+  .abcDDList_item_sign {
+      width: 9px;
+      height: 9px;
+  }
+  </style>
+</head>
+
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm--font jsvm__body" 
+      jsvm_entry="demo">
+    <div id="container" style="position:absolute;width:100%;height:100%;">
+    </div>
+</body>
+
+  <script type="text/javascript">
+  
+    J$VM.exec("JDemo", function(entryId){
+        var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ,
+        System = J$VM.System, Desktop = this.getDesktop(),
+        
+        div = document.getElementById("container");
+        
+        // step 1: Initialize Runtime env sepcially for application
+        var env = {
+            prefer: {dashboard:{theme: "default"}},
+            theme: "default"
+        };
+        this.initialize(env);
+        
+        // step 2: Register css files
+        Desktop.registerStyleFiles(["dashboard.css"]);
+        
+        var models = [ 
+            {iconImage: "loading.gif", dname: "red",    value: "red",    sign: {type: "color", color: "red"}},
+            {iconImage: "loading.gif", dname: "yellow", value: "yellow", sign: {type: "color", color: "yellow"}},
+            {dname: "blue",   value: "blue",   sign: {type: "color", color: "blue"}},
+            {dname: "green",  value: "green",  sign: {type: "color", color: "green"}},
+            {iconImage: "loading.gif", dname: "orange", value: "orange", sign: {type: "color", color: "orange"}},
+            {iconImage: "loading.gif", dname: "gray",   value: "gray",   sign: {type: "color", color: "gray"}}
+        ];
+        
+        var createComboBox = function() {
+            var def = {
+                className: "abc jsvm_comboBox",
+                css: "position:absolute;left:150px;top:50px;",
+                z: 0,
+
+                width: 100,
+                height: 22,
+                
+                showBtnByHover: true,
+                wholeTrigger: true,
+                effect: false,
+                editable: false,
+                initDDList: false,
+                useInput: false,
+                
+                subview: {
+                    className: "abcDDList jsvm_dropdownList",
+                    
+                    multiEnable: false, 
+                    lazy: false,
+                    
+                    hauto: true,
+                    vauto: true,
+                    
+                    itemModels: []
+                }
+            };
+          
+            var combobox = new js.swt.ComboBox(def, this);
+            combobox.appendTo(div);
+            combobox.doLayout();
+
+            combobox.setEnabled(true);
+            combobox.setItemsByModel(models);
+            combobox.setSelectedIndexes([0], true);
+
+            return combobox;
+        };
+        
+        var createIptComboBox = function() {
+            var def = {
+                css: "position:absolute;left:150px;top:100px;",
+                z: 0,
+            
+                width: 100,
+                height: 22,
+                
+                showBtnByHover: false,
+                wholeTrigger: false,
+                useInput: true,
+                
+                subview: {
+                    hauto: true,
+                    vauto: true,
+                    
+                    itemModels: [
+                        {dname: "xyz", value: {}},
+                        {dname: "xyz0", value: {}},
+                        {dname: "xyz1", value: {}},
+                        {dname: "xyz2", value: {}}
+                    ]
+                }
+            };
+          
+            var combobox = new js.swt.ComboBox(def, this);
+            combobox.appendTo(div);
+            combobox.doLayout();
+
+            combobox.setEnabled(true);
+            combobox.setSelectedIndexes([0], true);
+
+            return combobox;
+        };
+        
+        var combo = createComboBox.call(this);
+        var iptCombo = createIptComboBox.call(this);
+        combo.setPeerComponent(this);
+        iptCombo.setPeerComponent(this);
+        //combo.setSize(100, 40, 3);
+
+        var cnt = 0;
+        J$VM.MQ.register("js.swt.event.SelectedChanged", this,
+            function(e){
+                J$VM.System.out.println(combo.getSelectedValues());
+                J$VM.System.out.println(new Date() + " : " + cnt++);
+            }
+        );
+        
+        var idef = {
+            classType: "js.swt.ModelItem",
+            className: "jsvm_item",
+            stateless: true,
+            
+            useInput: true,
+            width: 100,
+            height: 20,
+
+            x: 100,
+            y: 20,
+            
+            rigid_w: false, rigid_h: false,
+            
+            //model: {iconImage: "loading.gif", dname: "green",  value: "green",  sign: {type: "color", color: "green"}},
+            model: {dname: "This is a test item.", value: {}},
+
+            layout: {align_x: 0.0, align_y: 0.5}
+        },
+        item = new (Class.forName(idef.classType))(idef, this);
+        item.appendTo(div);
+        item.doLayout();
+    });
+</script>
+
+</html>
+

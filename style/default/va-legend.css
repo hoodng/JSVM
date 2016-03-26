@@ -1,0 +1,516 @@
+/**** For Visual Analytics Menu ****/
+/**** menuVA: no icon, has mark ****/
+/** simpleMenuVA: no icon, no mark */
+.menuVA,
+.simpleMenuVA {
+	font-family: Arial;
+	font-size: 12px;
+
+	width: 180px;
+	border: 1px solid #E1E1E1;
+
+	background-color:#FFFFFF;
+}
+
+.simpleMenuVA {
+	width: 160px;
+}
+
+.menuVA_item,
+.simpleMenuVA_item {
+	height: 22px;
+
+	cursor: default;
+	overflow: hidden;
+	background-color: #FFFFFF;
+}
+
+.menuVA_item_2,
+.simpleMenuVA_item_2 {
+	background-color: #ffdf7c;
+}
+
+.menuVA_item_1, .menuVA_item_3,
+.simpleMenuVA_item_1, .simpleMenuVA_item_3 {
+	color: #CCCCCC;
+}
+
+.menuVA_separator,
+.simpleMenuVA_separator {
+	height: 1px;
+	background-color: #E1E1E1;
+}
+
+.menuVA_item_marker,
+.menuVA_item_marker_0, .menuVA_item_marker_4 {
+	width: 18px;
+	height: 22px;
+
+	margin-right: 2px;
+	background-color: #FFFFFF; /* #E1E1E1; */
+}
+
+.simpleMenuVA_item_marker,
+.simpleMenuVA_item_marker_0, .simpleMenuVA_item_marker_4 {
+	width: 0px;
+	height: 0px;
+}
+
+.menuVA_item_marker_4 {
+	background-image: url("images/mark.png");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.menuVA_item_icon, 
+.simpleMenuVA_item_icon {
+	width: 0px;
+	height: 0px;
+}
+
+.simpleMenuVA_item_icon {
+	margin-left: 4px;
+}
+
+.menuVA_item_label,
+.simpleMenuVA_item_label {
+	height: 16px;
+
+	text-overflow: ellipsis;
+	overflow: hidden;
+	cursor: default;
+}
+
+.menuVA_item_ctrl,
+.simpleMenuVA_item_ctrl {
+	width: 16px;
+	height: 16px;
+
+	background-image: url("images/expand.gif");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.menuVA_item_1 img[class*="menuVA_item_icon"], 
+.menuVA_item_3 img[class*="menuVA_item_icon"],
+.simpleMenuVA_item_1 img[class*="simpleMenuVA_item_icon"], 
+.simpleMenuVA_item_3 img[class*="simpleMenuVA_item_icon"] {
+	filter: alpha(Opacity = 45);
+	-moz-opacity: 0.45;
+	opacity: 0.45;
+	background-color: #FFFFFF;
+}
+
+.menuVA_item_cover--disable,
+.simpleMenuVA_item_cover--disable {
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #FFFFFF;
+}
+
+/** end Visual Analytics Menu **/
+
+/********** For VA Iconic Menu ***********/
+/*** iconicMenuVA: has icon, has mark ****/
+/* simpleIconicMenuVA: has icon, no mark */
+.iconicMenuVA {
+	width: 180px;
+	border: 1px solid #E1E1E1;
+	background-color: #FFFFFF;
+}
+
+.simpleIconicMenuVA {
+	width: 160px;
+	border: 1px solid #E1E1E1;
+	background-color: #FFFFFF;
+}
+
+.iconicMenuVA_item,
+.simpleIconicMenuVA_item {
+	height: 22px;
+	
+	cursor: default;
+	overflow: hidden;
+	background-color: #FFFFFF;
+}
+
+.iconicMenuVA_item_2,
+.simpleIconicMenuVA_item_2 {
+	background-color: #ffdf7c;
+}
+
+.iconicMenuVA_item_1, .iconicMenuVA_item_3,
+.simpleIconicMenuVA_item_1, .simpleIconicMenuVA_item_3 {
+	color: #CCCCCC;
+}
+
+.iconicMenuVA_separator,
+.simpleIconicMenuVA_separator {
+	height: 1px;
+	background-color:#E1E1E1;
+}
+
+.iconicMenuVA_item_marker,
+.iconicMenuVA_item_marker_0, 
+.iconicMenuVA_item_marker_4 {
+	width: 18px;
+	height: 22px;
+	
+	background-color: #FFFFFF; /* #E1E1E1; */
+	
+	margin-right: 2px;
+}
+
+.simpleIconicMenuVA_item_marker,
+.simpleIconicMenuVA_item_marker_0, 
+.simpleIconicMenuVA_item_marker_4 {
+	width: 0px;
+	height: 0px;
+}
+
+.iconicMenuVA_item_marker_4 {
+	background-image: url("images/mark.png");
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+.iconicMenuVA_item_icon {
+	width: 16px;
+	height: 16px;
+	
+	margin-right: 2px;
+}
+
+.simpleIconicMenuVA_item_icon {
+	width: 16px;
+	height: 16px;
+
+	margin-left: 4px;
+	margin-right: 4px;
+}
+
+.iconicMenuVA_item_label,
+.simpleIconicMenuVA_item_label {
+	height: 16px;
+
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: default;
+}
+
+.iconicMenuVA_item_ctrl,
+.simpleIconicMenuVA_item_ctrl {
+	width: 16px;
+	height: 16px;
+
+	background-image: url("images/expand.gif");
+	background-repeat: no-repeat;
+	background-position:center;
+}
+
+.iconicMenuVA_item_1 img[class*="iconicMenuVA_item_icon"], 
+.iconicMenuVA_item_3 img[class*="iconicMenuVA_item_icon"],
+.simpleIconicMenuVA_item_1 img[class*="simpleIconicMenuVA_item_icon"], 
+.simpleIconicMenuVA_item_3 img[class*="simpleIconicMenuVA_item_icon"] {
+	filter: alpha(Opacity = 45);
+	-moz-opacity: 0.45;
+	opacity: 0.45;
+	background-color: #FFFFFF;
+}
+
+.iconicMenuVA_item_cover--disable,
+.simpleIconicMenuVA_item_cover--disable {
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #FFFFFF;
+}
+
+/** end VA Iconic Menu **/
+
+/** For icon button of legend icon button **/
+.va_legendIconBtn {
+	position:relative;
+	left:0px;
+	top: 0px;
+	
+	width: 18px;
+	height: 18px;
+	
+	background-color: transparent;
+	border: 1px solid transparent; /* # E1E1E1 */
+
+	float: left;
+	display: block;
+	
+	cursor : default;
+}
+
+.va_legendIconBtn_2, .va_legendIconBtn_4, 
+.va_legendIconBtn_6, .va_legendIconBtn_8, 
+.va_legendIconBtn_10,.va_legendIconBtn_12,
+.va_legendIconBtn_14 {
+	border-color: #FC9B55;
+}
+
+.va_legendIconBtn_4, .va_legendIconBtn_6, 
+.va_legendIconBtn_12,.va_legendIconBtn_14 {
+	background-color: #FFDF7C;
+}
+
+.va_legendIconBtn_16 {
+	display: none;
+}
+
+.va_legendIconBtn_icon {
+	width: 16px;
+	height: 16px;
+}
+
+.va_legendIconBtn_cover--disable {
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #EEEEEE;
+}
+/************************/
+
+/*** For Legend Field ***/
+.legendField {
+	width: 90px;
+	height: 20px;
+
+	padding: 0px 4px;
+	border: 1px solid transparent;
+
+	cursor: default;
+	overflow: hidden;
+}
+
+.legendField_2, .legendField_4, 
+.legendField_6 {
+	background-color: #FFDF7C;
+	border-color: #F8B686;
+}
+
+.legendField_icon {
+	width: 16px;
+	height: 16px;
+}
+
+.legendField_label {
+	color: #000000;
+	
+	text-overflow: ellipsis;
+	
+	cursor: default;
+	overflow: hidden;
+}
+
+.legendField_ctrl {
+	width: 16px;
+	height: 16px;
+
+	visibility: visible;
+}
+
+.legendField_ctrl_2, .legendField_ctrl_4, 
+.legendField_ctrl_6 {
+	visibility: visible;
+}
+/************************/
+
+/**** For Legend ****/
+.va_legendPanel {
+	padding: 6px;
+}
+
+.va_legendGroup_title {
+	height: 25px;
+	
+	border-bottom: 1px solid #D3D3D3;
+	padding: 4px 4px 2px 4px;
+	
+	display: block;
+}
+
+.va_legendGroup_title_16 {
+	display: none;
+}
+
+.va_legendGroup_title_button {
+	position: absolute;
+	width: 16px;
+	height: 16px;
+}
+
+.va_legendGroup_title_button_icon {
+	position: absolute;
+	width: 9px;
+	height: 9px;
+}
+
+.va_legendGroup_indicator {
+	background-color: #FFDF7C;
+	height: 2px;
+}
+
+.legendCtrlBar {
+
+}
+
+.bindFieldLegend {
+
+}
+
+.bindFieldLegend_legendView {
+	font-family: Arial;
+	font-size: 11px;
+
+	padding-left: 6px;
+
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.legendItem,
+.slegendItem {
+	position: relative;
+	width: 100%;
+	height: 18px;
+	color:#000000;
+	cursor: default;
+}
+
+.legendItem_2,
+.slegendItem_2 {
+	background: #ffdf7c;
+}
+
+.legendItem_4, .legendItem_6,
+.slegendItem_4, .slegendItem_6 {
+	background: #ffd070;
+}
+
+.legendItem_colorblock,
+.legendItem_shapeblock {
+	width: 13px;
+	height: 13px;
+}
+
+.slegendItem_sizeblock {
+	width: 41px;
+	height: 13px;
+}
+
+.slegendItem_sblock {
+	background-color: #D8D8D8;
+}
+
+.legendItem_label,
+.slegendItem_label {
+	height: 18px;
+	line-height: 18px;
+	
+	text-overflow: ellipsis;
+
+	cursor: default;
+	overflow: hidden;
+}
+
+.mLegendItem {
+	position: relative;
+	width: 100%;
+	height: 36px;
+	
+	cursor: default;
+}
+
+.mLegendItem_graphics2d {
+
+}
+
+.mLegendItem_tickmarkLabel,
+.mLegendItem_tickmarkLabel0, 
+.mLegendItem_tickmarkLabel1 {
+	overflow: hidden;
+
+	color: #000000;
+	text-overflow: ellipsis;
+	text-align: center;
+	
+	display: block;
+	cursor: default;
+}
+
+.mLegendItem_tickmarkLabel0 {
+	text-align: left;
+}
+
+.mLegendItem_tickmarkLabel1 {
+	text-align: right;
+}
+
+.dPatternItem {
+	/*position: relative;*/
+	position: relative;
+	float: left;
+	/*width: 100%;*/
+	height: 30px;
+	width: 30px;
+	cursor: default;
+}
+
+.dPatternItem_2 {
+	background: #E1E1E1;
+}
+
+.dPatternItem_4, .dPatternItem_6 {
+	background: #CCCCCC;
+}
+
+.dPatternItem_graphics2d {
+	position: relative;
+	float: left;
+}
+
+.dPatternItem_label {
+	color: #000000;
+	position: relative;
+	float: left;
+	cursor: default;
+	overflow: hidden;
+	padding: 3px;
+}
+
+.mPatternItem {
+	position: relative;
+	float: left;
+	height: 30px;
+	width: 30px;
+	cursor: default;
+	padding:1px;
+}
+
+.mPatternItem_2 {
+	background: #E1E1E1;
+}
+
+.mPatternItem_4, .mPatternItem_6 {
+	background: #CCCCCC;
+}
+
+.mPatternItem_graphics2d {
+	position: relative;
+	float: left;
+}
+
+.mPatternItem_label {
+	color: #000000;
+	position: relative;
+	float: left;
+	cursor: default;
+	overflow: hidden;
+}
+/***** End Legend ******/

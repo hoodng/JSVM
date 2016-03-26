@@ -1,0 +1,130 @@
+<html class="jsvm--full-h">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">  
+  <title>JDemo</title>
+
+  <script id="j$vm" type="text/javascript" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin"
+          crs="../../jsvm/" 
+          classpath="lib/jsre-ui.jz;
+                     lib/jsre-gks.jz;
+                     lib/service.jz;
+                     "></script> 
+
+  <script type="text/javascript" src="../../jsvm/src/js/swt/DropdownList.js"></script> 
+  <script type="text/javascript" src="../../jsvm/src/js/swt/ComboBox.js"></script>
+</head>
+
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm--font jsvm__body" 
+      jsvm_entry="demo">
+    <div id="container" style="position:absolute;width:100%;height:100%;">
+    </div>
+</body>
+
+  <script type="text/javascript">
+  
+    J$VM.exec("JDemo", function(entryId){
+        var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ,
+        System = J$VM.System, Desktop = this.getDesktop(),
+        
+        div = document.getElementById("container");
+        
+        // step 1: Initialize Runtime env sepcially for application
+        var env = {
+            prefer: {dashboard:{theme: "default"}},
+            theme: "default"
+        };
+        this.initialize(env);
+        
+        // step 2: Register css files
+        Desktop.registerStyleFiles(["dashboard.css"]);
+        
+        var models = [ 
+            {dname:"<All>", value:"All", marked: true},
+            {dname:"item1", value:"item1", marked: false},
+            {dname:"item2", value:"item2", marked: false},
+            {dname:"item1", value:"item1", marked: false},
+            {dname:"item3", value:"item3", marked: false}
+        ],
+        ms = [
+            {dname:"30%",  value: 0.3,  marked: true},
+            {dname:"50%",  value: 0.5,  marked: false},
+            {dname:"85%",  value: 0.85, marked: false},
+            {dname:"100%", value: 1.0,  marked: false},
+            {dname:"125%", value: 1.25, marked: false},
+            {dname:"150%", value: 1.5,  marked: false}
+        ];
+        
+        var createComboBox = function() {
+            var def = {
+                css: "position:absolute;left:150px;top:50px;",
+                z: 0,
+            
+                width: 100,
+                height: 22,
+                
+                showBtnByHover: true,
+                wholeTrigger: true,
+                effect: false,
+                editable: true,
+                initDDList: false,
+                
+                subview: {
+                    multiEnable: false,
+
+                    searchIfAllowed: false,     
+                    lazy: false,
+                    
+                    hauto: true,
+                    vauto: true,
+                    
+                    itemModels: [
+                        {dname:"<All>", value:"All"},
+                        {dname: "item1", value: "item1", marked: true}
+                    ]
+                }
+            };
+          
+            var combobox = new js.swt.ComboBox(def, this);
+            combobox.appendTo(div);
+            combobox.doLayout();
+
+            combobox.setEnabled(true);
+            combobox.setItemsByModel(ms);
+
+            return combobox;
+        };
+        
+        J$VM.System.out.println("Number of Items:" + ms.length);
+        var combo = createComboBox.call(this);
+        combo.setSize(100, 40, 3);
+        combo.setPeerComponent(this);
+        
+        J$VM.System.out.println("PreferSize: " + JSON.stringify(combo.getPreferredSize()));
+        
+        var btn = new js.awt.Button({
+            className: "jsvm_button", 
+            labelText: "Click",
+            effect: true
+        });
+        btn.appendTo(div);
+        btn.doLayout();
+        btn.attachEvent("click", 0, this, function(e){
+            combo.setSelectedIndexes([2], true);
+            //combo.setSelectedValues(["item3"], true);
+            //combo.setSelectedValues([0.7], true);
+            //combo.setSelectedIndexes([6], true);
+        });
+        
+        var cnt = 0;
+        J$VM.MQ.register("js.swt.event.SelectedChanged", this,
+            function(e){
+                J$VM.System.out.println(combo.getSelectedValues());
+                J$VM.System.out.println(new Date() + " : " + cnt++);
+            }
+        );
+    });
+</script>
+
+</html>
+

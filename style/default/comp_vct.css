@@ -1,0 +1,59 @@
+.va_lt, .va_ct0, .va_ch, .va_cf, va_rt0,.va_rh, .va_bd {
+    border-style: solid;
+    border-color: #C0C0C0;
+    border-width: 0px 0px 0px 0px;
+}
+
+.va_rt1, .va_ct1 {
+    border-style: solid;
+    border-color: transparent;
+}
+
+.va_ct0, .va_ct1, .va_ch, .va_cf {
+    border-width: 0px 1px 0px 1px;
+}
+
+.va_rh, .va_rt1 {
+    border-width: 1px 0px 1px 0px;
+}
+
+.va_bd {
+    border-width: 1px 1px 1px 1px;
+}
+
+/**** Tooltip *****/
+.jsvm_tooltip,
+.jsvm_tooltip_0{
+    border:1px solid #e6e6e6;
+    padding:12px 12px 12px 12px;
+    background-color:#FFFFFF;
+    
+}
+
+.jsvm_tooltip_item,
+.jsvm_tooltip_item_0, .jsvm_tooltip_item_1, .jsvm_tooltip_item_8{
+    height: 20px;
+    cursor:default;
+}
+
+.jsvm_tooltip_header{
+    color:gray;
+}
+
+.jsvm_tooltip_subitem{
+    font-weight:bold;
+}
+
+.jsvm_tooltip_item_1{
+    background-color:#ffdf7c;
+}
+
+.jsvm_tooltip_item_8, .jsvm_tooltip_item_9{
+    color: gray;
+}
+
+.jsvm_tooltip_separator{
+    height: 1px;
+    background-color:#CCCCCC;
+}
+/**** Tooltip ****/
