@@ -10,7 +10,7 @@
  * Source code availability: https://github.com/jsvm/JSVM
  */
 
-js.lang.Math = new function (){
+js.lang.Math = function (){
     var last = (new Date()).getTime(), d = (1<<16)+(1<<8)+1,
     
         table = [0x00000000,0x77073096,0xEE0E612C,0x990951BA,
@@ -79,8 +79,8 @@ js.lang.Math = new function (){
                  0xB40BBE37,0xC30C8EA1,0x5A05DF1B,0x2D02EF8D];
 
     this.random = function(n){
-        return n ? Math.floor(Math.random()*n+1) : Math.random();    
-    };
+        return n ? Math.floor($super(this)*n+1) : $super(this);    
+    }.$override(this.random);
     
     this.uuid = function(hash){
         hash = hash || this.hash();
@@ -92,8 +92,7 @@ js.lang.Math = new function (){
         if(now <= last){
             now = last + d;
         }
-        last = now;
-        return now;
+        return (last = now);
     };
 
     this.crc32 = function(str){
@@ -124,6 +123,8 @@ js.lang.Math = new function (){
         return (crc >>> 8) ^ table[(crc ^ c) & 0xff];
     };
 
-}();
+    return this;
+
+}.call(self.Math);
 
 

@@ -43,8 +43,7 @@
                          angleUnit: "deg",
                          capture: true,
                          x:256, y:0,
-                         gType: "canvas",
-
+                         gType: "canvas"
                       }, this);
         
             G.addComponent(new (Class.forName("js.awt.CanvasLayer"))({id: "myLayer", capture:true}, G));
@@ -106,7 +105,7 @@
             G.drawRPolygon({ cx:100, cy:210, r:r1, ends:4, rscale:1, offset:90, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:2, lineWidth:1});
 
             this.addComponent(G);
-            G.draw();
+//            G.draw();
         
             //G.setDataSize({w:8000, h:8000}, {w:800, h:800});
 
@@ -129,24 +128,24 @@
             G.attachEvent("mousemove", 4, this, _onMouseEvents);
 
             var count = 0;
-            (function(){
-                polygon.translate(1.5, -1.5);
-                circle.translate(0, 1.5);
-                text0.translate(1.5, 1.5);
-                text0.setAttr("fillStyle", Color.randomColor().toString("rgba"));
-                E0.rotate(30*Math.PI/180, 200, 200);
-                E1.rotate(-5*Math.PI/180, 200, 200);
-                //triangle3.setOffsetDegree(count);
-                T1.rotate(15*Math.PI/180, 300, 300);
-                T2.rotate(-5*Math.PI/180, 300, 300);
-                S1.setAttr("rscale", Math.abs(count-100)/90 -1);
-                S1.translate(-1, 0);
-                S3.setAttr("ends", 4+2*(count%15));
-                count ++;
-                if(count < 200){
-                  G.draw.$delay(G, 0, null, arguments.callee.$bind(this));
-                }
-            })();
+//            (function(){
+//                polygon.translate(1.5, -1.5);
+//                circle.translate(0, 1.5);
+//                text0.translate(1.5, 1.5);
+//                text0.setAttr("fillStyle", Color.randomColor().toString("rgba"));
+//                E0.rotate(30*Math.PI/180, 200, 200);
+//                E1.rotate(-5*Math.PI/180, 200, 200);
+//                //triangle3.setOffsetDegree(count);
+//                T1.rotate(15*Math.PI/180, 300, 300);
+//                T2.rotate(-5*Math.PI/180, 300, 300);
+//                S1.setAttr("rscale", Math.abs(count-100)/90 -1);
+//                S1.translate(-1, 0);
+//                S3.setAttr("ends", 4+2*(count%15));
+//                count ++;
+//                if(count < 200){
+//                  G.draw.$delay(G, 0, null, arguments.callee.$bind(this));
+//                }
+//            })();
             
         });
     </script>

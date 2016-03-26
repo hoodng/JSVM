@@ -67,7 +67,13 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	thi$.menuContainer = function(){
 		return this.container;
 	};
-	
+
+	thi$.rootMenu = function(){
+		return this.def.beInMenu 
+			? this.menuContainer().rootLayer() 
+			: null;
+	};
+
 	thi$.subMenu = function(){
 		return this._local.submenu;
 	};
@@ -86,8 +92,9 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	};
 	
 	thi$.hasNodes = function(){
-		var nodes = this.def.nodes;
-		return Class.isArray(nodes) && this.def.nodes.length > 0;
+		var M = this.def, nodes = M.nodes;
+		return (Class.isArray(nodes) && nodes.length > 0) 
+			|| (M.dynamic === true);
 	};
 
 	/**
@@ -100,20 +107,25 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 	 *				 created. 
 	 */ 
 	thi$.showSubMenu = function(nodes, force){
-		var M = this.def, menu = this.menuContainer(),
-		subMenu = this.subMenu(), thickness;
+		var M = this.def, U = this._local, root = this.rootMenu(),
+		menu = this.menuContainer(), subMenu = this.subMenu(), 
+		thickness;
 		
 		if(force === true && subMenu && Class.isArray(nodes)){
 			subMenu.hide();
-			subMenu = this._local.submenu = null;
+			subMenu = U.submenu = null;
 		}
 		
 		if(!subMenu && Class.isArray(nodes)){
-			subMenu = this._local.submenu = 
+			subMenu = U.submenu = 
 				_createSubMenu.call(this, nodes, M.menuClass);
 		}
 		
 		if(subMenu && !subMenu.isShown()){
+			if(root && Class.isFunction(root.rectifySubMenu)){
+				subMenu = root.rectifySubMenu(this, subMenu);
+			}
+
 			thickness = M.beInMenu ? menu.getWidth() - 8 : this.getHeight();
 			subMenu.showBy(this.view, M.beInMenu, thickness);
 		}
@@ -124,7 +136,8 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 
 		if(this.isHover()){	 
 			var M = this.def, menu = this.menuContainer(),
-			active = menu.active, subMenu, timeout;
+			active = menu.active, root, subMenu, timeout,
+			nodes;
 			
 			if(active && active != this){
 				subMenu = active.subMenu();
@@ -133,13 +146,23 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 					active.setHover(false);
 				}
 			}
+
 			if (this.isEnabled()){
 				subMenu = this.subMenu();
-				if(!subMenu && M.dynamic === true
-				   && (typeof this.loadMenu == "function")){
-					timeout = !isNaN(M.timeout) ? M.timeout : 500;
-					this.loadMenu.$clearTimer();
-					this.loadMenu.$delay(this, timeout);
+
+				if(M.dynamic === true 
+				   && (!subMenu || M.changeable === true)){
+					if(typeof this.loadMenu == "function"){
+						timeout = !isNaN(M.timeout) ? M.timeout : 500;
+						this.loadMenu.$clearTimer();
+						this.loadMenu.$delay(this, timeout);
+					}else{
+						root = this.rootMenu();
+						nodes = root.getSubMenuNodes(this);
+						if(nodes){
+							this.showSubMenu(nodes, true);
+						}
+					}
 				}else{
 					this.showSubMenu(M.nodes);
 				}
@@ -188,9 +211,9 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		mClassType = M.beInMenu ? menuD.classType : (M.mClassType || "js.awt.Menu"),
 		menuShadow = M.beInMenu ? menuD.shadow : (M.menuShadow !== false),
 		menudef = {
+			id: this.def.id,
 			classType: mClassType,
 			className: mClass || menuD.className,
-			id: this.def.id,
 			nodes: nodes,
 			shadow: menuShadow,
 			PMFlag: 0x07,
@@ -202,6 +225,16 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 			root = menuC.rootLayer();
 		}
 		
+		// Handle the iconStateless
+		if(menuD.hasOwnProperty("iconStateless")){
+			menudef.iconStateless = menuD.iconStateless;
+		}
+		
+		// Handle the useBgImage
+		if(menuD.hasOwnProperty("useBgImage")){
+			menudef.useBgImage = menuD.useBgImage;
+		}
+
 		var submenu =new (Class.forName(mClassType))(
 			menudef, this.Runtime(), pmenu, root);
 		if(!M.beInMenu){
@@ -225,7 +258,8 @@ js.awt.MenuItem = function (def, Runtime, menu, view){
 		if(def == undefined) return;
 		
 		def.classType = def.classType || "js.awt.MenuItem";
-		def.className = menu.className + "_item";
+		def.className = DOM.combineClassName(menu.def.className 
+											 || menu.className, "item");
 		def.beInMenu = (def.beInMenu !== false);
 		def.markable =(def.markable !== false);
 		def.controlled = (def.beInMenu && (Class.isArray(def.nodes) 
@@ -271,7 +305,8 @@ js.awt.MenuSeparator = function(def, Runtime, menu){
 		if(def == undefined) return;
 
 		def.classType = "js.awt.MenuSeparator";
-		def.className = menu.className + "_separator";
+		def.className = DOM.combineClassName(menu.def.className 
+											 || menu.className, "separator");
 		def.css = "overflow:hidden;width:100%;"; // If not, IE has 13px height
 
 		$super(this, def, Runtime);

@@ -76,7 +76,8 @@ js.awt.Component = function(def, Runtime, view){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event,
-        DOM = J$VM.DOM, System = J$VM.System, MQ = J$VM.MQ;
+        DOM = J$VM.DOM, System = J$VM.System, 
+        MQ = J$VM.MQ;
 
     /**
      * Set position of the component.<p>
@@ -88,9 +89,11 @@ js.awt.Component = function(def, Runtime, view){
      *                   4: set this position as original position
      */
     thi$.setPosition = function(x, y, fire){
-        if($super(this) && (fire & 0x01)){
+        var changed = $super(this);
+        if(fire & 0x01){
             this.onMoved(fire);
         }
+        return changed;
     }.$override(this.setPosition);
     
     /**
@@ -115,16 +118,24 @@ js.awt.Component = function(def, Runtime, view){
      *                   4: set this size as original size
      */
     thi$.setSize = function(w, h, fire){
-        if($super(this) && (fire & 0x01)){
+        var changed = $super(this);
+        if(changed && (fire & 0x01)){
             this.onResized(fire);
         }
+        
+        return changed;
+        
     }.$override(this.setSize);
     
 
     thi$.setBounds = function(x, y, w, h, fire){
-        if($super(this) && (fire & 0x01)){
+        var changed = $super(this);
+        if(changed && (fire & 0x01)){
             this.onGeomChanged(fire);
         }
+        
+        return changed;
+                
     }.$override(this.setBounds);
     
     /**
@@ -140,12 +151,19 @@ js.awt.Component = function(def, Runtime, view){
     };
 
     /**
-     * Activate this component
+     * Delegate the container to activate self.
      * 
+     * Attention:
+     * 
+     * Since 13.5, diff the "activateComponent" and "activate" 
+     * as two functions. "activateComponent" indicate the current
+     * container to activate the specified component in it. And
+     * "activate" indicate the current component to delegate its
+     * container to help activate the self component.
      */    
-    thi$.activateComponent = function(){
+    thi$.activate = function(){
         var container = this.getContainer();
-        if(container){
+        if(container && container.activateComponent){
             container.activateComponent(this);
         }
     };
@@ -242,16 +260,13 @@ js.awt.Component = function(def, Runtime, view){
             (bounds.innerHeight- h)*ctrl.getAlignmentY();
         ctrl.setBounds(x, y, w, h, 7);
     };
-
-
-    /**
-     * When the position and size of the component has changed, we need
-     * to adjust its container's size to handle the scroll bars.
-     */
-    thi$.autoResizeContainer = function(){
+    
+    // When the position and size of the component has changed, 
+    // the layout dirty status need to notify its container.
+    var _onLayoutDirty = function(cmd){
         var container = this.getContainer();
-        if(container && (container instanceof js.awt.Container)){
-            container.autoResize();
+        if(container && Class.isFunction(container.onLayoutDirty)){
+            container.onLayoutDirty(this, cmd);
         }
     };
 
@@ -263,7 +278,7 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onMoved = function(fire){
-        this.autoResizeContainer();
+        _onLayoutDirty.call(this, "move");
     };
 
     /**
@@ -274,7 +289,7 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onResized = function(fire){
-        this.autoResizeContainer();
+        _onLayoutDirty.call(this, "resize");
     };
 
     /**
@@ -293,7 +308,7 @@ js.awt.Component = function(def, Runtime, view){
      * Notes: Sub class maybe should override this method
      */
     thi$.onGeomChanged = function(fire){
-        this.autoResizeContainer();
+        _onLayoutDirty.call(this, "geomchanged");
     };
     
     thi$.appendStyleClass = function(className){
@@ -373,7 +388,6 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.cloneView = function(){
         var view = DOM.cloneElement(this.view, true);
-        view.cloned = true;
         return view;
     };
 
@@ -413,25 +427,6 @@ js.awt.Component = function(def, Runtime, view){
 
     thi$.invalidateBounds = function(){
         J$VM.System.err.println('The "invalidateBounds" has been discarded.');
-    };
-    
-    /**
-     * When some propery of component was changed, it may cause the 
-     * layout of parent component change, So we must find the parent 
-     * component which take charge of the change and redo layout.
-     */
-    thi$.invalidParentLayout = function() {
-        var target = this.getContainer();
-        while(target && !target.handleLayoutInvalid) {
-            if (target.getContainer && target.getContainer()) {
-                target = target.getContainer();
-            } else {
-                break;
-            }
-        }
-        if (target && target.handleLayoutInvalid) {
-            target.handleLayoutInvalid();
-        }
     };
 
     /**
@@ -555,8 +550,8 @@ js.awt.Component = function(def, Runtime, view){
         }
     };
 
+
     thi$.onmousedown = function(e){
-        this.activateComponent(e);
     };
 
     thi$.onmouseup = function(e){
@@ -567,43 +562,75 @@ js.awt.Component = function(def, Runtime, view){
 
     thi$.onmouseout = function(e){
     };
-
-    /*
-    thi$.ondragleave = function(e){
-    };
-
-    thi$.ondragenter = function(e){
-    };
-
-    thi$.ondragover = function(e){
-    };
-
-    thi$.ondrop = function(e){
-    };
-    */
-
+    
     thi$.destroy = function(){
         if(this.destroied) return;
 
-        var obj = this.controller;
+        var obj = this.controller, view;
         if(obj){
-            obj.destroy();
             delete this.controller;
+            obj.destroy();
         }
 
         obj = this.getContainer();
         if(obj && obj instanceof js.awt.Container){
             obj.removeComponent(this);
         }
-        delete this.container;
-        delete this.peer;
+        this.container = null;
+        this.peer = null;
         
-        DOM.remove(this.view, true);            
-        delete this.view;
+        view = this.view;
+        this.view = null;
+        
+        if(view.refCnt == 1){
+            DOM.remove(view, true);
+        }else{
+            view.refCnt -= 1;
+        }
         
         $super(this);
 
     }.$override(this.destroy);
+
+    /**
+     * Reset the className for the current component. It is equivalent to
+     * set the className by the definition preperty.
+     * 
+     * Attention:
+     * 
+     * It is strongly recommended to set the className by the definition,
+     * especially for the container. So that the className can be used to
+     * generate the new className for its descendant components and DOM.
+     * 
+     * @param {String} className
+     * 
+     *        @example
+     *        "A"
+     *        "A B"
+     *        "A B $A"
+     * 
+     * @param {Boolean} force The optional boolean to indicate whether always
+     *        use the given className for the current component view even if
+     *        it is the cloned.
+     */
+    thi$.setClassName = function(className, force){
+        var M = this.def, view = this.view, clazz;
+        if(!Class.isString(className) || className.length == 0
+           || (!force && this.viewSettled && !view.cloned)){
+            return;
+        }
+
+        view.clazz = M.className = className;
+        this.className = DOM.extractDOMClassName(className);
+
+        if(this.isStyleByState()){
+            clazz = DOM.stateClassName(M.className, this.getState());
+        }else{
+            clazz = this.className;
+        }
+
+        DOM.setClassName(view, clazz, M.classPrefix);
+    };
     
     thi$._init = function(def, Runtime, view){
         if(!Class.isObject(def)) return;
@@ -612,30 +639,32 @@ js.awt.Component = function(def, Runtime, view){
         
         $super(this);
 
-        var preView = Class.isHtmlElement(view), clazz;
+        var preView = this.viewSettled = Class.isHtmlElement(view),
+            clazz;
+        
         if(!preView || (view && view.cloned)){
             this.view = view = (view ||
-                    DOM.createElement(def.viewType || "DIV"));
+                                DOM.createElement(def.viewType || "DIV"));
             view.id = this.id;
+            view.refCnt = 1;
+            
             if(def.css){
                 view.style.cssText = view.style.cssText + def.css;
             }
             def.className = def.className || "jsvm__element";
         }else {
+            if(!Class.isNumber(view.refCnt)){
+                view.refCnt = 1;
+            }
+            view.refCnt += 1;
+            
             this.view = view;
             def.className = view.clazz || view.className;
         }
-        view.uuid = this.uuid();
-
-        this.className = DOM.extractDOMClassName(def.className);
-        if(this.isStyleByState()){
-            clazz = DOM.stateClassName(def.className, this.getState());
-        }else{
-            clazz = this.className;
-        }
-        view.clazz = def.className;
-        if(!preView || view.cloned){
-            DOM.setClassName(view, clazz, def.classPrefix);
+        this.setClassName(def.className, false);
+        
+        if(!view.uuid || view.cloned){
+            view.uuid = this.uuid();
         }
 
         if(this.isDOMElement()){
@@ -644,7 +673,7 @@ js.awt.Component = function(def, Runtime, view){
             }
         }else{
             this._geometric = function(){
-                delete this._geometric;
+                this._geometric = null;
                 return _geometric.call(this);
             };
         }

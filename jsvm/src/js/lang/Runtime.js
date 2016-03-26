@@ -1,8 +1,8 @@
 /**
 
- Copyright 2007-2015, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
- 
+
  *
  * Author: Hu Dong
  * Contact: hoodng@hotmail.com
@@ -14,7 +14,7 @@ js.lang.Runtime = function(System){
 
     var CLASS = js.lang.Runtime, thi$ = CLASS.prototype;
     if(CLASS.__defined__) {
-        this._init.apply(this, arguments);        
+        this._init.apply(this, arguments);
         return;
     }
     CLASS.__defined__ = true;
@@ -36,7 +36,7 @@ js.lang.Runtime = function(System){
     thi$.registerDesktop = function(desktop){
         this._desktop = desktop;
     };
-    
+
     thi$.getDesktop = function(){
         return this._desktop;
     };
@@ -60,7 +60,7 @@ js.lang.Runtime = function(System){
             }
 
             (function(scope, proc){
-                proc.fn.call(scope, proc.entry);                
+                proc.fn.call(scope, proc.entry);
             }).$delay(this, 0, scope, proc);
         }
     };
@@ -82,7 +82,7 @@ js.lang.Runtime = function(System){
             this.getApp = function(){
                 return this.Application;
             };
-            
+
             var _createApp = function(entryId, def, promise){
                 def = def || {zorder: true};
                 def.classType = def.classType || "js.awt.Application";
@@ -97,7 +97,7 @@ js.lang.Runtime = function(System){
                 this.startApp = function(){
                     this.run();
                 };
-                
+
                 this.run = function(fn){
                     if(Class.isFunction(fn)){
                         tasks.push(fn);
@@ -124,9 +124,9 @@ js.lang.Runtime = function(System){
         runtimeScope.putContextAttr("runtime", runtimeScope);
         return runtimeScope;
     };
-    
+
     /**
-     * Test if this J$VM is embedded in a iframe 
+     * Test if this J$VM is embedded in a iframe
      */
     thi$.isEmbedded = function(){
         return self != self.parent;
@@ -137,8 +137,12 @@ js.lang.Runtime = function(System){
      */
     thi$.isSamePID = function(){
         if(this.isEmbedded()){
-            var pJ$VM = self.parent.J$VM;
-            return pJ$VM && (pJ$VM.Runtime.PID() == this.PID());
+            var pJ$VM;
+            try{
+                pJ$VM= self.parent.J$VM;
+                return pJ$VM && (pJ$VM.Runtime.PID() == this.PID());
+            } catch (x) {
+            }
         }
         return false;
     };
@@ -146,7 +150,7 @@ js.lang.Runtime = function(System){
     thi$.getProperty = function(key, defValue){
         return System.getProperty(key, defValue);
     };
-    
+
     thi$.setProperty = function(key, value){
         System.setProperty(key, value);
     };
@@ -175,7 +179,7 @@ js.lang.Runtime = function(System){
     var _isAbsPath = function(url){
         return url.indexOf("http") === 0;
     };
-    
+
     thi$.imagePath = function(imagePath){
         if(Class.isString(imagePath)){
             if(!_isAbsPath(imagePath)){
@@ -184,7 +188,7 @@ js.lang.Runtime = function(System){
             }
             this.setProperty("imagePath", imagePath);
         }
-        
+
         return this.getProperty(
             "imagePath", J$VM.DOM.makeUrlPath(
                 J$VM.env.j$vm_home, "../style/"+this.theme()+"/images/"));
@@ -194,7 +198,7 @@ js.lang.Runtime = function(System){
         if(Class.isString(pid)){
             this.setProperty("j$vm_pid", pid);
         }
-        
+
         return this.getProperty("j$vm_pid", "");
     };
 
@@ -205,15 +209,18 @@ js.lang.Runtime = function(System){
             }
             this.setProperty("postEntry", entry);
         }
-        
+
         return this.getProperty("postEntry", J$VM.DOM.makeUrlPath(
-            J$VM.env.j$vm_home, +this.PID()+".vt"));
+            J$VM.env.j$vm_home, this.PID()+".vt"));
     };
 
     thi$.getsEntry = function(entry){
         if(Class.isString(entry)){
             if(!_isAbsPath(entry)){
-                entry = J$VM.DOM.makeUrlPath(J$VM.env.j$vm_home, entry);
+                var home = J$VM.env.j$vm_home,
+                    p = home.indexOf(J$VM.env.j$vm_webroot);
+                home = home.substring(0, p+1);
+                entry = J$VM.DOM.makeUrlPath(home, entry);
             }
             this.setProperty("getsEntry", entry);
         }
@@ -248,239 +255,6 @@ js.lang.Runtime = function(System){
             handler);
     };
 
-    var _registerMessageClass = function(){
-        var Factory = J$VM.Factory;
-
-        if(Factory.hasClass("message")) return;
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "message",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title message_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        text : "Dialog",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnOK"],
-
-                    btnOK:{
-                        classType: "js.awt.Button",
-                        className: "jbtn",
-                        effect: true,
-                        labelText: this.nlsText("btnOK", "OK")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                width: 330,
-                height:150,
-                miniSize:{width:330, height:150},
-                resizable: true
-            }
-        );
-    };
-
-    var _registerConfirmClass = function(){
-        var Factory = J$VM.Factory;
-
-        if(Factory.hasClass("jsvmconfirm")) return;
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "jsvmconfirm",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title message_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        text : "Confirm",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnOK", "btnCancel"],
-
-                    btnOK:{
-                        classType: "js.awt.Button",
-                        className: "jbtn",
-                        effect: true,
-                        labelText: this.nlsText("btnOK", "OK")
-                    },
-
-                    btnCancel:{
-                        classType: "js.awt.Button",
-                        className: "jbtn",
-                        effect: true,
-                        labelText: this.nlsText("btnCancel", "Cancel")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                modal: true,
-                width: 330,
-                height:150,
-                miniSize:{width:330, height:150},
-                resizable: true
-            }
-        );
-    };
-
-    var _registerConfirm2Class = function(){
-        var Factory = J$VM.Factory;
-
-        if(Factory.hasClass("jsvmconfirm2")) return;
-        Factory.registerClass(
-            {
-                classType : "js.awt.Dialog",
-                className : "jsvmconfirm2",
-
-                items: [ "title", "client", "btnpane"],
-
-                title: {
-                    classType: "js.awt.HBox",
-                    className: "win_title message_title",
-                    constraints: "north",
-
-                    items:["labTitle", "btnClose"],
-
-                    labTitle:{
-                        classType: "js.awt.Label",
-                        text : "Confirm",
-                        rigid_w: false,
-                        rigid_h: false
-                    },
-
-                    btnClose:{
-                        classType: "js.awt.Button",
-                        iconImage: "dialog_close.png"
-                    }
-                },
-
-                client:{
-                    classType: "js.awt.Container",
-                    className: "message_client",
-                    constraints: "center",
-                    css: "overflow:hidden;",
-                    layout:{
-                        classType: "js.awt.BorderLayout"
-                    }
-                },
-
-                btnpane:{
-                    classType: "js.awt.HBox",
-                    className: "message_btnpane",
-                    constraints: "south",
-
-                    items:["btnYes", "btnNo", "btnCancel"],
-
-                    btnYes:{
-                        classType: "js.awt.Button",
-                        className: "jbtn",
-                        effect: true,
-                        labelText: this.nlsText("btnYes", "Yes")
-                    },
-
-                    btnNo:{
-                        classType: "js.awt.Button",
-                        className: "jbtn",
-                        effect: true,
-                        labelText: this.nlsText("btnNo", "No")
-                    },
-
-                    btnCancel:{
-                        classType: "js.awt.Button",
-                        className: "jbtn",
-                        effect: true,
-                        labelText: this.nlsText("btnCancel", "Cancel")
-                    },
-
-                    layout:{
-                        gap: 4,
-                        align_x : 1.0,
-                        align_y : 0.0
-                    }
-                },
-
-                modal: true,
-                width: 350,
-                height: 150,
-                miniSize: {width:354, height:150},
-                resizable: true
-            }
-        );
-    };
-
     thi$.initialize = function(env){
         System.getProperties().addAll(env || {});
 
@@ -495,14 +269,8 @@ js.lang.Runtime = function(System){
         if(env.imagePath){
             this.imagePath(env.imagePath);
         }
-
-        _registerMessageClass.call(this);
-        _registerConfirmClass.call(this);
-        // Confirm message box with "Yes", "No" and "Cancel"
-        _registerConfirm2Class.call(this);
-
     };
-    
+
     thi$.destroy = function(){
         if(this._service){
             this._service.destroy();
@@ -516,9 +284,9 @@ js.lang.Runtime = function(System){
 
         procs = null;
         scopes= null;
-        
+
         $super(this);
-        
+
     }.$override(this.destroy);
 
     thi$._init = function(system){
@@ -527,5 +295,5 @@ js.lang.Runtime = function(System){
     }.$override(this._init);
 
     this._init.apply(this, arguments);
-    
+
 }.$extend(js.util.EventTarget);

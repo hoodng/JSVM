@@ -170,7 +170,13 @@ js.lang.System = function (env, vm){
         window.close();
     };
 
+    var _last = 0;
     this.updateLastAccessTime = function(){
+        var now = this.currentTimeMillis();
+        if(self.parent !== self && now - _last > 1000){
+            _last = now;
+            J$VM.MQ.post("j$vm_activating", null, [], self.parent);
+        }
         lastAccessTime = this.currentTimeMillis();
     };
 
@@ -381,9 +387,9 @@ js.lang.System = function (env, vm){
         }else{
             vm.disableLogger();
         }
-
-        J$VM.DOM.checkBrowser();
+        
         J$VM.DOM.checkDoctype();
+        J$VM.DOM.checkBrowser();
         
         vm.locale = new js.util.Locale();
 
@@ -471,11 +477,11 @@ js.lang.System = function (env, vm){
         
         if(!vm.env.j$vm_isworker){
             
-            vm.pkgversion = self.j$vm_pkgversion;
+            vm.pkgversion = self.j$vm_pkgversion || {};
             try{
                 delete self.j$vm_pkgversion;
             }catch(e){}
-            vm.__version__ += vm.pkgversion["package.jz"];
+            vm.__version__ += vm.pkgversion["package.jz"] || Math.uuid();
             
             _buildEnv.call(this);
 

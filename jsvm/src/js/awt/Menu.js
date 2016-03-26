@@ -65,6 +65,155 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
 	System = J$VM.System, MQ = J$VM.MQ;
 
+	var _getItemOrNode = function(item, id){
+		var menu, cache, nodes, i, len, rst;
+		if(Class.isFunction(item.subMenu)){
+			menu = item.subMenu();
+			cache = menu.cache;
+			for(uuid in cache){
+				item = cache[uuid];
+				if(item.id === id){
+					rst = item;
+					break;
+				}else{
+					rst = _getItemOrNode.call(this, item, id);
+				}
+			}
+		}else{
+			nodes = item.nodes;
+			len = Class.isArray(nodes) ? nodes.length : 0;
+			for(i = 0; i < len; i++){
+				item = nodes[i];
+				if(item.id === id){
+					rst = item;
+					break;
+				}else{
+					rst = _getItemOrNode.call(this, item, id);
+				}
+			}
+		}
+
+		return rst;
+	};
+
+	/*
+	 * Find and return the menu item specified by the given id. If the
+	 * menu item hasn't been created, return the original node object.
+	 * 
+	 * @param {String} id
+	 */
+	var _getItemOrNodeById = function(id){
+		var root = this.rootLayer(), cache = root.cache, 
+		uuid, item, rst;
+		for(uuid in cache){
+			item = cache[uuid];
+			if(item.id === id){
+				rst = item;
+			}else{
+				rst = _getItemOrNode.call(this, item, id);				  
+			}
+
+			if(rst){
+				break;
+			}
+		}
+
+		return rst;
+	};
+
+	/**
+	 * Set the specified menu item enabeld / disabled.
+	 * 
+	 * @param {String} id Id of the menut item to ref.
+	 * @param {Boolean} b
+	 */
+	this.setItemEnabled = function(id, b){
+		var node = _getItemOrNodeById.call(this, id),
+		changed = false, state, nstate;
+		if(!node){
+			return changed;
+		}
+
+		if(Class.isFunction(node.setEnabled)){
+			changed = node.isEnabled() != b;
+			if(changed){
+				node.setEnabled(b);
+			}
+		}else{
+			nstate = b ? 0 : 1;
+			state = node.state === 1 ? 1 : 0;
+
+			changed = state !== nstate;
+			if(changed){
+				node.state = nstate;
+			}
+		}
+
+		return changed;
+	};
+
+	var _getMenuItemById = function(cache, id){
+		var uuid, item, rst, menu;
+		for(uuid in cache){
+			item = cache[uuid];
+			if(item.id === id){
+				rst = item;
+			}else{
+				if(Class.isFunction(item.subMenu)){
+					menu = item.subMenu();
+					if(menu){
+						rst = _getMenuItemById.call(this, menu.cache, id);
+					}
+				}
+			}
+
+			if(rst){
+				break;
+			}
+		}
+
+		return rst;
+	};
+
+	/**
+	 * Find and return the menu item specified by the given id.
+	 * If the menu item hasn't been shown, return null.
+	 * 
+	 * @param {String} id
+	 * 
+	 * @return {js.awt.MenuItem}
+	 */
+	thi$.getMenuItemById = function(id){
+		var root = this.rootLayer(), cache = root.cache;
+		return cache ? _getMenuItemById.call(this, cache, id) : null;
+	};
+
+	/**
+	 * Build and return the nodes for the sub-menu of the specified
+	 * menu item.
+	 * 
+	 * @param {js.awt.MenuItem} item
+	 */
+	thi$.getSubMenuNodes = function(item){
+		return null;  
+	};
+
+	/**
+	 * Rectify and improve the sub-menu of the specified menu item
+	 * before showing it.
+	 * 
+	 * @param {js.awt.MenuItem} item
+	 * @param {js.awt.Menu} subMenu
+	 */
+	thi$.rectifySubMenu = function(item, subMenu){
+		subMenu = subMenu || item.subMenu();
+		return subMenu;
+	};
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#getPeerComponent
+	 */
 	thi$.getPeerComponent = function(){
 		var root = this.rootLayer();
 
@@ -125,9 +274,20 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			if(isIconicSetten){
 				itemDef.iconic = M.iconic;
 			}
+			
+			// Handle the iconStateless
+			if(!itemDef.hasOwnProperty("iconStateless")){
+				itemDef.iconStateless = (M.iconStateless === true);
+			}
 
-			clazz = itemDef.classType ||
-				("-" === itemDef.type ? "js.awt.MenuSeparator" : "js.awt.MenuItem");
+			// Handle the useBgImage
+			if(!itemDef.hasOwnProperty("useBgImage")){
+				itemDef.useBgImage = (M.useBgImage === true);
+			}
+
+			clazz = itemDef.classType 
+				|| ("-" === itemDef.type 
+					? "js.awt.MenuSeparator" : "js.awt.MenuItem");
 			item = new (Class.forName(clazz))(itemDef, this.Runtime(), this);
 
 			this[item.id] = item;
@@ -142,6 +302,20 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 
 			refNode = item.view;
 		};
+	};
+	
+	thi$.mark = function(id){
+		var item = this[id];
+		if(!item){
+			return;
+		}
+		
+		var nodes = this.nodes, 
+		len = nodes.length, node;
+		for(var i = 0; i < len; i++){
+			node = nodes[i];
+			node.mark(node.id === id);
+		}
 	};
 
 	/**
@@ -168,15 +342,58 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		}
 	};
 
+	/*
+	 * When the menu is hidden, some items' state may be changed. 
+	 * The disabled cover can not be handled right. So, we rectify
+	 * them again.
+	 */
+	var _adjustItemCover = function(){
+		var cache = this.cache, uuid, item;
+		for(uuid in cache){
+			item = cache[uuid];
+			item.showDisableCover(!item.isEnabled(), 
+								  item.def.disableClassName);
+		}
+	};
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.PopupLayer#showAt
+	 */
+	thi$.showAt = function(){
+		$super(this);
+
+		_adjustItemCover.call(this);
+
+	}.$override(this.showAt);
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.PopupLayer#showBy
+	 */
+	thi$.showBy = function(){
+		$super(this);
+
+		_adjustItemCover.call(this);
+
+	}.$override(this.showBy);
+
 	/**
 	 * @see js.awt.PopupLayer
 	 */
 	thi$.canHide = function(e){
-		var b = true;
-		if(e.getType() === "blur"){
+		var type = e.getType(), b = true;
+		switch(type){
+		case "mousedown":
+			b = !this.contains(e.srcElement, true)
+				&& $super(this);
+			break;
+		case "blur":
 			b = this.rootLayer().isHideOnBlur();
-		}else{
+			break;
+		default:
 			b = $super(this);
+			break;
 		}
 
 		return b;
@@ -184,29 +401,35 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 	}.$override(this.canHide);
 
 	/**
-	 * @see js.awt.PopupLayer
+	 * @method
+	 * @inheritdoc js.awt.PopupLayer#hide
 	 */
 	thi$.hide = function(){
 		// Close my sub menu at first
-		var item = this.active, subMenu = item ? item.subMenu() : undefined;
+		var item = this.active, 
+		subMenu = item ? item.subMenu() : undefined;
 		if(item && subMenu && subMenu.isShown()){
 			subMenu.hide();
 			item.setHover(false);
 		}
+
 		$super(this);
+
 	}.$override(this.hide);
 
 	/**
-	 * @see js.awt.Component
-	 * @see js.awt.Component
+	 * @method
+	 * @inheritdoc js.awt.Component#repaint
 	 */
 	thi$.repaint = function(){
-		if(!this._local.repaint){
-			var M = this.def, bounds = this.getBounds(),
-			    nodes = this.nodes, node, i, len;
+		var U = this._local, M = this.def, bounds, clientH, height,
+		nodes, node, scrollbar, i, len;
+		if(!U.repaint){
+			bounds = this.getBounds();
+			nodes = this.nodes;
 
-			var clientH = document.documentElement.clientHeight,
-			height = this.def.height ? this.def.height : bounds.height;
+			clientH = document.documentElement.clientHeight;
+			height = M.height ? M.height : bounds.height;
 
 			if(height > clientH){
 				this.setY(0);
@@ -217,7 +440,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			M.width = bounds.width;
 			M.width -= bounds.BBM ? 0 : bounds.MBP.BPW;
 
-			var scrollbar = this.hasScrollbar();
+			scrollbar = this.hasScrollbar();
 			if(scrollbar.vscroll){
 				M.width = M.width - scrollbar.vbw;
 			}
@@ -225,11 +448,6 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 			M.height-= bounds.BBM ? 0 : bounds.MBP.BPH;
 
 			M.z = this.getStyle("z-index");
-
-			// For shadow
-			if(M.shadow){
-				this.showShadow(true, M.shadowClassName);
-			}
 
 			// For floating layer
 			if(M.isfloating === true && !this.floatingSettled()){
@@ -244,10 +462,15 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 					node.setEnabled(node.isEnabled());
 				}
 			}
-			this._local.repaint = true;
+			U.repaint = true;
 		}
 
-        this.adjustLayers("resize");
+		// For shadow
+		if(M.shadow){
+			this.showShadow(true, M.shadowClassName);
+		}
+
+		this.adjustLayers("resize");
 
 		if(this.active){
 			this.active.setHover(false);
@@ -255,6 +478,22 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		}
 
 	}.$override(this.repaint);
+
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#destroy
+	 */
+	thi$.destroy = function(){
+		this.removeAllNodes();
+
+		delete this._local.root;
+		delete this._local.parent;
+		delete this._local.menuView;
+		delete this.cache;
+
+		$super(this);
+
+	}.$override(this.destroy);
 
 	var _notify = function(e, item){
 		/* After click a menu item, a process block may occur so that the menu
@@ -336,20 +575,6 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		}
 	};
 
-
-	thi$.destroy = function(){
-		this.removeAllNodes();
-
-		delete this._local.root;
-		delete this._local.parent;
-		delete this._local.menuView;
-		delete this.cache;
-
-		$super(this);
-
-	}.$override(this.destroy);
-
-
 	thi$._init = function(def, Runtime, parentMenu, rootMenu){
 		if(def == undefined) return;
 
@@ -364,7 +589,7 @@ js.awt.Menu = function (def, Runtime, parentMenu, rootMenu){
 		_setRootMenu.call(this, rootMenu);
 
 		var menuView = this._menuView = DOM.createElement("DIV");
-		menuView.className = this.className + "_menuview";
+		menuView.className = DOM.combineClassName(this.className, "menuview");
 		menuView.style.cssText = "position:relative;width:100%;height:100%;";
 		DOM.appendTo(menuView, this.view);
 

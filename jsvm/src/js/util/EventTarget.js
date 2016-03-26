@@ -23,7 +23,23 @@ js.util.EventTarget = function (def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event,
-        List = js.util.LinkedList;
+        List = js.util.LinkedList,
+    
+        PreclusiveMouseKeyEvents = {
+            mouseover: true,
+            mousedown: true,
+            mouseup: true,
+            mouseout: true,
+            mousemove: true,
+            mousewheel: true,
+            dommousescroll: true,            
+
+            click: true,
+            dblclick: true,
+
+            keydown: true,
+            keyup: true
+        };
 
     var _getListeners = function(eventType){
         var hName = "on"+eventType, listeners = this[hName];
@@ -114,24 +130,34 @@ js.util.EventTarget = function (def, Runtime){
             isEvent = true;
         }
 
-        handlers = this["on"+eType];
-        switch(Class.typeOf(handlers)){
-        case "function":
-            handlers.call(this, evt);
-            break;
-        case "array":
-            for(var i=0, len=handlers.length; i<len; i++){
-                handlers[i].call(this, evt);
+        // If the current component is covered, it shouldn't reponse to
+        // the native mouse and key events.
+        if(!Class.isFunction(this.isCovered) || !this.isCovered() 
+           || !PreclusiveMouseKeyEvents[eType.toLowerCase()]){
+            handlers = this["on" + eType];
+
+            switch(Class.typeOf(handlers)){
+            case "function":
+                handlers.call(this, evt);
+                break;
+            case "array":
+                for(var i=0, len=handlers.length; i<len; i++){
+                    handlers[i].call(this, evt);
+                }
+                break;
+            default:
+                break;
             }
-            break;
-        default:
-            break;
         }
 
         // Bubble event
         if(isEvent && (bubble === true && evt._bubble === true)){
-            var src = this.view || evt.srcElement,
-                target = J$VM.DOM.getComponent(src ? src.parentNode : null);
+            var src = this.view || evt.srcElement, target;
+            do {
+                src = src ? src.parentNode : null;
+                target = src ? J$VM.DOM.getComponent(src) : null;
+            } while (target && target === this);
+
             if(target && target.fireEvent){
                 target.fireEvent(evt, bubble);
             }

@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
 
 import org.jsvm.util.CharArray;
@@ -68,8 +68,8 @@ public class Compiler extends ConsoleApp {
 	private UintMap deoptions;
 
 	/**
-	 * 
-	 */
+     * 
+     */
 	public Compiler(Map<String, String> arguments) {
 
 		boolean verbose = arguments.containsKey("-verbose");
@@ -80,7 +80,7 @@ public class Compiler extends ConsoleApp {
 			optLevel = Integer.parseInt(arguments.get("-O"), 10);
 		} catch (Throwable t) {
 		}
-		
+
 		ctx = Context.enter();
 		ctx.setOptimizationLevel(optLevel);
 		scope = ctx.initStandardObjects();
@@ -95,13 +95,13 @@ public class Compiler extends ConsoleApp {
 	private void work(Map<String, String> arguments) throws Exception {
 		boolean gzip = arguments.containsKey("-gzip");
 		boolean force = arguments.containsKey("-F");
-		
+
 		if (arguments.containsKey("-pack")) {
 			String pkgLst = arguments.get("-pack");
 			pkgLst = pkgLst != null ? pkgLst : "pkg.lst";
 			compack(new File(pkgLst).getCanonicalFile());
 		}
-		
+
 		if (arguments.containsKey("$0")) {
 			List<File> files = buildSrcList(arguments);
 			if (files.size() == 1) {
@@ -222,7 +222,7 @@ public class Compiler extends ConsoleApp {
 	}
 
 	private InputStream compile0(Reader reader, String fileName) {
-		logger.println("Compile: " + fileName);
+		// logger.println("Compile: " + fileName);
 		InputStream ret = null;
 		try {
 			Script script = ctx.compileReader(reader, fileName, 0, null);
@@ -279,7 +279,7 @@ public class Compiler extends ConsoleApp {
 				task.run();
 			}
 		}
-
+		lock.setProperty("lastBuild", Long.toString(System.currentTimeMillis()));
 		lockFile.delete();
 		lock.store(new FileOutputStream(lockFile), null);
 	}
@@ -319,7 +319,7 @@ public class Compiler extends ConsoleApp {
 		return tasks;
 	}
 
-	static class Task {
+	class Task {
 		String name;
 		boolean compress = false;
 		File srcRoot;
@@ -351,11 +351,22 @@ public class Compiler extends ConsoleApp {
 		void run() {
 			logger.println("Pack: " + this.name + " ");
 			FileOutputStream ous = null;
-			FileInputStream ins = null;
+			InputStream ins = null;
 			try {
 				ous = new FileOutputStream(desFile);
 				for (File file : files) {
-					ins = new FileInputStream(file);
+					if (!file.exists()) {
+						System.err.println("Can not found the file: "
+								+ file.getAbsolutePath());
+						continue;
+					}
+					if (!compress) {
+						ins = new FileInputStream(file);
+					} else {
+						ins = compile0(new InputStreamReader(
+								new FileInputStream(file), "UTF-8"),
+								file.getName());
+					}
 					FileUtil.copy(ins, ous);
 					ous.write(new byte[] { 0x0d, 0x0a }); // "\r\n
 					ins.close();
@@ -384,7 +395,7 @@ public class Compiler extends ConsoleApp {
 		JSONObject packJson = new JSONObject();
 		int rootLen = root.getAbsolutePath().length();
 		for (File jz : jzFiles) {
-			String key = jz.getAbsolutePath().substring(rootLen+1);
+			String key = jz.getAbsolutePath().substring(rootLen + 1);
 			key = key.replaceAll("\\\\", "/");
 			packJson.put(key, jz.lastModified());
 		}

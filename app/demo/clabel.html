@@ -1,15 +1,16 @@
-<!DOCTYPE html>
-<html>
-  <head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-      
-    <style>__PSEUDO__ {background-color:gray;}</style>
-    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-  
-    <script id="j$vm" type="text/javascript" src="../../jsvm/jsvm.jsp"></script>
-    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script> 
-    <script type="text/javascript" src="../../jsvm/lib/designer.js"></script>
+<html class="jsvm--full-h">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">  
+  <title>JDemo</title>
+
+  <script id="j$vm" type="text/javascript" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin"
+          crs="../../jsvm/" 
+          classpath="lib/jsre-ui.jz;
+                     lib/jsre-gks.jz;
+                     lib/service.jz;
+                     "></script> 
+
 
     <title>CanvasLabel</title>
     
@@ -39,14 +40,27 @@
     </style>
   </head>
 
-  <body>
-    
-  </body>
+<body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm--font jsvm__body" 
+      jsvm_entry="demo">
+    <div id="container" style="position:absolute;width:100%;height:100%;">
+    </div>
+</body>
   
   <script type="text/javascript">
-    J$VM.exec("Demo",function(System){
-        this.prefer({theme: "default"});
-
+  
+    J$VM.exec("JDemo", function(entryId){
+        var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ,
+        System = J$VM.System, Desktop = this.getDesktop(),
+        
+        div = document.getElementById("container");
+        
+        // step 1: Initialize Runtime env sepcially for application
+        var env = {
+            prefer: {dashboard:{theme: "default"}},
+            theme: "default"
+        };
+        this.initialize(env);
+        
         var def = {
             classType: "js.awt.Container",
             className: "pholder",
@@ -112,7 +126,8 @@
             }
         },
         con = new js.awt.Container(def, this);
-        this.addComponent(con);             
+        con.appendTo(div);
+           
     });
  </script>
 </html>

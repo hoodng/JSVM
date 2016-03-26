@@ -538,126 +538,47 @@ J$VM = new function (){
             }
         };
 
-        this.$async = function(thi$){
-            var fn = this, args = slice.call(arguments, 1);
-            Q.submit(function(){
-                fn.apply(thi$, args.concat(slice.call(arguments)));
-            });
-        };
+		this.$queued  = function(callback, thi$, args){
+			var Class = js.lang.Class;
+			Class.queued.apply(Class, [this].concat(
+				slice.call(arguments)));
+			};
         
     }).call(Function.prototype);
 
-    $debug = function(fnName){
-        var thi$ = self, names = fnName.split(".");
 
-        fnName = names.pop();
-        while(names.length > 0){thi$ = thi$[names.shift()];}
-
-        thi$[fnName] = function(){
-            debugger;
-            $super(this);
-        }.$override(thi$[fnName]);
+    self.$inject = function(target, fnName, inject, after){
+        var fn = target[fnName], ret;
+        if(typeof fn !== "function" ||
+           typeof inject !== "function") return;
+        
+        target[fnName] = function(){
+            if(!after){
+                inject(arguments);
+                ret = self.$super(this);                
+            }else{
+                ret = self.$super(this);
+                inject(arguments);
+            }
+            return ret;
+        }.$override(fn);
     };
 
-    var Q = new function(){
-        var curTask, scheduled;
+    self.$debug = function(target, fnName){
+        self.$inject(target, fnName,
+                function(){debugger;});
+    };
 
-        this.submit = function(fn){
-            /*
-             * state, 0: pendding, 1: doing, 2: done
-             * 
-             */
-            var task = {state:0, fn:fn, data:null,
-                        prev:null, next:null};
+    Boolean.prototype.boolValue = function(){
+        return this.valueOf();
+    };
 
-            if(!curTask){
-                curTask = task;
-            }else if(curTask.state === 1){
-                task.next = curTask;
-                curTask.prev = task;
-                curTask = task;
-                scheduled = false;
-            }else{
-                var preTask = curTask;
+    String.prototype.boolValue = function(){
+        return this.valueOf() === "true";
+    };
 
-                while(preTask.next !== null){
-                    preTask = preTask.next;
-
-                    if(preTask.state === 1){
-                        preTask.prev.next = task;
-                        task.prev = preTask.prev;
-                        task.next = preTask;
-                        preTask.prev = task;
-                        break;
-                    }
-                }
-                
-                if(preTask.state !== 1){
-                    preTask.next = task;
-                    task.prev = preTask;
-                }
-            }
-
-            if(!scheduled){
-                scheduled = true;
-                _run.$delay(this, 0);                
-            }
-        };
-
-        var _clean = function(set){
-            for(var p in set){
-                if(set.hasOwnProperty(p))
-                    set[p] = null;
-            }
-        };
-
-        var _run = function(){
-            var task;
-            
-            switch(curTask.state){
-                case 0: // "Pendding" state
-                curTask.state = 1; // change to "Doing" state
-                curTask.fn({data: curTask.data,
-                            callback:_callback.$bind(this)});
-                break;
-                
-                case 2: // "Done" state
-                if(curTask.next){
-                    task = curTask.next;
-                    if(task.state === 0){
-                        task.data = curTask.data;
-                        task.prev = null;
-                        _clean(curTask);
-                        curTask = task;
-                        _run.call(this);
-                    }else{
-                        // task.state === 1
-                        // change to "Done" state directly.
-                        task.state = 2;
-                        task.data = curTask.data;
-                        task.prev = null;
-                        _clean(curTask);                        
-                        curTask = task;
-                        _run.call(this);
-                    }
-                }else{
-                    scheduled = false;
-                }
-                break;
-                
-                default: // "Doing" state
-                throw "Unexcept state: "+curTask.state;
-                break;
-            }
-        };
-
-        var _callback = function(data){
-            curTask.state = 2; // change to "Done" state
-            curTask.data = data;
-            _run.call(this);
-        };
-        
-    }();
-
+    Number.prototype.boolValue = function(){
+        return this.valueOf() !== 0;
+    }
     
 }();

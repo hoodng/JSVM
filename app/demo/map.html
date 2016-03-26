@@ -1,81 +1,79 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<html class="jsvm--full-h">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <script id="j$vm" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin"
+                crs="../../jsvm/"
+                classpath="lib/jsre-ui.jz;"></script>
 
-    <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js" 
-            classpath="lib/../jsre-ui.js"
-            -Dmainclass="org.jsvm.App"></script>
+        <script type="text/javascript" src="../../jsvm/src/org/jsvm/map/TileMapRender.js"></script>
+        <script type="text/javascript" src="../../jsvm/src/org/jsvm/map/MapComponent.js"></script>
+        <style>
+         .map {border: none;}
+        </style>
+    </head>
+    <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
+    </body>
+
     <script type="text/javascript">
-      J$VM.boot({
-          theme: "default"
-      });
+     J$VM.exec("demo", function(entry){
+         this.createApp().run(function(){
+             
+             var Class = js.lang.Class, Event = js.util.Event, MQ = J$VM.MQ,
+                 R = this.Runtime(), System = J$VM.System;
+
+             var DemoWindow = new js.awt.Window({
+                 id: "DemoWindow",
+                 css:"background-color:white;border:2px solid #CCCCCC;",
+
+                 items:["title","client"],
+                 
+                 title:{
+                     classType: "js.awt.HBox",
+                     constraints:"north",
+
+                     hovershow: true,
+                     hovershowbutton: true,
+
+                     items:["labTitle", "btnMax","btnClose"],
+                     
+                     labTitle:{
+                         classType: "js.awt.Label",
+                         css:"padding: 0px 2px 0px 4px;",
+                         text: "J$VM Map"
+                     },
+
+                     btnMax:{
+                         classType: "js.awt.Button",
+                         iconImage: "maximize.png"
+                     },
+
+                     btnClose:{
+                         classType: "js.awt.Button",
+                         iconImage: "dialog_close.png"
+                     }
+                 },
+                 
+                 client:{
+                     classType:"org.jsvm.map.MapComponent",
+                     className:"MapComponent",
+                     constraints:"center"
+                     
+                 },
+                 resizer :255,
+                 mover:{longpress: 5, bt:1.0, bl:1.0}, movable:true,
+                 x:50, y:50,
+                 width: 685,
+                 height: 480
+             }, R);
+
+             this.addComponent(DemoWindow);
+
+             var map = DemoWindow.getElementById("client");
+             DemoWindow.addMoverRestricted(map);
+             map.setMapInfo();
+             });
+         });
     </script>
-    <script type="text/javascript" src="../../jsvm/src/org/jsvm/map/TileMapRender.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/org/jsvm/map/MapComponent.js"></script>
-    <style>
-      .map {border: none;}
-    </style>
-  </head>
-  <body style="width:100%;height:100%;">
-  </body>
-
-  <script type="text/javascript">
-    J$VM.exec("org.jsvm.App", function(System){
-    var Event = js.util.Event;
-
-    var DemoWindow = new js.awt.Window({
-        id: "DemoWindow",
-        css:"background-color:white;border:2px solid #CCCCCC;",
-
-        items:["title","client"],
-        
-        title:{
-            classType: "js.awt.HBox",
-            constraints:"north",
-
-            hovershow: true,
-            hovershowbutton: true,
-
-            items:["labTitle", "btnMax","btnClose"],
-            
-            labTitle:{
-                classType: "js.awt.Label",
-                css:"padding: 0px 2px 0px 4px;",
-                text: "J$VM Map"
-            },
-
-            btnMax:{
-                classType: "js.awt.Button",
-                iconImage: "maximize.png"
-            },
-
-            btnClose:{
-                classType: "js.awt.Button",
-                iconImage: "dialog_close.png"
-            }
-        },
-        
-        client:{
-            classType:"org.jsvm.map.MapComponent",
-            className:"MapComponent",
-            constraints:"center"
-            
-        },
-        resizer :255,
-        mover:{longpress: 5, bt:1.0, bl:1.0}, movable:true,
-        x:50, y:50,
-        width: 685,
-        height: 480
-    },this);
-
-    this.addComponent(DemoWindow);
-
-    var map = DemoWindow.getElementById("client");
-    DemoWindow.addMoverRestricted(map);
-    map.setMapInfo();
-    
-    });
-  </script>
 </html>

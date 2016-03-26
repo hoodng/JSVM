@@ -246,7 +246,7 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         }
 
         var _url, query = _makeQueryString.call(this, params),
-            xhr = this._xhr, async = this.isAsync();
+            xhr = this._xhr, bAsync = this.isAsync();
 
         switch(method.toUpperCase()){
         case "GET":
@@ -263,9 +263,9 @@ js.net.HttpURLConnection = function (isAsync, blocking){
             break;
         }
         
-        if(async){
+        if(bAsync){
             xhr.onreadystatechange = function(){
-                if(xhr.isTimeout) return;
+                if(xhr.isTimeout || !self.J$VM) return;
 
                 switch(xhr.readyState){
                 case 2:
@@ -306,11 +306,13 @@ js.net.HttpURLConnection = function (isAsync, blocking){
         
         this.timer = _checkTimeout.$delay(this, this.getTimeout());
 
-        xhr.open(method, _url, async);
+        xhr.open(method, _url, bAsync);
         _setRequestHeader.call(this, xhr, this._headers);
 
-        if(async){
-            xhr.send.$delay(xhr, 0, query);    
+        if(bAsync){
+            (function(){
+                xhr.send(query);
+            }).$delay(this, 0);
         }else{
             xhr.send(query);
         }

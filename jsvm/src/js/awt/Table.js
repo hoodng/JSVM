@@ -55,36 +55,53 @@ js.awt.TableBody = function(def, Runtime) {
 		var R = this.Runtime(), m = grid.rowNum();
 		var tbody = new (CLASS.TBody)({}, R);
 		tbody.appendTo(this.view);
-        var i, j, n, row, rowUuid, trow, cell, tcell, rowData, cellData, className, tempDiv;
+        var i, j, n, row, rowUuid, trow, cell, tcell, rowData, cellData, className, 
+        	//when noWrap
+        	//for: <td><div class='subClassName'></div></td>
+	        subClassName, 
+	        tempDiv;
         var cache = def.cache, data = def.data, rUuid = 'rowuuid', title = 'title';
-    	for (i = 0; i < m; i++) {
+    	for (i = 0; i < m; i++){
 			row = grid.row(i);
 			trow = undefined;
 			rowData = data.get(i);
-			if (row.visible) {
+			if(row.visible){
 				trow = row.trow = new (CLASS.Row)(row, R);
 				trow.obj = rowData[rowData.length - 1];
 			}
-			if (trow) {
+
+			if(trow){
 				rowUuid = trow.view.uuid;
 				n = grid.colNum();
-				for (j = 0; j < n; j++) {
+				for (j = 0; j < n; j++){
 					cell = grid.cell(i, j);
 					cellData = rowData[j];
-					if (cell && cell.visible) {
+					if (cell && cell.visible){
 						className = cellData.className;
+						subClassName = cellData.subClassName;
 						if(cellData.isNoWrap){
-							if(className)
-								tempDiv = "<div class=\"" + className + "\" rowuuid=\""  +  rowUuid + "\" >" + cellData.value + "</div>";
-							} else if(className)
+							//for the TD inner Div className
+							//<td><div class='subClassName'></div></td>
+							if(subClassName){
+								tempDiv = "<div class=\"" + subClassName + "\" rowuuid=\""  +  rowUuid + "\" >" + cellData.value + "</div>";
+							}
+							//for the parent TD className
+							if(className){
 								cell.className = className;
+							}
+						}else if(className){
+							cell.className = className;
+						}
+
 						tcell = cell.tcell = new (CLASS.Cell)(cell, R);
+
 						if(tempDiv){
 							tcell.view.innerHTML = tempDiv;
 							tempDiv = null;
 						} else {
 							tcell.setText(cellData.value);
-						}					
+						}
+
 						tcell.setAttribute(rUuid, rowUuid);
 
 						// for show specify tips
@@ -232,7 +249,7 @@ js.awt.Table = function(def, Runtime) {
 		$super(this);
 	}.$override(this.destroy);
 
-	thi$.setTableBody = function(data){
+	thi$.setTableBody = function(data, bodyDef){
 		this.data = data;
 		var R = this.Runtime(), rowLen;
 		var bodyHolder = this['bodyHolder'];
@@ -248,8 +265,9 @@ js.awt.Table = function(def, Runtime) {
 	    	}
 	    	this.bodyDef = {
 				classType: "js.awt.TableBody",
+				className: bodyDef ? bodyDef.className : undefined, /**/
 				bounds: {left: MBP.paddingLeft, top: MBP.paddingTop, width: bounds.innerWidth, height: bounds.innerHeight},
-	    	    id: 'tableBody',
+	    	    id:  bodyDef ? bodyDef.id : 'tableBody',
 	            rigid_w: false,
 	            rigid_h: true, 
 	            rowNum: rowLen,

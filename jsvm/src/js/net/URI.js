@@ -202,7 +202,11 @@ js.net.URI = function (url){
             
             var A, uri = "";
             try{
-                uri = decodeURI(unescape(arguments[0]));
+                uri = arguments[0];
+                while(uri.indexOf("%") > 0){
+                    uri = unescape(uri);
+                }
+                uri = decodeURI(uri);
                 if(J$VM.env.j$vm_isworker !== true){
                     A = document.createElement("A");
                     A.href = uri;

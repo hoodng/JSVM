@@ -42,10 +42,8 @@ $package("js.swt");
 $import("js.swt.ListItem");
 
 /**
- * @fileOverview Define the List. A <em>List</em> is a item container.
- */
-
-/** 
+ * Define the List. A <em>List</em> is a item container.
+ * 
  * @class js.swt.List
  * @extends js.awt.Container
  * 
@@ -299,8 +297,13 @@ js.swt.List = function(def, runtime){
 		}
 		
 		var M = this.def, itemClassName = M.itemClassName;
-		if(!itemDef.className && itemClassName){
-			itemDef.className = itemClassName;
+		if(!itemDef.className){
+			if(itemClassName){
+				itemDef.className = itemClassName;
+			}else{
+				itemDef.className = "jsvm_listItem $jsvm_listItem" + " "
+					+ DOM.combineClassName(M.className, "item");
+			}
 		}
 		
 		// Maybe needn't to set with as 100%
@@ -1783,7 +1786,7 @@ js.swt.List = function(def, runtime){
 
 		def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);		
 		def.className = def.className || "jsvm_list";
-		$super(this);
+		$super(this, def, runtime);
 
 		this._isReady = false;
 		this._isLayoutDirty = false;

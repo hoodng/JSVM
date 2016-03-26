@@ -291,7 +291,8 @@ js.awt.DatePicker = function(def, Runtime){
 		}
 	};
 	
-	thi$.setDate = function(date, notify){
+	
+	thi$.setDate = function(date, notify, srcTrigger){
 		var calendar = this.calendar;
 		if(!calendar){
 			calendar = new Calendar(date);
@@ -299,6 +300,10 @@ js.awt.DatePicker = function(def, Runtime){
 		}else{
 			calendar.setDate(date);			   
 		}
+
+		//for bug#: 135008
+		//srcTrigger mark which type (year, month, day) was click.
+		this.srcTrigger = srcTrigger;
 		
 		_updateDatePicker.call(this, calendar, date);
 		_updateTimePicker.call(this, calendar);
@@ -362,6 +367,7 @@ js.awt.DatePicker = function(def, Runtime){
 		this.setDate(calendar.getDate(), true);
 	};
 
+	//when the day click
 	var _onDateChanged = function(e){
 		var calendar = this.calendar, date = e.getData();
 		if(e.getType() == "changed"){
@@ -370,7 +376,7 @@ js.awt.DatePicker = function(def, Runtime){
 			date.setSeconds(calendar.get(Calendar.SECOND));
 			date.setMilliseconds(calendar.get(Calendar.MILLISECOND));
 
-			this.setDate(date, true);			 
+			this.setDate(date, true, "day");			 
 		}
 	};
 	

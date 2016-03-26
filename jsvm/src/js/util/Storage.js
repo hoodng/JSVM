@@ -79,6 +79,7 @@ js.util.Storage = function(storage){
 
         switch(Class.typeOf(value)){
         case "string":
+        case "number":
             sto.setItem(key, value);
             break;
         case "object":

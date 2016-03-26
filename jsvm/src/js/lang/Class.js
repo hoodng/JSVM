@@ -166,17 +166,19 @@ js.lang.Class = new function (){
      *
      * @param url, the url to load content
      */
-    this.getResource = function(url, nocache){
+    this.getResource = function(url, nocache, params){
         // Synchronized request
         var xhr = J$VM.XHRPool.getXHR(false), text, ex;
         xhr.setNoCache(nocache || false);
-        xhr.open("GET", url, undefined);
+        xhr.open("GET", url, params);
 
         if(xhr.exception == undefined && xhr.readyState() == 4 &&
            (xhr.status() == 200 || xhr.status() == 304)){
             text =  xhr.responseText();
             xhr.close();
             return text;
+        }else if(xhr.status() == 404){
+        	return "";
         }
 
         ex = xhr.exception;
@@ -297,12 +299,16 @@ js.lang.Class = new function (){
      *
      */
     this.typeOf = function(o){
-        return _typeof(o);
+        return (o === null) ? "null" :
+            (o === undefined) ? "undefined" :
+            this.isHtmlElement(o) ?
+            "html" + o.tagName.toLowerCase() + "element" :
+            this.isBigInt(o) ? "bigint" : _typeof(o);        
     };
     
     var _typeof = function(o){
         var s = Object.prototype.toString.call(o);
-        return s.substring(8, s.length-1).toLowerCase();
+        return s.substring(8, s.length-1).toLowerCase();        
     };
 
     /**
@@ -344,14 +350,14 @@ js.lang.Class = new function (){
      * Test if the specified object is a string
      */
     this.isString = function(o){
-        return this.typeOf(o) === "string";
+        return typeof o === "string";
     };
 
     /**
      * Test if the specified object is a number
      */
     this.isNumber = function(o){
-        return this.typeOf(o) === "number" && !isNaN(o);
+        return !isNaN(o) && (typeof o === "number");
     };
 
     /**
@@ -372,7 +378,7 @@ js.lang.Class = new function (){
      * Test if the specified object is a Boolean
      */
     this.isBoolean = function(o){
-        return this.typeOf(o) === "boolean";
+        return typeof o === "boolean";
     };
 
     /**
@@ -393,7 +399,7 @@ js.lang.Class = new function (){
      * Test if the specified object is a function
      */
     this.isFunction = function(o){
-        return this.typeOf(o) === "function";
+        return typeof o === "function";
     };
 
     /**
@@ -408,7 +414,7 @@ js.lang.Class = new function (){
      * Test if the specified object is a html element
      */
     this.isHtmlElement = function(o){
-        return this.typeOf(o).indexOf("html") === 0;
+        return o ? !!o.tagName : false;
     };
 
     /**
@@ -489,4 +495,99 @@ js.lang.Class = new function (){
 
         return b;
     };
+    
+    var tasks = [], scheduled = false;
+    this.queued = function(fn, callback, thi$, args){
+        /*
+         * state: 0: pendding, 1:doing, 2:done
+         */
+        var task = {state:0, data:null, fn:fn},
+            curTask = tasks.length > 0 ?
+            tasks[tasks.length-1] : null;
+        
+        fn.ctx = {
+            thi$: thi$,
+            callback: callback,
+            args: Array.prototype.slice.call(arguments, 3)
+        };
+
+
+        if(!curTask || curTask.state === 1){
+            tasks.push(task);
+            scheduled = false;
+        }else{
+            curTask.tasks = (curTask.tasks || []);
+            curTask.tasks.push(task);
+        }
+
+        if(!scheduled){
+            scheduled = true;
+            _run.$delay(this, 0);
+        }
+    };
+
+    var _run = function(){
+        var fn, ctx, promise,
+            curTask = tasks.length > 0 ?
+            tasks[tasks.length-1] : null;
+        
+        if(!curTask){
+            scheduled = false;
+            return;
+        }
+        
+        fn = curTask.fn; ctx = fn.ctx;
+        switch(curTask.state){
+            case 0:
+            curTask.state = 1; // change to doing state
+            promise = {data: curTask.data,
+                       done: _done.$bind(this)};
+            fn.apply(ctx.thi$||this,
+                     [promise].concat(ctx.args));
+            break;
+            
+            case 2:
+            if(this.isFunction(ctx.callback)){
+                ctx.callback.apply(
+                    ctx.thi$||this,
+                    [curTask.data].concat(ctx.args));
+            }
+            delete fn.ctx;
+            
+            var task = curTask.tasks ?
+                curTask.tasks.shift() : null;
+            if(task){
+                // task.state must be 0
+                task.data = curTask.data;
+                task.tasks = curTask.tasks;
+                tasks[tasks.length-1] = task;
+            }else{
+                curTask = tasks.pop();
+                task = tasks.length > 0 ?
+                    tasks[tasks.length-1] : null;
+                if(task){
+                    // task.state must be 1
+                    task.state = 2; // change to done
+                    task.data = curTask.data;
+                }
+            }
+            curTask.data = null;
+            curTask.tasks = null;            
+            curTask.fn = null;
+            _run.call(this);
+            break;
+            
+            default:
+            throw new Error("Unexcept task state: "+curTask.state);
+            break;
+        }
+    };
+
+    var _done = function(result){
+        var curTask = tasks[tasks.length-1];
+        curTask.state = 2; // change to done state
+        curTask.data = result;
+        _run.call(this);
+    };
+
 }();

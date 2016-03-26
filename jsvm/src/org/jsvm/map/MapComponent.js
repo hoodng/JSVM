@@ -195,6 +195,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             delta: _e.wheelDelta || -_e.detail,
             xy : e.eventXY()
         });
+        e.cancelBubble();
     };
 
     var _detectMove = function(e){
@@ -254,9 +255,11 @@ org.jsvm.map.MapComponent = function(def, Runtime){
                 this.detachEvent("mousemove", 0, this, _drawTmpLine);
             }
         }
+        e.cancelBubble();
     };
     
     var _onmousemove = function(e){
+        debugger;
         _detectMove.$clearTimer();
         var U = this._local, oxy = U.eventXY, xy = e.eventXY(),
             G = this.g2d, dx, dy, moveObj, info, info2, point;
@@ -300,6 +303,8 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         if(dx != 0 || dy != 0){
             U.moved = true;
         }
+        
+        e.cancelBubble();
     };
 
     var _onmouseup = function(e){
@@ -354,6 +359,8 @@ org.jsvm.map.MapComponent = function(def, Runtime){
                 
         U.moved = false;
         U.dragEle = undefined;
+        
+        e.cancelBubble();
     };
 
     var _onMapMousemove = function(e){
@@ -365,6 +372,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             lat = MapMath.inverseMercatorY(XY.y);
             _showMapinfo.call(this, {lng: lng, lat:lat});
         }
+        e.cancelBubble();
     };
     
     var _showMapinfo = function(data){
@@ -441,7 +449,7 @@ org.jsvm.map.MapComponent = function(def, Runtime){
             line.def.y1 = e.offsetY;
             G.drawing();
         }
-        
+        e.cancelBubble();
     };
     
     /**
@@ -543,9 +551,9 @@ org.jsvm.map.MapComponent = function(def, Runtime){
         $super(this);
 
         var mousewheel = J$VM.firefox ? "DOMMouseScroll" : "mousewheel";
-        this.attachEvent(mousewheel, 0, this, _onmousewheel);
-        this.attachEvent("mousedown",0, this, _onmousedown);
-        this.attachEvent("mousemove", 0, this, _onMapMousemove);
+        this.attachEvent(mousewheel, 4, this, _onmousewheel);
+        this.attachEvent("mousedown",4, this, _onmousedown);
+        this.attachEvent("mousemove",4, this, _onMapMousemove);
 
         this.board.setData.$delay(this.board, 0, this.board.def.data);
 

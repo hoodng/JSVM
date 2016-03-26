@@ -1,8 +1,8 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
  *
  * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
@@ -22,7 +22,8 @@ js.util.EventListener = function (listener, handler){
     CLASS.__defined__ = true;
     
     thi$.handleEvent = function(){
-        if(typeof this.handler === "function"){
+        if(typeof this.handler === "function" &&
+           this.listener && this.listener.destroied != true){
             this.handler.apply(this.listener, arguments);
         }
     };

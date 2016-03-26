@@ -78,7 +78,7 @@ js.awt.ComponentFactory = function(System){
     thi$.createComponent = function(className, opitons, Runtime){
         var comp, wClass = this.getClass(className);
 
-        wClass = System.objectCopy(opitons, wClass, true, true);
+        wClass = System.objectCopy(opitons || {}, wClass, true, true);
         comp = new (Class.forName(wClass.classType))(wClass, Runtime);
 
         return comp;

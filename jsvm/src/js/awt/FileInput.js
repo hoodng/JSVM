@@ -37,6 +37,11 @@
 
 $package("js.awt");
 
+/**
+ * @deprecated
+ * 
+ * Strongly recommend to use js.awt.FileUploader to replace.
+ */
 js.awt.FileInput = function(def, Runtime){
 	var CLASS = js.awt.FileInput, thi$ = CLASS.prototype;
 	if(CLASS.__defined__){
@@ -215,7 +220,9 @@ js.awt.FileInput = function(def, Runtime){
 				
 				layout:{
 					gap:3
-				}
+				},
+
+            constraints: "center"
 			};
 		def.id = def.id || "openFile";
 		
@@ -300,7 +307,8 @@ js.awt.FileInput.DEFAULTCLASS = {
 		
 		layout:{
 			gap:3
-		}
+		},
+        constraints: "center"
 	},
 	layout:{
 		classType:"js.awt.BorderLayout"

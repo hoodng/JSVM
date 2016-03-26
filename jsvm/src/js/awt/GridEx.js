@@ -626,19 +626,37 @@ js.awt.GridEx = function(def){
                 if(cell){
                 	cell.rowIndex = i;
                 	cell.colIndex = j;
+                	weight = this.getCellWeight(cell, i, j);
+                	cell.w_weight = weight.w_weight;
+                	cell.h_weight = weight.h_weight;
                     ret.push(cell);
                 }
             }
         }
         return ret;
     };
+    
+    thi$.getCellWeight = function(cell, rowIndex, colIndex){
+    	var rSpan = cell.rowSpan, cSpan = cell.colSpan,
+    	rlen = this.rowNum(), clen = this.colNum(), 
+    	w_weight = 0, h_weight = 0, row, col, i;
+    	for(i = 0; i < rSpan; i++){
+    		row = this.row(rowIndex + i);
+    		h_weight += row.weight;
+    	}
+    	for(i = 0; i < cSpan; i++){
+    		col = this.col(colIndex + i);
+    		w_weight += col.weight;
+    	}
+    	return {w_weight: w_weight, h_weight: h_weight};
+    };
 
     var zorder = function(r){
-        return r[YD] << 16 + r[XD];
+        return (r[YD] << 16) + r[XD];
     };
 
     var area = function(r){
-        return (r[X1]-r[X0]) * (r[Y1]-r[Y1]);
+        return (r[X1]-r[X0]) * (r[Y1]-r[Y0]);
     };
 
     var _byZ = function(c1, c2){
@@ -647,45 +665,58 @@ js.awt.GridEx = function(def){
     };
 
     thi$.canMerge = function(cell, cells){
-        var R = [0,0,0,0], r, i, len, s=0;
+        var x0 = 65535, y0 = 65535, x1 = 0, y1 = 0,
+            r, i, len, s = 0;
 
         cells = cells.concat(cell);
-        cells.sort(_byZ.$bind(this));
 
         for(i=0, len=cells.length; i<len; i++){
             cell = cells[i];
             r = cell.range;
-
-            if(i === 0){
-                R[X0] = r[X0]; R[Y0] = r[Y0];
-            }else if(i === len - 1){
-                R[X1] = r[X1]; R[Y1] = r[Y1];
-            }
-            
+			
+			if(r[0] < x0){
+				x0 = r[0];
+			}
+			if(r[1] < y0){
+				y0 = r[1];
+			}
+			if(r[2] > x1){
+				x1 = r[2];
+			}
+			if(r[3] > y1){
+				y1 = r[3];
+			}
+			
             s += area(r);
         }
         
-        return s === area(R);
+        return s === area([x0,y0,x1,y1]);
     };
 
     thi$.merge = function(cells){
-        var r, x0, y0, x1, y1, i, len,
-            gcells, cell, id;
+        var x0 = 65535, y0 = 65535, x1 = 0, y1 = 0,
+            i, len, r, gcells, cell, id;
 
         if(cells.length == 0) return null;
 
         gcells = this.cells; 
-        cells.sort(_byZ.$bind(this));
         
         for(i=0, len=cells.length; i<len; i++){
             cell = cells[i];
             r = cell.range;
 
-            if(i === 0){
-                x0 = r[X0]; y0 = r[Y0];
-            }else if(i === len - 1){
-                x1 = r[X1]; y1 = r[Y1];
-            }
+			if(r[0] < x0){
+				x0 = r[0];
+			}
+			if(r[1] < y0){
+				y0 = r[1];
+			}
+			if(r[2] > x1){
+				x1 = r[2];
+			}
+			if(r[3] > y1){
+				y1 = r[3];
+			}
             
             id = cell.uuid;
             delete gcells[id];

@@ -78,9 +78,10 @@ js.util.Observable = function (def, Runtime){
         this.uuid(def.uuid);
         this.__observers__ = List.$decorate([]);
 
-        var U = this._local = {};
+        var U = this._local = this._local || {};
         U.Runtime = Runtime;
         U.changed = false;
+
         // Cache current object
         // @link js.lang.Object#setContextID
         this.setContextID(def["__contextid__"]);

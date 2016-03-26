@@ -55,20 +55,24 @@ js.awt.Shadow = function (){
     };
 
     thi$.adjustShadow = function(bounds){
-        var view = this._shadowView, abs, x, y;
-        if(!DOM.isDOMElement(this.view) || !view) return;
+        var view = this.view, sview = this._shadowView,
+            ele, box, xy, x, y;
+
+        if(!sview || !DOM.isDOMElement(sview)) return;
+        
         bounds = bounds || this.getBounds();
-        // if(bounds.MBP.fake) return;
-        abs = (bounds.MBP.position === "absolute");
-        if(abs){
-            x = bounds.x;
-            y = bounds.y;
+        ele = DOM.getOffsetParent(view);
+        if(ele === view){
+            x = 0;
+            y = 0;
         }else{
-            x = bounds.absX;
-            y = bounds.absY;
+            box = DOM.getBounds(ele);
+            xy = DOM.relative(bounds.absX, bounds.absY, box);
+            x = xy.x;
+            y = xy.y;
         }
         
-        DOM.setBounds(view, x, y, bounds.width, bounds.height);   
+        DOM.setBounds(sview, x, y, bounds.width, bounds.height);   
     };
 
     thi$.setShadowZIndex = function(z){

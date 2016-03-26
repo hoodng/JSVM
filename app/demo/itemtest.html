@@ -10,32 +10,36 @@
   <div id="itemsBox" class="jsvm--com items-box">
 
   <div id="item1" class="item">
-    <div class="item_icon"></div>
-    <div class="jsvm--com item_text">Item Text abc adceffdfadsfdasf adsfasdf</div>
-    <div class="item_ctrl">
-      <div class="ctrl_left"></div>
-      <div class="ctrl_right"></div>
-    </div>
+     <div class="jsvm--com item_icon"></div>
+    <div class="jsvm--com item_flex">
+	  <div class="jsvm--com item_text">Item Text </div>
+	</div>
+	<!--
+    <div class="item_ctrl"></div>
+-->
   </div>
+
   <div id="item2" class="item">
     <div class="item_icon"></div>
     <div class="item_icon"></div>
-    <div class="jsvm--com item_text">Item Text dfaldskfjdsa dasfkjasdf dasf adsf</div>
-    <div class="item_ctrl">
-      <div class="ctrl_left"></div>
-      <div class="ctrl_right"></div>
-    </div>
+    <div class="jsvm--com item_flex">
+	  <div class="jsvm--com item_text">Item Text abc adceffdfadsfdasf</div>
+	</div>
+	<!--
+    <div class="item_ctrl"></div>
+-->
   </div>
 
   <div id="item3" class="item">
     <div class="item_icon"></div>
     <div class="item_icon"></div>
-    <div class="item_icon"></div>
-    <span class="jsvm--com item_text">Item Text dfkadsfads adsfjadsf adfasd dddd</span>
-    <div class="item_ctrl">
-      <div class="ctrl_left"></div>
-      <div class="ctrl_right"></div>
-    </div>
+    <div class="item_icon"></div>	
+    <div class="jsvm--com item_flex">
+	  <div class="jsvm--com item_text">Item Text abc adceffdfadsfdasf adsfasdf</div>
+	</div>
+	<!--
+    <div class="item_ctrl"></div>
+-->
   </div>
   
   </div>
@@ -66,9 +70,15 @@
   float: left;
   border: 1px solid green;
   margin-right: 5px;
-  z-index: 1;
   }
 
+  .item_flex{
+  position: relative;
+  height: 16px;
+  padding: 0 2px 0 0;
+  border: 0px solid red;
+  overflow: hidden;
+  }
   
   .item_text{
   position: relative;
@@ -78,7 +88,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
-  padding-right: 21px;
   font-size: 12px;
   cursor: auto;
   }
@@ -92,31 +101,13 @@
   
   .item_ctrl{
   position: absolute;
-  width:22px;
-  height:16px;
+  width:14px;
+  height:14px;
   top:4px;
   right: 4px;
-  /*border: 1px solid green;*/
-  }
-
-  .ctrl_left{
-  position: absolute;
-  width: 6px;
-  height:14px;
-  background-color: #ffffff;
-  border-left: 1px solid gray;
-  border-top: 1px solid #ffffff;
-  border-bottom: 1px solid #ffffff;
-  }
-
-  .ctrl_right{
-  position: absolute;
-  right: 0;
-  width: 14px;
-  height:14px;
   border: 1px solid green;
-  background-color: #ffffff;
   }
+
   
   
   

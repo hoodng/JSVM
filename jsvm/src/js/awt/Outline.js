@@ -38,6 +38,7 @@ js.awt.Outline = function(){
         view.className = selector;
         view.style.position = "absolute";
         view.style.zIndex = this.getZ();
+        view.style.display = cview.style.display;
         if(cview === self.document.body){
             cview.appendChild(view);
         }else{
@@ -158,17 +159,18 @@ js.awt.Outline = function(){
     
     thi$.adjustOutline = function(bounds){
         var views = this._outlineView, i, len, line, id,
-            lbounds, abs, x, y;
-        if(!views) return;
+            ele, box, lbounds, xy, x, y;
+
+        if(!views || this.view.style.display === "none") return;
+        
         bounds = bounds || this.getBounds();
-        // if(bounds.MBP.fake) return;
-        abs = (bounds.MBP.position === "absolute");
-        if(abs){
-            x = bounds.x;
-            y = bounds.y;
+        ele = DOM.getOffsetParent(this.view);
+        if(ele === this.view){
+            x = 0; y = 0;
         }else{
-            x = bounds.absX;
-            y = bounds.absY;
+            box = DOM.getBounds(ele);
+            xy = DOM.relative(bounds.absX, bounds.absY, box);
+            x = xy.x; y = xy.y;
         }
         
         bounds = {
@@ -207,7 +209,17 @@ js.awt.Outline = function(){
         while(views.length > 0){
             DOM.remove(views.shift(), true);
         }
-        delete this._outlineView;
+        this._outlineView = null;
+    };
+
+    /**
+     * Check whether the component's outline is shown.
+     * 
+     * @return {Boolean}
+     */
+    thi$.isOutlineShown = function(){
+        var views = this._outlineView;
+        return views && (views[0].style.display != "none");
     };
 };
 

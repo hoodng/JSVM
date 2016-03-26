@@ -328,7 +328,7 @@ js.awt.Window = function (def, Runtime, view){
 	};
 	
     thi$.onmouseover = function(e){
-        e.cancelBubble();
+        // e.cancelBubble();
         var title = this.title, ele, xy, style;
         if(!title) return;
 
@@ -355,7 +355,7 @@ js.awt.Window = function (def, Runtime, view){
     }.$override(this.onmouseover);
 
     thi$.onmouseout = function(e){
-        e.cancelBubble();
+        // e.cancelBubble();
         var title = this.title, ele, xy, style;
         if(!title) return;
 
@@ -565,7 +565,8 @@ js.awt.Window = function (def, Runtime, view){
 		$super(this);
 
 		// For MoverSpot testing
-		var restricted = this._local.restricted = [];
+		var restricted = this._local.restricted 
+            = js.util.LinkedList.$decorate([]);
 
 		var uuid = this.uuid();
 		var title = this.title;

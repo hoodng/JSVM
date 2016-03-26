@@ -223,9 +223,9 @@ js.awt.PopupLayer = function () {
 		b = true;
 
 		switch (type) {
-		case "mousedown":
 		case "mousewheel":
 		case "DOMMouseScroll":
+		case "mousedown":
 			el = e.srcElement;
 			if(el && this.view 
 			   && DOM.contains(this.view, el, true)){

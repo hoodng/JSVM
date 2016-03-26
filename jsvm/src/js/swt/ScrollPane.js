@@ -146,9 +146,6 @@ js.swt.ScrollPane = function(def, Runtime){
     thi$.removeComponent = function(comp, notify, fireLayout){
         if(!comp) return;
         
-        var items = this.items(), index = items.indexOf(comp.id);
-        comp = $super(this, comp);
-        
         if(this.cache){
             delete this.cache[comp.uuid()];
         }
@@ -157,6 +154,9 @@ js.swt.ScrollPane = function(def, Runtime){
             this.notifyPeer(
                 "js.awt.event.ItemEvent", new Event("remove", "", comp));
         }
+
+        var items = this.items(), index = items.indexOf(comp.id);
+        comp = $super(this, comp);
         
         items = this.items();
         index = index >= items.length ? items.length - 1 : index;

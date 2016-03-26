@@ -97,7 +97,7 @@ js.util.Event = function (eventType, eventData, eventTarget){
     var _touchRelevant = function(dom, type){
         return J$VM.DOM.getAttribute(dom, "touchcapture") === "true" &&
             (type.startsWith("mouse") || type.endsWith("click"));
-    }
+    };
 
     var _makeMouseEvent = function(type, touch){
         var mouseEv = document.createEvent("MouseEvent");
@@ -106,7 +106,7 @@ js.util.Event = function (eventType, eventData, eventTarget){
                                touch.clientX, touch.clientY,
                                false, false, false, false, 0, null);
         return mouseEv;
-    }
+    };
 
     var _touch2mouse = function(e){
         e.cancelBubble();

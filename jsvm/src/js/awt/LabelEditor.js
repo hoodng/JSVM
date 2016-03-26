@@ -70,7 +70,7 @@ js.awt.LabelEditor = function(label, listener) {
 		"border-bottom-style", "border-left-color"
 	];
 
-	thi$.doEdit = function(isNeedTextArea, spStyles){
+	thi$.doEdit = function(isNeedTextArea, spStyles, specifyBounds){
         var elType = isNeedTextArea ? "TextArea" : "INPUT";
 		var input = this.input = DOM.createElement(elType),
 		w, h, s,  
@@ -97,6 +97,10 @@ js.awt.LabelEditor = function(label, listener) {
 			w = parseInt(label.clientWidth + label.bounds.MBP.BW);
 			h = parseInt(label.clientHeight + label.bounds.MBP.BH);
 		}
+		if (specifyBounds) {
+		    w = specifyBounds.width;
+		    h = specifyBounds.height;
+		}
 		if(J$VM.ie && parseInt(J$VM.ie) == 10){
 			w = Math.ceil(w);
 			h = Math.ceil(h);
@@ -104,7 +108,7 @@ js.awt.LabelEditor = function(label, listener) {
 		if(J$VM.ie){
 			this.styles.lineHeight = DOM.getStyle(label, "line-height");
 			//DOM.applyStyles(input, {lineHeight:DOM.getStyle(label, "line-height")});	  
-		}		 
+		}
 		DOM.applyStyles(input, this.styles);
 		DOM.setSize(input, w, h);
 		input.style.cssText = input.style.cssText + "-ms-clear{display:none;}";
@@ -185,7 +189,7 @@ js.awt.LabelEditor = function(label, listener) {
 					recvs);
 		}
 
-		DOM.forbidSelect(this.input);
+		//DOM.forbidSelect(this.input);
 		DOM.remove(this.input, true);
 		delete this.input;
 		this.label.style.display = "block";

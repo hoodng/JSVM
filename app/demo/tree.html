@@ -1,43 +1,32 @@
 <!DOCTYPE HTML>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-<link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-<script id="j$vm" src="../../jsvm/jsre.js" ></script>
-<script src="../../jsvm/lib/jsre-ui.js" ></script>
+<html class="jsvm--full-h">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script id="j$vm" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin" crs="../../jsvm/" classpath="lib/jsre-ui.jz;"></script>
+        <style>
+         .jsvm_tree {border: 1px solid #cccccc;}
+        </style>
+    </head>
+    <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
 
-<style>
+    </body>
 
-.bt_0, .bt_1{
-   width: 60px;
-   height: 30px;
-   background-color: #FFFFFF;
-   border: 1px solid blue;
-}
+    <script type="text/javascript">
 
+     J$VM.exec("demo", function(entry){
 
-</style>
-</head>
+         this.createApp().run(function(){
 
-<body></body>
+             var Class = js.lang.Class, Event = js.util.Event,
+                 MQ = J$VM.MQ, System = J$VM.System, R = this.Runtime();
 
-<script type="text/javascript">
-
-
-J$VM.exec(
-    "Demo",
-    function(System){
-
-        this.prefer({theme: "default"});
-        this.setZ(0);
-
-        var treeDef = {
-            id: "root1",
-            nodes:[
-                { name:"aaa", nodes:[{nodes:[{ nodes:[{nodes:[{ nodes:[{nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},{}]},{}, {nodes:[{},{}]}]},{}]},{}, {nodes:[{},{}]}]},{}]},
-                { name:"bbb", nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
-                { name: "ccc",nodes:[{text:"Node111111111111111111"},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]},
+             var treeDef = {
+                 id: "root1",
+                 nodes:[
+                     { name:"aaa", nodes:[{nodes:[{ nodes:[{nodes:[{ nodes:[{nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},{}]},{}, {nodes:[{},{}]}]},{}]},{}, {nodes:[{},{}]}]},{}]},
+                     { name:"bbb", nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
+                     { name: "ccc",nodes:[{text:"Node111111111111111111"},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}]},
                { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
                { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
                { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
@@ -46,39 +35,40 @@ J$VM.exec(
                { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
                { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]},
                { nodes:[{ nodes:[{},{}]},{}, {nodes:[{},{}]}]}
-            ],
-            resizable: true,
-            movable: true,
-            shadow: true,
-            width: 200, height: 400
-        };
+                 ],
+                 resizable: true,
+                 movable: true,
+                 shadow: true,
+                 width: 200, height: 400
+     };
 
-        var dataProvider = new js.awt.AbstractTreeDataProvider(this);
-        dataProvider.getIconImage = function(){
-            return "folder.gif";
-        };
-        dataProvider.canDrag = function(){
-            return true;
-        };
+             var dataProvider = new js.awt.AbstractTreeDataProvider(R);
+             dataProvider.getIconImage = function(){
+                 return "fold.gif";
+             };
+             dataProvider.canDrag = function(){
+                 return true;
+             };
 
 
-        this.addComponent(new js.awt.Tree(treeDef, this, dataProvider));
-        this.root1.setPeerComponent(this);
+             this.addComponent(new js.awt.Tree(treeDef, R, dataProvider));
+             this.root1.setPeerComponent(this);
 
-        var _onTreeItemEvent = function(e){
-            var target = e.getEventTarget();
-            if(target instanceof js.awt.TreeItem){
-                System.err.println(target.getText() +" "+e.getType());
-            }else{
-                System.err.println(e.getType());
-            }
-            
-        };
+             var _onTreeItemEvent = function(e){
+                 var target = e.getEventTarget();
+                 if(target instanceof js.awt.TreeItem){
+                     System.err.println(target.getText() +" "+e.getType());
+                 }else{
+                     System.err.println(e.getType());
+                 }
+                 
+             };
 
-        J$VM.MQ.register("js.awt.event.TreeItemEvent", this, _onTreeItemEvent);
+             J$VM.MQ.register("js.awt.event.TreeItemEvent", this, _onTreeItemEvent);
 
-    });
+     });
+     });
 
-</script>
+    </script>
 
 </html>

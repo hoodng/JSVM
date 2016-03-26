@@ -233,6 +233,7 @@ js.awt.Element = function(def, Runtime){
         if(changed){
             this.adjustLayers("sized", bounds);
         }
+        
         if((fire & 0x01)){
             this.doLayout(true, bounds);
         }
@@ -305,6 +306,7 @@ js.awt.Element = function(def, Runtime){
         if(coord || sized){
             this.adjustLayers("geom", bounds);
         }
+        
         if((fire & 0x01)){
             this.doLayout(true, bounds);
         }
@@ -417,6 +419,7 @@ js.awt.Element = function(def, Runtime){
 
             if(coord || sized){
                 this.adjustLayers("geom", bounds);
+                
                 if(sized && (fire & 0x01)){
                     this.doLayout(true, bounds);
                 }
@@ -476,7 +479,9 @@ js.awt.Element = function(def, Runtime){
             DOM.appendTo(this.view, parent);
         }else if (parent.appendChild){
             parent.appendChild(this);
-        } 
+        }
+
+        this.adjustLayers("append");
     };
 
     /**
@@ -504,7 +509,9 @@ js.awt.Element = function(def, Runtime){
             DOM.insertBefore(this.view, ref);
         }else if (ref.getContainer()){
             ref.getContainer().insertChildBefore(this, ref);
-        } 
+        }
+
+        this.adjustLayers("append");
     };
 
     /**
@@ -518,6 +525,8 @@ js.awt.Element = function(def, Runtime){
         }else if (ref.getContainer()){
             ref.getContainer().insertChildAfter(this, ref);
         } 
+
+        this.adjustLayers("append");
     };
 
     /**
@@ -820,69 +829,69 @@ js.awt.Element = function(def, Runtime){
         this._local.didLayout = false;
     };
 
-    var _childrenChanged = function(container){
-        container = container || this.getContainer();
-        if(container){
+    var _elementChanged = function(cmd){
+        var container = this.getContainer() 
+            || DOM.getComponent(this.view.parentNode);
+        if(container && container.fireEvent){
             container.fireEvent(
-                new Event("childrenchanged", null, this));
+                new Event("childrenchanged", {cmd: cmd}, this));
         }
     };
     
     thi$.adjustLayers = function(cmd, bounds, show){
-        var container = DOM.getComponent(this.view.parentNode);
+        var doo = false;
         switch(cmd){
-            case "coord":
-            case "sized":
-            case "geom":
+        case "coord":
+        case "sized":
+        case "geom":
             bounds = bounds || this.getBounds();
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
             this.adjustOutline(bounds);
-            if(container){
-                _childrenChanged.call(this, container);                
-            }
+            doo = true;
             break;
-            case "zorder":
+        case "zorder":
             var z = this.getZ();
             this.setShadowZIndex(z);
             this.setCoverZIndex(z);
             this.setOutlineZIndex(z);
             break;
-            case "display":
+        case "display":
+            if(show != "none"){
+                bounds = bounds || this.getBounds();
+                this.adjustShadow(bounds);
+                this.adjustCover(bounds);
+                this.adjustOutline(bounds);
+            }
             this.setShadowDisplay(show);
             this.setCoverDisplay(show);
-            this.setOutlineDisplay(show);            
+            this.setOutlineDisplay(show);
             break;
-            case "remove":
+        case "remove":
             this.removeShadow();
             this.removeCover();
             this.removeOutline();
             this.removeTipLayer();
-            if(container){
-                _childrenChanged.call(this, container);                
-            }
+
+            doo = true;
             break;
+        case "append":
+            doo = true;
+            break;
+        }
+
+        if(doo){
+            _elementChanged.call(this, cmd);
         }
     };
 
     thi$.spotIndex = function(ele, xy, dragObj){
-        var bounds, movable, resizable, idxes, idx = -1;
-
-        movable = this.isMovable() && this.isMoverSpot(ele, xy.x, xy.y);
-
-        bounds = this.getBounds();
-        idxes = DOM.offsetIndexes(xy.x, xy.y, bounds, movable);
-        if(idxes[1] === -1){
-            idx = movable ? 8 : -1;
-        }else{
-            idx = idxes[1];
-            if(idxes[0] === 9){
-                idx = movable ? 8 : (this.isResizable(idx) ? idx : -1);
-            }else{
-                idx = this.isResizable(idx) ? idx : (movable ? 8 : -1);
-            }
+        if(DOM.isMouseCapture(ele)){
+            return parseInt(ele.spot);
         }
-        return idx;
+        
+        return this.isMovable() &&
+            this.isMoverSpot(ele, xy.x, xy.y) ? 8 : -1;
     };
 
     /**
@@ -923,9 +932,22 @@ js.awt.Element = function(def, Runtime){
     thi$.isDropable = function(x, y, data){
         return this.def.dropable || false;
     };
+    
+    thi$.getDropableTarget = function(x, y, data){
+        var target;
+        if(this.isDropable(x,y,data)){
+            target = this;
+        } else {
+            var container = this.getContainer();
+            if(container){
+                target = container.getDropableTarget(x, y, data);
+            }
+        }
+        return target;
+    };
         
-    thi$.getCursor = function(ele){
-        return "default";
+    thi$.getCursor = function(ele, x, y){
+        return 11;
     };
 
     thi$.getMovingConstraints = function(){
@@ -994,8 +1016,8 @@ js.awt.Element = function(def, Runtime){
         this.removeShadow();
         this.removeTipLayer();
         
-        delete this.peer;
-        delete this.container;
+        this.peer = null;
+        this.container = null;
 
         $super(this);
 

@@ -210,7 +210,7 @@ js.util.Document = function (){
         // Dectect logical DPI of the browser
         div.innerHTML = "";
         div.style.cssText = "position:absolution;left:0px;top:0px;"
-                          +"width:2.54cm;height:2.54cm;visibility:hidden;";
+                          + "width:2.54cm;height:2.54cm;visibility:hidden;";
         if(!window.screen.logicalXDPI){
             var styles = doc.defaultView.getComputedStyle(div, null);
             supports.logicalXDPI = parseInt(styles["width"]);
@@ -230,12 +230,14 @@ js.util.Document = function (){
 
         // Check graphics, canvas, svg and vml.
         obj = doc.createElement("CANVAS");
+
         /**
          * @member J$VM.supports
          * @property {Boolean} canvas
          * Whether supports Canvas
          */
         supports.canvas = (typeof obj.getContext === "function");
+
         /**
          * @member J$VM.supports
          * @property {Boolean} svg
@@ -246,6 +248,7 @@ js.util.Document = function (){
         div.innerHTML = "<v:shape id='vml_flag1' adj='1' />";
         obj = div.firstChild;
         obj.style.behavior = "url(#default#VML)";
+
         /**
          * @member J$VM.supports
          * @property {Boolean} vml
@@ -258,14 +261,13 @@ js.util.Document = function (){
             var script = doc.createElement("script"),
                 head = document.getElementsByTagName("head")[0];
             script.type = "text/vbscript";
-            script.text = "Function IEBinaryToString(B)\r\n"+
-                "Dim I, S\r\n"+
-                "For I = 1 To LenB(B)\r\n" +
-                "If I <> 1 Then S = S & \",\"\r\n" +
-                "S = S & CStr(AscB(MidB(B, I, 1)))\r\n" +
-                "Next\r\n"+
-                "IEBinaryToString = S\r\n"+
-                "End Function\r\n";
+            script.text = 'Function IEBinaryToString(B)\r\n'
+                + 'Dim I, S\r\n' 
+                + 'For I = 1 To LenB(B)\r\n'
+                + 'If I <> 1 Then S = S & \",\"\r\n' 
+                + 'S = S & CStr(AscB(MidB(B, I, 1)))\r\n'
+                + 'Next\r\n' + 'IEBinaryToString = S\r\n'
+                + 'End Function\r\n';
             head.appendChild(script);
             head.removeChild(script);
         }
@@ -364,11 +366,13 @@ js.util.Document = function (){
         switch(Class.typeOf(ele)){
             case "htmlbodyelement":
             case "htmliframeelement":
+            // reasonable ? 
             view = this.createElement("DIV");
             break;
             default:
             if(ele){
                 view = ele.cloneNode(deep);
+                view.cloned = true;
             }
             break;
         }
@@ -898,7 +902,14 @@ js.util.Document = function (){
     thi$.getBoundRect = function(ele, rect){
         var r, ftoi = Math.ceil;
         rect = rect || {};
-        r = ele.getBoundingClientRect();
+
+        try{
+            r = ele.getBoundingClientRect();
+        }catch(x){
+            // For ie while isDOMElement(ele) is false
+            r = {left: 0, top: 0, bottom: 0, right: 0};            
+        }
+
         rect.left = ftoi(r.left);
         rect.top = ftoi(r.top);
         rect.bottom = ftoi(r.bottom);
@@ -996,20 +1007,9 @@ js.util.Document = function (){
         return this.innerSize(el).height;
     };
 
-    /**
-     * Set outer size of the element
-     *
-     * @param el
-     * @param w width
-     * @param h height
-     * @param bounds @see getBounds(el)
-     */
-    thi$.setSize = function(ele, w, h, bounds){
-        var mbp, v, changed = false,
+    var _setSize = function(ele, w, h, bounds){
+        var mbp = bounds.MBP, v, changed = false,
             canvas = (ele.tagName === "CANVAS");
-
-        bounds = bounds || this.getBounds(ele);
-        mbp = bounds.MBP;
 
         if(w !== bounds.width && Class.isNumber(w)){
             v = w;
@@ -1022,12 +1022,7 @@ js.util.Document = function (){
                 }
 
                 bounds.width = mbp.width = v;
-                mbp.right = mbp.left + mbp.width;
-                bounds.innerWidth = v > 0 ? bounds.width - mbp.BPW : 0;
-                bounds.styleW = mbp.BBM ? bounds.width : bounds.innerWidth;
-                bounds.offsetWidth = ele.offsetWidth;
-                bounds.clientWidth = ele.clientWidth;
-                bounds.scrollWidth = ele.scrollWidth;
+                changed = true;
             }
         }
 
@@ -1042,13 +1037,26 @@ js.util.Document = function (){
                 }
 
                 bounds.height = mbp.height = v;
-                mbp.bottom = mbp.top + mbp.height;
-                bounds.innerHeight = v > 0 ? bounds.height - mbp.BPH : 0;
-                bounds.styleH = mbp.BBM ? bounds.height : bounds.innerHeight;
-                bounds.offsetHeight= ele.offsetHeight;
-                bounds.clientHeight = ele.clientHeight;
-                bounds.scrollHeight = ele.scrollHeight;
+                changed = true;
             }
+        }
+
+        return changed;
+    };
+
+    /**
+     * Set outer size of the element
+     *
+     * @param el
+     * @param w width
+     * @param h height
+     * @param bounds @see getBounds(el)
+     */
+    thi$.setSize = function(ele, w, h, bounds){
+        bounds = bounds || this.getBounds(ele);
+
+        if(_setSize.call(this, ele, w, h, bounds)){
+            bounds = this.getBounds(ele, true);
         }
 
         return bounds;
@@ -1092,7 +1100,7 @@ js.util.Document = function (){
      * @see offsetY()
      */
     thi$.offsetXY = function(el){
-        return {x: el.offsetLeft, y: el.offsetTop };
+        return {x: el.offsetLeft, y: el.offsetTop};
     };
 
     /**
@@ -1111,6 +1119,26 @@ js.util.Document = function (){
         return this.offsetXY(el).y;
     };
 
+    var _setPosition = function(ele, x, y, bounds){
+        var changed = false;
+
+        if(x !== bounds.x && Class.isNumber(x)){
+            ele.style.left = x + "px";
+
+            bounds.x = x;
+            changed = true;
+        }
+
+        if(y !== bounds.y && Class.isNumber(y)){
+            ele.style.top = y + "px";
+
+            bounds.y = y;
+            changed = true;
+        }
+
+        return changed;
+    };
+
     /**
      * Set the position of the element
      *
@@ -1119,31 +1147,10 @@ js.util.Document = function (){
      * @param y, top position in pixel
      */
     thi$.setPosition = function(ele, x, y, bounds){
-        var mbp, changed = false;
-
         bounds = bounds || this.getBounds(ele);
-        mbp = bounds.MBP;
 
-        if(x !== bounds.x && Class.isNumber(x)){
-            ele.style.left = x + "px";
-
-            mbp.left += (x - bounds.x);
-            mbp.right = mbp.left + mbp.width;
-            bounds.absX = mbp.left;
-            bounds.x = x;
-            bounds.offsetX = ele.offsetLeft;
-            bounds.scrollLeft  = ele.scrollLeft;
-        }
-
-        if(y !== bounds.y && Class.isNumber(y)){
-            ele.style.top = y + "px";
-
-            mbp.top += (y - bounds.y);
-            mbp.bottom = mbp.top + mbp.height;
-            bounds.absY = mbp.top;
-            bounds.y = y;
-            bounds.offsetY = ele.offsetTop;
-            bounds.scrollTop   = ele.scrollTop;
+        if(_setPosition.call(this, ele, x, y, bounds)){
+            bounds = this.getBounds(ele, true);
         }
 
         return bounds;
@@ -1168,9 +1175,11 @@ js.util.Document = function (){
      */
     thi$.setBounds = function(ele, x, y, w, h, bounds){
         bounds = bounds || this.getBounds(ele);
-        this.setPosition(ele, x, y, bounds);
-        this.setSize(ele, w, h, bounds);
-        return bounds;
+
+        var changed = _setPosition.call(this, ele, x, y, bounds);
+        changed = _setSize.call(this, ele, w, h, bounds) || changed;
+
+        return changed ? this.getBounds(ele, true) : bounds;
     };
 
     /**
@@ -1424,11 +1433,12 @@ js.util.Document = function (){
 
     var _fireHtmlEvent = function(el, type){
         if(!this.isDOMElement(el)) return;
-        var event = self.document.createEvent("Event"), dispatch;
-        event.initEvent(type, true, true);
-        dispatch = el.dispatchEvent || el.fireEvent;
-        if(Class.isFunction(dispatch)){
-            dispatch.call(el, event);
+        var desktop = J$VM.Runtime.getDesktop(), event;
+        if(desktop){
+            event = new js.util.Event(type);
+            event.srcElement = el;
+            event.setEventTarget(this.getComponent(el));
+            desktop.fireHtmlEvent(event);
         }
     };
 
@@ -1541,9 +1551,9 @@ js.util.Document = function (){
                 value = tmp[1];
 
                 if(Class.isString(style) && style.length > 0){
-                    style = String.trim(style);
+                    style = style.trim();
                     value = (Class.isString(value))
-                        ? String.trim(value) : "";
+                        ? value.trim() : "";
 
                     if(style){
                         styleMap.put(style, value);
@@ -1598,24 +1608,24 @@ js.util.Document = function (){
      * @param {Number} width Optional. The width for wordwrap to compute.
      *
      */
-	thi$.getStringSize = function(str, txtStyles, wordwrap, width){
+    thi$.getStringSize = function(str, txtStyles, wordwrap, width){
         if(!Class.isString(str) || str.length == 0){
             return {width: 0, height: 0};
         }
 
-		var System = J$VM.System, textNode, s, sp,
-		styles = {
-			position: "absolute",
-			left: "-10000px",
-			top: "-10000px",
+        var System = J$VM.System, textNode, s, sp,
+        styles = {
+            position: "absolute",
+            left: "-10000px",
+            top: "-10000px",
 
-			display: "inline",
+            display: "inline",
             width: "auto",
             height: "auto",
 
             padding: "0px",
             border: "0px none"
-		};
+        };
 
         if(wordwrap === true && width > 0){
             styles["white-space"] = "nomal";
@@ -1633,22 +1643,22 @@ js.util.Document = function (){
             }
         }
 
-		textNode = this.createElement("SPAN");
-		textNode.style.cssText = this.toCssText(styles);
-		textNode.innerHTML = js.lang.String.encodeHtml(str, undefined, wordwrap);
+        textNode = this.createElement("SPAN");
+        textNode.style.cssText = this.toCssText(styles);
+        textNode.innerHTML = js.lang.String.encodeHtml(str, undefined, wordwrap);
 
-		this.appendTo(textNode, document.body);
-		s = this.outerSize(textNode);
-		this.remove(textNode, true);
-		textNode = null;
+        this.appendTo(textNode, document.body);
+        s = this.outerSize(textNode);
+        this.remove(textNode, true);
+        textNode = null;
 
-		// For ie, the width of a text to fetch isn't often enough for placing
-		// the text. Here, we add 1px to make it better.
-		if(J$VM.ie){
-			s.width += 1;
-		}
+        // For ie, the width of a text to fetch isn't often enough for placing
+        // the text. Here, we add 1px to make it better.
+        if(J$VM.ie){
+            s.width += 1;
+        }
 
-		return s;
+        return s;
     };
 
     /**
@@ -1664,26 +1674,26 @@ js.util.Document = function (){
      * @link#getStringSize
      */
     thi$.getTextSize = function(ele, wordwrap, width){
-		var tagName = ele ? ele.tagName : null, str, styles;
-		switch(tagName){
-		case "DIV": // Such as: <div>xxxx</div>
-		case "SPAN":
-			str = ele.textContent ? ele.textContent : ele.innerText;
-			break;
-		case "INPUT":
-		case "TEXTAREA":
-			str = ele.value;
-			break;
-		default:
-			break;
-		}
+        var tagName = ele ? ele.tagName : null, str, styles;
+        switch(tagName){
+        case "DIV": // Such as: <div>xxxx</div>
+        case "SPAN":
+            str = ele.textContent ? ele.textContent : ele.innerText;
+            break;
+        case "INPUT":
+        case "TEXTAREA":
+            str = ele.value;
+            break;
+        default:
+            break;
+        }
 
-		if(!Class.isValid(str)){
-			return {width: 0, height: 0};
-		}
+        if(!Class.isValid(str)){
+            return {width: 0, height: 0};
+        }
 
-		styles = this.getStyles(ele, textSps);
-		return this.getStringSize(str, styles, wordwrap, width);
+        styles = this.getStyles(ele, textSps);
+        return this.getStringSize(str, styles, wordwrap, width);
     };
 
     /**
@@ -1837,24 +1847,30 @@ js.util.Document = function (){
             delete this.styleSheets[key];
         }else{
             styleSheet = this._findNativeStyleSheet(id, href);
-            this.removeFrom(styleSheet.ownerNode);
+            if(styleSheet){
+                this.removeFrom(styleSheet.ownerNode);
+            }
         }
     };
     
     thi$._findNativeStyleSheet = function(id, href){
         id = id || null; href = href || null;
 
-        var styleSheets = self.document.styleSheets, styleSheet, ret=[];
+        var styleSheets = self.document.styleSheets, styleSheet,
+            styleEle, ret=[];
         
         for(var i=0, len=styleSheets.length; i<len; i++){
             styleSheet = styleSheets[i];
-            if(styleSheet.ownerNode && styleSheet.ownerNode.id === id &&
-               styleSheet.href === href){
-                ret.push(styleSheet);
-            }
+            styleEle = this.getStyleSheetElement(styleSheet);
+            if(!styleEle || (id && styleEle.id !== id) ||
+               (href && styleSheet.href !== href)) continue;
+            ret.push(styleSheet);
         }
-
         return ret.length > 0 ? ret[ret.length-1] : null;
+    };
+
+    thi$.getStyleSheetElement = function(sheet){
+        return sheet ? (sheet.ownerNode || sheet.owningElement) : null;
     };
 
 
@@ -2008,7 +2024,7 @@ js.util.Document = function (){
             }
         }
 
-        if(state != 0){
+        if(!isNaN(state) && state != 0){
             for(var i = 0, len = stateNames.length; i < len; i++){
                 names.push(stateNames[i] + "_" + state);
             }
@@ -2054,27 +2070,51 @@ js.util.Document = function (){
         return ret;
     };
 
-    thi$.getComponent = function(ele, create, Runtime){
-        var obj = null, uuid, parent;
-        if(!ele || ele === self.document) return obj;
+    thi$.getComponent = function(ele, create, def, Runtime){
+        var obj = null, uuid, idx, parent, peer;
+        if(!ele || ele === self || ele === self.document) return obj;
 
         uuid = ele.uuid;
         if(uuid){
+            idx = uuid.lastIndexOf("-cover");
+            if(idx != -1){ // For the cover
+                peer = this.getObject(uuid.substring(0, idx));
+                if(peer){
+                    obj = {
+                        isMovable: function(){return false;},
+                        isResizable: function(){return false;},
+
+                        fireEvent: function(e, b){
+                            e.onCover = true;
+                            e.setEventTarget(peer);
+                            peer.fireEvent(e, b);
+                        }
+                    };
+                }
+            }else{
+                idx = uuid.lastIndexOf("-capture");
+                obj = this.getObject(uuid.substring(0, idx));
+            }
+
             // Return the object which was cached in 
             // js.lang.Object.objectStore
-            obj = this.getObject(uuid);
+            if(!obj){
+                obj = this.getObject(uuid);
+            }
         }else if(create){
-            uuid = js.lang.Math.uuid();
-            ele.uuid = uuid;
-            obj = new js.awt.Component({
-                id: ele.id,
-                uuid:uuid,
-                className: ele.className||"",
-                stateless:true},
-                Runtime, ele);
+            def = def || {};
+            def.id = ele.id;
+            def.stateless = Class.isBoolean(def.stateless) ? 
+                def.stateless : true;
+            def.className = def.className || ele.className;
+            Runtime = Runtime || function(){
+                var comp = this.getComponent(ele.parentNode);
+                return comp ? comp.Runtime() : null;
+            }.call(this);
+            obj = new js.awt.Component(def, Runtime, ele);
             var bounds = obj.getBounds();
             obj.setBounds(bounds.x, bounds.y,
-                bounds.width, bounds.height, 0x04);
+                          bounds.width, bounds.height, 0x04);
         }else{
             // Return the ancestor which is a js.lang.Object
             obj = this.getComponent(ele.parentNode);
@@ -2084,8 +2124,29 @@ js.util.Document = function (){
     };
     
     thi$.getComponentById = function(id){
-		return this.getComponent(self.document.getElementById(id));
-	};
+        return this.getComponent(self.document.getElementById(id));
+    };
+
+    /**
+     * Ref: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
+     * 
+     * The HTMLElement.offsetParent read-only property returns a reference to
+     * the object is the qui Closest (Nearest in the containment hierarchy) 
+     * Positioned Containing element. If the element is non-Positioned, The 
+     * nearest table or cell root element (html in standards compliant fashion;
+     * body in quirks rendering mode) is the offsetParent. OffsetParent returns
+     * null When the element HAS style.display set to "none". 
+     */
+    thi$.getOffsetParent = function(ele){
+        if(ele !== document.body){
+            ele = ele.offsetParent;
+            if(!ele || ele === document){
+                ele = document.body;
+            }
+        }
+
+        return ele;
+    };
 
     thi$.inside = function(x, y, bounds){
         var mbp = bounds.MBP, minX, minY, maxX, maxY;
@@ -2104,53 +2165,32 @@ js.util.Document = function (){
         };
     };
 
-    // For resize and move
-    var OFFSETTABLE = [
-        [[8, 0], [9, 7], [8, 7], [9, 7], [8, 6]],
-        [[9, 1], [8,-1], [8,-1], [8,-1], [9, 5]],
-        [[8, 1], [8,-1], [8,-1], [8,-1], [8, 5]],
-        [[9, 1], [8,-1], [8,-1], [8,-1], [9, 5]],
-        [[8, 2], [9, 3], [8, 3], [9, 3], [8, 4]]
-    ];
-
-    var offsetIndex0 = function(offset, min, max, step){
-        var ret = -1, b0 = min, b1, b2, b3, b4, b5 = max, m, hm;
-        step = Class.isNumber(step) ? step : 6;
-        m = (b5-b0)/(2*step) - 1;
-        hm = m/2;
-
-        b1 = b0 + step;
-        b2 = b1 + hm*step;
-        b3 = b2 + m*step;
-        b4 = b3 + hm*step;
+    // For resize
+    var OFFSETTABLE = [[0, 7, 6],[1, 8, 5],[2, 3, 4]];
+    var STEP = 10, STEP3 = STEP * 3;
+    
+    var offsetIndex0 = function(offset, min, max){
+        var diff = max - min,
+            step = diff >= STEP3 ? STEP : Math.floor(diff/3);
         
-        if(offset >= b0 && offset < b1){
-            ret = 0;
-        }else if(offset >= b1 && offset < b2){
-            ret = 1;
-        }else if(offset >= b2 && offset < b3){
-            ret = 2;
-        }else if(offset >= b3 && offset < b4){
-            ret = 3;
-        }else if(offset >= b4 && offset <= b5){
-            ret = 4;
+        if(offset < min+step){
+            return 0;
+        }else if(offset > max-step ){
+            return 2;
+        }else{
+            return 1;
         }
-
-        return ret;
     };
 
-    thi$.offsetIndexes = function(x, y, bounds, movable){
-        var xIdx, yIdx, idx = [-1,-1];
+    thi$.offsetIndexes = function(x, y, bounds){
+        var xIdx, yIdx;
+        
         yIdx = offsetIndex0(y, bounds.absY,
                             bounds.absY + bounds.height);
         xIdx = offsetIndex0(x, bounds.absX,
                             bounds.absX + bounds.width);
 
-        if(yIdx >= 0  && xIdx >= 0){
-            idx = OFFSETTABLE[yIdx][xIdx];
-        }
-
-        return idx;
+        return [yIdx, xIdx, OFFSETTABLE[yIdx][xIdx]];
     };
 
     var CURSORS = [
@@ -2162,32 +2202,111 @@ js.util.Document = function (){
         "e-resize",
         "ne-resize",
         "n-resize",
-        "move",
+        "move", // 8
         "ew-resize",
         "ns-resize",
-        "default"
+        "default",
+        "pointer" // 12
     ];
+
+    var capturer;
+
+    var _checkCapturer = function(){
+        if(capturer) return;
+        capturer = document.createElement("div");
+        capturer.id = "mouse-capturer";
+        capturer.style.cssText = "position:absolute;"
+        //capturer.style.backgroundColor = "blue";
+    };
+
+    thi$.showMouseCapturer = function(bounds, uuid, spot){
+        _checkCapturer();
+        if(!bounds){
+            this.setBounds(capturer, 0, 0, 0, 0);
+            return;
+        }
+        
+        capturer.style.cursor = CURSORS[spot];
+        capturer.uuid = [uuid, "-capture"].join("");
+        capturer.spot = spot;
+        document.body.appendChild(capturer);
+        this.setBounds(capturer, bounds.x, bounds.y, bounds.width, bounds.height);
+        this.setZ(capturer, this.LM_ZBASE);
+    };
+
+    thi$.isMouseCapture = function(ele){
+        return ele === capturer;
+    };
+
+    thi$.DM_ZBASE = 1000;
+    thi$.LM_ZBASE = 10000;
     
     thi$.getDynamicCursor = function(index){
         return index >= 0 ? CURSORS[index] : null;
     };
 
-    var _ele, _cursor;
     
     thi$.setDynamicCursor = function(ele, cursor){
+        var dirty;
+        
+        if(!ele) return;
 
-        if(_ele){
-            _ele.style.cursor = _cursor;
-        }
-
-        if(ele !== _ele){
-            _ele = ele;
-            _cursor = this.getStyle(ele, "cursor");
-        }
+        dirty = ele.dirtyCursor || 0;
 
         if(cursor){
+            if(!dirty){
+                ele.preCursor = this.getStyle(ele, "cursor");
+                ele.dirtyCursor = 1;
+            }
+            
             ele.style.cursor = cursor;
+
+        }else if(dirty){
+            ele.style.cursor = ele.preCursor;
+            ele.dirtyCursor = 0;
         }
     };
-    
+
+    thi$.getMaxZIndex = function(ele){
+        var children = ele.children, zIndex = 0, tmp, e;
+        for(var i=0, len=children.length; i<len; i++){
+            e = children[i];
+            tmp = parseInt(this.currentStyles(e, true).zIndex);
+            tmp = Class.isNumber(tmp) ? tmp : 0;
+            zIndex = Math.max(zIndex, tmp);
+        }
+        return zIndex;        
+    };
+
+    /**
+     * Judge whether the given position is in the scrollbar of the 
+     * specified DOM element.
+     * 
+     * @param {Number} x
+     * @param {Number} y
+     * @param {DOMElement} ele 
+     * @param {Object} bounds
+     */
+    thi$.isInScrollbar = function(x, y, ele, bounds){
+        bounds = bounds || this.getBounds(ele);
+
+        var sobj = this.hasScrollbar(ele),
+        MBP = bounds.MBP, tx, ty, b = false;
+        if(sobj.vscroll){
+            tx = bounds.absX + bounds.width - MBP.borderRightWidth 
+                - MBP.paddingRight;
+            b = x >= (tx - sobj.vbw) && x <= tx 
+                && y >= bounds.absY && y <= (bounds.absY + bounds.height);
+        }
+
+        if(!b && sobj.hscroll){
+            ty = bounds.absY + bounds.height - MBP.borderBottomWidth
+                - MBP.paddingBottom;
+            b = x >= bounds.absX && x <= (bounds.absX + bounds.width) 
+                && y >= (ty - sobj.hbw) && y <= ty;            
+        }
+
+        return b;
+    };
+
 }.$extend(js.lang.Object);

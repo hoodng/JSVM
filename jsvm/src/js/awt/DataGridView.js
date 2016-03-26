@@ -49,14 +49,11 @@ js.awt.DataGridRowCell = function (def, Runtime) {
     };
 
     thi$.onResized=function(e){
-        var peer=this.getPeerComponent();
-        var cells=peer.cells;
-        var index=this.def.index;
-        var w=this.getBounds().width;
-        var row_w=peer.head.getWidth();
+        var peer=this.getPeerComponent(),cells=peer.cells,index=this.def.index,
+            w=this.getBounds().width,row_w=peer.head.getWidth(),i=0;
         if(cells.length>0){
             var d=w-cells[0][index].getWidth();
-            for(var i in cells){
+            for(;i<cells.length;i++){
                 cells[i][index].setWidth(w);
                 cells[i][index].def.prefSize=undefined;
             }
@@ -71,8 +68,11 @@ js.awt.DataGridRowCell = function (def, Runtime) {
         var cType = def.cType, ele;
         switch (cType) {
             case "check":
-                ele = new js.awt.CheckBox({id:def.id,
-                    layout:{align_x:0.5,align_y:0.5}});
+                ele = new js.awt.CheckBox({
+                    id:def.id,
+                    width: def.width,
+                    layout:{align_x:0.5,align_y:0.5}
+                });
                 ele.setPeerComponent(this);
                 this.addComponent(ele);
                 break;
@@ -92,6 +92,7 @@ js.awt.DataGridRowCell = function (def, Runtime) {
         switch (cType){
             case "check":
                 ele=new js.awt.CheckBox({id:def.id,
+                    width:def.width,
                     layout:{align_x:0.5,align_y:0.5}});
                 var v=Class.isBoolean(def.text)?def.text:false;
                 ele.setPeerComponent(this);
@@ -117,7 +118,7 @@ js.awt.DataGridRowCell = function (def, Runtime) {
     };
 
     thi$.setValue=function(value){
-        var cType=this.def.cType||"",ele;
+        var cType=this.def.cType||"";
         switch (cType){
             case "check":
                 var v=Class.isBoolean(value)?value:false;
@@ -153,10 +154,13 @@ js.awt.DataGridRowCell = function (def, Runtime) {
             this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
             if(this.def.cType==="color" && this.ele){
                 var bounds = this.getBounds(),
-                w = bounds.width,h=bounds.height,
+                w = bounds.innerWidth,h=bounds.innerHeight,
                 x=parseInt((w-12)/2),y=parseInt((h-12)/2);
                 this.ele.style.top=y + "px";
                 this.ele.style.left = x+ "px";
+            }else if(this.def.cType==="check" && this.ele){
+                var bounds = this.getBounds();
+                this.ele.setSize(bounds.innerWidth,bounds.innerHeight,true);
             }
             return true;
         }
@@ -191,7 +195,6 @@ js.awt.DataGridRow=function(def, Runtime) {
 		return;
 	}
 	CLASS.__defined__ = true;
-    var System = J$VM.System;
 
 	thi$._init = function(def, Runtime) {
 		if (def === undefined) return;
@@ -207,10 +210,6 @@ js.awt.DataGridRow=function(def, Runtime) {
 
     thi$.doLayout=function(e){
         if($super(this)){
-//            System.err.println("row"+this.getBounds().width);
-//            var all=this.getAllComponents();
-//            for (var i in all)
-//                System.out.println("col"+i+":"+all[i].getBounds().width);
             return true;
         }
         return false;
@@ -219,7 +218,6 @@ js.awt.DataGridRow=function(def, Runtime) {
 	this._init.apply(this, arguments);
 	
 }.$extend(js.awt.HBox);
-
 
 js.awt.DataGridRowHodler=function(def, Runtime) {
     var CLASS = js.awt.DataGridRowHodler, thi$ = CLASS.prototype;
@@ -248,8 +246,6 @@ js.awt.DataGridRowHodler=function(def, Runtime) {
                     this.view.style.height= h +"px";
                 }else if(h> max){
                     this.view.style.height=max+"px";
-//                    this.applyStyles({overflow:"hidden"});
-//                    p.applyStyles({overflowX:"hidden",overflowY:"scroll"});
                 }
             }else{
                 this.view.style.height= p.rows_h + "px";
@@ -259,13 +255,6 @@ js.awt.DataGridRowHodler=function(def, Runtime) {
         }
         return false;
     }.$override(this.doLayout);
-
-//    thi$.onResized=function(e){
-//        var cells=this.getPeerComponent().cells;
-//        for(var i in cells)
-//            cells[i].setWidth(this.getBounds().width);
-//        $super(this);
-//    }.$override(this.onResized);
 
     thi$._init = function(def, Runtime) {
         if (def === undefined) def = {};
@@ -290,25 +279,24 @@ js.awt.DataGridView=function(def, Runtime,model) {
 		return;
 	}
 	CLASS.__defined__ = true;
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ;
-    var css="top:0px;left:0px;height:0px;width:3px;cursor: e-resize;position:absolute;";
+    var Class = js.lang.Class,System = J$VM.System, MQ = J$VM.MQ;
 
 	var _createHeads=function(model){
-		var colType=js.awt.DataGridRowCell;
+		var colType=js.awt.DataGridRowCell,hs = model.heads,i= 0,
+            newDef, x,align,hcell,dataFileNames,heads;
         this.heads=heads=[];
         this.dataFileNames=dataFileNames=[];
-		for(var i in model.heads){
-			var newDef=model[model.heads[i]];
-            var x=newDef.align_x||0;
-            var align="text-align:"+((x>0)?(x>0.5)?"right":"center":"left")+";";
+		for(;i<hs.length;i++){
+			newDef=model[hs[i]];
+            x=newDef.align_x||0;
+            align="text-align:"+((x>0)?(x>0.5)?"right":"center":"left")+";";
             newDef.height=newDef.height||26;
 			newDef.css="overflow:hidden;border:1px solid #ccc;"+align;
             newDef.id="dgv_head_"+i;
             newDef.index=i;
 //            newDef.resizable=true;
             newDef.resizer=32;
-			var hcell=new colType(newDef,this);
+			hcell=new colType(newDef,this);
 			this.head.addComponent(hcell);
             hcell.setPeerComponent(this);
             dataFileNames[newDef.dataFieldName||("Column"+i)]=i;
@@ -323,22 +311,24 @@ js.awt.DataGridView=function(def, Runtime,model) {
      * continue.....
      */
     thi$.addValues=function(values){
-        var rows=this.cells,heads=this.heads,colType=js.awt.DataGridRowCell,rowType=js.awt.DataGridRow;
+        var rows=this.cells,heads=this.heads,colType=js.awt.DataGridRowCell,
+            rowType=js.awt.DataGridRow, i=0,j= 0,type, x,cell,row,cols,temp,
+            dataFileNames=this.dataFileNames,cIndex;
         if(Class.typeOf(values)==="array"){
-            var type=Class.typeOf(values[0]);
+            type=Class.typeOf(values[0]);
             if(type==="array"){
-                for(var i in values){
-                    var cols=[],temp=values[i];
+                for(;i<values.length;i++){
+                    cols=[];temp=values[i];
                     if(temp){
-                        var row=new rowType({
+                        row=new rowType({
                             className:"jsvm_datagridrow",
                             classType:"js.awt.DataGridRow",
                             rigid_w:false,
                             height:this.rows_h
                         },this);
-                        for(var j in heads){
-                            var x=heads[j].def.align_x|| 0,align="text-align:"+((x>0)?(x>0.5)?"right":"center":"left")+";";
-                            var cell=new colType({
+                        for(;j<heads.length;j++){
+                            x=heads[j].def.align_x|| 0,align="text-align:"+((x>0)?(x>0.5)?"right":"center":"left")+";";
+                            cell=new colType({
                                 classType:"js.awt.DataGridRowCell",
                                 text:Class.isValid(temp[j])?temp[j]:"Null",
                                 css:this.gridLine+align,
@@ -357,19 +347,20 @@ js.awt.DataGridView=function(def, Runtime,model) {
                 }
                 this.body.refresh();
             }else if(type==="object"){
-                for(var i in values){
-                    var cols=[],temp=values[i];
+                for(;i<values.length;i++){
+                    cols=[];
+                    temp=values[i];
                     if(temp){
-                        var row=new rowType({
+                        row=new rowType({
                             className:"jsvm_datagridrow",
                             classType:"js.awt.DataGridRow",
                             rigid_w:false,
                             height:this.rows_h
                         },this);
-                        for(var j in dataFileNames){
-                            var cIndex=dataFileNames[j];
-                            var x=heads[cIndex].def.align_x|| 0,align="text-align:"+((x>0)?(x>0.5)?"right":"center":"left")+";";
-                            var cell=new colType({
+                        for(;j<dataFileNames.length;j++){
+                            cIndex=dataFileNames[j];
+                            x=heads[cIndex].def.align_x|| 0,align="text-align:"+((x>0)?(x>0.5)?"right":"center":"left")+";";
+                            cell=new colType({
                                 classType:"js.awt.DataGridRowCell",
                                 text:Class.isValid(temp[j])? temp[j]:"Null",
                                 css:this.gridLine+align,
@@ -383,7 +374,6 @@ js.awt.DataGridView=function(def, Runtime,model) {
                         }
                         rows.push(cols);
                         this.body.addComponent(row);
-//                        row.setPeerComponent(this.body);
                     }
                 }
                 this.body.refresh();
@@ -392,21 +382,18 @@ js.awt.DataGridView=function(def, Runtime,model) {
     };
 
     thi$.addNewRow=function(value){
-        var rows=this.cells;
-        var heads=this.heads;
-        var colType=js.awt.DataGridRowCell;
-        var rowType=js.awt.DataGridRow;
-        var cols=[];
-        var row=new rowType({
+        var rows=this.cells,heads=this.heads,colType=js.awt.DataGridRowCell,
+            rowType=js.awt.DataGridRow,cols=[],j= 0, x,align,cell,
+            row=new rowType({
             className:"jsvm_datagridrow",
             classType:"js.awt.DataGridRow",
             rigid_w:false,
             height:this.rows_h
         },this);
-        for(var j in heads){
-            var x=heads[j].def.align_x||0;
-            var align="text-align:"+((x>0)?(x>0.5)?"right":"center":"left")+";";
-            var cell=new colType({
+        for(;j< heads.length;j++){
+            x=heads[j].def.align_x||0;
+            align="text-align:"+((x>0)?(x>0.5)?"right":"center":"left")+";";
+            cell=new colType({
                 classType:"js.awt.DataGridRowCell",
                 text:value?Class.isValid(value[j])?value[j]:"Null":"",
                 css:this.gridLine+align,
@@ -444,21 +431,18 @@ js.awt.DataGridView=function(def, Runtime,model) {
 	}.$override(this.destroy);
 
     var _checkValueChange=function(e){
-        var cells =this.cells;
-        for(var i in cells){
+        var cells =this.cells,i=0;
+        for(;i<cells.length;i++){
             cells[i][e.colindex].setValue(e.value);
         }
     };
 
     thi$.doLayout=function (e){
-
         if($super(this)){
-//            delete this.head.prefSize;
-//            System.err.println(this.head.getPreferredSize().width);
             if(this.head){
-                var total=0;
-                for(var i in this.heads){
-                    total+=this.heads[i].getBounds().width;
+                var total=0,i= 0,hs=this.heads;
+                for(;i<hs.length;i++){
+                    total+=hs[i].getBounds().width;
                 }
                 this.head.view.style.width=total+"px";
                 this.body.view.style.width=total+"px";
@@ -491,9 +475,9 @@ js.awt.DataGridView=function(def, Runtime,model) {
     var _checkRowValueChanged=function(data){
         var col=data.id.split(/\D+/g)[2];
         if(data.value){
-            var allChecked=true;
-            for(var i in this.cells){
-                if(!this.cells[i][col].getValue()){
+            var allChecked=true,i= 0,cells=this.cells;
+            for(;i<cells.length;i++){
+                if(!cells[i][col].getValue()){
                     allChecked=false;
                     break;
                 }

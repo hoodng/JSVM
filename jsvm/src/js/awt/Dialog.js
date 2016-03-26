@@ -179,28 +179,33 @@ js.awt.Dialog = function (def, Runtime){
 	thi$.show = function(){
 		_showMaskCover.call(this, true);
 
-		var x = this.def.x, y = this.def.y,
+        var dlgObj = this.getDialogObject(),
+		M = this.def, x = M.x, y = M.y,
 		DM = this.Runtime().getDesktop().DM,
 		pox = DM.getBounds();
 		
-		if(x == undefined){
-			x = (pox.width - this.def.width)*0.5;
-			x = x < 0 ? 0:x; 
+		if(!Class.isNumber(x)){
+			x = (pox.width - M.width) * 0.5;
+			x = x < 0 ? 0 : x; 
 		}
 		
-		if(y == undefined){
-			y = (pox.height- this.def.height)*0.5;
-			y = y < 0 ? 0:y;
+		if(!Class.isNumber(y)){
+			y = (pox.height - M.height) * 0.5;
+			y = y < 0 ? 0 : y;
 		}
 
 		DM.addComponent(this);
-		this.getDialogObject().initialize();
+        dlgObj.initialize.$delay(dlgObj, 0);
+
 		if(this.btnpane){
 			// Maybe dialogObject modified btnpane,
 			// so need doLayout
 			this.btnpane.doLayout(true);
 		}
-		this.setPosition(x, y);
+
+        if(Class.isNumber(x) || Class.isNumber(y)){
+            this.setPosition(x, y);
+        }
 	};
 
 	/**
@@ -209,7 +214,9 @@ js.awt.Dialog = function (def, Runtime){
 	thi$.showLoading = function(b){
 
 		$super(this);
-		this.btnpane.showLoading(b);
+		if(this.btnpane){
+			this.btnpane.showLoading(b);
+		}
 
 	}.$override(this.showLoading);
 
@@ -340,6 +347,7 @@ js.awt.Dialog = function (def, Runtime){
 				idef.labelText = R.nlsText(tmp.nlsKey, tmp.defaultNLS);
 				break;
 			default:
+                idef = {};
 				break;
 			}
 

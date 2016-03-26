@@ -59,15 +59,11 @@ js.awt.Desktop = function (Runtime){
         XY = e.eventXY();
         if(!drag){
             if(target && target !== this){
-                if(target.isMovable() || target.isResizable()){
-                    spot = target.spotIndex(ele, XY);
-                    DOM.setDynamicCursor(ele, DOM.getDynamicCursor(spot));
-                }else{
-                    DOM.setDynamicCursor(ele, null);
-                }
-
                 target.fireEvent(e, true);
             }
+
+            DOM.setDynamicCursor(ele, null);
+            
         }else{
             if(!this._local.notified){
                 MQ.post(Event.SYS_EVT_MOVING, "");
@@ -104,9 +100,12 @@ js.awt.Desktop = function (Runtime){
                         
                         // drag enter
                         target = hoverObj;
-                        if(target && target.isDropable(XY.x, XY.y, data)){
-                            fireDragEvent(e, Event.W3C_EVT_DRAGENTER, data,
-                                          target, fmEle, hoverObj.view);
+                        if(target){
+                            var dropTarget = target.getDropableTarget(XY.x, XY.y, data);
+                            if(dropTarget){
+                                fireDragEvent(e, Event.W3C_EVT_DRAGENTER, data,
+                                              dropTarget, fmEle, hoverObj.view);
+                            }
                         }
                         
                         drag.dropObj = hoverObj;
@@ -114,9 +113,12 @@ js.awt.Desktop = function (Runtime){
 
                     // drag over
                     target = target || hoverObj;
-                    if(target && target.isDropable(XY.x, XY.y, data)){
-                        fireDragEvent(e, Event.W3C_EVT_DRAGOVER, data,
-                                      target, drag.dropObj.view, hoverObj.view);
+                    if(target){
+                        var dropTarget = target.getDropableTarget(XY.x, XY.y, data);
+                        if(dropTarget){
+                            fireDragEvent(e, Event.W3C_EVT_DRAGOVER, data,
+                                          dropTarget, drag.dropObj.view, hoverObj.view);
+                        }
                     }
                 }else if(drag.dropObj){
                     // drag leave
@@ -148,6 +150,7 @@ js.awt.Desktop = function (Runtime){
                 target.fireEvent(e, true);
             }
         }
+
         e.cancelBubble();
         return e._default;
     };
@@ -180,16 +183,21 @@ js.awt.Desktop = function (Runtime){
         ele = e.srcElement;
         target = e.getEventTarget();
         if(target && target !== this){
+            // Ref the old logic before v13.5, just to activate 
+            // the current triggered component.
+            if(target.activate){
+                target.activate(e);
+            }
             target.fireEvent(e, true);
 
-            if(e.button === 1 && !e.ctrlKey && !e.shiftKey &&
-               (target.isMovable() || target.isResizable())){
+            if(e.button === 1 && (target.isMovable() || target.isResizable())){
                 spot = target.spotIndex(ele, e.eventXY());
-                if(spot >= 0){
+                
+                if(spot >= 0 && spot <= 8){
                     var mover = target.getMovingConstraints(),
                         longpress = mover.longpress;
                     longpress = Class.isNumber(longpress) ? longpress :
-                        J$VM.env["j$vm_longpress"] || 145;
+                        J$VM.env["j$vm_longpress"] || 90;
 
                     fireDragStart.$delay(this, longpress, e.pointerId, {
                         event: e,
@@ -229,19 +237,22 @@ js.awt.Desktop = function (Runtime){
                 target = drag.dropObj;
                 moveObj = drag.target.getMoveObject(e);
                 data = moveObj.getMovingData();
-
+                
+                drag.target.endMoving(e);
+                
                 // drag drop
-                if(target && target.isDropable(XY.x, XY.y, data)){
-                    fireDragEvent(e, Event.W3C_EVT_DROP, data, target,
-                                  target.view, target.view);
+                if(target){
+                    var dropTarget = target.getDropableTarget(XY.x, XY.y, data);
+                    if(dropTarget){
+                        fireDragEvent(e, Event.W3C_EVT_DROP, data, dropTarget,
+                                      dropTarget.view, dropTarget.view);
+                    }
                 }
 
                 // drag end
                 target = drag.target;
                 fireDragEvent(e, Event.W3C_EVT_DRAGEND, data, target,
                               target.view, target.view);
-                
-                drag.target.endMoving(e);
                 
             }else{
                 drag.target.endSizing(e, drag.spot);
@@ -257,6 +268,7 @@ js.awt.Desktop = function (Runtime){
 
     var fireDragStart = function(id, drag){
         var target, moveObj, data, e;
+        DOM.showMouseCapturer();// Hide mouse capturer;
         drags[id] = drag;
         target = drag.target;
         if(drag.spot >= 8){
@@ -297,16 +309,16 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _oncontextmenu = function(e){
-        var ele, target;
-
-        ele = e.srcElement;
+        var b = e.cancelDefault(),
+        ele = e.srcElement,
         target = e.getEventTarget();
+
         if(target && target !== this){
             target.fireEvent(e, true);
         }
-        
+
         e.cancelBubble();
-        return e.cancelDefault();
+        return b;
     };
     
     var _onclick = function(e){
@@ -333,8 +345,14 @@ js.awt.Desktop = function (Runtime){
         }
 
         if(Class.isArray(msg)){
-            e.message = msg[1];
-            MQ.post(msg[0], e, msg[2], null, msg[4]);
+            if("j$vm_activating" === msg[0]){
+                // When user only active in an iframe, the outside 
+                // J$VM also needs update last access time.
+                System.updateLastAccessTime();
+            }else{
+                e.message = msg[1];
+                MQ.post(msg[0], e, msg[2], null, msg[4]);
+            }
         }
     };
 
@@ -348,6 +366,10 @@ js.awt.Desktop = function (Runtime){
         return e._default;
     };
 
+    thi$.fireHtmlEvent = function(e){
+        _onhtmlevent.call(this, e);
+    };
+
     var apps = {}, appItems = [].$getLinkedList();
 
     thi$.getApps = function(){
@@ -356,7 +378,7 @@ js.awt.Desktop = function (Runtime){
     
     thi$.getApp = function(id){
         return apps[id];
-    }
+    };
 
     thi$.registerApp = function(id, app){
         if(!apps[id]){
@@ -400,17 +422,6 @@ js.awt.Desktop = function (Runtime){
     }.$override(this.showCover);
 
     
-    var _getMaxZIndex = function(){
-        var children = this.view.children, zIndex = 0, tmp, e;
-        for(var i=0, len=children.length; i<len; i++){
-            e = children[i];
-            tmp = parseInt(DOM.currentStyles(e, true).zIndex);
-            tmp = Class.isNumber(tmp) ? tmp : 0;
-            zIndex = Math.max(zIndex, tmp);
-        }
-        return zIndex;
-    };
-
     var styles = ["jsvm.css"];
     /**
      * @param files {Array} Array of style file names
@@ -438,9 +449,10 @@ js.awt.Desktop = function (Runtime){
     thi$.updateThemeCSS = function(theme, file){
         var stylePath = DOM.makeUrlPath(J$VM.j$vm_home, "../style/" + theme + "/"),
             styleText = Class.getResource(stylePath + file, true);
-
-        styleText = styleText.replace(IMGSREG, stylePath+"images/");
-        this.applyCSSCode(file, styleText);
+		if(styleText && styleText.length !== 0){
+	        styleText = styleText.replace(IMGSREG, stylePath+"images/");
+	        this.applyCSSCode(file, styleText);
+		}
     };
 
     thi$.updateThemeLinks = function(theme, old, file){
@@ -562,7 +574,7 @@ js.awt.Desktop = function (Runtime){
              uuid: "layer-manager", 
              zorder:true,
              stateless: true,
-             zbase: 10000
+             zbase: J$VM.DOM.LM_ZBASE
             }, Runtime, body);
 
         // Popup dialog manager
@@ -572,7 +584,7 @@ js.awt.Desktop = function (Runtime){
              uuid: "dialog-manager",
              zorder:true,
              stateless: true,
-             zbase: 1000
+             zbase: J$VM.DOM.DM_ZBASE
             }, Runtime, body);
 
         DM.destroy = function(){
@@ -581,7 +593,7 @@ js.awt.Desktop = function (Runtime){
         }.$override(DM.destroy);
 
         var styleText = Class.getResource(
-            J$VM.j$vm_home + "../style/jsvm_reset.css", true);
+            J$VM.j$vm_home + "../style/jsvm_reset.css", true, {$:Math.uuid()});
         this.applyCSSCode("jsvm_reset.css", styleText);
 
         _bindEvents.call(this);
@@ -622,6 +634,11 @@ js.awt.Desktop = function (Runtime){
             item = EVENTS[i];
             Event.attachEvent(item[0], item[1], 0, this, item[2]);
         }
+
+        // Hide mouse capturer
+        this.onmousemove = function(e){
+            DOM.showMouseCapturer();
+        };
     };
 
     this._init.apply(this, arguments);

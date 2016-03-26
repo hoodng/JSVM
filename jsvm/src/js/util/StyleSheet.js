@@ -28,7 +28,7 @@ js.util.StyleSheet = function(nativeSheet){
         System = J$VM.System, J$VMCSS = "/***__j$vm-css__***/";
     
     thi$.applyCSS = function(css){
-        var styleEle = this.nativeSheet.ownerNode;
+        var styleEle = DOM.getStyleSheetElement(this.nativeSheet);
 
         if(styleEle.styleSheet){
             // IE ?
@@ -135,7 +135,7 @@ js.util.StyleSheet = function(nativeSheet){
 
     thi$._init = function(nativeSheet){
         this.nativeSheet = nativeSheet;
-        this.id = nativeSheet.ownerNode.id;
+        this.id = DOM.getStyleSheetElement(nativeSheet).id;
         this.href = nativeSheet.href;
         this.rules = {};
         

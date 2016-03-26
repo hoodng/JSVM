@@ -89,7 +89,7 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
                 G.Events.ATTRS_CHANGED, {}, this), true);
         }else{
             v = $super(this, key);
-            if(Class.isValid(v)){
+            if(!Class.isValid(v)){
                 p = this.getContainer();
                 v = p ? p.defAttr(key) : null;
             }

@@ -106,7 +106,8 @@ js.awt.Event = function(e){
         
         return evt;
     };
-
+    
+    var btns =[1,4,2,8,16];
     thi$._init = function(e){
         var _e = this._event = e || window.event;
 
@@ -130,8 +131,9 @@ js.awt.Event = function(e){
         this.keyCode  = ie ? _e.keyCode : _e.which;
 
         // Left:1, Right:2, Middle:4
-        this.button = _e.buttons != undefined ?
-            _e.buttons : _e.button;
+        this.button =  _e.buttons ? _e.buttons :
+            (!J$VM.ie && _e.button >= 0) ? btns[_e.button] : _e.button;
+
 
         this.pointerId = _e.pointerId || 0;
         this.pointerType = _e.pointerType ||

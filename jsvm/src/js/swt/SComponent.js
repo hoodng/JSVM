@@ -49,315 +49,402 @@ $package("js.swt");
  * @extends js.awt.Component
  */
 js.swt.SComponent = function(def, Runtime){
-    var CLASS = js.swt.SComponent,
-    thi$ = CLASS.prototype;
-    
-    if(CLASS.__defined__){
-        this._init.apply(this, arguments);
-        return;
-    }
-    CLASS.__defined__ = true;
-    
-    var Class = js.lang.Class, Event = js.util.Event, System = J$VM.System,
-    DOM = J$VM.DOM, MQ = J$VM.MQ;
+	var CLASS = js.swt.SComponent,
+	thi$ = CLASS.prototype;
+	
+	if(CLASS.__defined__){
+		this._init.apply(this, arguments);
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var _onMousewheel = function(e){
-        var hScrollbar = this.hScrollbar, vScrollbar = this.vScrollbar,
-        domE = e._event, deltaX = domE.deltaX, deltaY = domE.deltaY,
-        cview = this.vcomp.view;
+	CLASS.WHEELSTEP = 53;
+	
+	var Class = js.lang.Class, Event = js.util.Event, System = J$VM.System,
+	DOM = J$VM.DOM, MQ = J$VM.MQ;
 
-        if(Class.isNumber(deltaX) && deltaX != 0){
-            hScrollbar.view.scrollLeft += deltaX;
-            cview.scrollLeft += deltaX;        
-        }
+	/*
+	 * Chrome: mousewheel {
+	 *			   deltaX: -0, deltaY: 53/, deltaZ: 0, deltaMode: 0,
+	 *			   detail: 0,
+	 *			   wheelDelta: -120/120, 
+	 *			   wheelDeltaX: 0, wheelDeltaY: -120/120
+	 *		   }
+	 * Firefox: DOMMouseWheel {axis: 2, detail: 3/-3}
+	 * IE: mousewheel: {detail: 0, wheelDelta: -120/120}
+	 */
+	var _onMousewheel = function(e){
+		var hScrollbar = this.hScrollbar, vScrollbar = this.vScrollbar,
+		domE = e._event, deltaX = domE.deltaX, deltaY = domE.deltaY,
+		cview = this.vcomp.view;
 
-        if(Class.isNumber(deltaY) && deltaY != 0){
-            vScrollbar.view.scrollTop += deltaY;
-            cview.scrollTop += deltaY;
-        }        
-    };
+		if(!Class.isNumber(deltaY)){
+			// For Chrom & IE
+			if(Class.isNumber(domE.wheelDelta) && domE.wheelDelta != 0){
+				deltaY = domE.wheelDelta < 0 
+					? CLASS.WHEELSTEP : (0 - CLASS.WHEELSTEP);
+			}else{
+				// For firefox
+				if(Class.isNumber(domE.detail) && domE.detail != 0){
+					deltaY = domE.detail > 0 
+						? CLASS.WHEELSTEP : (0 - CLASS.WHEELSTEP);
+				}
+			}
+		}
+		
+		if(Class.isNumber(deltaX) && deltaX != 0){
+			hScrollbar.view.scrollLeft += deltaX;
+			cview.scrollLeft += deltaX;		   
+		}
 
-    /**
-     * Set the view component for maitaining the component contents.
-     * 
-     * @param {js.awt.Component} comp
-     */
-    thi$.setVComponent = function(comp){
-        if(!comp){
-            return;
-        }
-        
-        var vcomp = this.vcomp;
-        this.vcomp = null;
+		if(Class.isNumber(deltaY) && deltaY != 0){
+			vScrollbar.view.scrollTop += deltaY;
+			cview.scrollTop += deltaY;
+		}	   
+	};
 
-        if(vcomp){
-            vcomp.detachEvent(Event.W3C_EVT_MOUSE_WHEEL, 4, 
-                              this, _onMousewheel);
-            vcomp.destroy();
-        }
+	/**
+	 * Set the view component for maitaining the component contents.
+	 * 
+	 * @param {js.awt.Component} comp
+	 */
+	thi$.setVComponent = function(comp){
+		if(!comp){
+			return;
+		}
+		
+		var vcomp = this.vcomp;
+		this.vcomp = null;
 
-        comp.view.style.position = "absolute";
-        comp.view.style.overflow = "hidden";
+		if(vcomp){
+			vcomp.detachEvent(Event.W3C_EVT_MOUSE_WHEEL, 0, 
+							  this, _onMousewheel);
+			vcomp.destroy();
+		}
 
-        comp.attachEvent(Event.W3C_EVT_MOUSE_WHEEL, 4,
-                         this, _onMousewheel);
+		comp.view.style.position = "absolute";
+		comp.view.style.overflow = "hidden";
 
-        this.vcomp = comp;        
-        comp.appendTo(this.view);
-    };
+		comp.attachEvent(Event.W3C_EVT_MOUSE_WHEEL, 0,
+						 this, _onMousewheel);
 
-    /**
-     * Return the view component which is the contents' viewport component 
-     * of the scrollable component.
-     * 
-     * @return {js.awt.Component}
-     */
-    thi$.getVComponent = function(){
-        return this.vcomp;  
-    };
+		this.vcomp = comp;
+		comp.setContextID(this.uuid());
+		comp.appendTo(this.view);
+	};
 
-    /**
-     * Calculate and return the scroll size of the current view component.
-     * 
-     * @return {Object}
-     */
-    thi$.getScrollSize = function(){
-        var vcomp = this.vcomp, ele, s, D;
-        if(vcomp && vcomp.isVisible()){
-            if(Class.isFunction(vcomp.getScrollSize)){
-                s = vcomp.getScrollSize();
-            }else{
-                ele = vcomp.view;
-                ele.style.overflow = "hidden";
+	/**
+	 * Return the view component which is the contents' viewport component 
+	 * of the scrollable component.
+	 * 
+	 * @return {js.awt.Component}
+	 */
+	thi$.getVComponent = function(){
+		return this.vcomp;	
+	};
 
-                D = vcomp.getBounds();
-                s = {
-                    width: ele.scrollWidth,
-                    height: ele.scrollHeight
-                };
-            }
-        }
+	/**
+	 * Calculate and return the scroll size of the current view component.
+	 * 
+	 * @return {Object}
+	 */
+	thi$.getScrollSize = function(){
+		var vcomp = this.vcomp, ele, s, D;
+		if(vcomp && vcomp.isVisible()){
+			if(Class.isFunction(vcomp.getScrollSize)){
+				s = vcomp.getScrollSize();
+			}else{
+				ele = vcomp.view;
+				ele.style.overflow = "hidden";
 
-        return s;
-    };
+				D = vcomp.getBounds();
+				s = {
+					width: ele.scrollWidth,
+					height: ele.scrollHeight
+				};
+			}
+		}
 
-    var _checkScrollbars = function(w, h){
-        var hbw = J$VM.supports.preHScrollEleH,
-        vbw = J$VM.supports.preVScrollEleW,
+		return s;
+	};
 
-        rst = {
-            v: false, h: false,
-            vbw: vbw, hbw: hbw  
-        },
+	/**
+	 * Calculate to judge whether the scrollbars should be shown.
+	 * 
+	 * @param {Number} w Optional. The maximum available width
+	 * @param {Number} h Optional. The maximum available height
+	 * 
+	 * @return {Object}
+	 * 
+	 *		  @example
+	 *		  {
+	 *			  v: true / false, // show / hide the vertical scrollbar
+	 *			  h: true / false, // show / hide the horizontal scrollbar
+	 *			  vbw: 16, // thickness of the vertical scrollbar
+	 *			  hbw: 16, // thickness of the horizontal scrollbar
+	 *		  }
+	 */
+	thi$.checkScrollbars = function(w, h){
+		var hbw = J$VM.supports.preHScrollEleH,
+		vbw = J$VM.supports.preVScrollEleW,
 
-        vcomp = this.vcomp, s, tw, th;
+		rst = {
+			v: false, h: false,
+			vbw: vbw, hbw: hbw	
+		},
 
-        if(vcomp && vcomp.isVisible()){
-            s = this.getScrollSize();
-            tw = rst.tw = s.width;
-            th = rst.th = s.height;
+		vcomp = this.vcomp,
+		s, tw, th, box;
 
-            if(tw > w && th > h){
-                rst.v = true;
-                rst.h = true;
-            }else if(th > h){
-                rst.v = true;
+		if(!Class.isNumber(w) || !Class.isNumber(h)){
+			box = this.getBounds();
+			w = Class.isNumber(w) ? w : bounds.innerWidth;
+			h = Class.isNumber(h) ? h : bounds.innerHeight;
+		}
 
-                if(tw > w - vbw){
-                    rst.h = true;
-                }
-            }else{
-                if(tw > w){
-                    rst.h = true;
+		if(vcomp && vcomp.isVisible()){
+			s = rst.scrollSize = this.getScrollSize();
+			tw = rst.tw = s.width;
+			th = rst.th = s.height;
 
-                    if(th > h - hbw){
-                        rst.v = true;
-                    }
-                }
-            }
-        }
+			if(tw > w && th > h){
+				rst.v = true;
+				rst.h = true;
+			}else if(th > h){
+				rst.v = true;
 
-        return rst;
-    };
+				if(tw > w - vbw){
+					rst.h = true;
+				}
+			}else{
+				if(tw > w){
+					rst.h = true;
 
-    /**
-     * @method
-     * @inheritdoc js.awt.Component#doLayout
-     */
-    thi$.doLayout = function(){
-        if($super(this)){
-            var bounds = this.getBounds(), MBP = bounds.MBP,
-            w = bounds.innerWidth, h = bounds.innerHeight,
-            x = MBP.paddingLeft, y = MBP.paddingTop,
-            comp, rst;
+					if(th > h - hbw){
+						rst.v = true;
+					}
+				}
+			}
+		}
 
-            // Show / hide scrollbars
-            rst = _checkScrollbars.call(this, w, h);
-            w -= (rst.v ? rst.vbw : 0);
-            this.vScrollbar.display(rst.v);
+		return rst;
+	};
 
-            h -= (rst.h ? rst.hbw : 0);
-            this.hScrollbar.display(rst.h);
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#repaint
+	 */
+	thi$.repaint = function(){
+		if($super(this)){
+			var vcomp = this.vcomp;
+			if(vcomp){
+				vcomp.repaint();
+			}
 
-            // Layout the vcomp
-            comp = this.vcomp;
-            if(comp && comp.isVisible()){
-                comp.setBounds(x, y, w, h, 5);
-            }
+			return true;
+		}
 
-            // Lay out scrollbars
-            if(rst.v){
-                comp = this.vScrollbar;
-                comp.setDataSize({w: 1, h: rst.th}, {w: 1, h: h});
-                comp.setBounds(x + w, y, rst.vbw, h);
-            }
+		return false;
 
-            if(rst.h){
-                comp = this.hScrollbar;
-                comp.setDataSize({w: rst.tw, h: 1}, {w: w, h: 1});
-                comp.setBounds(x, y + h, w, rst.hbw);
-            }
+	}.$override(this.repaint);
 
-            comp = this.blankBar;
-            if(rst.v && rst.h){
-                comp.display(true);
-                comp.setBounds(x + w, y + h, rst.vbw, rst.hbw);
-            }else{
-                comp.display(false);
-            }
+	/**
+	 * Check and layout the scrollbars.
+	 */
+	thi$.adjustScrollbars = function(){
+		var bounds = this.getBounds(), MBP = bounds.MBP,
+		w = bounds.innerWidth, h = bounds.innerHeight,
+		x = MBP.paddingLeft, y = MBP.paddingTop,
+		comp, rst, vcomp = this.vcomp, 
+		cview = vcomp ? vcomp.view : null;
 
-            return true;
-        }
+		// Show / hide scrollbars
+		rst = this.checkScrollbars(w, h);
+		w -= (rst.v ? rst.vbw : 0);
+		this.vScrollbar.display(rst.v);
 
-        return false;
+		h -= (rst.h ? rst.hbw : 0);
+		this.hScrollbar.display(rst.h);
 
-    }.$override(this.doLayout);
+		// Lay out scrollbars
+		if(rst.v){
+			comp = this.vScrollbar;
+			comp.setDataSize({w: 1, h: rst.th}, {w: 1, h: h});
+			comp.setBounds(x + w, y, rst.vbw, h);
+		}else{
+			if(cview){
+				cview.scrollTop = 0;
+			}
+		}
 
-    /**
-     * Handler for the "childrenchanged" from the Element.
-     * 
-     * @link js.awt.Element#_childrenChanged
-     */
-    thi$.onchildrenchanged = function(e){
-        var U = this._local, os = U.scrollSize,
-        s = this.getScrollSize();
+		if(rst.h){
+			comp = this.hScrollbar;
+			comp.setDataSize({w: rst.tw, h: 1}, {w: w, h: 1});
+			comp.setBounds(x, y + h, w, rst.hbw);
+		}else{
+			if(cview){
+				cview.scrollLeft = 0;
+			}
+		}
 
-        if(os && s && os.width === s.width 
-           && os.height === s.height){
-            return;            
-        }
+		comp = this.blankBar;
+		if(rst.v && rst.h){
+			comp.display(true);
+			comp.setBounds(x + w, y + h, rst.vbw, rst.hbw);
+		}else{
+			comp.display(false);
+		}
 
-        this.doLayout(true);
-    };
+		// Layout the vcomp
+		comp = this.vcomp;
+		if(comp && comp.isVisible()){
+			comp.setBounds(x, y, w, h, 5);
+		}
 
-    /**
-     * @method
-     * @inheritdoc js.awt.Component#elementFromPoint
-     */
-    thi$.elementFromPoint = function(x, y, nothese){
-        return this.vcomp.elementFromPoint(x, y, nothese);
-    };
+		this._rstScrollbars = rst;
+		return rst;
+	};
 
-    /**
-     * @method
-     * @inheritdoc js.awt.Component#destroy
-     */
-    thi$.destroy = function(){
-        var comp = this.vcomp;
-        this.vcomp = null;
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#doLayout
+	 */
+	thi$.doLayout = function(){
+		if($super(this)){
+			this.adjustScrollbars();
 
-        if(comp){
-            comp.detachEvent(Event.W3C_EVT_MOUSE_WHEEL, 4, 
-                             this, _onMousewheel);
-            comp.destroy();
-        }
-        
-        // Destroy the scrollbars
-        comp = this.hScrollbar;
-        this.hScrollbar = null;
-        comp.destroy();
+			return true;
+		}
 
-        comp = this.vScrollbar;
-        this.vScrollbar = null;
-        comp.destroy();
+		return false;
 
-        comp = this.blankBar;
-        this.blankBar = null;
-        comp.destroy();
+	}.$override(this.doLayout);
 
-        comp = null;
-        arguments.calee.__super__.apply(this, arguments);
+	/**
+	 * Handler for the "childrenchanged" from the Element.
+	 * 
+	 * @link js.awt.Element#_childrenChanged
+	 */
+	thi$.onchildrenchanged = function(e){
+		var U = this._local, os = U.scrollSize,
+		s = this.getScrollSize();
 
-    }.$override(this.destroy);
+		if(os && s && os.width === s.width 
+		   && os.height === s.height){
+			return;			   
+		}
 
-    thi$.onHScroll = function(e){
-        var data = e.getData(), vcomp = this.vcomp;
-        if(vcomp && vcomp.isVisible()){
-            vcomp.view.scrollLeft = data.scrollLeft;
-        }
-    };
+		this.doLayout(true);
+	};
 
-    thi$.onVScroll = function(e){
-        var data = e.getData(), vcomp = this.vcomp;
-        if(vcomp && vcomp.isVisible()){
-            vcomp.view.scrollTop = data.scrollTop;
-        }
-    };
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#elementFromPoint
+	 */
+	thi$.elementFromPoint = function(x, y, nothese){
+		return this.vcomp.elementFromPoint(x, y, nothese);
+	};
 
-    var _initScrollbars = function(def){
-        var R = this.Runtime(),
-        sdef = {
-            classType: "js.awt.Scrollbar",
-            css: "position:absolute;background:#FFFFFF;",
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Component#destroy
+	 */
+	thi$.destroy = function(){
+		var comp = this.vcomp;
+		this.vcomp = null;
 
-            axis: 1
-        },
-        comp = this.vScrollbar = new js.awt.Scrollbar(sdef, R);
-        comp.display(false);
-        comp.attachEvent("scroll", 4, this, this.onVScroll);
-        comp.appendTo(this.view);
+		if(comp){
+			comp.detachEvent(Event.W3C_EVT_MOUSE_WHEEL, 0, 
+							 this, _onMousewheel);
+			comp.destroy();
+		}
+		
+		// Destroy the scrollbars
+		comp = this.hScrollbar;
+		this.hScrollbar = null;
+		comp.destroy();
 
-        sdef = {
-            classType: "js.awt.Component",
-            css: "position:absolute;background:#FFFFFF;"
-        };
-        comp = this.blankBar = new js.awt.Component(sdef, R);
-        comp.display(false);
-        comp.appendTo(this.view);
+		comp = this.vScrollbar;
+		this.vScrollbar = null;
+		comp.destroy();
 
-        sdef = {
-            classType: "js.awt.Scrollbar",
-            css: "position:absolute;background:#FFFFFF;",
+		comp = this.blankBar;
+		this.blankBar = null;
+		comp.destroy();
 
-            axis: 0
-        };
-        comp = this.hScrollbar = new js.awt.Scrollbar(sdef, R);
-        comp.display(false);
-        comp.attachEvent("scroll", 4, this, this.onHScroll);
-        comp.appendTo(this.view);
-    };
+		comp = null;
+		$super(this);
 
-    thi$._init = function(def, Runtime){
-        if(typeof def !== "object") return;
+	}.$override(this.destroy);
 
-        def.classType = def.classType || "js.swt.SComponent";
-        def.className = def.className || "jsvm_scomp";
+	thi$.onHScroll = function(e){
+		var data = e.getData(), vcomp = this.vcomp;
+		if(vcomp && vcomp.isVisible()){
+			vcomp.view.scrollLeft = data.scrollLeft;
+		}
+	};
 
-        $super(this);
+	thi$.onVScroll = function(e){
+		var data = e.getData(), vcomp = this.vcomp;
+		if(vcomp && vcomp.isVisible()){
+			vcomp.view.scrollTop = data.scrollTop;
+		}
+	};
 
-        // Init the view component
-        var vdef = def.vcomp = def.vcomp || {}, vcomp;
-        vdef.classType = vdef.classType || "js.awt.Container";
-        vdef.className = vdef.className 
-            || DOM.combineClassName(def.className, "vcomp");
-        vcomp = new (Class.forName(vdef.classType))(vdef, Runtime);
-        this.setVComponent(vcomp);
-        
-        // Init the scrollbars
-        _initScrollbars.call(this, def);
+	var _initScrollbars = function(def){
+		var R = this.Runtime(),
+		sdef = {
+			classType: "js.awt.Scrollbar",
+			css: "position:absolute;background:#FFFFFF;",
 
-    }.$override(this._init);
-    
-    this._init.apply(this, arguments);
+			axis: 1
+		},
+		comp = this.vScrollbar = new js.awt.Scrollbar(sdef, R);
+		comp.display(false);
+		comp.attachEvent("scroll", 4, this, this.onVScroll);
+		comp.appendTo(this.view);
+
+		sdef = {
+			classType: "js.awt.Component",
+			css: "position:absolute;background:#FFFFFF;"
+		};
+		comp = this.blankBar = new js.awt.Component(sdef, R);
+		comp.display(false);
+		comp.appendTo(this.view);
+
+		sdef = {
+			classType: "js.awt.Scrollbar",
+			css: "position:absolute;background:#FFFFFF;",
+
+			axis: 0
+		};
+		comp = this.hScrollbar = new js.awt.Scrollbar(sdef, R);
+		comp.display(false);
+		comp.attachEvent("scroll", 4, this, this.onHScroll);
+		comp.appendTo(this.view);
+	};
+
+	thi$._init = function(def, Runtime){
+		if(typeof def !== "object") return;
+
+		def.classType = def.classType || "js.swt.SComponent";
+		def.className = def.className || "jsvm_scomp";
+
+		$super(this);
+
+		// Init the view component
+		var vdef = def.vcomp = def.vcomp || {}, vcomp;
+		vdef.classType = vdef.classType || "js.awt.Container";
+		vdef.className = vdef.className 
+			|| DOM.combineClassName(def.className, "vcomp");
+		vcomp = new (Class.forName(vdef.classType))(vdef, Runtime);
+		this.setVComponent(vcomp);
+		
+		// Init the scrollbars
+		_initScrollbars.call(this, def);
+
+	}.$override(this._init);
+	
+	this._init.apply(this, arguments);
 
 }.$extend(js.awt.Component);

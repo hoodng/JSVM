@@ -91,7 +91,7 @@ js.util.CookieStorage = function (){
         var vs = document.cookie.split(";"), item, n, v;
         for(var i=0, len=vs.length; i<len; i++){
             item = vs[i].split("=");
-            n = item[0]; v = unescape(item[1]);
+            n = item[0].trim(); v = unescape(item[1]);
             cookies[n] = new js.util.Cookie(n, v);
         }
     };

@@ -85,11 +85,11 @@ js.awt.Label = function(def, Runtime) {
 	 * @inheritdoc js.awt.Component#getPreferredSize
 	 */
 	thi$.getPreferredSize = function(){
-        var M = this.def, prefSize = M.prefSize, styles, args, 
-        textSize, d, w, h;
+		var M = this.def, prefSize = M.prefSize, styles, args, 
+		textSize, d, w, h;
 
-        if(!prefSize){
-            d = this.getBounds();
+		if(!prefSize){
+			d = this.getBounds();
 
 			if(!this.canWordwrap()){
 				styles = DOM.getStyles(this.view, textSps);
@@ -103,8 +103,8 @@ js.awt.Label = function(def, Runtime) {
 				w = d.width;
 				h = d.height;
 			}
-            
-            prefSize = {width: w, height: h};
+			
+			prefSize = {width: w, height: h};
 		}
 
 		return prefSize;
@@ -326,13 +326,18 @@ js.awt.Label = function(def, Runtime) {
 		rpSeg = null;
 	};
 
+	var _hasEnter = function(){
+		var text = this.def.text;
+		return text && text.length > 0 && text.indexOf("\n") >= 0;
+	};
+
 	/**
 	 * @method
 	 * @inheritdoc js.awt.Component#doLayout
 	 */
 	thi$.doLayout = function(){
 		if($super(this)){
-			if(!this.canWordwrap()){
+			if(!this.canWordwrap() && !_hasEnter.call(this)){
 				this.view.style.lineHeight = DOM.innerHeight(this.view) + "px";
 			}
 

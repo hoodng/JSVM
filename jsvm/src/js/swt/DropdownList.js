@@ -1013,7 +1013,7 @@ js.swt.DropdownList = function(def, Runtime){
             var label = this.controlBar.label;
             label.detachEvent("mouseover", 0, this, _onMouseOver);
             label.detachEvent("mouseout", 0, this, _onMouseOut);
-            label.detachEvent("click", false, this, _onSubmit);
+            label.detachEvent("click", 0, this, _onSubmit);
 
             //this.controlBar.destroy();
             delete this.controlBar;
@@ -1228,7 +1228,7 @@ js.swt.DropdownList = function(def, Runtime){
         label = controlBar.label;
         label.attachEvent("mouseover", 0, this, _onMouseOver);
         label.attachEvent("mouseout", 0, this, _onMouseOut);
-        label.attachEvent("click", false, this, _onSubmit);
+        label.attachEvent("click", 0, this, _onSubmit);
 
         theDef = null;
         this.addComponent(controlBar);
@@ -1255,7 +1255,7 @@ js.swt.DropdownList = function(def, Runtime){
 
         def = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true);
         def.className = def.className || "jsvm_dropdownList";
-        $super(this);
+        $super(this, def, Runtime);
 
         this._isLayoutDirty = true;
         this._local.root = this;

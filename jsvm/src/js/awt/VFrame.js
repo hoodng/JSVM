@@ -49,10 +49,10 @@ js.awt.VFrame = function(def, Runtime){
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
     System = J$VM.System, MQ = J$VM.MQ;
     
-    thi$.setContent = function(html, href){
+    thi$.setContent = function(html, href, scope){
         if(!_destroyScope.call(this)) return;
 
-        this.scope = new js.awt.ScriptScope(
+        this.scope = scope || new js.awt.ScriptScope(
             this.getPeerComponent() || this);
 
         var script, testre = /<script\b[\s\S]*?>([\s\S]*?)<\/script/i;
@@ -70,7 +70,7 @@ js.awt.VFrame = function(def, Runtime){
             }
         }
         
-        if(href == undefined){
+        if(href === undefined || href === null){
             _convert.call(this, this.view, this.scope);    
         }
 
@@ -108,9 +108,8 @@ js.awt.VFrame = function(def, Runtime){
                 code = code.substr(0, code.lastIndexOf("}"));
             }
             return function(e) {
-                e = e || window.event;
-                eval("var event_attribute = function(e, scope){" + code + "}");
-                return event_attribute.call(scope, e, scope);
+                var fn = new Function("e", "scope", code);
+                return fn.call(scope, e, scope);
             };
         };
 

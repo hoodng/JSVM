@@ -17,71 +17,71 @@ $package("js.awt");
  */
 js.awt.MoveObject = function(){
 
-    var CLASS = js.awt.MoveObject, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.MoveObject, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var DOM = J$VM.DOM;
-    
-    /**
-     * The moving peer is a moving object's ontologing. Generally,
-     * the ontologing just is the moving object itself. But in some
-     * case, for example, when drag a tree node, the moving ontologing
-     * is the tree node, but moving object maybe looks like a shadow
-     * of ontologing.
-     */
-    thi$.setMovingPeer = function(peer){
-        this.movingPeer = peer;
-    };
-    
-    thi$.getMovingPeer = function(){
-        return this.movingPeer;
-    };
+	var DOM = J$VM.DOM;
+	
+	/**
+	 * The moving peer is a moving object's ontologing. Generally,
+	 * the ontologing just is the moving object itself. But in some
+	 * case, for example, when drag a tree node, the moving ontologing
+	 * is the tree node, but moving object maybe looks like a shadow
+	 * of ontologing.
+	 */
+	thi$.setMovingPeer = function(peer){
+		this.movingPeer = peer;
+	};
+	
+	thi$.getMovingPeer = function(){
+		return this.movingPeer;
+	};
 
-    /**
-     * The drop target can get infomation from this moving object.
-     * 
-     * Notes: Sub class should implements this function.
-     */
-    thi$.getMovingData = function(){
-        return this;
-    };
-    
-    /**
-     * The message type is such a string that identify what kind message
-     * will be posted to message receivers. Generally, message receivers
-     * are drop targets.
-     * 
-     * Notes: Sub class should implements this function.
-     */
-    thi$.getMovingMsgType = function(){
-        return "js.awt.event.MovingEvent";        
-    };
-    
-    /**
-     * The mover will invoke this method to determine moving message 
-     * should be posted to which receivers.
-     */
-    thi$.getMovingMsgRecvs = function(){
-        var peer = this.getMovingPeer();
-        return (this != peer && peer && peer.getMovingMsgRecvs) ?
-            peer.getMovingMsgRecvs() : null;
-    };
-    
-    /**
-     * The drop target use this method to release this moving object.
-     */
-    thi$.releaseMoveObject = function(){
-        if(this != this.movingPeer){
-            this.movingPeer.moveObj = null;
-            delete this.movingPeer;            
-            this.destroy();
-        }else{
-            this.movingPeer = null;
-        }
-    };
+	/**
+	 * The drop target can get infomation from this moving object.
+	 * 
+	 * Notes: Sub class should implements this function.
+	 */
+	thi$.getMovingData = function(){
+		return this;
+	};
+	
+	/**
+	 * The message type is such a string that identify what kind message
+	 * will be posted to message receivers. Generally, message receivers
+	 * are drop targets.
+	 * 
+	 * Notes: Sub class should implements this function.
+	 */
+	thi$.getMovingMsgType = function(){
+		return "js.awt.event.MovingEvent";		  
+	};
+	
+	/**
+	 * The mover will invoke this method to determine moving message 
+	 * should be posted to which receivers.
+	 */
+	thi$.getMovingMsgRecvs = function(){
+		var peer = this.getMovingPeer();
+		return (this != peer && peer && peer.getMovingMsgRecvs) ?
+			peer.getMovingMsgRecvs() : null;
+	};
+	
+	/**
+	 * The drop target use this method to release this moving object.
+	 */
+	thi$.releaseMoveObject = function(){
+		if(this != this.movingPeer){
+			this.movingPeer.moveObj = null;
+			delete this.movingPeer;			   
+			this.destroy();
+		}else{
+			this.movingPeer = null;
+		}
+	};
 
 };
 
@@ -89,17 +89,17 @@ js.awt.MoveObject = function(){
  * A <em>Movable</em> is used to support moving a component.<p>
  * This function request a <em>mover</em> definition as below in the model of 
  * the component.<p>
- *  
+ *	
  * def.mover :{
- *     longpress: Optinal, default is 145ms
- *     bl: boundary left size, it's 0.0 to 1.0 of width. Default is 0.0
- *     bt: boundary top size, it's 0.0 to 1.0 of height. Default is 0.0
- *     br: boundary right size, it's 0.0 to 1.0 of width. Default is 0.0
- *     bb: boundary bottom size, it's 0.0 to 1.0 of height. Default is 0.0
- *     grid: moving on grid, the grid size default is 1px.
- *     freedom: freedom of moving, possible values are 
- *              1: horizontal, 2: vertical and 3: both
- *     }
+ *	   longpress: Optinal, default is 145ms
+ *	   bl: boundary left size, it's 0.0 to 1.0 of width. Default is 0.0
+ *	   bt: boundary top size, it's 0.0 to 1.0 of height. Default is 0.0
+ *	   br: boundary right size, it's 0.0 to 1.0 of width. Default is 0.0
+ *	   bb: boundary bottom size, it's 0.0 to 1.0 of height. Default is 0.0
+ *	   grid: moving on grid, the grid size default is 1px.
+ *	   freedom: freedom of moving, possible values are 
+ *				1: horizontal, 2: vertical and 3: both
+ *	   }
  * def.movable : true|false
  * <p>
  * When the component is moving, the event "onmoving" will be raised. 
@@ -107,151 +107,175 @@ js.awt.MoveObject = function(){
  */
 js.awt.Movable = function (){
 
-    var CLASS = js.awt.Movable, thi$ = CLASS.prototype;
-    if(CLASS.__defined__){
-        return;
-    }
-    CLASS.__defined__ = true;
+	var CLASS = js.awt.Movable, thi$ = CLASS.prototype;
+	if(CLASS.__defined__){
+		return;
+	}
+	CLASS.__defined__ = true;
 
-    var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-        System = J$VM.System, MQ = J$VM.MQ,
-        max = Math.max, min = Math.min, 
-        ceil = Math.ceil, floor = Math.floor, round = Math.round;
-    
-    thi$.startMoving = function(e){
-        var moveObj = this.getMoveObject(e), 
-            ctx = moveObj.getMovingContext(), p = ctx.container.view,
-            r = ctx.range, bounds = moveObj.getBounds(),
-            mover = this.getMovingConstraints(),
-            grid = mover.grid, bound=mover.bound,
-            bt = max(mover.bt*bounds.height, bound),
-            br = max(mover.br*bounds.width,  bound),
-            bb = max(mover.bb*bounds.height, bound),
-            bl = max(mover.bl*bounds.width,  bound);
+	CLASS.EVT_ELEMENT_MOVE = "elementMoveEvent";
 
-        ctx.eventXY = e.eventXY();
-        ctx.minX = grid*ceil( (r[0]+bl)/grid);
-        ctx.minY = grid*ceil( (r[1]+bt)/grid);
-        ctx.maxX = grid*floor((r[2]-br)/grid);
-        ctx.maxY = grid*floor((r[3]-bb)/grid);
-        moveObj._moveCtx = ctx;        
-        moveObj.showMoveCover(true);
-        MQ.register("releaseMoveObject", this, _release);        
-    };
+	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
+		System = J$VM.System, MQ = J$VM.MQ,
+		max = Math.max, min = Math.min, 
+		ceil = Math.ceil, floor = Math.floor, round = Math.round;
+	
+	var _fireMoveEvent = function(op, data){
+		var container = this.getContainer();
+		if(container && Class.isFunction(container.fireEvent)){
+			data = data || {};
+			data.op = op;
 
-    thi$.processMoving = function(e){
-        var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
-            bounds = moveObj.getBounds(),
-            mover = this.getMovingConstraints(),
-            grid = mover.grid, freedom = mover.freedom,
-            thip = ctx.container, p = thip.view,
-            xy = e.eventXY(), oxy = ctx.eventXY,
-            x = p.scrollLeft + bounds.userX + (xy.x - oxy.x),
-            y = p.scrollTop + bounds.userY + (xy.y - oxy.y),
-            minX = ctx.minX, minY = ctx.minY,
-            maxX = ctx.maxX, maxY = ctx.maxY;
+			var evt = new Event(CLASS.EVT_ELEMENT_MOVE, data, this);
+			container.fireEvent(evt, false);
+		}
+	};
 
-        x = x < minX ? minX : x > maxX ? maxX : x;
-        y = y < minY ? minY : y > maxY ? maxY : y;
-        
-        if(x != bounds.x || y != bounds.y){
-            // Snap to grid
-            x = grid*round(x/grid);
-            x = (freedom & 0x01) != 0 ? x : undefined;
+	thi$.startMoving = function(e){
+		var moveObj = this.getMoveObject(e), 
+			ctx = moveObj.getMovingContext(), p = ctx.container.view,
+			r = ctx.range, bounds = moveObj.getBounds(),
+			mover = this.getMovingConstraints(),
+			grid = mover.grid, bound=mover.bound,
+			bt = max(mover.bt*bounds.height, bound),
+			br = max(mover.br*bounds.width,	 bound),
+			bb = max(mover.bb*bounds.height, bound),
+			bl = max(mover.bl*bounds.width,	 bound);
 
-            y = grid*round(y/grid);
-            y = (freedom & 0x02) != 0 ? y : undefined;
+		ctx.eventXY = e.eventXY();
+		ctx.minX = grid*ceil( (r[0]+bl)/grid);
+		ctx.minY = grid*ceil( (r[1]+bt)/grid);
+		ctx.maxX = grid*floor((r[2]-br)/grid);
+		ctx.maxY = grid*floor((r[3]-bb)/grid);
+		moveObj.setZ(DOM.getMaxZIndex(document.body)+1);
+		moveObj._moveCtx = ctx;		   
+		moveObj.showMoveCover(true);
+		MQ.register("releaseMoveObject", this, _release);		 
+	};
 
-            moveObj.setPosition(x, y);
-            ctx.moved = true;
+	thi$.processMoving = function(e){
+		var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
+			bounds = moveObj.getBounds(),
+			mover = this.getMovingConstraints(),
+			grid = mover.grid, freedom = mover.freedom,
+			thip = ctx.container, p = thip.view,
+			xy = e.eventXY(), oxy = ctx.eventXY,
+			x = p.scrollLeft + bounds.userX + (xy.x - oxy.x),
+			y = p.scrollTop + bounds.userY + (xy.y - oxy.y),
+			minX = ctx.minX, minY = ctx.minY,
+			maxX = ctx.maxX, maxY = ctx.maxY,
+			changed;
+
+		x = x < minX ? minX : x > maxX ? maxX : x;
+		y = y < minY ? minY : y > maxY ? maxY : y;
+		
+		if(x != bounds.x || y != bounds.y){
+			// Snap to grid
+			x = grid*round(x/grid);
+			x = (freedom & 0x01) != 0 ? x : undefined;
+
+			y = grid*round(y/grid);
+			y = (freedom & 0x02) != 0 ? y : undefined;
+
+			changed = moveObj.setPosition(x, y);
+			_fireMoveEvent.call(this, "moving", 
+								{x: x, y: y, changed: changed});
+
+			ctx.moved = true;
+		}
+		
+		// Notify all drop targets
+		var recvs = moveObj.getMovingMsgRecvs() || [];
+		recvs.unshift(moveObj.getMovingPeer().uuid());
+		e.setEventTarget(moveObj);
+		MQ.post(moveObj.getMovingMsgType(), e, recvs);
+	};
+	
+	thi$.endMoving = function(e){
+		var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
+			recvs = moveObj.getMovingMsgRecvs() || [], x, y, changed;
+
+		// Notify all drop targets
+		recvs.unshift(moveObj.getMovingPeer().uuid());
+		e.setEventTarget(moveObj);
+		MQ.post(moveObj.getMovingMsgType(), e, recvs);
+
+		// Release MoveObject
+		MQ.post("releaseMoveObject", moveObj, [this.uuid()]);
+
+        var z = moveObj._local.userZ;
+        if(Class.isNumber(z)){
+            moveObj.setZ(z);
         }
         
-        // Notify all drop targets
-        var recvs = moveObj.getMovingMsgRecvs() || [];
-        recvs.unshift(moveObj.getMovingPeer().uuid());
-        e.setEventTarget(moveObj);
-        MQ.post(moveObj.getMovingMsgType(), e, recvs);
-    };
-    
-    thi$.endMoving = function(e){
-        var moveObj = this.getMoveObject(e), ctx = moveObj._moveCtx,
-            recvs = moveObj.getMovingMsgRecvs() || [];
+		moveObj.showMoveCover(false);
+		if(ctx.moved){
+			x = moveObj.getX(); y = moveObj.getY();
+			changed = moveObj.setPosition(x, y, 0x0F);
+			_fireMoveEvent.call(this, "moved", 
+								{x: x, y: y, changed: changed});
+		}
+		moveObj._moveCtx = null;
+	};
 
-        // Notify all drop targets
-        recvs.unshift(moveObj.getMovingPeer().uuid());
-        e.setEventTarget(moveObj);
-        MQ.post(moveObj.getMovingMsgType(), e, recvs);
+	var _release = function(moveObj){
+		moveObj.releaseMoveObject();
+		if(this.moveObj){
+			this.moveObj = null;
+		}
+		MQ.cancel("releaseMoveObject", this, _release);
+	};
 
-        // Release MoveObject
-        MQ.post("releaseMoveObject", moveObj, [this.uuid()]);
+	/**
+	 * Test if the element is a hotspot for moving.
+	 * 
+	 * @param ele, a HTMLElement
+	 * @param x, y
+	 * 
+	 * @return boolean
+	 * 
+	 * Notes: Sub class should override this method
+	 */
+	thi$.isMoverSpot = function(ele, x, y){
+		return this.isMovable();
+	};
 
-        moveObj.showMoveCover(false);
-        if(ctx.moved){
-            moveObj.setPosition(moveObj.getX(), moveObj.getY(), 0x0F);
-        }
-        delete moveObj._moveCtx;
-    };
+	/**
+	 * Gets MoveObject from this component. 
+	 * 
+	 * @see js.awt.MoveObject
+	 * 
+	 * Notes: If need sub class can override this method
+	 */	   
+	thi$.getMoveObject = function(e){
+		var moveObj = this.moveObj, B;
+		if(!moveObj){
+			moveObj = this.moveObj = this;
+			moveObj.setMovingPeer(this);
+			B = this.getBounds();
+			moveObj.setBounds(B.x, B.y, B.width, B.height, 0x04);
+		}
 
-    var _release = function(moveObj){
-        moveObj.releaseMoveObject();
-        if(this.moveObj){
-            delete this.moveObj;            
-        }
-        MQ.cancel("releaseMoveObject", this, _release);
-    };
-
-    /**
-     * Test if the element is a hotspot for moving.
-     * 
-     * @param ele, a HTMLElement
-     * @param x, y
-     * 
-     * @return boolean
-     * 
-     * Notes: Sub class should override this method
-     */
-    thi$.isMoverSpot = function(ele, x, y){
-        
-        return true;
-    };
-
-    /**
-     * Gets MoveObject from this component. 
-     * 
-     * @see js.awt.MoveObject
-     * 
-     * Notes: If need sub class can override this method
-     */    
-    thi$.getMoveObject = function(e){
-        var moveObj = this.moveObj, B;
-        if(!moveObj){
-            moveObj = this.moveObj = this;
-            moveObj.setMovingPeer(this);
-            B = this.getBounds();
-            moveObj.setBounds(B.x, B.y, B.width, B.height, 0x04);
-        }
-
-        return moveObj;
-    };
-    
-    /**
-     * Tests whether this component is movable.
-     */
-    thi$.isMovable = function(){
-        return this.def.movable || false;
-    };
-    
-    /**
-     * Sets whether this component is movable.
-     * 
-     * @param b, true is movable, false is unable.
-     */
-    thi$.setMovable = function(b){
-        var M = this.def;
-        b = b || false;
-        M.movable = b;
-        this.getMovingConstraints();
-    };
+		return moveObj;
+	};
+	
+	/**
+	 * Tests whether this component is movable.
+	 */
+	thi$.isMovable = function(){
+		return this.def.movable || false;
+	};
+	
+	/**
+	 * Sets whether this component is movable.
+	 * 
+	 * @param b, true is movable, false is unable.
+	 */
+	thi$.setMovable = function(b){
+		var M = this.def;
+		b = b || false;
+		M.movable = b;
+		this.getMovingConstraints();
+	};
 
 };
-

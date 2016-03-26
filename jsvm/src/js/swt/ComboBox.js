@@ -124,19 +124,6 @@ js.swt.ComboBox = function(def, Runtime){
 		rigid_w: false, rigid_h: false,
 		NUCG: true
 	},
-	sps = [
-		"position", "top", "left",
-		"font-family", "font-size", "font-style", "font-weight",
-		"text-decoration", "text-align", "font-weight",
-		"color", "background-color",
-		"padding-top", "padding-right", "padding-bottom", "padding-left",
-		"border-top-width", "border-right-width", 
-		"border-bottom-width", "border-left-width",
-		"border-top-style", "border-right-style",
-		"border-bottom-style", "border-left-style",
-		"border-top-color", "border-right-color",
-		"border-bottom-style", "border-left-color"
-	],
 	iptSps = [
 		"font-family", "font-size", "font-style", "font-weight",
 		"text-decoration", "text-align", "font-weight", "color", 
@@ -828,10 +815,10 @@ js.swt.ComboBox = function(def, Runtime){
 
 	}.$override(this.onStateChanged);
 
-    /**
-     * @method
-     * @inheritdoc js.awt.Container#repaint
-     */
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Container#repaint
+	 */
 	thi$.repaint = function(){
 		if($super(this)){
 			if(this.isShowBtnByHover()){
@@ -845,26 +832,26 @@ js.swt.ComboBox = function(def, Runtime){
 
 	}.$override(this.repaint);
 
-    /**
-     * @method
-     * @inheritdoc js.awt.Container#getPreferredSize
-     */	
-    thi$.getPreferredSize = function(){
-        var prefSize = this.def.prefSize, D;
-        if(!prefSize){
-            D = this.getBounds();
-            prefSize = {width: D.width, height: D.height};
-        }
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Container#getPreferredSize
+	 */ 
+	thi$.getPreferredSize = function(){
+		var prefSize = this.def.prefSize, D;
+		if(!prefSize){
+			D = this.getBounds();
+			prefSize = {width: D.width, height: D.height};
+		}
 
-        return prefSize;
+		return prefSize;
 
-    }.$override(this.getPreferredSize);
+	}.$override(this.getPreferredSize);
 
 
-    /**
-     * @method
-     * @inheritdoc js.awt.Container#destroy
-     */
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Container#destroy
+	 */
 	thi$.destroy = function(){
 		this._local.itemDefs = null;
 		this._local.itemModels = null;
@@ -880,8 +867,7 @@ js.swt.ComboBox = function(def, Runtime){
 			if(M.wholeTrigger === true){
 				this.detachEvent("click", 0, this, _onDropDown);	
 			}else{
-				Event.detachEvent(this.btnDropDown.view, "click", 0, 
-								  this, _onDropDown);
+				this.btnDropDown.detachEvent("click", 0, this, _onDropDown);
 			}
 			
 			if(M.effect === true || M.showBtnByHover === true){
@@ -1082,16 +1068,15 @@ js.swt.ComboBox = function(def, Runtime){
 		this.onSelectedChanged();		
 	};
 	
-	var _preIptStyles = function(sps){
-		var latestStyles = this._latestStyles, styles = {}, 
-		len, sp, v;
+	var _preIptStyles = function(styles){
+		var latestStyles = this._latestStyles, len, 
+		sp, v;
 		if(!latestStyles){
-			return styles;
+			return styles || {};
 		}
 
 		sps = sps || iptSps;
 		len = Class.isArray(sps) ? sps.length : 0;
-		
 		for(var i = 0; i < len; i++){
 			sp = sps[i];
 			v = latestStyles[sp];
@@ -1119,17 +1104,18 @@ js.swt.ComboBox = function(def, Runtime){
 		// Hide the DropdownList
 		_showSubview.call(this, false);
 		
-		var dContainer = this.dItemContainer, 
-		Clz = Class.forName("js.swt.TextField"),
+		var M = this.def, Clz = Class.forName("js.swt.TextField"),
+		dContainer = this.dItemContainer, ditem = this.displayItem,
 		iptStyles, iptDef, input, m, v;
 		
-		m = this._local.latestModel = this.displayItem.model;
+		m = this._local.latestModel = ditem.model;
 
 		// Record the styles and remove the displayItem
+		iptStyles = ditem.getStyles(iptSps);
 		_removeDisplayItem.call(this);
-		
+
 		// Create input box'
-		iptStyles = _preIptStyles.call(this);
+		iptStyles = _preIptStyles.call(this, iptStyles);
 		iptStyles = DOM.toCssText(iptStyles);
 		
 		iptDef = {
@@ -1138,9 +1124,13 @@ js.swt.ComboBox = function(def, Runtime){
 		};
 		
 		iptDef = System.objectCopy(inputBoxDef, iptDef, true); 
+		iptDef.className = DOM.combineClassName(M.className, "iptView");
 		iptDef.css = (iptDef.css || "") + iptStyles;
 		iptDef.fontCss = iptStyles;
-		
+
+		// For supporting multiple-lines
+		iptDef.multiline = this.def.multiline;
+
 		input = this._inputView = 
 			new (Clz)(iptDef, this.Runtime());
 
@@ -1159,10 +1149,6 @@ js.swt.ComboBox = function(def, Runtime){
 		ditem = this.displayItem;
 		
 		if(ditem){
-			if(!this._latestStyles){
-				this._latestStyles = ditem.getStyles(sps);
-			}
-			
 			this._latestWidth = ditem.getWidth();
 			this._latestHeight = ditem.getHeight();
 			
@@ -1207,7 +1193,10 @@ js.swt.ComboBox = function(def, Runtime){
 		dItemDef = this.getDItemDef(model),
 		displayItem, b, tip;
 		
-		dItemDef.css = DOM.toCssText(this._latestStyles),
+		if(typeof this._latestStyles === "object"){
+			dItemDef.css = DOM.toCssText(this._latestStyles);
+		}
+		
 		displayItem = this.displayItem =
 			new (Class.forName(dItemDef.classType))(dItemDef, R),
 		
@@ -1419,6 +1408,11 @@ js.swt.ComboBox = function(def, Runtime){
 	};
 	
 	var _onMouseOver = function(e){
+		var ele = e.fromElement;
+		if(ele && this.contains(ele, true)){
+			return;
+		}
+
 		if(this.subview && this.subview.isShown()){
 			return;
 		}
@@ -1433,6 +1427,11 @@ js.swt.ComboBox = function(def, Runtime){
 	};
 	
 	var _onMouseOut = function(e){
+		var ele = e.toElement;
+		if(ele && this.contains(ele, true)){
+			return;
+		}
+
 		if(this.subview && this.subview.isShown()){
 			return;
 		}
@@ -1736,8 +1735,7 @@ js.swt.ComboBox = function(def, Runtime){
 		if(M.wholeTrigger === true){
 			this.attachEvent("click", 0, this, _onDropDown);	   
 		}else{
-			Event.attachEvent(this.btnDropDown.view, "click", 0, 
-							  this, _onDropDown);
+			this.btnDropDown.attachEvent("click", 0, this, _onDropDown);
 		}
 		
 		if(M.effect === true || M.showBtnByHover === true){
@@ -1766,6 +1764,7 @@ js.swt.ComboBox.DEFAULTDEF = function(){
 		
 		wholeTrigger: false,
 		editable: false,
+		multiline: false,
 		effect: false,
 		
 		showTips: true,

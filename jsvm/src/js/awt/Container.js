@@ -40,7 +40,7 @@ js.awt.Container = function (def, Runtime, view){
     CLASS.__defined__ = true;
     
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM, 
-        System = J$VM.System, MQ = J$VM.MQ, List = js.util.LinkedList;
+    System = J$VM.System, MQ = J$VM.MQ, List = js.util.LinkedList;
 
     /**
      * Add the component to the container
@@ -72,7 +72,7 @@ js.awt.Container = function (def, Runtime, view){
         if(this.layout instanceof js.awt.AbsoluteLayout){
             comp.view.style.position = "absolute";
         }
-      
+        
         if(ref){
             this.insertChildBefore(comp, ref);
         }else{
@@ -126,12 +126,10 @@ js.awt.Container = function (def, Runtime, view){
     
     /**
      * Activate the component with specified component or id
+     * 
+     * @param {js.awt.Element / String} e A component or its id
      */
     thi$.activateComponent = function(e){
-        if(e == undefined){
-            $super(this);
-        }
-
         var id, comp;
         if(e instanceof Event){
             id = e.getEventTarget().id;
@@ -144,7 +142,7 @@ js.awt.Container = function (def, Runtime, view){
         comp = this[id];
 
         if(comp === undefined){
-             return undefined;
+            return undefined;
         }
 
         if(this.isZOrder()){
@@ -167,7 +165,7 @@ js.awt.Container = function (def, Runtime, view){
         
         return id;
 
-    }.$override(this.activateComponent);
+    };
     
     /**
      * Return current active component;
@@ -242,10 +240,11 @@ js.awt.Container = function (def, Runtime, view){
     thi$.elementFromPoint = function(x, y, nothese){
         var ret = null, ids, i, comp;
         if((!nothese || !nothese.$contains(this)) &&
-                this.inside(x, y)){
+            this.inside(x, y)){
             ids = this.items();
             for(i=ids.length-1; i>=0; i--){
                 comp = this.getElementById(ids[i]);
+                if(!comp) continue;
                 if(nothese && nothese.$contains(comp)) continue;
                 ret = comp.elementFromPoint(x, y, nothese);
                 if(ret) break;
@@ -263,7 +262,7 @@ js.awt.Container = function (def, Runtime, view){
 
         result = result || [];
         if((!nothese || !nothese.$contains(this)) &&
-                this.inside(x, y)){
+            this.inside(x, y)){
 
             result.push(this);
 
@@ -326,6 +325,33 @@ js.awt.Container = function (def, Runtime, view){
             return $super(this);
         }
     }.$override(this.getMaximumSize);
+
+    /**
+     * Calculate and return the size which is enough for placing all the
+     * visible components
+     * 
+     * @return {Object}
+     */
+    thi$.getScrollSize = function(){
+        var D = this.getBounds(), MBP = D.MBP, items = this.items0(),
+        x0 = D.absX, y0 = D.absY, x1 = x0, y1 = y0, i, len, comp, box;
+
+        for(i = 0, len = items.length; i < len; i++){
+            comp = this[items[i]];
+            if(!comp || !comp.isVisible()){
+                continue;
+            }
+
+            box = comp.getBounds();
+            x1 = Math.max(x1, box.absX + box.width);
+            y1 = Math.max(y1, box.absY + box.height);
+        }
+
+        return {
+            width: x1 - x0 + MBP.paddingRight + MBP.borderRightWidth,
+            height: y1 - y0 + MBP.paddingBottom + MBP.borderBottomWidth  
+        };
+    };
     
     /**
      * @see js.awt.Component
@@ -392,20 +418,19 @@ js.awt.Container = function (def, Runtime, view){
      */
     thi$._addComps = function(def){
         var comps = def.items, R = this.Runtime(),
-            oriComps = this._local.items, view = this.view,
-            absLayout = this.layout instanceof js.awt.AbsoluteLayout;
+        oriComps = this._local.items, view = this.view,
+        absLayout = this.layout instanceof js.awt.AbsoluteLayout;
         
         def.items = [];
         List.$decorate(def.items);
         this.view = self.document.createDocumentFragment();
         for(var i=0, len=comps.length; i<len; i++){
-            var compid = comps[i], compDef = def[compid];
+            var compid = comps[i], compDef = def[compid], comp;
             if(Class.isObject(compDef)){
                 compDef.id = compDef.id || compid;
                 compDef.className = compDef.className ||
                     DOM.combineClassName(this.def.className, compid);
-
-                var comp = new (Class.forName(compDef.classType))(
+                comp = new (Class.forName(compDef.classType))(
                     compDef, R);
                 
                 if(absLayout){
@@ -442,9 +467,11 @@ js.awt.Container = function (def, Runtime, view){
         
         var layout = def.layout = (def.layout || {});
         layout.classType = layout.classType || "js.awt.LayoutManager";
+
         this.setLayoutManager(
             new (Class.forName(layout.classType))(layout));
-        def.activateman = Class.isBoolean(def.activateman) ? def.activateman : false;
+        def.activateman = Class.isBoolean(def.activateman) 
+            ? def.activateman : false;
 
         // Keep original order
         var oriComps = this._local.items = List.$decorate([]);
