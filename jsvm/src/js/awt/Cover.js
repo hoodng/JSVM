@@ -49,7 +49,7 @@ js.awt.Cover = function (){
 		view.id = [this.getID(), "cover"].join("-");
 		view.className = view.clazz = selector;
 		view.style.position = "absolute";
-		view.style.zIndex = this.getZ();
+		view.style.zIndex = this.getZ()+1;
 		if(cview === self.document.body){
 			cview.appendChild(view);
 		}else{
@@ -96,7 +96,6 @@ js.awt.Cover = function (){
 		}
 
 		bounds = bounds || this.getBounds();
-		// if(bounds.MBP.fake) return;
 
 		className = cview.clazz;
 		if(!this.isVisible()){
@@ -104,16 +103,12 @@ js.awt.Cover = function (){
 		}
 		cview.className = className;
 
-		ele = DOM.getOffsetParent(view);
-		if(ele === view){ // view is body
-			x = 0;
-			y = 0;
-		}else{
-			box = DOM.getBounds(ele);
-			xy = DOM.relative(bounds.absX, bounds.absY, box);
-			x = xy.x;
-			y = xy.y;
-		}
+        if(view === document.body){
+            x = 0; y = 0;
+        }else{
+            x = bounds.offsetX;
+            y = bounds.offsetY;
+        }
 
 		DOM.setBounds(cview, x, y, bounds.width, bounds.height);   
 	};
@@ -121,7 +116,7 @@ js.awt.Cover = function (){
 	thi$.setCoverZIndex = function(z){
 		var view = this._coverView;
 		if(!view) return;
-		view.style.zIndex = z;
+		view.style.zIndex = z+1;
 	};
 	
 	thi$.setCoverDisplay = function(show){

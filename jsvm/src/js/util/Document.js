@@ -77,28 +77,28 @@ js.util.Document = function (){
         // Check browser supports
         var supports = J$VM.supports
                      = {reliableMarginRight :true, supportCssFloat : true},
-            buf = [], doc = self.document, div = doc.createElement("DIV"),
-            ipt, obj;
+            doc = self.document, view = doc.defaultView,
+            div, cdiv, ccdiv, fdiv, ipt, obj;
 
-        buf.push('<div style="height:30px;width:50px;left:0px;position:absolute;">');
-        buf.push('<div style="height:20px;width:20px;"></div></div>');
-        buf.push('<div style="float:left;"></div>');
-        div.innerHTML = buf.join("");
+        div = doc.createElement("DIV");
         div.style.cssText = "position:absolute;width:100px;height:100px;"
                           + "border:5px solid black;padding:5px;"
-                          + "visibility:hidden;";
+                          + "visibility:visible;";
         doc.body.appendChild(div);
-
-        // Check browser supports for Input, Textarea
-        ipt = doc.createElement("INPUT");
-        ipt.type = "text";
-        ipt.style.cssText = "position:absolute;width:100px;height:100px;"
-                          + "border:2px solid;visibility:hidden;";
-        doc.body.appendChild(ipt);
-
-        var view = doc.defaultView, cdiv = div.firstChild,
-            ccdiv = cdiv.firstChild;
         
+        cdiv = doc.createElement("DIV");
+        cdiv.style.cssText = "position:absolute;width:50px;height:30px;"
+                           + "left:0px;background-color:blue;";
+        div.appendChild(cdiv);
+
+        ccdiv = doc.createElement("DIV");
+        ccdiv.style.cssText = "width:20px;height:20px;";
+        cdiv.appendChild(ccdiv);
+
+        fdiv = doc.createElement("DIV");
+        fdiv.style.cssText = "float:left;"
+        div.appendChild(fdiv);
+
         if(view && view.getComputedStyle
                 && (view.getComputedStyle(ccdiv, null).marginRight != '0px')){
             supports.reliableMarginRight = false;
@@ -109,7 +109,7 @@ js.util.Document = function (){
          * @property {Boolean} supportCssFloat
          *
          */
-        supports.supportCssFloat = !!div.lastChild.style.cssFloat;
+        supports.supportCssFloat = !!fdiv.style.cssFloat;
         if(supports.supportCssFloat){
             camelMap["float"] = "cssFloat";
         }else{
@@ -127,7 +127,16 @@ js.util.Document = function (){
          * @property {Boolean} borderEdg
          * Whether CSS box model is border-edge
          */
-        supports.borderEdg = !(cdiv.offsetLeft == 0);
+        supports.borderEdg = !(cdiv.offsetLeft === 0);
+
+        
+        // Check browser supports for Input, Textarea
+        ipt = doc.createElement("INPUT");
+        ipt.type = "text";
+        ipt.style.cssText = "position:absolute;width:100px;height:100px;"
+                          + "border:2px solid;visibility:hidden;";
+        doc.body.appendChild(ipt);
+
         /**
          * @member J$VM.supports
          * @property {Boolean} iptBorderBox
@@ -1100,7 +1109,16 @@ js.util.Document = function (){
      * @see offsetY()
      */
     thi$.offsetXY = function(el){
-        return {x: el.offsetLeft, y: el.offsetTop};
+        var p = this.getOffsetParent(el),
+            mbp = (p && p != document.body) ? this.MBP(p) :
+            {left:0, top:0, borderLeftWidth:0, borderTopWidth:0},
+            bounds = {
+                absX: mbp.left,
+                absY: mbp.top,
+                MBP: mbp
+            },xy = this.absXY(el);
+        
+        return this.relative(xy.x, xy.y, bounds);
     };
 
     /**
@@ -1200,17 +1218,18 @@ js.util.Document = function (){
         }
         
         bounds.MBP = this.MBP(ele, nocache, clazz);
-        delete bounds.MBP.fake;
+        bounds.MBP.fake = null;
         bounds.BBM = bounds.MBP.BBM;
         bounds = _calcCoords.call(this, ele, bounds);
         bounds = _calcSize.call(this, ele, bounds);
-
-        return this.updateBounds(ele, bounds);
+        
+        return this.updateBounds(ele, bounds, bounds.offsetXY);
     };
 
-    thi$.updateBounds = function(ele, bounds){
-        bounds.offsetX = ele.offsetLeft;
-        bounds.offsetY = ele.offsetTop;
+    thi$.updateBounds = function(ele, bounds, offsetxy){
+        offsetxy = offsetxy || this.offsetXY(ele);
+        bounds.offsetX = offsetxy.x;
+        bounds.offsetY = offsetxy.y;
         bounds.offsetWidth = ele.offsetWidth;
         bounds.offsetHeight= ele.offsetHeight;
 
@@ -1233,26 +1252,21 @@ js.util.Document = function (){
     };
 
     var _calcCoords = function(ele, bounds){
-        var mbp = bounds.MBP, pMBP;
+        var mbp = bounds.MBP, xy, pMBP;
         
         bounds.absX    = mbp.left;
         bounds.absY    = mbp.top;
-        bounds.offsetX = ele.offsetLeft;
-        bounds.offsetY = ele.offsetTop;
+        bounds.offsetXY = xy = this.offsetXY(ele);
+        bounds.offsetX = xy.x;
+        bounds.offsetY = xy.y;
 
         bounds.x = bounds.offsetX - mbp.marginLeft;
         bounds.y = bounds.offsetY - mbp.marginTop;
         
         if(!this.isDOMElement(ele)) return bounds;
 
-        if(J$VM.supports.borderEdg && mbp.position !== "relative"){
-            pMBP = this.MBP(ele.parentNode);
-            bounds.x -= pMBP.borderLeftWidth;
-            bounds.y -= pMBP.borderTopWidth;
-        }
-
         if(mbp.position === "relative"){
-            pMBP = pMBP || this.MBP(ele.parentNode);
+            pMBP = this.MBP(this.getOffsetParent(ele));
             bounds.x -= pMBP.paddingLeft;
             bounds.y -= pMBP.paddingTop;
         }
@@ -2216,7 +2230,7 @@ js.util.Document = function (){
         capturer = document.createElement("div");
         capturer.id = "mouse-capturer";
         capturer.style.cssText = "position:absolute;"
-        //capturer.style.backgroundColor = "blue";
+        capturer.style.backgroundColor = "blue";
     };
 
     thi$.showMouseCapturer = function(bounds, uuid, spot){
@@ -2240,31 +2254,51 @@ js.util.Document = function (){
 
     thi$.DM_ZBASE = 1000;
     thi$.LM_ZBASE = 10000;
-    
-    thi$.getDynamicCursor = function(index){
-        return index >= 0 ? CURSORS[index] : null;
+
+    thi$.setCursor = function(ele, cursor){
+        if(!ele) return;
+        ele.style.cursor = cursorOf(cursor);
     };
 
+    thi$.getCursor = function(ele){
+        return ele ? ele.style.cursor : null;
+    };
+    
+    var cursorOf = function(index){
+        var ret;
+        if(Class.isString(index)){
+            ret = index;
+        }else if(Class.isNumber(index)){
+            ret = index >= 0 ? CURSORS[index] : null;
+        }
+        return ret;
+    };
+
+    var dirtys = {};
     
     thi$.setDynamicCursor = function(ele, cursor){
-        var dirty;
-        
         if(!ele) return;
 
-        dirty = ele.dirtyCursor || 0;
-
-        if(cursor){
-            if(!dirty){
-                ele.preCursor = this.getStyle(ele, "cursor");
-                ele.dirtyCursor = 1;
-            }
-            
-            ele.style.cursor = cursor;
-
-        }else if(dirty){
-            ele.style.cursor = ele.preCursor;
-            ele.dirtyCursor = 0;
+        var did = ele.did = (ele.did || Math.uuid());
+        if(!dirtys[did]){
+            dirtys[did] = {
+                cursor: this.getCursor(ele),
+                ele: ele
+            };
         }
+
+        this.setCursor(ele, cursor);
+    };
+
+    thi$.cleanDynamicCursor = function(){
+        var data, p;
+        for(p in dirtys){
+            data = dirtys[p];
+            if(data && data.ele){
+                this.setCursor(data.ele, data.cursor);
+            }
+        }
+        dirtys = {};
     };
 
     thi$.getMaxZIndex = function(ele){

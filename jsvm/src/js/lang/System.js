@@ -387,7 +387,7 @@ js.lang.System = function (env, vm){
         }else{
             vm.disableLogger();
         }
-        
+
         J$VM.DOM.checkDoctype();
         J$VM.DOM.checkBrowser();
         

@@ -30,7 +30,7 @@ J$VM = new function (){
         j$vm_ajax_concurrent: 8,
         j$vm_timeslice: 20,
         j$vm_threshold: 15,
-        j$vm_longpress: 145
+        j$vm_longpress: 300
     };
 
     var slice = Array.prototype.slice;

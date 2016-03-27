@@ -164,13 +164,11 @@ js.awt.Outline = function(){
         if(!views || this.view.style.display === "none") return;
         
         bounds = bounds || this.getBounds();
-        ele = DOM.getOffsetParent(this.view);
-        if(ele === this.view){
+        if(this.view === document.body){
             x = 0; y = 0;
         }else{
-            box = DOM.getBounds(ele);
-            xy = DOM.relative(bounds.absX, bounds.absY, box);
-            x = xy.x; y = xy.y;
+            x = bounds.offsetX;
+            y = bounds.offsetY;
         }
         
         bounds = {

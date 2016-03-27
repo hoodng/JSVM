@@ -61,17 +61,13 @@ js.awt.Shadow = function (){
         if(!sview || !DOM.isDOMElement(sview)) return;
         
         bounds = bounds || this.getBounds();
-        ele = DOM.getOffsetParent(view);
-        if(ele === view){
-            x = 0;
-            y = 0;
+        if(view === document.body){
+            x = 0; y = 0;
         }else{
-            box = DOM.getBounds(ele);
-            xy = DOM.relative(bounds.absX, bounds.absY, box);
-            x = xy.x;
-            y = xy.y;
+            x = bounds.offsetX;
+            y = bounds.offsetY;
         }
-        
+
         DOM.setBounds(sview, x, y, bounds.width, bounds.height);   
     };
 

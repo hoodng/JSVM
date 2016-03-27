@@ -110,6 +110,7 @@ js.awt.Resizable = function(){
 		ctx.eventXY = e.eventXY();
 		moveObj._moveCtx = ctx;		   
 		MQ.register("releaseSizeObject", this, _release);
+        DOM.setDynamicCursor(moveObj.view, i);
 	};
 
 	thi$.processSizing = function(e, i){
@@ -260,11 +261,13 @@ js.awt.Resizable = function(){
 	 * Notes: If need sub class can override this method
 	 */
 	thi$.getSizeObject = function(){
-		var sizeObj = this.sizeObj, bounds, def;
+		var sizeObj = this.sizeObj, bounds, def, view, xy;
 		if(!sizeObj){
-
+            view = this.view;
 			bounds = this.getBounds();
-
+            xy = DOM.relative(bounds.absX, bounds.absY,
+                              DOM.getBounds(DOM.getOffsetParent(view)));
+            
 			def = {
 				classType: "js.awt.Component",
 				className: DOM.combineClassName(
@@ -272,7 +275,7 @@ js.awt.Resizable = function(){
 					["cover", "cover--resize"]),
 				css: "position:absolute;",
 				stateless: true,
-				z : this.getZ(),
+				z : this.getZ()+1,
 				prefSize : this.getPreferredSize(),
 				miniSize : this.getMinimumSize(),
 				maxiSize : this.getMaximumSize()
@@ -280,9 +283,9 @@ js.awt.Resizable = function(){
 			
 			sizeObj = this.sizeObj = /*this;*/
 			new js.awt.Component(def, this.Runtime());
-			sizeObj.insertAfter(this.view);
+			sizeObj.insertAfter(view);
 			sizeObj.setSizingPeer(this);
-			sizeObj.setBounds(bounds.x, bounds.y,
+			sizeObj.setBounds(xy.x, xy.y,
 							  bounds.width, bounds.height, 0x04);
 		}
 
@@ -326,6 +329,11 @@ js.awt.Resizable = function(){
         }
 	};
 
+    var _onmousemove = function(e){
+        this.showResizeCapture(e);
+        return e.cancelBubble();
+    };
+    
     var RS = 5, RS2 = RS * 2, RS4 = RS2 * 2;
     
     var resizerBounds = [
@@ -401,9 +409,9 @@ js.awt.Resizable = function(){
                 height: RS2
             };
         }
-    ]; 
-    
-    var _onmousemove = function(e){
+    ];
+
+    thi$.showResizeCapture = function(e){
         var xy = e.eventXY(), bounds = this.getBounds(),
             idxes = DOM.offsetIndexes(xy.x, xy.y, bounds),
             idx = idxes[2];
@@ -413,7 +421,6 @@ js.awt.Resizable = function(){
             DOM.showMouseCapturer(resizerBounds[idx](bounds),
                                   this.uuid(), idx);
         }
-
-        return e.cancelBubble();
     };
+    
 };

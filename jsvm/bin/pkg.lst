@@ -11,7 +11,7 @@
  */
 
 /*var tasks = */{
-    list: ["jsrecore", "jsreui", "graphic", "service"],
+    list: ["jsrecore", "jsreui", "graphic", "service","api"],
 
     jsrecore: {
         srcroot: "../src",
@@ -193,6 +193,15 @@
         "org/jsvm/ServiceDecorator.js",
         "org/jsvm/RuntimeDecorator.js",
         "org/jsvm/Application.js"
+        ]
+    },
+    
+    api:{
+        srcroot: "../lib",
+        despath: "../lib/api.js",
+        files:[
+        "jsre-core.js",
+        "jsre-ui.js"
         ]
     }
 

@@ -133,20 +133,19 @@ js.awt.Movable = function (){
 
 	thi$.startMoving = function(e){
 		var moveObj = this.getMoveObject(e), 
-			ctx = moveObj.getMovingContext(), p = ctx.container.view,
-			r = ctx.range, bounds = moveObj.getBounds(),
-			mover = this.getMovingConstraints(),
-			grid = mover.grid, bound=mover.bound,
-			bt = max(mover.bt*bounds.height, bound),
-			br = max(mover.br*bounds.width,	 bound),
-			bb = max(mover.bb*bounds.height, bound),
-			bl = max(mover.bl*bounds.width,	 bound);
+			ctx = moveObj.getMovingContext(),
+			pounds = ctx.container.getBounds(),
+            bounds = moveObj.getBounds(),
+			mover = this.getMovingConstraints();
 
 		ctx.eventXY = e.eventXY();
-		ctx.minX = grid*ceil( (r[0]+bl)/grid);
-		ctx.minY = grid*ceil( (r[1]+bt)/grid);
-		ctx.maxX = grid*floor((r[2]-br)/grid);
-		ctx.maxY = grid*floor((r[3]-bb)/grid);
+		ctx.minX = mover.bl >= 1 ? 0 : -0xFFFF;
+		ctx.minY = mover.bt >= 1 ? 0 : -0xFFFF;
+		ctx.maxX = mover.br >= 1 ?
+            (pounds.innerWidth - bounds.width) : 0xFFFF;
+		ctx.maxY = mover.bb >= 1 ?
+            (pounds.innerHeight- bounds.height): 0xFFFF;
+        
 		moveObj.setZ(DOM.getMaxZIndex(document.body)+1);
 		moveObj._moveCtx = ctx;		   
 		moveObj.showMoveCover(true);
@@ -276,6 +275,21 @@ js.awt.Movable = function (){
 		b = b || false;
 		M.movable = b;
 		this.getMovingConstraints();
+        if(b){
+            this.attachEvent(Event.W3C_EVT_MOUSE_MOVE,
+                             4, this, _onmousemove);
+        }else{
+            this.detachEvent(Event.W3C_EVT_MOUSE_MOVE,
+                             4, this, _onmousemove);
+        }
 	};
 
+    var _onmousemove = function(e){
+        this.showMoveCapture(e);
+        return e.cancelBubble();
+    };
+
+    thi$.showMoveCapture = function(e){
+        //
+    };
 };

@@ -61,8 +61,6 @@ js.awt.Desktop = function (Runtime){
             if(target && target !== this){
                 target.fireEvent(e, true);
             }
-
-            DOM.setDynamicCursor(ele, null);
             
         }else{
             if(!this._local.notified){
@@ -70,7 +68,7 @@ js.awt.Desktop = function (Runtime){
                 this._local.notified = true;
             }
 
-            DOM.setDynamicCursor(ele, DOM.getDynamicCursor(drag.spot));
+            DOM.setDynamicCursor(ele, drag.spot);
             
             if(drag.spot >= 8){
                 var hoverObj, parent, fmEle, moveObj, data;
@@ -165,11 +163,6 @@ js.awt.Desktop = function (Runtime){
             if(target && target !== this){
                 target.fireEvent(e, true);
             }
-
-            ele = e.fromElement;
-            if(ele){
-                DOM.setDynamicCursor(ele, null);
-            }
         }
         e.cancelBubble();
         return e._default;
@@ -197,7 +190,7 @@ js.awt.Desktop = function (Runtime){
                     var mover = target.getMovingConstraints(),
                         longpress = mover.longpress;
                     longpress = Class.isNumber(longpress) ? longpress :
-                        J$VM.env["j$vm_longpress"] || 90;
+                        J$VM.env["j$vm_longpress"] || 250;
 
                     fireDragStart.$delay(this, longpress, e.pointerId, {
                         event: e,
@@ -260,7 +253,8 @@ js.awt.Desktop = function (Runtime){
         }
 
         drags[e.pointerId] = null;
-        DOM.setDynamicCursor(ele, null);
+        
+        DOM.cleanDynamicCursor();
 
         e.cancelBubble();
         return e._default;
@@ -268,21 +262,24 @@ js.awt.Desktop = function (Runtime){
 
     var fireDragStart = function(id, drag){
         var target, moveObj, data, e;
-        DOM.showMouseCapturer();// Hide mouse capturer;
+
+        // Hide mouse capturer;
+        DOM.showMouseCapturer();
+
         drags[id] = drag;
         target = drag.target;
+        e = drag.event;
+        DOM.setDynamicCursor(drag.srcElement, drag.spot);
+        
         if(drag.spot >= 8){
-            e = drag.event;
-
             target.startMoving(e);
-
             // drag start
             moveObj = target.getMoveObject(e);
             data = moveObj.getMovingData();
             fireDragEvent(e, Event.W3C_EVT_DRAGSTART, data, target,
                           target.view, target.view);
         }else{
-            target.startSizing(drag.event, drag.spot);
+            target.startSizing(e, drag.spot);
         }
     };
 

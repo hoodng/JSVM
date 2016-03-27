@@ -954,14 +954,11 @@ js.awt.Element = function(def, Runtime){
         var mover = this.def.mover;
         if(!mover){
             mover = this.def.mover = {
-                bound: 20,
                 bt: 1, br: 0, bb: 0, bl: 1,
                 grid: 1,
                 freedom: 3
             };
         }else {
-            mover.bound = 
-                Class.isNumber(mover.bound) ? mover.bound : 20;
             mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
             mover.br = Class.isNumber(mover.br) ? mover.br : 0;
             mover.bb = Class.isNumber(mover.bb) ? mover.bb : 0;
@@ -997,8 +994,8 @@ js.awt.Element = function(def, Runtime){
         return{
             container: thip,
             range: [
-                0 - bounds.width,
-                0 - bounds.height,
+                0 - 0xFFFF,
+                0 - 0xFFFF,
                 hscroll ? 0xFFFF : pounds.innerWidth,
                 vscroll ? 0xFFFF : pounds.innerHeight
             ],
