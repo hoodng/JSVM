@@ -68,6 +68,7 @@ js.awt.Desktop = function (Runtime){
                 this._local.notified = true;
             }
 
+            DOM.showMouseCapturer();            
             DOM.setDynamicCursor(ele, drag.spot);
             
             if(drag.spot >= 8){
@@ -262,9 +263,6 @@ js.awt.Desktop = function (Runtime){
 
     var fireDragStart = function(id, drag){
         var target, moveObj, data, e;
-
-        // Hide mouse capturer;
-        DOM.showMouseCapturer();
 
         drags[id] = drag;
         target = drag.target;
