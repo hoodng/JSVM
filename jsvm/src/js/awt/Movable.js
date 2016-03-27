@@ -135,17 +135,17 @@ js.awt.Movable = function (){
 		var moveObj = this.getMoveObject(e), 
 			ctx = moveObj.getMovingContext(),
 			pounds = ctx.container.getBounds(),
-            bounds = moveObj.getBounds(),
+            bounds = moveObj.getBounds(),r = ctx.range,
 			mover = this.getMovingConstraints();
 
 		ctx.eventXY = e.eventXY();
-		ctx.minX = mover.bl >= 1 ? 0 : -0xFFFF;
-		ctx.minY = mover.bt >= 1 ? 0 : -0xFFFF;
+		ctx.minX = mover.bl >= 1 ? max(0, r[0]) : max(-0xFFFF, r[0]);
+		ctx.minY = mover.bt >= 1 ? max(0, r[1]) : max(-0xFFFF, r[1]);
 		ctx.maxX = mover.br >= 1 ?
-            (pounds.innerWidth - bounds.width) : 0xFFFF;
+            min((pounds.innerWidth - bounds.width), r[2]): min(0xFFFF,r[2]);
 		ctx.maxY = mover.bb >= 1 ?
-            (pounds.innerHeight- bounds.height): 0xFFFF;
-        
+            min((pounds.innerHeight- bounds.height),r[3]): min(0xFFFF,r[3]);
+            
 		moveObj.setZ(DOM.getMaxZIndex(document.body)+1);
 		moveObj._moveCtx = ctx;		   
 		moveObj.showMoveCover(true);

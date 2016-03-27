@@ -248,6 +248,27 @@ js.awt.Gridding = function(){
             };
         };
 
+        thi$.showMoveCapture = function(e){
+            var bounds = this.getBounds(),
+                spot = this.spotIndex(), r = {};
+            
+            switch(spot){
+                case 9:
+                r.x = bounds.absX - 4,
+                r.y = bounds.absY,
+                r.width = bounds.width + 8,
+                r.height = bounds.height
+                break;
+                case 10:
+                r.x = bounds.absX;
+                r.y = bounds.absY - 4,
+                r.width = bounds.width,
+                r.height = bounds.height + 8
+                break;
+            }
+            DOM.showMouseCapturer(r, this.uuid(), spot);
+        };
+
         thi$.spotIndex = function(){
             return this.def.dir === 0 ? 9 : 10;
         }.$override(this.spotIndex);
@@ -267,7 +288,7 @@ js.awt.Gridding = function(){
         var _getMovingMsgType = function(){
             return "js.awt.GridEx.lineMoving";
         };
-        
+
         this._init.apply(this, arguments);
 
     }.$extend(js.awt.Component);

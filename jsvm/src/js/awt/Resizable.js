@@ -122,7 +122,7 @@ js.awt.Resizable = function(){
 			maxSize = sizeObj.getMaximumSize(),
 			xy = e.eventXY(), minV, maxV, v0, v1, 
 			x, y, w, h, data, changed;
-		
+
 		x = bounds.userX; w = bounds.userW;
 		y = bounds.userY; h = bounds.userH;
 
@@ -267,7 +267,7 @@ js.awt.Resizable = function(){
 			bounds = this.getBounds();
             xy = DOM.relative(bounds.absX, bounds.absY,
                               DOM.getBounds(DOM.getOffsetParent(view)));
-            
+
 			def = {
 				classType: "js.awt.Component",
 				className: DOM.combineClassName(

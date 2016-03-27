@@ -187,7 +187,7 @@ js.awt.Desktop = function (Runtime){
             if(e.button === 1 && (target.isMovable() || target.isResizable())){
                 spot = target.spotIndex(ele, e.eventXY());
                 
-                if(spot >= 0 && spot <= 8){
+                if(spot >= 0){
                     var mover = target.getMovingConstraints(),
                         longpress = mover.longpress;
                     longpress = Class.isNumber(longpress) ? longpress :

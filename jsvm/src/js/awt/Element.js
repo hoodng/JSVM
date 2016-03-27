@@ -988,17 +988,9 @@ js.awt.Element = function(def, Runtime){
         hscroll = isScroll[styles.overflowX];
         vscroll = isScroll[styles.overflowY];
 
-        bounds = this.getBounds();
-        pounds = thip.getBounds();
-        
         return{
             container: thip,
-            range: [
-                0 - 0xFFFF,
-                0 - 0xFFFF,
-                hscroll ? 0xFFFF : pounds.innerWidth,
-                vscroll ? 0xFFFF : pounds.innerHeight
-            ],
+            range: [-0xFFFF, -0xFFFF, 0xFFFF, 0xFFFF],
             autofit: autofit,
             hscroll: hscroll,
             vscroll: vscroll
