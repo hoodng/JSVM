@@ -131,7 +131,7 @@ js.awt.Movable = function (){
 		}
 	};
 
-	thi$.startMoving = function(e){
+	thi$.startMoving = function(e, i){
 		var moveObj = this.getMoveObject(e), 
 			ctx = moveObj.getMovingContext(),
 			pounds = ctx.container.getBounds(),
@@ -142,13 +142,17 @@ js.awt.Movable = function (){
 		ctx.minX = mover.bl >= 1 ? max(0, r[0]) : max(-0xFFFF, r[0]);
 		ctx.minY = mover.bt >= 1 ? max(0, r[1]) : max(-0xFFFF, r[1]);
 		ctx.maxX = mover.br >= 1 ?
-            min((pounds.innerWidth - bounds.width), r[2]): min(0xFFFF,r[2]);
+            min((pounds.scrollWidth - bounds.width), r[2]): min(0xFFFF,r[2]);
 		ctx.maxY = mover.bb >= 1 ?
-            min((pounds.innerHeight- bounds.height),r[3]): min(0xFFFF,r[3]);
+            min((pounds.scrollHeight- bounds.height),r[3]): min(0xFFFF,r[3]);
             
 		moveObj.setZ(DOM.getMaxZIndex(document.body)+1);
 		moveObj._moveCtx = ctx;		   
 		moveObj.showMoveCover(true);
+        if(moveObj._coverView){
+            DOM.setDynamicCursor(moveObj._coverView, i);
+        }
+        
 		MQ.register("releaseMoveObject", this, _release);		 
 	};
 
@@ -159,8 +163,8 @@ js.awt.Movable = function (){
 			grid = mover.grid, freedom = mover.freedom,
 			thip = ctx.container, p = thip.view,
 			xy = e.eventXY(), oxy = ctx.eventXY,
-			x = p.scrollLeft + bounds.userX + (xy.x - oxy.x),
-			y = p.scrollTop + bounds.userY + (xy.y - oxy.y),
+			x = bounds.userX + (xy.x - oxy.x),
+		    y = bounds.userY + (xy.y - oxy.y),
 			minX = ctx.minX, minY = ctx.minY,
 			maxX = ctx.maxX, maxY = ctx.maxY,
 			changed;
@@ -236,8 +240,16 @@ js.awt.Movable = function (){
 	 * Notes: Sub class should override this method
 	 */
 	thi$.isMoverSpot = function(ele, x, y){
-		return this.isMovable();
+		return !!this._moveTarget;
 	};
+
+    thi$.getMoveTarget = function(){
+        return this._moveTarget || this;
+    };
+
+    thi$.setMoveTarget = function(target){
+        this._moveTarget = target;
+    };
 
 	/**
 	 * Gets MoveObject from this component. 

@@ -1109,15 +1109,15 @@ js.util.Document = function (){
      * @see offsetY()
      */
     thi$.offsetXY = function(el){
-        var p = this.getOffsetParent(el),
-            mbp = (p && p != document.body) ? this.MBP(p) :
-            {left:0, top:0, borderLeftWidth:0, borderTopWidth:0},
+        var p = this.getOffsetParent(el), mbp = this.MBP(p),
             bounds = {
+                MBP: mbp,
                 absX: mbp.left,
                 absY: mbp.top,
-                MBP: mbp
-            },xy = this.absXY(el);
-        
+                scrollLeft: p.scrollLeft,
+                scrollTop: p.scrollTop
+            }, xy = this.absXY(el);
+
         return this.relative(xy.x, xy.y, bounds);
     };
 
@@ -2174,8 +2174,8 @@ js.util.Document = function (){
     thi$.relative = function(x, y, bounds){
         var mbp = bounds.MBP;
         return {
-            x: x - bounds.absX - mbp.borderLeftWidth,
-            y: y - bounds.absY - mbp.borderTopWidth
+            x: x - bounds.absX - mbp.borderLeftWidth + bounds.scrollLeft,
+            y: y - bounds.absY - mbp.borderTopWidth + bounds.scrollTop
         };
     };
 

@@ -124,32 +124,6 @@ js.awt.Window = function (def, Runtime, view){
 	}.$override(this.showLoading);
 
 	/**
-	 * @see js.awt.Movable
-	 */	   
-	thi$.isMoverSpot = function(el){
-		var b = function(comp){
-			return !comp.contains(el, true);			
-		}.$every(this, this._local.restricted);
-
-		return b && (el.tagName != "INPUT") && (el.tagName != "TEXTAREA");
-
-	}.$override(this.isMoverSpot);
-
-	/**
-	 * Add restricted move area
-	 */
-	thi$.addMoverRestricted = function(comp){
-		this._local.restricted.push(comp);
-	};
-	
-	/**
-	 * Remove restricted move area
-	 */
-	thi$.rmvMoverRestricted = function(comp){
-		this._local.restricted.remove(comp);
-	};
-	
-	/**
 	 * @see js.awt.Component
 	 */
 	thi$.needLayout = function(force){
@@ -564,24 +538,17 @@ js.awt.Window = function (def, Runtime, view){
 			+ "overflow:hidden;";
 		$super(this);
 
-		// For MoverSpot testing
-		var restricted = this._local.restricted 
-            = js.util.LinkedList.$decorate([]);
-
-		var uuid = this.uuid();
-		var title = this.title;
+		var target = this, title = this.title;
 		if(title){
-			title.setPeerComponent(this);
-			title.view.uuid = uuid;
-
+			title.setPeerComponent(target);
+            title.setMoveTarget(target);
 			(function(name){
 				 var item = this.title[name];
 				 item.setPeerComponent(this);
 				 if(name.indexOf("btn") == 0){
-					 this.addMoverRestricted(item);
 					 item.icon.uuid = item.uuid();
 				 }else{
-					 item.view.uuid = uuid;	 
+                     item.setMoveTarget(target);
 				 }
 			 }).$forEach(this, title.def.items);
 			
@@ -595,8 +562,6 @@ js.awt.Window = function (def, Runtime, view){
 		}
 
 		this.client.setPeerComponent(this);
-		this.client.view.uuid = uuid;
-		//restricted.push(this.client); 
 
 		MQ.register("js.awt.event.ButtonEvent",
 					this, js.awt.Button.eventDispatcher);

@@ -890,8 +890,7 @@ js.awt.Element = function(def, Runtime){
             return parseInt(ele.spot);
         }
         
-        return this.isMovable() &&
-            this.isMoverSpot(ele, xy.x, xy.y) ? 8 : -1;
+        return this.isMovable() ? 8 : -1;
     };
 
     /**

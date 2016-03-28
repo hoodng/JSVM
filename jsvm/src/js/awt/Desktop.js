@@ -184,7 +184,12 @@ js.awt.Desktop = function (Runtime){
             }
             target.fireEvent(e, true);
 
-            if(e.button === 1 && (target.isMovable() || target.isResizable())){
+            if(e.button === 1 && (target.isMovable() ||
+                                  target.isResizable() ||
+                                  target.isMoverSpot())){
+                target = target.isMoverSpot() ?
+                    target.getMoveTarget():target;
+
                 spot = target.spotIndex(ele, e.eventXY());
                 
                 if(spot >= 0){
@@ -267,10 +272,11 @@ js.awt.Desktop = function (Runtime){
         drags[id] = drag;
         target = drag.target;
         e = drag.event;
+
         DOM.setDynamicCursor(drag.srcElement, drag.spot);
         
         if(drag.spot >= 8){
-            target.startMoving(e);
+            target.startMoving(e, drag.spot);
             // drag start
             moveObj = target.getMoveObject(e);
             data = moveObj.getMovingData();

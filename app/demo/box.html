@@ -24,7 +24,7 @@ top: 100px;
 width:200px;
 height:200px;
 
-overflow: hidden;
+overflow: auto;
 }
 
 .box2 {
@@ -95,7 +95,22 @@ rigid_h: false,
 resizable: true,
 resizer: 0xFF/*0x38*/
         }, R);
-   box1.addComponent(box2);
+
+     var box4 = new js.awt.Component(
+         {
+             id: "box4",
+             className: "box2",
+             rigid_w: false,
+             rigid_h: false,
+             movable: true,
+             mover:{bt:0, br:0, bb:0, bl:0, grid:10},
+             resizable: true,
+             resizer: 0xFF/*0x38*/
+         }, R);
+     
+     
+     box1.addComponent(box2);
+     box1.addComponent(box4);
 /*
    var box3 = new js.awt.Component(
         {
