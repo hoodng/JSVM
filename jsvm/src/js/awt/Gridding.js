@@ -267,6 +267,8 @@ js.awt.Gridding = function(){
                 break;
             }
             DOM.showMouseCapturer(r, this.uuid(), spot);
+            
+            return true;
         };
 
         thi$.spotIndex = function(){

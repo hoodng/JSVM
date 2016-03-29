@@ -122,7 +122,7 @@ js.awt.Window = function (def, Runtime, view){
 		this.client.showLoading(b, styleClass);
 
 	}.$override(this.showLoading);
-
+    
 	/**
 	 * @see js.awt.Component
 	 */
@@ -448,12 +448,13 @@ js.awt.Window = function (def, Runtime, view){
 
 	var _preDef = function(def, R){
 		var items = def.items = def.items || ["title", "client"],
-		iid, idef;
+		    iid, idef;
+        
 		for(var i = 0, len = items.length; i < len; i++){
 			iid = items[i];
 			switch(iid){
 			case "title":
-				idef = def[iid] = _preTitleDef.apply(this, arguments);
+				idef = def[iid] = _preTitleDef.call(this, def, R);
 				idef.rigid_w = (idef.rigid_w === true);
 				idef.rigid_h = (idef.rigid_h !== false);
 				idef.constraints = idef.constraints || "north";
@@ -483,7 +484,7 @@ js.awt.Window = function (def, Runtime, view){
 		def.resizer = def.resizer || 0xFF;
 
 		def.movable = (def.movable !== false);
-		def.mover = def.mover || { bt:1.0, br:0.0, bb:0.0, bl:1.0 };
+		def.mover = def.mover || { bt:1, br:0, bb:0, bl:1 };
 
 		def.shadow = (def.shadow !== false);
 		def.rigid_w = (def.rigid_w !== false);
@@ -536,20 +537,22 @@ js.awt.Window = function (def, Runtime, view){
 
 		def.css = "position:absolute;" + (def.css || "") 
 			+ "overflow:hidden;";
+
 		$super(this);
 
 		var target = this, title = this.title;
+        
 		if(title){
 			title.setPeerComponent(target);
             title.setMoveTarget(target);
 			(function(name){
-				 var item = this.title[name];
-				 item.setPeerComponent(this);
-				 if(name.indexOf("btn") == 0){
-					 item.icon.uuid = item.uuid();
-				 }else{
+				var item = this.title[name];
+				item.setPeerComponent(this);
+				if(name.indexOf("btn") == 0){
+					item.icon.uuid = item.uuid();
+				}else{
                      item.setMoveTarget(target);
-				 }
+                }
 			 }).$forEach(this, title.def.items);
 			
 			var tstyle = title.def.tstyle, 

@@ -1116,8 +1116,8 @@ js.util.Document = function (){
                 absY: mbp.top,
                 scrollLeft: p.scrollLeft,
                 scrollTop: p.scrollTop
-            }, xy = this.absXY(el);
-
+            },xy = this.absXY(el);
+        
         return this.relative(xy.x, xy.y, bounds);
     };
 
@@ -2097,7 +2097,7 @@ js.util.Document = function (){
                     obj = {
                         isMovable: function(){return false;},
                         isResizable: function(){return false;},
-
+                        isMoverSpot: function(){return false;},
                         fireEvent: function(e, b){
                             e.onCover = true;
                             e.setEventTarget(peer);
@@ -2244,7 +2244,8 @@ js.util.Document = function (){
         capturer.uuid = [uuid, "-capture"].join("");
         capturer.spot = spot;
         document.body.appendChild(capturer);
-        this.setBounds(capturer, bounds.x, bounds.y, bounds.width, bounds.height);
+        this.setBounds(capturer, bounds.x, bounds.y,
+                       bounds.width, bounds.height);
         this.setZ(capturer, this.LM_ZBASE);
     };
 

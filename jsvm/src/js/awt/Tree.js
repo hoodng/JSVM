@@ -124,7 +124,7 @@ js.awt.TreeDataProvider = function(){
         var image = def["iconImage"] || def["image"],
         map = this.imageMap;
         if(!image){
-            image = map ? map[def.type] : "blank.gif"; 
+            image = map ? map[def.type] : "blank.gif";
         }
 
         return image;
@@ -188,7 +188,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     System = J$VM.System, MQ = J$VM.MQ,
 
     permission = Class.forName("js.util.Permission");
-    
+
     thi$.msgType = function(msgType){
         var U = this._local;
         if(Class.isString(msgType) && msgType.length > 0){
@@ -206,17 +206,17 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         if(event){
             event.srcTree = this;
         }
-        
+
         $super(this);
-        
+
     }.$override(this.notifyPeer);
 
     /**
-     * Find and return the previous same-level sibling of the specified 
+     * Find and return the previous same-level sibling of the specified
      * tree item.
-     * 
+     *
      * @param {js.awt.TreeItem} item
-     * 
+     *
      * @return {js.awt.TreeItem}
      */
     thi$.getPrevSiblingItem = function(item){
@@ -236,11 +236,11 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     };
 
     /**
-     * Find and return the next same-level sibling of the specified 
+     * Find and return the next same-level sibling of the specified
      * tree item.
-     * 
+     *
      * @param {js.awt.TreeItem} item
-     * 
+     *
      * @return {js.awt.TreeItem}
      */
     thi$.getNextSiblingItem = function(item){
@@ -258,7 +258,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
         return nextItem;
     };
-    
+
     thi$.setDataProvider = function(dataProvider){
         if(!dataProvider.instanceOf(js.awt.TreeDataProvider))
             throw "Request a js.awt.TreeDataProvider instance";
@@ -277,22 +277,22 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     thi$.getIconImage = function(itemDef){
         return this.dataProvider.getIconImage(itemDef);
     };
-    
+
     thi$.setAlwaysRemoveChild = function(bool){
         this._local.alwaysRemoveChild = bool;
     };
-    
+
     thi$.alwaysRemoveChild = function(){
         return this._local.alwaysRemoveChild;
     };
-    
+
     /**
      * If the specified item is stateless, its icon must be stateless.
      * If the "iconStateless" of the item is specified by definition,
      * the value of which will be used. Otherwise, if the "iconStateless"
      * of the tree is specified, the value will be used.
-     * 
-     * In other words, item's stateless > item's iconStateless > tree's 
+     *
+     * In other words, item's stateless > item's iconStateless > tree's
      * iconStateless.
      */
     thi$.isIconStateless = function(itemDef){
@@ -304,7 +304,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                 stateless = (this.def.iconStateless === true);
             }
         }
-        
+
         return stateless;
     };
 
@@ -333,12 +333,12 @@ js.awt.Tree = function(def, Runtime, dataProvider){
     /**
      * Check node's permission, judge whether the specified node
      * will be visible.
-     */ 
+     */
     thi$.isNodeVisible = function(nodeDef){
         var p = parseInt(nodeDef.permission, 10);
         return permission.isVisible(isNaN(p) ? 1 : p);
     };
-    
+
     thi$.isAlwaysCreate = function(){
         return this.def.alwaysCreate !== false;
     };
@@ -368,7 +368,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
             itemDef.level = 0;
             if(this.isShowTip()){
-                itemDef.tip = itemDef.dname;
+                itemDef.tip = itemDef.tip || itemDef.dname;
                 itemDef.showTip = true;
             }
 
@@ -382,7 +382,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             }
 
             // Add for support inserting the different structure and different
-            // style nodes. Such as, inserting the fake nodes of the markable 
+            // style nodes. Such as, inserting the fake nodes of the markable
             // nodes, then each of the fake nodes won't be markable.
             cview = null;
             if(item && item.canCloneView(itemDef)){
@@ -676,7 +676,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             data.isWrite = permission.isWrite(p);
             data.isExecute = permission.isExecute(p);
         }
-        
+
         nodes = data.nodes;
         len = Class.isArray(nodes) ? nodes.length : 0;
         for(var i = 0; i < len; i++){
@@ -697,7 +697,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         return data;
     };
 
-    var _onGetData = function(data, item, needNotify){      
+    var _onGetData = function(data, item, needNotify){
         data = _checkData.call(this, data);
 
         if(data && data.nodes){
@@ -706,7 +706,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             _setMaxSize.$delay(this, 1);
             _keepScroll.$delay(this, 1, true);
         }else{
-            item.branch.className 
+            item.branch.className
                 = DOM.combineClassName(item.className, "branch0");
         }
     };
@@ -834,7 +834,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             item = marked.shift();
             item.mark(false);
         }
-        
+
         if(doSort !== false){
             this._doSort();
         }
@@ -855,25 +855,6 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             this.marked.remove(item);
         }
         this._doSort();
-    };
-
-    /**
-     * @see js.awt.Movable
-     */
-    thi$.isMoverSpot = function(el, x, y){
-        var uuid = el.uuid, item = this.cache[uuid];
-
-        if(item){
-            if (this.selected.length > 0){
-                return true;
-            }else{
-                if(item.isMoverSpot(el) && item.canDrag()){
-                    return true;
-                }
-            }
-        }
-
-        return false;
     };
 
     thi$.setMultiEnable = function(b){
@@ -1101,10 +1082,10 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             view.scrollTop = scrollTop;
         }
     };
-    
+
     /**
      * Select the specified tree item.
-     * 
+     *
      * @param {js.awt.TreeItem} item The specified tree item to select.
      * @param {js.awt.Event} e The event whcich trigger the selecting operation.
      */
@@ -1113,14 +1094,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
          * While the external application is selecting a tree item by invoking
          * this API manually, the e argument may not exist. For supporting to
          * handle the "selectchanged" msg with the consistent codes, we fake
-         * the event object for it.   
+         * the event object for it.
          */
         if(!e){
             e = new Event("selectchanged", {}, this);
             e.srcElement = item ? item.view : this._treeView;
         }
 
-        var isMulti = this.def.multiEnable, selected = this.selected, 
+        var isMulti = this.def.multiEnable, selected = this.selected,
         tmp, doo = false;
         if(item && item.isEnabled()){
             if (item.canDrag()){
@@ -1135,7 +1116,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                     // Accoding to the multiple select logic of OS file explorer,
                     // use the last one of the latest selection as the start
                     // of current slection.
-                    var first = selected.length > 0 
+                    var first = selected.length > 0
                         ? selected[selected.length - 1] : undefined;
 
                     if(first == undefined){
@@ -1167,7 +1148,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                     selected.push(item);
                 }
             }
-            
+
             this._doSort();
 
             doo = true;
@@ -1186,7 +1167,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
             this.notifyPeer(this.msgType(), e);
         }
     };
-    
+
     var _doSelect = function(e){
         var el = e.srcElement, item = this.cache[el.uuid];
         this.selectItem(item, e);
@@ -1238,7 +1219,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
 
         // Extract the item selecting login from _onclick by Chen Chao & Pan Mingfa
         // in 2014-06-18.
-        // 
+        //
         // For the old logic, the item only can be selected while it is clicked.
         // So that when we start to drag an item directly by mousedown, the current
         // "selected" will be from the latest selection except the current trigger
@@ -1250,7 +1231,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         }
         _doSelect.call(this, e);
 
-        return e.cancelDefault();         
+        return e.cancelDefault();
     };
 
     thi$.destroy = function(){
@@ -1286,12 +1267,12 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         def.stateless = true;
 
         def.mover = def.mover || {};
-        def.mover.longpress = def.mover.longpress || 250;
+        def.mover.longpress = def.mover.longpress || 90;
         def.multiEnable = (def.multiEnable === true);
 
         // Call base _init
         $super(this, def, Runtime);
-        
+
         this._local.alwaysRemoveChild = def.alwaysRemoveChild;
 
         // Cache all tree items
@@ -1327,7 +1308,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         // Avoid autoscroll when drag item.
         this.attachEvent("mousedown",  0, this, _onmousedown);
 
-        
+
         if(this.isMovable()){
             MQ.register(this.dataProvider.getDragMsgType(), this, _ondrag);
         }
@@ -1455,7 +1436,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
             var bounds = this.getBounds(), buf = new js.lang.StringBuffer(),
             left = bounds.MBP.paddingLeft, top = bounds.MBP.paddingTop,
             width = bounds.innerWidth, icon = this.icon;
-            
+
             if(icon){
                 buf.append("position:absolute;left:")
                     .append(left).append("px;")
@@ -1496,9 +1477,9 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
 
         dataProvider = tree.dataProvider;
 
-        var item = selected[0], icon = item ? item.icon : null, 
+        var item = selected[0], icon = item ? item.icon : null,
         label, text = item.getText(), D;
-        
+
         if(icon){
             D = DOM.getBounds(icon);
 

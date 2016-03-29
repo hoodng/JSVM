@@ -49,15 +49,15 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
     };
 
     thi$.isMovable = function(){
-        return this.treeContainer().isMovable();
+        return this.treeContainer().isMovable() && this.canDrag();
     };
 
     thi$.spotIndex = function(){
-        return this.canDrag() ? 8 : 11;
+        return 11;
     };
 
     thi$.isMoverSpot = function(ele, x, y){
-        return this.treeContainer().isMoverSpot(ele, x, y);
+        return this.canDrag();
     };
 
     thi$.getMoveObject = function(e){
@@ -167,7 +167,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             }
 
             if(this.isShowTip()){
-                itemDef.tip = itemDef.dname;
+                itemDef.tip = itemDef.tip || itemDef.dname;
                 itemDef.showTip = true;
             }
 
@@ -238,8 +238,8 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
      */
     thi$.removeNodes = function(index, length){
         var nodes = this.nodes || [], cnt = nodes.length,
-        tree = this.treeContainer(), cache = tree.cache, 
-        marked = tree.marked, selected = tree.selected, 
+        tree = this.treeContainer(), cache = tree.cache,
+        marked = tree.marked, selected = tree.selected,
         item;
 
         if(!Class.isNumber(index)){
@@ -306,10 +306,10 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         if(item.destroied === true){
             return;
         }
-        
+
         item.updateLeaderStyle();
         DOM.insertAfter(item.view, refNode);
-        
+
         if(item.view.parentNode){
             item.showDisableCover(!item.isEnabled());
         }
@@ -461,7 +461,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
             bClassName = DOM.combineClassName(bClassName, b, "");
 
             branch.clazz = bClassName;
-            bClassName = DOM.combineClassName(bClassName, 
+            bClassName = DOM.combineClassName(bClassName,
                                               (this.isTriggered() ? "4" : "0"));
         }else{
             branch.clazz = bClassName;
@@ -563,7 +563,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
         _setTreeContainer.call(this, tree);
 
         def.classType = def.classType || "js.awt.TreeItem";
-        def.className = def.className 
+        def.className = def.className
             || DOM.combineClassName(tree.def.className || tree.className, "item");
         def.css = "position:relative;overflow:visible;width:100%;";
 

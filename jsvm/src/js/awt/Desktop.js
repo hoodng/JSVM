@@ -40,12 +40,13 @@ js.awt.Desktop = function (Runtime){
         MQ.post("js.awt.event.KeyEvent", e);
     };
 
-    var drags = {}, lasts ={};
+    var drags = {}, lasts ={}, tm;
     
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot, XY;
+        fireDragStart.$clearTimer(tm);
         System.updateLastAccessTime();
-
+        
         last = lasts[e.pointerId] || 0;
         if((e.getTimeStamp().getTime() - last) <=
                 System.getProperty("j$vm_threshold", 15)){
@@ -131,6 +132,8 @@ js.awt.Desktop = function (Runtime){
             }else{
                 drag.target.processSizing(e, drag.spot);
             }
+            
+            e.cancelDefault();
         }
 
         lasts[e.pointerId] = new Date().getTime();
@@ -183,22 +186,23 @@ js.awt.Desktop = function (Runtime){
                 target.activate(e);
             }
             target.fireEvent(e, true);
-
+            //debugger;
             if(e.button === 1 && (target.isMovable() ||
                                   target.isResizable() ||
-                                  target.isMoverSpot())){
-                target = target.isMoverSpot() ?
-                    target.getMoveTarget():target;
+                target.isMoverSpot())){
 
-                spot = target.spotIndex(ele, e.eventXY());
+                target = target.isMoverSpot() ?
+                    target.getMoveTarget() : target;
                 
+                spot = target.spotIndex(ele, e.eventXY());
+
                 if(spot >= 0){
                     var mover = target.getMovingConstraints(),
                         longpress = mover.longpress;
                     longpress = Class.isNumber(longpress) ? longpress :
-                        J$VM.env["j$vm_longpress"] || 250;
+                        J$VM.env["j$vm_longpress"] || 90;
 
-                    fireDragStart.$delay(this, longpress, e.pointerId, {
+                    tm = fireDragStart.$delay(this, longpress, e.pointerId, {
                         event: e,
                         absXY: e.eventXY(),
                         srcElement: ele,
@@ -215,8 +219,8 @@ js.awt.Desktop = function (Runtime){
 
     var _onmouseup = function(e){
         var ele, target, drag, XY;
+        fireDragStart.$clearTimer(tm);
         System.updateLastAccessTime();
-        fireDragStart.$clearTimer();
 
         ele = e.srcElement;
         target = e.getEventTarget();

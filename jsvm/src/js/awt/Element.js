@@ -1,9 +1,9 @@
 /*global  */
 /**
 
- Copyright 2007-2015, The JSVM Project. 
- All rights reserved.
- 
+  Copyright 2007-2015, The JSVM Project. 
+  All rights reserved.
+  
  *
  * Author: Hu Dong
  * Contact: hoodng@hotmail.com
@@ -442,13 +442,13 @@ js.awt.Element = function(def, Runtime){
     thi$.getID = function(ele){
         var id;
         switch(Class.typeOf(ele)){
-        case "string":
+            case "string":
             id = ele;
             break;
-        case "object":
+            case "object":
             id = ele.id;
             break;
-        default:
+            default:
             id = this.id;
         }
         return id;
@@ -457,13 +457,13 @@ js.awt.Element = function(def, Runtime){
     thi$.getOBJ = function(ele){
         var obj;
         switch(Class.typeOf(ele)){
-        case "string":
+            case "string":
             obj = this[ele];
             break;
-        case "object":
+            case "object":
             obj = ele;
             break;
-        default:
+            default:
             obj = this;
         }
         return obj;
@@ -831,7 +831,7 @@ js.awt.Element = function(def, Runtime){
 
     var _elementChanged = function(cmd){
         var container = this.getContainer() 
-            || DOM.getComponent(this.view.parentNode);
+                     || DOM.getComponent(this.view.parentNode);
         if(container && container.fireEvent){
             container.fireEvent(
                 new Event("childrenchanged", {cmd: cmd}, this));
@@ -841,22 +841,22 @@ js.awt.Element = function(def, Runtime){
     thi$.adjustLayers = function(cmd, bounds, show){
         var doo = false;
         switch(cmd){
-        case "coord":
-        case "sized":
-        case "geom":
+            case "coord":
+            case "sized":
+            case "geom":
             bounds = bounds || this.getBounds();
             this.adjustShadow(bounds);
             this.adjustCover(bounds);
             this.adjustOutline(bounds);
             doo = true;
             break;
-        case "zorder":
+            case "zorder":
             var z = this.getZ();
             this.setShadowZIndex(z);
             this.setCoverZIndex(z);
             this.setOutlineZIndex(z);
             break;
-        case "display":
+            case "display":
             if(show != "none"){
                 bounds = bounds || this.getBounds();
                 this.adjustShadow(bounds);
@@ -867,7 +867,7 @@ js.awt.Element = function(def, Runtime){
             this.setCoverDisplay(show);
             this.setOutlineDisplay(show);
             break;
-        case "remove":
+            case "remove":
             this.removeShadow();
             this.removeCover();
             this.removeOutline();
@@ -875,7 +875,7 @@ js.awt.Element = function(def, Runtime){
 
             doo = true;
             break;
-        case "append":
+            case "append":
             doo = true;
             break;
         }
@@ -944,7 +944,7 @@ js.awt.Element = function(def, Runtime){
         }
         return target;
     };
-        
+    
     thi$.getCursor = function(ele, x, y){
         return 11;
     };
@@ -992,8 +992,26 @@ js.awt.Element = function(def, Runtime){
             range: [-0xFFFF, -0xFFFF, 0xFFFF, 0xFFFF],
             autofit: autofit,
             hscroll: hscroll,
-            vscroll: vscroll
+            vscroll: vscroll,
+            // For sometimes the moving/resizing target won't
+            // change it position or size synchronized 
+            syncchange: true 
         };
+    };
+
+    // Only for show move capture or resize capture
+    var _onmousemove = function(e){
+        var b;
+        if(this.isMovable()){
+            b = this.showMoveCapture(e);
+        }
+        
+        if(!b && this.isResizable()){
+            b = this.showResizeCapture(e);
+        }
+        if(b) {
+            e.cancelBubble();
+        }
     };
     
     thi$.destroy = function(){
@@ -1043,6 +1061,9 @@ js.awt.Element = function(def, Runtime){
         if(M.resizable){
             this.setResizable(true, M.resizer);
         }
+
+        this.attachEvent(
+            Event.W3C_EVT_MOUSE_MOVE, 4, this, _onmousemove);
         
     }.$override(this._init);
     

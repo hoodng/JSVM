@@ -96,7 +96,7 @@ js.lang.Object = function (o){
 
         // Clean the cached context attributes
         obj = objectStore[uuid];
-        delete objectStore[uuid];
+        objectStore[uuid] = null;
         
         for(p in obj){
             obj[p] = null;
@@ -216,7 +216,7 @@ js.lang.Object = function (o){
             return;
         }
 
-        delete obj[attr];
+        obj[attr] = null;
     };
 
 }.$extend(Object);

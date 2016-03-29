@@ -1,8 +1,8 @@
 /**
 
- Copyright 2007-2015, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
- 
+
  *
  * Author: Hu Dong
  * Contact: hoodng@hotmail.com
@@ -15,22 +15,22 @@ $package("js.awt");
 $import("js.awt.Highlighter");
 
 /**
- * Define the basic Item component. 
- * 
+ * Define the basic Item component.
+ *
  * For such Item, there are about two kinds of user cases:
- * 
- * 1) Use as the iterable items for tree, list and so on. It should be 
- * lightweight, high-performance. And it can be a little low flexibility. 
- * So we need to finish most of the layout things before appending it to 
+ *
+ * 1) Use as the iterable items for tree, list and so on. It should be
+ * lightweight, high-performance. And it can be a little low flexibility.
+ * So we need to finish most of the layout things before appending it to
  * the DOM tree. And reducing the "repaint" and "layout" things.
- * 
- * 2) Use as the standalone component like a button. It should be strict, 
+ *
+ * 2) Use as the standalone component like a button. It should be strict,
  * flexibility and with smart layout. Of course it may be a little weighty
  * and low-performace.
- * 
- * However, we add the "strict" property in the definition of the item to 
+ *
+ * However, we add the "strict" property in the definition of the item to
  * diff such two scenes.
- * 
+ *
  * @param def :{
  *
  *	   markable: true/false. If true will create a marker element.
@@ -61,13 +61,13 @@ js.awt.Item = function(def, Runtime, view){
 
 		return U.msgType || "js.awt.event.StrictItemEvent";
 	};
-	
+
 	/**
 	 * Judge whether the current Item is strict for the non-iterative
 	 * use scenes.
 	 */
 	thi$.isStrict = function(){
-		return this.def.strict === true;  
+		return this.def.strict === true;
 	};
 
 	/**
@@ -131,7 +131,7 @@ js.awt.Item = function(def, Runtime, view){
 			return;
 		}
 
-		var M = this.def, buf = this.__buf__.clear(), 
+		var M = this.def, buf = this.__buf__.clear(),
 		styles;
 		buf.append(this.Runtime().imagePath());
 
@@ -159,17 +159,17 @@ js.awt.Item = function(def, Runtime, view){
 	};
 
 	thi$.paintColorSign = function(signObj){
-		var R = this.Runtime(), color = signObj.color, 
+		var R = this.Runtime(), color = signObj.color,
 		opacity = signObj.opacity, styles, cview;
 
 		if(!color){
 			return;
 		}
-		
+
 		if(js.awt.Color && (color instanceof js.awt.Color)){
 			color = color.toString("hex");
 		}
-		
+
 		if (color.toLowerCase() == "transparent"
 			|| color.toLowerCase() == "rgba(0, 0, 0, 0)") {
 			styles = {
@@ -178,16 +178,16 @@ js.awt.Item = function(def, Runtime, view){
 			};
 		} else {
 			styles = {"background-color": color};
-		}	
-		
+		}
+
 		if(Class.isNumber(opacity) && opacity >= 0){
 			if(opacity > 1){
 				opacity = opacity / 100;
 			}
-			
+
 			styles["opacity"] = opacity;
 		}
-		
+
 		DOM.applyStyles(this.sign, styles);
 	};
 
@@ -197,7 +197,7 @@ js.awt.Item = function(def, Runtime, view){
 		if(!shape){
 			return;
 		}
-		
+
 		if(signObj.real !== true){
 			shape = R.imagePath() + shape;
 		}
@@ -320,7 +320,7 @@ js.awt.Item = function(def, Runtime, view){
 	 * @see js.awt.Movable
 	 */
 	thi$.isMoverSpot = function(el, x, y){
-		return el != this.branch && el != this.marker 
+		return el != this.branch && el != this.marker
 			&& el !== this.ctrl;
 	};
 
@@ -329,8 +329,8 @@ js.awt.Item = function(def, Runtime, view){
 	 * @inheritdoc js.awt.Component#onStateChanged
 	 */
 	thi$.onStateChanged = function(){
-		$super(this);		  
-		
+		$super(this);
+
 		var icon = this.icon, styleClass;
 		if(this.isStrict() && icon){
 			this.setIconImage(this.getState());
@@ -346,18 +346,18 @@ js.awt.Item = function(def, Runtime, view){
 	}.$override(this.onStateChanged);
 
 	/*
-	 * Do the strict layout	 
+	 * Do the strict layout
 	 */
 	var _doStrictLayout = function(force){
 		if(!this.isDOMElement() || !this.needLayout(force)){
 			return false;
 		}
-		
+
 		var M = this.def, G = {}, bounds = this.getBounds(), MBP = bounds.MBP,
 		xbase = MBP.paddingLeft, ybase = MBP.paddingTop,
 		left = 0, top, space = bounds.innerWidth, layout = M.layout || {},
 		gap = layout.gap || 0, hAlign = layout.align_x, vAlign = layout.align_y,
-		ctrlAlign = M.ctrlAlign, items = M.items, len = items.length, 
+		ctrlAlign = M.ctrlAlign, items = M.items, len = items.length,
 		rects = [], rigid, ele, id, iid, d, r, h, c = 0, iSize, sv;
 
 		if(!Class.isNumber(hAlign)){
@@ -371,7 +371,7 @@ js.awt.Item = function(def, Runtime, view){
 		if(!Class.isNumber(ctrlAlign)){
 			ctrlAlign = 0.5;
 		}
-		
+
 		for(var i = 0; i < len; i++){
 			id = items[i];
 			ele = this[id];
@@ -380,13 +380,13 @@ js.awt.Item = function(def, Runtime, view){
 			MBP = d.MBP;
 			iid = id.split(/\d+/g)[0];
 			r = {};
-			
+
 			space -= MBP.marginLeft;
 			switch(iid){
 			case "label":
 			case "input":
-				rigid = (iid === "label") 
-					? M.labelRigid === true 
+				rigid = (iid === "label")
+					? M.labelRigid === true
 					: M.inputRigid === true;
 
 				if(rigid){
@@ -407,7 +407,7 @@ js.awt.Item = function(def, Runtime, view){
 			case "icon":
 			case "sign":
 				r.width = d.width;
-				
+
 				if(iid === "icon"){
 					iSize = M.iconSize || {};
 				}else{
@@ -418,13 +418,13 @@ js.awt.Item = function(def, Runtime, view){
 				if(!isNaN(sv) && sv > 0){
 					r.width = sv;
 				}
-				
+
 				sv = iSize.height;
 				if(!isNaN(sv) && sv > 0){
 					r.height = sv;
 				}
 
-				space -= r.width;				 
+				space -= r.width;
 				break;
 
 			default:
@@ -433,17 +433,17 @@ js.awt.Item = function(def, Runtime, view){
 				break;
 			}
 			space -= MBP.marginRight;
-			
+
 			r.node = ele;
 			rects.push(r);
 		}
-		
+
 		space -= gap * (len - 1);
-		
+
 		if(c > 1){
 			space = Math.round(space / c);
 		}
-		
+
 		if(c == 0){
 			left = Math.round(space * hAlign);
 		}
@@ -481,9 +481,9 @@ js.awt.Item = function(def, Runtime, view){
 
 			left += r.width + MBP.marginRight + gap;
 		}
-		
+
 		return true;
-		
+
 	};
 
 	/**
@@ -503,7 +503,7 @@ js.awt.Item = function(def, Runtime, view){
 				DOM.setSize(ele, width, undefined);
 			}else{
 				// The lable element may has padding and border,
-				// the BBM should be handled to avoid 
+				// the BBM should be handled to avoid
 				//ele.style.width = width + "px";
 				DOM.setSize(ele, width, undefined);
 			}
@@ -517,17 +517,21 @@ js.awt.Item = function(def, Runtime, view){
 	 * The js.awt.Item is prepared for those iterable cases. So it must
 	 * be simple enough. And it must not be resized, moved, floating and
 	 * showing shadow. However it can be disabled.
-	 * 
+	 *
 	 * @link js.awt.Component#repaint
 	 * @link js.awt.Component#repaint
 	 */
 	thi$.repaint = function(){
-		var rst = false;
+		var rst = false, M = this.def;
 		if(!this.isStrict()){
 			if(this.isDOMElement()){
 				rst = true;
-				this.showDisableCover(!this.isEnabled(), 
-									  this.def.disableClassName);
+				this.showDisableCover(!this.isEnabled(),
+									  M.disableClassName);
+            if(M.useUserDefinedTip){
+                this.setUserDefinedTip(true, M.tipDef);
+            }
+            this.setTipText(M.tip);
 			}
 		}else{
 			rst = $super(this);
@@ -760,19 +764,19 @@ js.awt.Item = function(def, Runtime, view){
 	var _createElements = function(){
 		var M = this.def, items = M.items, G = {}, bounds,
 		MBP, xbase, ybase, left, top, innerHeight, D, ele,
-		id ,iid, viewType, i, len, 
+		id ,iid, viewType, i, len,
 
 		buf = this.__buf__, uuid = this.uuid(),
 		strict = this.isStrict();
 
-		// For the iterable items, rectify the Box-model compatibility 
+		// For the iterable items, rectify the Box-model compatibility
 		// differences in advance.
 		if(!strict){
 			bounds = DOM.getBounds(this.view);
 
 			if(!bounds.BBM){
 				DOM.setSize(this.view, undefined, bounds.innerHeight);
-				bounds = DOM.getBounds(this.view);				  
+				bounds = DOM.getBounds(this.view);
 			}
 
 			MBP = bounds.MBP;
@@ -781,8 +785,8 @@ js.awt.Item = function(def, Runtime, view){
 			left = xbase;
 
 			innerHeight = bounds.innerHeight;
-		}		 
-		
+		}
+
 		for(i = 0, len = items.length; i < len; i++){
 			id = items[i];
 			iid = id.split(/\d+/g)[0];
@@ -804,7 +808,7 @@ js.awt.Item = function(def, Runtime, view){
 
 			ele = DOM.createElement(viewType);
 			ele.id = id;
-			ele.className = ele.clazz 
+			ele.className = ele.clazz
 				= DOM.combineClassName(this.className, id);
 			ele.iid = iid;
 
@@ -883,7 +887,7 @@ js.awt.Item = function(def, Runtime, view){
 
 		$super(this);
 
-		var M = this.def, uuid = this.uuid(), items, nodes, id, 
+		var M = this.def, uuid = this.uuid(), items, nodes, id,
 		i, len, node, text, ipt, placeholder;
 		if(view == undefined){
 			items = M.items = M.items || [];
@@ -896,7 +900,7 @@ js.awt.Item = function(def, Runtime, view){
 			nodes = this.view.childNodes;
 			len = nodes.length;
 			for(i = 0; i < len; i++){
-				node = nodes[i]; 
+				node = nodes[i];
 				id = node.id;
 				node.iid = (node.iid || id.split(/\d+/g)[0]);
 				node.className = DOM.combineClassName(this.className, id);
