@@ -10,26 +10,20 @@
          .box1 {
              position: absolute;
              border: 5px solid red;
-             padding: 5px;
-
              left: 0px;
              top: 120px;
 
              width:100px;
              height:100px;
-
-             overflow: auto;
-             visibility : visible;
          }
 
          .box2 {
              position: absolute;
-             border: 0px solid blue;
 
              left: 0px;
 
-             width: 50px;
-             height:30px;
+             width: 30px;
+             height:100%;
 
              background-color: blue;
 
@@ -37,14 +31,13 @@
 
          .box3 {
              position: absolute;
-             border: 1px solid green;
 
-             left: 600px;
-             top: 100px;
+             right: 0px;
 
-             width: 100px;
-             height:100px;
-
+             width: 30px;
+             height:100%;
+             
+             background-color: blue;
          }
         </style>
         
@@ -52,7 +45,8 @@
     <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
 
         <div class="box1">
-            <div id="box22" style="position: absolute; width: 50px; height: 30px; left: 0px; background-color: blue;"></div>
+            <div id="box2" class="box2"></div>
+            <div id="box3" class="box3"></div>
         </div>
         
     </body>

@@ -292,10 +292,13 @@ js.awt.Movable = function (){
      * 
      * @param b, true is movable, false is unable.
      */
-    thi$.setMovable = function(b){
+    thi$.setMovable = function(b, mover){
         var M = this.def;
         b = b || false;
         M.movable = b;
+        if(Class.isObject(mover)){
+            M.mover = mover;
+        }
         this.getMovingConstraints();
     };
 

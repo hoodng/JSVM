@@ -186,7 +186,7 @@ js.awt.Desktop = function (Runtime){
                 target.activate(e);
             }
             target.fireEvent(e, true);
-            //debugger;
+            debugger;
             if(e.button === 1 && (target.isMovable() ||
                                   target.isResizable() ||
                 target.isMoverSpot())){

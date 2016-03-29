@@ -1828,7 +1828,7 @@
 }
 
 /** Default single Slider **/
-.jsvm_slider_single, .jsvm_slider_single_0 {
+.jsvm_slider_single {
     left: 10px; top: 10px;
     width: 400px;
     height: 40px;
@@ -1838,13 +1838,9 @@
 .jsvm_slider_single_slipper {
     width: 10px;
     height:18px;
-}
-
-.jsvm_slider_single_slipper_ctrl0 {
-    width: 10px;
     background-repeat: no-repeat;
     background-position:center;
-    background-image: url("images/0-slider_single.png");
+    background-image: url("images/0-slider_single.png");    
 }
 
 .jsvm_slider_single_track0, .jsvm_slider_single_track1 {
@@ -1870,21 +1866,26 @@
     width: 100px;
     height: 12px;
     border: 0px solid gray;
+    background-color: #ffb307;
 }
 
 .jsvm_slider_ranger_slipper_ctrl0,
 .jsvm_slider_ranger_slipper_ctrl1 {
     width: 12px;
-    height:12px;
+    height:100%;
     background-repeat: no-repeat;
     background-position:center;
 }
 
 .jsvm_slider_ranger_slipper_ctrl0 {
+    position:absolute;
+    left: 0;
     background-image: url("images/0-slider_range_start.png");
 }
 
 .jsvm_slider_ranger_slipper_ctrl1 {
+    position: absolute;
+    right: 0;
     background-image: url("images/0-slider_range_end.png");
 }
 

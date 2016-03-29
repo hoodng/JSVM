@@ -435,19 +435,13 @@ js.awt.Slider = function(def, Runtime){
      * snaped to grid
      */
     var _setMoverGrid = function(count){
-        var grid;
+        var grid, mover = this.slipper.def.mover;
         if(count > 1){
             grid = this.getTrackLength()/(count-1);
             grid = Class.isNumber(grid) ? (grid < 1 ? 1 : grid) : 1;
-            this.def.mover.grid = grid;
-            
-            if(!this.isSingle()){
-                //System.err.println(this.getTrackLength());
-                //this.slipper.def.mover.grid = grid;
-            } 
-        }
-        else if(count == 1){
-            this.def.mover.grid = 1;
+            mover.grid = grid;
+        }else if(count == 1){
+            mover.grid = 1;
         }
     };
 
@@ -455,12 +449,15 @@ js.awt.Slider = function(def, Runtime){
      * @see js.awt.Movable
      */
     thi$.setMovable = function(b){
+        this.slipper.setMovable(b);
+        /*
         $super(this);
         if(b === true){
             MQ.register(this.slipper.getMovingMsgType(), this, _onmoving);
         }else{
             MQ.cancel("js.awt.event.SliderMovingEvent", this, _onmoving);
-        }
+        }*/
+        
     }.$override(this.setMovable);
 
     var _onmoving = function(e){
@@ -531,7 +528,16 @@ js.awt.Slider = function(def, Runtime){
                 className: this.className + "_slipper",
                 id: "slipper",
                 css: "position:absolute;overflow:hidden;",
-                stateless: true
+                stateless: true,
+                movable: true,
+                mover:{
+                    grid:1,
+                    bt:1,
+                    br:1,
+                    bb:1,
+                    bl:1,
+                    freedom: this.isHorizontal() ? 1:2
+                }
             },R);
 
         slipper.setPeerComponent(this);
@@ -559,12 +565,7 @@ js.awt.Slider = function(def, Runtime){
         
         _createElements.call(this);
 
-        var M = this.def, mover = M.mover = M.mover || {};
-        mover.bound = 0;
-        mover.grid = 1;
-        mover.bt = mover.br = mover.bb = mover.bl = 1;
-        mover.freedom = this.isHorizontal() ? 1:2;
-        this.setMovable(true);
+        var M = this.def;
 
         if(!this.isSingle()){
             MQ.register(this.slipper.getSizingMsgType(), this, _onsizing);
@@ -718,25 +719,24 @@ js.awt.Slipper = function(def, Runtime){
     };
     
     var _createElements = function(){
-        var ctrl0, ctrl1, R = this.Runtime();
-        ctrl0 = new js.awt.Component(
-            {
-                className: this.className + "_ctrl0",
-                id: "ctrl0",
-                css: "position:absolute;overflow:hidden;",
-                stateless: true
-            }, R);
-        this.addComponent(ctrl0);
-
+        var view = this.view, uuid, className, d, ctrl0, ctrl1;
         if(!this.isSingle()){
-            ctrl1 = new js.awt.Component(
-                {
-                    className: this.className + "_ctrl1",
-                    id: "ctrl1",
-                    css: "position:absolute;overflow:hidden;",
-                    stateless: true
-                }, R);
-            this.addComponent(ctrl1);
+            className = this.className;
+            uuid = this.uuid();
+            //d = this.isHorizontal() ? "--h":"--v";
+            d = "";
+            
+            ctrl0 = DOM.createElement("DIV");
+            ctrl0.id = [uuid, "ctrl0"].join("-");
+            ctrl0.uuid = uuid;
+            ctrl0.className = [className, "_ctrl0",d].join("");
+            view.appendChild(ctrl0);
+
+            ctrl1 = DOM.createElement("DIV");
+            ctrl1.id = [uuid, "ctrl1"].join("-");
+            ctrl1.uuid = uuid;
+            ctrl1.className = [className,"_ctrl1",d].join("");
+            view.appendChild(ctrl1);
         }
     };
     
