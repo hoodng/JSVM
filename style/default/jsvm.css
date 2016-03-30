@@ -1829,15 +1829,18 @@
 
 /** Default single Slider **/
 .jsvm_slider_single {
-    left: 10px; top: 10px;
     width: 400px;
-    height: 40px;
-    border: 1px solid #999999;
+    height: 2px;
+    border-left: 0px solid #ffb307;
+    border-right: 400px solid #b0b0b0;
 }
 
 .jsvm_slider_single_slipper {
+    position: absolute;
     width: 10px;
     height:18px;
+    top: -8px;
+    left: 0px;
     background-repeat: no-repeat;
     background-position:center;
     background-image: url("images/0-slider_single.png");    
@@ -1857,7 +1860,6 @@
 
 /** Default ranger Slider **/
 .jsvm_slider_ranger {
-    left: 10px; top: 60px;
     width: 400px;
     height: 14px;
     border: 1px solid #999999;

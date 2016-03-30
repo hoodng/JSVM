@@ -12,14 +12,6 @@
                 classpath="lib/jsre-ui.jz;"></script>
 
         <style>
-         .jsvm_slider_single{
-             position: absolute;
-         }
-
-         .jsvm_slider_ranger{
-             position: absolute;
-         }
-
          .jsvm_button {
              position: absolute;
          }
@@ -46,6 +38,9 @@
                  className: "jsvm_slider_single",
                  id: "slider0",
                  type: 0,
+                 css:"position:absolute;",
+                 x: 20,
+                 y: 50,
                  resizable:true,
                  resizer: 0x22
              }, R);
@@ -71,6 +66,9 @@
                  className: "jsvm_slider_ranger",
                  id: "slider1",
                  type: 1,
+                 css:"position:absolute;",
+                 x: 20,
+                 y: 100,
                  resizable: true,
                  resizer: 0x22,
                  tracemouse:3
@@ -88,7 +86,7 @@
          var btnFirst = new js.awt.Button(
              {
                  id: "btnFirst",
-                 x: 10, y: 120,
+                 x: 10, y: 150,
                  labelText: "First"
              }, R);
          btnFirst.attachEvent("click", 0, this, 
@@ -102,7 +100,7 @@
          var btnLast = new js.awt.Button(
              {
                  id: "btnLast",
-                 x: 100, y: 120,
+                 x: 100, y: 150,
                  labelText: "Last"
              }, R);
          this.addComponent(btnLast);
@@ -115,7 +113,7 @@
          var btnAll = new js.awt.Button(
              {
                  id: "btnAll",
-                 x: 190, y: 120,
+                 x: 190, y: 150,
                  labelText: "All"
              }, R);
          btnAll.attachEvent("click", 0, this, 
@@ -129,7 +127,7 @@
          var btnPlay = new js.awt.Button(
              {
                  id: "btnPlay",
-                 x: 280, y: 120,
+                 x: 280, y: 150,
                  labelText: "Play"
              }, R);
          btnPlay.attachEvent("click", 0, this, 
@@ -143,7 +141,7 @@
          var btnStop = new js.awt.Button(
              {
                  id: "btnStop",
-                 x: 370, y: 120,
+                 x: 370, y: 150,
                  labelText: "Stop"
              }, R);
          btnStop.attachEvent("click", 0, this, 
@@ -153,8 +151,8 @@
 
          this.addComponent(btnStop);
          
-         slider0.first();
-         slider1.first();
+         //slider0.first();
+         //slider1.first();
 
          /*
          var montion = new com.jinfonet.report.slider.MontionSlider(
