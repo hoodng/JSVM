@@ -915,13 +915,9 @@ li {
 .montionplayer_sldplay_slipper{
     width: 10px;
     height:18px;
-}
-
-.montionplayer_sldplay_slipper_ctrl0 {
-    width: 10px;
     background-repeat: no-repeat;
     background-position:center;
-    background-image: url("images/0-slider_single.png");
+    background-image: url("images/0-slider_single.png");    
 }
 
 .montionplayer_sldplay_track0, .montionplayer_sldplay_track1 {
@@ -972,13 +968,9 @@ li {
 .singleFC_sldplay_slipper{
     width: 10px;
     height:18px;
-}
-
-.singleFC_sldplay_slipper_ctrl0 {
-    width: 10px;
     background-repeat: no-repeat;
     background-position:center;
-    background-image: url("images/0-slider_single.png");
+    background-image: url("images/0-slider_single.png");    
 }
 
 .singleFC_sldplay_track0, .singleFC_sldplay_track1 {
@@ -1017,17 +1009,20 @@ li {
 
 .rangerFC_sldplay_slipper_ctrl0,
 .rangerFC_sldplay_slipper_ctrl1 {
+    position: absolute;
     width: 12px;
-    height:12px;
+    height:100%;
     background-repeat: no-repeat;
     background-position:center;
 }
 
 .rangerFC_sldplay_slipper_ctrl0 {
+    left: 0;
     background-image: url("images/0-slider_range_start.png");
 }
 
 .rangerFC_sldplay_slipper_ctrl1 {
+    right: 0;
     background-image: url("images/0-slider_range_end.png");
 }
 

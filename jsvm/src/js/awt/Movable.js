@@ -76,7 +76,7 @@ js.awt.MoveObject = function(){
     thi$.releaseMoveObject = function(){
         if(this != this.movingPeer){
             this.movingPeer.moveObj = null;
-            delete this.movingPeer;            
+            this.movingPeer = null;
             this.destroy();
         }else{
             this.movingPeer = null;
@@ -145,8 +145,8 @@ js.awt.Movable = function (){
             oz: moveObj.getZ()
         };
 
+        moveObj._moveCtx = ctx;
         moveObj.setZ(DOM.getMaxZIndex(document.body)+1);
-        moveObj._moveCtx = ctx;        
         moveObj.showMoveCover(true);
         if(moveObj._coverView){
             DOM.setDynamicCursor(moveObj._coverView, i);
@@ -284,7 +284,7 @@ js.awt.Movable = function (){
      * Tests whether this component is movable.
      */
     thi$.isMovable = function(){
-        return this.def.movable || false;
+        return !this.isCovered() && (this.def.movable === true);
     };
     
     /**

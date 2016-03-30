@@ -96,7 +96,7 @@ js.util.Document = function (){
         cdiv.appendChild(ccdiv);
 
         fdiv = doc.createElement("DIV");
-        fdiv.style.cssText = "float:left;"
+        fdiv.style.cssText = "float:left;";
         div.appendChild(fdiv);
 
         if(view && view.getComputedStyle
@@ -430,15 +430,6 @@ js.util.Document = function (){
         }
 
         return _s;
-    };
-
-    thi$.offsetParent = function(ele){
-        var p = ele.offsetParent, body = document.body;
-
-        if(!p || !this.contains(body, p, true)){
-            p = body;
-        }
-        return p;
     };
 
     /**
@@ -2092,19 +2083,7 @@ js.util.Document = function (){
         if(uuid){
             idx = uuid.lastIndexOf("-cover");
             if(idx != -1){ // For the cover
-                peer = this.getObject(uuid.substring(0, idx));
-                if(peer){
-                    obj = {
-                        isMovable: function(){return false;},
-                        isResizable: function(){return false;},
-                        isMoverSpot: function(){return false;},
-                        fireEvent: function(e, b){
-                            e.onCover = true;
-                            e.setEventTarget(peer);
-                            peer.fireEvent(e, b);
-                        }
-                    };
-                }
+                obj = this.getObject(uuid.substring(0, idx));
             }else{
                 idx = uuid.lastIndexOf("-capture");
                 obj = this.getObject(uuid.substring(0, idx));

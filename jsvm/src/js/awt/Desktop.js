@@ -41,6 +41,16 @@ js.awt.Desktop = function (Runtime){
     };
 
     var drags = {}, lasts ={}, tm;
+
+    // @link js.awt.Element#checkCaptures
+	var _onTargetMousemove = function(target, e){
+        var b = target.checkCaptures(e);
+		if(b) {
+			e.cancelBubble();
+		}else{
+			target.fireEvent(e, true);
+		}
+	};
     
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot, XY;
@@ -60,7 +70,8 @@ js.awt.Desktop = function (Runtime){
         XY = e.eventXY();
         if(!drag){
             if(target && target !== this){
-                target.fireEvent(e, true);
+                //target.fireEvent(e, true);
+                _onTargetMousemove.call(this, target, e);
             }
             
         }else{
@@ -183,10 +194,12 @@ js.awt.Desktop = function (Runtime){
             // Ref the old logic before v13.5, just to activate 
             // the current triggered component.
             if(target.activate){
-                target.activate(e);
+                if(!target.isCovered()){
+                    target.activate(e);
+                }
             }
             target.fireEvent(e, true);
-            debugger;
+
             if(e.button === 1 && (target.isMovable() ||
                                   target.isResizable() ||
                 target.isMoverSpot())){
@@ -454,10 +467,10 @@ js.awt.Desktop = function (Runtime){
     thi$.updateThemeCSS = function(theme, file){
         var stylePath = DOM.makeUrlPath(J$VM.j$vm_home, "../style/" + theme + "/"),
             styleText = Class.getResource(stylePath + file, true);
-		if(styleText && styleText.length !== 0){
-	        styleText = styleText.replace(IMGSREG, stylePath+"images/");
-	        this.applyCSSCode(file, styleText);
-		}
+        if(styleText && styleText.length !== 0){
+            styleText = styleText.replace(IMGSREG, stylePath+"images/");
+            this.applyCSSCode(file, styleText);
+        }
     };
 
     thi$.updateThemeLinks = function(theme, old, file){

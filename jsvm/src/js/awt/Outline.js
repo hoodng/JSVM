@@ -54,6 +54,9 @@ js.awt.Outline = function(){
             if(!views){
                 bounds = this.getBounds();
                 views = this._outlineView = [];
+                if(className){
+                    this._outlineClassName = className;
+                }
                 clazz = ["jsvm_", className||""].join(" ");
                 for(var i=0; i<12; i++){
                     if(i < 4 || this.isResizable(i-4)){

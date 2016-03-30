@@ -80,6 +80,8 @@
     filter: alpha(opacity=40);
     -moz-opacity: 0.4;
     opacity: 0.4;
+
+    cursor: default;
 }
 
 .ptitem_cover--disable,
@@ -88,6 +90,8 @@
     -moz-opacity: 0;
     opacity: 0;
     background-color: #F5F4EA;
+
+    cursor: default;
 }
 
 .pclient,
@@ -201,12 +205,12 @@
 
 /* For sideHolder */
 .wrptSideHolder {
-    width: 228px; 
+    width: 228px;
     display: block;
 }
 
 .wrptSideHolder_16 {
-    display: none; 
+    display: none;
 }
 
 /** For Toolbar **/
@@ -300,7 +304,7 @@
     width: 228px;
 
     background-color: #EEEEEE;
-    
+
     /*
     border-width: 0px 1px 0px 0px;
     border-style: none solid none none;
@@ -483,7 +487,7 @@
 
 .propertySheet_split {
     border-left: 1px solid #D9D9D9;
-    width:6px;
+    width:1px;
     background-color: transparent;
     position: absolute;
     top: 0px;
@@ -667,6 +671,10 @@ filteAdvPanel_16 {
 .queryFilter_fieldset {
     margin: 0px;
     padding: 15px 5px 5px 5px;
+    border: 1px solid #003066;
+}
+
+.category_fieldset {
     border: 1px solid #003066;
 }
 

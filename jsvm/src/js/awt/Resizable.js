@@ -43,14 +43,14 @@ js.awt.SizeObject = function(){
 
     thi$.getSizingMsgRecvs = function(){
         var peer = this.getSizingPeer();
-        return (peer && peer.getSizingMsgRecvs) ?
+        return (this != peer && peer && peer.getSizingMsgRecvs) ?
             peer.getSizingMsgRecvs() : null;
     };
 
     thi$.releaseSizeObject = function(){
         if(this != this.sizingPeer){
             this.sizingPeer.sizeObj = null;
-            delete this.sizingPeer;
+            this.sizingPeer = null;
             this.destroy();
         }else{
             this.sizingPeer = null;
@@ -104,11 +104,20 @@ js.awt.Resizable = function(){
             event: e,
             ox: bounds.x,
             oy: bounds.y,
+            oz: moveObj.getZ(),
             ow: bounds.width,
             oh: bounds.height
         };
+
+        ctx.offsetbounds = DOM.getBounds(moveObj.getOffsetParent());
         
-        moveObj._moveCtx = ctx;        
+        moveObj._moveCtx = ctx;
+        moveObj.setZ(DOM.getMaxZIndex(document.body)+1);
+        if(ctx.outline){
+            var peer = moveObj.getSizingPeer();
+            moveObj.showOutline(true, peer._outlineClassName);
+            peer.showOutline(false);
+        }
         MQ.register("releaseSizeObject", this, _release);
         DOM.setDynamicCursor(moveObj.view, i);
 
@@ -118,40 +127,42 @@ js.awt.Resizable = function(){
 
     thi$.processSizing = function(e, i){
         var sizeObj = this.getSizeObject(), ctx = sizeObj._moveCtx,
-            thip = ctx.container, pounds = thip.getBounds(),
-            bounds = sizeObj.getBounds(), 
+            thip = ctx.container, pounds = ctx.pounds,
+            bounds = sizeObj.getBounds(), oounds = ctx.offsetbounds,
             mover = this.getMovingConstraints(), grid = mover.grid, 
             minSize = sizeObj.getMinimumSize(),
             maxSize = sizeObj.getMaximumSize(),
             xy = e.eventXY(), minV, maxV, v0, v1, 
             x, y, w, h, data = ctx.data, changed;
-
-        x = bounds.userX; w = bounds.userW;
-        y = bounds.userY; h = bounds.userH;
-
-        xy = DOM.relative(xy.x, xy.y, pounds);
+        
+        x = oounds.absX + oounds.MBP.borderLeftWidth + bounds.userX;
+        y = oounds.absY + oounds.MBP.borderTopWidth  + bounds.userY; 
+        w = bounds.userW;
+        h = bounds.userH;
 
         // calc x
         switch(i){
             case 0:
             case 1:
             case 2:
-            v1 = bounds.userX + bounds.userW;
-            minV = mover.bl < 1 ? (v1 - maxSize.width) : 0;
-            maxV = v1-max(minSize.width, bounds.MBP.BW+1);
+            v1 = x + bounds.userW;
+            minV = grid*ceil((mover.bl < 1 ? (v1 - maxSize.width) :
+                              (pounds.absX + pounds.MBP.borderLeftWidth))/grid);
+            maxV = grid*floor((v1 - max(minSize.width, bounds.MBP.BW+1))/grid);
             x = xy.x;
             x = x < minV ? minV : (x > maxV ? maxV : x);
             w = grid*ceil((v1 - x)/grid);
-            x = grid*floor((v1 - w)/grid);
+            x = grid*ceil((v1 - w)/grid);
             break;
             case 4:
             case 5:
             case 6:
-            v0 = bounds.userX;
+            v0 = x;
             minV = grid*ceil(max(bounds.MBP.BW+1, minSize.width)/grid);
             maxV = grid*floor((mover.br < 1 ?
-                               maxSize.width : pounds.scrollWidth)/grid);
-            x = bounds.userX;
+                               min(maxSize.width,ctx.range[2]) :
+                               pounds.absX + pounds.MBP.borderLeftWidth +
+                               pounds.scrollWidth - v0)/grid);
             w = grid*floor((xy.x - v0)/grid);
             w = w < minV ? minV : (w > maxV ? maxV : w);
             break;
@@ -162,32 +173,36 @@ js.awt.Resizable = function(){
             case 0:
             case 7:
             case 6:
-            v1 = bounds.userY + bounds.userH;
-            minV = mover.bt < 1 ? (v1 - maxSize.height) : 0;
-            maxV = v1-max(minSize.height, bounds.MBP.BH+1);
+            v1 = y + bounds.userH;
+            minV = grid*ceil((mover.bt < 1 ? (v1 - maxSize.height) :
+                              (pounds.absY + pounds.MBP.borderTopWidth))/grid);
+            maxV = grid*floor((v1-max(minSize.height, bounds.MBP.BH+1))/grid);
             y = xy.y;
             y = y < minV ? minV : (y > maxV ? maxV : y);
             h = grid*ceil((v1 - y)/grid);
-            y = grid*floor((v1 - h)/grid);
+            y = grid*ceil((v1 - h)/grid);
             break;
             case 2:
             case 3:
             case 4:
-            v0 = bounds.userY;
+            v0 = y;
             minV = grid*ceil(max(bounds.MBP.BH+1, minSize.height)/grid);
             maxV = grid*floor((mover.bb < 1 ?
-                               maxSize.height : pounds.scrollHeight)/grid);
-            y = bounds.userY;
+                               min(maxSize.height,ctx.range[3]) :
+                               pounds.absY + pounds.MBP.borderTopWidth +
+                               pounds.scrollHeight - v0)/grid);
             h = grid*floor((xy.y - v0)/grid);
             h = h < minV ? minV : (h > maxV ? maxV : h);
             break;
         }
 
-        if(x != bounds.offsetX || y != bounds.offsetY){
-            changed = sizeObj.setPosition(x, y);
+        if(x != bounds.absX || y != bounds.absY){
+            xy = DOM.relative(x, y, oounds);
+            changed = sizeObj.setPosition(xy.x, xy.y);
             ctx.moved = true;
-            data.nx = x;
-            data.ny = y;
+            xy = DOM.relative(x, y, pounds);
+            data.nx = xy.x;
+            data.ny = xy.y;
         }
         if(w != bounds.width || h != bounds.height){
             changed = sizeObj.setSize(w, h);
@@ -195,8 +210,6 @@ js.awt.Resizable = function(){
             data.nw = w;
             data.nh = h;
         }
-
-        sizeObj.getSizingPeer().adjustOutline(bounds);
 
         data.event = e;
         if(ctx.moved || ctx.sized){
@@ -214,29 +227,35 @@ js.awt.Resizable = function(){
 
     thi$.endSizing = function(e, i){
         var sizeObj = this.getSizeObject(e), ctx = sizeObj._moveCtx,
-            recvs = sizeObj.getSizingMsgRecvs() || [], x, y, w, h, 
-            data = ctx.data, changed;
+            thip = ctx.container, pounds = thip.getBounds(),
+            bounds = sizeObj.getBounds(), data = ctx.data, xy,
+            recvs = sizeObj.getSizingMsgRecvs() || [];
 
         data.event = e;
 
+        sizeObj.setZ(data.oz);
+        if(ctx.outline){
+            this.showOutline(true, this._outlineClassName);
+            sizeObj.showOutline(false);
+        }
+
         if(ctx.sized){
-            w = sizeObj.getWidth(); h = sizeObj.getHeight();
             data.sized = true;
-            data.nw = w;
-            data.nh = h;
+            data.nw = bounds.width;
+            data.nh = bounds.height;
             if(ctx.syncchange){
-                this.setSize(w, h, 0x0F);
+                this.setSize(bounds.width, bounds.height, 0x0F);
             }
             ctx.sized = false;
         }
 
         if(ctx.moved){
-            x = sizeObj.getX(); y = sizeObj.getY();
             data.moved = true;
-            data.nx = x;
-            data.ny = y;
+            xy = DOM.relative(bounds.absX, bounds.absY, pounds);
+            data.nx = xy.x
+            data.ny = xy.y;
             if(ctx.syncchange){
-                this.setPosition(x, y, 0x0F);
+                this.setPosition(xy.x, xy.y, 0x0F);
             }
             ctx.moved = false;
         }
@@ -270,21 +289,20 @@ js.awt.Resizable = function(){
      * Notes: If need sub class can override this method
      */
     thi$.getSizeObject = function(){
-        var sizeObj = this.sizeObj, bounds, def, view, xy;
+        var sizeObj = this.sizeObj, bounds, def;
         if(!sizeObj){
-            view = this.view;
             bounds = this.getBounds();
-            xy = DOM.relative(bounds.absX, bounds.absY,
-                              DOM.getBounds(DOM.getOffsetParent(view)));
-
             def = {
+                id: "resizer",
                 classType: "js.awt.Component",
                 className: DOM.combineClassName(
                     ["jsvm_", this.def.resizeClassName||""].join(" "),
                     ["cover", "cover--resize"]),
                 css: "position:absolute;",
                 stateless: true,
-                z : this.getZ()+1,
+                z : DOM.LM_ZBASE,
+                resizable: true,
+                resizer: this.def.resizer,
                 prefSize : this.getPreferredSize(),
                 miniSize : this.getMinimumSize(),
                 maxiSize : this.getMaximumSize()
@@ -292,11 +310,10 @@ js.awt.Resizable = function(){
             
             sizeObj = this.sizeObj = /*this;*/
             new js.awt.Component(def, this.Runtime());
-            sizeObj.insertAfter(view);
+            sizeObj.appendTo(document.body);
             sizeObj.setSizingPeer(this);
-            sizeObj.setBounds(xy.x, xy.y,
+            sizeObj.setBounds(bounds.absX, bounds.absY,
                               bounds.width, bounds.height, 0x04);
-
             sizeObj.getMovingContext =
                 this.getMovingContext.$bind(this);
             sizeObj.getMovingConstraints =
@@ -310,7 +327,7 @@ js.awt.Resizable = function(){
      * Tests whether this component is resizable.
      */
     thi$.isResizable = function(idx){
-        var b = (this.def.resizable || false),
+        var b = !this.isCovered() && (this.def.resizable === true),
             resizer = this.def.resizer;
         
         if(b && Class.isNumber(idx)){

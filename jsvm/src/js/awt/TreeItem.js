@@ -57,7 +57,7 @@ js.awt.TreeItem = function(def, Runtime, tree, parent, view){
     };
 
     thi$.isMoverSpot = function(ele, x, y){
-        return this.canDrag();
+        return this.isMovable();
     };
 
     thi$.getMoveObject = function(e){

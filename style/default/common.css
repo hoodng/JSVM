@@ -137,6 +137,8 @@
     -moz-opacity: 0;
     opacity: 0;
     background-color: #EEEEEE;
+    
+    cursor: default;
 }
 
 /** Items in the Toolbar **/

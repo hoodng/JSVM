@@ -481,11 +481,13 @@ input, textarea {
     position: relative;
     height: 96px;
     overflow: hidden;
+    margin: 0px;
 }
 
 .layoutitem {
     width: 100px;
     height: 96px;
+    cursor: pointer;
 }
 
 .layoutitem_icon {
@@ -568,16 +570,19 @@ input, textarea {
 
 .tabular_grid_hmove {
     cursor: ns-resize;
-    border: 2px dotted transparent;
+    width: 1px;
+    border: 1px dotted transparent;
 }
 
 .tabular_grid_vmove {
     cursor: ew-resize;
+    height: 1px;
+    border: 1px dotted transparent;
 }
 
 .tabular_grid_hmoving,
-tabular_grid_vmoving{
-    border: 2px dotted transparent;
+.tabular_grid_vmoving{
+    border: 1px dotted #010101;
 }
 
 .simpletabularpanel{

@@ -889,8 +889,9 @@ js.awt.Element = function(def, Runtime){
         if(DOM.isMouseCapture(ele)){
             return parseInt(ele.spot);
         }
-        
-        return this.isMovable() ? 8 : -1;
+
+        return this.isMovable() &&
+        !DOM.isInScrollbar(xy.x, xy.y, ele) ? 8 : -1;
     };
 
     /**
@@ -945,8 +946,16 @@ js.awt.Element = function(def, Runtime){
         return target;
     };
     
-    thi$.getCursor = function(ele, x, y){
-        return 11;
+    thi$.getCursor = function(){
+        return this.view ? this.view.style.cursor : null;
+    };
+
+    thi$.setCursor = function(cursor){
+        DOM.setCursor(this.view, cursor);
+    };
+
+    thi$.getOffsetParent = function(){
+        return DOM.getOffsetParent(this.view);
     };
 
     thi$.getMovingConstraints = function(){
@@ -977,30 +986,28 @@ js.awt.Element = function(def, Runtime){
      * }
      */
     thi$.getMovingContext = function(){
-        var autofit = false, thip, bounds, pounds,
-            styles, hscroll, vscroll;
-        thip = DOM.getComponent(
-            DOM.offsetParent(this.view), true, this.Runtime()),
-        autofit = thip.isAutoFit ? thip.isAutoFit() : false;
-
-        styles = DOM.currentStyles(thip.view);
-        hscroll = isScroll[styles.overflowX];
-        vscroll = isScroll[styles.overflowY];
-
+        var thip = DOM.getComponent(
+            this.getOffsetParent(), true, this.Runtime());
+        
         return{
             container: thip,
+            pounds : thip.getBounds(),
+            outline: this.isOutlineShown(),
+            
             range: [-0xFFFF, -0xFFFF, 0xFFFF, 0xFFFF],
-            autofit: autofit,
-            hscroll: hscroll,
-            vscroll: vscroll,
+            
             // For sometimes the moving/resizing target won't
             // change it position or size synchronized 
             syncchange: true 
         };
     };
 
-    // Only for show move capture or resize capture
-    var _onmousemove = function(e){
+    /**
+     * Check and show the move and resize captures.
+     *
+     * @param {js.awt.Event} e
+     */
+    thi$.checkCaptures = function(e){
         var b;
         if(this.isMovable()){
             b = this.showMoveCapture(e);
@@ -1009,11 +1016,18 @@ js.awt.Element = function(def, Runtime){
         if(!b && this.isResizable()){
             b = this.showResizeCapture(e);
         }
+
+        return b;
+    };
+    
+    // Only for show move capture or resize capture
+    var _onmousemove = function(e){
+        var b = this.checkCaptures(e);
         if(b) {
             e.cancelBubble();
         }
     };
-    
+
     thi$.destroy = function(){
         if(this.destroied) return;
         

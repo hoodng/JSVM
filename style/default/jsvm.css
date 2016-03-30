@@ -1843,6 +1843,7 @@
     background-image: url("images/0-slider_single.png");    
 }
 
+
 .jsvm_slider_single_track0, .jsvm_slider_single_track1 {
     height: 4px;
     border: 1px solid #b0b0b0;
@@ -1871,6 +1872,7 @@
 
 .jsvm_slider_ranger_slipper_ctrl0,
 .jsvm_slider_ranger_slipper_ctrl1 {
+    position: absolute;
     width: 12px;
     height:100%;
     background-repeat: no-repeat;
@@ -1878,14 +1880,12 @@
 }
 
 .jsvm_slider_ranger_slipper_ctrl0 {
-    position:absolute;
-    left: 0;
+    left:0;
     background-image: url("images/0-slider_range_start.png");
 }
 
 .jsvm_slider_ranger_slipper_ctrl1 {
-    position: absolute;
-    right: 0;
+    right:0;
     background-image: url("images/0-slider_range_end.png");
 }
 
