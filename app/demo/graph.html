@@ -1,38 +1,26 @@
 <!DOCTYPE HTML>
-<html>
-<head><meta http-equiv="X-UA-Compatible" content="IE=edge" />
- <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <link rel="stylesheet" type="text/css" href="../../style/default/jsvm.css"/>
-    <link rel="stylesheet" type="text/css" href="../../style/default/dashboard.css"/>
-    <script id="j$vm" type="text/javascript" src="../../jsvm/jsre.js"></script>
-    <script type="text/javascript" src="../../jsvm/lib/../jsre-ui.js"></script>
+<html class="jsvm--full-h">
+    <head>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <script id="j$vm" src="../entry/jsvm.jsp?jrs.auth_uid=admin&jrs.auth_pwd=admin" crs="../../jsvm/"
+                classpath="lib/jsre-ui.jz;lib/jsre-gks.jz;"></script>
 
-    <script type="text/javascript" src="../../jsvm/src/js/awt/Drawable.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/Graphics2D.js"></script>
+    </head>
+    <body class="jsvm--full-h jsvm--noborder jsvm--nomargin jsvm--nopadding jsvm__body" jsvm_entry="demo">
 
-    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasRenderer.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgRenderer.js"></script>
-
-    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicShape.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicContainer.js"></script>
-
-    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicGroup.js"></script> 
-    <script type="text/javascript" src="../../jsvm/src/js/awt/GraphicLayer.js"></script>
-
-    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasGroup.js"></script>    
-    <script type="text/javascript" src="../../jsvm/src/js/awt/CanvasLayer.js"></script>
-    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgGroup.js"></script>    
-    <script type="text/javascript" src="../../jsvm/src/js/awt/SvgLayer.js"></script>
-
+    </body>
 
     <script type="text/javascript">
-        J$VM.exec("Demo",function(System){
+     J$VM.exec("demo",function(entry){
+         this.createApp().run(function(){
+             
             var Class = js.lang.Class, Base64 = Class.forName("js.util.Base64"),
-            Color = Class.forName("js.awt.Color"),
+            Color = Class.forName("js.awt.Color"), System = J$VM.System,
             URI = Class.forName("js.net.URI");
             new Color(0,0,0,0);
 
-            var G = new (Class.forName("js.awt.Graphics2D"))(
+            G = new (Class.forName("js.awt.Graphics2D"))(
                       {
                          id: "MyGraph",
                          width: 400, height:400,
@@ -105,7 +93,7 @@
             G.drawRPolygon({ cx:100, cy:210, r:r1, ends:4, rscale:1, offset:90, fillStyle:"#FF0000", strokeStyle: "#0000FF", fillStroke:2, lineWidth:1});
 
             this.addComponent(G);
-//            G.draw();
+            //G.draw();
         
             //G.setDataSize({w:8000, h:8000}, {w:800, h:800});
 
@@ -128,29 +116,26 @@
             G.attachEvent("mousemove", 4, this, _onMouseEvents);
 
             var count = 0;
-//            (function(){
-//                polygon.translate(1.5, -1.5);
-//                circle.translate(0, 1.5);
-//                text0.translate(1.5, 1.5);
-//                text0.setAttr("fillStyle", Color.randomColor().toString("rgba"));
-//                E0.rotate(30*Math.PI/180, 200, 200);
-//                E1.rotate(-5*Math.PI/180, 200, 200);
-//                //triangle3.setOffsetDegree(count);
-//                T1.rotate(15*Math.PI/180, 300, 300);
-//                T2.rotate(-5*Math.PI/180, 300, 300);
-//                S1.setAttr("rscale", Math.abs(count-100)/90 -1);
-//                S1.translate(-1, 0);
-//                S3.setAttr("ends", 4+2*(count%15));
-//                count ++;
-//                if(count < 200){
-//                  G.draw.$delay(G, 0, null, arguments.callee.$bind(this));
-//                }
-//            })();
+            (function(){
+                polygon.translate(1.5, -1.5);
+                circle.translate(0, 1.5);
+                text0.translate(1.5, 1.5);
+                text0.defAttr("fillStyle", Color.randomColor().toString("rgba"));
+                E0.rotate(30*Math.PI/180, 200, 200);
+                E1.rotate(-5*Math.PI/180, 200, 200);
+                //triangle3.setOffsetDegree(count);
+                T1.rotate(15*Math.PI/180, 300, 300);
+                T2.rotate(-5*Math.PI/180, 300, 300);
+                S1.defAttr("rscale", Math.abs(count-100)/90 -1);
+                S1.translate(-1, 0);
+                S3.defAttr("ends", 4+2*(count%15));
+                count ++;
+                if(count < 200){
+                  G.draw.$delay(G, 0, null, arguments.callee.$bind(this));
+                }
+            })();
             
-        });
+         });
+         });
     </script>
-</head>
-<body>
-<img id="my-image" width="256px" height="256px"></img>
-</body>
 </html>
