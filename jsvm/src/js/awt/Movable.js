@@ -134,11 +134,9 @@ js.awt.Movable = function (){
         ctx.minX = mover.bl >= 1 ? max(0, r[0]) : max(-0xFFFF, r[0]);
         ctx.minY = mover.bt >= 1 ? max(0, r[1]) : max(-0xFFFF, r[1]);
         ctx.maxX = mover.br >= 1 ?
-            min(max(pounds.offsetWidth,pounds.scrollWidth) -
-                bounds.width, r[2]): min(0xFFFF,r[2]);
+            min(pounds.innerWidth - bounds.offsetWidth, r[2]): min(0xFFFF,r[2]);
         ctx.maxY = mover.bb >= 1 ?
-            min(max(pounds.offsetWidth,pounds.scrollHeight)-
-                bounds.height,r[3]): min(0xFFFF,r[3]);
+            min(pounds.innerHeight - bounds.offsetHeight,r[3]): min(0xFFFF,r[3]);
         
         ctx.data = {
             event: e,

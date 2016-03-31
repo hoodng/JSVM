@@ -292,6 +292,10 @@ input, textarea {
     overflow:hidden;
 }
 
+.wizard_link_label_1{
+	color: #A8A7A6;
+}
+
 .wizard_link_label_4 {
     cursor: default;
     font-weight: bold;
@@ -302,9 +306,9 @@ input, textarea {
 }
 
 .wizard_link_label_cover--disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
     background-color: #F5F4EA;
 }
 /***************************/
@@ -597,6 +601,7 @@ input, textarea {
 .listpanel_title{
     width: 100%;
     height: 24px;
+    padding-left: 6px;
     background: url("images/wizard_headerbg.gif")
 }
 
@@ -647,6 +652,7 @@ input, textarea {
 }
 
 .list_item_label {
+	margin-left: 6px;
     height: 24px;
     line-height: 24px;
     text-overflow:ellipsis;

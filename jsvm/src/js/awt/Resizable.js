@@ -134,7 +134,7 @@ js.awt.Resizable = function(){
             maxSize = sizeObj.getMaximumSize(),
             xy = e.eventXY(), minV, maxV, v0, v1, 
             x, y, w, h, data = ctx.data, changed;
-        
+
         x = oounds.absX + oounds.MBP.borderLeftWidth + bounds.userX;
         y = oounds.absY + oounds.MBP.borderTopWidth  + bounds.userY; 
         w = bounds.userW;
@@ -160,9 +160,9 @@ js.awt.Resizable = function(){
             v0 = x;
             minV = grid*ceil(max(bounds.MBP.BW+1, minSize.width)/grid);
             maxV = grid*floor((mover.br < 1 ?
-                               min(maxSize.width,ctx.range[2]) :
+                               min(maxSize.width, ctx.range[2]) :
                                pounds.absX + pounds.MBP.borderLeftWidth +
-                               pounds.scrollWidth - v0)/grid);
+                               pounds.offsetWidth - v0)/grid);
             w = grid*floor((xy.x - v0)/grid);
             w = w < minV ? minV : (w > maxV ? maxV : w);
             break;
@@ -190,7 +190,7 @@ js.awt.Resizable = function(){
             maxV = grid*floor((mover.bb < 1 ?
                                min(maxSize.height,ctx.range[3]) :
                                pounds.absY + pounds.MBP.borderTopWidth +
-                               pounds.scrollHeight - v0)/grid);
+                               pounds.offsetHeight - v0)/grid);
             h = grid*floor((xy.y - v0)/grid);
             h = h < minV ? minV : (h > maxV ? maxV : h);
             break;

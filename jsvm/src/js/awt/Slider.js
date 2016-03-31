@@ -243,9 +243,10 @@ js.awt.Slider = function(def, Runtime){
     /**
      * @see js.awt.Container
      */
-    /*
     thi$.doLayout = function(force){
         if($super(this)){
+            this.slipper.doLayout(true);
+            
             var bounds = this.getUBounds();
             
             if(this.offset){
@@ -269,7 +270,6 @@ js.awt.Slider = function(def, Runtime){
         }
         return false;
     }.$override(this.doLayout);
-    */
     
     var _layout = function(bounds, fire){
         var slipper = this.slipper, off0, off1, p;
@@ -306,29 +306,11 @@ js.awt.Slider = function(def, Runtime){
     };
 
     var _layout0 = function(D){
-        var slipper = this.slipper,
+        var slipper = this.slipper, 
             slipperS = (D.innerPMeasure - slipper.getPMeasure())*0.5,
-            offset0 = slipper.getOffset0(), offset1 = slipper.getOffset1(),
-            track0 = this.track0,track1 = this.track1,track2 = this.track2, 
-            trackS = (D.innerPMeasure - this.getPMeasure(track0))*0.5,
-            trackBg = this.trackbg, trackBgB = this.getUSize(trackBg);
-        
+            track0 = this._track0, track = this._track;
+        debugger;
         slipper.setUPosition(null, slipperS);
-        
-        this.setUPosition((D.innerMeasure - trackBgB.measure)*0.5,
-                          (D.innerPMeasure- trackBgB.pmeasure)*0.5,
-                          null, trackBg);
-        
-        this.setUBounds(slipper.offset0, trackS, offset0-slipper.offset0, 
-                        undefined, null, track0);
-        if(track2){
-            this.setUBounds(offset0, trackS, offset1-offset0,
-                            undefined, null, track2);
-        }
-        this.setUBounds(offset1, trackS,
-                        D.innerMeasure-offset1+slipper.offset1, 
-                        undefined, null, track1);
-        
         this.trackLen = D.innerMeasure - (slipper.offset0-slipper.offset1);
         this.maxOffset= D.innerMeasure - slipper.getMeasure();
         this.offset = this.getOffset();
@@ -451,10 +433,12 @@ js.awt.Slider = function(def, Runtime){
     };
 
     var _onMoving = function(e){
-        var view = this.view, data = e.getData();
+        var data = e.getData(), bounds = this.getBounds(),
+            track = this._track, measure;
         if(this.isSingle()){
-            view.style.borderLeftWidth = data.nx+"px";
-            view.style.borderRightWidth= view.offsetWidth - data.nx;
+            track.style.borderLeftWidth = data.nx+"px";
+            track.bounds = null;
+            DOM.setSize(track, bounds.innerWidth);
         }
         e.cancelBubble();
     };
@@ -465,62 +449,27 @@ js.awt.Slider = function(def, Runtime){
     };
 
     var _createElements = function(){
-        var R = this.Runtime(), trackbg, track0, track1, track2, slipper;
-        /*
-        trackbg = new js.awt.Component(
-            {
-                className: this.className + "_trackbg",
-                id: "trackbg",
-                css: "position:absolute;overflow:hidden;",
-                stateless: true
-            }, R);
+        var R = this.Runtime(), uuid = this.uuid(),
+            track0, track,slipper;
 
-        this.addComponent(trackbg);
-
+        track0 = this._tack0 = DOM.createElement("DIV");
+        track0.uuid = uuid;
+        track0.className = [this.className, "_track0"].join("");
+        this.view.appendChild(track0);
         
-        // For the left(up) track
-        track0 = new js.awt.Component(
-            {
-                className: this.className + "_track0",
-                id: "track0",
-                css: "position:absolute;overflow:hidden;",
-                stateless: true
-            }, R);
+        track = this._track = DOM.createElement("DIV");
+        track.id = [uuid, "track"].join("-");
+        track.uuid = uuid;
+        track.className = [this.className, "_track"].join("");
+        this.view.appendChild(track);
 
-        this.addComponent(track0);
-        
-        // For the right(down) track
-        track1 = new js.awt.Component(
-            {
-                className: this.className + "_track1",
-                id: "track1",
-                css: "position:absolute;overflow:hidden;",
-                stateless: true
-            }, R);
-
-        this.addComponent(track1);
-
-        // For the middle track of ranger slider    
-        if(!this.isSingle()){
-            track2 = new js.awt.Component(
-                {
-                    className: this.className + "_track2",
-                    id: "track2",
-                    css: "position:absolute;overflow:hidden;",
-                    stateless: true
-                }, R);
-            this.addComponent(track2);
-        }
-        */
-        
         // For the slipper
-        slipper = new js.awt.Slipper(
+        slipper = this.slipper = new js.awt.Slipper(
             {
                 type: this.def.type,
                 direction: this.def.direction,
-                className: this.className + "_slipper",
-                id: "slipper",
-                css: "position:absolute;",
+                className: [this.className,"_slipper"].join(""),
+                id: [uuid,"slipper"].join("-"),
                 stateless: true,
                 movable: true,
                 mover:{
@@ -534,7 +483,7 @@ js.awt.Slider = function(def, Runtime){
             },R);
 
         slipper.setPeerComponent(this);
-        this.addComponent(slipper);
+        this.view.appendChild(slipper.view);
     };
     
     thi$.destroy = function(){
@@ -549,7 +498,6 @@ js.awt.Slider = function(def, Runtime){
         
         def.classType = def.classType || "js.awt.Slider";
         def.type   = Class.isNumber(def.type) ? def.type : 0;
-        def.css = (def.css || "") + "overflow:visible";
         def.direction = Class.isNumber(def.direction) ? def.direction : 0;
         def.duration = Class.isNumber(def.duration) ? def.duration : 1;
         def.tracemouse = Class.isNumber(def.tracemouse) ? def.tracemouse : 0;
@@ -568,7 +516,7 @@ js.awt.Slider = function(def, Runtime){
         MQ.register(this.slipper.getMovingMsgType(), this, _onmoving);
         
         if(!this.isSingle()){
-            MQ.register(this.slipper.getSizingMsgType(), this, _onmoving);
+        //    MQ.register(this.slipper.getSizingMsgType(), this, _onmoving);
         }
         else{
             if(M.tracemouse == 1 || M.tracemouse == 3){
@@ -584,7 +532,7 @@ js.awt.Slider = function(def, Runtime){
     
     this._init.apply(this, arguments);
 
-}.$extend(js.awt.Container).$implements(js.awt.Bidirectional);
+}.$extend(js.awt.Component).$implements(js.awt.Bidirectional);
 
 /**
  * @param def:{
@@ -628,6 +576,7 @@ js.awt.Slipper = function(def, Runtime){
      * @see js.awt.Container
      */    
     thi$.doLayout = function(force){
+        debugger;
         if(this._local.doneLayout !== true &&
            $super(this)){
 
@@ -793,5 +742,5 @@ js.awt.Slipper = function(def, Runtime){
     
     this._init.apply(this, arguments);
     
-}.$extend(js.awt.Container).$implements(js.awt.Bidirectional);
+}.$extend(js.awt.Component).$implements(js.awt.Bidirectional);
 

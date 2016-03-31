@@ -54,8 +54,18 @@ js.awt.Desktop = function (Runtime){
     
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot, XY;
-        fireDragStart.$clearTimer(tm);
+        fireDrag.$clearTimer();
         System.updateLastAccessTime();
+
+        drag = drags[e.pointerId];
+        if(drag && drag.status === 1){
+            // Only when the first mousemove after a mousedown
+            // will fire drag start.
+            drag.status = 2;
+            fireDragStart.call(this, drag);
+            e.cancelBubble();
+            return e.cancelDefault();
+        }
         
         last = lasts[e.pointerId] || 0;
         if((e.getTimeStamp().getTime() - last) <=
@@ -66,11 +76,10 @@ js.awt.Desktop = function (Runtime){
 
         ele = e.srcElement;
         target = e.getEventTarget();
-        drag = drags[e.pointerId];
+        
         XY = e.eventXY();
         if(!drag){
             if(target && target !== this){
-                //target.fireEvent(e, true);
                 _onTargetMousemove.call(this, target, e);
             }
             
@@ -215,12 +224,13 @@ js.awt.Desktop = function (Runtime){
                     longpress = Class.isNumber(longpress) ? longpress :
                         J$VM.env["j$vm_longpress"] || 90;
 
-                    tm = fireDragStart.$delay(this, longpress, e.pointerId, {
+                    fireDrag.$delay(this, longpress, e.pointerId, {
                         event: e,
                         absXY: e.eventXY(),
                         srcElement: ele,
                         target: target,
-                        spot: spot
+                        spot: spot,
+                        status: 1
                     });
                 }
             }
@@ -232,12 +242,16 @@ js.awt.Desktop = function (Runtime){
 
     var _onmouseup = function(e){
         var ele, target, drag, XY;
-        fireDragStart.$clearTimer(tm);
+        fireDrag.$clearTimer();
         System.updateLastAccessTime();
 
         ele = e.srcElement;
         target = e.getEventTarget();
         drag = drags[e.pointerId];
+        if(drag && drag.status != 2){
+            // Not is a real drag
+            drag = null;
+        }
         XY = e.eventXY();
         
         if(!drag){
@@ -283,14 +297,16 @@ js.awt.Desktop = function (Runtime){
         return e._default;
     };
 
-    var fireDragStart = function(id, drag){
+    var fireDrag = function(id, drag){
+        drags[id] = drag;
+        DOM.setDynamicCursor(drag.srcElement, drag.spot);
+    };
+    
+    var fireDragStart = function(drag){
         var target, moveObj, data, e;
 
-        drags[id] = drag;
         target = drag.target;
         e = drag.event;
-
-        DOM.setDynamicCursor(drag.srcElement, drag.spot);
         
         if(drag.spot >= 8){
             target.startMoving(e, drag.spot);

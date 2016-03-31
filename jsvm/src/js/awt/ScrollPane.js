@@ -31,7 +31,7 @@ js.awt.ScrollPane = function (def, Runtime){
     CLASS.__defined__ = true;
 
     var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-    System = J$VM.System, MQ = J$VM.MQ;
+        System = J$VM.System, MQ = J$VM.MQ;
     
     thi$.isHScroll = function(){
         return this.def.layout.axis == 0;
@@ -81,8 +81,8 @@ js.awt.ScrollPane = function (def, Runtime){
         this.doLayout(true);
 
         if(notify !== false){
-            this.notifyPeer(
-                "js.awt.event.ItemEvent", new Event("remove", "", comp));
+            this.notifyPeer("js.awt.event.ItemEvent",
+                            new Event("remove", "", comp));
         }
         
         items = this.items();
@@ -108,8 +108,8 @@ js.awt.ScrollPane = function (def, Runtime){
                 this._local.active = comp;
                 
                 if(notify !== false){
-                    this.notifyPeer(
-                        "js.awt.event.ItemEvent", new Event("active", "", comp));
+                    this.notifyPeer("js.awt.event.ItemEvent",
+                                    new Event("active", "", comp));
                 }
             }else{
                 this[id].setTriggered(false);
@@ -132,15 +132,15 @@ js.awt.ScrollPane = function (def, Runtime){
      * Scroll to the next position
      */
     thi$.scrollNext = function(){
-        var el = this.view, p, v;
+        var U = this._local, el = this.view, p, v;
 
         if(this.isHScroll()){
-            p = el.scrollLeft + this._local.avgwidth;
+            p = el.scrollLeft + U.avgwidth;
             v = el.scrollWidth;
             p = p > v ? v : p;
             el.scrollLeft = p;
         }else{
-            p = el.scrollTop + this._local.avgheight;
+            p = el.scrollTop + U.avgheight;
             v = el.scrollHeight;
             p = p > v ? v : p;
             el.scrollTop = p;
@@ -151,14 +151,14 @@ js.awt.ScrollPane = function (def, Runtime){
      * Scroll to the previous postion
      */
     thi$.scrollPrevious = function(){
-        var el = this.view, p;
+        var U = this._local, el = this.view, p;
 
         if(this.isHScroll()){
-            p = el.scrollLeft - this._local.avgwidth;
+            p = el.scrollLeft - U.avgwidth;
             p = p < 0 ? 0 : p;
             el.scrollLeft = p;    
         }else{
-            p = el.scrollTop - this._local.avgheight;
+            p = el.scrollTop - U.avgheight;
             p = p < 0 ? 0 : p;
             el.scrollTop = p;    
         }
@@ -168,10 +168,11 @@ js.awt.ScrollPane = function (def, Runtime){
      * Scroll to the last position
      */
     thi$.scrollLast = function(){
+        var ele = this.view;
         if(this.isHScroll()){
-            this.view.scrollLeft = this.view.scrollWidth;    
+            ele.scrollLeft = ele.scrollWidth;    
         }else{
-            this.view.scrollTop = this.view.scrollHeight;
+            ele.scrollTop = ele.scrollHeight;
         }
     };
     
@@ -194,8 +195,8 @@ js.awt.ScrollPane = function (def, Runtime){
         var moveObj = this.moveObj;
         if(!moveObj){
             var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-            absXY = DOM.absXY(item.view)/*e.eventXY()*/, 
-            moveObjClz = Class.forName(this.def.moveObjClz);
+                absXY = DOM.absXY(item.view) /*e.eventXY()*/, 
+                moveObjClz = Class.forName(this.def.moveObjClz);
             
             var def = System.objectCopy(item.def, {}, true);
             moveObj = this.moveObj = 
@@ -211,8 +212,8 @@ js.awt.ScrollPane = function (def, Runtime){
 
     var _getLayoutSize = function(){
         var items = this.items0(), item = this[items[items.length-1]],
-        D = this.getBounds(), d, ret = {bounds: D},
-        n = items.length;
+            D = this.getBounds(), d, ret = {bounds: D},
+            n = items.length;
         if(item){
             d = item.getBounds();
             ret.cw = d.offsetX + d.width;
@@ -254,23 +255,25 @@ js.awt.ScrollPane = function (def, Runtime){
      * @see js.awt.Component
      */
     thi$.doLayout = function(force){
-        if(this.isDOMElement() 
-            && $super(this)){
-            var r = _getLayoutSize.call(this), max = this.getMaximumSize(), 
-            width, height, oldw = this.getWidth(), oldh = this.getHeight(),
-            resized = false;
+        if(this.isDOMElement() && $super(this)){
+            var U = this._local, r = _getLayoutSize.call(this),
+                max = this.getMaximumSize(), width, height,
+                oldw = this.getWidth(), oldh = this.getHeight(),
+                resized = false;
             
-            this._local.avgwidth = r.avgwidth;
-            this._local.avgheight= r.avgheight;
+            U.avgwidth = r.avgwidth;
+            U.avgheight= r.avgheight;
 
             if(this.isHScroll()){
-                width =  this.def.onlyMax ? max.width : Math.min(r.width, max.width);
+                width =  this.def.onlyMax
+                    ? max.width : Math.min(r.width, max.width);
                 if(oldw != width){
                     this.setWidth(width);
                     resized = true;
                 }
             }else{
-                height= this.def.onlyMax ? max.height: Math.min(r.height, max.height);
+                height= this.def.onlyMax
+                    ? max.height: Math.min(r.height, max.height);
                 if(oldh != height){
                     this.setHeight(height);
                     resized = true;
@@ -278,8 +281,8 @@ js.awt.ScrollPane = function (def, Runtime){
             }
             
             if(resized){
-                this.notifyContainer(
-                    "js.awt.event.LayoutEvent", new Event("resize","",this));
+                this.notifyContainer("js.awt.event.LayoutEvent",
+                                     new Event("resize","",this));
             }
 
             return true;
@@ -291,7 +294,7 @@ js.awt.ScrollPane = function (def, Runtime){
 
     var _onclick = function(e){
         var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-        eType, evt;
+            eType, evt;
 
         if(item){
             eType = e.getType();
@@ -300,7 +303,7 @@ js.awt.ScrollPane = function (def, Runtime){
                 e.setEventTarget(item);
                 
                 evt = new Event(el === item.ctrl 
-                    ? "ctrlclick" : "itemclick", "", item);
+                                ? "ctrlclick" : "itemclick", "", item);
                 this.notifyPeer("js.awt.event.ItemEvent", evt);
                 
             }else if(eType == "dblclick"){
@@ -320,9 +323,8 @@ js.awt.ScrollPane = function (def, Runtime){
         item.def.prefSize = undefined;
         this.doLayout(true);
         if(e.getType() == "edit"){
-            this.notifyPeer(
-                "js.awt.event.ItemEvent", 
-                new Event("textchanged", "", item));
+            this.notifyPeer("js.awt.event.ItemEvent", 
+                            new Event("textchanged", "", item));
         }
     };
 
@@ -331,10 +333,10 @@ js.awt.ScrollPane = function (def, Runtime){
         // and only if the mouse is over the ctrl other than whole
         // component. Default is true.
         var hoverOnCtrl = (this.def.hoverOnCtrl !== false),
-        from = e.fromElement, to = e.toElement, 
-        fid = from ? from.uuid : undefined, 
-        tid = to ? to.uuid : undefined,
-        fitem, titem, cache = this.cache;
+            from = e.fromElement, to = e.toElement, 
+            fid = from ? from.uuid : undefined, 
+            tid = to ? to.uuid : undefined,
+            fitem, titem, cache = this.cache;
 
         if(fid !== tid){
             fitem = cache[fid];
@@ -370,7 +372,7 @@ js.awt.ScrollPane = function (def, Runtime){
      */
     thi$.acceptInsert = function(item, xy){
         var mvId = item.id, items = this.items0(),
-        insert, tmp;
+            insert, tmp;
 
         for(var i=0, len=items.length; i<len; i++){
             tmp = this[items[i]];
@@ -400,10 +402,10 @@ js.awt.ScrollPane = function (def, Runtime){
     
     var _ondrag = function(e){
         var eType = e.getType(), moveObj = e.getEventTarget(),
-        xy = e.eventXY(), mvId = moveObj.id, item = this[mvId],
+            xy = e.eventXY(), mvId = moveObj.id, item = this[mvId],
 
-        items = this.items0(), p0 = items.indexOf(mvId), 
-        p1, insert, changed = false;
+            items = this.items0(), p0 = items.indexOf(mvId), 
+            p1, insert, changed = false;
 
         switch(eType){
         case "mousemove":
@@ -466,14 +468,15 @@ js.awt.ScrollPane = function (def, Runtime){
         if(def == undefined) return;
         
         var newDef = System.objectCopy(def, CLASS.DEFAULTDEF(), true, true),
-        hscroll = (newDef.layout.axis == 0), mover, M;
+            hscroll = (newDef.layout.axis == 0), mover, M;
         
         newDef.className = newDef.className || 
             (hscroll ? "jsvm_hscroll" : "jsvm_vscroll");
         
         mover = newDef.mover = newDef.mover || {};
-        mover.longpress = mover.longpress || 250;
-        mover.freedom = !isNaN(mover.freedom) ? mover.freedom : (hscroll ? 1 : 2);
+        mover.longpress = mover.longpress || 90;
+        mover.freedom = !isNaN(mover.freedom)
+            ? mover.freedom : (hscroll ? 1 : 2);
 
         System.objectCopy(newDef, def, true, true);
         $super(this);
