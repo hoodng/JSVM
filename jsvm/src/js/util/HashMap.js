@@ -50,7 +50,7 @@ js.util.HashMap = function (map){
         var e = undefined;
         if(this.contains(key)){
             e = this._vals[key];
-            delete this._vals[key];
+            this._vals[key] = null;
             this._size--;
         }
         return e;

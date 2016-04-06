@@ -162,6 +162,8 @@ js.awt.Container = function (def, Runtime, view){
                  }
              }).$forEach(this, this.def.items);
         }
+
+        this.activate();
         
         return id;
 

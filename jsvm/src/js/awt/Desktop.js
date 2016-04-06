@@ -76,7 +76,6 @@ js.awt.Desktop = function (Runtime){
 
         ele = e.srcElement;
         target = e.getEventTarget();
-        
         XY = e.eventXY();
         if(!drag){
             if(target && target !== this){
@@ -220,7 +219,7 @@ js.awt.Desktop = function (Runtime){
 
                 if(spot >= 0){
                     var mover = target.getMovingConstraints(),
-                        longpress = mover.longpress;
+                        longpress = spot < 8 ? 10 : mover.longpress;
                     longpress = Class.isNumber(longpress) ? longpress :
                         J$VM.env["j$vm_longpress"] || 90;
 

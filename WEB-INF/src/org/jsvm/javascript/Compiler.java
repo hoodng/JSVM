@@ -272,6 +272,7 @@ public class Compiler extends ConsoleApp {
 
 		List<Task> tasks = loadPkgLst(pkgLst);
 		for (Task task : tasks) {
+			task.build(); // build file list and id;
 			String taskId1 = lock.getProperty(task.name);
 			if (taskId1 == null || !task.id.equals(taskId1)
 					|| !task.desFile.exists()) {
@@ -326,7 +327,8 @@ public class Compiler extends ConsoleApp {
 		File desFile;
 		List<File> files;
 		String id;
-
+		JSONObject json;
+		
 		Task(String name, JSONObject json) throws Exception {
 			this.name = name;
 			compress = json.optBoolean("compress", true);
@@ -337,6 +339,10 @@ public class Compiler extends ConsoleApp {
 			if (!desFile.getParentFile().exists()) {
 				desFile.getParentFile().mkdirs();
 			}
+			this.json = json;
+		}
+		
+		void build(){
 			files = new ArrayList<File>();
 			StringBuilder buf = new StringBuilder(json.toString());
 			JSONArray ja = json.optJSONArray("files");

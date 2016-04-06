@@ -139,7 +139,7 @@ js.lang.Class = new function (){
                 }
             }
         }else{
-            importScripts(filePath);
+            importScripts([filePath, "?__=", J$VM.__version__].join(""));
         }
 
     }.$bind(this);

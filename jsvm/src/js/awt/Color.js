@@ -169,7 +169,7 @@ js.awt.Color = function(r, g, b, a) {
     };
 
     CLASS.randomColor = function(uuid, type){
-        uuid = uuid || js.lang.Math.uuid();
+        uuid = uuid || Math.uuid();
         var v = parseInt(uuid.substring(1), 16),
             c = new js.awt.Color(v), ret;
         

@@ -1,7 +1,7 @@
 /**
 
- Copyright 2010-2011, The JSVM Project.
- All rights reserved.
+  Copyright 2010-2011, The JSVM Project.
+  All rights reserved.
 
  *
  * Author: Hu Dong
@@ -30,7 +30,7 @@ js.util.Messenger = function (){
      */
     this.register = function(msgId, receiver, handler){
         var recvs = this.table[msgId];
-        if(recvs === undefined){
+        if(!recvs){
             recvs = List.newInstance([]);
             this.table[msgId] = recvs;
         }
@@ -52,14 +52,14 @@ js.util.Messenger = function (){
      */
     this.cancel = function(msgId, receiver, handler){
         var recvs = this.table[msgId];
-        if(recvs === undefined) return;
+        if(!recvs) return;
 
         var recv = new Listener(receiver, handler);
         var p = recvs.indexOf(recv);
         if(p != -1){
             recvs.remove0(p);
             if(recvs.length === 0){
-                delete this.table[msgId];
+                this.table[msgId] = null;
             }
         }
     };
@@ -81,11 +81,12 @@ js.util.Messenger = function (){
         var table = this.table, recvs, idx, p;
         for(p in table){
             recvs = table[p];
+            if(!recvs) continue;
             while((idx = indexOf(recvs, receiverId)) != -1){
                 recvs.remove0(idx);
             }
             if(recvs.length == 0){
-                delete this.table[p];
+                this.table[p] = null;
             }
         }
     };
@@ -146,14 +147,13 @@ js.util.Messenger = function (){
         }else if(recvs != undefined && recvs.length > 0){
 
             for(var i=0, len=msg[2].length; i<len; i++){
-                if(g === undefined) g = {};
+                if(!g) g = {};
                 g[msg[2][i]] = true;
             }
 
             for(i=0, len=recvs.length; i<len; i++){
                 recv = recvs[i];
-
-                if(g != undefined){
+                if(g){
                     if(g[recv.uuid()]){
                         recv.handleEvent.$delay(recv, 0, msg[1]);
                     }
@@ -197,14 +197,14 @@ js.util.Messenger = function (){
         }else if(recvs != undefined && recvs.length > 0){
 
             for(var i=0, len=rcvs.length; i<len; i++){
-                if(g === undefined) g = {};
+                if(!g) g = {};
                 g[rcvs[i]] = true;
             }
 
             for(i=0, len=recvs.length; i<len; i++){
                 recv = recvs[i];
 
-                if(g != undefined){
+                if(g){
                     if(g[recv.uuid()]){
                         recv.handleEvent(msgData);
                     }

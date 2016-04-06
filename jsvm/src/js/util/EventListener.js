@@ -35,8 +35,7 @@ js.util.EventListener = function (listener, handler){
     };
     
     thi$._init = function(l, h){
-        if(typeof l == "object" && typeof h == "function"){
-
+        if(typeof l == "object"){
             this.listener = l;
             this.handler  = h;
             
@@ -45,7 +44,7 @@ js.util.EventListener = function (listener, handler){
 
                 o.hashCode = function(){
                     if(!this._hash){
-                        this._hash = js.lang.Math.random(new Date().getTime());
+                        this._hash = Math.random();
                     }
                     return this._hash;
                 };
@@ -54,7 +53,7 @@ js.util.EventListener = function (listener, handler){
                     if(arguments.length > 0){
                         this._uuid = id;         
                     }else if(!this._uuid){
-                        this._uuid = js.lang.Math.uuid(this.hashCode());
+                        this._uuid = Math.uuid(this.hashCode());
                     }
 
                     return this._uuid;

@@ -56,7 +56,7 @@ js.awt.DialogObject = function (){
 	 */
 	thi$.getDialogMsgType = function(){
 		if(!this._local.msgtype){
-			this._local.msgtype = js.lang.Math.uuid();
+			this._local.msgtype = Math.uuid();
 		}
 
 		return this._local.msgtype;
@@ -463,7 +463,7 @@ js.awt.AbstractDialogObject = function(def, Runtime){
 	 */
 	thi$.getDialogMsgType = function(){
 		if(!this._local.msgtype){
-			this._local.msgtype = js.lang.Math.uuid();
+			this._local.msgtype = Math.uuid();
 		}
 
 		return this._local.msgtype;

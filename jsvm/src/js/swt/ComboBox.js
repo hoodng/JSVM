@@ -96,11 +96,11 @@ js.swt.ComboBox = function(def, Runtime){
 	CLASS.__defined__ = true;
 	
 	var Class = js.lang.Class, Event = js.util.Event, 
-	LList = js.util.LinkedList, DOM = J$VM.DOM, 
-	System = J$VM.System, MQ = J$VM.MQ,
-	
-	List = Class.forName("js.swt.List"),
-	DDList = Class.forName("js.swt.DropdownList");
+		LList = js.util.LinkedList, DOM = J$VM.DOM, 
+		System = J$VM.System, MQ = J$VM.MQ,
+		
+		List = Class.forName("js.swt.List"),
+		DDList = Class.forName("js.swt.DropdownList");
 	
 	var dItemContainerDef = {
 		classType: "js.awt.HBox",
@@ -111,24 +111,24 @@ js.swt.ComboBox = function(def, Runtime){
 			align_x: 0.5, align_y: 0.5
 		}
 	},
-	btnDropDownDef = {
-		classType: "js.awt.Button",
-		iconImage: "dropdown_new.png",
+		btnDropDownDef = {
+			classType: "js.awt.Button",
+			iconImage: "dropdown_new.png",
 
-		rigid_w: true, rigid_h: false,
-		effect: false
-	},
-	inputBoxDef = {
-		classType: "js.swt.TextField",
-		css: "border:0px none;",
-		rigid_w: false, rigid_h: false,
-		NUCG: true
-	},
-	iptSps = [
-		"font-family", "font-size", "font-style", "font-weight",
-		"text-decoration", "text-align", "font-weight", "color", 
-		"background-color"
-	];
+			rigid_w: true, rigid_h: false,
+			effect: false
+		},
+		inputBoxDef = {
+			classType: "js.swt.TextField",
+			css: "border:0px none;",
+			rigid_w: false, rigid_h: false,
+			NUCG: true
+		},
+		iptSps = [
+			"font-family", "font-size", "font-style", "font-weight",
+			"text-decoration", "text-align", "font-weight", "color", 
+			"background-color"
+		];
 	
 	thi$.hasEffect = function(){
 		return this.def.effect === true;
@@ -254,8 +254,8 @@ js.swt.ComboBox = function(def, Runtime){
 	};
 	
 	/**
-	 * Return current selected values, some of them may be not belonged to
-	 * any items.
+	 * Return current selected values, some of them may be not belonged
+	 * to any items.
 	 */
 	thi$.getSelectedValues = function(){
 		return this._local.selectedValues;	   
@@ -263,8 +263,8 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	var _getSelectedIndexes = function(){
 		var ds = this._local.itemDefs, 
-		ms = this._local.itemModels, 
-		useDs = false, set;
+			ms = this._local.itemModels, 
+			useDs = false, set;
 		
 		if(Class.isArray(ds) && ds.length > 0){
 			useDs = true;
@@ -275,8 +275,8 @@ js.swt.ComboBox = function(def, Runtime){
 		}
 
 		var len = set ? set.length : 0, 
-		indexes = LList.$decorate([]), 
-		m;
+			indexes = LList.$decorate([]), 
+			m;
 		for(var i = 0; i < len; i++){
 			m = set[i];
 			m = useDs ? m.model : m;
@@ -307,8 +307,8 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	var _unMarkAll = function(){
 		var ds = this._local.itemDefs, 
-		ms = this._local.itemModels, 
-		useDs = false, set;
+			ms = this._local.itemModels, 
+			useDs = false, set;
 		
 		if(Class.isArray(ds) && ds.length > 0){
 			useDs = true;
@@ -346,8 +346,8 @@ js.swt.ComboBox = function(def, Runtime){
 		}
 		
 		var ds = this._local.itemDefs, 
-		ms = this._local.itemModels, 
-		useDs = false, set;
+			ms = this._local.itemModels, 
+			useDs = false, set;
 		
 		if(Class.isArray(ds) && ds.length > 0){
 			useDs = true;
@@ -382,13 +382,14 @@ js.swt.ComboBox = function(def, Runtime){
 	/**
 	 * Select all items indicated by given values.
 	 * Attention:
-	 *	   If an end user didn't do any selection from the DropdownList, the given values
-	 *	   will be kept even though some of the given values wasn't belonged any item of
-	 *	   the DropdownList.
+	 *	   If an end user didn't do any selection from the DropdownList,
+	 *	   the given values will be kept even though some of the given
+	 *	   values wasn't belonged any item of the DropdownList.
 	 * 
-	 * @param values: {Array} An <em>Array</em> for values. An item whose value equals with one
-	 *				  of values will be selected.
-	 * @param callback: {Boolean} Indicate whethe need to nofiy the value changed.
+	 * @param values: {Array} An <em>Array</em> for values. An item whose
+	 *		  value equals with one of values will be selected.
+	 * @param callback: {Boolean} Indicate whethe need to nofiy the value
+	 *		  changed.
 	 */
 	thi$.setSelectedValues = function(values, callback){
 		// If combobox is in edit, quit the editing status.
@@ -413,7 +414,8 @@ js.swt.ComboBox = function(def, Runtime){
 				values = [v];
 				
 				models = this.findItemModels("value", values, false);
-				model = (models && models.length > 0) ? models[0] : undefined;			
+				model = (models && models.length > 0)
+					? models[0] : undefined;			
 
 				if (!Class.isObject(model)) {
 					model = {dname: v, value: v};
@@ -424,7 +426,7 @@ js.swt.ComboBox = function(def, Runtime){
 				models = this.findItemModels("value", values, true, false);
 				
 				var len = models ? models.length : 0,
-				dnames = LList.$decorate([]), m, dn;
+					dnames = LList.$decorate([]), m, dn;
 				for(var i = 0; i < len; i++){
 					m = models[i];
 					m.marked = true;
@@ -450,10 +452,10 @@ js.swt.ComboBox = function(def, Runtime){
 			}
 			
 			/* Attention: 
-			 * Some of values may be not belonged to any item. So there are two steps as follow
-			 * to finish selecting:
-			 * 1) Recorde all current selected value include the one which is not belonged to any
-			 *	  item of DropdownList.
+			 * Some of values may be not belonged to any item. So there
+			 * are two steps as follow to finish selecting:
+			 * 1) Recorde all current selected value include the one which
+			 *	  is not belonged to any item of DropdownList.
 			 * 2) Select all items. Each of them is indicated by values.
 			 */
 			_setSelectedValues.call(this, values);
@@ -473,8 +475,8 @@ js.swt.ComboBox = function(def, Runtime){
 			return undefined;
 		}
 		var ds = this._local.itemDefs, 
-		ms = this._local.itemModels, 
-		useDs = false;
+			ms = this._local.itemModels, 
+			useDs = false;
 		
 		if(Class.isArray(ds) && ds.length > 0){
 			useDs = true;
@@ -504,8 +506,8 @@ js.swt.ComboBox = function(def, Runtime){
 	/**
 	 * Select all items indicated by given indexes.
 	 * 
-	 * @param indexes: {Array} An <em>Array</em> for indexes, each element indicate an 
-	 *				   item which need be selected.
+	 * @param indexes: {Array} An <em>Array</em> for indexes, each element
+	 *		  indicate an item which need be selected.
 	 *	 
 	 * @see js.swt.DropdownList #setSelectedIndexed
 	 */	   
@@ -591,7 +593,7 @@ js.swt.ComboBox = function(def, Runtime){
 		
 		// Date type is different, or value is different
 		if(((typeof latestModel.value) != (typeof model.value)) 
-			|| (model.value != latestModel.value)){
+		   || (model.value != latestModel.value)){
 			return true;
 		}
 		
@@ -609,8 +611,8 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	var _filterItemsByModel = function(model){
 		var ds = this._local.itemDefs, 
-		ms = this._local.itemModels,
-		set, useDef = false;
+			ms = this._local.itemModels,
+			set, useDef = false;
 		
 		if(Class.isArray(ds) && ds.length > 0){
 			set = ds;
@@ -740,9 +742,9 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	thi$.onSelectedChanged = function(target, eType){
 		var msgType = this.msgType(),
-		values = this.getSelectedValues(),
-		eData = {comboID: this.id, values: values},
-		evt = new Event(eType || "Selected", eData, target || this);
+			values = this.getSelectedValues(),
+			eData = {comboID: this.id, values: values},
+			evt = new Event(eType || "Selected", eData, target || this);
 		this.notifyPeer(msgType, evt);
 	};
 	
@@ -901,8 +903,9 @@ js.swt.ComboBox = function(def, Runtime){
 	}.$override(this.destroy);
 
 	/**
-	 * The display item is created and removed dynamically. When its styles was controlled,
-	 * we need to cache those styles and aplly them when the display item is created again.
+	 * The display item is created and removed dynamically. When its styles
+	 * was controlled, we need to cache those styles and aplly them when the
+	 * display item is created again.
 	 * 
 	 * @styles: {Object}
 	 */
@@ -919,7 +922,7 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	thi$.setErrSign = function(b, errStyles){
 		var ditem = this.displayItem, dview, U = this._local, 
-		oStyles = this._latestStyles, sp, styles, isCached;
+			oStyles = this._latestStyles, sp, styles, isCached;
 		
 		if(ditem){
 			dview = ditem.view;
@@ -988,8 +991,8 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	thi$.doEdit = function(){
 		var dContainer = this.dItemContainer, iptView = this._inputView, 
-		curV = iptView.getValue(), changed = true, models, model, values,
-		findInList = false;
+			curV = iptView.getValue(), changed = true, models, model, values,
+			findInList = false;
 		
 		// For the blur event of an input can be caused while remove it from
 		// the parent node, when we invoke the removeComponent below, TextField
@@ -1014,8 +1017,9 @@ js.swt.ComboBox = function(def, Runtime){
 		
 		if(!this.multiEnable){
 			/*
-			 * We think the input value will be as display value of item. so if there is some
-			 * item with the same display value existed in the DropDownList, we will use it.
+			 * We think the input value will be as display value of item.
+			 * so if there is some item with the same display value existed
+			 * in the DropDownList, we will use it.
 			 */
 			models = this.findItemModels("dname", [curV]);
 			model = (models && models.length > 0) ? models[0] : undefined;
@@ -1033,8 +1037,9 @@ js.swt.ComboBox = function(def, Runtime){
 		}
 		
 		/*
-		 * Before using the input value, if there are some special bussiness logic,
-		 * we need to implement the rectifyInput() method to handle the input value.
+		 * Before using the input value, if there are some special
+		 * bussiness logic, we need to implement the rectifyInput()
+		 * method to handle the input value.
 		 * 
 		 * Add on 03/18/2014, for bug #102193:
 		 * If find a item with the input text as dname, use it directly.
@@ -1051,10 +1056,10 @@ js.swt.ComboBox = function(def, Runtime){
 		_select.call(this, model);
 		
 		/* Attention: 
-		 * Some of values may be not belonged to any item. So there are two steps as follow
-		 * to finish selecting:
-		 * 1) Recorde all current selected value include the one which is not belonged to any
-		 *	  item of DropdownList.
+		 * Some of values may be not belonged to any item. So there are
+		 * two steps as follow to finish selecting:
+		 * 1) Recorde all current selected value include the one which is
+		 *	  not belonged to any item of DropdownList.
 		 * 2) Select all items. Each of them is indicated by values.
 		 */
 		_setSelectedValues.call(this, values);
@@ -1070,15 +1075,14 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	var _preIptStyles = function(styles){
 		var latestStyles = this._latestStyles, len, 
-		sp, v;
+			sp, v;
 		if(!latestStyles){
 			return styles || {};
 		}
 
-		sps = sps || iptSps;
-		len = Class.isArray(sps) ? sps.length : 0;
+		len = Class.isArray(iptSps) ? iptSps.length : 0;
 		for(var i = 0; i < len; i++){
-			sp = sps[i];
+			sp = iptSps[i];
 			v = latestStyles[sp];
 			
 			if(v != undefined && v != null){
@@ -1105,8 +1109,8 @@ js.swt.ComboBox = function(def, Runtime){
 		_showSubview.call(this, false);
 		
 		var M = this.def, Clz = Class.forName("js.swt.TextField"),
-		dContainer = this.dItemContainer, ditem = this.displayItem,
-		iptStyles, iptDef, input, m, v;
+			dContainer = this.dItemContainer, ditem = this.displayItem,
+			iptStyles, iptDef, input, m, v;
 		
 		m = this._local.latestModel = ditem.model;
 
@@ -1146,7 +1150,7 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	var _removeDisplayItem = function(){
 		var dContainer = this.dItemContainer, 
-		ditem = this.displayItem;
+			ditem = this.displayItem;
 		
 		if(ditem){
 			this._latestWidth = ditem.getWidth();
@@ -1165,20 +1169,20 @@ js.swt.ComboBox = function(def, Runtime){
 
 	thi$.getDItemDef = function(m){
 		var M = this.def, dItemDef = M.dItemDef,
-		b = (M.showTips !== false),
+			b = (M.showTips !== false),
 
-		tdef = {
-			classType: "js.swt.ModelItem",
-			className: DOM.combineClassName(M.className, "dItem"),
-			stateless: true,
+			tdef = {
+				classType: "js.swt.ModelItem",
+				className: DOM.combineClassName(M.className, "dItem"),
+				stateless: true,
 
-			showTips: b,
-			useInput: this.useInput,
-			
-			rigid_w: false, rigid_h: false,
-			
-			layout: {align_x: 0.0, align_y: 0.5}
-		};
+				showTips: b,
+				useInput: this.useInput,
+				
+				rigid_w: false, rigid_h: false,
+				
+				layout: {align_x: 0.0, align_y: 0.5}
+			};
 
 		if(Class.isObject(dItemDef)){
 			tdef = System.objectCopy(dItemDef, tdef, true);
@@ -1190,8 +1194,8 @@ js.swt.ComboBox = function(def, Runtime){
 
 	var _createDisplayItem = function(model){
 		var R = this.Runtime(), M = this.def, 
-		dItemDef = this.getDItemDef(model),
-		displayItem, b, tip;
+			dItemDef = this.getDItemDef(model),
+			displayItem, b, tip;
 		
 		if(typeof this._latestStyles === "object"){
 			dItemDef.css = DOM.toCssText(this._latestStyles);
@@ -1239,9 +1243,9 @@ js.swt.ComboBox = function(def, Runtime){
 		
 		// For bug #114049 (http://redmine.jinfonet.com.cn/issues/114049)
 		// 
-		// Sometimes, the model to select is from the options directly. If we 
-		// rectifying it directly, the oringinal item in the options will also 
-		// be changed. That isn't right. So we copy it first.
+		// Sometimes, the model to select is from the options directly.
+		// If we rectifying it directly, the oringinal item in the options
+		// will also be changed. That isn't right. So we copy it first.
 		var m = System.objectCopy(model, {}, true);
 		m = this.rectifyModel(m);
 		_createDisplayItem.call(this, m);
@@ -1445,13 +1449,13 @@ js.swt.ComboBox = function(def, Runtime){
 		}
 	};
 	
-	// When we want to select some non-existent items from the ComboBox's list
-	// by invoking setSelectedValues() or setSelectedIndexes(), we will build
-	// a model object as the selected with the same rules as those two methods
-	// implementation:
-	// a)If invoked the setSelectedValues(), use the specified values
+	// When we want to select some non-existent items from the ComboBox's
+	// list by invoking setSelectedValues() or setSelectedIndexes(), we
+	// will build a model object as the selected with the same rules as
+	// those two methods implementation:
+	// a) If invoked the setSelectedValues(), use the specified values
 	//	 as value to build a model object.
-	// b)If no model object can be returned, use the default model.
+	// b) If no model object can be returned, use the default model.
 	var _buildSelectedModel = function(cInfo){
 		var m;
 		if(cInfo && cInfo.values){
@@ -1483,15 +1487,15 @@ js.swt.ComboBox = function(def, Runtime){
 	 */
 	thi$.extractSelectedModel = function(event){
 		var data = event.getData(), models = data.models, 
-		cInfo = data.callbackInfo,
-		len = models ? models.length : 0,
-		selectedModel;
+			cInfo = data.callbackInfo,
+			len = models ? models.length : 0,
+			selectedModel;
 		
 		if (len == 0){
 			selectedModel = _buildSelectedModel.call(this, cInfo);
 		} else if (this.multiEnable){
 			var dnames = LList.$decorate([]), values = LList.$decorate([]), 
-			m, dname, v;
+				m, dname, v;
 			for(var i = 0; i < len; i++){
 				m = models[i];
 				dname = m.dname;
@@ -1518,7 +1522,7 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	thi$.selectedChanged = function(event){
 		var data = event.getData(), cInfo = data.callbackInfo,
-		m = this.extractSelectedModel(event), vs;
+			m = this.extractSelectedModel(event), vs;
 		if(!m.value && m.isDefault === true){
 			vs = [];
 		}else{
@@ -1534,16 +1538,17 @@ js.swt.ComboBox = function(def, Runtime){
 		}
 		
 		if((event.getType() === "click") 
-			|| (cInfo && cInfo.notify === true)){
+		   || (cInfo && cInfo.notify === true)){
 			this.onSelectedChanged(event.getEventTarget(), "ItemMarked");		
 		}
 	};
 	
 	/**
-	 * In some special cases, make the combobox be in editable state immediately.
+	 * In some special cases, make the combobox be in editable state
+	 * immediately.
 	 * 
-	 * @param force: {Boolean} Indicate to force the combobox be in editable state
-	 *		  even if it isn't editiable now.
+	 * @param force: {Boolean} Indicate to force the combobox be in
+	 *		  editable state even if it isn't editiable now.
 	 */
 	thi$.activeEdit = function(force){
 		if(force === true || this.editable){
@@ -1561,8 +1566,8 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	var _createSubview = function(def){
 		var theDef = def.subview,
-		ds = this._local.itemDefs,
-		ms = this._local.itemModels;
+			ds = this._local.itemDefs,
+			ms = this._local.itemModels;
 
 		if(Class.isArray(ds) && ds.length > 0){
 			theDef.itemDefs = ds;
@@ -1582,11 +1587,11 @@ js.swt.ComboBox = function(def, Runtime){
 	
 	var _onLayerRemoved = function(e){
 		var type = e.getType(), evt = e.getData(),
-		eType = evt ? ((evt instanceof js.util.Event) 
-					   ? evt.getType() : evt.type) : undefined,
-		el = evt ? evt.srcElement : undefined,
-		trigger = (this.def.wholeTrigger === true 
-				   ? this : this.btnDropDown);
+			eType = evt ? ((evt instanceof js.util.Event) 
+						   ? evt.getType() : evt.type) : undefined,
+			el = evt ? evt.srcElement : undefined,
+			trigger = (this.def.wholeTrigger === true 
+					   ? this : this.btnDropDown);
 		
 		this.notifyPeer("js.awt.event.LayerEvent", e);
 		
@@ -1615,7 +1620,8 @@ js.swt.ComboBox = function(def, Runtime){
 			return;
 		}
 		
-		iptView.detachEvent(js.swt.TextField.EVT_SUBMIT, 4, this, this.doEdit);
+		iptView.detachEvent(js.swt.TextField.EVT_SUBMIT, 4,
+							this, this.doEdit);
 
 		this.dItemContainer.removeComponent(iptView);
 		iptView.destroy();
@@ -1627,8 +1633,8 @@ js.swt.ComboBox = function(def, Runtime){
 	// Initialize selecteions
 	var _preSelect = function(useDefault){
 		var ds = this._local.itemDefs, 
-		ms = this._local.itemModels, 
-		useDs = false, set;
+			ms = this._local.itemModels, 
+			useDs = false, set;
 		
 		if(Class.isArray(ds) && ds.length > 0){
 			useDs = true;
@@ -1639,8 +1645,8 @@ js.swt.ComboBox = function(def, Runtime){
 		}
 
 		var len = set ? set.length : 0, 
-		dnames = [], values = LList.$decorate([]), 
-		tmp, m;
+			dnames = [], values = LList.$decorate([]), 
+			tmp, m;
 		for(var i = 0; i < len; i++){
 			tmp = set[i];
 			tmp = useDs ? tmp.model : tmp;
@@ -1691,7 +1697,9 @@ js.swt.ComboBox = function(def, Runtime){
 		
 		def.items = ["dItemContainer", "btnDropDown"];
 		
-		var tmp = {className: DOM.combineClassName(def.className, "dItemContainer")};
+		var tmp = {
+			className: DOM.combineClassName(def.className, "dItemContainer")
+		};
 		def.dItemContainer = System.objectCopy(dItemContainerDef, tmp, true);
 
 		tmp = {className: DOM.combineClassName(def.className, "dropdown")};
@@ -1717,7 +1725,7 @@ js.swt.ComboBox = function(def, Runtime){
 		this.setDisplayItemStyles(def.displayItemStyles);
 		
 		var ds = def.subview.itemDefs, 
-		ms = def.subview.itemModels;
+			ms = def.subview.itemModels;
 		if(Class.isArray(ds) && ds.length > 0){
 			this._local.itemDefs = ds;
 		}else if(Class.isArray(ms) && ms.length > 0){

@@ -355,7 +355,7 @@ js.lang.System = function (env, vm){
                 }
             }
 
-            vm.uuid("j$vm_"+js.lang.Math.uuid());
+            vm.uuid("j$vm_"+Math.uuid());
             vm.id = vm.uuid();
 
         } else {
@@ -373,7 +373,7 @@ js.lang.System = function (env, vm){
         }
 
         vm.env.j$vm_home = vm.j$vm_home = path;
-        vm.uuid("j$vm_"+js.lang.Math.uuid());
+        vm.uuid("j$vm_"+Math.uuid());
         vm.id = vm.uuid();
     };
 
@@ -387,7 +387,7 @@ js.lang.System = function (env, vm){
         }else{
             vm.disableLogger();
         }
-
+        
         J$VM.DOM.checkDoctype();
         J$VM.DOM.checkBrowser();
         
@@ -478,9 +478,7 @@ js.lang.System = function (env, vm){
         if(!vm.env.j$vm_isworker){
             
             vm.pkgversion = self.j$vm_pkgversion || {};
-            try{
-                delete self.j$vm_pkgversion;
-            }catch(e){}
+            self.j$vm_pkgversion = null;
             vm.__version__ += vm.pkgversion["package.jz"] || Math.uuid();
             
             _buildEnv.call(this);
@@ -567,6 +565,8 @@ js.lang.System = function (env, vm){
             Event.attachEvent(self, Event.W3C_EVT_UNLOAD, 0, this, _onunload);
 
         }else{
+            vm.__version__ = vm.env.uri.params["__"];
+            
             // Because Web Worker can not use consle to output, so we can use our MQ
             // to post message to main window.
             os = new function(){

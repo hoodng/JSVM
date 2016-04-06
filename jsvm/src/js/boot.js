@@ -65,7 +65,7 @@
     }
 
     // Support J$VM system properties which are from URL
-    var env = this.env, uri = env.uri = new js.net.URI(location.href),
+    var env = this.env, uri = env.uri = new js.net.URI(self.location.href),
         params = uri.params, value, tmp, p;
     for(p in params){
         if(p.indexOf("j$vm_") == 0){

@@ -1,8 +1,8 @@
 /**
 
- Copyright 2007-2015, The JSVM Project. 
+ Copyright 2007-2015, The JSVM Project.
  All rights reserved.
- 
+
  *
  * Author: Hu Dong
  * Contact: hoodng@hotmail.com
@@ -19,7 +19,7 @@ js.util.Document = function (){
         return;
     }
     CLASS.__defined__ = true;
- 
+
     var Class = js.lang.Class, Event = js.util.Event, cache = {},
 
     // Attributes Compatibility Table: Left - W3C, Right - IE 7
@@ -63,7 +63,7 @@ js.util.Document = function (){
     },
     REGX_CAMEL = /[A-Z]/g, REGX_HYPHEN = /-([a-z])/ig,
     textSps = [
-        "font-family", "font-size", "font-style", "font-weight", 
+        "font-family", "font-size", "font-style", "font-weight",
         "text-decoration", "text-align", "font-weight", "line-height"
     ],
     camelMap = {}, hyphenMap = {};
@@ -85,7 +85,7 @@ js.util.Document = function (){
                           + "border:5px solid black;padding:5px;"
                           + "visibility:visible;";
         doc.body.appendChild(div);
-        
+
         cdiv = doc.createElement("DIV");
         cdiv.style.cssText = "position:absolute;width:50px;height:30px;"
                            + "left:0px;background-color:blue;";
@@ -129,7 +129,7 @@ js.util.Document = function (){
          */
         supports.borderEdg = !(cdiv.offsetLeft === 0);
 
-        
+
         // Check browser supports for Input, Textarea
         ipt = doc.createElement("INPUT");
         ipt.type = "text";
@@ -152,14 +152,14 @@ js.util.Document = function (){
 
         // Check scrollbars' thicknesses
         // Attention:
-        // In firefox (win 19.0.2 1024 * 768), if there is no enough 
-        // space to show the scrollbar, the scrollbar won't be display 
-        // and its thickness is 0. So, the width of the horizontal 
+        // In firefox (win 19.0.2 1024 * 768), if there is no enough
+        // space to show the scrollbar, the scrollbar won't be display
+        // and its thickness is 0. So, the width of the horizontal
         // scrollbar should be large than (16px (left button) + 16px (right button)
-        // + xpx (minwidth of the slider, maybe 2px)) and the width of div 
+        // + xpx (minwidth of the slider, maybe 2px)) and the width of div
         // should be large than 51px (include width of virtical scrollbar.)
-        // Additionally, when screen resolution ratio (maybe dpi) is special, 
-        // the scrollbar's thickness and button may be more large. 
+        // Additionally, when screen resolution ratio (maybe dpi) is special,
+        // the scrollbar's thickness and button may be more large.
         // So we use a big size for div to check.
         div.innerHTML = "";
         div.style.cssText = "position:absolute;left:-550px;top:-550px;"
@@ -179,20 +179,20 @@ js.util.Document = function (){
          */
         supports.vscrollbar = obj.vbw;
 
-        // For IE, the dom element which has scrollbars should wider than 
+        // For IE, the dom element which has scrollbars should wider than
         // the vscrollbar and higher than the hscrollbar.
 
         /**
          * @member J$VM.supports
          * @property {Number} preHScrollEleH
-         * For IE, the dom element which has scrollbars should wider than 
+         * For IE, the dom element which has scrollbars should wider than
          * the vscrollbar and higher than the hscrollbar.
          */
         supports.preHScrollEleH = supports.hscrollbar + (J$VM.ie ? 1 : 0);
         /**
          * @member J$VM.supports
          * @property {Number} preVScrollEleW
-         * For IE, the dom element which has scrollbars should wider than 
+         * For IE, the dom element which has scrollbars should wider than
          * the vscrollbar and higher than the hscrollbar.
          */
         supports.preVScrollEleW = supports.vscrollbar + (J$VM.ie ? 1 : 0);
@@ -271,9 +271,9 @@ js.util.Document = function (){
                 head = document.getElementsByTagName("head")[0];
             script.type = "text/vbscript";
             script.text = 'Function IEBinaryToString(B)\r\n'
-                + 'Dim I, S\r\n' 
+                + 'Dim I, S\r\n'
                 + 'For I = 1 To LenB(B)\r\n'
-                + 'If I <> 1 Then S = S & \",\"\r\n' 
+                + 'If I <> 1 Then S = S & \",\"\r\n'
                 + 'S = S & CStr(AscB(MidB(B, I, 1)))\r\n'
                 + 'Next\r\n' + 'IEBinaryToString = S\r\n'
                 + 'End Function\r\n';
@@ -284,7 +284,7 @@ js.util.Document = function (){
         if(J$VM.firefox){
             Event.W3C_EVT_MOUSE_WHEEL = "DOMMouseScroll";
         }
-        
+
         // Clean
         obj = null;
         doc.body.removeChild(div);
@@ -359,7 +359,7 @@ js.util.Document = function (){
         }
     };
 
-    
+
     /**
      * Create a DOM element
      *
@@ -375,7 +375,7 @@ js.util.Document = function (){
         switch(Class.typeOf(ele)){
             case "htmlbodyelement":
             case "htmliframeelement":
-            // reasonable ? 
+            // reasonable ?
             view = this.createElement("DIV");
             break;
             default:
@@ -489,7 +489,7 @@ js.util.Document = function (){
      */
     thi$.getStyles = function(el, sps){
         var currentStyle = this.currentStyles(el), styles = {};
-        
+
         (function(sp){
             styles[this.camelName(sp)] =
                 this.getStyle(el, sp, currentStyle);
@@ -675,7 +675,7 @@ js.util.Document = function (){
             ele.style[sp] = value;
         };
     };
-    
+
     /**
      * Apply style for the DOM element
      *
@@ -688,7 +688,7 @@ js.util.Document = function (){
         styles[sp] = value;
         this.applyStyles(el, styles);
     };
-    
+
     /**
      * Apply styles to the DOM element
      *
@@ -697,7 +697,7 @@ js.util.Document = function (){
      */
     thi$.applyStyles = function(ele, styles){
         var mbpchanged = false, sp, bounds;
-        
+
         styles = styles || {};
         for(sp in styles){
             mbpchanged = mbpchanged || MBPTEST.test(sp);
@@ -717,7 +717,7 @@ js.util.Document = function (){
     };
 
     thi$.MBPCache = {};
-    
+
     thi$.MBP = function(ele, nocache, clazz){
         var bounds = ele ? (ele.bounds||{}) : {}, outer,
             mbp, mbpinline, clone, body;
@@ -726,12 +726,12 @@ js.util.Document = function (){
 
         outer = this.outerSize(ele);
         clazz = clazz || this.getClassName(ele);
-        
+
         mbp = bounds.MBP;
         if(mbp && !nocache && (mbp.clazz === clazz) ||
            (mbp && ele.cloned)){
             if(outer.valid){
-                J$VM.System.objectCopy(outer, mbp);                
+                J$VM.System.objectCopy(outer, mbp);
             }
 
             return mbp;
@@ -774,7 +774,7 @@ js.util.Document = function (){
 
         return mbp;
     };
-    
+
     var _calcMBP = function(ele, clazz, outer, mbpinline){
         var styles = this.currentStyles(ele, true), mbp ={};
 
@@ -798,7 +798,7 @@ js.util.Document = function (){
         mbp.BPH= mbp.BH + mbp.PH;
         mbp.clazz = clazz;
         J$VM.System.objectCopy(outer, mbp);
-        
+
         if(!mbpinline){
             this.MBPCache[clazz] =
                 J$VM.System.objectCopy(mbp, {}, true);
@@ -811,13 +811,13 @@ js.util.Document = function (){
     var MBPSTYLES = [
         {style: "borderTopStyle", border:"borderTopWidth",
          margin: "marginTop", padding:"paddingTop"},
-        
+
         {style: "borderRightStyle", border:"borderRightWidth",
          margin: "marginRight", padding:"paddingRight"},
-        
+
         {style: "borderBottomStyle", border:"borderBottomWidth",
          margin: "marginBottom", padding:"paddingBottom"},
-        
+
         {style: "borderLeftStyle", border:"borderLeftWidth",
          margin: "marginLeft", padding:"paddingLeft"}
     ];
@@ -842,7 +842,7 @@ js.util.Document = function (){
         mbp.MW = mbp.marginLeft + mbp.marginRight;
         mbp.MH = mbp.marginTop + mbp.marginBottom;
     };
-    
+
     var border = function(styles, mbp){
         var i, op, bs;
         for(i=0; i<4; i++){
@@ -881,7 +881,7 @@ js.util.Document = function (){
      * Return padding width of the element
      *
      * @param ele the element
-     * 
+     *
      * @return {paddingTop, paddingRight, paddingBottom, paddingLeft}
      */
     thi$.getPadding = function(ele){
@@ -907,7 +907,7 @@ js.util.Document = function (){
             r = ele.getBoundingClientRect();
         }catch(x){
             // For ie while isDOMElement(ele) is false
-            r = {left: 0, top: 0, bottom: 0, right: 0};            
+            r = {left: 0, top: 0, bottom: 0, right: 0};
         }
 
         rect.left = ftoi(r.left);
@@ -951,7 +951,7 @@ js.util.Document = function (){
             rect.right = rect.width = r.clientWidth;
             rect.bottom= rect.height= r.clientHeight;
         }
-        
+
         var valid = (rect.width + rect.height) > 0,
         w, h;
         if(!valid && this.isDOMElement(el)){
@@ -1108,7 +1108,7 @@ js.util.Document = function (){
                 scrollLeft: p.scrollLeft,
                 scrollTop: p.scrollTop
             },xy = this.absXY(el);
-        
+
         return this.relative(xy.x, xy.y, bounds);
     };
 
@@ -1167,10 +1167,10 @@ js.util.Document = function (){
 
     thi$.setZ = function(ele, z, bounds){
         var mbp;
-        
+
         bounds = bounds || this.getBounds(ele);
         mbp = bounds.MBP;
-        
+
         ele.style.zIndex = z;
         mbp.zIndex = z;
 
@@ -1196,7 +1196,7 @@ js.util.Document = function (){
      */
     thi$.getBounds = function(ele, nocache){
         var bounds, mbp, clazz;
-        
+
         if(!ele) return null;
 
         bounds = ele.bounds = (ele.bounds || {});
@@ -1207,13 +1207,13 @@ js.util.Document = function (){
         }else{
             nocache = true;
         }
-        
+
         bounds.MBP = this.MBP(ele, nocache, clazz);
         bounds.MBP.fake = null;
         bounds.BBM = bounds.MBP.BBM;
         bounds = _calcCoords.call(this, ele, bounds);
         bounds = _calcSize.call(this, ele, bounds);
-        
+
         return this.updateBounds(ele, bounds, bounds.offsetXY);
     };
 
@@ -1233,18 +1233,18 @@ js.util.Document = function (){
         bounds.clientHeight= ele.clientHeight;
 
         bounds.scroll = this.hasScrollbar(ele, bounds);
-        
+
         return bounds;
     };
 
     thi$.validBounds = function(bounds){
-        var mbp = bounds ? bounds.MBP : null; 
+        var mbp = bounds ? bounds.MBP : null;
         return mbp && mbp.valid;
     };
 
     var _calcCoords = function(ele, bounds){
         var mbp = bounds.MBP, xy, pMBP;
-        
+
         bounds.absX    = mbp.left;
         bounds.absY    = mbp.top;
         bounds.offsetXY = xy = this.offsetXY(ele);
@@ -1253,7 +1253,7 @@ js.util.Document = function (){
 
         bounds.x = bounds.offsetX - mbp.marginLeft;
         bounds.y = bounds.offsetY - mbp.marginTop;
-        
+
         if(!this.isDOMElement(ele)) return bounds;
 
         if(mbp.position === "relative"){
@@ -1278,7 +1278,7 @@ js.util.Document = function (){
             bounds.innerWidth  = bounds.width;
             bounds.innerHeight = bounds.height;
         }
-        
+
         if(mbp.BBM){
             bounds.styleW = bounds.width;
             bounds.styleH = bounds.height;
@@ -1376,7 +1376,7 @@ js.util.Document = function (){
     thi$.removeFrom = function(el, parentNode){
         if(!el) return;
 
-        //_fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_REMOVED);        
+        //_fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_REMOVED);
         parentNode = parentNode || el.parentNode;
         parentNode.removeChild(el);
     };
@@ -1418,7 +1418,7 @@ js.util.Document = function (){
         }else{
             parentNode.appendChild(el);
         }
-        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_APPEND);        
+        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_APPEND);
     };
 
     /**
@@ -1433,7 +1433,7 @@ js.util.Document = function (){
         }else{
             parentNode.appendChild(el);
         }
-        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_APPEND);        
+        _fireHtmlEvent.call(this, el, Event.SYS_EVT_ELE_APPEND);
     };
 
     var _fireHtmlEvent = function(el, type){
@@ -1596,18 +1596,18 @@ js.util.Document = function (){
 
     /**
      * Calculate the text size of the specified span node.
-     * 
+     *
      * Theory:
-     * 
-     * When a span is "inline" and its width / height is "auto" for 
+     *
+     * When a span is "inline" and its width / height is "auto" for
      * the text content. It will stretch auto to fit the content.
-     * 
+     *
      *
      * @param {String} str The text to measure, it must not be encoded.
      * @param {Object} txtStyles Some styles which can impact the string size.
      *        They should be the font-related, such as font-size, font-weight,
      *        font-family, etc.
-     * 
+     *
      * @param {Boolean} wordwrap Optional boolean value to indicate whether to
      *        compute the wordwrap size.
      * @param {Number} width Optional. The width for wordwrap to compute.
@@ -1642,7 +1642,7 @@ js.util.Document = function (){
 
         txtStyles = txtStyles || {};
         for(sp in txtStyles){
-            if(!styles[sp] 
+            if(!styles[sp]
                && !sp.match(/[wW]idth|margin|border|padding/)){
                 styles[sp] = txtStyles[sp];
             }
@@ -1671,11 +1671,11 @@ js.util.Document = function (){
      *
      * @param {DOM} ele A DOM node with text as display content, include
      *        "SPAN", "INPUT", "TEXTAREA".
-     * 
+     *
      * @param {Boolean} wordwrap Optional boolean value to indicate whether to
      *        compute the wordwrap size.
      * @param {Number} width Optional. The width for wordwrap to compute.
-     * 
+     *
      * @link#getStringSize
      */
     thi$.getTextSize = function(ele, wordwrap, width){
@@ -1741,13 +1741,13 @@ js.util.Document = function (){
 
     /**
      * Fetch the absolute url of the given relative url.
-     * 
+     *
      * @param {String} url The relative url.
      * @return {String} The absolute url.
      */
     thi$.getAbsoluteUrl = function() {
         var a;
-        
+
         return function(url) {
             if(!a) a = document.createElement('a');
             a.href = url;
@@ -1803,19 +1803,19 @@ js.util.Document = function (){
     };
 
     //////////////////  J$VM StyleSheet  //////////////////////////////////
-    
+
     thi$.styleSheets = {};
-    
+
     thi$.getStyleSheetBy = function(id, href){
         id = id || null; href = href || null;
-        
+
         var key = id+":"+href, styleEle, dom = self.document,
         styleSheet = this.styleSheets[key];
 
         if(styleSheet){
             return styleSheet._syncUpdate();
         }
-        
+
         styleSheet = this._findNativeStyleSheet(id, href);
         if(!styleSheet){
             if(href){
@@ -1826,9 +1826,9 @@ js.util.Document = function (){
             }else{
                 styleEle = dom.createElement("style");
                 if(id){
-                    styleEle.id = id;                        
+                    styleEle.id = id;
                 }
-                styleEle.type = "text/css";                    
+                styleEle.type = "text/css";
             }
             this.insertBefore(styleEle, dom.getElementById("j$vm"));
             styleSheet = this._findNativeStyleSheet(id, href);
@@ -1842,7 +1842,7 @@ js.util.Document = function (){
 
     thi$.rmvStyleSheetBy = function(id, href){
         id = id || null; href = href || null;
-        
+
         var key = id+":"+href, styleEle, dom = self.document,
         styleSheet = this.styleSheets[key];
 
@@ -1857,13 +1857,13 @@ js.util.Document = function (){
             }
         }
     };
-    
+
     thi$._findNativeStyleSheet = function(id, href){
         id = id || null; href = href || null;
 
         var styleSheets = self.document.styleSheets, styleSheet,
             styleEle, ret=[];
-        
+
         for(var i=0, len=styleSheets.length; i<len; i++){
             styleSheet = styleSheets[i];
             styleEle = this.getStyleSheetElement(styleSheet);
@@ -1881,11 +1881,11 @@ js.util.Document = function (){
 
     thi$.setClassName = function(ele, className, prefix){
         if(!ele) return;
-        
+
         if(!Class.isString(prefix)){
             prefix = "jsvm--";
         }
-        
+
         switch(Class.typeOf(ele)){
             case "htmlinputelement":
             case "htmltextareaelement":
@@ -1899,16 +1899,22 @@ js.util.Document = function (){
         ele.className = [prefix, className].join(" ");
     };
 
+    /**
+     * When a DOM element (such as "image") is in the "svg", its 
+     * className maybe the "SVGAnimatedString" object other than
+     * a string.
+     */ 
     thi$.getClassName = function(ele){
-        var clazz, name;
-        if(!Class.isHtmlElement(ele)){
-            clazz = ele.uuid = (ele.uuid || js.lang.Math.uuid());
+        var clazz;
+        if(!Class.isHtmlElement(ele) || !Class.isString(ele.className)){
+            clazz = ele.uuid = (ele.uuid || Math.uuid());
         }else{
             clazz = this.splitClassName(ele.className).join(" ");
         }
+
         return clazz;
     };
-    
+
     var STATEREG = /(\w+)(_\d{1,4})$/;
 
     thi$.splitClassName = function(className){
@@ -1935,7 +1941,7 @@ js.util.Document = function (){
         var names = this.splitClassName(className), rst = [], name, tmp;
         for(var i = 0, len = names.length; i < len; i++){
             name = names[i].trim();
-            
+
             // Skip the decorating className, e.g. restree--nombp, btn--square.
             // Rule: all decorating className only for the current component
             if(!name || name.indexOf("--") !== -1){
@@ -1951,7 +1957,7 @@ js.util.Document = function (){
                 }
             }
         }
-        
+
         return rst.join(" ");
     };
 
@@ -1962,16 +1968,16 @@ js.util.Document = function (){
      * "A B $A $B" + "xx" ==> "A_xx B_xx $A_xx $B_xx"
      * "A B" + [x, y] ==> "A_x A_y B_x By"
      * "A B $A $B" + [x, y] ==> "A_x A_y B_x B_y $A_x $A_y $B_x $B_y"
-     * 
+     *
      * "A B B--nombp" + [x, y] ==> "A_x A_y B_x B_y"
-     * 
+     *
      * Also, skip the decorating className, e.g. restree--nombp, btn--square.
      * Rule: all decorating className only for the current component.
-     * 
+     *
      * @param {String} className Like "A B", "A B $A $B".
      * @param {String / Array} ext The specified string / strings to combine.
      * @param {String} separator Like "", "_".
-     */    
+     */
     thi$.combineClassName = function(className, ext, separator){
         if(!Class.isArray(ext)){
             if(Class.isValid(ext)){
@@ -1986,7 +1992,7 @@ js.util.Document = function (){
         }
 
         if(className && ext.length > 0){
-            className = _combineClassName.apply(this, arguments);  
+            className = _combineClassName.apply(this, arguments);
         }
 
         return className;
@@ -1997,10 +2003,10 @@ js.util.Document = function (){
      * "A B $A" + 2 ==> "A B A_2"
      * "A B $A $B" + 16 ==> "A B A_16 B_16"
      * "A A--nombp" + 1 ==> "A A--nombp A_1"
-     * 
+     *
      * Also, skip the decorating className, e.g. restree--nombp, btn--square.
      * Rule: all decorating className only for the current component.
-     * 
+     *
      * @param {String} className Like "A B", "A B $A $B".
      * @param {Number} state
      */
@@ -2039,11 +2045,11 @@ js.util.Document = function (){
     };
 
     /**
-     * Clear the special "State ClassName" segments, such as "$abc", 
+     * Clear the special "State ClassName" segments, such as "$abc",
      * and return the clean className for the DOM element.
-     * 
+     *
      * "A B $A $B" ==> "A B"
-     * 
+     *
      * @param {String} className Link "A B $A $B"
      * @return {String}
      */
@@ -2089,7 +2095,7 @@ js.util.Document = function (){
                 obj = this.getObject(uuid.substring(0, idx));
             }
 
-            // Return the object which was cached in 
+            // Return the object which was cached in
             // js.lang.Object.objectStore
             if(!obj){
                 obj = this.getObject(uuid);
@@ -2097,7 +2103,7 @@ js.util.Document = function (){
         }else if(create){
             def = def || {};
             def.id = ele.id;
-            def.stateless = Class.isBoolean(def.stateless) ? 
+            def.stateless = Class.isBoolean(def.stateless) ?
                 def.stateless : true;
             def.className = def.className || ele.className;
             Runtime = Runtime || function(){
@@ -2115,20 +2121,20 @@ js.util.Document = function (){
 
         return obj;
     };
-    
+
     thi$.getComponentById = function(id){
         return this.getComponent(self.document.getElementById(id));
     };
 
     /**
      * Ref: https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent
-     * 
+     *
      * The HTMLElement.offsetParent read-only property returns a reference to
-     * the object is the qui Closest (Nearest in the containment hierarchy) 
-     * Positioned Containing element. If the element is non-Positioned, The 
+     * the object is the qui Closest (Nearest in the containment hierarchy)
+     * Positioned Containing element. If the element is non-Positioned, The
      * nearest table or cell root element (html in standards compliant fashion;
      * body in quirks rendering mode) is the offsetParent. OffsetParent returns
-     * null When the element HAS style.display set to "none". 
+     * null When the element HAS style.display set to "none".
      */
     thi$.getOffsetParent = function(ele){
         if(ele !== document.body){
@@ -2161,11 +2167,11 @@ js.util.Document = function (){
     // For resize
     var OFFSETTABLE = [[0, 7, 6],[1, 8, 5],[2, 3, 4]];
     var STEP = 10, STEP3 = STEP * 3;
-    
+
     var offsetIndex0 = function(offset, min, max){
         var diff = max - min,
             step = diff >= STEP3 ? STEP : Math.floor(diff/3);
-        
+
         if(offset < min+step){
             return 0;
         }else if(offset > max-step ){
@@ -2177,7 +2183,7 @@ js.util.Document = function (){
 
     thi$.offsetIndexes = function(x, y, bounds){
         var xIdx, yIdx;
-        
+
         yIdx = offsetIndex0(y, bounds.absY,
                             bounds.absY + bounds.height);
         xIdx = offsetIndex0(x, bounds.absX,
@@ -2208,7 +2214,7 @@ js.util.Document = function (){
         if(capturer) return;
         capturer = document.createElement("div");
         capturer.id = "mouse-capturer";
-        capturer.style.cssText = "position:absolute;"
+        capturer.style.cssText = "position:absolute;";
         capturer.style.backgroundColor = "blue";
     };
 
@@ -2218,7 +2224,7 @@ js.util.Document = function (){
             this.setBounds(capturer, 0, 0, 0, 0);
             return;
         }
-        
+
         capturer.style.cursor = CURSORS[spot];
         capturer.uuid = [uuid, "-capture"].join("");
         capturer.spot = spot;
@@ -2243,7 +2249,7 @@ js.util.Document = function (){
     thi$.getCursor = function(ele){
         return ele ? ele.style.cursor : null;
     };
-    
+
     var cursorOf = function(index){
         var ret;
         if(Class.isString(index)){
@@ -2255,7 +2261,7 @@ js.util.Document = function (){
     };
 
     var dirtys = {};
-    
+
     thi$.setDynamicCursor = function(ele, cursor){
         if(!ele) return;
 
@@ -2289,16 +2295,16 @@ js.util.Document = function (){
             tmp = Class.isNumber(tmp) ? tmp : 0;
             zIndex = Math.max(zIndex, tmp);
         }
-        return zIndex;        
+        return zIndex;
     };
 
     /**
-     * Judge whether the given position is in the scrollbar of the 
+     * Judge whether the given position is in the scrollbar of the
      * specified DOM element.
-     * 
+     *
      * @param {Number} x
      * @param {Number} y
-     * @param {DOMElement} ele 
+     * @param {DOMElement} ele
      * @param {Object} bounds
      */
     thi$.isInScrollbar = function(x, y, ele, bounds){
@@ -2307,17 +2313,17 @@ js.util.Document = function (){
         var sobj = this.hasScrollbar(ele),
         MBP = bounds.MBP, tx, ty, b = false;
         if(sobj.vscroll){
-            tx = bounds.absX + bounds.width - MBP.borderRightWidth 
+            tx = bounds.absX + bounds.width - MBP.borderRightWidth
                 - MBP.paddingRight;
-            b = x >= (tx - sobj.vbw) && x <= tx 
+            b = x >= (tx - sobj.vbw) && x <= tx
                 && y >= bounds.absY && y <= (bounds.absY + bounds.height);
         }
 
         if(!b && sobj.hscroll){
             ty = bounds.absY + bounds.height - MBP.borderBottomWidth
                 - MBP.paddingBottom;
-            b = x >= bounds.absX && x <= (bounds.absX + bounds.width) 
-                && y >= (ty - sobj.hbw) && y <= ty;            
+            b = x >= bounds.absX && x <= (bounds.absX + bounds.width)
+                && y >= (ty - sobj.hbw) && y <= ty;
         }
 
         return b;
