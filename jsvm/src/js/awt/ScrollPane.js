@@ -60,6 +60,10 @@ js.awt.ScrollPane = function (def, Runtime){
      * @see js.awt.Container #insertComponent
      */
     thi$.insertComponent = function(index, comp, constraints, notify){
+        // Make the drag-and-drop operation do in the container
+        // other than each item in it.
+        comp.setMoveTarget(this);
+        
         comp = $super(this, index, comp, constraints);
         return _addComp.call(this, comp, notify);
         
@@ -192,19 +196,21 @@ js.awt.ScrollPane = function (def, Runtime){
      * @see js.awt.Movable
      */
     thi$.getMoveObject = function(e){
-        var moveObj = this.moveObj;
+        var R = this.Runtime(), M = this.def, moveObj = this.moveObj,
+            item, bounds, moveObjClz, def;
         if(!moveObj){
-            var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-                absXY = DOM.absXY(item.view) /*e.eventXY()*/, 
-                moveObjClz = Class.forName(this.def.moveObjClz);
+            item = this.cache[e.srcElement.uuid];
+            moveObjClz = Class.forName(M.moveObjClz);
             
-            var def = System.objectCopy(item.def, {}, true);
+            def = System.objectCopy(item.def, {}, true);
             moveObj = this.moveObj = 
                 new moveObjClz(def, this.Runtime(), item.cloneView());
             moveObj.setMovingPeer(this);
             moveObj.appendTo(document.body);
-            moveObj.setPosition(absXY.x, absXY.y);
-            /*moveObj.setPosition(absXY.x - 10, absXY.y - 8);*/
+
+            bounds = item.getBounds();
+            moveObj.setBounds(bounds.absX, bounds.absY,
+                              bounds.width, bounds.height, 0x04);
         }
 
         return moveObj;
@@ -474,7 +480,7 @@ js.awt.ScrollPane = function (def, Runtime){
             (hscroll ? "jsvm_hscroll" : "jsvm_vscroll");
         
         mover = newDef.mover = newDef.mover || {};
-        mover.longpress = mover.longpress || 90;
+        mover.longpress = mover.longpress || 10;
         mover.freedom = !isNaN(mover.freedom)
             ? mover.freedom : (hscroll ? 1 : 2);
 

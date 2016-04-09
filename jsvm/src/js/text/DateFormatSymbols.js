@@ -40,11 +40,11 @@ $package("js.text");
 js.text.DateFormatSymbols = function(symbols){
 
     var CLASS = js.text.DateFormatSymbols, thi$ = CLASS.prototype;
-    if(CLASS.__defined){
+    if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
     }
-    CLASS.__defined = true;
+    CLASS.__defined__ = true;
 
     var Class = js.lang.Class, System = J$VM.System;
     

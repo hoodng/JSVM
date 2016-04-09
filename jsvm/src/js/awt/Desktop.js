@@ -27,7 +27,7 @@ js.awt.Desktop = function (Runtime){
         System = J$VM.System, MQ =J$VM.MQ, R;
 
     this.onresize = function(e){
-        System.updateLastAccessTime();
+        System.updateLastAccessTime(e);
         $super(this);
         this.LM.clearStack(e);
         for(var appid in apps){
@@ -36,26 +36,26 @@ js.awt.Desktop = function (Runtime){
     }.$override(this.onresize);
 
     var _onkeyevent = function(e){
-        System.updateLastAccessTime();
+        System.updateLastAccessTime(e);
         MQ.post("js.awt.event.KeyEvent", e);
     };
 
     var drags = {}, lasts ={}, tm;
 
     // @link js.awt.Element#checkCaptures
-	var _onTargetMousemove = function(target, e){
+    var _onTargetMousemove = function(target, e){
         var b = target.checkCaptures(e);
-		if(b) {
-			e.cancelBubble();
-		}else{
-			target.fireEvent(e, true);
-		}
-	};
+        if(b) {
+            e.cancelBubble();
+        }else{
+            target.fireEvent(e, true);
+        }
+    };
     
     var _onmousemove = function(e){
         var ele, target, drag, last, now, spot, XY;
-        fireDrag.$clearTimer();
-        System.updateLastAccessTime();
+        //fireDrag.$clearTimer();
+        System.updateLastAccessTime(e);
 
         drag = drags[e.pointerId];
         if(drag && drag.status === 1){
@@ -192,11 +192,12 @@ js.awt.Desktop = function (Runtime){
     };
 
     var _onmousedown = function(e){
-        var ele, target, spot;
-        System.updateLastAccessTime();        
+        var ele, xy, target, spot;
+        System.updateLastAccessTime(e);        
         this.LM.cleanLayers(e, this);
 
         ele = e.srcElement;
+        xy = e.eventXY();
         target = e.getEventTarget();
         if(target && target !== this){
             // Ref the old logic before v13.5, just to activate 
@@ -208,28 +209,23 @@ js.awt.Desktop = function (Runtime){
             }
             target.fireEvent(e, true);
 
-            if(e.button === 1 && (target.isMovable() ||
-                                  target.isResizable() ||
-                target.isMoverSpot())){
+            if(e.button === 1
+               && (target.isMovable() || target.isResizable()
+                   || target.isMoverSpot(ele, xy.x, xy.y))){
 
-                target = target.isMoverSpot() ?
+                target = target.isMoverSpot(ele, xy.x, xy.y) ?
                     target.getMoveTarget() : target;
                 
-                spot = target.spotIndex(ele, e.eventXY());
-
-                if(spot >= 0){
-                    var mover = target.getMovingConstraints(),
-                        longpress = spot < 8 ? 10 : mover.longpress;
-                    longpress = Class.isNumber(longpress) ? longpress :
-                        J$VM.env["j$vm_longpress"] || 90;
-
-                    fireDrag.$delay(this, longpress, e.pointerId, {
+                spot = target.spotIndex(ele, xy);
+                if(spot >=0){
+                    fireDrag.call(this, e.pointerId, {
                         event: e,
-                        absXY: e.eventXY(),
+                        absXY: xy,
                         srcElement: ele,
                         target: target,
                         spot: spot,
                         status: 1
+                        
                     });
                 }
             }
@@ -241,14 +237,15 @@ js.awt.Desktop = function (Runtime){
 
     var _onmouseup = function(e){
         var ele, target, drag, XY;
-        fireDrag.$clearTimer();
-        System.updateLastAccessTime();
+        //fireDrag.$clearTimer();
+        System.updateLastAccessTime(e);
 
         ele = e.srcElement;
         target = e.getEventTarget();
         drag = drags[e.pointerId];
         if(drag && drag.status != 2){
             // Not is a real drag
+            drags[e.pointerId] = null;
             drag = null;
         }
         XY = e.eventXY();
@@ -329,7 +326,7 @@ js.awt.Desktop = function (Runtime){
 
     var _onmousewheel = function(e){
         var ele, target;
-        System.updateLastAccessTime();        
+        System.updateLastAccessTime(e);        
         this.LM.cleanLayers(e, this);
 
         ele = e.srcElement;
@@ -380,6 +377,8 @@ js.awt.Desktop = function (Runtime){
         if(Class.isArray(msg)){
             if("j$vm_activating" === msg[0]){
                 // When user only active in an iframe, the outside 
+                // J$VM also needs update last access time. 
+                // Or user only active in parent, the inside iframe 
                 // J$VM also needs update last access time.
                 System.updateLastAccessTime();
             }else{

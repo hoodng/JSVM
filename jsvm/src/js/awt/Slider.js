@@ -180,7 +180,7 @@ js.awt.Slider = function(def, Runtime){
             }
         }else{
             _play.$clearTimer(this.timer);
-            delete this.timer;
+            this.timer = null;
             this.playing = false;
             if(typeof this.onStop == "function"){
                 this.onStop();
@@ -262,6 +262,8 @@ js.awt.Slider = function(def, Runtime){
         }else if(p >= this.maxOffset){
             this.isLast = true;
         }
+
+        _notifyMove.call(this, fire ? 1:0);
     };
     
     /**
@@ -284,7 +286,7 @@ js.awt.Slider = function(def, Runtime){
         if(this.isSingle()){
             _updateTrack.call(this, data.nx, this.getBounds());
         }
-        
+        _notifyMove.call(this, 0);
         e.cancelBubble();
     };
 
@@ -294,23 +296,30 @@ js.awt.Slider = function(def, Runtime){
         track.bounds = null;
         DOM.setSize(track, bounds.innerWidth);
     };
+    
+    var _onResizing = function(e){
+        
+    };
 
     var _onMoveEnd = function(e){
-        this.offset = this.getOffset();
+        _notifyMove.call(this, 1);
+        e.cancelBubble();
+    };
 
+    var _notifyMove = function(fire){
+        this.offset = this.getOffset();
         if(Class.isFunction(this.onSliderChanged)){
             var U = this._local, slipper = this.slipper;
             U.off0 = slipper.getOffset0();
             U.off1 = slipper.getOffset1();
-            this.onSliderChanged.$delay(this, 1);
+            this.onSliderChanged.$delay(this, 1, fire);
         }
-        e.cancelBubble();
     };
 
     var _onTraceMouse = function(e){
-        var xy = e.eventXY, bounds = this.getBounds();
+        var xy = e.eventXY(), bounds = this.getBounds();
         xy = DOM.relative(xy.x, xy.y, bounds);
-        
+        //debugger;
         e.cancelBubble();
     };
     
@@ -348,17 +357,18 @@ js.awt.Slider = function(def, Runtime){
     
     thi$.destroy = function(){
         
-        this.slipper.$destroy();
+        this.slipper.destroy();
         this.slipper = null;
         this._track = null;
         this._track0 = null;
 
         this.detachEvent("elementMoving", 4, this, _onMoving);
         this.detachEvent("elementMoveEnd",4, this, _onMoveEnd);
+        this.detachEvent("elementResizing",4, this, _onResizing);
         this.detachEvent("elementResizeEnd", 4, this, _onMoveEnd);
-        /*
+
         this.detachEvent(Event.W3C_EVT_MOUSE_DOWN,
-                         4, this, _onTraceMouse);*/
+                         4, this, _onTraceMouse);
         
         $super(this);
         
@@ -377,10 +387,11 @@ js.awt.Slider = function(def, Runtime){
 
         this.attachEvent("elementMoving", 4, this, _onMoving);
         this.attachEvent("elementMoveEnd",4, this, _onMoveEnd);
+        this.attachEvent("elementResizing",4, this, _onResizing);
         this.attachEvent("elementResizeEnd", 4, this, _onMoveEnd);
-        /*
+
         this.attachEvent(Event.W3C_EVT_MOUSE_DOWN,
-                         4, this, _onTraceMouse);*/
+                         4, this, _onTraceMouse);
 
     }.$override(this._init);
     
@@ -445,7 +456,10 @@ js.awt.Slipper = function(def, Runtime){
                 w = DOM.getBounds(this.ctrl0).offsetWidth;
                 this.offset0 = mbp.borderLeftWidth + w;
                 this.offset1 = -(mbp.borderRightWidth + w);
-                
+                this.def.miniSize = {
+                    width: 2*w+1,
+                    height: bounds.height
+                };
             }
             return true;
         }
@@ -486,14 +500,14 @@ js.awt.Slipper = function(def, Runtime){
             d = DOM.getBounds(this.ctrl0);
             bounds = {
                 x : d.absX - w, y: d.absY - w,
-                width: d.width + w2, height: d.height + w2
+                width: d.width, height: d.height + w2
             }
             spot = 1;
         }else if(idx > 3 && idx < 8){
             d = DOM.getBounds(this.ctrl1);
             bounds = {
-                x : d.absX - w, y: d.absY - w,
-                width: d.width + w2, height: d.height + w2
+                x : d.absX + w, y: d.absY - w,
+                width: d.width, height: d.height + w2
             }
             spot = 5;
         }

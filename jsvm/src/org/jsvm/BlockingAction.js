@@ -14,11 +14,11 @@ $package("org.jsvm");
 org.jsvm.DummyConnection = function(id, data){
 
     var CLASS = org.jsvm.DummyConnection, thi$ = CLASS.prototype;
-    if(CLASS.__defined){
+    if(CLASS.__defined__){
         this._init.apply(this, arguments);
         return;
     }
-    CLASS.__defined = true;
+    CLASS.__defined__ = true;
 
     thi$.getData = function(){
         return this;

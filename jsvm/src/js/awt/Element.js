@@ -235,7 +235,7 @@ js.awt.Element = function(def, Runtime){
         }
         
         if((fire & 0x01)){
-            this.doLayout(true, bounds);
+            this.doLayout(true, bounds, fire);
         }
         
         return changed;
@@ -308,7 +308,7 @@ js.awt.Element = function(def, Runtime){
         }
         
         if((fire & 0x01)){
-            this.doLayout(true, bounds);
+            this.doLayout(true, bounds, fire);
         }
 
         return (coord || sized);
@@ -691,6 +691,10 @@ js.awt.Element = function(def, Runtime){
      */
     thi$.setContainer = function(container){
         this.container = container;
+        if(!this.view){
+            // Canvas shape ?
+            this.parentNode = container.view || container;
+        }
     };
 
     /**
@@ -964,7 +968,8 @@ js.awt.Element = function(def, Runtime){
             mover = this.def.mover = {
                 bt: 1, br: 0, bb: 0, bl: 1,
                 grid: 1,
-                freedom: 3
+                freedom: 3,
+                longpress: 10
             };
         }else {
             mover.bt = Class.isNumber(mover.bt) ? mover.bt : 1;
@@ -973,6 +978,7 @@ js.awt.Element = function(def, Runtime){
             mover.bl = Class.isNumber(mover.bl) ? mover.bl : 1;
             mover.grid = Class.isNumber(mover.grid) ? mover.grid : 1;
             mover.freedom = Class.isNumber(mover.freedom) ? mover.freedom : 3;
+            mover.longpress = Class.isNumber(mover.longpress) ? mover.longpress : 10;
         }
         return mover;
     };

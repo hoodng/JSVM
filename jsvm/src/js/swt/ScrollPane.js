@@ -124,22 +124,22 @@ js.swt.ScrollPane = function(def, Runtime){
 		return comp;
 	};
 
-    /**
-     * @method
-     * @inheritdoc js.awt.Element#spotIndex
-     */
-    thi$.spotIndex = function(){
-        return 11;
-    };
-    
+	/**
+	 * @method
+	 * @inheritdoc js.awt.Element#spotIndex
+	 */
+	thi$.spotIndex = function(){
+		return 11;
+	};
+	
 	/**
 	 * @see js.awt.Container #insertComponent
 	 */
 	thi$.insertComponent = function(index, comp, constraints, notify, fireLayout){
-        // Make the drag-and-drop operation do in the container
-        // other than each item in it.
-        comp.setMoveTarget(this);
-        
+		// Make the drag-and-drop operation do in the container
+		// other than each item in it.
+		comp.setMoveTarget(this);
+		
 		comp = $super(this, index, comp, constraints);	
 		return _addComp.call(this, comp, notify, fireLayout);
 		
@@ -180,7 +180,7 @@ js.swt.ScrollPane = function(def, Runtime){
 		
 		if(fireLayout === true){
 			this.fireEvent(new Event(CLASS.SCROLLPANEEVENT,
-                                     {type: "remove"}));
+									 {type: "remove"}));
 		}
 		
 	}.$override(this.removeComponent);
@@ -199,7 +199,7 @@ js.swt.ScrollPane = function(def, Runtime){
 
 				this._local.active = comp;
 				this.notifyPeer("js.awt.event.ItemEvent",
-                                new Event("active", "", comp));
+								new Event("active", "", comp));
 			}else{
 				this[id].setTriggered(false);
 			}
@@ -256,7 +256,7 @@ js.swt.ScrollPane = function(def, Runtime){
 	 * Scroll to the last position.
 	 */
 	thi$.scrollLast = function(){
-        var view = this.view;
+		var view = this.view;
 		if(this.isHScroll()){
 			view.scrollLeft = view.scrollWidth;
 		}else{
@@ -281,18 +281,19 @@ js.swt.ScrollPane = function(def, Runtime){
 	 * @see js.awt.Movable #getMoveObject
 	 */
 	thi$.getMoveObject = function(e){
-		var moveObj = this.moveObj;
+		var R = this.Runtime(), M = this.def, moveObj = this.moveObj,
+			item, absXY, def;
 		if(!moveObj){
-			var M = this.def, el = e.srcElement, uuid = el.uuid, 
-				item = this.cache[uuid], absXY = DOM.absXY(item.view),
-				def = System.objectCopy(item.def, {}, true);
+			item = this.cache[e.srcElement.uuid];
+			absXY = DOM.absXY(item.view);
+			def = System.objectCopy(item.def, {}, true);
 			
 			if(M.moveObjClz){
 				def.classType = M.moveObjClz;
 			}
 			
 			moveObj = this.moveObj 
-				= new (Class.forName(def.classType))(def, this.Runtime(), item.cloneView());
+				= new (Class.forName(def.classType))(def, R, item.cloneView());
 			moveObj.setMovingPeer(this);
 			moveObj.appendTo(document.body);
 			moveObj.setPosition(absXY.x, absXY.y);
@@ -723,7 +724,7 @@ js.swt.ScrollPane = function(def, Runtime){
 		newDef.moveObjClz = newDef.moveObjClz || "js.awt.Item";
 		
 		mover = newDef.mover = newDef.mover || {};
-		mover.longpress = mover.longpress || 90;
+		mover.longpress = mover.longpress || 10;
 		mover.freedom = Class.isNumber(mover.freedom) 
 			? mover.freedom : (hscroll ? 1 : 2);
 		

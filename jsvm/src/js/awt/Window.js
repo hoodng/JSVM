@@ -230,6 +230,7 @@ js.awt.Window = function (def, Runtime, view){
 	
 	thi$.onbtnMax = function(button){
 		var U = this._local, R = this.Runtime();
+
 		if(this.isMaximized()){
 			// Restore
 			this.setMaximized(false);

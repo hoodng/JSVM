@@ -50,7 +50,7 @@ $package("js.swt");
  */
 js.swt.SComponent = function(def, Runtime){
 	var CLASS = js.swt.SComponent,
-	thi$ = CLASS.prototype;
+		thi$ = CLASS.prototype;
 	
 	if(CLASS.__defined__){
 		this._init.apply(this, arguments);
@@ -61,7 +61,7 @@ js.swt.SComponent = function(def, Runtime){
 	CLASS.WHEELSTEP = 53;
 	
 	var Class = js.lang.Class, Event = js.util.Event, System = J$VM.System,
-	DOM = J$VM.DOM, MQ = J$VM.MQ;
+		DOM = J$VM.DOM, MQ = J$VM.MQ;
 
 	/*
 	 * Chrome: mousewheel {
@@ -75,8 +75,8 @@ js.swt.SComponent = function(def, Runtime){
 	 */
 	var _onMousewheel = function(e){
 		var hScrollbar = this.hScrollbar, vScrollbar = this.vScrollbar,
-		domE = e._event, deltaX = domE.deltaX, deltaY = domE.deltaY,
-		cview = this.vcomp.view;
+			domE = e._event, deltaX = domE.deltaX, deltaY = domE.deltaY,
+			cview = this.vcomp.view;
 
 		if(!Class.isNumber(deltaY)){
 			// For Chrom & IE
@@ -149,23 +149,32 @@ js.swt.SComponent = function(def, Runtime){
 	 * @return {Object}
 	 */
 	thi$.getScrollSize = function(){
-		var vcomp = this.vcomp, ele, s, D;
+		var vcomp = this.vcomp, ele, styleW, styleH, s, D;
 		if(vcomp && vcomp.isVisible()){
 			if(Class.isFunction(vcomp.getScrollSize)){
 				s = vcomp.getScrollSize();
 			}else{
 				ele = vcomp.view;
-				ele.style.overflow = "hidden";
+				styleW = ele.style.width;
+				styleH = ele.style.height;
 
+				ele.style.width = "auto";
+				ele.style.height = "auto";
+				
 				D = vcomp.getBounds();
 				s = {
-					width: ele.scrollWidth,
-					height: ele.scrollHeight
+					width: D.scrollWidth + D.MBP.BPW,
+					height: D.scrollHeight + D.MBP.BPH
 				};
+
+				ele.style.width = styleW;
+				ele.style.height = styleH;
 			}
 		}
 
-		return s;
+		System.log.println("ScrollSize for comp#" + this.className
+						   + " is " + JSON.stringify(s || {}));
+		return s || {width: 0, height: 0};
 	};
 
 	/**
@@ -186,15 +195,15 @@ js.swt.SComponent = function(def, Runtime){
 	 */
 	thi$.checkScrollbars = function(w, h){
 		var hbw = J$VM.supports.preHScrollEleH,
-		vbw = J$VM.supports.preVScrollEleW,
+			vbw = J$VM.supports.preVScrollEleW,
 
-		rst = {
-			v: false, h: false,
-			vbw: vbw, hbw: hbw	
-		},
+			rst = {
+				v: false, h: false,
+				vbw: vbw, hbw: hbw	
+			},
 
-		vcomp = this.vcomp,
-		s, tw, th, box;
+			vcomp = this.vcomp,
+			s, tw, th, box;
 
 		if(!Class.isNumber(w) || !Class.isNumber(h)){
 			box = this.getBounds();
@@ -253,10 +262,10 @@ js.swt.SComponent = function(def, Runtime){
 	 */
 	thi$.adjustScrollbars = function(){
 		var bounds = this.getBounds(), MBP = bounds.MBP,
-		w = bounds.innerWidth, h = bounds.innerHeight,
-		x = MBP.paddingLeft, y = MBP.paddingTop,
-		comp, rst, vcomp = this.vcomp, 
-		cview = vcomp ? vcomp.view : null;
+			w = bounds.innerWidth, h = bounds.innerHeight,
+			x = MBP.paddingLeft, y = MBP.paddingTop,
+			comp, rst, vcomp = this.vcomp, 
+			cview = vcomp ? vcomp.view : null;
 
 		// Show / hide scrollbars
 		rst = this.checkScrollbars(w, h);
@@ -269,8 +278,8 @@ js.swt.SComponent = function(def, Runtime){
 		// Lay out scrollbars
 		if(rst.v){
 			comp = this.vScrollbar;
-			comp.setDataSize({w: 1, h: rst.th}, {w: 1, h: h});
 			comp.setBounds(x + w, y, rst.vbw, h);
+			comp.setDataSize({w: 1, h: rst.th}, {w: 1, h: h});
 		}else{
 			if(cview){
 				cview.scrollTop = 0;
@@ -279,8 +288,8 @@ js.swt.SComponent = function(def, Runtime){
 
 		if(rst.h){
 			comp = this.hScrollbar;
-			comp.setDataSize({w: rst.tw, h: 1}, {w: w, h: 1});
 			comp.setBounds(x, y + h, w, rst.hbw);
+			comp.setDataSize({w: rst.tw, h: 1}, {w: w, h: 1});
 		}else{
 			if(cview){
 				cview.scrollLeft = 0;
@@ -298,7 +307,7 @@ js.swt.SComponent = function(def, Runtime){
 		// Layout the vcomp
 		comp = this.vcomp;
 		if(comp && comp.isVisible()){
-			comp.setBounds(x, y, w, h, 5);
+			comp.setBounds(x, y, w, h);
 		}
 
 		this._rstScrollbars = rst;
@@ -327,7 +336,7 @@ js.swt.SComponent = function(def, Runtime){
 	 */
 	thi$.onchildrenchanged = function(e){
 		var U = this._local, os = U.scrollSize,
-		s = this.getScrollSize();
+			s = this.getScrollSize();
 
 		if(os && s && os.width === s.width 
 		   && os.height === s.height){
@@ -393,13 +402,13 @@ js.swt.SComponent = function(def, Runtime){
 
 	var _initScrollbars = function(def){
 		var R = this.Runtime(),
-		sdef = {
-			classType: "js.awt.Scrollbar",
-			css: "position:absolute;background:#FFFFFF;",
+			sdef = {
+				classType: "js.awt.Scrollbar",
+				css: "position:absolute;background:#FFFFFF;",
 
-			axis: 1
-		},
-		comp = this.vScrollbar = new js.awt.Scrollbar(sdef, R);
+				axis: 1
+			},
+			comp = this.vScrollbar = new js.awt.Scrollbar(sdef, R);
 		comp.display(false);
 		comp.attachEvent("scroll", 4, this, this.onVScroll);
 		comp.appendTo(this.view);

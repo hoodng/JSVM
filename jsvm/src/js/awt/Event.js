@@ -45,7 +45,8 @@ js.awt.Event = function(e){
                 _e.stopPropagation();
             }else{
                 try{// Try only for the IE
-                    _e.cancelBubble = true;} catch (x) {}
+                    _e.cancelBubble = true;
+                } catch (x) {}
             }
         }
         

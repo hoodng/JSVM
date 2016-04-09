@@ -912,46 +912,45 @@ li {
     background-color: #C0C0C0;
 }
 
+.montionplayer_sldplay {
+    padding: 10px 0 10px 0;
+    overflow: hidden;
+}
+
 .montionplayer_sldplay_slipper{
+    position: absolute;
     width: 10px;
     height:18px;
+    top: 2px;
     background-repeat: no-repeat;
     background-position:center;
     background-image: url("images/0-slider_single.png");    
 }
 
-.montionplayer_sldplay_track0, .montionplayer_sldplay_track1 {
-    height: 4px;
-    border: 1px solid #b0b0b0;
-    background-color: #e8eae9;
-    border-bottom-color: #ffffff;
+.montionplayer_sldplay_track0{
+    position: relative;
+    width: 100%;
+    height: 0px;
+    border-bottm: 1px solid #b0b0b0;
 }
 
-.montionplayer_sldplay_track0 {
-    background-color: #c8cac9;
+.montionplayer_sldplay_track {
+    position:relative;
+    width: 100%;
+    height: 1px;
+    background-color: #e8eae9;
+    border-left: 0px solid #c8cac9;
 }
 
 .montionplayer_lblspeed {
    color: black;
 }
 
-.montionplayer_sldspeed_slipper {
-    width: 8px;
-    height:16px;
-    border: 0px solid #b0b0b0;
-    background-color: #eeeeee;
-    background-repeat: no-repeat;
-    background-position:center 0px;
-    background-image: url("images/0-slider_montion.png");
-}
-
-.montionplayer_sldspeed_slipper_ctrl0 {
-    width: 8px;
-}
-
-.montionplayer_sldspeed_trackbg {
+.montionplayer_sldspeed_track0 {
+  position: relative;
   width: 38px;
   height:12px;
+  top: 5px;
   font-size: 0;
   line-height: 0;
   background-repeat: no-repeat;
@@ -960,28 +959,51 @@ li {
   overflow: hidden;
 }
 
+.montionplayer_sldspeed_slipper {
+    position: absolute;
+    width: 8px;
+    height:16px;
+    top: 2px;
+    border: 0px solid #b0b0b0;
+    background-color: #eeeeee;
+    background-repeat: no-repeat;
+    background-position:center 0px;
+    background-image: url("images/0-slider_montion.png");
+}
+
 /** Single slider filter control **/
 .singleFC {
    border: 0px solid #999999;
 }
 
+.singleFC_sldplay{
+    padding: 10px 0 10px 0;    
+}
+
 .singleFC_sldplay_slipper{
+    position: absolute;
     width: 10px;
     height:18px;
+    top: 2px;
     background-repeat: no-repeat;
     background-position:center;
     background-image: url("images/0-slider_single.png");    
 }
 
-.singleFC_sldplay_track0, .singleFC_sldplay_track1 {
-    height: 4px;
-    border: 1px solid #b0b0b0;
-    background-color: #e8eae9;
-    border-bottom-color: #ffffff;
+.singleFC_sldplay_track0 {
+    possition: relative;
+    width: 100%;
+    height: 0px;
+    border-bottom: 1px solid #b0b0b0;
 }
 
-.singleFC_sldplay_track0 {
-    background-color: #c8cac9;
+.singleFC_sldplay_track {
+    position: relative;
+    width: 100%;
+    height: 1px;
+    background-color: #e8eae9;
+    border-left: 0px solid #c8cac9;
+
 }
 
 /** Ranger slider filter control **/
@@ -993,18 +1015,25 @@ li {
    border: 1px solid #999999;
 }
 
-.rangerFC_sldplay_0 {
-   border: 1px solid #999999;
+.rangerFC_sldplay_track0 {
+    position: relative;
+    width: 100%;
+    height: 0px;
 }
 
-.rangerFC_sldplay_1 {
-   border: 1px solid #999999;
+.rangerFC_sldplay_track {
+    position: relative;
+    width: 100%;
+    height: 12px;
 }
 
 .rangerFC_sldplay_slipper {
+    position: absolute;
     width: 100px;
     height: 12px;
+    top: 0;
     border: 0px solid gray;
+    background-color: #ffb307;
 }
 
 .rangerFC_sldplay_slipper_ctrl0,
@@ -1026,15 +1055,6 @@ li {
     background-image: url("images/0-slider_range_end.png");
 }
 
-.rangerFC_sldplay_track0,
-.rangerFC_sldplay_track1,
-.rangerFC_sldplay_track2 {
-    height: 12px;
-}
-
-.rangerFC_sldplay_track2 {
-    background-color: #ffb307;
-}
 
 .chart_movecover {
     border: 2px solid #C0C0C0;

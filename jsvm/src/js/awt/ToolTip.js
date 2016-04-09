@@ -153,8 +153,8 @@ js.awt.ToolTip = function(){
 		}else{
 			this.showTipLayer(true, e);
 		}
-		e.cancelBubble();
-		return e.cancelDefault();
+		//e.cancelBubble();
+		return true;//e.cancelDefault();
 	};
 	
 	/**

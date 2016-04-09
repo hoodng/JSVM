@@ -1907,7 +1907,7 @@ js.util.Document = function (){
     thi$.getClassName = function(ele){
         var clazz;
         if(!Class.isHtmlElement(ele) || !Class.isString(ele.className)){
-            clazz = ele.uuid = (ele.uuid || Math.uuid());
+            clazz = ele.classid = (ele.classid || ele.uuid || Math.uuid());
         }else{
             clazz = this.splitClassName(ele.className).join(" ");
         }
@@ -2138,7 +2138,7 @@ js.util.Document = function (){
      */
     thi$.getOffsetParent = function(ele){
         if(ele !== document.body){
-            ele = ele.offsetParent;
+            ele = ele.offsetParent || ele.parentNode;
             if(!ele || ele === document){
                 ele = document.body;
             }

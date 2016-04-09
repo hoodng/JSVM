@@ -1,31 +1,33 @@
 .jsvm--com {
-    -ms-user-select:none;
-    -webkit-user-select:none;
-    -moz-user-select:none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
 
-    -ms-user-drag: none;
-    -webkit-user-drag: none;
-    -moz-user-drag: none;
-    
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 11px;
+	-ms-user-drag: none;
+	-webkit-user-drag: none;
+	-moz-user-drag: none;
+
+    /*
+      "font-family" and "font-size" should be
+      set in "jsvm__app" for each application.
+     */
 }
 
 .jsvm--txt {
-    -ms-user-select: text;
-    -webkit-user-select: text;
-    -moz-user-select: text;
+	-ms-user-select: text;
+	-webkit-user-select: text;
+	-moz-user-select: text;
 
-    -ms-user-drag: none;
-    -webkit-user-drag: none;
-    -moz-user-drag: none;
-    
+	-ms-user-drag: none;
+	-webkit-user-drag: none;
+	-moz-user-drag: none;
+
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 11px;
 
-    resize: none;
-    outline: none;
-    overflow: auto;
+	resize: none;
+	outline: none;
+	overflow: auto;
 }
 
 .jsvm--full-w {
@@ -75,4 +77,3 @@ input::-ms-clear{ display: none; }
     border: 0 none transparent;
     background-color: transparent;
 }
-

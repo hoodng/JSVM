@@ -62,7 +62,7 @@
 	background-position: center;
 }
 
-.menuVA_item_icon, 
+.menuVA_item_icon,
 .simpleMenuVA_item_icon {
 	width: 0px;
 	height: 0px;
@@ -91,9 +91,9 @@
 	background-position: center;
 }
 
-.menuVA_item_1 img[class*="menuVA_item_icon"], 
+.menuVA_item_1 img[class*="menuVA_item_icon"],
 .menuVA_item_3 img[class*="menuVA_item_icon"],
-.simpleMenuVA_item_1 img[class*="simpleMenuVA_item_icon"], 
+.simpleMenuVA_item_1 img[class*="simpleMenuVA_item_icon"],
 .simpleMenuVA_item_3 img[class*="simpleMenuVA_item_icon"] {
 	filter: alpha(Opacity = 45);
 	-moz-opacity: 0.45;
@@ -129,7 +129,7 @@
 .iconicMenuVA_item,
 .simpleIconicMenuVA_item {
 	height: 22px;
-	
+
 	cursor: default;
 	overflow: hidden;
 	background-color: #FFFFFF;
@@ -152,18 +152,18 @@
 }
 
 .iconicMenuVA_item_marker,
-.iconicMenuVA_item_marker_0, 
+.iconicMenuVA_item_marker_0,
 .iconicMenuVA_item_marker_4 {
 	width: 18px;
 	height: 22px;
-	
+
 	background-color: #FFFFFF; /* #E1E1E1; */
-	
+
 	margin-right: 2px;
 }
 
 .simpleIconicMenuVA_item_marker,
-.simpleIconicMenuVA_item_marker_0, 
+.simpleIconicMenuVA_item_marker_0,
 .simpleIconicMenuVA_item_marker_4 {
 	width: 0px;
 	height: 0px;
@@ -178,7 +178,7 @@
 .iconicMenuVA_item_icon {
 	width: 16px;
 	height: 16px;
-	
+
 	margin-right: 2px;
 }
 
@@ -209,9 +209,9 @@
 	background-position:center;
 }
 
-.iconicMenuVA_item_1 img[class*="iconicMenuVA_item_icon"], 
+.iconicMenuVA_item_1 img[class*="iconicMenuVA_item_icon"],
 .iconicMenuVA_item_3 img[class*="iconicMenuVA_item_icon"],
-.simpleIconicMenuVA_item_1 img[class*="simpleIconicMenuVA_item_icon"], 
+.simpleIconicMenuVA_item_1 img[class*="simpleIconicMenuVA_item_icon"],
 .simpleIconicMenuVA_item_3 img[class*="simpleIconicMenuVA_item_icon"] {
 	filter: alpha(Opacity = 45);
 	-moz-opacity: 0.45;
@@ -234,27 +234,27 @@
 	position:relative;
 	left:0px;
 	top: 0px;
-	
+
 	width: 18px;
 	height: 18px;
-	
+
 	background-color: transparent;
 	border: 1px solid transparent; /* # E1E1E1 */
 
 	float: left;
 	display: block;
-	
+
 	cursor : default;
 }
 
-.va_legendIconBtn_2, .va_legendIconBtn_4, 
-.va_legendIconBtn_6, .va_legendIconBtn_8, 
+.va_legendIconBtn_2, .va_legendIconBtn_4,
+.va_legendIconBtn_6, .va_legendIconBtn_8,
 .va_legendIconBtn_10,.va_legendIconBtn_12,
 .va_legendIconBtn_14 {
 	border-color: #FC9B55;
 }
 
-.va_legendIconBtn_4, .va_legendIconBtn_6, 
+.va_legendIconBtn_4, .va_legendIconBtn_6,
 .va_legendIconBtn_12,.va_legendIconBtn_14 {
 	background-color: #FFDF7C;
 }
@@ -288,7 +288,7 @@
 	overflow: hidden;
 }
 
-.legendField_2, .legendField_4, 
+.legendField_2, .legendField_4,
 .legendField_6 {
 	background-color: #FFDF7C;
 	border-color: #F8B686;
@@ -301,9 +301,9 @@
 
 .legendField_label {
 	color: #000000;
-	
+
 	text-overflow: ellipsis;
-	
+
 	cursor: default;
 	overflow: hidden;
 }
@@ -315,7 +315,7 @@
 	visibility: visible;
 }
 
-.legendField_ctrl_2, .legendField_ctrl_4, 
+.legendField_ctrl_2, .legendField_ctrl_4,
 .legendField_ctrl_6 {
 	visibility: visible;
 }
@@ -328,10 +328,10 @@
 
 .va_legendGroup_title {
 	height: 25px;
-	
+
 	border-bottom: 1px solid #D3D3D3;
 	padding: 4px 4px 2px 4px;
-	
+
 	display: block;
 }
 
@@ -412,7 +412,7 @@
 .slegendItem_label {
 	height: 18px;
 	line-height: 18px;
-	
+
 	text-overflow: ellipsis;
 
 	cursor: default;
@@ -423,7 +423,7 @@
 	position: relative;
 	width: 100%;
 	height: 36px;
-	
+
 	cursor: default;
 }
 
@@ -432,14 +432,14 @@
 }
 
 .mLegendItem_tickmarkLabel,
-.mLegendItem_tickmarkLabel0, 
+.mLegendItem_tickmarkLabel0,
 .mLegendItem_tickmarkLabel1 {
 	overflow: hidden;
 
 	color: #000000;
 	text-overflow: ellipsis;
 	text-align: center;
-	
+
 	display: block;
 	cursor: default;
 }
@@ -481,7 +481,9 @@
 	float: left;
 	cursor: default;
 	overflow: hidden;
-	padding: 3px;
+    line-height: 18px;
+    height: 20px;
+    top: 0px;
 }
 
 .mPatternItem {

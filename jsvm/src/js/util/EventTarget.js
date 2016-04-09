@@ -121,37 +121,38 @@ js.util.EventTarget = function (def, Runtime){
      * @see dispatchEvent(evt);
      */
     thi$.fireEvent = function(evt, bubble){
-        var eType, isEvent, handlers;
+        var eType, handlers;
 
-        if(Class.isString(evt)){
-            eType = evt;
-        }else if(evt instanceof Event){
-            eType = evt.getType();
-            isEvent = true;
+        if(!(evt instanceof Event)){
+            throw "The evt must be an js.awt.Event object."
         }
+
+        eType = evt.getType();
 
         // If the current component is covered, it shouldn't reponse to
         // the native mouse and key events.
-        if(!Class.isFunction(this.isCovered) || !this.isCovered() 
-           || !PreclusiveMouseKeyEvents[eType.toLowerCase()]){
+        if(evt.trigger !== this &&
+           (!Class.isFunction(this.isCovered) ||
+            !this.isCovered() ||
+        !PreclusiveMouseKeyEvents[eType.toLowerCase()])){
             handlers = this["on" + eType];
 
             switch(Class.typeOf(handlers)){
-            case "function":
+                case "function":
                 handlers.call(this, evt);
                 break;
-            case "array":
+                case "array":
                 for(var i=0, len=handlers.length; i<len; i++){
                     handlers[i].call(this, evt);
                 }
                 break;
-            default:
+                default:
                 break;
             }
         }
 
         // Bubble event
-        if(isEvent && (bubble === true && evt._bubble === true)){
+        if(bubble === true && evt._bubble === true){
             var src = this.view || evt.srcElement, target;
             do {
                 src = src ? src.parentNode : null;

@@ -75,10 +75,6 @@
     background-image: url("images/loading.gif");
     background-repeat: no-repeat;
     background-position:center;
-    filter: alpha(Opacity = 30);
-    -moz-opacity: 30;
-    opacity: 30;
-    background-color: #C0C0C0;
 }
 
 .dlg_btnpane_loading{
@@ -232,9 +228,9 @@
     padding: 0px 12px 12px 12px;
 }
 
-.message_mask,
-.confirm_mask,
-.closeconfirm_mask {
+.message_cover--mask,
+.confirm_cover--mask,
+.closeconfirm_cover--mask {
     filter: alpha(Opacity = 30);
     -moz-opacity: 0.3;
     opacity: 0.3;
@@ -248,10 +244,7 @@
     overflow: hidden;
 }
 /**********  End of ColorPicker ***********/
-.visualAnalytics {
-    width: 1024px;
-    height: 768px;
-
+.visualAnalytics_app {
     background-color: #FFFFFF;
 
     font-family: Arial;
@@ -259,13 +252,13 @@
     color: #454545;
 }
 
-.visualAnalytics_client {
+.visualAnalytics_app_client {
     border: 0px;
     background-color: #FFFFFF;
     overflow: hidden;
 }
 
-.visualAnalytics_mask {
+.visualAnalytics_app_cover--mask {
     filter: alpha(Opacity = 20);
     -moz-opacity: 0.2;
     opacity: 0.2;
@@ -276,10 +269,6 @@
     background-image: url("images/va-loading.gif");
     background-repeat: no-repeat;
     background-position:center;
-    filter: alpha(Opacity = 20);
-    -moz-opacity: 0.2;
-    opacity: 0.2;
-    background-color: #000000;
 }
 
 /** For icon button **/
@@ -1286,7 +1275,7 @@
     background-color:#FFFFFF;
 }
 
-.vadlg_movecover {
+.vadlg_cover--move {
     border: 2px solid #C0C0C0;
     filter: alpha(Opacity = 30);
     -moz-opacity: 0.3;
@@ -1296,7 +1285,7 @@
     cursor: move;
 }
 
-.vadlg_mask {
+.vadlg_cover--mask {
     filter: alpha(Opacity = 30);
     -moz-opacity: 0.3;
     opacity: 0.3;
@@ -1463,11 +1452,11 @@
     border-radius: 5px;
 }
 
-.vaSelectBVDlg_movecover {
+.vaSelectBVDlg_cover--move {
     cursor: move;
 }
 
-.vaSelectBVDlg_mask {
+.vaSelectBVDlg_cover--mask {
     filter: alpha(Opacity = 30);
     -moz-opacity: 0.3;
     opacity: 0.3;
@@ -1527,7 +1516,7 @@
     border-radius: 5px;
 }
 
-.customizedlg_movecover {
+.customizedlg_cover--move {
     border: 2px solid #C0C0C0;
     filter: alpha(Opacity = 30);
     -moz-opacity: 0.3;
@@ -1537,7 +1526,7 @@
     cursor: move;
 }
 
-.customizedlg_mask {
+.customizedlg_cover--mask {
     filter: alpha(Opacity = 30);
     -moz-opacity: 0.3;
     opacity: 0.3;
@@ -1725,6 +1714,8 @@ custmoizedlg_title_label {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    width: 100%;
+    height: 16px;
 }
 
 .va_comboBox_dropdown {
@@ -2180,6 +2171,7 @@ custmoizedlg_title_label {
     border:1px solid #E1E1E1;
     background:#FFFFFF;
     padding:2px;
+    height: 60px;
 }
 
 .custiomizecolor_cboPattern {

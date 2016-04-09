@@ -106,7 +106,8 @@ js.awt.Resizable = function(){
             oy: bounds.y,
             oz: moveObj.getZ(),
             ow: bounds.width,
-            oh: bounds.height
+            oh: bounds.height,
+            stage: 0
         };
 
         ctx.offsetbounds = DOM.getBounds(moveObj.getOffsetParent());
@@ -212,6 +213,7 @@ js.awt.Resizable = function(){
         }
 
         data.event = e;
+        data.stage = 1;
         if(ctx.moved || ctx.sized){
             this.fireEvent(new Event(
                 CLASS.EVT_RESIZING, data, this), true);
@@ -232,7 +234,7 @@ js.awt.Resizable = function(){
             recvs = sizeObj.getSizingMsgRecvs() || [];
 
         data.event = e;
-
+        data.stage = 2;
         sizeObj.setZ(data.oz);
         if(ctx.outline){
             this.showOutline(true, this._outlineClassName);

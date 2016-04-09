@@ -1,253 +1,253 @@
 /* For icon button with toggle true */
 .toggleBtn {
-    width: 22px;
-    height: 22px;
-    border: 1px solid transparent;
+	width: 22px;
+	height: 22px;
+	border: 1px solid transparent;
 }
 
 .toggleBtn_2 {
-    background-color: #FFDF7C;
+	background-color: #FFDF7C;
 }
 
 .toggleBtn_4, .toggleBtn_6 {
-    background-color: #FFDF7C;
-    border-color: #FB8C3C;
+	background-color: #FFDF7C;
+	border-color: #FB8C3C;
 }
 .toggleBtn_icon {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 /* paintButton: for replacing colorbutton */
 .paintButton {
-    width: 22px;
-    height: 22px;
-    border: 1px solid #EEEEEE;
+	width: 22px;
+	height: 22px;
+	border: 1px solid #EEEEEE;
 }
 
 .paintButton_2,
 .paintButton_4 {
-    background-color: #FFDF7C;
-    border: 1px solid #FB8C3C;
+	background-color: #FFDF7C;
+	border: 1px solid #FB8C3C;
 }
 
 .paintButton--controlled {
-    width: 25px;
+	width: 25px;
 }
 
 .paintButton_icon {
-    width: 16px;
-    height: 16px;
-    background-image: url(images/paint.gif);
-    background-repeat: no-repeat;
-    background-position: 0px 0px;
-    cursor: pointer;
+	width: 16px;
+	height: 16px;
+	background-image: url(images/paint.gif);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	cursor: pointer;
 }
 
 .paintButton_leftView {
-    padding: 1px 0px;
+	padding: 1px 0px;
 }
 
 .paintButton_leftView_2 {
-    background-color: #FFDF7C;
+	background-color: #FFDF7C;
 }
 
 .paintButton_preview {
-    width: 16px;
-    height: 4px;
-    border: 1px solid #E0E0E0;
+	width: 16px;
+	height: 4px;
+	border: 1px solid #E0E0E0;
 }
 
 .paintButton_rightView {
-    width: 5px;
-    border-left: 1px solid transparent;
+	width: 5px;
+	border-left: 1px solid transparent;
 }
 
 .paintButton_rightView_2 {
-    border-color: #FB8C3C;
-    background-color: #FFDF7C;
+	border-color: #FB8C3C;
+	background-color: #FFDF7C;
 }
 
 .paintButton_ctrl {
-    width: 4px;
-    height: 4px;
-    background-image: url("images/arrow_down.png");
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+	width: 4px;
+	height: 4px;
+	background-image: url("images/arrow_down.png");
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
 }
 
 /* For the CtrlItem with js.awt.Item */
 .ctrlItem {
-    width: 20px;
-    height: 20px;
+	width: 20px;
+	height: 20px;
 
-    padding: 1px;
-    text-align: center;
+	padding: 1px;
+	text-align: center;
 
-    background-color: transparent;
-    border: 1px solid transparent;
+	background-color: transparent;
+	border: 1px solid transparent;
 
-    display: block;
-    cursor: pointer;
+	display: block;
+	cursor: pointer;
 }
 
 .ctrlItem_2, .ctrlItem_4,
 .ctrlItem_6 {
-    background-color: #FFDF7C;
-    border-color: #FB8C3C;
+	background-color: #FFDF7C;
+	border-color: #FB8C3C;
 }
 
 .ctrlItem_1, .ctrlItem_3, ctrlItem_17 {
-    color: #ACA899;
+	color: #ACA899;
 
-    filter: alpha(opacity=40);
-    -moz-opacity: 0.4;
-    opacity: 0.4;
+	filter: alpha(opacity=40);
+	-moz-opacity: 0.4;
+	opacity: 0.4;
 }
 
 .ctrlItem_4 {
-    background-color: #FFDF7C;
+	background-color: #FFDF7C;
 }
 
 .ctrlItem_16, .ctrlItem_17 {
-    display: none;
+	display: none;
 }
 
 .ctrlItem_icon {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 .ctrlItem_label {
-    height: 16px;
-    /* width: 44px; */
-    cursor: pointer;
+	height: 16px;
+	/* width: 44px; */
+	cursor: pointer;
 }
 
 .ctrlItem_ctrl {
-    width: 6px;
-    height: 4px;
-    background-image: url("images/arrow_down.png");
-    background-repeat: no-repeat;
-    background-position: 50% 50%;
+	width: 6px;
+	height: 4px;
+	background-image: url("images/arrow_down.png");
+	background-repeat: no-repeat;
+	background-position: 50% 50%;
 }
 
 .ctrlItem_cover--disable {
-    filter: alpha(Opacity = 0);
-    -moz-opacity: 0;
-    opacity: 0;
-    background-color: #EEEEEE;
-    
-    cursor: default;
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #EEEEEE;
+	
+	cursor: default;
 }
 
 /** Items in the Toolbar **/
 /* Overirde the ctrlItem */
 .toolItem {
-    position: relative;
-    width: 24px;
-    height: 24px;
-    padding: 2px;
-    float: left;
-    display: block;
+	position: relative;
+	width: 24px;
+	height: 24px;
+	padding: 2px;
+	float: left;
+	display: block;
 }
 
 .toolItem_16, .toolItem_17 {
-    display: none;
+	display: none;
 }
 
 .toolItem--controlled {
-    width: 28px;
+	width: 28px;
 }
 
 .toolItem_cover--disable {
-    filter: alpha(Opacity = 20);
-    -moz-opacity: 0.2;
-    opacity: 0.2;
+	filter: alpha(Opacity = 20);
+	-moz-opacity: 0.2;
+	opacity: 0.2;
 }
 
 .toolbox {
-    position: relative;
-    height: 24px;
-    float: left;
-    display: block;
+	position: relative;
+	height: 24px;
+	float: left;
+	display: block;
 }
 
 .toolbox_16 {
-    display: none;
+	display: none;
 }
 
 .toolbox_leader {
-    position: relative;
-    width: 6px;
-    height: 24px;
-    border-left: 1px solid #d9d9d9;
-    float: left;
+	position: relative;
+	width: 6px;
+	height: 24px;
+	border-left: 1px solid #d9d9d9;
+	float: left;
 }
 
 .toolbox_btnCustomize {
-    background-image: url(images/toolbar_Right_button.png);
-    height: 24px;
-    width: 16px;
-    padding-right: 4px;
-    background-repeat: no-repeat;
-    background-position: 0px 0px;
-    cursor: pointer;
-    float: left;
+	background-image: url(images/toolbar_Right_button.png);
+	height: 24px;
+	width: 16px;
+	padding-right: 4px;
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	cursor: pointer;
+	float: left;
 }
 
 .toolbox_btnCustomize_2 {
-    background-position: 0px -24px;
+	background-position: 0px -24px;
 }
 
 /* BV tree panel */
 .restree {
-    border: 0px;
-    background-color: #FFFFFF;
-    overflow: auto;
-    padding: 5px 0px 0px 5px;
+	border: 0px;
+	background-color: #FFFFFF;
+	overflow: auto;
+	padding: 5px 0px 0px 5px;
 }
 
 .restree--nombp {
-    margin: 0px;
-    border: 0px;
-    padding: 0px;
+	margin: 0px;
+	border: 0px;
+	padding: 0px;
 }
 
 .restree_item {
-    height: 22px;
-    width: 100%;
-    padding: 3px 0px 3px 0px;
-    overflow: hidden;
-    white-space: nowrap;
-    display:block;
+	height: 22px;
+	width: 100%;
+	padding: 3px 0px 3px 0px;
+	overflow: hidden;
+	white-space: nowrap;
+	display:block;
 }
 
 .restree_item_16,
 .restree_item_17,
 .restree_item_20,
 .restree_item_22 {
-    display:none;
+	display:none;
 }
 
 .restree_item_1 {
-    color: gray;
-    cursor: default;
+	color: gray;
+	cursor: default;
 }
 
 .restree_item_2, .restree_item_6 {
-    background-color:#ffdf7c;
+	background-color:#ffdf7c;
 }
 
 .restree_item_4 {
-    background-color:#ffd070;
+	background-color:#ffd070;
 }
 
 .restree_item_leader,
 .restree_item_leader0,
 .restree_item_leader1 {
-    width: 16px;
-    height:16px;
+	width: 16px;
+	height:16px;
 }
 
 .restree_item_branch,
@@ -259,147 +259,147 @@
 .restree_item_branch7_0, .restree_item_branch4_4,
 .restree_item_branch5_4, .restree_item_branch6_4,
 .restree_item_branch7_4 {
-    width: 16px;
-    height:16px;
-    background-repeat: no-repeat;
-    background-position:center;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	background-repeat: no-repeat;
+	background-position:center;
+	margin-right:2px;
 }
 
 .restree_item_branch4_0 {
-    background-image: url("images/0-expand.png");
-    cursor: pointer;
+	background-image: url("images/0-expand.png");
+	cursor: pointer;
 }
 
 .restree_item_branch4_4 {
-    background-image: url("images/0-collapse.png");
-    cursor: pointer;
+	background-image: url("images/0-collapse.png");
+	cursor: pointer;
 }
 
 .restree_item_branch5_0 {
-    background-image: url("images/0-expand.png");
-    cursor: pointer;
+	background-image: url("images/0-expand.png");
+	cursor: pointer;
 }
 
 .restree_item_branch5_4 {
-    background-image: url("images/4-collapse.png");
-    cursor: pointer;
+	background-image: url("images/4-collapse.png");
+	cursor: pointer;
 }
 
 .restree_item_branch6_0 {
-    background-image: url("images/0-expand.png");
-    cursor: pointer;
+	background-image: url("images/0-expand.png");
+	cursor: pointer;
 }
 
 .restree_item_branch6_4 {
-    background-image: url("images/4-collapse.png");
-    cursor: pointer;
+	background-image: url("images/4-collapse.png");
+	cursor: pointer;
 }
 
 .restree_item_branch7_0 {
-    background-image: url("images/0-expand.png");
-    cursor: pointer;
+	background-image: url("images/0-expand.png");
+	cursor: pointer;
 }
 
 .restree_item_branch7_4 {
-    background-image: url("images/4-collapse.png");
-    cursor: pointer;
+	background-image: url("images/4-collapse.png");
+	cursor: pointer;
 }
 
 .restree_item_marker,
 .restree_item_marker_0,
 .restree_item_marker_4 {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .restree_item_marker_0 {
-    background-image: url("images/icon-checkbox-normal.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-checkbox-normal.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .restree_item_marker_4 {
-    background-image: url("images/icon-checkbox-select.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-checkbox-select.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .restree_item_icon {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .restree_item_label {
-    height: 16px;
-    line-height: 16px;
-    cursor: default;
-    text-overflow:ellipsis;
-    overflow: hidden;
+	height: 16px;
+	line-height: 16px;
+	cursor: default;
+	text-overflow:ellipsis;
+	overflow: hidden;
 }
 
 .restree_item_cover--disable {
-    filter: alpha(Opacity = 10);
-    -moz-opacity: 0.1;
-    opacity: 0.1;
+	filter: alpha(Opacity = 10);
+	-moz-opacity: 0.1;
+	opacity: 0.1;
 }
 
 /** End tree **/
 
 /*********** For FlatTree ************/
 .flatRestree {
-    border: 0px;
-    background-color: #FFFFFF;
-    overflow: auto;
-    padding: 2px 2px 2px 6px;
+	border: 0px;
+	background-color: #FFFFFF;
+	overflow: auto;
+	padding: 2px 2px 2px 6px;
 }
 
 .flatRestree_moveobj0, .flatRestree_moveobj1 {
-    width: 120px;
-    height: 22px;
-    padding: 3px 0px 3px 0px;
-    padding-left: 5px;
-    background-color:#ffd070;
+	width: 120px;
+	height: 22px;
+	padding: 3px 0px 3px 0px;
+	padding-left: 5px;
+	background-color:#ffd070;
 }
 
 .flatRestree_item {
-    height: 18px;
-    width: 100%;
-    padding: 0px;
-    overflow: hidden;
-    white-space: nowrap;
-    display:block;
+	height: 18px;
+	width: 100%;
+	padding: 0px;
+	overflow: hidden;
+	white-space: nowrap;
+	display:block;
 }
 
 .flatRestree_item_16,
 .flatRestree_item_17,
 .flatRestree_item_20,
 .flatRestree_item_22{
-    display:none;
+	display:none;
 }
 
 .flatRestree_item_1{
-    color: gray;
-    cursor: default;
+	color: gray;
+	cursor: default;
 }
 
 .flatRestree_item_2, .flatRestree_item_6 {
-    cursor: pointer;
-    background-color:#ffdf7c;
+	cursor: pointer;
+	background-color:#ffdf7c;
 }
 
 .flatRestree_item_4 {
-    cursor: pointer;
-    background-color:#ffd070;
+	cursor: pointer;
+	background-color:#ffd070;
 }
 
 .flatRestree_item_leader,
 .flatRestree_item_leader0,
 .flatRestree_item_leader1 {
-    width: 0px;
-    height: 0px;
+	width: 0px;
+	height: 0px;
 }
 
 .flatRestree_item_branch,
@@ -411,53 +411,53 @@
 .flatRestree_item_branch7_0, .flatRestree_item_branch4_4,
 .flatRestree_item_branch5_4, .flatRestree_item_branch6_4,
 .flatRestree_item_branch7_4 {
-    width: 0px;
-    height: 0px;
+	width: 0px;
+	height: 0px;
 }
 
 .flatRestree_item_marker,
 .flatRestree_item_marker_0,
 .flatRestree_item_marker_4 {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .flatRestree_item_marker_0 {
-    background-image: url("images/icon-checkbox-normal.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-checkbox-normal.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .flatRestree_item_marker_4 {
-    background-image: url("images/icon-checkbox-select.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-checkbox-select.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .flatRestree_item_icon {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .flatRestree_item_label {
-    height: 16px;
-    line-height: 16px;
-    cursor: default;
-    text-overflow:ellipsis;
-    overflow: hidden;
-    cursor: pointer;
+	height: 16px;
+	line-height: 16px;
+	cursor: default;
+	text-overflow:ellipsis;
+	overflow: hidden;
+	cursor: pointer;
 }
 
 .flatRestree_item_highlight {
-    background-color: #FFFF5F;
-    cursor: pointer;
+	background-color: #FFFF5F;
+	cursor: pointer;
 }
 
 .flatRestree_item_highlight_focus {
-    background-color: #FFA747;
-    cursor: pointer;
+	background-color: #FFA747;
+	cursor: pointer;
 }
 /******** End FlatTree ************/
 
@@ -468,78 +468,78 @@
 }
 
 .resPanel_title {
-    height: 22px;
-    visibility: visible;
+	height: 22px;
+	visibility: visible;
 }
 
 .resPanel_title_16{
-    visibility: hidden;
+	visibility: hidden;
 }
 
 .resPanel_title_label{
-    color: #000000;
-    /*font-weight: bold;*/
+	color: #000000;
+	/*font-weight: bold;*/
 }
 
 .resPanel_title_button {
-    width: 18px;
-    height: 18px;
+	width: 18px;
+	height: 18px;
 }
 
 .resPanel_title_button_16,
 .resPanel_title_button_20 {
-    visibility: hidden;
+	visibility: hidden;
 }
 
 .resPanel_title_button_cover--disable {
-    filter: alpha(Opacity = 0);
-    -moz-opacity: 0;
-    opacity: 0;
-    background-color: #F5F4EA;
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #F5F4EA;
 }
 
 .resPanel_title_button_icon {
-    width: 16px;
-    height:16px;
+	width: 16px;
+	height:16px;
 }
 
 .resPanel_client {
-    border: 1px solid #8E8E8E;
+	border: 1px solid #8E8E8E;
 }
 /****** End for common ResourcePanel *****/
 
 /** For faked item in the search result tree **/
 .fake_item {
-    height: 18px;
-    width: 100%;
-    padding: 0px;
-    overflow: hidden;
-    white-space: nowrap;
-    display:block;
+	height: 18px;
+	width: 100%;
+	padding: 0px;
+	overflow: hidden;
+	white-space: nowrap;
+	display:block;
 }
 
 .fake_item_16 {
-    display:none;
+	display:none;
 }
 
 .fake_item_1 {
-    color: gray;
-    cursor: default;
+	color: gray;
+	cursor: default;
 }
 
 .fake_item_2, .fake_item_6 {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .fake_item_4 {
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .fake_item_leader,
 .fake_item_leader0,
 .fake_item_leader1 {
-    width: 0px;
-    height: 0px;
+	width: 0px;
+	height: 0px;
 }
 
 .fake_item_branch,
@@ -551,156 +551,156 @@
 .fake_item_branch7_0, .fake_item_branch4_4,
 .fake_item_branch5_4, .fake_item_branch6_4,
 .fake_item_branch7_4 {
-    width: 0px;
-    height: 0px;
+	width: 0px;
+	height: 0px;
 }
 
 .fake_item_branch4_0 {
-    background-image: url("images/0-expand.png");
-    cursor: pointer;
+	background-image: url("images/0-expand.png");
+	cursor: pointer;
 }
 
 .fake_item_branch4_4 {
-    background-image: url("images/0-collapse.png");
-    cursor: pointer;
+	background-image: url("images/0-collapse.png");
+	cursor: pointer;
 }
 
 .fake_item_branch5_0 {
-    background-image: url("images/0-expand.png");
-    cursor: pointer;
+	background-image: url("images/0-expand.png");
+	cursor: pointer;
 }
 
 .fake_item_branch5_4 {
-    background-image: url("images/4-collapse.png");
-    cursor: pointer;
+	background-image: url("images/4-collapse.png");
+	cursor: pointer;
 }
 
 .fake_item_branch6_0 {
-    background-image: url("images/0-expand.png");
-    cursor: pointer;
+	background-image: url("images/0-expand.png");
+	cursor: pointer;
 }
 
 .fake_item_branch6_4 {
-    background-image: url("images/4-collapse.png");
-    cursor: pointer;
+	background-image: url("images/4-collapse.png");
+	cursor: pointer;
 }
 
 .fake_item_branch7_0 {
-    background-image: url("images/0-expand.png");
-    cursor: pointer;
+	background-image: url("images/0-expand.png");
+	cursor: pointer;
 }
 
 .fake_item_branch7_4 {
-    background-image: url("images/4-collapse.png");
-    cursor: pointer;
+	background-image: url("images/4-collapse.png");
+	cursor: pointer;
 }
 
 .fake_item_marker,
 .fake_item_marker_0, .fake_item_marker_4 {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .fake_item_marker_0 {
-    background-image: url("images/icon-checkbox-normal.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-checkbox-normal.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .fake_item_marker_4 {
-    background-image: url("images/icon-checkbox-select.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-checkbox-select.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .fake_item_icon {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .fake_item_label{
-    height: 16px;
-    line-height: 16px;
-    cursor: default;
-    text-overflow:ellipsis;
-    overflow: hidden;
-    cursor: pointer;
+	height: 16px;
+	line-height: 16px;
+	cursor: default;
+	text-overflow:ellipsis;
+	overflow: hidden;
+	cursor: pointer;
 }
 
 /** For faked item in the search result tree **/
 
 /** For normal Button */
 .jbtn {
-    width: 80px;
-    height: 22px;
-    text-align: center;
-    border: 1px solid #C0C0C0;
+	width: 80px;
+	height: 22px;
+	text-align: center;
+	border: 1px solid #C0C0C0;
 
-    /*
-       -moz-border-radius: 3px;
-       -khtml-border-radius: 3px;
-       -webkit-border-radius: 3px;
-       border-radius: 3px;
-     */
+	/*
+	   -moz-border-radius: 3px;
+	   -khtml-border-radius: 3px;
+	   -webkit-border-radius: 3px;
+	   border-radius: 3px;
+	 */
 
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
-    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+ */
-    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
-    background: linear-gradient(top, #FBFBFB, #EDEDED); /* w3c */
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+	background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+	background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+	background: linear-gradient(top, #FBFBFB, #EDEDED); /* w3c */
 
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
-    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+	-ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
 }
 
 .jbtn_1, .jbtn_3 {
-    color: #ACA899;
-    background: #F5F4EA;
-    border: 1px solid #C9C7BA;
+	color: #ACA899;
+	background: #F5F4EA;
+	border: 1px solid #C9C7BA;
 
-    /* Clear filter css for IE */
-    filter: "";
-    -ms-filter: "";
+	/* Clear filter css for IE */
+	filter: "";
+	-ms-filter: "";
 }
 
 .jbtn_cover--disable {
-    filter: alpha(Opacity = 25);
-    -moz-opacity: 0.25;
-    opacity: 0.25;
-    background: #FFFFFF;
+	filter: alpha(Opacity = 25);
+	-moz-opacity: 0.25;
+	opacity: 0.25;
+	background: #FFFFFF;
 }
 
 .jbtn_4, .jbtn_6 {
-    background: #FFFFFF;
+	background: #FFFFFF;
 }
 
 .jbtn_marker {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .jbtn_icon {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .jbtn_label {
-    height: 16px;
-    line-height: 16px;
-    cursor: default;
+	height: 16px;
+	line-height: 16px;
+	cursor: default;
 }
 
 .jbtn_effect_normal,
 .jbtn_effect_hover,
 .jbtn_effect_trigger {
-    -moz-border-radius: 0px;
-    -khtml-border-radius: 0px;
-    -webkit-border-radius: 0px;
-    border-radius: 0px;
+	-moz-border-radius: 0px;
+	-khtml-border-radius: 0px;
+	-webkit-border-radius: 0px;
+	border-radius: 0px;
 }
 
 /** End for normal Button */
@@ -708,821 +708,824 @@
 /** For main menu with jinfonet style **/
 /* jmenu: no mark, has icon */
 .jmenu {
-    width: 180px;
+	width: 180px;
 
-    border: 1px solid #E6E6E6;
-    border-color: #E6E6E6 #9A9A9A;
-    background-color: #FFFFFF;
+	border: 1px solid #E6E6E6;
+	border-color: #E6E6E6 #9A9A9A;
+	background-color: #FFFFFF;
 
-    cursor:default;
-    overflow: hidden;
+	cursor:default;
+	overflow: hidden;
 }
 
 .jmenu_item {
-    height: 20px;
+	height: 20px;
 
-    cursor:default;
-    overflow: hidden;
+	cursor:default;
+	overflow: hidden;
 }
 
 .jmenu_item_1, .jmenu_item_3 {
-    color: #CCCCCC;
+	color: #CCCCCC;
 }
 
 .jmenu_item_2 {
-    background-color: #FFDF7C;
+	background-color: #FFDF7C;
 }
 
 .jmenu_separator {
-    height: 1px;
-    background-color: #DDDDDD;
+	height: 1px;
+	background-color: #DDDDDD;
 }
 
 .jmenu_item_marker,
 .jmenu_item_marker_0, .jmenu_item_marker_4 {
-    width: 0;
-    height: 0;
-    margin: 0;
+	width: 0;
+	height: 0;
+	margin: 0;
 }
 
 .jmenu_item_icon {
-    background-color: #DDDDDD;
-    width: 20px;
-    height: 20px;
-    margin-right: 2px;
+	background-color: #DDDDDD;
+	width: 20px;
+	height: 20px;
+	margin-right: 2px;
 }
 
 .jmenu_item_label {
-    height: 16px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: default;
+	height: 16px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	cursor: default;
 }
 
 .jmenu_item_input {
-    height: 16px;
-    border: 1px solid #E6E6E6;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    box-sizing: border-box;
-    cursor: default;
-    margin: 0px;
-    padding: 0px 1px;
+	height: 16px;
+	border: 1px solid #E6E6E6;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box; /* Firefox */
+	-webkit-box-sizing: border-box; /* Safari */	
+	cursor: default;
+	margin: 0px;
+	padding: 0px 1px;
 }
 
 .jmenu_item_ctrl {
-    width: 16px;
-    height: 16px;
-    margin-left: 2px;
-    background-image: url("images/expand.gif");
-    background-repeat: no-repeat;
-    background-position: center;
+	width: 16px;
+	height: 16px;
+	margin-left: 2px;
+	background-image: url("images/expand.gif");
+	background-repeat: no-repeat;
+	background-position: center;
 }
 
 .jmenu_item_cover--disable {
-    background: transparent;
-    filter: alpha(Opacity = 0);
-    -moz-opacity: 0;
-    opacity: 0;
+	background: transparent;
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
 }
 
 /* jwmenu: has mark, has icon */
 /* Override jmenu */
 .jwmenu_item_marker,
 .jwmenu_item_marker_0, .jwmenu_item_marker_4 {
-    background-color: #DDDDDD;
-    width: 20px;
-    height: 20px;
-    margin-right: 2px;
+	background-color: #DDDDDD;
+	width: 20px;
+	height: 20px;
+	margin-right: 2px;
 }
 
 .jwmenu_item_marker_4 {
-    background-image: url("images/mark.png");
-    background-repeat: no-repeat;
-    background-position: center;
+	background-image: url("images/mark.png");
+	background-repeat: no-repeat;
+	background-position: center;
 }
 
 .jwmenu_item_icon {
-    background-color: transparent;
+	background-color: transparent;
 }
 
 /* jmmenu: has mark, no icon */
 /* Override jmenu */
 .jmmenu_item_marker,
 .jmmenu_item_marker_0, .jmmenu_item_marker_4 {
-    background-color: #DDDDDD;
-    width: 20px;
-    height: 20px;
-    margin-right: 2px;
+	background-color: #DDDDDD;
+	width: 20px;
+	height: 20px;
+	margin-right: 2px;
 }
 
 .jmmenu_item_marker_4 {
-    background-image: url("images/mark.png");
-    background-repeat: no-repeat;
-    background-position: center;
+	background-image: url("images/mark.png");
+	background-repeat: no-repeat;
+	background-position: center;
 }
 
 .jmmenu_item_icon {
-    background-color: transparent;
-    width: 0;
-    height: 0;
+	background-color: transparent;
+	width: 0;
+	height: 0;
 }
 /** End for main menu with jinfonet style **/
 
 /** Render and Parameter **/
 /** For MultiValuePicker */
 .multiValuePicker {
-    width: 100px;
-    height: 18px;
+	width: 100px;
+	height: 18px;
 }
 
 .multiValuePicker_btn {
-    width: 16px;
-    height: 16px;
-    text-align: center;
-    border: 1px solid #C0C0C0;
+	width: 16px;
+	height: 16px;
+	text-align: center;
+	border: 1px solid #C0C0C0;
 
-    -moz-border-radius: 3px;
-    -khtml-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
-    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+*/
-    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
-    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+	background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+	background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera 11.10+*/
+	background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+	background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
 
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
-    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+	-ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
 }
 
 .multiValuePicker_btn_1, .multiValuePicker_btn_3 {
-    color: #ACA899;
-    background: #F5F4EA;
-    border: 1px solid #C9C7BA;
+	color: #ACA899;
+	background: #F5F4EA;
+	border: 1px solid #C9C7BA;
 
-    /* Clear filter css for IE */
-    filter: "";
-    -ms-filter: "";
+	/* Clear filter css for IE */
+	filter: "";
+	-ms-filter: "";
 }
 
 .multiValuePicker_btn_4, .multiValuePicker_btn_6 {
-    background: #FFFFFF;
+	background: #FFFFFF;
 
-    /* Clear filter css for IE */
-    filter: "";
-    -ms-filter: "";
+	/* Clear filter css for IE */
+	filter: "";
+	-ms-filter: "";
 }
 
 .multiValuePicker_btn_icon {
-    width: 10px;
-    height: 2px;
+	width: 10px;
+	height: 2px;
 }
 
 .multiValuePicker_btn_effect_normal,
 .multiValuePicker_btn_effect_hover ,
 .multiValuePicker_btn_effect_trigger {
-    background-color: transparent;
-    border-width: 1px;
+	background-color: transparent;
+	border-width: 1px;
 
-    -moz-border-radius: 3px;
-    -khtml-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 .multiValuePicker_btn_effect_normal {
-    border-style: solid;
-    border-color: transparent;
+	border-style: solid;
+	border-color: transparent;
 }
 
 .multiValuePicker_btn_effect_hover {
-    border-style: solid;
-    border-color: #FAC150;
+	border-style: solid;
+	border-color: #FAC150;
 }
 
 .multiValuePicker_btn_effect_trigger{
-    border-style: groove;
-    border-color: #FAC150;
+	border-style: groove;
+	border-color: #FAC150;
 }
 
 
 /* TextRender */
 .textRender {
-    overflow: hidden;
-    white-space: nowrap;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 /* TextFieldRender */
 .textfieldRender {
-    width: 80px;
-    height: 20px;
+	width: 80px;
+	height: 20px;
 
-    background-color: #FFFFFF;
-    border: 1px solid #CCCCCC;
-    overflow: hidden;
+	background-color: #FFFFFF;
+	border: 1px solid #CCCCCC;
+	overflow: hidden;
 }
 
 .textfieldRender_1 {
-    color: #ACA899;
+	color: #ACA899;
 }
 
 .textfieldRender_input {
-    background-color: #FFFFFF;
+	background-color: #FFFFFF;
 }
 
 .textfieldRender_cover--disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
-    background-color: #F5F4EA;
+	filter: alpha(Opacity = 50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	background-color: #F5F4EA;
 }
 
 /* btnRender */
 .btnRender {
-    width: 80px;
-    height: 22px;
-    text-align: center;
-    border: 1px solid #C0C0C0;
+	width: 80px;
+	height: 22px;
+	text-align: center;
+	border: 1px solid #C0C0C0;
 
-    -moz-border-radius: 3px;
-    -khtml-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
-    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+	background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+	background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
 
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
-    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+	-ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
 }
 
 .btnRender_1, .btnRender_3 {
-    color: #ACA899;
-    background: #F5F4EA;
-    border: 1px solid #C9C7BA;
+	color: #ACA899;
+	background: #F5F4EA;
+	border: 1px solid #C9C7BA;
 
-    /* Clear filter css for IE */
-    filter: "";
-    -ms-filter: "";
+	/* Clear filter css for IE */
+	filter: "";
+	-ms-filter: "";
 }
 
 .btnRender_4, .btnRender_6 {
-    background: #FFFFFF;
+	background: #FFFFFF;
 
-    /* Clear filter css for IE */
-    filter: "";
-    -ms-filter: "";
+	/* Clear filter css for IE */
+	filter: "";
+	-ms-filter: "";
 }
 
 .btnRender_marker {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .btnRender_icon {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .btnRender_label {
-    height:16px;
-    line-height:16px;
-    cursor: default;
+	height:16px;
+	line-height:16px;
+	cursor: default;
 }
 
 /* CheckBoxRender */
 .chkboxRender {
-    width: 200px;
-    height: 22px;
-    padding: 0px 4px 0px 4px;
+	width: 200px;
+	height: 22px;
+	padding: 0px 4px 0px 4px;
 }
 
 .chkboxRender_1 {
-    color: #ACA899;
+	color: #ACA899;
 }
 
 .chkboxRender_cover--disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
-    background: #F5F4EA;
+	filter: alpha(Opacity = 50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	background: #F5F4EA;
 }
 
 .chkboxRender_marker {
-    width: 14px;
-    height: 14px;
-    margin-right: 2px;
+	width: 14px;
+	height: 14px;
+	margin-right: 2px;
 }
 
 .chkboxRender_marker_0 {
-    background-image: url("images/icon-checkbox-normal.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-checkbox-normal.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .chkboxRender_marker_4 {
-    background-image: url("images/icon-checkbox-select.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-checkbox-select.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .chkboxRender_icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
+	width: 16px;
+	height: 16px;
+	margin-right: 2px;
 }
 
 .chkboxRender_label {
-    height:16px;
-    line-height:16px;
-    cursor:default;
+	height:16px;
+	line-height:16px;
+	cursor:default;
 }
 
 /* RadioBtnRender */
 .radioBtnRender {
-    width: 200px;
-    height: 22px;
-    padding: 0px 4px 0px 4px;
+	width: 200px;
+	height: 22px;
+	padding: 0px 4px 0px 4px;
 }
 
 .radioBtnRender_1 {
-    color: #ACA899;
+	color: #ACA899;
 }
 
 .radioBtnRender_cover--disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
-    background: #F5F4EA;
+	filter: alpha(Opacity = 50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	background: #F5F4EA;
 }
 
 .radioBtnRender_marker {
-    width: 14px;
-    height: 14px;
-    margin-right: 2px;
+	width: 14px;
+	height: 14px;
+	margin-right: 2px;
 }
 
 .radioBtnRender_marker_0 {
-    background-image: url("images/icon-radio-normal.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-radio-normal.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .radioBtnRender_marker_4 {
-    background-image: url("images/icon-radio-select.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/icon-radio-select.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .radioBtnRender_icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
+	width: 16px;
+	height: 16px;
+	margin-right: 2px;
 }
 
 .radioBtnRender_label {
-    height:16px;
-    line-height:16px;
-    cursor:default;
+	height:16px;
+	line-height:16px;
+	cursor:default;
 }
 
 /* ListRender */
 .listRender {
-    width: 100px;
-    height: 160px;
+	width: 100px;
+	height: 160px;
 
-    background-color: #FFFFFF;
-    border: 1px solid #CCCCCC;
+	background-color: #FFFFFF;
+	border: 1px solid #CCCCCC;
 
-    overflow: auto;
+	overflow: auto;
 }
 
 .listRender_cover--disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
-    background: #F5F4EA;
+	filter: alpha(Opacity = 50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	background: #F5F4EA;
 }
 
 /* DDListRender */
 .ddListRender {
-    width: 100px;
-    height: 20px;
+	width: 100px;
+	height: 20px;
 
-    border: 1px solid #CCCCCC;
-    overflow: hidden;
-}
+	border: 1px solid #CCCCCC;
+	overflow: hidden;
 
-.ddListRender_0 {
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
-    background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
-    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
+	background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
+	background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
 
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
-    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
+	-ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
 }
 
 .ddListRender_1 {
-    color: #ACA899; /* #CCCCCC */
-    background: #F5F4EA;
+	color: #ACA899; /* #CCCCCC */
+	background: #F5F4EA;
+
+	/* Clear filter css for IE */
+	filter: "";
+	-ms-filter: "";	   
 }
 
 .ddListRender_cover--disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
-    background: #F5F4EA;
+	filter: alpha(Opacity = 50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	background: #F5F4EA;
 }
 
 .ddListRender_dItemContainer {
-    overflow: hidden;
+	overflow: hidden;
 }
 
-.ddListRender.dItem {
-    /* TODO */
+.ddListRender_dItem {
+	/* TODO */
 }
 
 .ddListRender_dItem_icon {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 .ddListRender_dItem_icon_img {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 .ddListRender_dItem_label {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 .ddListRender_dropdown {
-    width: 17px;
-    border-left: 1px solid #CCCCCC;
+	width: 17px;
+	border-left: 1px solid #CCCCCC;
 }
 
 .ddListRender_dropdown_icon {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 /* For DateTimeField Calendar button */
 .dtFieldBtnCalendar {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
-.dtFieldBtnCalendar,
 .dtFieldBtnCalendar_icon {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 /* ComboBoxDateTimeField */
 .comboBoxDtField {
-    width: 100px;
-    height: 20px;
+	width: 100px;
+	height: 20px;
 
-    overflow: hidden;
+	overflow: hidden;
 }
 
 .comboBoxDtField_cover--disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
-    background: #F5F4EA;
+	filter: alpha(Opacity = 50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	background: #F5F4EA;
 }
 
 /* TextInputDateTimeField */
 .textInputDtField {
-    width: 100px;
-    height: 20px;
+	width: 100px;
+	height: 20px;
 
-    overflow: hidden;
+	overflow: hidden;
 }
 
 .textInputDtField_cover--disable {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
-    background: #F5F4EA;
+	filter: alpha(Opacity = 50);
+	-moz-opacity: 0.5;
+	opacity: 0.5;
+	background: #F5F4EA;
 }
 /** End Render and Parameter **/
 
 /* For window */
 .window {
-    border: 2px solid #EEEEEE;
-    background-color: #F1F1FA;
-    -moz-border-radius:5px;
-    -webkit-border-radius:5px;
+	border: 2px solid #EEEEEE;
+	background-color: #F1F1FA;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
 }
 
 .win_title {
-    height: 22px;
-    background-color:#EEEEEE;
-    border-bottom:2px solid #e6e6e6;
-    padding: 0px 2px 0px 6px;
+	height: 22px;
+	background-color:#EEEEEE;
+	border-bottom:2px solid #e6e6e6;
+	padding: 0px 2px 0px 6px;
 }
 
 .win_title_16 {
-    visibility: hidden;
+	visibility: hidden;
 }
 
 .win_title_label {
-    color: #666666;
-    font-weight: bold;
+	color: #666666;
+	font-weight: bold;
 }
 
 .win_title_button {
-    width: 18px;
-    height:18px;
+	width: 18px;
+	height:18px;
 }
 
 .win_title_button_16,
 .win_title_button_20 {
-    visibility: hidden;
+	visibility: hidden;
 }
 
 .win_title_button_cover--disable {
-    filter: alpha(Opacity = 0);
-    -moz-opacity: 0;
-    opacity: 0;
-    background-color: #F5F4EA;
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #F5F4EA;
 }
 
 .win_title_button_icon {
-    width: 16px;
-    height:16px;
+	width: 16px;
+	height:16px;
 }
 /** End for window **/
 
-/**  For dialog  **/
+/**	 For dialog	 **/
 .dlg_title {
-    height: 22px;
-    background-color:#EEEEEE;
-    border-bottom:1px solid #DDDDDD;
-    padding: 0px 2px 0px 6px;
+	height: 22px;
+	background-color:#EEEEEE;
+	border-bottom:1px solid #DDDDDD;
+	padding: 0px 2px 0px 6px;
 }
 
-.dlg_title_16{
-    visibility: hidden;
+.dlg_title_16 {
+	visibility: hidden;
 }
 
 .dlg_client {
-    border-width: 4px 12px 12px 12px;
-    border-style: solid;
-    border-color: #EEEEEE;
-    overflow : auto;
-    background-color: #EEEEEE;
+	border-width: 4px 12px 12px 12px;
+	border-style: solid;
+	border-color: #EEEEEE;
+	overflow : auto;
+	background-color: #EEEEEE;
 }
 
 .dlg_btnpane {
-    height : 34px;
-    background-color: #EEEEEE;
-    padding: 0px 12px 12px 12px;
+	height : 34px;
+	background-color: #EEEEEE;
+	padding: 0px 12px 12px 12px;
 }
 
 .dlg_client_loading {
-    background-image: url("images/loading.gif");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/loading.gif");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .dlg_btnpane_loading {
-    filter: alpha(Opacity = 0);
-    -moz-opacity: 0;
-    opacity: 0;
-    background-color: #C0C0C0;
+	filter: alpha(Opacity = 0);
+	-moz-opacity: 0;
+	opacity: 0;
+	background-color: #C0C0C0;
 }
 /** End for dialog **/
 
 /******** For SearchBox ***********/
 .searchBox {
-    border: 1px solid #e6e6e6;
-    vertical-align: middle;
-    padding: 4px;
-    background-color: #EEEEEE;
-    position: absolute;
+	border: 1px solid #e6e6e6;
+	vertical-align: middle;
+	padding: 4px;
+	background-color: #EEEEEE;
+	position: absolute;
 }
 
 .searchBox_keywordBox {
-    border: 1px solid #C4C4C4;
-    padding: 1px;
-    position: absolute;
+	border: 1px solid #C4C4C4;
+	padding: 1px;
+	position: absolute;
 }
 
 .searchbox_textfield {
-    background-color: #FFFFFF;
-    overflow: hidden;
-    position: absolute;
+	background-color: #FFFFFF;
+	overflow: hidden;
+	position: absolute;
 }
 
 .btnclosed {
-    border: 1px solid transparent;
-    background-color: #FFFFFF;
-    cursor: pointer;
+	border: 1px solid transparent;
+	background-color: #FFFFFF;
+	cursor: pointer;
 }
 
 .btnclosed_2, .btnclosed_4 {
-    background-color: #ffe6a3;
-    border: 1px solid #FFbd89;
+	background-color: #ffe6a3;
+	border: 1px solid #FFbd89;
 }
 
 .btnclosed_icon {
-    height:16px; width: 16px;
+	height:16px; width: 16px;
 }
 
 .btnmenu {
-    border: 1px solid transparent;
-    background-color: #FFFFFF;
-    cursor: pointer;
-    position: absolute;
+	border: 1px solid transparent;
+	background-color: #FFFFFF;
+	cursor: pointer;
+	position: absolute;
 }
 
 .btnmenu_2, .btnmenu_4 {
-    background-color: #ffe6a3;
-    border: 1px solid #FFbd89;
+	background-color: #ffe6a3;
+	border: 1px solid #FFbd89;
 }
 
 .btnmenu_icon {
-    height: 3px; width:5px;
+	height: 3px; width:5px;
 }
 
 .btnprevious {
-    background-color: #FFFFFF;
-    border: 1px solid #CCCCCC;
-    position: absolute;
+	background-color: #FFFFFF;
+	border: 1px solid #CCCCCC;
+	position: absolute;
 }
 
 .btnprevious_2, .btnprevious_4 {
-    border: 1px solid #FFbd89;
-    background-color: #ffe6a3;
-    cursor: pointer;
+	border: 1px solid #FFbd89;
+	background-color: #ffe6a3;
+	cursor: pointer;
 }
 
 .btnprevious_icon {
-    width: 7px;
-    height: 4px;
+	width: 7px;
+	height: 4px;
 }
 
 /********* End SearchBox  **********/
 
 /** For com.jinfonet.ui.ComboSelector **/
 .cboSelector {
-    width: 100px;
-    height: 20px;
+	width: 100px;
+	height: 20px;
 
-    border: 1px solid #CCCCCC;
-    overflow: hidden;
+	border: 1px solid #CCCCCC;
+	overflow: hidden;
 
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
-    background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
-    background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
-    background: -ms-linear-gradient(top, #FFFFFF, #ECECEC); /* IE10+ */
-    background: linear-gradient(top, #FFFFFF, #ECECEC); /* w3c */
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#FFFFFF), to(#ECECEC)); /* Webkit */
+	background: -moz-linear-gradient(top, #FFFFFF, #ECECEC); /* FF */
+	background: -o-linear-gradient(top, #FFFFFF, #ECECEC); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #FFFFFF, #ECECEC); /* IE10+ */
+	background: linear-gradient(top, #FFFFFF, #ECECEC); /* w3c */
 
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
-    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE6,IE7 */
+	-ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FFFFFF", endColorstr="#ECECEC", gradientType="0"); /* IE8 */
 }
 
 .cboSelector_1 {
-    color: #ACA899;
-    background: #F5F4EA;
+	color: #ACA899;
+	background: #F5F4EA;
 
-    /* Clear filter css for IE */
-    filter: "";
-    -ms-filter: "";
+	/* Clear filter css for IE */
+	filter: "";
+	-ms-filter: "";
 }
 
 .cboSelector_16 {
-    display: none;
+	display: none;
 }
 
 .cboSelector_cover--disable {
-    filter: alpha(Opacity = 45);
-    -moz-opacity: 0.45;
-    opacity: 0.45;
-    background: #F5F4EA;
+	filter: alpha(Opacity = 45);
+	-moz-opacity: 0.45;
+	opacity: 0.45;
+	background: #F5F4EA;
 }
 
 .cboSelector_dBox {
-    padding: 2px;
-    overflow: hidden;
+	padding: 2px;
+	overflow: hidden;
 }
 
 .cboSelector_dItem
 .acboSelector_dItem {
-    /* TODO */
+	/* TODO */
 }
 
 .cboSelector_dItem_icon {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 
 .cboSelector_dItem_label {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    cursor: default;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	cursor: default;
 }
 
 .cboSelector_btnDD {
-    width: 17px;
-    border-left: 1px solid #CCCCCC;
+	width: 17px;
+	border-left: 1px solid #CCCCCC;
 }
 
 .cboSelector_btnDD_icon {
-    width: 16px;
-    height: 16px;
+	width: 16px;
+	height: 16px;
 }
 /** End for com.jinfonet.ui.ComboSelector **/
 
 /** For Sort Table **/
 .sortTable {
-    padding: 0 2px;
-    border: 1px solid #A0A0A0;
+	padding: 0 2px;
+	border: 1px solid #A0A0A0;
 }
 
 .sortTable_view {
-    background-color: #FFFFFF;
+	background-color: #FFFFFF;
 }
 
 .sortTable_th,
 .sortTable_sortby,
 .sortTable_order {
-    height: 22px;
-    padding: 0 4px;
+	height: 22px;
+	padding: 0 4px;
 
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
-    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
-    background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
-    background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+	background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+	background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
+	background: -ms-linear-gradient(top, #FBFBFB, #EDEDED); /* IE10+ */
+	background: linear-gradient(top, #FBFBFB, #EDEDED); /* W3C */
 
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
-    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+	-ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
 }
 
 .sortTable_sortby {
-    border-right: 1px solid #DDDDDD;
+	border-right: 1px solid #DDDDDD;
 }
 
 .sortTable_th_label,
 .sortTable_sortby_label,
 .sortTable_order_label {
-    height: 16px;
-    line-height: 16px;
-    text-overflow: ellipsis;
-    overflow: hidden;
+	height: 16px;
+	line-height: 16px;
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
 /** For sort item **/
 .sortItem {
-    height: 22px;
-    width: 100%;
-    padding: 0px 0px 0px 4px;
-    overflow: hidden;
-    white-space: nowrap;
-    display:block;
+	height: 22px;
+	width: 100%;
+	padding: 0px 0px 0px 4px;
+	overflow: hidden;
+	white-space: nowrap;
+	display:block;
 }
 
 .sortItem_16, .sortItem_17,
 .sortItem_20, .sortItem_22 {
-    display:none;
+	display:none;
 }
 
 .sortItem_1 {
-    color: gray;
+	color: gray;
 }
 
 .sortItem_2, .sortItem_6 {
-    background-color:#ffdf7c;
+	background-color:#ffdf7c;
 }
 
 .sortItem_4 {
-    background-color:#ffd070;
+	background-color:#ffd070;
 }
 
 .sortItem_icon {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .sortItem_label {
-    height: 16px;
-    line-height: 16px;
-    cursor: default;
-    text-overflow:ellipsis;
-    overflow: hidden;
+	height: 16px;
+	line-height: 16px;
+	cursor: default;
+	text-overflow:ellipsis;
+	overflow: hidden;
 }
 
 /** End for FS #108587-Support multiple field sorting **/
@@ -1531,59 +1534,59 @@
 
 /**** For anchors and indicators ****/
 .compAnchor {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    z-index: 1000;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 1000;
 
-    width: 13px;
-    height: 13px;
+	width: 13px;
+	height: 13px;
 
-    background-color: #FFF;
-    background-image: url(images/drag_move.gif);
-    background-repeat: no-repeat;
+	background-color: #FFF;
+	background-image: url(images/drag_move.gif);
+	background-repeat: no-repeat;
 
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .rowAnchor {
-    position: absolute;
+	position: absolute;
 
-    width: 18px;
-    height: 18px;
+	width: 18px;
+	height: 18px;
 
-    background-color: #FFF;
-    background-image: url(images/row-anchor.jpg);
-    background-repeat: no-repeat;
-    border: 1px solid #000;
+	background-color: #FFF;
+	background-image: url(images/row-anchor.jpg);
+	background-repeat: no-repeat;
+	border: 1px solid #000;
 
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .colAnchor {
-    position: absolute;
+	position: absolute;
 
-    width: 18px;
-    height: 18px;
+	width: 18px;
+	height: 18px;
 
-    background-color: #FFF;
-    background-image: url(images/col-anchor.jpg);
-    background-repeat: no-repeat;
-    border: 1px solid #000;
+	background-color: #FFF;
+	background-image: url(images/col-anchor.jpg);
+	background-repeat: no-repeat;
+	border: 1px solid #000;
 
-    cursor: pointer;
+	cursor: pointer;
 }
 
 .insertIndicator {
-    position: absolute;
+	position: absolute;
 
-    width: 4px;
-    height: 4px;
+	width: 4px;
+	height: 4px;
 
-    background-color: #FFAB3F;
-    /* border: 1px solid #FFAB3F; */
+	background-color: #FFAB3F;
+	/* border: 1px solid #FFAB3F; */
 
-    cursor: default;
+	cursor: default;
 }
 
 /** End for anchors and indicators **/
@@ -1591,361 +1594,359 @@
 
 /**** For file and report chooser dialog ****/
 .fileChooser_filebox {
-    cursor: pointer;
-    height: 24px;
-    padding: 2px 2px 2px 3px;
-    Background-color: #ffffff;
-    border: 1px solid #CCCCCC;
+	cursor: pointer;
+	height: 24px;
+	padding: 2px 2px 2px 3px;
+	Background-color: #ffffff;
+	border: 1px solid #CCCCCC;
 }
 
 .fileChooser_hbox {
-    padding-right: 120px;
+	padding-right: 120px;
 }
 
 .fileChooser_filebox_icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
-    padding: 1px 2px 3px 2px;
+	width: 16px;
+	height: 16px;
+	margin-right: 2px;
+	padding: 1px 2px 3px 2px;
 }
 
 .fileChooser_filebox_label {
-    height: 16px;
-    overflow: hidden;
+	height: 16px;
+	overflow: hidden;
 }
 
 .fileChooser_filebox_ctrl,
 .fileChooser_filebox_ctrl_0 {
-    width: 16px;
-    height: 17px;
-    background-repeat: no-repeat;
-    background-position:center;
-    background-image: url("images/0-sp_dn.png");
+	width: 16px;
+	height: 17px;
+	background-repeat: no-repeat;
+	background-position:center;
+	background-image: url("images/0-sp_dn.png");
 }
 
 .fileChooser_filebox_ctrl_2 {
-    width: 16px;
-    height: 17px;
-    background-repeat: no-repeat;
-    background-position:center;
-    background-image: url("images/2-sp_dn.png");
+	width: 16px;
+	height: 17px;
+	background-repeat: no-repeat;
+	background-position:center;
+	background-image: url("images/2-sp_dn.png");
 }
 
 .fileChooser_hbox_upImage {
-    padding-right: 10px;
-    cursor: pointer;
-    margin-left: 15px;
+	padding-right: 10px;
+	cursor: pointer;
+	margin-left: 15px;
 }
-
 
 /*for report table title*/
 .fileChooser_name_cell {
-    white-space: nowrap;
-    vertical-align: bottom;
-    text-indent: 23px;
-    height: 20px;
-    width: 220px;
-    line-height: 20px;
-    cursor: pointer;
-    padding:0;
+	white-space: nowrap;
+	vertical-align: bottom;
+	text-indent: 23px;
+	height: 20px;
+	width: 220px;
+	line-height: 20px;
+	cursor: pointer;
+	padding:0;
 }
 
 .fileChooser_dsbName_cell {
-    white-space: nowrap;
-    vertical-align: bottom;
-    text-indent: 23px;
-    height: 20px;
-    width: 234px;
-    line-height: 20px;
-    cursor: pointer;
-    padding:0;
+	white-space: nowrap;
+	vertical-align: bottom;
+	text-indent: 23px;
+	height: 20px;
+	width: 234px;
+	line-height: 20px;
+	cursor: pointer;
+	padding:0;
 }
 
 .fileChooser_size_cell{
-    width: 54px;
-    /*padding-right: 2px;*/
-    text-align: right;
+	width: 54px;
+	/*padding-right: 2px;*/
+	text-align: right;
 }
 
 .fileChooser_type_cell {
-    width: 76px;
-    padding-left: 6px;
-    text-align: left;
+	width: 76px;
+	padding-left: 6px;
+	text-align: left;
 }
 
 .fileChooser_dsbType_cell {
-    width: 108px;
-    padding-left: 12px;
-    text-align: left;
+	width: 108px;
+	padding-left: 12px;
+	text-align: left;
 }
 
 .fileChooser_date_cell {
-    /*text-align: right;*/
-    text-align: left;
-    padding-left: 2px;
+	/*text-align: right;*/
+	text-align: left;
+	padding-left: 2px;
 }
 
 .fileChooser_dsbDate_cell {
-    text-align: left;
-    padding-left: 4px;
+	text-align: left;
+	padding-left: 4px;
 }
 
 #cboLinkType #label{
-    font-family: Verdana, Arial, Helvetica, sans-serif;
-    font-size: 11px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
 }
 
 /*filename*/
 .fileChooser_filename {
-    border: 1px solid #CCCCCC;
-    overflow: hidden;
+	border: 1px solid #CCCCCC;
+	overflow: hidden;
 }
 
 .fileChooser_filename_input {
-    padding-left: 2px;
+	padding-left: 2px;
 }
 
 /*for report table details*/
 /*folder type*/
 .fileChooser_folder_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 225px;
-    background: url(images/0-fold-close.gif) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 225px;
+	background: url(images/0-fold-close.gif) no-repeat 3px 50%;
 }
 
 .fileChooser_vafolder_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 225px;
-    background: url(images/0-va-fold.gif) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 225px;
+	background: url(images/0-va-fold.gif) no-repeat 3px 50%;
 }
 
 .fileChooser_studiofolder_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 212px;
-    background: url(images/0-fold-close.gif) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 212px;
+	background: url(images/0-fold-close.gif) no-repeat 3px 50%;
 }
 
 /*dashboard*/
 .fileChooser_dsb_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 234px;
-    background: url(images/dashboard.png) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 234px;
+	background: url(images/dashboard.png) no-repeat 3px 50%;
 }
 
 /*component*/
 .fileChooser_component_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 225px;
-    background: url(images/0-lc.png) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 225px;
+	background: url(images/0-lc.png) no-repeat 3px 50%;
 }
 
 /*va*/
 .fileChooser_vcomponent_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 225px;
-    background: url(images/0-icon-va.png) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 225px;
+	background: url(images/0-icon-va.png) no-repeat 3px 50%;
 }
 
 /*webreport*/
 .fileChooser_webreport_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 216px;
-    background: url(images/0-wls.gif) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 216px;
+	background: url(images/0-wls.gif) no-repeat 3px 50%;
 }
-
 
 /*page report*/
 .fileChooser_pagerpt_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 216px;
-    background: url(images/4-cls.gif) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 216px;
+	background: url(images/4-cls.gif) no-repeat 3px 50%;
 }
 
 .fileChooser_pagerptrpt_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 216px;
-    background: url(images/0-rpt.gif) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 216px;
+	background: url(images/0-rpt.gif) no-repeat 3px 50%;
 }
 
 .fileChooser_pagerptxml_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 216px;
-    background: url(images/0-xml.gif) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 216px;
+	background: url(images/0-xml.gif) no-repeat 3px 50%;
 }
 
 .fileChooser_pagerptclx_cell {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    width: 216px;
-    background: url(images/0-clx.gif) no-repeat 3px 50%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 216px;
+	background: url(images/0-clx.gif) no-repeat 3px 50%;
 }
 
 /*for wsld type*/
 .fileChooser_wsld_item {
-    position: relative;
-    width: 100%;
-    height: 22px;
-    padding: 2px;
+	position: relative;
+	width: 100%;
+	height: 22px;
+	padding: 2px;
 }
 
 .fileChooser_wsld_item_2,
 .fileChooser_wsld_item_4,
 .fileChooser_wsld_item_6 {
-    background: #ffdf7c;
+	background: #ffdf7c;
 }
 
 .fileChooser_wsld_item_marker {
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
+	width: 16px;
+	height: 16px;
+	margin-right: 2px;
 }
 
 .fileChooser_wsld_item_icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 2px;
+	width: 16px;
+	height: 16px;
+	margin-right: 2px;
 }
 
 .fileChooser_wsld_item_label {
-    height: 16px;
-    line-height: 16px;
-    text-overflow:ellipsis;
-    overflow: hidden;
-    cursor: default;
+	height: 16px;
+	line-height: 16px;
+	text-overflow:ellipsis;
+	overflow: hidden;
+	cursor: default;
 }
 
 /* More button for saveas dialog */
 .saveas_btnMore,
 .saveas_btnMore_4 {
-    width: 86px;
-    height: 22px;
-    text-align: center;
-    border: 1px solid #C0C0C0;
+	width: 86px;
+	height: 22px;
+	text-align: center;
+	border: 1px solid #C0C0C0;
 
-    -moz-border-radius: 3px;
-    -khtml-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 
 .saveas_btnMore_2,
 .saveas_btnMore_6 {
-    border: 1px solid #FAC150;
-    background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
-    background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
-    background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
-    -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
+	border: 1px solid #FAC150;
+	background: -webkit-gradient(linear, 0 0, 0 100%, from(#FBFBFB), to(#EDEDED)); /* Webkit */
+	background: -moz-linear-gradient(top, #FBFBFB, #EDEDED); /* FF */
+	background: -o-linear-gradient(top, #FBFBFB, #EDEDED); /* Opera11.10+ */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE6,IE7 */
+	-ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#FBFBFB", endColorstr="#EDEDED", gradientType="0"); /* IE8 */
 }
 
 .saveas_btnMore_label {
-    height: 16px;
-    line-height: 16px;
-    cursor: default;
-    padding-top: 1px;
+	height: 16px;
+	line-height: 16px;
+	cursor: default;
+	padding-top: 1px;
 }
 
 .saveas_btnMore_ctrl,
 .saveas_btnMore_ctrl_0,
 .saveas_btnMore_ctrl_4 {
-    width: 16px;
-    height: 16px;
-    margin-left: 2px;
-    margin-top: 1px;
+	width: 16px;
+	height: 16px;
+	margin-left: 2px;
+	margin-top: 1px;
 }
 
 .saveas_btnMore_ctrl,
 .saveas_btnMore_ctrl_0 {
-    background-image: url("images/4-option.gif");
+	background-image: url("images/4-option.gif");
 }
 
 .saveas_btnMore_ctrl_4 {
-    background-image: url("images/2-option.gif");
+	background-image: url("images/2-option.gif");
 }
 /**** End For file and report chooser dialog ****/
 
 
 /******** For insert Image Dialog ****************/
 .lstfile {
-    background-color: #FFFFFF;
-    padding: 2px;
-    overflow: auto;
+	background-color: #FFFFFF;
+	padding: 2px;
+	overflow: auto;
 }
 
 .lstfile_item {
-    height: 16px;
-    width: 100%;
-    /*padding: 3px 0px 3px 0px;*/
-    overflow: hidden;
-    white-space: nowrap;
+	height: 16px;
+	width: 100%;
+	/*padding: 3px 0px 3px 0px;*/
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 .lstfile_item_1, .lstfile_item_5 {
-    background-color:#ffdf7c;
+	background-color:#ffdf7c;
 }
 
 .lstfile_item_4,
 .lstfile_item_6 {
-    background-color:#ffd070;
+	background-color:#ffd070;
 }
 
 .lstfile_item_leader,
 .lstfile_item_leader0,
 .lstfile_item_leader1 {
-    width: 16px;
-    height:16px;
+	width: 16px;
+	height:16px;
 }
 
 .lstfile_item_leader1 {
-    background-image: url("images/leader1.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/leader1.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .lstfile_item_branch,
 .lstfile_item_branch0_0 {
-    width: 4px;
-    height:0px;
-    background-repeat: no-repeat;
-    background-position:center;
-    margin-right:2px;
+	width: 4px;
+	height:0px;
+	background-repeat: no-repeat;
+	background-position:center;
+	margin-right:2px;
 }
 
 .lstfile_item_marker,
 .lstfile_item_marker_0, .lstfile_item_marker_4 {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .lstfile_item_marker_4 {
-    background-image: url("images/mark.png");
-    background-repeat: no-repeat;
-    background-position:center;
+	background-image: url("images/mark.png");
+	background-repeat: no-repeat;
+	background-position:center;
 }
 
 .lstfile_item_icon {
-    width: 16px;
-    height:16px;
-    margin-right:2px;
+	width: 16px;
+	height:16px;
+	margin-right:2px;
 }
 
 .lstfile_item_label {
-    height: 16px;
-    line-height: 16px;
-    cursor: default;
-    text-overflow:ellipsis;
-    overflow: hidden;
+	height: 16px;
+	line-height: 16px;
+	cursor: default;
+	text-overflow:ellipsis;
+	overflow: hidden;
 }
 
 .insertimage {
@@ -1955,21 +1956,21 @@
 .localfile_16,
 .webfile_16,
 .libraryfile_16{
-    visibility: hidden;
+	visibility: hidden;
 }
 /******** End insert Image Dialog ****************/
 
 /* Help style */
 .helpwin {
-    border: 2px solid #EEEEEE;
-    background-color: #F1F1FA;
-    -moz-border-radius:9px;
-    -webkit-border-radius:9px;
+	border: 2px solid #EEEEEE;
+	background-color: #F1F1FA;
+	-moz-border-radius:9px;
+	-webkit-border-radius:9px;
 }
 
 .helpwin_client {
-    border: 0px;
-    background-color: #FFFFFF;
-    overflow: hidden;
-    padding: 0px 0px 0px 5px;
+	border: 0px;
+	background-color: #FFFFFF;
+	overflow: hidden;
+	padding: 0px 0px 0px 5px;
 }

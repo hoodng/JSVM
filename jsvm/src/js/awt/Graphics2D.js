@@ -1,33 +1,8 @@
 /**
 
- Copyright 2010-2011, The JSVM Project. 
- All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without modification, 
- are permitted provided that the following conditions are met:
- 
- 1. Redistributions of source code must retain the above copyright notice, 
- this list of conditions and the following disclaimer.
- 
- 2. Redistributions in binary form must reproduce the above copyright notice, 
- this list of conditions and the following disclaimer in the 
- documentation and/or other materials provided with the distribution.
- 
- 3. Neither the name of the JSVM nor the names of its contributors may be 
- used to endorse or promote products derived from this software 
- without specific prior written permission.
- 
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, 
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, 
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE 
- OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED 
- OF THE POSSIBILITY OF SUCH DAMAGE.
-
+  Copyright 2010-2011, The JSVM Project. 
+  All rights reserved.
+  
  *
  * Author: Hu Dong
  * Contact: jsvm.prj@gmail.com
@@ -267,7 +242,6 @@ js.awt.Graphics2D = function(def, Runtime, view){
         }
     };
     
-
     var _onmouseevents = function(e){
         var eType = e.getType(), ele;
 
@@ -284,40 +258,43 @@ js.awt.Graphics2D = function(def, Runtime, view){
             
             XY = this.curLayer().relative(e.eventXY());
             shape = this.detectShape(XY.x, XY.y);
-
+            
             if(!shape){
                 if(U.curShape){
                     e.setType("mouseout");
-                    e.fromElement = e.srcElement = e._target = U.curShape;
+                    e.fromElement = e._target = U.curShape;
+                    e.trigger = this;
                     U.curShape.fireEvent(e, bubble);
                     U.curShape = undefined;
                 }
 
-                this.fireEvent(e, bubble);
-
             }else if(shape !== U.curShape){
                 if(U.curShape){
                     e.setType("mouseout");
-                    e.fromElement = e.srcElement = e._target = U.curShape;
+                    e.fromElement = e._target = U.curShape;
                     e.toElement = shape;
+                    e.trigger = this;
                     U.curShape.fireEvent(e, bubble);
                 }
 
                 if(e._default === true){
-                    e.toElement = e.srcElement = e._target = shape;
+                    e.toElement = e._target = shape;
                     e.fromElement = U.curShape;
                     e.setType("mouseover");
+                    e.trigger = this;
                     shape.fireEvent(e, bubble);
 
                     if(eType !== "mouseover"){
                         e.setType(eType);
+                        e.trigger = this;
                         shape.fireEvent(e, bubble);
                     }
                 }
 
                 U.curShape = shape;
             }else{
-                e.srcElement = e._target = shape;
+                e._target = shape;
+                e.trigger = this;
                 shape.fireEvent(e, bubble);
             }
         }
@@ -347,7 +324,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
         for(var i=0, len=arguments.length; i<len; i++){
             eType = arguments[i];
             if(!U.events[eType]){
-                Event.attachEvent(this.view, eType, 0, this, _onmouseevents);
+                this.attachEvent(eType, 4, this, _onmouseevents);
                 U.events[eType] = true;
             }
         }

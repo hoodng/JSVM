@@ -171,12 +171,22 @@ js.lang.System = function (env, vm){
     };
 
     var _last = 0;
-    this.updateLastAccessTime = function(){
+    this.updateLastAccessTime = function(e){
         var now = this.currentTimeMillis();
-        if(self.parent !== self && now - _last > 1000){
-            _last = now;
+        if(now - _last < 1000) return;
+
+        _last = now;
+        // Notify all iframes to keep activate
+        var frames = self.frames || [];
+        for(var i=0, len=frames.length; i<len; i++){
+            J$VM.MQ.post("j$vm_activating", null, [], frames[i]);
+        }
+
+        // Notify parent window to keep activate
+        if(self.parent !== self){
             J$VM.MQ.post("j$vm_activating", null, [], self.parent);
         }
+        
         lastAccessTime = this.currentTimeMillis();
     };
 

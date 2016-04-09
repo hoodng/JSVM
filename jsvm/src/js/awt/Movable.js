@@ -142,8 +142,23 @@ js.awt.Movable = function (){
             event: e,
             ox: bounds.x,
             oy: bounds.y,
-            oz: moveObj.getZ()
+            oz: moveObj.getZ(),
+            stage: 0
         };
+        
+        if(p.scrollLeft > 0  || p.scrollTop > 0){
+            if(p.scrollLeft == p.scrollWidth - p.clientWidth ||
+               p.scrollTop == p.scrollHeight - p.clientHeight){
+                // For the case the container's scroll bar was moved to the end,
+                // the moving maybe cause scrollTop or scrollLeft were changed follow
+                // scroll size. We put a scroll size keeper and remove it when moving end. 
+                var keeper = ctx.keeper = DOM.createElement("DIV");
+                keeper.style.cssText = "position:absolute;width:1px;height:1px;";
+                keeper.style.left = (p.scrollWidth - 1)+"px";
+                keeper.style.top = (p.scrollHeight - 5)+"px";
+                p.appendChild(keeper);
+            }
+        }
 
         moveObj._moveCtx = ctx;
         moveObj.setZ(DOM.getMaxZIndex(document.body)+1);
@@ -153,7 +168,7 @@ js.awt.Movable = function (){
         }
         
         MQ.register("releaseMoveObject", this, _release);
-
+        this._moving = true;
         this.fireEvent(new Event(
             CLASS.EVT_MOVE_START, ctx.data, this), true);        
     };
@@ -191,6 +206,7 @@ js.awt.Movable = function (){
         }
 
         data.event = e;
+        data.stage = 1;
         if(ctx.moved){
             this.fireEvent(new Event(
                 CLASS.EVT_MOVING, data, this), true);
@@ -210,7 +226,14 @@ js.awt.Movable = function (){
             data = ctx.data, changed;
 
         data.event = e;
+        data.stage = 2;
 
+        if(ctx.keeper){
+            // If has scroll size keeper then remove it.
+            DOM.remove(ctx.keeper);
+            ctx.keeper = null;
+        }
+        
         moveObj.setZ(data.oz);
         
         moveObj.showMoveCover(false);
@@ -221,12 +244,14 @@ js.awt.Movable = function (){
             data.ny = y;
             moveObj.setPosition(x, y, 0x0F);
         }
-
+        
+        this._moving = false;
         this.fireEvent(new Event(
             CLASS.EVT_MOVE_END, data, this), true);
         
         // Notify all drop targets
         recvs.unshift(moveObj.getMovingPeer().uuid());
+        e.setData(data);
         e.setEventTarget(moveObj);
         MQ.post(moveObj.getMovingMsgType(), e, recvs);
 
@@ -249,7 +274,7 @@ js.awt.Movable = function (){
      * @return boolean
      * 
      */
-    thi$.isMoverSpot = function(){
+    thi$.isMoverSpot = function(ele, x, y){
         return (this._moveTarget && this._moveTarget.isMovable());
     };
 

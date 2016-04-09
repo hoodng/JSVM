@@ -848,17 +848,19 @@ js.awt.Tree = function(def, Runtime, dataProvider){
      * @see js.awt.Movable
      */
     thi$.getMoveObject = function(e){
-        var moveObj = this.moveObj;
+        var moveObj = this.moveObj, item, iidef, mdef, mClz,
+            absXY, size, bounds, state;
         if(!moveObj){
-            var el = e.srcElement, uuid = el.uuid, item = this.cache[uuid],
-            iidef = item.def, mdef, mClz, absXY = e.eventXY();
+            absXY = e.eventXY();
 
+            item = this.cache[e.srcElement.uuid];
+            iidef = item.def;
             if(iidef.isExecute == false){
                 return null;
             }
 
             if(this.selected.length == 0){
-                var state = new js.awt.State(this.getState());
+                state = new js.awt.State(this.getState());
                 state.setHover(false);
                 state.setTriggered(true);
                 item.setState(state.getState());
@@ -872,11 +874,14 @@ js.awt.Tree = function(def, Runtime, dataProvider){
                 mClz = Class.forName(mClz);
             }
             mClz = mClz || js.awt.TreeMoveObject;
-            moveObj = this.moveObj = new mClz(mdef, this.Runtime(), this);
+            moveObj = this.moveObj
+                = new mClz(mdef, this.Runtime(), this);
             moveObj.setMovingPeer(this);
             moveObj.appendTo(document.body);
-
-            moveObj.setPosition(absXY.x+8, absXY.y+8, 4);
+            
+            size = moveObj.getPreferredSize();
+            moveObj.setBounds(absXY.x + 8, absXY.y + 8,
+                              size.width, size.height, 4);
         }
 
         return moveObj;
@@ -1234,6 +1239,11 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         this.notifyPeer(this.msgType(), e);
     };
 
+    thi$.spotIndex = function(ele){
+        var item = ele ? this.cache[ele.uuid] : null;
+        return (item && item.canDrag()) ? item.spotIndex(ele) : -1;
+    };
+
     thi$._init = function(def, Runtime, dataProvider){
         if(def == undefined) return;
 
@@ -1242,7 +1252,7 @@ js.awt.Tree = function(def, Runtime, dataProvider){
         def.stateless = true;
 
         def.mover = def.mover || {};
-        def.mover.longpress = def.mover.longpress || 90;
+        def.mover.longpress = def.mover.longpress || 10;
         def.multiEnable = (def.multiEnable === true);
 
         // Call base _init
@@ -1384,22 +1394,26 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
     }.$override(this.releaseMoveObject);
 
     thi$.getPreferredSize = function(nocache){
-        var ret = this.def.prefSize, d, w = 0, ch, h = 0;
+        var ret = this.def.prefSize, ele, d,
+            w = 0, h = 0, ch = 0;
         if(nocache === true || !ret){
             d = this.getBounds();
             w += d.MBP.BPW;
             h += d.MBP.BPH;
 
-            d = DOM.getBounds(this.icon);
-            w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
-            ch = d.height;
+            ele = this.icon;
+            if(ele){
+                d = DOM.getBounds(ele);
+                w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
+                ch = d.height;
+            }
 
-            d = DOM.getBounds(this.label);
+            ele = this.label;
+            d = DOM.getBounds(ele);
             w += d.width + d.MBP.marginLeft + d.MBP.marginRight;
             h += Math.max(ch, d.height);
 
-            this.setPreferredSize(w, h);
-            ret = this.def.prefSize;
+            ret = {width: w, height: h};
         }
 
         return ret;
@@ -1444,7 +1458,7 @@ js.awt.TreeMoveObject = function(def, Runtime, tree){
         }else{
             def.className = DOM.combineClassName(treeClazz, "moveobj1");
         }
-
+        
         def.css = "position:absolute;";
         def.stateless = true;
 
