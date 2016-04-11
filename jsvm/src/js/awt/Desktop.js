@@ -40,15 +40,35 @@ js.awt.Desktop = function (Runtime){
         MQ.post("js.awt.event.KeyEvent", e);
     };
 
-    var drags = {}, lasts ={}, tm;
+    var drags = {}, lasts = {}, curtargets= {};
 
     // @link js.awt.Element#checkCaptures
     var _onTargetMousemove = function(target, e){
-        var b = target.checkCaptures(e);
+        var b = target ? target.checkCaptures(e) : false;
         if(b) {
             e.cancelBubble();
         }else{
-            target.fireEvent(e, true);
+            var t = curtargets[e.pointerId], eType = e.getType();
+            if(t !== target){
+                if(t){
+                    e.setType("mouseout");
+                    e.setEventTarget(t);
+                    t.fireEvent(e, true);
+                }
+
+                if(target){
+                    e.setType("mouseover");
+                    e.setEventTarget(target);
+                    target.fireEvent(e, true);
+                    curtargets[e.pointerId] = target;
+                }
+            }
+
+            if(target){
+                e.setType(eType);
+                e.setEventTarget(target);
+                target.fireEvent(e, true);
+            }
         }
     };
     
@@ -78,7 +98,7 @@ js.awt.Desktop = function (Runtime){
         target = e.getEventTarget();
         XY = e.eventXY();
         if(!drag){
-            if(target && target !== this){
+            if(target !== this){
                 _onTargetMousemove.call(this, target, e);
             }
             
@@ -167,6 +187,17 @@ js.awt.Desktop = function (Runtime){
         target = e.getEventTarget();
         drag = drags[e.pointerId];
         if(!drag){
+            var t = curtargets[e.pointerId];
+            if(t && t !== target){
+                e.setType("mouseout");
+                e.setEventTarget(t);
+                t.fireEvent(e, true);
+                curtargets[e.pointerId] = null;
+                
+                e.setType("mouseover");
+                e.setEventTarget(target);
+            }
+            
             if(target && target !== this){
                 target.fireEvent(e, true);
             }
@@ -207,6 +238,7 @@ js.awt.Desktop = function (Runtime){
                     target.activate(e);
                 }
             }
+
             target.fireEvent(e, true);
 
             if(e.button === 1
@@ -215,7 +247,7 @@ js.awt.Desktop = function (Runtime){
 
                 target = target.isMoverSpot(ele, xy.x, xy.y) ?
                     target.getMoveTarget() : target;
-                
+
                 spot = target.spotIndex(ele, xy);
                 if(spot >=0){
                     fireDrag.call(this, e.pointerId, {

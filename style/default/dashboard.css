@@ -498,20 +498,20 @@ body {
     overflow: hidden;
 }
 
-.msg_icon {
+.msgbox_icon {
     position:absolute;
     width: 32px;
     height:32px;
 }
 
-.msg_subject {
+.msgbox_subject {
     position:absolute;
     font-weight:bold;
     left: 38px;
     cursor:default;
 }
 
-.msg_content {
+.msgbox_content {
     position:absolute;
     top: 38px;
     left: 38px;
@@ -523,12 +523,24 @@ body {
 .message,
 .jsvmconfirm,
 .closeconfirm {
-    border:1px solid #e6e6e6;
-    background-color:#FFFFFF;
+    border: 1px solid #e6e6e6;
+    background-color: #FFFFFF;
     -moz-border-radius: 5px;
     -khtml-border-radius: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
+}
+
+.message_title {
+    height: 22px;
+    background-color: #EEEEEE;
+    border-bottom: 1px solid #e6e6e6;
+    padding: 0px 2px 0px 6px;
+}
+
+.message_title_label {
+    color: #666666;
+    font-weight: bold;
 }
 
 .message_client {

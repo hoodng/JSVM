@@ -127,20 +127,20 @@
     overflow: hidden;
 }
 
-.msg_icon {
+.msgbox_icon {
     position:absolute;
     width: 32px;
     height:32px;
 }
 
-.msg_subject {
+.msgbox_subject {
     position:absolute;
     font-weight:bold;
     left: 38px;
     cursor:default;
 }
 
-.msg_content {
+.msgbox_content {
     position:absolute;
     top: 38px;
     left: 38px;
@@ -149,9 +149,9 @@
     background-color: transparent;
 }
 
-.message, .message_2,
-.jsvmconfirm, .jsvmconfirm_2,
-.closeconfirm, .closeconfirm_2 {
+.message,
+.jsvmconfirm,
+.closeconfirm {
     border:1px solid #e6e6e6;
     background-color:#FFFFFF;
 
@@ -280,7 +280,7 @@
 }
 
 .wrptToolbar_toolbarMode {
-    width: 110px;
+    width: 80px;
     padding-left: 5px;
     padding-right: 10px;
     float: right;
@@ -292,6 +292,11 @@
 
 .wrptToolbar_toolbarExit {
     float: right;
+}
+
+.wrptModeMenu {
+	width: 80px;
+    border-color: #E6E6E6;
 }
 
 /** For workspace **/

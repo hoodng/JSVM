@@ -2081,6 +2081,19 @@ js.util.Document = function (){
         return ret;
     };
 
+    thi$.getEventTarget = function(ele, XY){
+        var comp = this.getComponent(ele), ret = comp;
+        if(comp && comp.G2D){
+            var layer = comp.G2D.curLayer(), xy, shape;
+            if(layer){
+                xy = layer.relative(XY);
+                shape = comp.G2D.detectShape(xy.x, xy.y);
+            }
+            ret = shape || layer || comp;
+        }
+        return ret;
+    };
+
     thi$.getComponent = function(ele, create, def, Runtime){
         var obj = null, uuid, idx, parent, peer;
         if(!ele || ele === self || ele === self.document) return obj;

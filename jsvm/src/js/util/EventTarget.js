@@ -110,60 +110,69 @@ js.util.EventTarget = function (def, Runtime){
     thi$.declareEvent = function(eventType){
         this["on"+eventType] = null;
     };
-    
-    /**
-     * The method allows the event target fire event to the event listeners 
-     * synchronously. That says, this method will be blocked till to all 
-     * listeners were invoked.
-     * 
-     * @param evt <code>js.util.Event</code> instance
-     * 
-     * @see dispatchEvent(evt);
-     */
-    thi$.fireEvent = function(evt, bubble){
-        var eType, handlers;
 
-        if(!(evt instanceof Event)){
-            throw "The evt must be an js.awt.Event object."
-        }
+	/**
+	 * Judge whether the specified event is preclusive to fire while the
+	 * current event target is covered.
+	 *
+	 * @param {js.util.Event} e
+	 */
+	thi$.isPreclusiveEvent = function(e){
+		var type = e.getType();
+		return PreclusiveMouseKeyEvents[type.toLowerCase()];
+	};
+	
+	/**
+	 * The method allows the event target fire event to the event listeners 
+	 * synchronously. That says, this method will be blocked till to all 
+	 * listeners were invoked.
+	 * 
+	 * @param evt <code>js.util.Event</code> instance
+	 * 
+	 * @see dispatchEvent(evt);
+	 */
+	thi$.fireEvent = function(evt, bubble){
+		var eType, handlers;
 
-        eType = evt.getType();
+		if(!(evt instanceof Event)){
+			throw "The evt must be an js.awt.Event object.";
+		}
 
-        // If the current component is covered, it shouldn't reponse to
-        // the native mouse and key events.
-        if(evt.trigger !== this &&
-           (!Class.isFunction(this.isCovered) ||
-            !this.isCovered() ||
-        !PreclusiveMouseKeyEvents[eType.toLowerCase()])){
-            handlers = this["on" + eType];
+		eType = evt.getType();
 
-            switch(Class.typeOf(handlers)){
-                case "function":
-                handlers.call(this, evt);
-                break;
-                case "array":
-                for(var i=0, len=handlers.length; i<len; i++){
-                    handlers[i].call(this, evt);
-                }
-                break;
-                default:
-                break;
-            }
-        }
+		// If the current component is covered, it shouldn't reponse to
+		// the native mouse and key events.
+		if(!Class.isFunction(this.isCovered) ||
+        !this.isCovered() || !this.isPreclusiveEvent(evt)){
+			handlers = this["on" + eType];
 
-        // Bubble event
-        if(bubble === true && evt._bubble === true){
-            var src = this.view || evt.srcElement, target;
-            do {
-                src = src ? src.parentNode : null;
-                target = src ? J$VM.DOM.getComponent(src) : null;
-            } while (target && target === this);
+			switch(Class.typeOf(handlers)){
+			    case "function":
+				handlers.call(this, evt);
+				break;
+			    case "array":
+				for(var i=0, len=handlers.length; i<len; i++){
+					handlers[i].call(this, evt);
+				}
+				break;
+			    default:
+				break;
+			}
+		}
 
-            if(target && target.fireEvent){
-                target.fireEvent(evt, bubble);
-            }
-        }
-    };
+		// Bubble event
+		if(bubble === true && evt._bubble === true){
+			var src = this.view || evt.srcElement, target;
+			do {
+				src = src ? src.parentNode : null;
+				target = src ? J$VM.DOM.getComponent(src) : null;
+			} while (target && target === this);
+
+			if(target && target.fireEvent){
+				target.fireEvent(evt, bubble);
+			}
+		}
+	};
 
     thi$.canCapture = function(){
         var cap = this.def ? this.def.capture : false, parent;

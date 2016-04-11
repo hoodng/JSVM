@@ -242,66 +242,6 @@ js.awt.Graphics2D = function(def, Runtime, view){
         }
     };
     
-    var _onmouseevents = function(e){
-        var eType = e.getType(), ele;
-
-        if(eType === "mouseover"){
-            ele = e.toElement;
-        }else if(eType === "mouseout"){
-            ele = e.fromElement;
-        }else{
-            ele = e.srcElement;
-        }
-        
-        var U = this._local, XY, shape, bubble = true;
-        if(this.contains(ele, true) || ele === this._coverView){
-            
-            XY = this.curLayer().relative(e.eventXY());
-            shape = this.detectShape(XY.x, XY.y);
-            
-            if(!shape){
-                if(U.curShape){
-                    e.setType("mouseout");
-                    e.fromElement = e._target = U.curShape;
-                    e.trigger = this;
-                    U.curShape.fireEvent(e, bubble);
-                    U.curShape = undefined;
-                }
-
-            }else if(shape !== U.curShape){
-                if(U.curShape){
-                    e.setType("mouseout");
-                    e.fromElement = e._target = U.curShape;
-                    e.toElement = shape;
-                    e.trigger = this;
-                    U.curShape.fireEvent(e, bubble);
-                }
-
-                if(e._default === true){
-                    e.toElement = e._target = shape;
-                    e.fromElement = U.curShape;
-                    e.setType("mouseover");
-                    e.trigger = this;
-                    shape.fireEvent(e, bubble);
-
-                    if(eType !== "mouseover"){
-                        e.setType(eType);
-                        e.trigger = this;
-                        shape.fireEvent(e, bubble);
-                    }
-                }
-
-                U.curShape = shape;
-            }else{
-                e._target = shape;
-                e.trigger = this;
-                shape.fireEvent(e, bubble);
-            }
-        }
-
-        return true;
-    };
-
     thi$.detectShape = function(x, y){
         var items = this.items(), i, len, layer, shape, shapes = [];
 
@@ -320,14 +260,7 @@ js.awt.Graphics2D = function(def, Runtime, view){
     }.$override(this.classType);
 
     thi$.checkAttachEvent = function(eTypes){
-        var U = this._local, eType;
-        for(var i=0, len=arguments.length; i<len; i++){
-            eType = arguments[i];
-            if(!U.events[eType]){
-                this.attachEvent(eType, 4, this, _onmouseevents);
-                U.events[eType] = true;
-            }
-        }
+        // 
     };
 
     var CANVAS_MAX = "8192";
@@ -439,11 +372,8 @@ js.awt.Graphics2D = function(def, Runtime, view){
      * Override destroy method of js.lang.Object
      */
     thi$.destroy = function(){
-        var events = this._local.events;
-        for(var eType in events){
-            Event.detachEvent(this.view, eType, 0, this, _onmouseevents);
-        }
-
+        //
+        
         $super(this);
 
     }.$override(this.destroy);
@@ -461,7 +391,6 @@ js.awt.Graphics2D = function(def, Runtime, view){
         $super(this);
 
         var U = this._local;
-        U.events = {};
         U.curShape = undefined;
         U.scroll = {Xw: 0, Yw: 0 };
 

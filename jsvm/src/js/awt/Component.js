@@ -208,7 +208,7 @@ js.awt.Component = function(def, Runtime, view){
      */
     thi$.openConfirm = function(className, rect, def, handler){
         def = def || {};
-        def.className = def.className || "msgbox";
+        def.className = def.className || "jmsgbox msgbox $jmsgbox $msgbox";
         def.stateless = true;
         def.model = def.model || {};
         def.model.msgType = def.model.msgType || "confirm";
@@ -426,7 +426,7 @@ js.awt.Component = function(def, Runtime, view){
     };
 
     thi$.invalidateBounds = function(){
-        J$VM.System.err.println('The "invalidateBounds" has been discarded.');
+        J$VM.System.out.println('The "invalidateBounds" has been discarded.');
     };
 
     /**

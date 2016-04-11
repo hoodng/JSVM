@@ -606,6 +606,27 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         obound.absY = bound.absY;
     };
 
+    thi$.getMoveObject = function(e){
+        var moveObj = this.moveObj, XY = e.eventXY(),
+            uuid = [this.uuid(),"-mapmover"].join("");
+        if(!moveObj){
+            moveObj = this.moveObj = new js.awt.Component({
+                id: uuid,
+                uuid: uuid,
+                css: "position:absolute;",
+                mover:{
+                    bt: 0, br: 0, bb: 0, bl: 0
+                }
+            }, this.Runtime());
+            moveObj.setMovingPeer(this);
+        }
+        
+        moveObj.appendTo(document.body);
+        moveObj.setPosition(XY.x, XY.y, 0x04);
+
+        return moveObj;
+    };
+
     thi$._init = function(def, Runtime){
         if(typeof def !== "object") return;
 
@@ -619,7 +640,8 @@ org.jsvm.map.TileMapRender = function(def, Runtime){
         this.count = 0;
         this._local.obound = {absX: 0, absY: 0};
         MQ.register(Event.SYS_EVT_RESIZING, this, _onsizing);
-
+        this.setMovable(true);
+        
     }.$override(this._init);
     
     this._init.apply(this, arguments);

@@ -272,7 +272,7 @@ js.util.Event = function (eventType, eventData, eventTarget){
     $.W3C_EVT_MOUSE_OVER    = "mouseover";
     $.W3C_EVT_MOUSE_OUT     = "mouseout";    
     $.W3C_EVT_MOUSE_CLICK   = "click";
-    $.W3C_EVT_MOUSE_DBCLICK = "dbclick";
+    $.W3C_EVT_MOUSE_DBCLICK = "dblclick";
     $.W3C_EVT_MOUSE_WHEEL   = "mousewheel";
 
     $.W3C_EVT_DRAGSTART     = "dragstart";

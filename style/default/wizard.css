@@ -161,14 +161,16 @@ input, textarea {
     border: 0px;
 }
 
-.wizard_optionbutton_cover {
-    filter: alpha(Opacity = 50);
-    -moz-opacity: 0.5;
-    opacity: 0.5;
+.wizard_optionbutton_cover,
+.wizard_optionbutton_icon_cover {
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
     background: #FFFFFF;
 }
 
-.wizard_optionbutton_cover--disable {
+.wizard_optionbutton_cover--disable,
+.wizard_optionbutton_icon_cover--disable {
     filter: alpha(Opacity = 0);
     -moz-opacity: 0;
     opacity: 0;

@@ -239,7 +239,7 @@ js.lang.Runtime = function(System){
      */
     thi$.message = function(type, subject, content, title, rect, handler){
         var msgbox = {
-            className: "msgbox",
+            className: "jmsgbox msgbox $jmsgbox $msgbox",
             model:{
                 msgType: type,
                 title: title || "",

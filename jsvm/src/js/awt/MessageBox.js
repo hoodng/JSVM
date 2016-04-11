@@ -26,7 +26,6 @@ $import("js.awt.Dialog");
  * }
  */
 js.awt.MessageBox = function(def, Runtime){
-
 	var CLASS = js.awt.MessageBox, thi$ = CLASS.prototype;
 	if(CLASS.__defined__){
 		this._init.apply(this, arguments);
@@ -35,13 +34,13 @@ js.awt.MessageBox = function(def, Runtime){
 	CLASS.__defined__ = true;
 
 	var Class = js.lang.Class, Event = js.util.Event, DOM = J$VM.DOM,
-	System = J$VM.System, MQ = J$VM.MQ, Str = js.lang.String,
-	icons = {
-		info : "info.gif",
-		warn : "alert.gif",
-		error : "error.gif",
-		confirm : "confirm.gif"
-	};
+		System = J$VM.System, MQ = J$VM.MQ, Str = js.lang.String,
+		icons = {
+			info : "info.gif",
+			warn : "alert.gif",
+			error : "error.gif",
+			confirm : "confirm.gif"
+		};
 
 	/**
 	 * The data feedback to dialog opener.
@@ -58,7 +57,7 @@ js.awt.MessageBox = function(def, Runtime){
 	thi$.doLayout = function(force){
 		if($super(this)){
 			var bounds = this.getBounds(), icon = this.icon, 
-			label = this.label, text = this.text, h, top;
+				label = this.label, text = this.text, h, top;
 			
 			if(label){
 				DOM.setSize(label,
@@ -87,41 +86,44 @@ js.awt.MessageBox = function(def, Runtime){
 		var m = this.def.model, title = m.title, R = this.Runtime();
 		if(!title){
 			switch(m.msgType){
-			    case CLASS.INFO:
+			case CLASS.INFO:
 				title = R.nlsText("msgDlgInfoTitle", "Information");
 				break;
-			    case CLASS.WARN:
+			case CLASS.WARN:
 				title = R.nlsText("msgDlgWarnTitle", "Warning");
 				break;
-			    case CLASS.ERROR:
+			case CLASS.ERROR:
 				title = R.nlsText("msgDlgErrTitle", "Error");
 				break;
-			    case CLASS.CONFIRM:
-                title = R.nlsText("msgDlgConfirmTitle", "Confirm");
-                break;
-            }
+			case CLASS.CONFIRM:
+				title = R.nlsText("msgDlgConfirmTitle", "Confirm");
+				break;
+			}
 		}
 		this.setTitle(title || "");
 
 	}.$override(this.initialize);
 
 	var _createElements = function(model){
-		var icon, label, text, R = this.Runtime();
+		var R = this.Runtime(), icon, label, text, styleClass;
 
 		icon = this.icon = DOM.createElement("IMG");
-        DOM.setClassName(icon, "msg_icon");
+		styleClass = DOM.combineClassName(this.className, "icon");
+		DOM.setClassName(icon, styleClass);
 		icon.src = R.imagePath() + icons[model.msgType];
 		this.view.appendChild(icon);
 
 		if(model.msgSubject){
 			label = this.label = DOM.createElement("SPAN");
-            DOM.setClassName(label, "msg_subject");
+			styleClass = DOM.combineClassName(this.className, "subject");
+			DOM.setClassName(label, styleClass);
 			label.innerHTML = model.msgSubject;
 			this.view.appendChild(label);
 		}
 
 		text = this.text = DOM.createElement("TEXTAREA");
-        DOM.setClassName(text, "msg_content");
+		styleClass = DOM.combineClassName(this.className, "content");
+		DOM.setClassName(text, styleClass);
 		text.readOnly = "true";
 		text.innerHTML = model.msgContent || "";
 		this.view.appendChild(text);
@@ -149,10 +151,10 @@ js.awt.MessageBox = function(def, Runtime){
 }.$extend(js.awt.Component).$implements(js.awt.DialogObject);
 
 (function(){
-    var CLASS = js.awt.MessageBox;
-    CLASS.INFO = "info";
-    CLASS.WARN = "warn";
-    CLASS.ERROR= "error";
-    CLASS.CONFIRM = "confirm";
+	var CLASS = js.awt.MessageBox;
+	CLASS.INFO = "info";
+	CLASS.WARN = "warn";
+	CLASS.ERROR= "error";
+	CLASS.CONFIRM = "confirm";
 })();
 

@@ -271,7 +271,16 @@ js.swt.List = function(def, runtime){
 	
 	// {dname: xxx, value: xxx}
 	var _createItemDef = function (model) {
-		var itemDef = {
+		var itemDef,
+			//for add split between items.
+			splitDef = {
+				classType: "js.awt.Component",
+				rigid_w: false, rigid_h: true,
+				type: "split",
+				css: model.css
+			};
+
+		itemDef = model.split ? splitDef : {
 			markable: this.multiByCheck,
 			showTips: this.showTips,
 			toggle: false,
@@ -295,7 +304,22 @@ js.swt.List = function(def, runtime){
 			
 			return null;
 		}
-		
+
+		//for add split between items.
+		if(itemDef.type === "split"){
+			if(!itemDef.css)
+			{
+				itemDef.css = "background-color:rgb(204, 204, 204);height:1px;"
+							+"padding:0px;border:0px;margin:0px;";
+			}
+			itemDef.className = "jsvm_list_splitItem";
+
+			var item = new (Class.forName(itemDef.classType))(itemDef, this.Runtime());
+			DOM.appendTo(item.view, this.listView);
+
+			return;
+		}
+
 		var M = this.def, itemClassName = M.itemClassName;
 		if(!itemDef.className){
 			if(itemClassName){

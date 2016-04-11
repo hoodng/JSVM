@@ -428,7 +428,8 @@ js.awt.Container = function (def, Runtime, view){
 	 * }
 	 */
 	thi$._addComps = function(def){
-		var comps = def.items, R = this.Runtime(),
+		var comps = def.items,
+            R = (this instanceof js.awt.Graphics2D) ? this : this.Runtime(),
 			oriComps = this._local.items, view = this.view,
 			absLayout = this.layout instanceof js.awt.AbsoluteLayout;
 		

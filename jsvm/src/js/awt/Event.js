@@ -158,7 +158,8 @@ js.awt.Event = function(e){
             (isOut(_e.type) ? _e.relatedTarget :
              (isOver(_e.type) ? _e.target : undefined));
 
-        this.setEventTarget(DOM.getComponent(this.srcElement));
+        this.setEventTarget(DOM.getEventTarget(
+            this.srcElement, this.eventXY()));
         
     }.$override(this._init);
 

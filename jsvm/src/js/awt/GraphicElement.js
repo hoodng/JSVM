@@ -239,17 +239,6 @@ js.awt.GraphicElement = function(def, Graphics2D, Renderder){
         return this.def.clip;
     };
 
-    thi$.attachEvent = function(eType, flag, listener, handler){
-        var G2D = this.getGraphic();
-        
-        if(G2D){
-            G2D.checkAttachEvent(eType);
-        }
-
-        $super(this);
-        
-    }.$override(this.attachEvent);
-
     thi$.fireEvent = function(e, bubble){
         var type = e.getType();
 

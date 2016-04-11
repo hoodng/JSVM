@@ -2437,3 +2437,98 @@
     border-right-color: transparent;
 }
 /********* End For Separator Line *********/
+
+/*********** For MessageBox ***********/
+.jmessage {
+    border:1px solid #e6e6e6;
+    background-color:#FFFFFF;
+    -moz-border-radius: 5px;
+    -khtml-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.jmessage_title {
+    height: 22px;
+    background-color: #EEEEEE;
+    border-bottom: 1px solid #e6e6e6;
+    padding: 0px 2px 0px 6px;
+}
+
+.jmessage_title_16{
+    visibility: hidden;
+}
+
+.jmessage_title_label {
+    color: #666666;
+    font-weight: bold;
+}
+
+.jmessage_title_button {
+    width: 18px;
+    height:18px;
+}
+
+.jmessage_title_button_16,
+.jmessage_title_button_20{
+    visibility: hidden;
+}
+
+.jmessage_title_button_cover--disable {
+    filter: alpha(Opacity = 0);
+    -moz-opacity: 0;
+    opacity: 0;
+    background-color: #F5F4EA;
+}
+
+.jmessage_title_button_icon {
+    width: 16px;
+    height:16px;
+}
+
+.jmessage_client {
+    border-width: 4px 12px 12px 12px;
+    border-style: solid;
+    border-color: transparent;
+    overflow : auto;
+}
+
+.jmessage_btnpane {
+    height : 34px;
+    padding: 0px 12px 12px 12px;
+}
+
+.jmessage_cover--mask {
+    filter: alpha(Opacity = 30);
+    -moz-opacity: 0.3;
+    opacity: 0.3;
+    background-color: #000000;
+}
+
+.jmsgbox {
+    overflow: hidden;
+}
+
+.jmsgbox_icon {
+    position:absolute;
+    width: 32px;
+    height:32px;
+}
+
+.jmsgbox_subject {
+    position:absolute;
+    font-weight:bold;
+    left: 38px;
+    cursor:default;
+}
+
+.jmsgbox_content {
+    position:absolute;
+    top: 38px;
+    left: 38px;
+    border:0px none;
+    overflow: auto;
+    background-color: transparent;
+}
+
+/********* End For MessageBox *********/
